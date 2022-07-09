@@ -96,7 +96,7 @@ directory called _custom_environment.sh_ with the following contents:
 
 _n.b. customize as needed if using any packages not built in the EICTOPDIR_
 ~~~
-export EICTOPDIR=/path/to/my/EICrecon
+export EICTOPDIR=/path/to/my/EICTOP
 
 source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
