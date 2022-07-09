@@ -21,29 +21,24 @@ PODIO_ADD_DATAMODEL_CORE_LIB(TestDataModel "${podio_headers}" "${podio_sources}"
 PODIO_ADD_ROOT_IO_DICT(TestDataModelDict TestDataModel "${podio_headers}" src/selection.xml)
 set(PODIO_LIBRARIES TestDataModel TestDataModelDict podio::podioRootIO)
 
+# This is used to automatically run the make_datamodel_glue.py command
+# that generates the datamodel_glue.h file. This is temporary until
+# a better mechanism using PODIO tools is developed.
+add_custom_command(
+        OUTPUT  datamodel_glue.h          # Treated as relative to CMAKE_CURRENT_BINARY_DIR
+        COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+        DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+)
 
-# According to the internet, CMake authors discourage the use
-# of GLOB for identifying source files. IMHO, this is due to
-# the flawed use of cache files in CMake itself. Here, GLOB
-# is used as the default. What this means is you can add source
-# files and re-run cmake (after clearing the cache file) and
-# they will be found without needing to modify this file.
-# You also have the option of switching the following to "false"
-# and managing the source file list manually the way they recommend.
-if(true)
-  # Automatically determine source file list.
-  file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
-  set( jana_podio_PLUGIN_SOURCES ${mysourcefiles} )    
-else()
-  # Manually manage source file list
-  set (jana_podio_PLUGIN_SOURCES
-        jana_podio.cc
-  )
-endif()
+# Automatically determine source file list.
+file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
+set( jana_podio_PLUGIN_SOURCES ${mysourcefiles} datamodel_glue.h )
+
+message(STATUS jana_podio_PLUGIN_SOURCES=${jana_podio_PLUGIN_SOURCES})
 
 add_library(jana_podio_plugin SHARED ${jana_podio_PLUGIN_SOURCES})
 
-target_include_directories(jana_podio_plugin PUBLIC ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${EDM4HEP_INCLUDE_DIR})
+target_include_directories(jana_podio_plugin PUBLIC ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(jana_podio_plugin ${JANA_LIB} ${PODIO_LIBRARIES} ${ROOT_LIBRARIES})
 set_target_properties(jana_podio_plugin PROPERTIES PREFIX "" OUTPUT_NAME "jana_podio" SUFFIX ".so")
 

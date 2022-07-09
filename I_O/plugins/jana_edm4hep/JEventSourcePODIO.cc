@@ -23,33 +23,8 @@
 #include "podio/UserDataCollection.h"
 #include "podio/podioVersion.h"
 
-//#include "datamodel/ExampleClusterCollection.h"
-//#include "datamodel/ExampleHitCollection.h"
-//#include "datamodel/ExampleMCCollection.h"
-
-#include "datamodel/BasicParticleCollection.h"
-#include "datamodel/CalorimeterHitCollection.h"
-#include "datamodel/ClusterCollection.h"
-#include "datamodel/InclusiveKinematicsCollection.h"
-#include "datamodel/MCRecoClusterParticleAssociationCollection.h"
-#include "datamodel/MCRecoParticleAssociationCollection.h"
-#include "datamodel/MCRecoTrackParticleAssociationCollection.h"
-#include "datamodel/MCRecoVertexParticleAssociationCollection.h"
-#include "datamodel/PMTHitCollection.h"
-#include "datamodel/ParticleIDCollection.h"
-#include "datamodel/ProtoClusterCollection.h"
-#include "datamodel/RawCalorimeterHitCollection.h"
-#include "datamodel/RawPMTHitCollection.h"
-#include "datamodel/RawTrackerHitCollection.h"
-#include "datamodel/ReconstructedParticleCollection.h"
-#include "datamodel/RingImageCollection.h"
-#include "datamodel/TrackCollection.h"
-#include "datamodel/TrackParametersCollection.h"
-#include "datamodel/TrackSegmentCollection.h"
-#include "datamodel/TrackerHitCollection.h"
-#include "datamodel/TrajectoryCollection.h"
-#include "datamodel/VertexCollection.h"
-using namespace eicd;
+// This file is generated automatically by make_datamodel_glue.py
+#include "datamodel_glue.h"
 
 // Make this a JANA plugin
 extern "C" {
@@ -121,34 +96,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
     // then copies the pointers into the JEvent so they can easily be used
     // by JANA algorithms. Ownership of the objects still resides with the
     // PODIO store. See the template definition in JEventSourcePODIO.h.
-//    GetPODIOData<eicd::ExampleCluster, ExampleClusterCollection>("clusters"   , event);
-//    GetPODIOData<eicd::ExampleHit,     ExampleHitCollection    >("hits"       , event);
-//    GetPODIOData<eicd::ExampleMC,      ExampleMCCollection     >("mcparticles", event);
-
-    GetPODIOData<BasicParticle,  BasicParticleCollection>("basicParticles", event);
-    GetPODIOData<CalorimeterHit,  CalorimeterHitCollection>("calorimeterHits", event);
-    GetPODIOData<Cluster,  ClusterCollection>("clusters", event);
-    GetPODIOData<InclusiveKinematics,  InclusiveKinematicsCollection>("inclusiveKinematics", event);
-    GetPODIOData<MCRecoClusterParticleAssociation,  MCRecoClusterParticleAssociationCollection>("MCRecoClusterParticleAssociation", event);
-    GetPODIOData<MCRecoParticleAssociation,  MCRecoParticleAssociationCollection>("MCRecoParticleAssociation", event);
-    GetPODIOData<MCRecoTrackParticleAssociation,  MCRecoTrackParticleAssociationCollection>("MCRecoTrackParticleAssociation", event);
-    GetPODIOData<MCRecoVertexParticleAssociation,  MCRecoVertexParticleAssociationCollection>("MCRecoVertexParticleAssociation", event);
-    GetPODIOData<PMTHit,  PMTHitCollection>("PMTHit", event);
-    GetPODIOData<ParticleID,  ParticleIDCollection>("ParticleID", event);
-    GetPODIOData<ProtoCluster,  ProtoClusterCollection>("ProtoCluster", event);
-    GetPODIOData<RawCalorimeterHit,  RawCalorimeterHitCollection>("RawCalorimeter", event);
-    GetPODIOData<RawPMTHit,  RawPMTHitCollection>("RawPMTHit", event);
-    GetPODIOData<RawTrackerHit,  RawTrackerHitCollection>("RawTrackerHit", event);
-    GetPODIOData<ReconstructedParticle,  ReconstructedParticleCollection>("ReconstructedParticle", event);
-    GetPODIOData<RingImage,  RingImageCollection>("RingImage", event);
-    GetPODIOData<Track,  TrackCollection>("Tracks", event);
-    GetPODIOData<TrackParameters,  TrackParametersCollection>("TrackParameters", event);
-    GetPODIOData<TrackSegment,  TrackSegmentCollection>("TrackSegment", event);
-    GetPODIOData<TrackerHit,  TrackerHitCollection>("TrackerHit", event);
-    GetPODIOData<Trajectory,  TrajectoryCollection>("Trajectory", event);
-    GetPODIOData<Vertex,  VertexCollection>("Vertex", event);
-	
-
+    GetAllPODIOData(event, store);
 }
 
 std::string JEventSourcePODIO::GetDescription() {
