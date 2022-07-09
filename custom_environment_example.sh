@@ -10,14 +10,13 @@
 # This is just an example. You should rename this to
 # "custom_environment.sh" and edit it to your specific system.
 
-# Get directrory this script resides in
-#SCRIPT_DIR=`dirname -- "$0"`
-SCRIPT_DIR=`readlink -f $(dirname -- "$0")`
-
 # Setup environment (customize for your system)
-source /Users/davidl/work/2022.07.06.JANA2_DD4hep/venv/bin/activate
-source /Users/davidl/HallD/builds/root/root-6.26.04/bin/thisroot.sh
-source /Users/davidl/work/2022.07.06.JANA2_DD4hep/JANAv2.0.5/bin/jana-this.sh
-export PODIO=${SCRIPT_DIR}/I_O/PODIO_v00-14-03/install
-[ -f ${PODIO}/../env.sh ] && source ${PODIO}/../env.sh
+export EICTOPDIR=/Users/davidl/work/2022.07.09.EICrecon/EICTOP
+
+source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
+source ${EICTOPDIR}/JANA/v2.0.5/bin/jana-this.sh
+export PODIO=${EICTOPDIR}/PODIO/v00-14-03/install
+source ${PODIO}/../env.sh
+export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05/install
+source ${EDM4HEP}/../init.sh
 
