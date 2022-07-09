@@ -57,19 +57,6 @@ make -j8 install
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
-### EICrecon
-The EICrecon repository is where the reconstruction code will be kept. At
-this point, specific versions of EDM4hep and PODIO are placed as 
-submodules to the repository. This means the code for these is checked out
-from their respective official repositories and placed within the
-EICrecon directory tree. This may not be the best way to do this,
-but will work for now. 
-
-~~~
-cd ${EICTOPDIR}
-git clone --recurse-submodules https://github.com/eic/EICrecon
-~~~
-
 ### PODIO
 ~~~
 export PODIO_VERSION=v00-14-03
@@ -90,15 +77,14 @@ source ${PODIO_HOME}/env.sh
 ~~~
 export EDM4HEP_VERSION=v00-05
 export EDM4HEP_HOME=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}
-git clone https://github.com/AIDASoft/EDM4hep -b v00-14-03 ${EDM4HEP_HOME}
+git clone https://github.com/key4hep/EDM4hep -b ${EDM4HEP_VERSION} ${EDM4HEP_HOME}
 cd ${EDM4HEP_HOME}
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
 make -j8 install
 
-export EDM4HEP=${EDM4HEP_HOME}/install
-source ${EDM4HEP_HOME}/init.sh
+export EDM4HEP=${EDM4HEP_HOME}/install 
 ~~~
 
 ### Capture environment
@@ -111,12 +97,13 @@ directory called _custom_environment.sh_ with the following contents:
 _n.b. customize as needed if using any packages not built in the EICTOPDIR_
 ~~~
 export EICTOPDIR=/path/to/my/EICrecon
+
+source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 source ${EICTOPDIR}/JANA/v2.0.5/bin/jana-this.sh
 export PODIO=${EICTOPDIR}/PODIO/v00-14-03/install
 source ${PODIO}/../env.sh
-export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05/install
-source ${EDM4HEP}/../init.sh
+export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
@@ -128,6 +115,15 @@ _Preferences->Build, Execution, Deployment->Toolchains_ and at the top
 next to _CMake_ put the full path to the wrapper script. It be something like:
 ~~~
 /path/to/my/EICrecon/tools/cmake_wrapper.sh
+~~~
+
+### EICrecon
+The EICrecon repository is where the reconstruction code will be kept.
+Clone this here to get the code.
+
+~~~
+cd ${EICTOPDIR}
+git clone https://github.com/eic/EICrecon
 ~~~
 
 ### jana_edm4hep

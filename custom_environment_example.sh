@@ -13,10 +13,10 @@
 # Setup environment (customize for your system)
 export EICTOPDIR=/Users/davidl/work/2022.07.09.EICrecon/EICTOP
 
+source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 source ${EICTOPDIR}/JANA/v2.0.5/bin/jana-this.sh
 export PODIO=${EICTOPDIR}/PODIO/v00-14-03/install
 source ${PODIO}/../env.sh
-export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05/install
-source ${EDM4HEP}/../init.sh
+export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05
 
