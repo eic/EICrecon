@@ -2,11 +2,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(jana_podio_project)
 
-if(NOT "${CMAKE_CXX_STANDARD}")
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)   # Enable -fPIC for all targets
-
 # Expose custom cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -17,22 +12,11 @@ set(CMAKE_INSTALL_PREFIX $ENV{JANA_HOME} CACHE PATH "magic incantation" FORCE)
 find_package(JANA REQUIRED)
 find_package(ROOT REQUIRED)
 
-# This is getting tricky. The only reason to include edm4hep is
-# because the ATHENA eic_data.yaml refers to the Vector3f.h file.
-# This will not be needed for the EIC Detector_1 software since
-# we will use EDM4hep directly so the file will already be included.
-# Dodge this whole messiness for now by symbolically linking the
-
-#set(edm4hep_DIR $ENV{EDM4HEP}/lib/cmake/EDM4HEP)
-#find_package(edm4hep REQUIRED)
-#message( STATUS EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR})
-#set(INCLUDE_DIRECTORIES ${EDM4HEP_INCLUDE_DIR})
-
 # The following cobbled from things found in the PODIO tests CMakeLists.txt
 #set(CMAKE_MODULE_PATH $ENV{PODIO})  # Can't get this to work
 set(podio_DIR $ENV{PODIO}/lib/cmake/podio)
 find_package(podio REQUIRED)
-PODIO_GENERATE_DATAMODEL(datamodel eic_data.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
+PODIO_GENERATE_DATAMODEL(datamodel $ENV{EDM4HEP}/edm4hep.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
 PODIO_ADD_DATAMODEL_CORE_LIB(TestDataModel "${podio_headers}" "${podio_sources}")
 PODIO_ADD_ROOT_IO_DICT(TestDataModelDict TestDataModel "${podio_headers}" src/selection.xml)
 set(PODIO_LIBRARIES TestDataModel TestDataModelDict podio::podioRootIO)
