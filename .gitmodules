@@ -1,6 +1,0 @@
-[submodule "I_O/podio.v00-14-03"]
-	path = I_O/podio.v00-14-03
-	url = https://github.com/AIDASoft/podio
-[submodule "I_O/EDM4hep.v00-05"]
-	path = I_O/EDM4hep.v00-05
-	url = https://github.com/key4hep/EDM4hep
