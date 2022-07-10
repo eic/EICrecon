@@ -2,13 +2,14 @@
 EIC Reconstruction - JANA based
 
 ## Build Instructions
-These are temporary as the build system and environment setup system needs
-to be better developed. 
+These are temporary build instructions as the build system and environment
+setup system needs to be better developed. These include building all of
+the dependencies. 
 
-Setting the EICTOPDIR environment variable makes it easier to reference
-directories in the instructions below. Set this to a directory where
-you want to build and keep the software. If you wish to use your current
-directory then just do this:
+Start by setting the EICTOPDIR environment variable. This makes it easier
+to reference directories in the instructions below. Set this to a
+directory where you want to build and keep the software. If you wish to
+use your current directory then just do this:
 ~~~
 export EICTOPDIR=${PWD}
 ~~~
@@ -26,10 +27,12 @@ pip install pyyaml jinja2
 ~~~
 
 ### ROOT
-We need a modern root version built with the C++17 standard. You may obtain
+We need a modern root version built using the C++17 standard. You may obtain
 this in a number of ways for your system, but here is how it may be built
-from source. Regardless of how you get it, be sure to source the thisroot.sh
-script at the end.
+from source. Be aware that this is the longest step in the whole process
+since it may take several minutes (maybe much more). Adjust the number of
+threads in the _make_ command to match what is available on your system to
+speed it up.
 ~~~
 mkdir ${EICTOPDIR}/root
 cd ${EICTOPDIR}/root
@@ -108,18 +111,19 @@ export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
 this environment is used is to use a wrapper script for cmake that sources
-the above file each time it runs cmake. Such a wrapper is included in the
+the above file each time cmake is run. Such a wrapper is included in the
 _tools_ directory which automatically looks for and sources the file
 _custom_environment.sh_ if it is found. To make CLion use this, go to
 _Preferences->Build, Execution, Deployment->Toolchains_ and at the top
-next to _CMake_ put the full path to the wrapper script. It be something like:
+next to _CMake_ put the full path to the wrapper script. It should be
+something like:
 ~~~
 /path/to/my/EICrecon/tools/cmake_wrapper.sh
 ~~~
 
 ### EICrecon
 The EICrecon repository is where the reconstruction code will be kept.
-Clone this here to get the code.
+Clone this.
 
 ~~~
 cd ${EICTOPDIR}
