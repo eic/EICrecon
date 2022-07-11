@@ -61,7 +61,7 @@ export JANA_HOME=${EICTOPDIR}/JANA/${JANA_VERSION}  # Set full path to install d
 git clone https://github.com/JeffersonLab/JANA2 -b ${JANA_VERSION} ${JANA_HOME}
 mkdir ${JANA_HOME}/build                            # Set build dir
 cd ${JANA_HOME}/build
-cmake -DUSE_ROOT=1 ../                              # (add -DUSE_ZEROMQ=1 if you have ZeroMQ available)
+cmake -DCMAKE_CXX_STANDARD=17 -DUSE_ROOT=1 ../                              # (add -DUSE_ZEROMQ=1 if you have ZeroMQ available)
 make -j8 install
 
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
@@ -76,7 +76,7 @@ cd ${PODIO_HOME}
 source init.sh
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
+cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
 make -j8 install
 
 export PODIO=${PODIO_HOME}/install
@@ -91,7 +91,7 @@ git clone https://github.com/key4hep/EDM4hep -b ${EDM4HEP_VERSION} ${EDM4HEP_HOM
 cd ${EDM4HEP_HOME}
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
+cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
 make -j8 install
 
 export EDM4HEP=${EDM4HEP_HOME}/install 
@@ -226,6 +226,6 @@ packages.
 ~~~
 mkdir ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep/build
 cd ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep/build
-cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug ..
 make -j8 install
 ~~~
