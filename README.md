@@ -26,6 +26,13 @@ source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 pip install pyyaml jinja2
 ~~~
 
+### boost
+Make sure [boost](https://www.boost.org/) is installed (needed for DD4hep).
+On macosx 12.4 I did this with:
+~~~
+brew install boost
+~~~
+
 ### ROOT
 We need a modern root version built using the C++17 standard. You may obtain
 this in a number of ways for your system, but here is how it may be built
@@ -90,6 +97,84 @@ make -j8 install
 export EDM4HEP=${EDM4HEP_HOME}/install 
 ~~~
 
+### DD4hep
+These instructions build DD4hep without Geant4 support. The reconstruction
+framework does not otherwise require Geant4 so we avoid including support
+for it for now.
+~~~
+export DD4HEP_VERSION=v01-20-02
+export DD4HEP_HOME=${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}
+git clone https://github.com/AIDASoft/DD4hep -b ${DD4HEP_VERSION} ${DD4HEP_HOME}
+mkdir ${DD4HEP_HOME}/build
+cd ${DD4HEP_HOME}/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DBUILD_DOCS=OFF -DBoost_NO_BOOST_CMAKE=ON -DROOT_DIR=$ROOTSYS ../
+make -j8 install
+source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
+~~~
+
+### ACTS
+~~~
+export EIGEN_VERSION=3.4.0
+export EIGEN_HOME=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
+git clone https://gitlab.com/libeigen/eigen.git -b ${EIGEN_VERSION} ${EIGEN_HOME}
+mkdir ${EIGEN_HOME}/build
+cd ${EIGEN_HOME}/build
+cmake -DCMAKE_INSTALL_PREFIX=../ -DCMAKE_CXX_STANDARD=17 ../
+make -j8 install
+export Eigen3_ROOT=${EIGEN_HOME}
+
+export ACTS_VERSION=v19.4.0
+export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
+git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
+mkdir ${ACTS_HOME}/build
+cd ${ACTS_HOME}/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on ../
+make -j8 install
+source ${ACTS_HOME}/install/bin/this_acts.sh
+~~~
+
+### Detector Geometry
+The detector geometry itself is contained in a separate repository.
+At the moment, the _ECCE_ reference detector design is in a repository
+located [here](https://github.com/EIC/ecce). That requires at least _ACTS_
+and the _{fmt}_ package which is built here with it.
+
+These instructions turn off the requirement of the DDG4 component in
+
+~~~
+mkdir -p ${EICTOPDIR}/detectors
+cd ${EICTOPDIR}/detectors
+
+export FMT_VERSION=9.0.0
+mkdir -p fmt/${FMT_VERSION}
+git clone https://github.com/fmtlib/fmt -b 9.0.0 fmt/${FMT_VERSION}
+mkdir -p fmt/${FMT_VERSION}/build
+cd fmt/${FMT_VERSION}/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 ../
+make -j8 install
+export fmt_ROOT=${EICTOPDIR}/detectors/fmt/9.0.0/install
+
+cd ${EICTOPDIR}/detectors
+git clone https://github.com/EIC/ip6
+mkdir -p ${EICTOPDIR}/detectors/ip6/build
+cd ${EICTOPDIR}/detectors/ip6/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF ../
+make -j8 install
+export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6/install
+
+cd ${EICTOPDIR}/detectors
+git clone https://github.com/EIC/ecce
+ln -s ../ip6/ip6 ecce/ip6
+mkdir -p ${EICTOPDIR}/detectors/ecce/build
+cd ${EICTOPDIR}/detectors/ecce/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF ../
+make -j8 install
+export EIC_DD4HEP_XML=${EICTOPDIR}/detectors/ecce/ecce.xml
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce/install
+
+
+~~~
+
 ### Capture environment
 The jana_edm4hep plugin requires all of the above packages which means 
 they must be set up in your environment. You will also need these in
@@ -107,6 +192,10 @@ source ${EICTOPDIR}/JANA/v2.0.5/bin/jana-this.sh
 export PODIO=${EICTOPDIR}/PODIO/v00-14-03/install
 source ${PODIO}/../env.sh
 export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05
+source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
+export Eigen3_ROOT=${EICTOPDIR}/EIGEN/3.4.0
+source ${EICTOPDIR}/ACTS/v19.4.0/install/bin/this_acts.sh
+export fmt_ROOT=${EICTOPDIR}/detectors/fmt/9.0.0/install
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure

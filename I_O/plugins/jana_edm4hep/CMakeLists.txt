@@ -1,5 +1,4 @@
 
-cmake_minimum_required(VERSION 3.9)
 project(jana_edm4hep_project)
 
 # Expose custom cmake modules
