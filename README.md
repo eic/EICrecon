@@ -33,6 +33,20 @@ On macosx 12.4 I did this with:
 brew install boost
 ~~~
 
+On RHEL7.9 the version installed via yum was too old so I did it from source
+like this.
+~~~
+export BOOST_VERSION=boost-1.79.0
+mkdir -p ${EICTOPDOR}/BOOST
+cd ${EICTOPDOR}/BOOST
+git clone --recursive https://github.com/boostorg/boost.git -b ${BOOST_VERSION} ${BOOST_VERSION}
+mkdir -p ${BOOST_VERSION}/build
+cd ${BOOST_VERSION}/build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 ..
+make -j8 install
+export Boost_ROOT=${EICTOPDIR}/BOOST/boost-1.79.0/install
+~~~
+
 ### ROOT
 We need a modern root version built using the C++17 standard. You may obtain
 this in a number of ways for your system, but here is how it may be built
