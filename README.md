@@ -164,7 +164,7 @@ mkdir -p fmt/${FMT_VERSION}
 git clone https://github.com/fmtlib/fmt -b 9.0.0 fmt/${FMT_VERSION}
 mkdir -p fmt/${FMT_VERSION}/build
 cd fmt/${FMT_VERSION}/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 ../
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON ../
 make -j8 install
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/9.0.0/install
 
