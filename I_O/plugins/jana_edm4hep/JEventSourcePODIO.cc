@@ -16,6 +16,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <filesystem>
 
 // podio specific includes
 #include "podio/EventStore.h"
@@ -81,18 +82,44 @@ void JEventSourcePODIO::Open() {
     // Allow user to specify to recycle events forever
     GetApplication()->SetDefaultParameter("PODIO:RUN_FOREVER", run_forever, "set to true to recycle through events continuously");
 
-    // Have PODIO reader open file and get the number of events from it.
-    std::string filename = GetResourceName();
-    reader.openFile( filename );
-    if (reader.currentFileVersion() != podio::version::build_version) {
-         _DBG_<<"Mismatch in PODIO versions! " << reader.currentFileVersion() << " != " << podio::version::build_version << std::endl;
-        exit(-1);
-    }
-    Nevents_in_file = reader.getEntries();
-    jout << "Opened PODIO file \""<< filename <<"\" with " << Nevents_in_file << " events" << std::endl;
+    try {
+        // Have PODIO reader open file and get the number of events from it.
+        std::string filename = GetResourceName();
 
-    // Tell PODIO event store where to get its data from
-    store.setReader(&reader);
+        // TODO: Replace the example podio::ROOTReader with something that is thread safe
+        // TODO: and does better error checking.
+        if( ! std::filesystem::exists(filename) ){
+            LOG_ERROR(default_cerr_logger) << LOG_END
+            LOG_ERROR(default_cerr_logger) << "File \"" << filename << "\" does not exist!" << LOG_END;
+            LOG_ERROR(default_cerr_logger) << LOG_END
+            GetApplication()->Quit();
+            return;
+        }
+        reader.openFile(filename);
+
+        if( ! reader.isValid() ){
+            LOG_ERROR(default_cerr_logger) << "podio::ROOTReader is invalid after attempting to open file." << LOG_END;
+            GetApplication()->Quit();
+            return;
+        }
+        if (reader.currentFileVersion() != podio::version::build_version) {
+            LOG_ERROR(default_cerr_logger) << "Mismatch in PODIO versions! " << reader.currentFileVersion() << " != "
+                  << podio::version::build_version << LOG_END;
+            GetApplication()->Quit();
+            return;
+        }
+        Nevents_in_file = reader.getEntries();
+        jout << "Opened PODIO file \"" << filename << "\" with " << Nevents_in_file << " events" << std::endl;
+
+        // Tell PODIO event store where to get its data from
+        store.setReader(&reader);
+    }catch (std::exception &e ){
+        _DBG__;
+        LOG_ERROR(default_cerr_logger) << "Problem opening file \"" << GetResourceName() << "\"" << LOG_END;
+        LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
+        GetApplication()->Quit();
+        return;
+    }
 }
 
 //------------------------------------------------------------------------------
