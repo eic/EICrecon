@@ -1,4 +1,7 @@
 
+cmake_minimum_required(VERSION 3.9)
+cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+
 project(jana_dd4hep_project)
 
 # Expose custom cmake modules

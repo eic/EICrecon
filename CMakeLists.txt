@@ -1,5 +1,7 @@
 
 cmake_minimum_required(VERSION 3.9)
+cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+
 project(EICrecon)
 
 if(NOT "${CMAKE_CXX_STANDARD}")

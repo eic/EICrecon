@@ -1,4 +1,7 @@
 
+cmake_minimum_required(VERSION 3.9)
+cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+
 project(jana_edm4hep_project)
 
 # Expose custom cmake modules
@@ -12,10 +15,13 @@ find_package(JANA REQUIRED)
 find_package(ROOT REQUIRED)
 
 # The following cobbled from things found in the PODIO tests CMakeLists.txt
-#set(CMAKE_MODULE_PATH $ENV{PODIO})  # Can't get this to work
+# TODO: This is completely regenerating/rebuilding the entire data model
+# TODO: in C++ rather than using what is built in the EDM4HEP directory.
+# TODO: To fix it, one needs to find how to set all of the variables to
+# TODO: reference that build.
 set(podio_DIR $ENV{PODIO}/lib/cmake/podio)
 find_package(podio REQUIRED)
-PODIO_GENERATE_DATAMODEL(datamodel $ENV{EDM4HEP}/edm4hep.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
+PODIO_GENERATE_DATAMODEL(datamodel $ENV{EDM4HEP}/../edm4hep.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
 PODIO_ADD_DATAMODEL_CORE_LIB(EDM4HEPDataModel "${podio_headers}" "${podio_sources}")
 PODIO_ADD_ROOT_IO_DICT(EDM4HEPDataModelDict EDM4HEPDataModel "${podio_headers}" src/selection.xml)
 set(PODIO_LIBRARIES EDM4HEPDataModel EDM4HEPDataModelDict podio::podioRootIO)

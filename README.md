@@ -37,14 +37,12 @@ On RHEL7.9 the version installed via yum was too old so I did it from source
 like this.
 ~~~
 export BOOST_VERSION=boost-1.79.0
-mkdir -p ${EICTOPDOR}/BOOST
-cd ${EICTOPDOR}/BOOST
+mkdir -p ${EICTOPDIR}/BOOST
+cd ${EICTOPDIR}/BOOST
+export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
 git clone --recursive https://github.com/boostorg/boost.git -b ${BOOST_VERSION} ${BOOST_VERSION}
-mkdir -p ${BOOST_VERSION}/build
-cd ${BOOST_VERSION}/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 ..
-make -j8 install
-export Boost_ROOT=${EICTOPDIR}/BOOST/boost-1.79.0/install
+cmake3 -S ${BOOST_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${Boost_ROOT} -DCMAKE_CXX_STANDARD=17
+cmake3 --build build --target install -- -j8
 ~~~
 
 ### ROOT
@@ -70,14 +68,12 @@ source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 
 ### JANA
 ~~~
-export JANA_VERSION=v2.0.5                          # Just for convenience here
-export JANA_HOME=${EICTOPDIR}/JANA/${JANA_VERSION}  # Set full path to install dir
+export JANA_VERSION=v2.0.5
+export JANA_HOME=${EICTOPDIR}/JANA/${JANA_VERSION}
 git clone https://github.com/JeffersonLab/JANA2 -b ${JANA_VERSION} ${JANA_HOME}
-mkdir ${JANA_HOME}/build                            # Set build dir
-cd ${JANA_HOME}/build
-cmake -DCMAKE_CXX_STANDARD=17 -DUSE_ROOT=1 ../                              # (add -DUSE_ZEROMQ=1 if you have ZeroMQ available)
-make -j8 install
-
+cd ${JANA_HOME}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${JANA_HOME} -DUSE_ROOT=1 # -DUSE_ZEROMQ=1
+cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
@@ -85,15 +81,11 @@ source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use thi
 ~~~
 export PODIO_VERSION=v00-14-03
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
+export PODIO=${PODIO_HOME}/install
 git clone https://github.com/AIDASoft/podio -b v00-14-03 ${PODIO_HOME}
 cd ${PODIO_HOME}
-source init.sh
-mkdir build
-cd build
-cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
-make -j8 install
-
-export PODIO=${PODIO_HOME}/install
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${PODIO} -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_CATCH2=OFF
+cmake3 --build build --target install -- -j8
 source ${PODIO_HOME}/env.sh
 ~~~
 
@@ -150,43 +142,44 @@ source ${ACTS_HOME}/install/bin/this_acts.sh
 ### Detector Geometry
 The detector geometry itself is contained in a separate repository.
 At the moment, the _ECCE_ reference detector design is in a repository
-located [here](https://github.com/EIC/ecce). That requires at least _ACTS_
-and the _{fmt}_ package which is built here with it.
+located [here](https://eicweb.phy.anl.gov/EIC/detectors/ecce). That requires at least _ACTS_
+and the _{fmt}_ package the latter of which is built here.
 
-These instructions turn off the requirement of the DDG4 component in
+These instructions turn off the requirement of the DDG4 component in both the
+_ip6_ and _ecce_ geometries since it requires GEANT4 which is not needed here.
+
+There is currently an issue with the ip6 geometry in that it references a detector element
+called "CylindricalDipoleMagnet" in the far backward region while the C++ source builds a
+component named "ip6_CylindricalDipoleMagnet". To get the geometry to fully load, one
+needs to modify the ${EICTOPDIR}/detectors/ip6/ip6/far_backward/magnets.xml file so
+that all magnets are of type "ip6_CylindricalDipoleMagnet".
 
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
 
 export FMT_VERSION=9.0.0
-mkdir -p fmt/${FMT_VERSION}
-git clone https://github.com/fmtlib/fmt -b 9.0.0 fmt/${FMT_VERSION}
-mkdir -p fmt/${FMT_VERSION}/build
-cd fmt/${FMT_VERSION}/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON ../
-make -j8 install
-export fmt_ROOT=${EICTOPDIR}/detectors/fmt/9.0.0/install
+mkdir -p ${EICTOPDIR}/detectors/fmt
+cd ${EICTOPDIR}/detectors/fmt
+export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
+export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:${LD_LIBRARY_PATH}
+git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
+cmake3 -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
+cmake3 --build build --target install -- -j8
 
-cd ${EICTOPDIR}/detectors
-git clone https://github.com/EIC/ip6
-mkdir -p ${EICTOPDIR}/detectors/ip6/build
-cd ${EICTOPDIR}/detectors/ip6/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF ../
-make -j8 install
-export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6/install
+# For the moment, use the davidl_DDG4 branch until merge request accepted
+export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
+git clone https://eicweb.phy.anl.gov/EIC/detectors/ip6.git -b davidl_DDG4 ${IP6_DD4HEP_HOME}
+cmake3 -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
+cmake3 --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
 
-cd ${EICTOPDIR}/detectors
-git clone https://github.com/EIC/ecce
-ln -s ../ip6/ip6 ecce/ip6
-mkdir -p ${EICTOPDIR}/detectors/ecce/build
-cd ${EICTOPDIR}/detectors/ecce/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF ../
-make -j8 install
-export EIC_DD4HEP_XML=${EICTOPDIR}/detectors/ecce/ecce.xml
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce/install
-
-
+# For the moment, use the davidl_DDG4 branch until merge request accepted
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
+export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
+git clone https://eicweb.phy.anl.gov/EIC/detectors/ecce.git -b davidl_DDG4 ${EIC_DD4HEP_HOME}
+ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
+cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
+cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
 
 ### Capture environment
@@ -214,20 +207,23 @@ export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
 export FMT_VERSION=9.0.0
 
+
+
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
+export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 source ${PODIO_HOME}/env.sh
-export podio_DIR=$PODIO_ROOT/lib64/cmake/podio
+export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${LD_LIBRARY_PATH}
-export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6/install
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce/install
-export EIC_DD4HEP_XML=${EICTOPDIR}/detectors/ecce/ecce.xml
+export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
+export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
@@ -244,20 +240,22 @@ something like:
 
 ### EICrecon
 The EICrecon repository is where the reconstruction code will be kept.
-Clone this.
+There is a top-level CMakeLists.txt file here that will build everything.
+Currently that includes just the _jana_edm4hep_ and _jana_dd4hep_ plugins.
 
 ~~~
-cd ${EICTOPDIR}
-git clone https://github.com/eic/EICrecon
+git clone https://github.com/eic/EICrecon ${EICTOPDIR}/EICrecon
+cd ${EICTOPDIR}/EICrecon
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
+cmake3 --build build --target install -- -j8
 ~~~
 
-### jana_edm4hep
-This JANA plugin can read an EDM4hep root file. It requires all of the above
-packages.
+### Testing
+Check that each of the plugins at least load correctly without crashing
+by running them without arguments:
 
 ~~~
-mkdir ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep/build
-cd ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep/build
-cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug ..
-make -j8 install
+jana -PPLUGINS=jana_edm4hep
+jana -PPLUGINS=jana_dd4hep
 ~~~
+
