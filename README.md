@@ -198,18 +198,36 @@ directory called _custom_environment.sh_ with the following contents:
 
 _n.b. customize as needed if using any packages not built in the EICTOPDIR_
 ~~~
+# scl enable devtoolset-9 rh-python38 bash
+
 export EICTOPDIR=/path/to/my/EICTOP
 
 source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
-source ${EICTOPDIR}/JANA/v2.0.5/bin/jana-this.sh
-export PODIO=${EICTOPDIR}/PODIO/v00-14-03/install
-source ${PODIO}/../env.sh
-export EDM4HEP=${EICTOPDIR}/EDM4HEP/v00-05
-source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
-export Eigen3_ROOT=${EICTOPDIR}/EIGEN/3.4.0
-source ${EICTOPDIR}/ACTS/v19.4.0/install/bin/this_acts.sh
-export fmt_ROOT=${EICTOPDIR}/detectors/fmt/9.0.0/install
+
+export BOOST_VERSION=boost-1.79.0
+export JANA_VERSION=v2.0.5
+export PODIO_VERSION=v00-14-03
+export EDM4HEP_VERSION=v00-05
+export DD4HEP_VERSION=v01-20-02
+export EIGEN_VERSION=3.4.0
+export ACTS_VERSION=v19.4.0
+export FMT_VERSION=9.0.0
+
+export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
+source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
+export PODIO=${PODIO_HOME}/install
+source ${PODIO_HOME}/env.sh
+export podio_DIR=$PODIO_ROOT/lib64/cmake/podio
+export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
+export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
+source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
+export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
+export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${LD_LIBRARY_PATH}
+export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6/install
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce/install
+export EIC_DD4HEP_XML=${EICTOPDIR}/detectors/ecce/ecce.xml
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
