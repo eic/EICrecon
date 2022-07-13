@@ -1,3 +1,20 @@
+//
+//
+// TODO: Fix the following:
+// This class inspired by and benefited from the work done here at the following
+// links. A couple of lines were outright copied.
+//
+// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.h
+// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.cpp
+//
+// Copyright carried by that code:
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
+
+
+#ifndef __JDD4hep_service_h__
+#define __JDD4hep_service_h__
+
 
 #include <iostream>
 #include <vector>
@@ -18,6 +35,7 @@ class JDD4hep_service : public JService
 public:
     JDD4hep_service( JApplication *app );
 
+    dd4hep::Detector* detector(void) { return (m_dd4hepGeo); }
 
 private:
     JDD4hep_service(){}
@@ -26,3 +44,5 @@ private:
 	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xmlFileNames;
 };
+
+#endif // __JDD4hep_service_h__

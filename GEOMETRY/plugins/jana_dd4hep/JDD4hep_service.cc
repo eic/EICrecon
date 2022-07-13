@@ -42,11 +42,18 @@ JDD4hep_service::JDD4hep_service( JApplication *app ){
     }
 
     // load geometry
-    for (auto& filename : m_xmlFileNames) {
-        std::cout << "loading geometry from file:  '" << filename << "'" << std::endl;
-        m_dd4hepGeo->fromCompact(filename);
+    try {
+        for (auto &filename : m_xmlFileNames) {
+            std::cout << "loading geometry from file:  '" << filename << "'" << std::endl;
+            m_dd4hepGeo->fromCompact(filename);
+        }
+        m_dd4hepGeo->volumeManager();
+        m_dd4hepGeo->apply("DD4hepVolumeManager", 0, nullptr);
+        m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_dd4hepGeo);
+
+        LOG << "Geometry successfully loaded." << LOG_END;
+    }catch(std::exception &e){
+        LOG_ERROR(default_cerr_logger)<< "Problem loading geometry: " << e.what() << LOG_END;
+        app->Quit();
     }
-    m_dd4hepGeo->volumeManager();
-    m_dd4hepGeo->apply("DD4hepVolumeManager", 0, nullptr);
-    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_dd4hepGeo);
 }
