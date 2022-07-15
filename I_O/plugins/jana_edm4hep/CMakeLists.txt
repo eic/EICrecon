@@ -32,6 +32,7 @@ set(PODIO_LIBRARIES EDM4HEPDataModel EDM4HEPDataModelDict podio::podioRootIO)
 add_custom_command(
         OUTPUT  datamodel_glue.h          # Treated as relative to CMAKE_CURRENT_BINARY_DIR
         COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
