@@ -42,8 +42,9 @@ void InitPlugin(JApplication *app) {
 // GetPODIODataT
 //
 /// This templated global routine is used to easily add new data types to the
-/// JEvent which are read from the PODIO store. Ownership is maintained
-/// by PODIO.
+/// JEvent which are read from the PODIO store. Ownership of the deep, POD
+/// object is maintained by PODIO.
+///
 /// The "T" class is the object type, while the "C" class is the collection type
 /// that holds it. (e.g. T=SimTrackerHit, C=SimTrackerHitCollection )
 ///
@@ -57,17 +58,21 @@ void GetPODIODataT( const char *collection_name, std::shared_ptr <JEvent> &event
     if (Ts.isValid()) {
         for( const auto &t : Ts ) {
             if(t.isAvailable()) { // only copy if the underlying data object is actually available
-                T_pointers.push_back(&t);
+                // The "t" variable references the data member of type T of the stack iterator
+                // created by the for loop. Thus, it is temporary. It is just a wrapper though
+                // around the actual POD type in the store. Thus, we need to create a new object
+                // of type T on the heap that wraps that same data. PODIO manages the reference
+                // counting so when JANA deletes the T objects later, the underlying POD data
+                // reference is properly handled.
+                T_pointers.push_back( new T(t) );
             }
         }
     }
 
-    // Insert the pointers into the JEvent. Set the NOT_OBJECT_OWNER flag so that
-    // JANA will not try and delete these at the end of the event.
+    // Insert the pointers into the JEvent.
     if( !T_pointers.empty() ){
-        auto fac = event->Insert(T_pointers, collection_name);
-        fac->SetFactoryFlag( JFactory::NOT_OBJECT_OWNER );
-    }
+        event->Insert(T_pointers, collection_name);
+     }
 }
 
 //------------------------------------------------------------------------------
@@ -179,16 +184,6 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
     // getEventMetaData() and get<>() etc... below
     reader.goToEvent( Nevents_read++ );
 
-    // I suspect the run number should be contained in the run metadata.
-    // I cannot see it though in the example simulated data file. I also
-    // do not see how to get the runID the getRunMetaData method takes
-    // as an argument. This is just left here for demonstration.
-    const auto& runMD = store.getRunMetaData(0);
-
-    // We would normally want to obtain these from the metadata of the event/run
-    //event->SetEventNumber(Nevents_read);
-    //event->SetRunNumber(33);
-
     // The following reads the data for each of the collections into memory and
     // then copies the pointers into the JEvent so they can easily be used
     // by JANA algorithms. Ownership of the objects still resides with the
@@ -198,23 +193,17 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
     // near GetPODIOT at the top of this file.
     for( auto p : collection_names ) GetPODIOData( p.first, p.second, event, store);
 
-    _DBG_<< " FACTORIES: " << std::endl;
-    for( auto fac : event->GetAllFactories() ){
-        _DBG_ << fac->GetObjectName() << ":" << fac->GetTag() << std::endl;
+    for( auto fac : event->GetAllFactories()){
+
+        std::cout << "  " << fac->GetNumObjects() << " " << fac->GetObjectName() << " " << fac->GetTag() << std::endl;
     }
 
     // Get the EventHeader object which contains the run number and event number
     auto headers = event->Get<edm4hep::EventHeader>("EventHeader");
-    for( auto h : headers ){
-        _DBG_<<"h="<<h<<std::endl;
-        _DBG_<<"isavailable="<<h->isAvailable()<<std::endl;
-        if( h->isAvailable() ) {
-            size_t evtNumber = h->getEventNumber();
-        }
-        _DBG__;
-        //event->SetEventNumber( h->getEventNumber() );
-        //event->SetRunNumber( h->getRunNumber() );
-        event->SetEventNumber(Nevents_read);
+    for( auto h : headers ){ // should only be one, but this makes it easy
+        event->SetEventNumber( h->getEventNumber() );
+        event->SetRunNumber( h->getRunNumber() );
+        //event->SetEventNumber(Nevents_read);
     }
 }
 

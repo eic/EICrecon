@@ -12,19 +12,21 @@ set(CMAKE_INSTALL_PREFIX $ENV{JANA_HOME} CACHE PATH "magic incantation" FORCE)
 
 # Find dependencies
 find_package(JANA REQUIRED)
-find_package(ROOT REQUIRED)
+#find_package(ROOT REQUIRED)
 
 # The following cobbled from things found in the PODIO tests CMakeLists.txt
 # TODO: This is completely regenerating/rebuilding the entire data model
 # TODO: in C++ rather than using what is built in the EDM4HEP directory.
 # TODO: To fix it, one needs to find how to set all of the variables to
 # TODO: reference that build.
-set(podio_DIR $ENV{PODIO}/lib/cmake/podio)
+find_package(EDM4HEP REQUIRED)
+#set(podio_DIR $ENV{PODIO}/lib/cmake/podio)
 find_package(podio REQUIRED)
-PODIO_GENERATE_DATAMODEL(datamodel $ENV{EDM4HEP}/../edm4hep.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
-PODIO_ADD_DATAMODEL_CORE_LIB(EDM4HEPDataModel "${podio_headers}" "${podio_sources}")
-PODIO_ADD_ROOT_IO_DICT(EDM4HEPDataModelDict EDM4HEPDataModel "${podio_headers}" src/selection.xml)
-set(PODIO_LIBRARIES EDM4HEPDataModel EDM4HEPDataModelDict podio::podioRootIO)
+#PODIO_GENERATE_DATAMODEL(datamodel $ENV{EDM4HEP}/../edm4hep.yaml podio_headers podio_sources IO_BACKEND_HANDLERS ${PODIO_IO_HANDLERS})
+#PODIO_ADD_DATAMODEL_CORE_LIB(EDM4HEPDataModel "${podio_headers}" "${podio_sources}")
+#PODIO_ADD_ROOT_IO_DICT(EDM4HEPDataModelDict EDM4HEPDataModel "${podio_headers}" src/selection.xml)
+#set(PODIO_LIBRARIES EDM4HEPDataModel EDM4HEPDataModelDict podio::podioRootIO)
+set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 
 # This is used to automatically run the make_datamodel_glue.py command
 # that generates the datamodel_glue.h file. This is temporary until
@@ -43,7 +45,8 @@ set( jana_edm4hep_PLUGIN_SOURCES ${mysourcefiles} datamodel_glue.h )
 # Make plugin target
 add_library(jana_edm4hep_plugin SHARED ${jana_edm4hep_PLUGIN_SOURCES})
 target_include_directories(jana_edm4hep_plugin PUBLIC ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
-target_link_libraries(jana_edm4hep_plugin ${JANA_LIB} ${PODIO_LIBRARIES} ${ROOT_LIBRARIES})
+#target_link_libraries(jana_edm4hep_plugin ${JANA_LIB} ${PODIO_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(jana_edm4hep_plugin ${JANA_LIB} ${PODIO_LIBRARIES})
 set_target_properties(jana_edm4hep_plugin PROPERTIES PREFIX "" OUTPUT_NAME "jana_edm4hep" SUFFIX ".so")
 
 # The following ensures that on macosx the @rpath search paths go into the plugin
@@ -70,5 +73,5 @@ set(my_root_dict_files
         ${PROJECT_BINARY_DIR}/libEDM4HEPDataModelDict_rdict.pcm
         ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModel${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModelDict${CMAKE_SHARED_LIBRARY_SUFFIX})
-install(FILES ${my_root_dict_files} DESTINATION plugins)
+#install(FILES ${my_root_dict_files} DESTINATION plugins)
 

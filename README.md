@@ -82,6 +82,7 @@ source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use thi
 export PODIO_VERSION=v00-14-03
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
+export PODIO_ROOT=${PODIO}
 git clone https://github.com/AIDASoft/podio -b ${PODIO_VERSION} ${PODIO_HOME}
 cd ${PODIO_HOME}
 cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${PODIO} -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_CATCH2=OFF
@@ -213,6 +214,7 @@ export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
+export PODIO_ROOT=${PODIO}
 source ${PODIO_HOME}/env.sh
 export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install

@@ -14,12 +14,14 @@ import glob
 
 print('Generating datamodel_glue.h ,,,')
 
-collectionfiles = glob.glob('datamodel/*Collection.h')
+EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
+collectionfiles = glob.glob(EDM4HEP_ROOT+'/include/edm4hep/*Collection.h')
 header_lines = []
 code_lines = []
 for f in collectionfiles:
-    basename = f.split('/')[1].split('Collection.h')[0]
-    header = '#include "' + f + '"'
+    header_fname = f.split('/edm4hep')[-1]
+    basename = header_fname.split('/')[-1].split('Collection.h')[0]
+    header = '#include "edm4hep' + header_fname + '"'
     code1 = '    if( collection_type == "edm4hep::'+basename+'" )'
     code2 = '        {GetPODIODataT<'+basename+',  '+basename+'Collection>(collection_name.c_str(), event, store); return;}'
     header_lines += [header]
