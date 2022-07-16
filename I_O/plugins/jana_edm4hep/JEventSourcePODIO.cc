@@ -193,11 +193,6 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
     // near GetPODIOT at the top of this file.
     for( auto p : collection_names ) GetPODIOData( p.first, p.second, event, store);
 
-    for( auto fac : event->GetAllFactories()){
-
-        std::cout << "  " << fac->GetNumObjects() << " " << fac->GetObjectName() << " " << fac->GetTag() << std::endl;
-    }
-
     // Get the EventHeader object which contains the run number and event number
     auto headers = event->Get<edm4hep::EventHeader>("EventHeader");
     for( auto h : headers ){ // should only be one, but this makes it easy
