@@ -29,13 +29,6 @@
 // This file is generated automatically by make_datamodel_glue.py
 #include "datamodel_glue.h"
 
-// Make this a JANA plugin
-extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
-}
-}
 
 
 //------------------------------------------------------------------------------

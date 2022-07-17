@@ -25,6 +25,10 @@ using namespace dd4hep;
 //------------------------
 JFactory_EcalBarrelRawCalorimeterHit::JFactory_EcalBarrelRawCalorimeterHit(){
     SetTag("");
+
+    // This allows one to get the objects from this factory as edm4hep::RawCalorimeterHit.
+    // This is useful for the EDM4hepWriter.
+    EnableGetAs<edm4hep::RawCalorimeterHit>();
 }
 
 //------------------------
