@@ -5,8 +5,8 @@ and names.
 
 option 1: Use the factory tag as the collection name.
 
-option 2: Create a new classe with the collection name inheriting from
-the edm4hep class.
+option 2: Create a new class named using the collection name and inheriting from
+the actual edm4hep class.
 
 For the example, we implement the Juggler algorithm found here:
 
@@ -15,9 +15,9 @@ https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/Calo
 This takes in objects of type _edm4hep::SimCalorimeterHit_ and produces
 objects of type _edm4hep::RawCalorimeterHit_. The Gaudi algorithm
 is generic so that it can be used with any calorimeter detector.
-For puposes of illustration, I focus on the Barrel EECAL detector.
+For puposes of illustration, I focus on the Barrel EMCAL detector.
 
-The simulated data file can be probed for the collection names and
+Note that the simulated data file can be probed for the collection names and
 corresponding data types like this:
 
 ~~~
@@ -27,7 +27,7 @@ jana -PPLUGINS=jana_edm4hep -pPODIO:PRINT_TYPE_TABLE=1 file.root
 The output of which includes a table like the one below. From there,
 you can see several collections with data type _edm4hep::SimCalorimeterHit_.
 One of these is the collection named _EcalBarrelHits_. The goal of
-our algorithm will therefore be to get take the _EcalBarrelHits_ collection
+our algorithm will therefore be to take the _EcalBarrelHits_ collection
 as input and create objects of type _edm4hep::RawCalorimeterHit_ as
 output, but identified as coming from the Barrel EMCal. How to do this?
 There are a couple of options:
@@ -47,8 +47,21 @@ being used for its intended purpose of allowing alternative algorithms.
 The benefit of Option 2 is that it allows the factory tags to be used as
 intended.
 
-
+Users would access the data from these two options like this:
 ~~~
+# option 1:
+auto event->Get<edm4hep::RawCalorimeterHit>("EcalBarrelRawCalorimeterHits");
+
+# option 2:
+auto event->Get<EcalBarrelRawCalorimeterHit>(); // n.b. EcalBarrelRawCalorimeterHit isA edm4hep::RawCalorimeterHit
+~~~
+
+The original algorithm has been ported to the _JFactory_EcalBarrelRawCalorimeterHit_
+class. The _JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits_ class would
+be mostly identical, so only those few places where they differ are filled out for
+illustrative purposes.
+
+
 Available Collections
 
 Collection Name                      Data Type

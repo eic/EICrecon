@@ -16,6 +16,12 @@ public:
     void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
     void Process(const std::shared_ptr<const JEvent> &event) override;
 
+    // -- Here would be identical to what is in JFactory_EcalBarrelRawCalorimeterHit.h ---
+
+private:
+    void single_hits_digi( const std::shared_ptr<const JEvent> &event );
+    void signal_sum_digi( const std::shared_ptr<const JEvent> &event );
+
 };
 
 #endif // _JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits_h_

@@ -3,15 +3,14 @@
 
 #include <JANA/JEvent.h>
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Please add the following lines to your InitPlugin or similar routine
-// in order to register this factory with the system.
 //
-// #include "JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits.h"
+// This algorithm converted from:
 //
-//     app->Add( new JFactoryGeneratorT<JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits>() );
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
+//  https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/CalorimeterHitDigi.cpp
+//
+// This is an alternative form for implementing this in JANA. I have left out most of
+// the actual algorithm parts just to illustrate the differences. THose parts could be
+// simply cut and pasted from JFactory_EcalBarrelRawCalorimeterHit.cc.
 
 //------------------------
 // Constructor
@@ -24,28 +23,18 @@ JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::JFactory_RawCalorimeter
 // Init
 //------------------------
 void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::Init() {
-    auto app = GetApplication();
-    
-    /// Acquire any parameters
-    // app->GetParameter("parameter_name", m_destination);
-    
-    /// Acquire any services
-    // m_service = app->GetService<ServiceT>();
-    
-    /// Set any factory flags
-    // SetFactoryFlag(JFactory_Flags_t::NOT_OBJECT_OWNER);
+
+    //---- This would be identical to JFactory_EcalBarrelRawCalorimeterHit::Init() ----
+
 }
 
 //------------------------
 // ChangeRun
 //------------------------
 void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
-    
-    auto run_nr = event->GetRunNumber();
-    // m_calibration = m_service->GetCalibrationsForRun(run_nr);
+
+    //---- This would be identical to JFactory_EcalBarrelRawCalorimeterHit::ChangeRun() ----
+
 }
 
 //------------------------
@@ -53,18 +42,38 @@ void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::ChangeRun(const st
 //------------------------
 void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::Process(const std::shared_ptr<const JEvent> &event) {
 
-    /// JFactories are local to a thread, so we are free to access and modify
-    /// member variables here. However, be aware that events are _scattered_ to
-    /// different JFactory instances, not _broadcast_: this means that JFactory 
-    /// instances only see _some_ of the events. 
-    
-    /// Acquire inputs (This may recursively call other JFactories)
-    // auto inputs = event->Get<...>();
-    
-    /// Do some computation
-    
-    /// Publish outputs
-    // std::vector<RawCalorimeterHit*> results;
-    // results.push_back(new RawCalorimeterHit(...));
-    // Set(results);
+    //---- This would be identical to JFactory_EcalBarrelRawCalorimeterHit::Process() ----
+
+}
+
+//------------------------
+// single_hits_digi
+//------------------------
+void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::single_hits_digi( const std::shared_ptr<const JEvent> &event ) {
+
+    //---- This would be identical to JFactory_EcalBarrelRawCalorimeterHit::single_hits_digi()
+    //---- except that line:
+    //----
+    //----    std::vector<EcalBarrelRawCalorimeterHit*> rawhits;
+    //----
+    //---- would be changed to:
+
+    std::vector<edm4hep::RawCalorimeterHit*> rawhits;
+
+}
+
+//------------------------
+// signal_sum_digi
+//------------------------
+void JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits::signal_sum_digi( const std::shared_ptr<const JEvent> &event ) {
+
+    //---- This would be identical to JFactory_EcalBarrelRawCalorimeterHit::signal_sum_digi()
+    //---- except that line:
+    //----
+    //----    std::vector<EcalBarrelRawCalorimeterHit*> rawhits;
+    //----
+    //---- would be changed to:
+
+    std::vector<edm4hep::RawCalorimeterHit*> rawhits;
+
 }
