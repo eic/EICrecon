@@ -13,3 +13,4 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)   # Enable -fPIC for all targets
 add_subdirectory( I_O/plugins/jana_edm4hep )
 add_subdirectory( GEOMETRY/plugins/jana_dd4hep )
 
+add_subdirectory( RECON/plugins/BarrelEMCal )
