@@ -30,6 +30,7 @@ public:
     
     static std::string GetDescription();
 
+    const std::map<std::string, std::string>& GetCollectionNames(void) const { return collection_names; }
     void PrintCollectionTypeTable(void);
 
 protected:
