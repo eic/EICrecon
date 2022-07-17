@@ -70,9 +70,10 @@ void GetPODIODataT( const char *collection_name, std::shared_ptr <JEvent> &event
     }
 
     // Insert the pointers into the JEvent.
-    if( !T_pointers.empty() ){
-        event->Insert(T_pointers, collection_name);
-     }
+    // n.b. it is important to insert here even if T_pointers it empty since it creates
+    // the factory object. Downstream code asking for the objects will cause an exception
+    // to be thrown if the factory doesn't exist at all so we need it to be there.
+    event->Insert(T_pointers, collection_name);
 }
 
 //------------------------------------------------------------------------------
