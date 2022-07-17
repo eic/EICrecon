@@ -61,7 +61,7 @@ class. The _JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits_ class would
 be mostly identical, so only those few places where they differ are filled out for
 illustrative purposes.
 
-
+~~~
 Available Collections
 
 Collection Name                      Data Type
