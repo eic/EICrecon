@@ -1,3 +1,6 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
 
 #include "JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits.h"
 

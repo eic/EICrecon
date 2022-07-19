@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+#
+# Copyright 2022, David Lawrence
+# Subject to the terms in the LICENSE file found in the top-level directory.
+#
+#
 
 #
 #  This is a stop gap and not intended for long term.  2022-07-09  DL

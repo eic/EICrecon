@@ -3,8 +3,8 @@ EIC Reconstruction - JANA based
 
 ## Build Instructions
 These are temporary build instructions as the build system and environment
-setup system needs to be better developed. These include building all of
-the dependencies. 
+setup system needs to be identified. These instructions include building
+all of the dependencies manually. 
 
 Start by setting the EICTOPDIR environment variable. This makes it easier
 to reference directories in the instructions below. Set this to a
@@ -39,7 +39,7 @@ like this.
 export BOOST_VERSION=boost-1.79.0
 mkdir -p ${EICTOPDIR}/BOOST
 cd ${EICTOPDIR}/BOOST
-export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
+export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 git clone --recursive https://github.com/boostorg/boost.git -b ${BOOST_VERSION} ${BOOST_VERSION}
 cmake3 -S ${BOOST_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${Boost_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake3 --build build --target install -- -j8
@@ -58,10 +58,8 @@ cd ${EICTOPDIR}/root
 wget https://root.cern/download/root_v6.26.04.source.tar.gz
 tar xzf root_v6.26.04.source.tar.gz
 mv root-6.26.04 root-6.26.04.src
-mkdir root-6.26.04.build root-6.26.04
-cd root-6.26.04.build
-cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=../root-6.26.04 -Dbuiltin_glew=ON ../root-6.26.04.src
-make -j8 install
+cmake3 -S root-6.26.04.src -B root-6.26.04.build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=root-6.26.04 -Dbuiltin_glew=ON
+cmake3 --build root-6.26.04.build --target install -- -j8
 
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 ~~~
@@ -94,14 +92,12 @@ source ${PODIO_HOME}/env.sh
 ~~~
 export EDM4HEP_VERSION=v00-05
 export EDM4HEP_HOME=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}
+export EDM4HEP=${EDM4HEP_HOME}/install 
+export EDM4HEP_ROOT=${EDM4HEP}
 git clone https://github.com/key4hep/EDM4hep -b ${EDM4HEP_VERSION} ${EDM4HEP_HOME}
 cd ${EDM4HEP_HOME}
-mkdir build
-cd build
-cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=../install -DUSE_EXTERNAL_CATCH2=OFF ../
-make -j8 install
-
-export EDM4HEP=${EDM4HEP_HOME}/install 
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EDM4HEP} -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_CATCH2=OFF
+cmake3 --build build --target install -- -j8
 ~~~
 
 ### DD4hep
@@ -112,10 +108,9 @@ for it for now.
 export DD4HEP_VERSION=v01-20-02
 export DD4HEP_HOME=${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}
 git clone https://github.com/AIDASoft/DD4hep -b ${DD4HEP_VERSION} ${DD4HEP_HOME}
-mkdir ${DD4HEP_HOME}/build
-cd ${DD4HEP_HOME}/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DBUILD_DOCS=OFF -DBoost_NO_BOOST_CMAKE=ON -DROOT_DIR=$ROOTSYS ../
-make -j8 install
+cd ${DD4HEP_HOME}
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${DD4HEP_HOME}/install -DCMAKE_CXX_STANDARD=17 -DBUILD_DOCS=OFF -DBoost_NO_BOOST_CMAKE=ON -DROOT_DIR=$ROOTSYS
+cmake3 --build build --target install -- -j8
 source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
 ~~~
 
@@ -124,19 +119,17 @@ source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
 export EIGEN_VERSION=3.4.0
 export EIGEN_HOME=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 git clone https://gitlab.com/libeigen/eigen.git -b ${EIGEN_VERSION} ${EIGEN_HOME}
-mkdir ${EIGEN_HOME}/build
-cd ${EIGEN_HOME}/build
-cmake -DCMAKE_INSTALL_PREFIX=../ -DCMAKE_CXX_STANDARD=17 ../
-make -j8 install
+cd ${EIGEN_HOME}
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17
+cmake3 --build build --target install -- -j8
 export Eigen3_ROOT=${EIGEN_HOME}
 
 export ACTS_VERSION=v19.4.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
-mkdir ${ACTS_HOME}/build
-cd ${ACTS_HOME}/build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on ../
-make -j8 install
+cd ${ACTS_HOME}
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on
+cmake3 --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
 
@@ -208,7 +201,7 @@ export FMT_VERSION=9.0.0
 
 
 
-export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/install
+export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install

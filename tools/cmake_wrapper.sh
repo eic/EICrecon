@@ -19,4 +19,4 @@ if [ -f ${SCRIPT_DIR}/../custom_environment.sh ]; then
 fi
 
 # Run cmake
-cmake3 "$@"
+cmake "$@"

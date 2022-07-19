@@ -1,3 +1,6 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
 
 #ifndef _JFactory_EcalBarrelRawCalorimeterHit_h_
 #define _JFactory_EcalBarrelRawCalorimeterHit_h_

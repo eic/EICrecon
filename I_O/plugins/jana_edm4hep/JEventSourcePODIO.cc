@@ -1,16 +1,14 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
 //
 // This is a JANA event source that uses PODIO to read from a ROOT
-// file created by the "test/write" program that comes with PODIO.
-// It only reads 3 data types from the file, but puts those objects
-// into the JANA event for use by the rest of the framework.
+// file created using the EDM4hep Data Model.
 //
-// n.b. JANA uses copies of const pointers to the objects PODIO owns
-// so memory usage etc. is optimized.
-//
-// n.b. This is currently NOT thread safe. This is due to PODIO using
-// TTree underneath so reading a second event in will overwrite the
-// current one (and thus, invalidate the pointers). A deeper
-// understanding of PODIO is needed to fix this.
+// n.b. This is currently NOT thread safe. This is due to using the
+// example ROOTReader that comes with PODIO which uses a.
+// TTree underneath. Thus, reading a second event in will overwrite
+// the current one.
 
 #include "JEventSourcePODIO.h"
 

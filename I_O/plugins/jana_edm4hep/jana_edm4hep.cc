@@ -1,4 +1,7 @@
-
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+//
 
 #include "JEventSourcePODIO.h"
 #include "EDM4hepWriter.h"
