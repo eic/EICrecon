@@ -35,11 +35,12 @@ export PODIO_ROOT=${PODIO}
 source ${PODIO_HOME}/env.sh
 export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+export EDM4HEP_ROOT=${EDM4HEP}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
-export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
 export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
