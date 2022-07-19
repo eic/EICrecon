@@ -168,16 +168,14 @@ git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
 cmake3 -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
 cmake3 --build build --target install -- -j8
 
-# For the moment, use the davidl_DDG4 branch until merge request accepted
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-git clone https://eicweb.phy.anl.gov/EIC/detectors/ip6.git -b davidl_DDG4 ${IP6_DD4HEP_HOME}
+git clone https://eicweb.phy.anl.gov/EIC/detectors/ip6.git ${IP6_DD4HEP_HOME}
 cmake3 -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
 
-# For the moment, use the davidl_DDG4 branch until merge request accepted
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
 export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
-git clone https://eicweb.phy.anl.gov/EIC/detectors/ecce.git -b davidl_DDG4 ${EIC_DD4HEP_HOME}
+git clone https://eicweb.phy.anl.gov/EIC/detectors/ecce.git ${EIC_DD4HEP_HOME}
 ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
 cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
