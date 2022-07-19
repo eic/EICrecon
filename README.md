@@ -156,7 +156,7 @@ export FMT_VERSION=9.0.0
 mkdir -p ${EICTOPDIR}/detectors/fmt
 cd ${EICTOPDIR}/detectors/fmt
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
-export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib:${LD_LIBRARY_PATH}
 git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
 cmake3 -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
 cmake3 --build build --target install -- -j8
@@ -213,10 +213,11 @@ source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
-export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
 export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
+export LD_LIBRARY_PATH=${EIC_DD4HEP_HOME}/lib64:${EIC_DD4HEP_HOME}/lib:${LD_LIBRARY_PATH}
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
@@ -233,12 +234,26 @@ something like:
 
 ### EICrecon
 The EICrecon repository is where the reconstruction code will be kept.
-There is a top-level CMakeLists.txt file here that will build everything.
-Currently that includes just the _jana_edm4hep_ and _jana_dd4hep_ plugins.
-
+There is a top-level CMakeLists.txt file here that can sort-of build
+everything. Well, OK. The BarrelEMCal plugin requires a header from
+the jana_edm4hep and tries to get it from its JANA install location.
+Thus, it is only available after jana_edm4hep has been installed. So
+when you build _EICrecon_, you should do each part individually
+as shown below. The system needs to be updated to be less dependent on
+the install locations of the plugins, but that will wait until an
+official build system is established.
 ~~~
 git clone https://github.com/eic/EICrecon ${EICTOPDIR}/EICrecon
-cd ${EICTOPDIR}/EICrecon
+
+cd ${EICTOPDIR}/EICrecon/GEOMETRY/plugins/jana_dd4hep
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
+cmake3 --build build --target install -- -j8
+
+cd ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
+cmake3 --build build --target install -- -j8
+
+cd ${EICTOPDIR}/EICrecon/RECON/plugins/BarrelEMCal
 cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
 cmake3 --build build --target install -- -j8
 ~~~
