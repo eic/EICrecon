@@ -70,7 +70,7 @@ export JANA_VERSION=v2.0.5
 export JANA_HOME=${EICTOPDIR}/JANA/${JANA_VERSION}
 git clone https://github.com/JeffersonLab/JANA2 -b ${JANA_VERSION} ${JANA_HOME}
 cd ${JANA_HOME}
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${JANA_HOME} -DUSE_ROOT=1 # -DUSE_ZEROMQ=1
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${JANA_HOME} -DUSE_ROOT=1 # -DUSE_ZEROMQ=1 -DUSE_PYTHON=1
 cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
@@ -80,7 +80,7 @@ source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use thi
 export PODIO_VERSION=v00-14-03
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
-export PODIO_ROOT=${PODIO}
+export podio_ROOT=${PODIO}
 git clone https://github.com/AIDASoft/podio -b ${PODIO_VERSION} ${PODIO_HOME}
 cd ${PODIO_HOME}
 cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${PODIO} -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_CATCH2=OFF
