@@ -138,7 +138,19 @@ void EDM4hepWriter::Init() {
     }
 
     // Open output file
-    writer = std::make_unique<EDM4hepWriter::ROOTWriter>(m_OUTPUT_FILE, &store);
+    m_file = std::unique_ptr<TFile>(TFile::Open(m_filename.value().c_str(), "RECREATE", "data file"));
+
+    // Create trees
+    m_datatree     = new TTree("events",       "Events tree");
+    m_metadatatree = new TTree("metadata",     "Metadata tree");
+    m_runMDtree    = new TTree("run_metadata", "Run metadata tree");
+    m_evtMDtree    = new TTree("evt_metadata", "Event metadata tree");
+    m_colMDtree    = new TTree("col_metadata", "Collection metadata tree");
+
+    // TODO:
+    //m_evtMDtree->Branch("evtMD", "GenericParameters", m_podioDataSvc->getProvider().eventMetaDataPtr() ) ;
+
+    //writer = std::make_unique<EDM4hepWriter::ROOTWriter>(m_OUTPUT_FILE, &store);
 }
 
 //------------------------------------------------------------------------------
@@ -200,8 +212,27 @@ void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
 // Finish
 //------------------------------------------------------------------------------
 void EDM4hepWriter::Finish() {
-    // Close any resources
-    writer->finish();
+
+    LOG << "Finalizing trees and output file" << LOG_END;
+    m_file->cd();
+    //m_metadatatree->Branch("gaudiConfigOptions", &config_data);
+
+    m_metadatatree->Branch("CollectionIDs", store.getCollectionIDTable());
+    m_metadatatree->Fill();
+    m_colMDtree->Branch("colMD", "std::map<int,podio::GenericParameters>", m_podioDataSvc->getProvider().getColMetaDataMap() ) ;
+    m_colMDtree->Fill();
+    m_runMDtree->Branch("runMD", "std::map<int,podio::GenericParameters>", m_podioDataSvc->getProvider().getRunMetaDataMap() ) ;
+    m_runMDtree->Fill();
+    m_datatree->Write();
+    m_file->Write();
+    m_file->Close();
+    info() << "Data written to: " << m_filename.value() << endmsg;
+    if (!m_filenameRemote.value().empty()) {
+        TFile::Cp(m_filename.value().c_str(), m_filenameRemote.value().c_str(), false);
+        info() << " and copied to: " << m_filenameRemote.value() << endmsg;
+    }
+
+
 }
 
 //===================================================================================================================

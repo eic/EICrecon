@@ -36,7 +36,19 @@ protected:
     std::string m_collection_names_str;
     std::set<std::string> m_OUTPUT_COLLECTIONS;
     std::set<std::string> m_registered_collections;
-    podio::EventStore store;
+    podio::EventStore m_store;
+
+    /// The actual ROOT file
+    std::unique_ptr<TFile> m_file;
+    /// The tree to be filled with collections
+    TTree* m_datatree;
+    /// The tree to be filled with meta data
+    TTree* m_metadatatree;
+    TTree* m_runMDtree;
+    TTree* m_evtMDtree;
+    TTree* m_colMDtree;
+    /// The stored collections
+    std::vector<podio::CollectionBase*> m_storedCollections;
 
 //===================================================================================================================
 // Code in this section copied from the example ROOTWriter class in podio.
