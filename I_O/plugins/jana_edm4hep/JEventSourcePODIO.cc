@@ -72,6 +72,9 @@ void GetPODIODataT( const char *collection_name, std::shared_ptr <JEvent> &event
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app) : JEventSource(resource_name, app) {
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
+
+    // Tell JANA that we want it to call the FinishEvent() method.
+    EnableFinishEvent();
 }
 
 //------------------------------------------------------------------------------
@@ -167,7 +170,11 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
             throw RETURN_STATUS::kNO_MORE_EVENTS;
         }
     }
-	
+
+    // Check/Set flag to indicate an event is being processed
+    if( m_event_in_flight ) throw RETURN_STATUS::kBUSY;
+    m_event_in_flight = true;
+
     // This tells PODIO to free up the memory/caches used for the
     // collections and MetaData left from the last event.
     store.clear();
@@ -192,6 +199,15 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr <JEvent> event) {
         event->SetRunNumber( h->getRunNumber() );
         //event->SetEventNumber(Nevents_read);
     }
+
+}
+
+//------------------------------------------------------------------------------
+// FinishEvent
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::FinishEvent(JEvent&){
+    // Event finished. Clear flag indicating it is safe to read another in.
+    m_event_in_flight = false;
 }
 
 //------------------------------------------------------------------------------

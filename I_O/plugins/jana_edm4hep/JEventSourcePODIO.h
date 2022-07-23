@@ -30,6 +30,7 @@ public:
     void Open() override;
 
     void GetEvent(std::shared_ptr<JEvent>) override;
+    void FinishEvent(JEvent&) override ;
     
     static std::string GetDescription();
 
@@ -41,6 +42,7 @@ protected:
 	podio::EventStore store;
 	size_t Nevents_in_file = 0;
 	size_t Nevents_read = 0;
+	bool m_event_in_flight = false;
 	bool run_forever=false;
 
 	// This holds the collection name (key) and the collection type (value) contained in the
