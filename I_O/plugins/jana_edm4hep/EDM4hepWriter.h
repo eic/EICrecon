@@ -47,7 +47,7 @@ protected:
     TTree* m_evtMDtree;
     TTree* m_colMDtree;
 
-    std::map<std::string, podio::CollectionBase*> m_collections_map; // key=name  value=pointer to podio::CollectionBase
+    std::set<std::string> m_collection_branches; // names of collections that have branches made
     std::vector<std::tuple<int, std::string, bool>> m_collectionInfo;
 
     void createBranch(const std::string& collName, podio::CollectionBase* collBase);

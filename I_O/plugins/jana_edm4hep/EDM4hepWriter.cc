@@ -96,7 +96,7 @@ std::string PutPODIODataT( JFactory *fac, podio::EventStore &store, const std::s
 
     // Check if a collection with this name already exists in the store. If so, then
     // use it. If not, then create one and register it.
-    // n.b. This is a very ugly pattern where we have to use a tmeporary pointer and and
+    // n.b. This is a very ugly pattern where we have to use a temporary pointer and
     // const_cast to get at the existing collection. Nearly as bad, when creating a new
     // collection, it is returned by reference and we have to set a pointer to it just before
     // the reference variable falls out of scope.
@@ -211,11 +211,11 @@ void EDM4hepWriter::Init() {
 void EDM4hepWriter::createBranch(const std::string& collName, podio::CollectionBase* collBase) {
 
     // Do not create branch(es) twice
-    if( m_collections_map.count(collName) ) {
+    if( m_collection_branches.count(collName) ) {
         LOG_ERROR( default_cerr_logger ) << "Attempting to create TBranch for collection " << collName << " when it already exists!" << LOG_END;
         return;
     }
-    m_collections_map[ collName ] = collBase;
+    m_collection_branches.insert(collName);
 
     auto buffers = collBase->getBuffers();
     auto* data = buffers.data;
@@ -259,7 +259,7 @@ void EDM4hepWriter::createBranch(const std::string& collName, podio::CollectionB
     // that points to an empty vector (data currently points to a vector, but one that is not empty).
     // Ideally we would make a std:vector of the correct type here, but that is a little difficult and
     // adds extra overhead. Instead, we make a temporary std::vector<uint64_t> with the assumption that
-    // the root will see it has zero elements and do the correct thing.
+    // root will see it has zero elements and do the correct thing.
     std::vector<uint64_t> tmpv;
     branch->SetAddress((void*)&tmpv);
     auto Nentries = m_datatree->GetEntries();
@@ -356,6 +356,7 @@ void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
     std::lock_guard<std::mutex>lock(m_mutex);
 
     // Create branches in the data tree for any collections that we have not already created a branch for.
+    std::map<std::string, podio::CollectionBase*> collections_map;
     auto collTable = m_store.getCollectionIDTable();
     for( auto id : collTable->ids() ){
         podio::CollectionBase *coll;
@@ -364,13 +365,14 @@ void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
             if( m_OUTPUT_EXCLUDE_COLLECTIONS.count(collName) ) continue; // ignore collections in exclude list
             if( m_OUTPUT_INCLUDE_COLLECTIONS.empty() || m_OUTPUT_INCLUDE_COLLECTIONS.count(collName)) {
                 // Create the branch if we have not already done so.
-                if( ! m_collections_map.count(collName)  ) createBranch( collName, coll );
+                if( ! m_collection_branches.count(collName)  ) createBranch( collName, coll );
+                collections_map[collName] = coll;
             }
         }
     }
 
     // Reset the branch addresses for all collections we are writing and prepare them for writing
-    resetBranches( m_collections_map );
+    resetBranches( collections_map );
 
     // Write the event to trees
     if( m_datatree  ) m_datatree->Fill();
