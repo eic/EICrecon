@@ -33,65 +33,35 @@ public:
 protected:
 
     std::string m_OUTPUT_FILE = "podio_output.root";
-    std::string m_collection_names_str;
-    std::set<std::string> m_OUTPUT_COLLECTIONS;
-    std::set<std::string> m_registered_collections;
-    podio::EventStore store;
+    std::string m_OUTPUT_FILE_COPY_DIR = "";
+    std::string m_include_collections_str;
+    std::string m_exclude_collections_str;
+    std::set<std::string> m_OUTPUT_INCLUDE_COLLECTIONS;
+    std::set<std::string> m_OUTPUT_EXCLUDE_COLLECTIONS;
+    static thread_local podio::EventStore m_store;
 
-//===================================================================================================================
-// Code in this section copied from the example ROOTWriter class in podio.
-//
-// TODO: Copy the changes back into the podio::ROOTWriter class and submit a PR so these are fixed upstream.
-public:
-    struct CollectionBranches {
-        TBranch* data{nullptr};
-        std::vector<TBranch*> refs{};
-        std::vector<TBranch*> vecs{};
-    };
+    std::unique_ptr<TFile> m_file;
+    TTree* m_datatree;
+    TTree* m_metadatatree;
+    TTree* m_runMDtree;
+    TTree* m_evtMDtree;
+    TTree* m_colMDtree;
 
-    class ROOTWriter {
+    std::map<std::string, podio::CollectionBase*> m_collections_map; // key=name  value=pointer to podio::CollectionBase
+    std::vector<std::tuple<int, std::string, bool>> m_collectionInfo;
 
-    public:
-        ROOTWriter(const std::string& filename, podio::EventStore* store);
-        ~ROOTWriter();
+    void createBranch(const std::string& collName, podio::CollectionBase* collBase);
+    //void createBranches(const std::map<std::string, podio::CollectionBase*>& collections);
+    void resetBranches(const std::map<std::string, podio::CollectionBase*>& collections);
 
-        // non-copyable
-        ROOTWriter(const ROOTWriter&) = delete;
-        ROOTWriter& operator=(const ROOTWriter&) = delete;
-
-        bool registerForWrite(const std::string& name);
-        void writeEvent();
-        void finish();
-
-    private:
-
-        using StoreCollection = std::pair<const std::string&, podio::CollectionBase*>;
-        void createBranches(const std::vector<StoreCollection>& collections);
-        void setBranches(const std::vector<StoreCollection>& collections);
-
-        // members
-        std::string m_filename;
-        podio::EventStore* m_store;
-        TFile* m_file;
-        TTree* m_datatree;
-        TTree* m_metadatatree;
-        TTree* m_runMDtree;
-        TTree* m_evtMDtree;
-        TTree* m_colMDtree;
-        std::vector<std::string> m_collectionsToWrite{};
-        // In order to avoid having to look up the branches from the datatree for
-        // every event, we cache them in this vector, that is populated the first
-        // time we write an event. Since the collections and their order do not
-        // change between events, the assocation between the collections to write
-        // and their branches is simply index based
-        std::vector<EDM4hepWriter::CollectionBranches> m_collectionBranches{};
-
-        bool m_firstEvent{true};
-    };
-
-//===================================================================================================================
-
-    std::unique_ptr<EDM4hepWriter::ROOTWriter> writer;
+    // The following were defined in the podio src/rootUtils.h file. Oddly, this does not
+    // seem to be in the podio install directory (??) Thus, they are copied here.
+    inline std::string refBranch(const std::string& name, size_t index) {
+        return name + "#" + std::to_string(index);
+    }
+    inline std::string vecBranch(const std::string& name, size_t index) {
+        return name + "_" + std::to_string(index);
+    }
 };
 
 
