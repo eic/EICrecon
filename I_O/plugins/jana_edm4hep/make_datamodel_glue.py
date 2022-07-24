@@ -35,7 +35,7 @@ for f in collectionfiles:
     get_code_lines += [code1, code2]
 
     code1 = '    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )'
-    code2 = '       {return PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( fac, store );}'
+    code2 = '       {return PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( fac, store, include_collections, exclude_collections );}'
     put_code_lines += [code1, code2]
 
 
@@ -49,7 +49,7 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#include <JANA/JFactory.h>\n')
     f.write('#include <podio/EventStore.h>\n')
     f.write('\ntemplate <class T, class C> void GetPODIODataT( const char *collection_name, std::shared_ptr <JEvent> &event, podio::EventStore &store);')
-    f.write('\ntemplate <class T, class C> std::string PutPODIODataT( JFactory *fac, podio::EventStore &store);\n\n')
+    f.write('\ntemplate <class T, class C> std::string PutPODIODataT( JFactory *fac, podio::EventStore &store, const std::set<std::string> &include_collections, const std::set<std::string> &exclude_collections);\n\n')
     f.write('\n'.join(header_lines))
     #f.write('\nusing namespace edm4hep;\n')
     f.write('\nstatic void GetPODIOData(const std::string &collection_name, const std::string &collection_type, std::shared_ptr <JEvent> &event, podio::EventStore &store){\n')
@@ -57,7 +57,7 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n}\n')
     f.write('\n// Test data type held in given factory against being any of the known edm4hep data types.')
     f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for edm4hep type.)')
-    f.write('\nstatic std::string PutPODIOData(JFactory *fac, podio::EventStore &store){\n')
+    f.write('\nstatic std::string PutPODIOData(JFactory *fac, podio::EventStore &store, const std::set<std::string> &include_collections, const std::set<std::string> &exclude_collections){\n')
     f.write('\n'.join(put_code_lines))
     f.write('\n}\n')
     f.close()
