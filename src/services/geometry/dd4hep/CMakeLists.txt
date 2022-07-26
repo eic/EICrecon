@@ -36,7 +36,7 @@ target_link_libraries(dd4hep_library ${LINK_LIBRARIES})
 # Define plugin
 add_library(dd4hep_plugin SHARED ${PLUGIN_SOURCES})
 target_include_directories(dd4hep_plugin PUBLIC ${INCLUDE_DIRS})
-target_link_libraries(dd4hep_plugin BEMC_library ${LINK_LIBRARIES})
+target_link_libraries(dd4hep_plugin dd4hep_library ${LINK_LIBRARIES})
 set_target_properties(dd4hep_plugin PROPERTIES PREFIX "" OUTPUT_NAME "dd4hep" SUFFIX ".so")
 
 # Install plugin

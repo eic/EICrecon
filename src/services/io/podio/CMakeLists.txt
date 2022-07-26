@@ -38,7 +38,7 @@ target_link_libraries(podio_library ${LINK_LIBRARIES})
 # Define plugin
 add_library(podio_plugin SHARED ${PLUGIN_SOURCES})
 target_include_directories(podio_plugin PUBLIC ${INCLUDE_DIRS})
-target_link_libraries(podio_plugin BEMC_library ${LINK_LIBRARIES})
+target_link_libraries(podio_plugin podio_library ${LINK_LIBRARIES})
 set_target_properties(podio_plugin PROPERTIES PREFIX "" OUTPUT_NAME "podio" SUFFIX ".so")
 
 # Install plugin
