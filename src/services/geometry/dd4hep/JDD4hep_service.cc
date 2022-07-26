@@ -11,12 +11,6 @@
 
 #include "JDD4hep_service.h"
     
-extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->ProvideService(std::make_shared<JDD4hep_service>(app) );
-    }
-}
 
 JDD4hep_service::JDD4hep_service( JApplication *app ){
 

@@ -9,8 +9,13 @@ if(NOT "${CMAKE_CXX_STANDARD}")
 endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)   # Enable -fPIC for all targets
 
+if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/.. CACHE PATH "Install in parent directory of src by default" FORCE)
+endif()
 
-add_subdirectory( I_O/plugins/jana_edm4hep )
-add_subdirectory( GEOMETRY/plugins/jana_dd4hep )
 
-add_subdirectory( RECON/plugins/BarrelEMCal )
+
+add_subdirectory( detectors/BEMC )
+
+add_subdirectory( services/geometry/dd4hep )
+add_subdirectory( services/io/podio )

@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
-project(BarrelEMCal_project)
-
-# Set install directory to $JANA_HOME
-# TODO: This needs to inherit from the top-level CMakeLists.txt
-set(CMAKE_INSTALL_PREFIX $ENV{JANA_HOME} CACHE PATH "magic incantation" FORCE)
+project(BEMC_project)
 
 # Find dependencies
 find_package(JANA REQUIRED)
@@ -17,27 +13,31 @@ find_package(fmt REQUIRED)
 
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
-#get_cmake_property(_variableNames VARIABLES)
-#list (SORT _variableNames)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+# Source files for plugin only (not library)
+set(PLUGIN_SOURCES BEMC.cc)
 
-# Compile all sources
-file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
-set( BarrelEMCal_PLUGIN_SOURCES ${mysourcefiles} )
+# Compile all other sources into a library
+file(GLOB LIBRARY_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
+list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
+
+set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
+
+# Define library
+add_library( BEMC_library STATIC ${LIBRARY_SOURCES} )
+target_include_directories( BEMC_library PUBLIC ${INCLUDE_DIRS} )
+target_link_libraries(BEMC_library ${JANA_LIB})
 
 # Define plugin
-add_library(BarrelEMCal_plugin SHARED ${BarrelEMCal_PLUGIN_SOURCES})
-target_include_directories(BarrelEMCal_plugin PUBLIC ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
-target_link_libraries(BarrelEMCal_plugin ${JANA_LIB})
-set_target_properties(BarrelEMCal_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BarrelEMCal" SUFFIX ".so")
+add_library(BEMC_plugin SHARED ${PLUGIN_SOURCES})
+target_include_directories(BEMC_plugin PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(BEMC_plugin BEMC_library ${JANA_LIB})
+set_target_properties(BEMC_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC" SUFFIX ".so")
 
 # Install plugin
-install(TARGETS BarrelEMCal_plugin DESTINATION plugins)
+install(TARGETS BEMC_plugin DESTINATION plugins)
 
 # Install headers for plugin
 file(GLOB my_headers "*.h*")
-install(FILES ${my_headers} DESTINATION include/BarrelEMCal)
+install(FILES ${my_headers} DESTINATION include/detectors/BEMC)
 
 
