@@ -21,6 +21,15 @@ import glob
 print('Generating datamodel_glue.h ...')
 
 EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
+
+# Check if EDM4HEP_ROOT is set
+if not EDM4HEP_ROOT:
+    print("ERROR: EDM4HEP_ROOT env. variable is None or empty!\n"
+          "       Please point EDM4HEP_ROOT to edm4hep installation root.\n"
+          "       This script looks for '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
+    exit(1)
+
+
 collectionfiles = glob.glob(EDM4HEP_ROOT+'/include/edm4hep/*Collection.h')
 header_lines = []
 get_code_lines = []
