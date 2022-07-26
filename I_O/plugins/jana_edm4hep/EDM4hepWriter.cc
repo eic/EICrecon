@@ -11,7 +11,7 @@
 // This file is generated automatically by make_datamodel_glue.py
 #include "datamodel_glue.h"
 
-thread_local podio::EventStore EDM4hepWriter::m_store; // allow manipulations of EventStore to occur in parallel
+//thread_local podio::EventStore EDM4hepWriter::m_store; // allow manipulations of EventStore to occur in parallel
 
 //------------------------------------------------------------------------------
 // DeriveCollectionName
@@ -329,6 +329,13 @@ void EDM4hepWriter::resetBranches(const std::map<std::string, podio::CollectionB
 //------------------------------------------------------------------------------
 void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
 
+    // Lock mutex
+    // We take advantage of m_store being thread_local above to allow multiple ones to be
+    // filled simultaneously. At this point though we need to modify the ROOT trees so
+    // need to fall back into sequential mode.
+    // TODO: This needs to be changed to use the global ROOT write lock.
+    std::lock_guard<std::mutex>lock(m_mutex);
+
     // Empty all collections to prepare for writing this event
     m_store.clearCollections();
 
@@ -347,13 +354,6 @@ void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
 
         }
      }
-
-    // Lock mutex
-    // We take advantage of m_store being thread_local above to allow multiple ones to be
-    // filled simultaneously. At this point though we need to modify the ROOT trees so
-    // need to fall back into sequential mode.
-    // TODO: This needs to be changed to use the global ROOT write lock.
-    std::lock_guard<std::mutex>lock(m_mutex);
 
     // Create branches in the data tree for any collections that we have not already created a branch for.
     std::map<std::string, podio::CollectionBase*> collections_map;
@@ -397,6 +397,8 @@ void EDM4hepWriter::Finish() {
     // TODO: This will be most easily done when JANA issue #120 is resolved
     // TODO: so we can easily access the full list.
 
+    podio::version::Version podioVersion = podio::version::build_version;
+    m_metadatatree->Branch("PodioVersion", &podioVersion);
     m_metadatatree->Branch("CollectionTypeInfo", &m_collectionInfo);
     m_metadatatree->Branch("CollectionIDs", m_store.getCollectionIDTable());
     m_metadatatree->Fill();

@@ -38,7 +38,8 @@ protected:
     std::string m_exclude_collections_str;
     std::set<std::string> m_OUTPUT_INCLUDE_COLLECTIONS;
     std::set<std::string> m_OUTPUT_EXCLUDE_COLLECTIONS;
-    static thread_local podio::EventStore m_store;
+    //static thread_local podio::EventStore m_store;
+    podio::EventStore m_store;
 
     std::unique_ptr<TFile> m_file;
     TTree* m_datatree;
