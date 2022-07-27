@@ -8,7 +8,7 @@
 #include <random>
 
 #include <JANA/JFactoryT.h>
-#include <jana_dd4hep/JDD4hep_service.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
 
 #include "EcalBarrelRawCalorimeterHit.h"
 

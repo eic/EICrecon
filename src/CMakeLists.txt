@@ -1,0 +1,80 @@
+#  Variables to control this CMake build:
+# ===================================================================================
+#    CMake flag       |  environment variable  |  Description
+# ===================================================================================
+# -DEIC_DD4HEP_HOME   | EIC_DD4HEP_HOME        |  DD4Hep Detector geometry install
+# -DIP6_DD4HEP_HOME   | IP6_DD4HEP_HOME        |  DD4Hep IP6 geometry install dir
+# -- (under review)   | EDM4HEP_ROOT           |  Edm4Hep  installation directory
+#------------------------------------------------------------------------------------
+# -DCMAKE_CXX_STANDARD      | 17 - standard for C++ compilation
+# ===================================================================================
+#
+#
+# ==============================================================
+#    DEPENDENCIES (used by find_package)
+# ==============================================================
+#      Name           |  Description
+# ==============================================================
+# JANA                |   Jana2 framework
+# EDM4HEP             |   Event data model based on podio
+# podio               |   IO library
+# DD4hep              |   Geometry framework
+# ROOT                |   CERN ROOT
+# fmt                 |   Formatting library
+# ==============================================================
+
+
+
+cmake_minimum_required(VERSION 3.9)
+cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+
+project(EICRecon)
+
+# Make C++17 a default
+if(NOT "${CMAKE_CXX_STANDARD}")
+    set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# Enable -fPIC for all targets
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Install in parent directory of src by default
+if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/.. CACHE PATH "Install in parent directory of src by default" FORCE)
+endif()
+
+# Default plugins installation directory is 'plugins'
+if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
+    set(PLUGIN_OUTPUT_DIRECTORY "plugins")
+    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+endif()
+
+# Default plugins static libraries installation directory is 'lib'
+if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
+    set(PLUGIN_LIBRARY_OUTPUT_DIRECTORY "lib")
+    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+endif()
+
+message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
+message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
+
+
+# Add CMake additional functionality:
+include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
+include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
+include(cmake/jana_plugin.cmake)                             # Add common settings for plugins
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
+
+
+# ------------------------------------------------------------------
+print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
+# ------------------------------------------------------------------
+add_subdirectory( detectors/BEMC )
+add_subdirectory( services/geometry/dd4hep )
+add_subdirectory( services/io/podio )
+
+
+# Print what we had built
+print_header("CMake processed subdirectories:")
+print_subdirectory_tree()
+message(STATUS "\n-------------------------------")
