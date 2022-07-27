@@ -28,20 +28,53 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
-project(EICrecon)
+project(EICRecon)
 
+# Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
 endif()
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)   # Enable -fPIC for all targets
 
+# Enable -fPIC for all targets
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Install in parent directory of src by default
 if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
     set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/.. CACHE PATH "Install in parent directory of src by default" FORCE)
 endif()
 
+# Default plugins installation directory is 'plugins'
+if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
+    set(PLUGIN_OUTPUT_DIRECTORY "plugins")
+    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+endif()
+
+# Default plugins static libraries installation directory is 'lib'
+if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
+    set(PLUGIN_LIBRARY_OUTPUT_DIRECTORY "lib")
+    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+endif()
+
+message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
+message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
 
 
+# Add CMake additional functionality:
+include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
+include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
+include(cmake/jana_plugin.cmake)                             # Add common settings for plugins
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
+
+
+# ------------------------------------------------------------------
+print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
+# ------------------------------------------------------------------
 add_subdirectory( detectors/BEMC )
-
 add_subdirectory( services/geometry/dd4hep )
 add_subdirectory( services/io/podio )
+
+
+# Print what we had built
+print_header("CMake processed subdirectories:")
+print_subdirectory_tree()
+message(STATUS "\n-------------------------------")

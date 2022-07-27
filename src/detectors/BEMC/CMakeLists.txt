@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
-project(BEMC_project)
+# Automatically set plugin name the same as the direcotry name
+# Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+
+print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
+
+
+project(${PLUGIN_NAME}_project)
 
 # Find dependencies
 find_package(JANA REQUIRED)
@@ -13,8 +20,9 @@ find_package(fmt REQUIRED)
 
 message(STATUS "BEMC: {PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
 message(STATUS "BEMC: {CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/services/geometry/")
-
-
+message(STATUS "BEMC: {PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
+string(REPLACE ${CMAKE_SOURCE_DIR} "" PROJECT_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
+message(STATUS "BEMC: {PROJECT_RELATIVE_PATH} ${PROJECT_RELATIVE_PATH}")
 
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
@@ -32,6 +40,7 @@ add_library( BEMC_library STATIC ${LIBRARY_SOURCES} )
 target_include_directories( BEMC_library PUBLIC ${INCLUDE_DIRS} )
 target_include_directories(BEMC_library PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(BEMC_library ${JANA_LIB})
+set_target_properties(BEMC_library PROPERTIES PREFIX "lib" OUTPUT_NAME "BEMC" SUFFIX ".so")
 
 # Define plugin
 add_library(BEMC_plugin SHARED ${PLUGIN_SOURCES})
@@ -42,9 +51,10 @@ set_target_properties(BEMC_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC" SUFFIX
 
 # Install plugin
 install(TARGETS BEMC_plugin DESTINATION plugins)
+install(TARGETS BEMC_library DESTINATION lib)
 
 # Install headers for plugin
-file(GLOB my_headers "*.h*")
-install(FILES ${my_headers} DESTINATION include/detectors/BEMC)
+file(GLOB ALL_HEADERS "*.h*")
+install(FILES ${ALL_HEADERS} DESTINATION include/detectors/BEMC)
 
 
