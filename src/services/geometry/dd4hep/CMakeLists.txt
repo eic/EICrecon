@@ -13,8 +13,29 @@ find_package(DD4hep REQUIRED)
 # symbol names it should load). Those may eventually be placed in a common
 # library that is used by both the simulation and reconstruction. This is
 # where we will reference the library containing them.
-find_library(DETECTOR_LIBS_ECCE ecce PATHS $ENV{EIC_DD4HEP_HOME}/lib)
-find_library(DETECTOR_LIBS_IP6 ip6 PATHS $ENV{IP6_DD4HEP_HOME}/lib)
+
+# Main EPIC detector directory, make sure ${EIC_DD4HEP_HOME} exist one way or another
+if( EXISTS "$ENV{EIC_DD4HEP_HOME}" )
+    message(STATUS "services/geometry/dd4hep: EIC_DD4HEP_HOME provided by ENV(EIC_DD4HEP_HOME) $ENV{EIC_DD4HEP_HOME}")
+    set(EIC_DD4HEP_HOME $ENV{EIC_DD4HEP_HOME})
+elseif(EXISTS ${EIC_DD4HEP_HOME})
+    message(STATUS "services/geometry/dd4hep: cmake EIC_DD4HEP_HOME provided as ${EIC_DD4HEP_HOME}")
+else()
+    message(WARNING "No cmake EIC_DD4HEP_HOME nor env:EIC_DD4HEP_HOME provided. Build probably will fail!!!")
+endif()
+find_library(DETECTOR_LIBS_ECCE ecce PATHS ${EIC_DD4HEP_HOME}/lib)
+
+# IP6 directory, make sure ${IP6_DD4HEP_HOME} exist one way or another
+if( EXISTS "$ENV{IP6_DD4HEP_HOME}" )
+    message(STATUS "services/geometry/dd4hep: IP6_DD4HEP_HOME provided by ENV(IP6_DD4HEP_HOME) $ENV{IP6_DD4HEP_HOME}")
+    set(EIC_DD4HEP_HOME $ENV{EIC_DD4HEP_HOME})
+elseif(EXISTS ${IP6_DD4HEP_HOME})
+    message(STATUS "services/geometry/dd4hep: cmake IP6_DD4HEP_HOME provided as ${IP6_DD4HEP_HOME}")
+else()
+    message(WARNING "No cmake IP6_DD4HEP_HOME nor env:IP6_DD4HEP_HOME provided. Build probably will fail!!!")
+endif()
+find_library(DETECTOR_LIBS_IP6 ip6 PATHS ${IP6_DD4HEP_HOME}/lib)
+
 set(DETECTOR_LIBS ${DETECTOR_LIBS_ECCE}  ${DETECTOR_LIBS_IP6} )
 message(STATUS "DETECTOR_LIBS=${DETECTOR_LIBS}")
 
@@ -58,6 +79,6 @@ set_target_properties(dd4hep_plugin PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 set_property(
         TARGET dd4hep_plugin
         PROPERTY INSTALL_RPATH
-        "$ENV{EIC_DD4HEP_HOME}/lib"
-        "$ENV{IP6_DD4HEP_HOME}/lib"
+        "${EIC_DD4HEP_HOME}/lib"
+        "${IP6_DD4HEP_HOME}/lib"
 )
