@@ -11,6 +11,11 @@ find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED)
 find_package(fmt REQUIRED)
 
+message(STATUS "BEMC: {PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
+message(STATUS "BEMC: {CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/services/geometry/")
+
+
+
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
 # Source files for plugin only (not library)
@@ -25,11 +30,13 @@ set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} $
 # Define library
 add_library( BEMC_library STATIC ${LIBRARY_SOURCES} )
 target_include_directories( BEMC_library PUBLIC ${INCLUDE_DIRS} )
+target_include_directories(BEMC_library PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(BEMC_library ${JANA_LIB})
 
 # Define plugin
 add_library(BEMC_plugin SHARED ${PLUGIN_SOURCES})
 target_include_directories(BEMC_plugin PUBLIC ${INCLUDE_DIRS})
+target_include_directories(BEMC_plugin PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(BEMC_plugin BEMC_library ${JANA_LIB})
 set_target_properties(BEMC_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC" SUFFIX ".so")
 
