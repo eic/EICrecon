@@ -48,16 +48,17 @@ if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
     set(PLUGIN_OUTPUT_DIRECTORY "plugins")
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
+message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
 
 # Default plugins static libraries installation directory is 'lib'
 if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
     set(PLUGIN_LIBRARY_OUTPUT_DIRECTORY "lib")
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
-
-message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
 
+# Set it ON for additional CMake printout
+set(EICRECON_VERBOSE_CMAKE OFF)
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
@@ -72,6 +73,7 @@ print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 add_subdirectory( detectors/BEMC )
 add_subdirectory( services/geometry/dd4hep )
 add_subdirectory( services/io/podio )
+add_subdirectory( tests )
 
 
 # Print what we had built
