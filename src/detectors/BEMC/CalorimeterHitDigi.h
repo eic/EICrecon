@@ -18,6 +18,7 @@ class CalorimeterHitDigi {
 
 public:
     CalorimeterHitDigi() = default;
+    ~CalorimeterHitDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
     virtual void AlgorithmInit() ;
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
