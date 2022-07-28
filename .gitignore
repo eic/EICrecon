@@ -53,6 +53,7 @@ plugins/*
 
 # CMake CLion style
 cmake-build-*/
+src/cmake-build-*/
 
 # File-based project format
 *.iws
@@ -86,7 +87,6 @@ tags
 # EMACS
 
 # -*- mode: gitignore; -*-
-*~
 \#*\#
 /.emacs.desktop
 /.emacs.desktop.lock
