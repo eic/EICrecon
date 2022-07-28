@@ -11,7 +11,7 @@ macro(plugin_add _name)
     add_library(${_name}_library STATIC "")
     target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR})
     target_include_directories(${_name}_library SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
-    set_target_properties(BEMC_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".so")
+    set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
 
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
@@ -23,9 +23,6 @@ macro(plugin_add _name)
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
     install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
 
-    # we don't want our plugins to start with 'lib' prefix. We do want them to end with '.so' rather than '.dylib'
-    # example: we want vmeson.so but not libvmeson.so or libvmeson.dylib
-    set_target_properties(${_name}_plugin PROPERTIES PREFIX "" SUFFIX ".so")
 endmacro()
 
 # target_link_libraries for both a plugin and a library
