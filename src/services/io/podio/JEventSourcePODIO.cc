@@ -32,7 +32,8 @@ template <typename T, typename Tobj, typename Tdata>
 void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, const podio::CollectionIDTable *collectionIDs, std::shared_ptr<JEvent> &event, std::vector<podio::ObjBase*> &podio_objs){
 
     // TODO: Recreate ObjectID from data in file (probably will need event_metadata)
-    podio::ObjectID id{0,0};
+    auto collid = collectionIDs->collectionID(dvt->name);
+    podio::ObjectID id{0,collid};
 
     // Create high-level podio objects (e.g. edm4hep::EventHeader)
     // n.b. In podio, the data actually resides in a member of the
@@ -76,8 +77,30 @@ JEventSourcePODIO::~JEventSourcePODIO() {
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::Open() {
 
-    // Open is called exactly once when processing begins.
-	
+    // Get the list of output collections to include
+    // TODO: Convert this to using JANA support of array values in config parameters once it is available.
+    japp->SetDefaultParameter("PODIO:INPUT_INCLUDE_COLLECTIONS", m_include_collections_str, "Comma separated list of collection names to read in. If not set, all collections will be read. Use PODIO:INPUT_EXCLUDE_COLLECTIONS to read everything except a selection.");
+    if( ! m_include_collections_str.empty() ) {
+        std::stringstream ss(m_include_collections_str);
+        while (ss.good()) {
+            std::string substr;
+            getline(ss, substr, ',');
+            m_INPUT_INCLUDE_COLLECTIONS.insert(substr);
+        }
+    }
+
+    // Get the list of output collections to exclude
+    // TODO: Convert this to using JANA support of array values in config parameters once it is available.
+    japp->SetDefaultParameter("PODIO:INPUT_EXCLUDE_COLLECTIONS", m_exclude_collections_str, "Comma separated list of collection names to not read in.");
+    if( ! m_exclude_collections_str.empty() ) {
+        std::stringstream ss(m_exclude_collections_str);
+        while (ss.good()) {
+            std::string substr;
+            getline(ss, substr, ',');
+            m_INPUT_EXCLUDE_COLLECTIONS.insert(substr);
+        }
+    }
+
     // Allow user to specify to recycle events forever
     GetApplication()->SetDefaultParameter("PODIO:RUN_FOREVER", run_forever, "set to true to recycle through events continuously");
 
@@ -110,6 +133,35 @@ void JEventSourcePODIO::Open() {
         GetApplication()->Quit();
         return;
     }
+
+    // If user specified which collections to include/exclude then set those branch's status now
+    if( !m_INPUT_INCLUDE_COLLECTIONS.empty() ){
+        reader.SetBranchStatus("*", false); // turn off all branches
+        UInt_t found;
+        for( const auto &brname : m_INPUT_INCLUDE_COLLECTIONS) {
+            LOG << "Disabling reading of all collections" << LOG_END;
+            reader.SetBranchStatus(brname.c_str(), true, &found);
+            if( !found ){
+                LOG_WARN(default_cerr_logger) << "Collection: " << brname << " not found in root file!" << LOG_END;
+            }else{
+                LOG << "Enabled read of collection(s): " << brname << "  (" << found << " branches)" << LOG_END;
+            }
+        }
+    }
+
+    // If user specified which collections to include/exclude then set those branch's status now
+    if( !m_INPUT_EXCLUDE_COLLECTIONS.empty() ){
+        UInt_t found;
+        for( const auto &brname : m_INPUT_EXCLUDE_COLLECTIONS) {
+            reader.SetBranchStatus(brname.c_str(), false, &found);
+            if( !found ) {
+                LOG_WARN(default_cerr_logger) << "Collection: " << brname << " not found in root file!" << LOG_END;
+            }else{
+                LOG << "Disabled read of collection(s): " << brname << "  (" << found << " branches)" << LOG_END;
+            }
+        }
+    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -135,6 +187,21 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
     event->Insert( es );                          // ... and hand over to JANA
 
     // TODO: The following could be deferred and done in parallel
+
+//    for(auto dv : es->m_datavectors ) {
+//        if( dv->name.find("EcalEndcapNHits") != std::string::npos ) {
+//            _DBG_<<" +++ Num EcalEndcapNHits: " << dv->GetVectorSize() << std::endl;
+//        }
+//    }
+//    for(auto dv : es->m_objidvectors ){
+//        if( dv->name.find("EcalEndcapNHits#") != std::string::npos ){
+//            _DBG_<< dv->name << " --------- " << std::endl;
+//            auto *vptr = static_cast<std::vector<podio::ObjectID>*>(dv->GetVectorAddress());
+//            for( auto &v : *vptr ){
+//                _DBG_<< "index: " << v.index << "  collectionID: " << v.collectionID << std::endl;
+//            }
+//        }
+//    }
 
     // At this point, the EICEventStore object has a bunch of std:vector objects
     // with the POD edm4hep::*Data types (e.g. edm4hep::EventHeaderData).
@@ -209,6 +276,23 @@ void JEventSourcePODIO::PrintCollectionTypeTable(void){
     std::cout << "Collection Name" << std::string( max_name_len + 2 - std::string("Collection Name").length(), ' ' ) << "Data Type" << std::endl;
     std::cout << std::string(max_name_len, '-') << "  " << std::string(max_name_len, '-') << std::endl;
     for( auto dv : reader.GetDataVectors() ){
+        std::cout << dv->name + std::string( max_name_len + 2 - dv->name.length(), ' ' );
+        std::cout << dv->className << std::endl;
+    }
+    std::cout << std::endl;
+
+    // Repeat for the objidvectors
+    max_name_len =0;
+    max_type_len = 0;
+    for( auto dv : reader.GetObjIDVectors() ){
+        max_name_len = std::max( max_name_len, dv->name.length() );
+        max_type_len = std::max( max_type_len, dv->name.length() );
+    }
+
+    // Print table
+    std::cout << "ObjID Name" << std::string( max_name_len + 2 - std::string("ObjID Name").length(), ' ' ) << "Data Type" << std::endl;
+    std::cout << std::string(max_name_len, '-') << "  " << std::string(max_name_len, '-') << std::endl;
+    for( auto dv : reader.GetObjIDVectors() ){
         std::cout << dv->name + std::string( max_name_len + 2 - dv->name.length(), ' ' );
         std::cout << dv->className << std::endl;
     }

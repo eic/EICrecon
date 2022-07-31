@@ -86,6 +86,20 @@ void EICRootReader::OpenFile(const std::string &filename) {
 }
 
 //----------------------------------------
+// SetBranchStatus
+//
+/// Set the branch status for the named branch in the events tree.
+/// By default, all branches are read for every event. By setting
+/// a branch status to "0" in the tree, it will not be read. This
+/// is useful if the user knows they want to ignore certain collections
+/// in the file so processing can proceed faster. This simply calls
+/// The TTree::SetBranchStatus method for the events tree.
+//----------------------------------------
+void EICRootReader::SetBranchStatus( const char *bname, Bool_t status, UInt_t *found ){
+    m_events_tree->SetBranchStatus(bname, status, found);
+}
+
+//----------------------------------------
 // GetNumEvents
 //----------------------------------------
 size_t EICRootReader::GetNumEvents() const {
@@ -101,6 +115,16 @@ std::vector<const EICEventStore::DataVector*> EICRootReader::GetDataVectors( ) c
     std::vector<const EICEventStore::DataVector*> datavectors;
     for(auto dv : m_datavectors) datavectors.push_back( dv );
     return std::move(datavectors);
+}
+
+//----------------------------------------
+// GetObjIDVectors
+//----------------------------------------
+std::vector<const EICEventStore::DataVector*> EICRootReader::GetObjIDVectors( ) const{
+    // Copy these into pointers to const so user knows not to modify them
+    std::vector<const EICEventStore::DataVector*> objidvectors;
+    for(auto dv : m_objidvectors) objidvectors.push_back( dv );
+    return std::move(objidvectors);
 }
 
 //----------------------------------------
@@ -120,6 +144,17 @@ EICEventStore* EICRootReader::GetEvent( size_t entry_number ){
         es_dv->Swap( dv );
         es->m_datavectors.push_back( es_dv );
     }
+
+    // Do the same for the collectionID vectors
+    for( auto dv : m_objidvectors ){
+        auto es_dv = MakeDataVector(dv->name, dv->className );
+        es_dv->Swap( dv );
+        es->m_objidvectors.push_back( es_dv );
+    }
+
+    // TODO: There appears to be some additional metadata in the root file this code was developed
+    // TODO: with. This is in the form of branches like "MCParticles#0" and "MCParticles#1". It
+    // TODO: is not clear how to interpret this data and present it to the user in a meaningful way.
 
     // Return the new EICEventStore, passing ownership to the caller
     return es;

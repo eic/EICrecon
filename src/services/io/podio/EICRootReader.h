@@ -22,8 +22,10 @@ public:
 
     void OpenFile( const std::string &filename );
     podio::version::Version GetPodioVersion() const { return *m_fileVersion;}
+    void SetBranchStatus( const char *bname, Bool_t status=1, UInt_t *found=0 );
     size_t GetNumEvents() const;
     std::vector<const EICEventStore::DataVector*> GetDataVectors(void) const;
+    std::vector<const EICEventStore::DataVector*> GetObjIDVectors(void) const;
     EICEventStore* GetEvent( size_t entry_number );
     const podio::CollectionIDTable* GetCollectionIDTable() const { return m_collectionid_table; }
     void CloseFile(){ m_file.reset(); }

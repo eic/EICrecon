@@ -17,7 +17,8 @@ public:
 //        std::cout << "--------------------------------------------" << std::endl;
 
         FreeEventObjects();
-        for( auto obj : m_datavectors ) delete obj;
+        for( auto obj : m_datavectors  ) delete obj;
+        for( auto obj : m_objidvectors ) delete obj;
     }
 
     class DataVector{
@@ -54,7 +55,8 @@ public:
         m_podio_objs.clear();
     }
 
-    std::vector<DataVector*> m_datavectors;
+    std::vector<DataVector*> m_datavectors;   // pod data objects
+    std::vector<DataVector*> m_objidvectors;  // keep podio::ObjectID objects in separate list
     std::vector<podio::ObjBase*> m_podio_objs;
 };
 
