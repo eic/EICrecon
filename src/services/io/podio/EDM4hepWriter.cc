@@ -3,6 +3,8 @@
 //
 //
 
+#if 0
+
 #include <sstream>
 
 #include "EDM4hepWriter.h"
@@ -421,3 +423,6 @@ void EDM4hepWriter::Finish() {
     }
 
 }
+
+#endif
+

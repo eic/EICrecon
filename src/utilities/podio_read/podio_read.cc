@@ -39,6 +39,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include "EICRootReader.h"
 
 void createBranch(const std::string& collName, podio::CollectionBase* collBase, TTree *m_datatree);
 void resetBranches(const std::map<std::string, podio::CollectionBase*>& collections, TTree *m_datatree);
@@ -53,16 +54,22 @@ std::vector<std::tuple<int, std::string, bool>> m_collectionInfo;
 //------------------------------------------------------------------------------
 int main(int narg, char *argv[]){
 
-    if( narg<3 ) {std::cerr << "Usage: podio_copy file_in file_out" << std::endl; return -1;}
+    if( narg<2 ) {std::cerr << "Usage: podio_read file_in" << std::endl; return -1;}
     auto file_in  = argv[1];
-    auto file_out = argv[2];
 
     // Open input file for reading
-    podio::ROOTReader reader;
-    podio::EventStore store_in;  // EventStore used to read events in
-    reader.openFile(file_in);
-    auto Nevents_in_file = reader.getEntries();
-    store_in.setReader(&reader);
+    EICRootReader reader;
+    reader.OpenFile( file_in );
+    auto Nevents_in_file = reader.GetNumEvents();
+    std::cout << "Number of events: " << Nevents_in_file << std::endl;
+
+
+
+//    podio::ROOTReader reader;
+//    podio::EventStore store_in;  // EventStore used to read events in
+//    reader.openFile(file_in);
+//    auto Nevents_in_file = reader.getEntries();
+//    store_in.setReader(&reader);
 
     // Open output file for writing
 //    podio::EventStore store_out; // EventStore used to write events out
@@ -79,16 +86,18 @@ int main(int narg, char *argv[]){
     for( size_t ievent=0; ievent<Nevents_in_file; ievent++) {
         auto event_start_time = clock();
 
-        // Read in all collections for event
-        store_in.clear();
-        reader.goToEvent(ievent);
-        std::map<std::string, std::string> collection_names_in;
-        for (auto id : store_in.getCollectionIDTable()->ids()) {
-            podio::CollectionBase *coll = nullptr;
-            if (store_in.get(id, coll)) {
-                collection_names_in[store_in.getCollectionIDTable()->name(id)] = coll->getValueTypeName();
-            }
-        }
+        reader.GetEvent( ievent );
+
+//        // Read in all collections for event
+//        store_in.clear();
+//        reader.goToEvent(ievent);
+//        std::map<std::string, std::string> collection_names_in;
+//        for (auto id : store_in.getCollectionIDTable()->ids()) {
+//            podio::CollectionBase *coll = nullptr;
+//            if (store_in.get(id, coll)) {
+//                collection_names_in[store_in.getCollectionIDTable()->name(id)] = coll->getValueTypeName();
+//            }
+//        }
 
 //        // Copy all collections to store_out.
 //        store_out.clear();
@@ -126,6 +135,7 @@ int main(int narg, char *argv[]){
         auto avg_rate = CLOCKS_PER_SEC/(double)(clock()-start_time)*(double)(ievent+1);
         std::cout << " " << ievent+1 << " events copied  ( " << std::setprecision(2) << rate << " Hz  avg. " << avg_rate << " Hz)      \r";  std::cout.flush();
     }
+    std::cout << std::endl;
 
 //    // Finalize root file
 //    m_file->cd();

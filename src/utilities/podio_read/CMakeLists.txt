@@ -10,6 +10,7 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 
+
 # This is used to automatically run the make_datamodel_glue.py command
 # that generates the datamodel_glue.h file. This is temporary until
 # a better mechanism using PODIO tools is developed.
@@ -26,13 +27,21 @@ set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 #    message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
 
+# Reading data from the events tree will fail with complaints about the
+# vector<edm4hep::EventHeader> and similar not being in the dictionary.
+# Generate a ROOT dictionary here to supplement the one created by the
+# edn4hep source code. This one simply defines these vector types.
+# TODO: Add a make_datamodel_glue.py script to generate the header
+# TODO: and LinkDef files automatically for all edm4hep data types.
+include_directories(${EDM4HEP_INCLUDE_DIR} ${podio_INCLUDE_DIR})
+root_generate_dictionary(G__edm4hep_vectors edm4hep_vectors.h LINKDEF edm4hep_vectors_LinkDef.h)
+
 # Automatically determine source file list.
 file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
-set( podio_read_SOURCES ${mysourcefiles} )
+set( podio_read_SOURCES ${mysourcefiles} G__edm4hep_vectors.cxx)
 
-# Make plugin target
+# Make  target
 add_executable(podio_read ${podio_read_SOURCES})
 target_include_directories(podio_read PUBLIC ${CMAKE_SOURCE_DIR} ${EDM4HEP_INCLUDE_DIR} ${PODIO_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(podio_read ${JANA_LIB} ${PODIO_LIBRARIES})
-
 
