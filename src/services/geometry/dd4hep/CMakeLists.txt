@@ -8,7 +8,7 @@ find_package(JANA REQUIRED)
 find_package(ROOT REQUIRED)
 find_package(DD4hep REQUIRED)
 
-# DD4hep relies on programatically finding and linking detector-specific
+# DD4hep relies on programmatically finding and linking detector-specific
 # routines at run time. (It uses strings found in the XML to determine
 # symbol names it should load). Those may eventually be placed in a common
 # library that is used by both the simulation and reconstruction. This is
@@ -23,7 +23,7 @@ elseif(EXISTS ${EIC_DD4HEP_HOME})
 else()
     message(WARNING "No cmake EIC_DD4HEP_HOME nor env:EIC_DD4HEP_HOME provided. Build probably will fail!!!")
 endif()
-find_library(DETECTOR_LIBS_ECCE ecce PATHS ${EIC_DD4HEP_HOME}/lib)
+find_library(DETECTOR_LIBS_EPIC epic PATHS ${EIC_DD4HEP_HOME}/lib)
 
 # IP6 directory, make sure ${IP6_DD4HEP_HOME} exist one way or another
 if( EXISTS "$ENV{IP6_DD4HEP_HOME}" )
@@ -36,7 +36,7 @@ else()
 endif()
 find_library(DETECTOR_LIBS_IP6 ip6 PATHS ${IP6_DD4HEP_HOME}/lib)
 
-set(DETECTOR_LIBS ${DETECTOR_LIBS_ECCE}  ${DETECTOR_LIBS_IP6} )
+set(DETECTOR_LIBS ${DETECTOR_LIBS_EPIC}  ${DETECTOR_LIBS_IP6} )
 message(STATUS "DETECTOR_LIBS=${DETECTOR_LIBS}")
 
 # Source files for plugin only (not library)
