@@ -29,11 +29,7 @@
 // CopyPodioToJEventT
 //------------------------------------------------------------------------------
 template <typename T, typename Tobj, typename Tdata>
-void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, const podio::CollectionIDTable *collectionIDs, std::shared_ptr<JEvent> &event, std::vector<podio::ObjBase*> &podio_objs){
-
-    // TODO: Recreate ObjectID from data in file (probably will need event_metadata)
-    auto collid = collectionIDs->collectionID(dvt->name);
-    podio::ObjectID id{0,collid};
+void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr<JEvent> &event, std::vector<podio::ObjBase*> &podio_objs){
 
     // Create high-level podio objects (e.g. edm4hep::EventHeader)
     // n.b. In podio, the data actually resides in a member of the
@@ -45,9 +41,12 @@ void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, const podio::Collecti
     // vector is likely a member of an EICEventStore object and all
     // of the objects in podio_objs will be deleted at the end of the
     // event.)
+    podio::ObjectID id{0,dvt->collectionID};
     std::vector<const T*> tptrs;
     for( auto &data : dvt->vec ){
-        auto obj = new Tobj(id, data);
+        auto obj = new Tobj();
+        obj->id = id;
+        obj->data = data;
         podio_objs.push_back(obj); // pass ownship of "Obj" objects to caller
         tptrs.push_back( new T(obj) );
         id.index++; // TODO: See above to-do on ObjectIDs
@@ -171,7 +170,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
 
     /// Calls to GetEvent are synchronized with each other, which means they can
     /// read and write state on the JEventSource without causing race conditions.
-    
+
     // Check if we have exhausted events from file
     if( Nevents_read >= Nevents_in_file ) {
         if( run_forever ){
@@ -208,7 +207,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
     // What we need to do now is copy them into high level data
     // types (e.g. edm4hep::EventHeader) and insert them into the JEvent.
     for( auto dv : es->m_datavectors ){
-        CopyToJEvent( dv, reader.GetCollectionIDTable() , event, es->m_podio_objs);
+        CopyToJEvent( dv , event, es->m_podio_objs);
     }
 
     // Get the EventHeader object which contains the run number and event number
@@ -225,10 +224,12 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::FinishEvent(JEvent &event){
 
-    // Get the EICEventStore object from the JEvent and delete underlying
-    // "Obj" objects from it.
+    // Get the EICEventStore object from the JEvent and have it delete all of the objects
+    // it owns. This technically doesn't need to be done here since JANA calling the
+    // EICEventStore destructor will do the same thing. This just frees the memory a little
+    // sooner.
     auto es = event.GetSingle<EICEventStore>();
-    if( es ) const_cast<EICEventStore*>(es)->FreeEventObjects(); // Delete all underlying podio "Obj" objects
+    if( es ) const_cast<EICEventStore*>(es)->Clear(); // Delete all underlying podio "Obj" objects
 }
 
 //------------------------------------------------------------------------------

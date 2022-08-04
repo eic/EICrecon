@@ -69,7 +69,12 @@ void EICRootReader::OpenFile(const std::string &filename) {
     // when an event is read.
     for( auto obj : *(m_events_tree->GetListOfBranches()) ){
         auto br = static_cast<TBranch*>( obj );
-        auto dv = MakeDataVector( br->GetName(), br->GetClassName() );
+
+        // Get collectionID that was read in from file. If one doesn't exist for this branch, create one
+        int collectionId = m_collectionid_table->present(br->GetName()) ? m_collectionid_table->collectionID(br->GetName()):m_collectionid_table->add(br->GetName());
+
+        // Make a EICEventStore::DataVector object for this branch
+        auto dv = MakeDataVector( br->GetName(), br->GetClassName(), collectionId );
         if( dv ) {
             auto addr_ptr = dv->GetVectorAddressPtr();
             br->SetAddress(addr_ptr);  // root wants address of pointer to data object, not address of data object!
@@ -140,7 +145,7 @@ EICEventStore* EICRootReader::GetEvent( size_t entry_number ){
     // but ROOT.
     auto es = new EICEventStore();
     for( auto dv : m_datavectors ){
-        auto es_dv = MakeDataVector(dv->name, dv->className );
+        auto es_dv = MakeDataVector(dv->name, dv->className, dv->collectionID );
         es_dv->Swap( dv );
         es->m_datavectors.push_back( es_dv );
     }
