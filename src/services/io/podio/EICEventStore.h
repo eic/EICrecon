@@ -1,8 +1,24 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+
 #ifndef _EICEventStore_h_
 #define _EICEventStore_h_
 
 #include <podio/ObjBase.h>
 
+/// This class is used to keep a list of collections belonging to the event.
+/// This serves a similar role as the podio::EventStore class except it is
+/// designed to be multi-thread capable.
+///
+/// Note that this does not necessarily hold all objects for the event, only
+/// those defined in the PODIO (EDM4hep) Data Model. Any transient objects
+/// created by JANA algorithms that are not inheriting from one of the
+/// edm4hep classes will not be kept here.
+///
+/// Note that this class is defined completely in this header file. The
+/// internal utility classes DataVector and DataVectorT store vectors of
+/// the POD data that can be used for reading/writing from/to a TBranch.
 class EICEventStore{
 public:
 
@@ -42,29 +58,34 @@ public:
         void*  GetVectorAddress(){ return &vec; }
         void** GetVectorAddressPtr(){ return &vecptr; } // ROOT TBranch wants a pointer to a variable which points to actual data object
         size_t GetVectorSize(){ return vec.size(); }
+
+        /// Swap contents of the std::vector<> with the given DataVector. This is an efficient
+        /// way to move the data contents from a vector used by TBranch without having to copy
+        /// the POD data or reset the branch address.
         void   Swap(DataVector *dv){
             auto *vec_other = static_cast<std::vector<T>*>( dv->GetVectorAddress() );
             vec_other->swap(vec);
         }
+
+        /// Same as Swap() only slightly less safe since this takes the address as a void*
         void   SwapUnsafe(void *addr){
             auto *vec_other = static_cast<std::vector<T>*>( addr );
             vec_other->swap(vec);
         }
     };
 
-    // Swap contents of our members with the given EICEventStore.
-    // n.b. this does NOT swap the contents of the DataVectorT objects,
-    // just the vectors holding pointers to them.
+    /// Swap contents of our members with the given EICEventStore.
+    /// n.b. this does NOT swap the contents of the DataVectorT objects,
+    /// just the vectors holding pointers to them.
     void Swap(EICEventStore *es){
         m_datavectors.swap(es->m_datavectors);
         m_objidvectors.swap(es->m_objidvectors);
         m_podio_objs.swap(es->m_podio_objs);
     }
 
-    // Free all data objects. This is called from JEventSourcePODIO::FinishEvent
-    // just to free this memory up a little earlier than when the desctructor of
-    // this class gets called which won't happen until the beginning of the next
-    // event.
+    /// Free all data objects. This is called from JEventSourcePODIO::FinishEvent
+    /// just to free this memory up a little earlier than when the destructor of
+    /// this class gets called which may not happen until later.
     void Clear(void){
         for( auto obj : m_datavectors  ) delete obj;
         for( auto obj : m_objidvectors ) delete obj;

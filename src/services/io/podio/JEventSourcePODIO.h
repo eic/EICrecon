@@ -14,7 +14,7 @@
 #include <services/io/podio/EICEventStore.h>
 #include <services/io/podio/EICRootReader.h>
 
-
+/// JANA Event source that can read from podio/edm4hep root files.
 class JEventSourcePODIO : public JEventSource {
 
 public:

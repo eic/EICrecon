@@ -19,6 +19,7 @@
 
 #include <services/io/podio/EICEventStore.h>
 
+/// This is a JEventProcessor class that is used for writing out podio/edm4hep root files.
 class EICRootWriter : public JEventProcessor {
 
     // Shared state (e.g. histograms, TTrees, TFiles) live

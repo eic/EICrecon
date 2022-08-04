@@ -1,3 +1,6 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
 
 #include <iostream>
 
@@ -22,6 +25,10 @@ EICRootReader::~EICRootReader(){
 
 //----------------------------------------
 // OpenFile
+//
+/// Open the root file with the given name for reading.
+///
+/// \param filename Name of root file to open
 //----------------------------------------
 void EICRootReader::OpenFile(const std::string &filename) {
 
@@ -99,6 +106,10 @@ void EICRootReader::OpenFile(const std::string &filename) {
 /// is useful if the user knows they want to ignore certain collections
 /// in the file so processing can proceed faster. This simply calls
 /// The TTree::SetBranchStatus method for the events tree.
+///
+/// \param bname   name of branch (may include wildcards to specify multiple branches)
+/// \param status  1=read (default)  0=don't read
+/// \param found   number of branches matching bname
 //----------------------------------------
 void EICRootReader::SetBranchStatus( const char *bname, Bool_t status, UInt_t *found ){
     m_events_tree->SetBranchStatus(bname, status, found);
@@ -106,6 +117,8 @@ void EICRootReader::SetBranchStatus( const char *bname, Bool_t status, UInt_t *f
 
 //----------------------------------------
 // GetNumEvents
+///
+/// \return Number of entries in the "events" tree.
 //----------------------------------------
 size_t EICRootReader::GetNumEvents() const {
     if( m_events_tree ) return m_events_tree->GetEntries();
@@ -114,6 +127,8 @@ size_t EICRootReader::GetNumEvents() const {
 
 //----------------------------------------
 // GetDataVectors
+///
+/// \return std::vector of EICEventStore::DataVector object pointers for collections
 //----------------------------------------
 std::vector<const EICEventStore::DataVector*> EICRootReader::GetDataVectors( ) const{
     // Copy these into pointers to const so user knows not to modify them
@@ -124,6 +139,8 @@ std::vector<const EICEventStore::DataVector*> EICRootReader::GetDataVectors( ) c
 
 //----------------------------------------
 // GetObjIDVectors
+///
+/// \return std::vector of EICEventStore::DataVector object pointers for podio::ObjectID branches
 //----------------------------------------
 std::vector<const EICEventStore::DataVector*> EICRootReader::GetObjIDVectors( ) const{
     // Copy these into pointers to const so user knows not to modify them
@@ -134,6 +151,12 @@ std::vector<const EICEventStore::DataVector*> EICRootReader::GetObjIDVectors( ) 
 
 //----------------------------------------
 // GetEvent
+//
+/// Read the specified event from the root file and put its contents into
+/// a new EICEventStore. Caller takes ownership of the EICEventStore object.
+///
+/// \param entry_number in "events" tree of root file
+/// \return Pointer to EICEventStore holding objects. Ownership of EICEventStore is passed to caller.
 //----------------------------------------
 EICEventStore* EICRootReader::GetEvent( size_t entry_number ){
 
