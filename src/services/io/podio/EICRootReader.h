@@ -15,7 +15,7 @@
 #include <podio/podioVersion.h>
 #include <podio/GenericParameters.h>
 
-#include <EICEventStore.h>
+#include <services/io/podio/EICEventStore.h>
 
 /// This class is used for reading in a podio root file that uses the EDM4hep Data Model.
 class EICRootReader{

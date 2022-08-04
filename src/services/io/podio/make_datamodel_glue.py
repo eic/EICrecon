@@ -76,11 +76,11 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#include <JANA/JFactory.h>\n')
     f.write('#include <podio/CollectionIDTable.h>\n')
     f.write('#include <EICEventStore.h>\n')
-    f.write('#include <EDM4hepWriter.h>\n')
+    f.write('#include <EICRootWriter.h>\n')
     f.write('#include <datamodel_includes.h>\n')
     f.write('\n')
     f.write('\ntemplate <typename T, typename Tobj, typename Tdata> void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr <JEvent> &jevent, std::vector<podio::ObjBase*> &podio_objs);')
-    f.write('\ntemplate <class T, class C> std::string PutPODIODataT( EDM4hepWriter *writer, JFactory *fac, EICEventStore &store );\n')
+    f.write('\ntemplate <class T, class C> std::string PutPODIODataT( EICRootWriter *writer, JFactory *fac, EICEventStore &store );\n')
 
     f.write('\nstatic EICEventStore::DataVector* MakeDataVector(const std::string &name, const std::string &className, int collectionID=-1){\n')
     f.write('\n'.join(make_lines))
@@ -93,7 +93,7 @@ with open('datamodel_glue.h', 'w') as f:
 
     f.write('\n// Test data type held in given factory against being any of the known edm4hep data types.')
     f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for edm4hep type.)')
-    f.write('\nstatic std::string PutPODIOData(EDM4hepWriter *writer, JFactory *fac, EICEventStore &store){\n')
+    f.write('\nstatic std::string PutPODIOData(EICRootWriter *writer, JFactory *fac, EICEventStore &store){\n')
     f.write('\n'.join(put_lines))
     f.write('\n}\n')
     f.close()

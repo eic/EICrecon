@@ -25,16 +25,6 @@ using namespace dd4hep;
 //   values here. This needs to be confirmed.
 
 
-//------------------------
-// Constructor
-//------------------------
-JFactory_EcalBarrelRawCalorimeterHit::JFactory_EcalBarrelRawCalorimeterHit(){
-    SetTag("");
-
-    // This allows one to get the objects from this factory as edm4hep::RawCalorimeterHit.
-    // This is useful for the EICRootWriter.
-    EnableGetAs<edm4hep::RawCalorimeterHit>();
-}
 
 //------------------------
 // AlgorithmInit
