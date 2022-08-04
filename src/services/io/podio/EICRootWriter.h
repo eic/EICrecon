@@ -7,8 +7,9 @@
 #define _EDM4hepWriter_h_
 
 // podio specific includes
-#include <podio/EventStore.h>
 #include <podio/podioVersion.h>
+#include <podio/CollectionIDTable.h>
+#include <podio/GenericParameters.h>
 
 
 #include <TFile.h>
@@ -16,19 +17,25 @@
 
 #include <JANA/JEventProcessor.h>
 
-class EDM4hepWriter : public JEventProcessor {
+#include <services/io/podio/EICEventStore.h>
+
+/// This is a JEventProcessor class that is used for writing out podio/edm4hep root files.
+class EICRootWriter : public JEventProcessor {
 
     // Shared state (e.g. histograms, TTrees, TFiles) live
     std::mutex m_mutex;
     
 public:
 
-    EDM4hepWriter();
-    virtual ~EDM4hepWriter() = default;
+    EICRootWriter();
+    virtual ~EICRootWriter() = default;
 
     void Init() override;
     void Process(const std::shared_ptr<const JEvent>& event) override;
     void Finish() override;
+
+    const std::set<std::string>& GetIncludeCollections(){ return m_OUTPUT_INCLUDE_COLLECTIONS; }
+    const std::set<std::string>& GetExcludeCollections(){ return m_OUTPUT_EXCLUDE_COLLECTIONS; }
 
 protected:
 
@@ -38,8 +45,6 @@ protected:
     std::string m_exclude_collections_str;
     std::set<std::string> m_OUTPUT_INCLUDE_COLLECTIONS;
     std::set<std::string> m_OUTPUT_EXCLUDE_COLLECTIONS;
-    //static thread_local podio::EventStore m_store;
-    podio::EventStore m_store;
 
     std::unique_ptr<TFile> m_file;
     TTree* m_datatree;
@@ -47,13 +52,16 @@ protected:
     TTree* m_runMDtree;
     TTree* m_evtMDtree;
     TTree* m_colMDtree;
+    podio::CollectionIDTable m_collectionIDtable;
+    podio::GenericParameters m_evtMD;
+    std::map<int,podio::GenericParameters> m_colMetaDataMap;
+    std::map<int,podio::GenericParameters> m_runMetaDataMap;
 
-    std::set<std::string> m_collection_branches; // names of collections that have branches made
+    std::map<std::string, std::string> m_collection_branches; // names of collections that have branches made and name of vector type
     std::vector<std::tuple<int, std::string, bool>> m_collectionInfo;
 
-    void createBranch(const std::string& collName, podio::CollectionBase* collBase);
-    //void createBranches(const std::map<std::string, podio::CollectionBase*>& collections);
-    void resetBranches(const std::map<std::string, podio::CollectionBase*>& collections);
+    void CreateBranch(EICEventStore::DataVector *dv);
+    void ResetBranches(EICEventStore &store);
 
     // The following were defined in the podio src/rootUtils.h file. Oddly, this does not
     // seem to be in the podio install directory (??) Thus, they are copied here.

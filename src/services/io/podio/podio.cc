@@ -4,7 +4,7 @@
 //
 
 #include "JEventSourcePODIO.h"
-#include "EDM4hepWriter.h"
+#include "EICRootWriter.h"
 
 
 // Make this a JANA plugin
@@ -13,9 +13,12 @@ void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
 
-    // Only add a EDM4hepWriter if the user has specified a PODIO:OUTPUT_FILE or PODIO:OUTPUT_COLLECTION_NAMES
-    if( app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE") || app->GetJParameterManager()->Exists("PODIO:OUTPUT_COLLECTION_NAMES")){
-        app->Add(new EDM4hepWriter());
+    // Only add a EICRootWriter if the user has specified a configuration parameter relevant to writing
+    if( app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE")
+        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE_COPY_DIR")
+        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_INCLUDE_COLLECTIONS")
+        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_EXCLUDE_COLLECTIONS")        ){
+        app->Add(new EICRootWriter());
     }
 }
 }

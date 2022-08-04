@@ -11,16 +11,11 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 
-// podio specific includes
-#include "podio/EventStore.h"
-#include "podio/IReader.h"
-#include "podio/ROOTReader.h"
-#include "podio/UserDataCollection.h"
-#include "podio/podioVersion.h"
+#include <services/io/podio/EICEventStore.h>
+#include <services/io/podio/EICRootReader.h>
 
+/// JANA Event source that can read from podio/edm4hep root files.
 class JEventSourcePODIO : public JEventSource {
-
-    /// Add member variables here
 
 public:
     JEventSourcePODIO(std::string resource_name, JApplication* app);
@@ -34,22 +29,18 @@ public:
     
     static std::string GetDescription();
 
-    const std::map<std::string, std::string>& GetCollectionNames(void) const { return collection_names; }
     void PrintCollectionTypeTable(void);
 
 protected:
-	podio::ROOTReader reader;
-	podio::EventStore store;
+	EICRootReader reader;
 	size_t Nevents_in_file = 0;
 	size_t Nevents_read = 0;
-	bool m_event_in_flight = false;
+
+    std::string m_include_collections_str;
+    std::string m_exclude_collections_str;
+    std::set<std::string> m_INPUT_INCLUDE_COLLECTIONS;
+    std::set<std::string> m_INPUT_EXCLUDE_COLLECTIONS;
 	bool run_forever=false;
-
-	// This holds the collection name (key) and the collection type (value) contained in the
-	// input file. The collection type is a class name from the EDM4hep data model. Example is:
-	//      collection_name["MRICHHits"] = "SimTrackerHit"
-	std::map<std::string, std::string> collection_names;
-
 };
 
 template <>
