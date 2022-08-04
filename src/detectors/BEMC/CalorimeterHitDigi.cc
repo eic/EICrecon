@@ -4,7 +4,7 @@
 //  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "JFactory_EcalBarrelRawCalorimeterHit.h"
+#include "CalorimeterHitDigi.h"
 
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -37,44 +37,11 @@ JFactory_EcalBarrelRawCalorimeterHit::JFactory_EcalBarrelRawCalorimeterHit(){
 }
 
 //------------------------
-// Init
+// AlgorithmInit
 //------------------------
-void JFactory_EcalBarrelRawCalorimeterHit::Init() {
-    auto app = GetApplication();
+void CalorimeterHitDigi::AlgorithmInit() {
 
-    // I set the default values for the configuration parameters here, near the
-    // calls to SetDefaultParameter. Mainly because that is what I'm used to.
-    // The default values could also be set in the header file which would more
-    // closely match the Gaudi style and may be a little cleaner.
-
-    // TODO: There are 3 config values that are arrays that are not currently handled
-    //Gaudi::Property<std::vector<double>> u_eRes{this, "energyResolutions", {}}; // a/sqrt(E/GeV) + b + c/(E/GeV)
-    //Gaudi::Property<std::vector<std::string>> u_fields{this, "signalSumFields", {}};
-    //Gaudi::Property<std::vector<int>>         u_refs{this, "fieldRefNumbers", {}};
-
-    // additional smearing resolutions
-    m_tRes = 0.0 * ns;
-    japp->SetDefaultParameter("BarrelEMCal:timeResolution", m_tRes);
-
-    // digitization settings
-    m_capADC        = 8096;
-    m_dyRangeADC    = 100 * MeV;
-    m_pedMeanADC    = 400;
-    m_pedSigmaADC   = 3.2;
-    m_resolutionTDC = 10 * picosecond;
-    m_corrMeanScale = 1.0;
-    japp->SetDefaultParameter("BarrelEMCal:capacityADC",     m_capADC);
-    japp->SetDefaultParameter("BarrelEMCal:dynamicRangeADC", m_dyRangeADC);
-    japp->SetDefaultParameter("BarrelEMCal:pedestalMean",    m_pedMeanADC);
-    japp->SetDefaultParameter("BarrelEMCal:pedestalSigma",   m_pedSigmaADC);
-    japp->SetDefaultParameter("BarrelEMCal:resolutionTDC",   m_resolutionTDC);
-    japp->SetDefaultParameter("BarrelEMCal:scaleResponse",   m_corrMeanScale);
-
-    // signal sums
-    m_geoSvcName = "GeoSvc";
-    m_readout    = "";
-    japp->SetDefaultParameter("BarrelEMCal:geoServiceName",  m_geoSvcName);
-    japp->SetDefaultParameter("BarrelEMCal:readoutClass",    m_readout);
+    // Assume all configuration parameter data members have been filled in already.
 
     // Gaudi implments a random number generator service. It is not clear to me how this
     // can work. There are multiple race conditions that occur in parallel event processing:
@@ -102,7 +69,7 @@ void JFactory_EcalBarrelRawCalorimeterHit::Init() {
 
     // need signal sum
     if (!u_fields.empty()) {
-        m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
+
         // sanity checks
         if (!m_geoSvc) {
             LOG_ERROR(default_cerr_logger) << "Unable to locate Geometry Service. " << LOG_END;
@@ -139,43 +106,36 @@ void JFactory_EcalBarrelRawCalorimeterHit::Init() {
 }
 
 //------------------------
-// ChangeRun
+// AlgorithmChangeRun
 //------------------------
-void JFactory_EcalBarrelRawCalorimeterHit::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void CalorimeterHitDigi::AlgorithmChangeRun() {
     /// This is automatically run before Process, when a new run number is seen
     /// Usually we update our calibration constants by asking a JService
     /// to give us the latest data for this run number
-    
-    auto run_nr = event->GetRunNumber();
-    // m_calibration = m_service->GetCalibrationsForRun(run_nr);
 }
 
 //------------------------
-// Process
+// AlgorithmProcess
 //------------------------
-void JFactory_EcalBarrelRawCalorimeterHit::Process(const std::shared_ptr<const JEvent> &event) {
+void CalorimeterHitDigi::AlgorithmProcess()  {
+
+    // Delete any output objects left from last event.
+    for( auto h : rawhits ) delete h;
+    rawhits.clear();
 
     if (!u_fields.empty()) {
-        signal_sum_digi(event);
+        signal_sum_digi();
     } else {
-        single_hits_digi(event);
+        single_hits_digi();
     }
 }
 
 //------------------------
 // single_hits_digi
 //------------------------
-void JFactory_EcalBarrelRawCalorimeterHit::single_hits_digi( const std::shared_ptr<const JEvent> &event ){
-
-    // Debugging: print all factories
-    //for( auto fac : event->GetAllFactories() ) std::cout << fac->GetObjectName() <<" : " << fac->GetTag() <<" : " << fac->GetNumObjects() << std::endl;
-
-    // input collections
-    auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+void CalorimeterHitDigi::single_hits_digi(){
 
      // Create output collections
-    // auto* rawhits = m_outputHitCollection.createAndPut();
-    std::vector<EcalBarrelRawCalorimeterHit*> rawhits;
     for ( auto ahit : simhits ) {
         // Note: juggler internal unit of energy is GeV
         const double eDep    = ahit->getEnergy();
@@ -197,23 +157,19 @@ void JFactory_EcalBarrelRawCalorimeterHit::single_hits_digi( const std::shared_p
         }
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        auto rawhit = new EcalBarrelRawCalorimeterHit(
+        auto rawhit = new edm4hep::RawCalorimeterHit(
                 ahit->getCellID(),
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );
         rawhits.push_back(rawhit);
     }
-    Set( rawhits ); // publish to JANA
 }
 
 //------------------------
 // signal_sum_digi
 //------------------------
-void JFactory_EcalBarrelRawCalorimeterHit::signal_sum_digi( const std::shared_ptr<const JEvent> &event ){
-
-    auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
-    std::vector<EcalBarrelRawCalorimeterHit*> rawhits;
+void CalorimeterHitDigi::signal_sum_digi( void ){
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
@@ -257,12 +213,11 @@ void JFactory_EcalBarrelRawCalorimeterHit::signal_sum_digi( const std::shared_pt
         unsigned long long adc     = std::llround(ped + edep * (1. + eResRel) / dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        auto rawhit = new EcalBarrelRawCalorimeterHit(
+        auto rawhit = new edm4hep::RawCalorimeterHit(
                 id,
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );
         rawhits.push_back(rawhit);
     }
-    Set( rawhits ); // publish to JANA
 }
