@@ -27,6 +27,24 @@
 
 //------------------------------------------------------------------------------
 // CopyPodioToJEventT
+//
+/// This is called from the generated code in datamodel_glue.h. This will copy
+/// the data objects from the given DataVector into the given JEvent so that
+/// users downstream can access them via the standard JANA event.Get<>()
+/// mechanism. Ownership of the high-level objects is passed to JANA which
+/// will automatically delete them. Ownership of the Obj-level objects are
+/// is given to the caller who must take care of deleting them.
+///
+/// Note that deleting the Obj-level object pointers are also handled automatically
+/// since the podio_objs reference passed to us comes from a EICEventStore which
+/// is itself managed by JANA.
+///
+/// \tparam T           podio high-level data type (e.g. edm4hep::EventHeader)
+/// \tparam Tobj        podio Obj-level data type (e.g. edm4hep::EventHeaderObj)
+/// \tparam Tdata       podio POD-level data tpye (e.g. edm4hep::EventHeaderData)
+/// \param dvt          EICEventStore::DataVector containing a vector of the POD-level objects to be copied from
+/// \param event        JANA JEvent to copy the data objects into
+/// \param podio_objs   caller supplied container to return list of Obj-level object pointers so caller can delete later
 //------------------------------------------------------------------------------
 template <typename T, typename Tobj, typename Tdata>
 void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr<JEvent> &event, std::vector<podio::ObjBase*> &podio_objs){
@@ -56,6 +74,10 @@ void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr<JEven
 
 //------------------------------------------------------------------------------
 // Constructor
+//
+///
+/// \param resource_name  Name of root file to open (n.b. file is not opened until Open() is called)
+/// \param app            JApplication
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app) : JEventSource(resource_name, app) {
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
@@ -73,6 +95,8 @@ JEventSourcePODIO::~JEventSourcePODIO() {
 
 //------------------------------------------------------------------------------
 // Open
+//
+/// Open the root file and read in metadata.
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::Open() {
 
@@ -165,6 +189,10 @@ void JEventSourcePODIO::Open() {
 
 //------------------------------------------------------------------------------
 // GetEvent
+//
+/// Read next event from file and copy its objects into the given JEvent.
+///
+/// \param event
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
 
@@ -221,13 +249,19 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
 
 //------------------------------------------------------------------------------
 // FinishEvent
+//
+/// Get the EICEventStore object from the JEvent and have it delete all of the objects
+/// it owns. This technically doesn't need to be done here since JANA calling the
+/// EICEventStore destructor will do the same thing. This just frees the memory a little
+/// sooner.
+///
+/// This is called automatically by JANA since EnableFinishEvent() is called in the
+/// constructor.
+///
+/// \param event
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::FinishEvent(JEvent &event){
 
-    // Get the EICEventStore object from the JEvent and have it delete all of the objects
-    // it owns. This technically doesn't need to be done here since JANA calling the
-    // EICEventStore destructor will do the same thing. This just frees the memory a little
-    // sooner.
     auto es = event.GetSingle<EICEventStore>();
     if( es ) const_cast<EICEventStore*>(es)->Clear(); // Delete all underlying podio "Obj" objects
 }
@@ -243,6 +277,15 @@ std::string JEventSourcePODIO::GetDescription() {
 
 //------------------------------------------------------------------------------
 // CheckOpenable
+//
+/// Return a value from 0-1 indicating probability that this source will be
+/// able to read this root file. Currently, it simply checks that the file
+/// name contains the string ".root" and if does, returns a small number (0.01).
+/// This will need to be made more sophisticated if the alternative root file
+/// formats need to be supported by other event sources.
+///
+/// \param resource_name name of root file to evaluate.
+/// \return              value from 0-1 indicating confidence that this source can open the given file
 //------------------------------------------------------------------------------
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string resource_name) {

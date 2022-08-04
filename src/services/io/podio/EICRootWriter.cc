@@ -3,19 +3,17 @@
 //
 //
 
-#if 1
 
 #include <sstream>
 
-#include "EDM4hepWriter.h"
+#include "EICRootWriter.h"
 #include <JANA/JLogger.h>
 #include <podio/GenericParameters.h>
 #include <TInterpreter.h>
 
-// This file is generated automatically by make_datamodel_glue.py
+// datamodel_glue.h is generated automatically by make_datamodel_glue.py
 #include "datamodel_glue.h"
 
-//thread_local podio::EventStore EDM4hepWriter::m_store; // allow manipulations of EventStore to occur in parallel
 
 //------------------------------------------------------------------------------
 // DeriveCollectionName
@@ -34,7 +32,7 @@
 ///
 /// For option 2. the factory tag could represent either an alternative
 /// algorithm or a special category. For example, a factory producing
-/// EMCalBarrelRawCalorimeterHit objects may have a factory tag like
+/// BEMCRawCalorimeterHit objects may have a factory tag like
 /// "DaveTest" to indicate it is an alternative version of the algorithm
 /// that the user may select at run time. In this case, we would want the
 /// objects to be placed in the store in the standard place without any
@@ -87,7 +85,7 @@ std::string DeriveCollectionName( const std::string &edm4hep_name,  JFactory *fa
 /// \return        derived name of the collection
 //------------------------------------------------------------------------------
 template <class T, class C>
-std::string PutPODIODataT( EDM4hepWriter *writer, JFactory *fac,  EICEventStore &store){
+std::string PutPODIODataT( EICRootWriter *writer, JFactory *fac,  EICEventStore &store){
 
     // Formulate appropriate collection name based on edm4hep data type name and factory data type and tag.
     C tmp;  // The getValueTypeName() method should be made static in the collection class.
@@ -142,7 +140,7 @@ std::string PutPODIODataT( EDM4hepWriter *writer, JFactory *fac,  EICEventStore 
     std::vector<T> *vecptr = mybuffers.template dataAsVector<T>();
     vecptr->swap(*databuffer);
 
-    // At this point, all of the cloned objects are owned by the collection and will be deleted
+    // At this point, all of the cloned objects are owned by the local collection and will be deleted
     // when the collection goes out of scope. The EventStore passed into us wil have copies of
     // the POD data.
 
@@ -153,7 +151,7 @@ std::string PutPODIODataT( EDM4hepWriter *writer, JFactory *fac,  EICEventStore 
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-EDM4hepWriter::EDM4hepWriter() {
+EICRootWriter::EICRootWriter() {
     SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
 }
 
@@ -167,7 +165,7 @@ EDM4hepWriter::EDM4hepWriter() {
 ///   https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/PodioOutput.cpp
 ///
 //------------------------------------------------------------------------------
-void EDM4hepWriter::Init() {
+void EICRootWriter::Init() {
     // Get the output file name
     japp->SetDefaultParameter("PODIO:OUTPUT_FILE", m_OUTPUT_FILE, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
 
@@ -226,21 +224,10 @@ void EDM4hepWriter::Init() {
 ///
 /// Create the appropriate branches in the events TTree to hold the given collection.
 ///
-/// This is largely copied from here:
-///
-///   https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/PodioOutput.cpp
-///
-/// \param collName Name of collection
-/// \param collBase Pointer to collection
+/// \param dv EICEventStore::DataVector with collection corresponding to branch we want to create
 //------------------------------------------------------------------------------
-void EDM4hepWriter::CreateBranch(EICEventStore::DataVector *dv) {
+void EICRootWriter::CreateBranch(EICEventStore::DataVector *dv) {
 
-//    const std::string collClassName = "vector<" + dv->className + "Data>";
-//_DBG_<<"Creating branch of type: " << collClassName << std::endl;
-    //LOG << "Creating branch for collection " << collName.c_str() << " of type " << className << LOG_END;
-
-//    gInterpreter->GenerateDictionary("vector<edm4hep::CaloHitContributionData>");
-//    _DBG_<<TClass::GetClass("vector<edm4hep::CaloHitContributionData>")<<std::endl;
     auto branch = m_datatree->Branch(dv->name.c_str(), dv->className.c_str(), static_cast<void*>(dv->GetVectorAddressPtr()));
     m_collection_branches[dv->name] = dv->className;
 
@@ -293,13 +280,14 @@ void EDM4hepWriter::CreateBranch(EICEventStore::DataVector *dv) {
 /// all branches are pointing to the correct memory locations since they
 /// may have changed since the last event.
 ///
-/// This is largely copied from here:
+/// Note: This will create a new branch in the events TTree if it does not
+/// already exist for a the collection.
 ///
-///   https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/PodioOutput.cpp
+/// Note: User specified include/exclude lists are applied here.
 ///
-/// \param collections
+/// \param store  collections to setup/create branch addresses for
 //------------------------------------------------------------------------------
-void EDM4hepWriter::ResetBranches(EICEventStore &store) {
+void EICRootWriter::ResetBranches(EICEventStore &store) {
 
     // store should now contain all data we need to write out. The
     // name of each data vector is the collection name and the className
@@ -363,7 +351,7 @@ void EDM4hepWriter::ResetBranches(EICEventStore &store) {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
+void EICRootWriter::Process(const std::shared_ptr<const JEvent> &event) {
 
     // Place all values we plan to write into an EICEventStore object
     EICEventStore store;
@@ -415,11 +403,13 @@ void EDM4hepWriter::Process(const std::shared_ptr<const JEvent> &event) {
 // Finish
 //
 /// Called once automatically by JANA at end of job. Flushes trees and closes
-/// output files.
+/// output files. This also creates/fills branches with additional metadata
+/// gathered will processing the job. This must be called to have a valid
+/// podio/edm4hep root file.
 ///
 /// TODO: Add JANA configuration parameters as metadata to file.
 //------------------------------------------------------------------------------
-void EDM4hepWriter::Finish() {
+void EICRootWriter::Finish() {
 
     LOG << "Finalizing trees and output file" << LOG_END;
     m_file->cd();
@@ -472,5 +462,5 @@ void EDM4hepWriter::Finish() {
 
 }
 
-#endif
+
 

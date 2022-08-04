@@ -1,3 +1,7 @@
+// Copyright 2022, David Lawrence
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+
 #ifndef _EICRootReader_h_
 #define _EICRootReader_h_
 
@@ -13,6 +17,7 @@
 
 #include <EICEventStore.h>
 
+/// This class is used for reading in a podio root file that uses the EDM4hep Data Model.
 class EICRootReader{
 
 public:
