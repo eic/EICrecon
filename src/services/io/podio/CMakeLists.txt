@@ -10,33 +10,40 @@ find_package(podio REQUIRED)
 set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 
 # This is used to automatically run the make_datamodel_glue.py command
-# that generates the datamodel_glue.h file. This is temporary until
-# a better mechanism using PODIO tools is developed.
+# that generates the datamodel_glue.h, datamodel_includes.h, and
+# datamodel_LinkDef.h files.
 add_custom_command(
-        OUTPUT  datamodel_glue.h          # Treated as relative to CMAKE_CURRENT_BINARY_DIR
+        OUTPUT  datamodel_glue.h datamodel_includes.h         # Treated as relative to CMAKE_CURRENT_BINARY_DIR
         COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
+
+# Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
+# this, root will complain about not having a compiled CollectionProxy.
+include_directories(${EDM4HEP_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} )
+root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
+
 
 # Source files for plugin only (not library)
 set(PLUGIN_SOURCES podio.cc)
 
 # Compile all other sources into a library
 file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
-set( LIBRARY_SOURCES ${mysourcefiles} datamodel_glue.h )
+set( LIBRARY_SOURCES ${mysourcefiles} datamodel_glue.h datamodel_includes.h G__datamodel_vectors.cxx)
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
 set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES})
 
 # Define library
+message(STATUS "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 add_library( podio_library STATIC ${LIBRARY_SOURCES} )
-target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS} )
+target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(podio_library ${LINK_LIBRARIES})
 
 # Define plugin
-add_library(podio_plugin SHARED ${PLUGIN_SOURCES})
+add_library(podio_plugin SHARED ${PLUGIN_SOURCES} G__datamodel_vectors.cxx)
 target_include_directories(podio_plugin PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(podio_plugin podio_library ${LINK_LIBRARIES})
 set_target_properties(podio_plugin PROPERTIES PREFIX "" OUTPUT_NAME "podio" SUFFIX ".so")
@@ -60,9 +67,11 @@ set_target_properties(podio_plugin PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREF
 
 
 # Install root dictionaries made by PODIO
-#set(my_root_dict_files
-#        ${PROJECT_BINARY_DIR}/libEDM4HEPDataModelDict_rdict.pcm
+set(my_root_dict_files
+        ${PROJECT_BINARY_DIR}/libdatamodel_vectors_rdict.pcm
+        ${PROJECT_BINARY_DIR}/libdatamodel_vectors.rootmap
 #        ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModel${CMAKE_SHARED_LIBRARY_SUFFIX}
-#        ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModelDict${CMAKE_SHARED_LIBRARY_SUFFIX})
-#install(FILES ${my_root_dict_files} DESTINATION plugins)
+#        ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModelDict${CMAKE_SHARED_LIBRARY_SUFFIX}
+        )
+install(FILES ${my_root_dict_files} DESTINATION plugins)
 
