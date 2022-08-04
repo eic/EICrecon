@@ -1,65 +1,60 @@
 
-
-Here are a couple of examples for how we may implement the EDM4hep classes
-and names.
-
-option 1: Use the factory tag as the collection name.
-
-option 2: Create a new class named using the collection name and inheriting from
-the actual edm4hep class.
+Here is an example of using a generic algorithm class with a JANA factory.
 
 For the example, we implement the Juggler algorithm found here:
 
 https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/CalorimeterHitDigi.cpp
 
 This takes in objects of type _edm4hep::SimCalorimeterHit_ and produces
-objects of type _edm4hep::RawCalorimeterHit_. The Gaudi algorithm
-is generic so that it can be used with any calorimeter detector.
-For puposes of illustration, I focus on the Barrel EMCAL detector.
+objects of type _edm4hep::RawCalorimeterHit_. The _CalorimeterHitDigi_ class
+effectively knows nothing of JANA and could be used in other contexts.
 
-Note that the simulated data file can be probed for the collection names and
-corresponding data types like this:
+There are two ways one could implement this in a JFactory:
 
-~~~
-jana -PPLUGINS=jana_edm4hep -pPODIO:PRINT_TYPE_TABLE=1 file.root
-~~~
+1. Using multiple inheritance. This is what is done in the _JFactory_BEMCRawCalorimeterHit_ class.
 
-The output of which includes a table like the one below. From there,
-you can see several collections with data type _edm4hep::SimCalorimeterHit_.
-One of these is the collection named _EcalBarrelHits_. The goal of
-our algorithm will therefore be to take the _EcalBarrelHits_ collection
-as input and create objects of type _edm4hep::RawCalorimeterHit_ as
-output, but identified as coming from the Barrel EMCal. How to do this?
-There are a couple of options:
+2. Including the algorithm object as a data member. This is what is done in the
+_JFactory_BEMCRawCalorimeterHit_utility_ class.
 
-Option 1:<br>
-Define a JFactory that produces objects of type _edm4hep::RawCalorimeterHit_
-but has a factory tag with a name like "EcalBarrelRawCalorimeterHits"
+The main difference in the coding is that for option 2, one needs to derefence the algorithm
+class object whenever refering to one of its members. Otherwise, they are line-for-line the same.
 
-Option 2:<br>
-Define a C++ class called "EcalBarrelRawCalorimeterHit" that inherits from
-_edm4hep::RawCalorimeterHit_ and make the factory produce that.
+The _CalorimeterHitDigi_ class methods are not reentrant, This is not an issue 
+since only one thread will be executing the method of a given object at a time.
+(The same method of multiple objects may be executed in parallel.) Thus,
+inputs and outputs of the class are stored in data members of _CalorimeterHitDigi_.
 
-The benefit of Option 1 is that it matches closer to how the objects from
-the event source are accessed (i.e. using the podio collection name as the
-factory tag). It does so at the expense of preventing the factory tag from
-being used for its intended purpose of allowing alternative algorithms.
-The benefit of Option 2 is that it allows the factory tags to be used as
-intended.
+Two things I don't like about this system:
 
-Users would access the data from these two options like this:
-~~~
-# option 1:
-auto event->Get<edm4hep::RawCalorimeterHit>("EcalBarrelRawCalorimeterHits");
+1. The data objects created by the generic algorithm must be effectively cloned into
+   _BEMRawCalorimeterHit_ objects.
 
-# option 2:
-auto event->Get<EcalBarrelRawCalorimeterHit>(); // n.b. EcalBarrelRawCalorimeterHit isA edm4hep::RawCalorimeterHit
-~~~
+2. The framework has no way to automatically delete the _edm4hep::RawCalorimeterHit_ obejcts
+so we handle it manually in the _CalorimeterHitDigi_ class.
 
-The original algorithm has been ported to the _JFactory_EcalBarrelRawCalorimeterHit_
-class. The _JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits_ class would
-be mostly identical, so only those few places where they differ are filled out for
-illustrative purposes.
+
+One other option I have included is defining the _SetJANAConfigParameters_ templated method
+in the generic algorithm class _CalorimeterHitDigi_. This technically includes JANA code
+in the class, but since it is contained in the template, the compiler will never complain
+unless a template object is decalred, Thus, the _CalorimeterHitDigi_ class can be used
+outside of the JANA framework. The pros/cons of doing this are:
+
+pros:
+- It places this code in the header close to the data member definitions
+- It makes this code reusable for all calorimeters that use this algorithm
+
+cons:
+- It places JANA code in a generic algorithm which could be confusing if used
+  outside of JANA
+- It may be confusing to others trying to understand the code as to why this
+  is a template
+
+
+
+
+<hr>
+
+Below is a list of the simulated collections and types for reference.
 
 ~~~
 Available Collections
