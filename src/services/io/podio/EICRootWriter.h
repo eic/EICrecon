@@ -19,15 +19,15 @@
 
 #include <services/io/podio/EICEventStore.h>
 
-class EDM4hepWriter : public JEventProcessor {
+class EICRootWriter : public JEventProcessor {
 
     // Shared state (e.g. histograms, TTrees, TFiles) live
     std::mutex m_mutex;
     
 public:
 
-    EDM4hepWriter();
-    virtual ~EDM4hepWriter() = default;
+    EICRootWriter();
+    virtual ~EICRootWriter() = default;
 
     void Init() override;
     void Process(const std::shared_ptr<const JEvent>& event) override;

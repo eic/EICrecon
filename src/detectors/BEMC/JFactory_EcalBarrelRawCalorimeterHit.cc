@@ -32,7 +32,7 @@ JFactory_EcalBarrelRawCalorimeterHit::JFactory_EcalBarrelRawCalorimeterHit(){
     SetTag("");
 
     // This allows one to get the objects from this factory as edm4hep::RawCalorimeterHit.
-    // This is useful for the EDM4hepWriter.
+    // This is useful for the EICRootWriter.
     EnableGetAs<edm4hep::RawCalorimeterHit>();
 }
 
