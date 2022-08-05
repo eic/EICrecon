@@ -134,19 +134,13 @@ source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
 
 ### Detector Geometry
-The detector geometry itself is contained in a separate repository.
-At the moment, the _ECCE_ reference detector design is in a repository
-located [here](https://eicweb.phy.anl.gov/EIC/detectors/ecce). That requires at least _ACTS_
-and the _{fmt}_ package the latter of which is built here.
+The detector geometry itself is contained in separate repositories.
+The _EPIC_ reference detector design is in a repository
+located [here](https://github.com/eic/epic). This requires at least _ACTS_
+and the _{fmt}_ package the latter of which is built in the instructions here.
 
-These instructions turn off the requirement of the DDG4 component in both the
+Note: These instructions turn off the requirement of the DDG4 component in both the
 _ip6_ and _ecce_ geometries since it requires GEANT4 which is not needed here.
-
-There is currently an issue with the ip6 geometry in that it references a detector element
-called "CylindricalDipoleMagnet" in the far backward region while the C++ source builds a
-component named "ip6_CylindricalDipoleMagnet". To get the geometry to fully load, one
-needs to modify the ${EICTOPDIR}/detectors/ip6/ip6/far_backward/magnets.xml file so
-that all magnets are of type "ip6_CylindricalDipoleMagnet".
 
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
@@ -162,13 +156,13 @@ cmake3 -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CX
 cmake3 --build build --target install -- -j8
 
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-git clone https://eicweb.phy.anl.gov/EIC/detectors/ip6.git ${IP6_DD4HEP_HOME}
+git clone https://github.com/eic/ip6.git ${IP6_DD4HEP_HOME}
 cmake3 -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
 
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
-export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
-git clone https://eicweb.phy.anl.gov/EIC/detectors/ecce.git ${EIC_DD4HEP_HOME}
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
+export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/epic.xml
+git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
 ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
 cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
@@ -215,8 +209,9 @@ source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
-export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
+export LD_LIBRARY_PATH=${IP6_DD4HEP_HOME}/lib64:${IP6_DD4HEP_HOME}/lib:${LD_LIBRARY_PATH}
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
+export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/epic.xml
 export LD_LIBRARY_PATH=${EIC_DD4HEP_HOME}/lib64:${EIC_DD4HEP_HOME}/lib:${LD_LIBRARY_PATH}
 ~~~
 
