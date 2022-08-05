@@ -1,0 +1,1 @@
+install_bin = '/home/romanov/eic/soft/eicrecon/main/src/cmake-build-debug'
