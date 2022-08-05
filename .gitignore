@@ -136,3 +136,5 @@ flycheck_*.el
 # /EMACS
 #--------------
 
+
+*.bck
