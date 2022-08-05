@@ -1,1 +1,1 @@
-install_bin = '/home/romanov/eic/soft/eicrecon/main/src/cmake-build-debug'
+install_bin = '/home/davidl/work/2022.07.26.EICrecon/EICTOP/EICrecon/src/cmake-build-debug'
