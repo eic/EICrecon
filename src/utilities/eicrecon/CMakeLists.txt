@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
+print_header(">>>>   E X E C U T A B L E :   algorithms    <<<<")       # Fancy printing
+
 project(eicrecon_project)
 
 # Find dependencies
@@ -14,7 +16,7 @@ find_package(fmt     REQUIRED)
 
 set(SERVICES_LIBRARIES
         podio_library EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO
-        dd4hep_library ${DD4hep_LIBRARIES} fmt::fmt ${DETECTOR_LIBS_ECCE}  ${DETECTOR_LIBS_IP6}
+        dd4hep_library ${DD4hep_LIBRARIES} fmt::fmt ${DETECTOR_LIBS_EPIC}  ${DETECTOR_LIBS_IP6}
         )
 set(DETECTOR_LIBRARIES
         BEMC_library

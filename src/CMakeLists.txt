@@ -70,10 +70,10 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
-add_subdirectory( detectors/BEMC )
-add_subdirectory( services/geometry/dd4hep )
-add_subdirectory( services/io/podio )
-add_subdirectory( utilities/eicrecon )
+add_subdirectory( algorithms )
+add_subdirectory( detectors )
+add_subdirectory( services )
+add_subdirectory( utilities )
 add_subdirectory( tests )
 
 

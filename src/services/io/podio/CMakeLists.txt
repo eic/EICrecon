@@ -30,7 +30,7 @@ set(PLUGIN_SOURCES podio.cc)
 
 # Compile all other sources into a library
 file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
-set( LIBRARY_SOURCES ${mysourcefiles} datamodel_glue.h datamodel_includes.h G__datamodel_vectors.cxx)
+set( LIBRARY_SOURCES ${mysourcefiles} datamodel_includes.h G__datamodel_vectors.cxx)
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
 set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})

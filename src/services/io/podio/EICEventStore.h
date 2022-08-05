@@ -46,10 +46,10 @@ public:
         virtual void** GetVectorAddressPtr()=0;
         virtual size_t GetVectorSize()=0;
         virtual void Swap(DataVector *dv)=0;
-        virtual void SwapUnsafe(void *addr)=0; // addr should be  std::vector<T>
+        virtual void SwapUnsafe(void *addr)=0; // addr should be  std::vector<OutputType>
     };
 
-    template <typename T> // e.g. T=edm4hep::EventHeaderData
+    template <typename T> // e.g. OutputType=edm4hep::EventHeaderData
     class DataVectorT:public DataVector{
     public:
         DataVectorT(const std::string name, const std::string className, int collectionID=-1):DataVector(name, className, collectionID),vecptr(&vec){}

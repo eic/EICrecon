@@ -54,7 +54,7 @@ public:
     // The above will register config. parameters like: "BEMC:tag".
     // The configuration parameter members of this class should be set to thier
     // defaults *before* calling this.
-    template<typename T> // n.b. T should be JApplication
+    template<typename T> // n.b. OutputType should be JApplication
     void SetJANAConfigParameters(T *app, const std::string& prefix){
         app->SetDefaultParameter(prefix+":tag",             m_input_tag, "tag/collection name for edm4hep::SimCalorimeterHit objects to use");
         app->SetDefaultParameter(prefix+":timeResolution",  m_tRes);
