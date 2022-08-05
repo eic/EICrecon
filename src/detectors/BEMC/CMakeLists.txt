@@ -39,7 +39,7 @@ set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} $
 add_library( BEMC_library STATIC ${LIBRARY_SOURCES} )
 target_include_directories( BEMC_library PUBLIC ${INCLUDE_DIRS} )
 target_include_directories(BEMC_library PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(BEMC_library ${JANA_LIB})
+target_link_libraries(BEMC_library ${JANA_LIB} fmt::fmt)
 set_target_properties(BEMC_library PROPERTIES PREFIX "lib" OUTPUT_NAME "BEMC" SUFFIX ".so")
 
 # Define plugin
