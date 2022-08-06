@@ -17,8 +17,7 @@ set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
 
 set(ALGORITHMS_SOURCES
-        tracking/SimTrackerHitsCollector.h
-        tracking/SimTrackerHitsCollector.cpp
+        tracking/v1/SimTrackerHitsCollectorT.h
 
         )
 
