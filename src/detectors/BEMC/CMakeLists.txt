@@ -46,7 +46,7 @@ set_target_properties(BEMC_library PROPERTIES PREFIX "lib" OUTPUT_NAME "BEMC" SU
 add_library(BEMC_plugin SHARED ${PLUGIN_SOURCES})
 target_include_directories(BEMC_plugin PUBLIC ${INCLUDE_DIRS})
 target_include_directories(BEMC_plugin PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(BEMC_plugin BEMC_library ${JANA_LIB})
+target_link_libraries(BEMC_plugin BEMC_library ${JANA_LIB} EDM4HEP::edm4hep DD4hep::DDCore)
 set_target_properties(BEMC_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC" SUFFIX ".so")
 
 # Install plugin
