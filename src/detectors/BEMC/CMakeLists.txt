@@ -30,5 +30,5 @@ plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${po
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
+plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} dd4hep_library)
 

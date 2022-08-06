@@ -37,10 +37,11 @@ if not EDM4HEP_ROOT:
 
 
 collectionfiles = glob.glob(EDM4HEP_ROOT+'/include/edm4hep/*Collection.h')
-header_lines  = []
-copy_lines    = []
-make_lines    = []
-put_lines     = []
+header_lines      = []
+copy_lines        = []
+copy_simple_lines = []
+make_lines        = []
+put_lines         = []
 for f in collectionfiles:
     header_fname = f.split('/edm4hep')[-1]
     basename = header_fname.split('/')[-1].split('Collection.h')[0]
@@ -52,8 +53,13 @@ for f in collectionfiles:
 
     copy_lines.append( '    if( dv->className == "vector<edm4hep::'+basename+'Data>") {' )
     copy_lines.append( '        auto *dvt = reinterpret_cast<EICEventStore::DataVectorT<edm4hep::'+basename+'Data>*>( dv );' )
-    copy_lines.append( '        return CopyToJEventT<edm4hep::'+basename+', edm4hep::'+basename+'Obj, edm4hep::'+basename+'Data>(dvt, event, podio_objs);' )
+    copy_lines.append( '        return CopyToJEventT<edm4hep::'+basename+', edm4hep::'+basename+'Obj, edm4hep::'+basename+'Data, edm4hep::'+basename+'Collection>(dvt, event, podio_objs);' )
     copy_lines.append( '    }')
+
+    copy_simple_lines.append( '    if( className == "edm4hep::'+basename+'Collection") {' )
+    copy_simple_lines.append( '        auto *collection_typed = reinterpret_cast<const edm4hep::'+basename+'Collection*>( collection );' )
+    copy_simple_lines.append( '        return CopyToJEventSimpleT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>(collection_typed, name, event);' )
+    copy_simple_lines.append( '    }')
 
     put_lines.append('    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )')
     put_lines.append('       {return PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( writer, fac, store );}')
@@ -62,6 +68,7 @@ make_lines.append('    if( className == "vector<podio::ObjectID>"){ return new E
 make_lines.append('    std::cerr << "Unknown classname: " << className << " for branch " << name << std::endl;')
 make_lines.append('    return nullptr;')
 copy_lines.append('    std::cerr << "Unknown classname: " << dv->className << std::endl;')
+copy_simple_lines.append('    std::cerr << "Unknown classname: " << className << std::endl;')
 put_lines.append('    return "";')
 
 with open('datamodel_includes.h', 'w') as f:
@@ -79,7 +86,8 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#include <EICRootWriter.h>\n')
     f.write('#include <datamodel_includes.h>\n')
     f.write('\n')
-    f.write('\ntemplate <typename T, typename Tobj, typename Tdata> void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr <JEvent> &jevent, std::vector<podio::ObjBase*> &podio_objs);')
+    f.write('\ntemplate <typename T, typename Tobj, typename Tdata, typename Tcollection> void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr <JEvent> &jevent, std::vector<podio::ObjBase*> &podio_objs);')
+    f.write('\ntemplate <typename T, typename Tcollection> void CopyToJEventSimpleT(const Tcollection *collection, const std::string &name, std::shared_ptr <JEvent> &jevent);')
     f.write('\ntemplate <class T, class C> std::string PutPODIODataT( EICRootWriter *writer, JFactory *fac, EICEventStore &store );\n')
 
     f.write('\nstatic EICEventStore::DataVector* MakeDataVector(const std::string &name, const std::string &className, int collectionID=-1){\n')
@@ -89,6 +97,11 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n')
     f.write('\nstatic void CopyToJEvent(EICEventStore::DataVector *dv, std::shared_ptr<JEvent> &event, std::vector<podio::ObjBase*> &podio_objs){\n')
     f.write('\n'.join(copy_lines))
+    f.write('\n}\n')
+
+    f.write('\n')
+    f.write('\nstatic void CopyToJEventSimple(const std::string &className, const std::string &name, const podio::CollectionBase *collection, std::shared_ptr<JEvent> &event){\n')
+    f.write('\n'.join(copy_simple_lines))
     f.write('\n}\n')
 
     f.write('\n// Test data type held in given factory against being any of the known edm4hep data types.')
