@@ -1,0 +1,36 @@
+name: linux-eic-shell
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        run: |
+          # install this repo
+          cmake -B build -S src \
+            -DDETECTOR_LIBS_EPIC=. -DDETECTOR_LIBS_IP6=.
+          cmake --build build -- install
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-eic-shell
+        path: |
+          .
+          !src/
+        if-no-files-found: error
