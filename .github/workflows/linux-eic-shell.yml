@@ -26,8 +26,8 @@ jobs:
         run: |
           # install this repo
           cmake -B build -S src \
-            -DDETECTOR_LIBS_EPIC=${DETECTOR_PATH} \
-            -DDETECTOR_LIBS_IP6=${BEAMLINE_CONFIG_PATH}
+            -DDETECTOR_LIBS_EPIC=\${DETECTOR_PATH} \
+            -DDETECTOR_LIBS_IP6=\${BEAMLINE_CONFIG_PATH}
           cmake --build build -- install
     - uses: actions/upload-artifact@v3
       with:
