@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
+# Automatically set plugin name the same as the directory name
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
+
 project(podio_project)
 
 # Find dependencies
