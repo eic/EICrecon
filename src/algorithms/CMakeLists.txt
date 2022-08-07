@@ -18,14 +18,18 @@ set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR}
 
 set(ALGORITHMS_SOURCES
         trk_chain_example/v1/SimTrackerHitsCollectorT.h
-        trk_chain_example/v1/RawTrackerHit.h
-        trk_chain_example/v1/SiliconTracerDigiConfig.h
+        digi/RawTrackerHit.h
+        digi/RawTrackerHit.cc
+        trk_chain_example/v1/SiliconTrackerDigiConfig.h
         trk_chain_example/v1/SiliconTrackerDigiT.h
         trk_chain_example/v1/SimTrackerHitsCollectorConfig.h
         trk_chain_example/v1/SimTrackerHitsCollectorT.h
         trk_chain_example/v1/TrackerHitReconstructionConfig.h
         trk_chain_example/v1/TrackerHitReconstructionT.h
 
+        trk_chain_example/v2/JFactoryT_SiliconTrackerDigi.h
+        trk_chain_example/v2/JFactoryT_SimTrackerHitsCollection.h
+        trk_chain_example/v2/JFactoryT_TrackerHitReconstruction.h
         )
 
 add_library(algorithms_lib STATIC ${ALGORITHMS_SOURCES})
