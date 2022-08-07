@@ -22,14 +22,16 @@ jobs:
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
+        setup: /opt/detector/epic-nightly/setup.sh
         run: |
           # install this repo
           cmake -B build -S src \
-            -DDETECTOR_LIBS_EPIC=. -DDETECTOR_LIBS_IP6=.
+            -DDETECTOR_LIBS_EPIC=${DETECTOR_PATH} \
+            -DDETECTOR_LIBS_IP6=${BEAMLINE_CONFIG_PATH}
           cmake --build build -- install
     - uses: actions/upload-artifact@v3
       with:
-        name: build-eic-shell
+        name: build-eic-shell-epic-nightly
         path: |
           .
           !src/
