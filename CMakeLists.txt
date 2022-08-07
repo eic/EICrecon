@@ -38,9 +38,9 @@ endif()
 # Enable -fPIC for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Install in parent directory of src by default
+# Install to the top directory by default
 if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/.. CACHE PATH "Install in parent directory of src by default" FORCE)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Install in top directory by default" FORCE)
 endif()
 
 # Default plugins installation directory is 'plugins'
@@ -70,11 +70,11 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
-add_subdirectory( algorithms )
-add_subdirectory( detectors )
-add_subdirectory( services )
-add_subdirectory( utilities )
-add_subdirectory( tests )
+add_subdirectory( src/algorithms )
+add_subdirectory( src/detectors )
+add_subdirectory( src/services )
+add_subdirectory( src/utilities )
+add_subdirectory( src/tests )
 
 
 # Print what we had built
