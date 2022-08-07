@@ -6,6 +6,7 @@
 #include <fmt/core.h>
 
 #include <edm4hep/SimCalorimeterHit.h>
+#include <detectors/BTRK/BarrelTrackerSimHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -59,7 +60,9 @@ void OccupancyAnalysis::Process(const std::shared_ptr<const JEvent>& event)
 
 
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
-    auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+    //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+    auto bcal = event->Get<BarrelTrackerSimHit>();
+    fmt::print("BCAL {}\n", bcal[0]->getCellID());
 
 //	// Get hits
 //	auto hits = event->Get<minimodel::McFluxHit>();

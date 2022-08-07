@@ -7,20 +7,24 @@
 #include <JANA/JFactoryGenerator.h>
 
 #include "algorithms/digi/RawTrackerHit.h"
-#include <algorithms/trk_chain_example/v2/JFactoryT_SimTrackerHitsCollection.h>
+#include <algorithms/trk_chain_example/v2/JFactoryT_SimTrackerHitsCollector.h>
 #include <algorithms/trk_chain_example/v2/JFactoryT_SiliconTrackerDigi.h>
 #include <algorithms/trk_chain_example/v2/JFactoryT_TrackerHitReconstruction.h>
 
 #include "BarrelTrackerSimHit.h"
+#include "BarrelTrackerRawHit.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
 
-        // Hits collection
-        app->Add(new JFactoryGeneratorT<JFactoryT_SimTrackerHitsCollection<BarrelTrackerSimHit>>());
+        // Hits collector
+        app->Add(new JFactoryGeneratorT<JFactoryT_SimTrackerHitsCollector<BarrelTrackerSimHit>>());
 
         // Digitisation
+        app->Add(new JFactoryGeneratorT<JFactoryT_SiliconTrackerDigi<BarrelTrackerSimHit, BarrelTrackerRawHit>>());
+
+
     }
 }
     

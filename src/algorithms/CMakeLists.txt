@@ -28,7 +28,7 @@ set(ALGORITHMS_SOURCES
         trk_chain_example/v1/TrackerHitReconstructionT.h
 
         trk_chain_example/v2/JFactoryT_SiliconTrackerDigi.h
-        trk_chain_example/v2/JFactoryT_SimTrackerHitsCollection.h
+        trk_chain_example/v2/JFactoryT_SimTrackerHitsCollector.h
         trk_chain_example/v2/JFactoryT_TrackerHitReconstruction.h
         )
 
