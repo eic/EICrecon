@@ -4,6 +4,7 @@
 //
 
 #include "JEventSourcePODIO.h"
+#include "JEventSourcePODIOsimple.h"
 #include "EICRootWriter.h"
 
 
@@ -12,6 +13,7 @@ extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+    app->Add(new JEventSourceGeneratorT<JEventSourcePODIOsimple>());
 
     // Only add a EICRootWriter if the user has specified a configuration parameter relevant to writing
     if( app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE")

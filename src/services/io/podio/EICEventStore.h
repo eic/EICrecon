@@ -6,6 +6,8 @@
 #define _EICEventStore_h_
 
 #include <podio/ObjBase.h>
+#include <podio/ICollectionProvider.h>
+#include <JANA/Services/JLoggingService.h>
 
 /// This class is used to keep a list of collections belonging to the event.
 /// This serves a similar role as the podio::EventStore class except it is
@@ -19,7 +21,7 @@
 /// Note that this class is defined completely in this header file. The
 /// internal utility classes DataVector and DataVectorT store vectors of
 /// the POD data that can be used for reading/writing from/to a TBranch.
-class EICEventStore{
+class EICEventStore: public podio::ICollectionProvider{
 public:
 
     EICEventStore()= default;
@@ -42,6 +44,7 @@ public:
         std::string name;       // e.g. EventHeaders
         std::string className;  // e.g. vector<edm4hep::EventHeader>
         int collectionID;
+        podio::CollectionBase *collection = nullptr; // will be filled by CopyToJEventT in JEventSourcePODIO.cc
         virtual void* GetVectorAddress()=0;
         virtual void** GetVectorAddressPtr()=0;
         virtual size_t GetVectorSize()=0;
@@ -55,23 +58,24 @@ public:
         DataVectorT(const std::string name, const std::string className, int collectionID=-1):DataVector(name, className, collectionID),vecptr(&vec){}
         std::vector<T> vec;
         void  *vecptr;
-        void*  GetVectorAddress(){ return &vec; }
-        void** GetVectorAddressPtr(){ return &vecptr; } // ROOT TBranch wants a pointer to a variable which points to actual data object
-        size_t GetVectorSize(){ return vec.size(); }
+        void*  GetVectorAddress() override { return &vec; }
+        void** GetVectorAddressPtr() override { return &vecptr; } // ROOT TBranch wants a pointer to a variable which points to actual data object
+        size_t GetVectorSize() override { return vec.size(); }
 
         /// Swap contents of the std::vector<> with the given DataVector. This is an efficient
         /// way to move the data contents from a vector used by TBranch without having to copy
         /// the POD data or reset the branch address.
-        void   Swap(DataVector *dv){
+        void   Swap(DataVector *dv) override {
             auto *vec_other = static_cast<std::vector<T>*>( dv->GetVectorAddress() );
             vec_other->swap(vec);
         }
 
         /// Same as Swap() only slightly less safe since this takes the address as a void*
-        void   SwapUnsafe(void *addr){
+        void   SwapUnsafe(void *addr) override {
             auto *vec_other = static_cast<std::vector<T>*>( addr );
             vec_other->swap(vec);
         }
+
     };
 
     /// Swap contents of our members with the given EICEventStore.
@@ -86,13 +90,29 @@ public:
     /// Free all data objects. This is called from JEventSourcePODIO::FinishEvent
     /// just to free this memory up a little earlier than when the destructor of
     /// this class gets called which may not happen until later.
-    void Clear(void){
+    void Clear(){
         for( auto obj : m_datavectors  ) delete obj;
         for( auto obj : m_objidvectors ) delete obj;
         for( auto obj : m_podio_objs   ) delete obj;
         m_datavectors.clear();
         m_objidvectors.clear();
         m_podio_objs.clear();
+    }
+
+    /// Method needed to make this act as a ICollectionProvider
+    /// This is used a collection's setReferences method which gets
+    /// called to fill in the reference pointers for objects in the collection.
+    /// It is not expected the end-user will cal this directly.
+    bool get(int collectionID, podio::CollectionBase*& collection) const override {
+        _DBG_<<"collectionID: " << collectionID<<std::endl;
+        for( auto dv : m_datavectors ){
+            if( dv->collectionID == collectionID ){
+                _DBG_<<dv->name<<std::endl;
+                collection = dv->collection; // n.b. will be nullptr unless CopyToJEventT in JEventSourcePODIO.cc was called on us
+                return true;
+            }
+        }
+        return false;
     }
 
     std::vector<DataVector*> m_datavectors;    // pod data objects

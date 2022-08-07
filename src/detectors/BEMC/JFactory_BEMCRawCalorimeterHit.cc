@@ -48,7 +48,7 @@ void JFactory_BEMCRawCalorimeterHit::Init() {
     //Gaudi::Property<std::vector<int>>         u_refs{this, "fieldRefNumbers", {}};
 
     // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-    m_input_tag     = "EMcalBarrelHits";
+    m_input_tag     = "EcalBarrelHits";
     m_tRes          = 0.0 * ns;
     m_tRes          = 0.0 * ns;
     m_capADC        = 8096;

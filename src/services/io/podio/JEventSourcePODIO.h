@@ -6,8 +6,6 @@
 #ifndef _JEventSourcePODIO_h_
 #define  _JEventSourcePODIO_h_
 
-#include <map>
-
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 

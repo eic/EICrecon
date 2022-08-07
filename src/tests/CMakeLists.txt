@@ -1,2 +1,3 @@
 add_subdirectory(data_flow_test)
 add_subdirectory(pyjano)
+add_subdirectory(BEMC_test)
