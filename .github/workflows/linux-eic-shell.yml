@@ -1,4 +1,4 @@
-name: linux-eic-shell
+name: Build against eic-shell
 
 on:
   push:
