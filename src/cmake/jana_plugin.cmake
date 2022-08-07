@@ -12,12 +12,14 @@ macro(plugin_add _name)
     target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR})
     target_include_directories(${_name}_library SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
     set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
+    target_link_libraries(${_name}_library fmt::fmt)
 
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR})
     target_include_directories(${_name}_plugin SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
+    target_link_libraries(${_name}_plugin fmt::fmt)
 
     # Install plugin and library
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -100,4 +102,23 @@ macro(plugin_glob_all _name)
     # Install headers for plugin
 
     install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH}/${_name})
+endmacro()
+
+macro(plugin_test _name)
+    message(STATUS "\nARGN: ${ARGN}\n")
+    set(${_name}_with_lib OFF)
+
+    list(FIND ARGN "THREE" LIST_FOUND)
+
+    message(STATUS "LIST_FOUND ${LIST_FOUND}")
+
+    foreach(arg IN ITEMS ${ARGN})
+        message(STATUS "   ${arg}")
+        if(${arg} STREQUAL "THREE")
+            message(STATUS "WORKDS")
+            set(${_name}_with_lib ON)
+        endif()
+    endforeach()
+
+    message(STATUS "${_name}_with_lib ${${_name}_with_lib}")
 endmacro()
