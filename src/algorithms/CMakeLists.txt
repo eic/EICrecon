@@ -17,7 +17,14 @@ set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
 
 set(ALGORITHMS_SOURCES
-        tracking/v1/SimTrackerHitsCollectorT.h
+        trk_chain_example/v1/SimTrackerHitsCollectorT.h
+        trk_chain_example/v1/RawTrackerHit.h
+        trk_chain_example/v1/SiliconTracerDigiConfig.h
+        trk_chain_example/v1/SiliconTrackerDigiT.h
+        trk_chain_example/v1/SimTrackerHitsCollectorConfig.h
+        trk_chain_example/v1/SimTrackerHitsCollectorT.h
+        trk_chain_example/v1/TrackerHitReconstructionConfig.h
+        trk_chain_example/v1/TrackerHitReconstructionT.h
 
         )
 
@@ -28,6 +35,7 @@ set_target_properties(algorithms_lib PROPERTIES PREFIX "lib" OUTPUT_NAME "algori
 
 install(TARGETS algorithms_lib DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
 install(FILES ${HEADER_FILES} DESTINATION include/algorithms)
+
 
 #message(STATUS "BEMC: {PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
 #message(STATUS "BEMC: {CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/services/geometry/")
