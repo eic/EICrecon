@@ -33,6 +33,8 @@ public:
 
 private:
 
+    std::string m_config_prefix;    /// A prefix to use for command line parameters
+
 };
 
 template<typename SimTrackerHitInT, typename RawTrackerHitOutT>
@@ -41,6 +43,14 @@ void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Init() {
     fmt::print("JFactory_BEMCRawCalorimeterHit<{}, {}>::Init()\n",
                typeid(SimTrackerHitInT).name(),
                typeid(RawTrackerHitOutT).name());
+
+    // We will use plugin name to get parameters for correct factory
+    // So if we use <plugin name>:parameter it will be:
+    // BTRK:parameter FarForward:paraeter, etc. whichever plugin uses this template
+    // That has limitations but the convenient in the most of the cases
+    m_config_prefix = this->GetPluginName();
+    
+    //... process m_config_prefix
 }
 
 template<typename SimTrackerHitInT, typename RawTrackerHitOutT>
