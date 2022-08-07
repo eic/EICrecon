@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
+# Automatically set plugin name the same as the directory name
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
+
 project(dd4hep_project)
 
 # Find dependencies
@@ -46,17 +50,19 @@ set(PLUGIN_SOURCES dd4hep.cc)
 file(GLOB LIBRARY_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
-set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS})
-set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES} ${DETECTOR_LIBS})
+set( SYS_INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS} ${DETECTOR_LIBS})
+set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
 
 # Define library
 add_library( dd4hep_library STATIC ${LIBRARY_SOURCES} )
-target_include_directories( dd4hep_library PUBLIC ${INCLUDE_DIRS} )
+target_include_directories( dd4hep_library PUBLIC ${CMAKE_SOURCE_DIR} )
+target_include_directories( dd4hep_library SYSTEM PUBLIC ${SYS_INCLUDE_DIRS} )
 target_link_libraries(dd4hep_library ${LINK_LIBRARIES})
 
 # Define plugin
 add_library(dd4hep_plugin SHARED ${PLUGIN_SOURCES})
-target_include_directories(dd4hep_plugin PUBLIC ${INCLUDE_DIRS})
+target_include_directories(dd4hep_plugin PUBLIC ${CMAKE_SOURCE_DIR} )
+target_include_directories(dd4hep_plugin PUBLIC ${SYS_INCLUDE_DIRS})
 target_link_libraries(dd4hep_plugin dd4hep_library ${LINK_LIBRARIES})
 set_target_properties(dd4hep_plugin PROPERTIES PREFIX "" OUTPUT_NAME "dd4hep" SUFFIX ".so")
 
