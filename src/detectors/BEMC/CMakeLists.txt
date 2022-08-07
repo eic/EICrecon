@@ -25,5 +25,5 @@ find_package(ROOT REQUIRED)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
 
 # Add libraries (works same as target_include_directories)
-# plugin_link_libraries(${PLUGIN_NAME})
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
 
