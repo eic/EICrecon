@@ -20,23 +20,34 @@ import glob
 
 print('Generating datamodel_glue.h ...')
 
+# Default to "not found"
+EDM4HEP_INCLUDE_DIR = None
+
+# Try getting from environment first so we can overwrite
+# with command line below if available.
 EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
+if EDM4HEP_ROOT :
+    EDM4HEP_INCLUDE_DIR=EDM4HEP_ROOT+'/include'
 
 # poor man's command line parsing
 for arg in sys.argv:
-    if arg.startswith('EDM4HEP_ROOT'):
-        if '=' in EDM4HEP_ROOT: EDM4HEP_ROOT = arg.split('=')[1]
+    if arg.startswith('EDM4HEP_INCLUDE_DIR'):
+        if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=')[1]
 
 
 # Check if EDM4HEP_ROOT is set
-if not EDM4HEP_ROOT:
-    print("ERROR: EDM4HEP_ROOT env. variable is None or empty and no EDM4HEP=/path/to/edm4hep on command line!\n"
-          "       Please point EDM4HEP_ROOT to edm4hep installation root.\n"
-          "       This script looks for '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
+if not EDM4HEP_INCLUDE_DIR:
+    print("ERROR: EDM4HEP_INCLUDE_DIR not spcified on command line (with \n"
+          "EDM4HEP_INCLUDE_DIR=/path/to/edm4hep/include) and EDM4HEP_ROOT\n"
+          "env. variable is None or empty\n"
+          "       Please specify the EDM4HEP_INCLUDE_DIR value explicitly\n"
+          "       or point EDM4HEP_ROOT envar to edm4hep installation root.\n"
+          "       This script looks for '{EDM4HEP_INCLUDE_DIR}/edm4hep/*Collection.h'\n"
+          "                          or '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
     sys.exit(1)
 
 
-collectionfiles = glob.glob(EDM4HEP_ROOT+'/include/edm4hep/*Collection.h')
+collectionfiles = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
 header_lines      = []
 copy_lines        = []
 copy_simple_lines = []
