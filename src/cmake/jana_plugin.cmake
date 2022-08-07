@@ -17,8 +17,6 @@ macro(plugin_add _name)
     find_package(fmt REQUIRED)
     set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
-
-
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR})
@@ -43,6 +41,7 @@ macro(plugin_add _name)
     endif()     # WITH_STATIC_LIB
 endmacro()
 
+
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
     target_link_libraries(${_name}_plugin  ${ARGN})
@@ -52,6 +51,7 @@ macro(plugin_link_libraries _name)
     endif()     # WITH_STATIC_LIB
 endmacro()
 
+
 # target_include_directories for both a plugin and a library
 macro(plugin_include_directories _name)
     target_include_directories(${_name}_plugin  ${ARGN})
@@ -60,8 +60,6 @@ macro(plugin_include_directories _name)
         target_include_directories(${_name}_library ${ARGN})
     endif()     # WITH_STATIC_LIB
 endmacro()
-
-
 
 
 # runs target_sources both for library and a plugin
