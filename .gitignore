@@ -138,3 +138,5 @@ flycheck_*.el
 
 
 *.bck
+
+bin/

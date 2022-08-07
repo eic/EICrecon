@@ -10,7 +10,7 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
-plugin_add(${PLUGIN_NAME})
+plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 
 # Find dependencies
 find_package(JANA REQUIRED)
