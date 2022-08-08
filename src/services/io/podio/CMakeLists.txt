@@ -37,13 +37,12 @@ file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
 set( LIBRARY_SOURCES ${mysourcefiles} datamodel_includes.h G__datamodel_vectors.cxx)
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
-set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
+set( INCLUDE_DIRS ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES})
 
 # Define library
-message(STATUS "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 add_library( podio_library STATIC ${LIBRARY_SOURCES} )
-target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(podio_library ${LINK_LIBRARIES})
 
 # Define plugin

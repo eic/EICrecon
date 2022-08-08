@@ -22,7 +22,7 @@ macro(plugin_add _name)
 
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
-    target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR})
+    target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
@@ -35,7 +35,7 @@ macro(plugin_add _name)
     if(${_name}_WITH_STATIC_LIB)
         # Define library
         add_library(${_name}_library STATIC "")
-        target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR})
+	target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
