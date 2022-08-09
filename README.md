@@ -273,7 +273,6 @@ Recommended CMake for a plugin:
 
 ```cmake
 cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
 # Automatically set plugin name the same as the direcotry name
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name

@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
+
+# DD4hep relies on LD_LIBRARY_PATH at run time to find .components files
+# which themselves refer to symbols and plugins (shared libraries) that
+# contain them. It opens these plugins with libdl so they symbols do not
+# need to be linked in here at compile time. All of this is to say we
+# should not link the ip6 of epic gemetry libraries here.
 
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -18,37 +23,20 @@ find_package(DD4hep REQUIRED)
 # library that is used by both the simulation and reconstruction. This is
 # where we will reference the library containing them.
 
-## Main EPIC detector directory, make sure ${EIC_DD4HEP_HOME} exist one way or another
-#if( EXISTS "$ENV{EIC_DD4HEP_HOME}" )
-#    message(STATUS "dd4hep: EIC_DD4HEP_HOME provided by ENV(EIC_DD4HEP_HOME) $ENV{EIC_DD4HEP_HOME}")
-#    set(EIC_DD4HEP_HOME $ENV{EIC_DD4HEP_HOME})
-#elseif(EXISTS ${EIC_DD4HEP_HOME})
-#    message(STATUS "dd4hep: cmake EIC_DD4HEP_HOME provided as ${EIC_DD4HEP_HOME}")
-#else()
-#    message(WARNING "No cmake EIC_DD4HEP_HOME nor env:EIC_DD4HEP_HOME provided. Build probably will fail!!!")
-#endif()
-#find_library(DETECTOR_LIBS_EPIC epic PATHS ${EIC_DD4HEP_HOME}/lib)
-#
-## IP6 directory, make sure ${IP6_DD4HEP_HOME} exist one way or another
-#if( EXISTS "$ENV{IP6_DD4HEP_HOME}" )
-#    message(STATUS "dd4hep: IP6_DD4HEP_HOME provided by ENV(IP6_DD4HEP_HOME) $ENV{IP6_DD4HEP_HOME}")
-#    set(IP6_DD4HEP_HOME $ENV{IP6_DD4HEP_HOME})
-#elseif(EXISTS ${IP6_DD4HEP_HOME})
-#    message(STATUS "dd4hep: cmake IP6_DD4HEP_HOME provided as ${IP6_DD4HEP_HOME}")
-#else()
-#    message(WARNING "No cmake IP6_DD4HEP_HOME nor env:IP6_DD4HEP_HOME provided. Build probably will fail!!!")
-#endif()
-#find_library(DETECTOR_LIBS_IP6 ip6 PATHS ${IP6_DD4HEP_HOME}/lib)
-
-#set(DETECTOR_LIBS ${DETECTOR_LIBS_EPIC}  ${DETECTOR_LIBS_IP6} )
-#message(STATUS "DETECTOR_LIBS=${DETECTOR_LIBS}")
-
-# Source files for plugin only (not library)
-set(PLUGIN_SOURCES dd4hep.cc)
 
 # Compile all other sources into a library
-file(GLOB LIBRARY_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
-list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
+file(GLOB PLUGIN_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
+set(LIBRARY_SOURCES ${PLUGIN_SOURCES})
+
+# Library don't need <plugin_name>.cc but Plugin does
+set(PLUGIN_CC_FILE dd4hep.cc)
+
+# Make the path absolute as GLOB files will be absolute paths
+get_filename_component(PLUGIN_CC_FILE_ABS "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CC_FILE}" ABSOLUTE)
+
+# Remove plugin.cc file from libraries
+list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_CC_FILE_ABS})
+
 
 set( SYS_INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
@@ -58,6 +46,7 @@ add_library( dd4hep_library STATIC ${LIBRARY_SOURCES} )
 target_include_directories( dd4hep_library PUBLIC ${CMAKE_SOURCE_DIR} )
 target_include_directories( dd4hep_library SYSTEM PUBLIC ${SYS_INCLUDE_DIRS} )
 target_link_libraries(dd4hep_library ${LINK_LIBRARIES})
+
 
 # Define plugin
 add_library(dd4hep_plugin SHARED ${PLUGIN_SOURCES})
@@ -73,6 +62,7 @@ install(TARGETS dd4hep_plugin DESTINATION plugins)
 file(GLOB my_headers "*.h*")
 install(FILES ${my_headers} DESTINATION include/services/dd4hep)
 
+# IDK if this is really still needed since we are not linking ip6 and epic anymore?  2022-08-09 DL
 
 ## The following ensures that on macosx the @rpath search paths go into the plugin
 ## itself and includes the plugin installation directory. This is needed so
