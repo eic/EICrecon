@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 project(BEMC_test_project)
 
