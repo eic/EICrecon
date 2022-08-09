@@ -19,8 +19,8 @@ set(ALGORITHMS_SOURCES
         trk_chain_example/v1/SimTrackerHitsCollectorT.h
         digi/RawTrackerHit.h
         digi/RawTrackerHit.cc
-        trk_chain_example/v1/SiliconTrackerDigiConfig.h
-        trk_chain_example/v1/SiliconTrackerDigiT.h
+        digi/SiliconTrackerDigiConfig.h
+        digi/SiliconTrackerDigiT.h
         trk_chain_example/v1/SimTrackerHitsCollectorConfig.h
         trk_chain_example/v1/SimTrackerHitsCollectorT.h
         trk_chain_example/v1/TrackerHitReconstructionConfig.h
