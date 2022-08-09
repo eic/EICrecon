@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -40,17 +39,24 @@ else()
 endif()
 find_library(DETECTOR_LIBS_IP6 ip6 PATHS ${IP6_DD4HEP_HOME}/lib)
 
-set(DETECTOR_LIBS ${DETECTOR_LIBS_EPIC}  ${DETECTOR_LIBS_IP6} )
-message(STATUS "DETECTOR_LIBS=${DETECTOR_LIBS}")
-
-# Source files for plugin only (not library)
-set(PLUGIN_SOURCES dd4hep.cc)
+#set(DETECTOR_LIBS ${DETECTOR_LIBS_EPIC}  ${DETECTOR_LIBS_IP6} )
+#message(STATUS "DETECTOR_LIBS=${DETECTOR_LIBS}")
 
 # Compile all other sources into a library
-file(GLOB LIBRARY_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
-list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
+file(GLOB PLUGIN_SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
+set(LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
-set( SYS_INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS} ${DETECTOR_LIBS})
+# Library don't need <plugin_name>.cc but Plugin does
+set(PLUGIN_CC_FILE dd4hep.cc)
+
+# Make the path absolute as GLOB files will be absolute paths
+get_filename_component(PLUGIN_CC_FILE_ABS "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CC_FILE}" ABSOLUTE)
+
+# Remove plugin.cc file from libraries
+list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_CC_FILE_ABS})
+
+
+set( SYS_INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
 
 # Define library
@@ -58,6 +64,7 @@ add_library( dd4hep_library STATIC ${LIBRARY_SOURCES} )
 target_include_directories( dd4hep_library PUBLIC ${CMAKE_SOURCE_DIR} )
 target_include_directories( dd4hep_library SYSTEM PUBLIC ${SYS_INCLUDE_DIRS} )
 target_link_libraries(dd4hep_library ${LINK_LIBRARIES})
+
 
 # Define plugin
 add_library(dd4hep_plugin SHARED ${PLUGIN_SOURCES})

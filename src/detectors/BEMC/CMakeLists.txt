@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 # Automatically set plugin name the same as the directory name
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
@@ -25,5 +24,4 @@ find_package(ROOT REQUIRED)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
 
 # Add libraries (works same as target_include_directories)
-# plugin_link_libraries(${PLUGIN_NAME})
-
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)

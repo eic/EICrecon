@@ -12,7 +12,12 @@
 #include "JDD4hep_service.h"
     
 
-JDD4hep_service::JDD4hep_service( JApplication *app ){
+
+void JDD4hep_service::Initialize() {
+
+    if( m_dd4hepGeo ) {
+        LOG_WARN(default_cout_logger) << "JDD4hep_service already initialized!" << LOG_END;
+    }
 
     m_dd4hepGeo = &(dd4hep::Detector::getInstance());
 

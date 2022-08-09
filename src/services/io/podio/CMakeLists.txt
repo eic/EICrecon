@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
+
 
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -18,7 +18,7 @@ set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 # datamodel_LinkDef.h files.
 add_custom_command(
         OUTPUT  datamodel_glue.h datamodel_includes.h         # Treated as relative to CMAKE_CURRENT_BINARY_DIR
-        COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+        COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
@@ -37,13 +37,12 @@ file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
 set( LIBRARY_SOURCES ${mysourcefiles} datamodel_includes.h G__datamodel_vectors.cxx)
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
-set( INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
+set( INCLUDE_DIRS ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES})
 
 # Define library
-message(STATUS "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 add_library( podio_library STATIC ${LIBRARY_SOURCES} )
-target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories( podio_library PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(podio_library ${LINK_LIBRARIES})
 
 # Define plugin

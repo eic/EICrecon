@@ -25,8 +25,7 @@
 
 
 
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 project(EICRecon)
 
@@ -38,9 +37,9 @@ endif()
 # Enable -fPIC for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Install in parent directory of src by default
+# Install to the top directory by default
 if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/.. CACHE PATH "Install in parent directory of src by default" FORCE)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Install in top directory by default" FORCE)
 endif()
 
 # Default plugins installation directory is 'plugins'
@@ -57,24 +56,33 @@ if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
 
+
+# Check and print what JANA2 is used
+find_package(JANA REQUIRED)
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
+
+
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
+
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
 include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
-include(cmake/jana_plugin.cmake)                             # Add common settings for plugins
+include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
-add_subdirectory( algorithms )
-add_subdirectory( detectors )
-add_subdirectory( services )
-add_subdirectory( utilities )
-add_subdirectory( tests )
+add_subdirectory( src/algorithms )
+add_subdirectory( src/detectors )
+add_subdirectory( src/services )
+add_subdirectory( src/utilities )
+add_subdirectory( src/tests )
 
 
 # Print what we had built

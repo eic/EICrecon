@@ -1,1 +1,0 @@
-cmake_source_root = '/home/romanov/eic/soft/eicrecon/main/src/..'
