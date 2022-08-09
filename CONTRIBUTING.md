@@ -21,6 +21,7 @@ There are many coding guidelines which could be selected by the whole community,
 - services, processors, etc.: Name_service, Name_processor, Name_etc
 - plugin with `name` should have `name`.cc file with `InitPlugin` function (It makes it so much easier to find the entry point of a plugin in the src tree)
 - templated classes: end with "T" (classes that inherit from them don't, unless they are also a template)
+- interface classes: start with "I"
 
 ### Sample
 
