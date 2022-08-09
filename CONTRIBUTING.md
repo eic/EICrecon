@@ -7,11 +7,44 @@ There are many coding guidelines which could be selected by the whole community,
 ### Common 
 
 - file extensions: cc, h
-- base namespace: eicrecon
-- class names: CamelCase
-- member functions: lowerCamelCase
+- constands, definitions: SCREAMING_SNAKE_CASE
+- class names: PascalCase
+- member functions: camelCase
 - members:  m_snake_case
 - local variables: snake_case
+- base namespace: eicrecon
+
+(This code smaple is temporary and needs further development) 
+
+```c++
+#include <vector>
+
+/** Doxygen style for Foo */
+class Foo {
+    friend class AnotherClass;
+
+public:
+    Foo(some_arg) {
+        m_field = some_arg;
+    }
+private: 
+  int m_field;
+};
+
+class AnotherClass {
+public:
+    static const int MAX_VALUE = 42;
+    static const int MIN_VALUE = 0;
+
+    virtual void method1() = 0;
+    virtual void method2() = 0;
+private:
+    int m_x;
+    int  x() { return m_x; }
+    void setX(x) { m_x = x; }
+};
+
+```
 
 
 ### Jana2 related: 
