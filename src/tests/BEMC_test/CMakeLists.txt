@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 project(BEMC_test_project)
 
@@ -15,7 +14,8 @@ set( BEMC_test_PLUGIN_SOURCES ${mysourcefiles} )
 
 add_library(BEMC_test_plugin SHARED ${BEMC_test_PLUGIN_SOURCES})
 
-target_include_directories(BEMC_test_plugin PUBLIC ${CMAKE_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} )
+target_include_directories(BEMC_test_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(BEMC_test_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} )
 target_link_libraries(BEMC_test_plugin ${JANA_LIB} ${ROOT_LIBRARIES})
 set_target_properties(BEMC_test_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC_test" SUFFIX ".so")
 

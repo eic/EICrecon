@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
+cmake_minimum_required(VERSION 3.16)
 
 print_header(">>>>   E X E C U T A B L E :   algorithms    <<<<")       # Fancy printing
 
@@ -20,7 +19,7 @@ set(SERVICES_LIBRARIES
         )
 set(DETECTOR_LIBRARIES
         BEMC_library
-        BTRK_library
+        # BTRK_library  lets exclude it until it is more ready-like
         )
 
 

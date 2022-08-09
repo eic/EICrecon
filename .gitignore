@@ -140,3 +140,5 @@ flycheck_*.el
 *.bck
 
 bin/
+
+src/tests/pyjano/eicrecon_path.py
