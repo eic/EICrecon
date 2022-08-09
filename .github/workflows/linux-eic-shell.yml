@@ -25,7 +25,7 @@ jobs:
         setup: /opt/detector/epic-nightly/setup.sh
         run: |
           # install this repo
-          cmake -B build -S src \
+          cmake -B build -S . \
             -DDETECTOR_LIBS_EPIC=/opt/detector/epic-nightly/lib/libepic.so \
             -DDETECTOR_LIBS_IP6=/opt/detector/epic-nightly/lib/libip6.so
           cmake --build build -- install
