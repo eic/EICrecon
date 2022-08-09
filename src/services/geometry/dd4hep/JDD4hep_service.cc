@@ -11,7 +11,7 @@
 
 #include "JDD4hep_service.h"
     
-
+#include <DD4hep/Printout.h>
 
 void JDD4hep_service::Initialize() {
 
@@ -24,16 +24,15 @@ void JDD4hep_service::Initialize() {
     // The current recommended way of getting the XML file is to use the environment variables
     // DETECTOR_PATH and DETECTOR. Look for those first so we can use it for the default
     // config parameter. (see https://github.com/eic/EICrecon/issues/22)
-    std::vector<std::string> xml_filenames;
     auto DETECTOR = std::getenv("DETECTOR");
     auto DETECTOR_PATH = std::getenv("DETECTOR_PATH");
-    if( DETECTOR!=nullptr ) xml_filenames.push_back( std::string(DETECTOR_PATH ? DETECTOR_PATH:".") + "/" + (DETECTOR ? DETECTOR:"") + ".xml");
+    if( DETECTOR!=nullptr ) m_xmlFileNames.push_back( std::string(DETECTOR_PATH ? DETECTOR_PATH:".") + "/" + (DETECTOR ? DETECTOR:"") + ".xml");
 
     // User may specify multiple geometry files via the config. parameter. Normally, this
     // will be a single file which itself has include for other files.
-    app->SetDefaultParameter("EIC_DD4HEP_XML", xml_filenames, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR}.xml using envars.)");
+    app->SetDefaultParameter("dd4hep:xml_files", m_xmlFileNames, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR}.xml using envars.)");
 
-    if( xml_filenames.empty() ){
+    if( m_xmlFileNames.empty() ){
         LOG_ERROR(default_cerr_logger) << "No dd4hep XML file specified for the geometry!" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "Please set the EIC_DD4HEP_XML configuration parameter or" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "Set your DETECTOR_PATH and DETECTOR environment variables" << LOG_END;
@@ -42,10 +41,22 @@ void JDD4hep_service::Initialize() {
         throw std::runtime_error("No dd4hep XML file specified.");
     }
 
+    // Set the DD4hep print level to be quieter by default, but let user adjust it
+    int print_level = dd4hep::WARNING;
+    app->SetDefaultParameter("dd4hep:print_level", print_level, "Set DD4hep print level (see DD4hep/Printout.h)");
+
+    // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
+    // while no other output is coming which makes it look like something is wrong. Disable the ticker
+    // while parsing and loading the geometry
+    auto tickerEnabled = app->IsTickerEnabled();
+    app->SetTicker( false );
+
     // load geometry
     try {
+        dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
+        LOG << "Loading DD4hep geometry from " << m_xmlFileNames.size() << " files" << LOG_END;
         for (auto &filename : m_xmlFileNames) {
-            std::cout << "loading geometry from file:  '" << filename << "'" << std::endl;
+            LOG << "  - loading geometry file:  '" << filename << "' (patience ....)" << LOG_END;
             m_dd4hepGeo->fromCompact(filename);
         }
         m_dd4hepGeo->volumeManager();
@@ -57,4 +68,7 @@ void JDD4hep_service::Initialize() {
         LOG_ERROR(default_cerr_logger)<< "Problem loading geometry: " << e.what() << LOG_END;
         app->Quit();
     }
+
+    // Restore the ticker setting
+    app->SetTicker( tickerEnabled );
 }
