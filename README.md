@@ -163,7 +163,7 @@ cmake3 --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
 git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
 ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
-ln -s ${IP6_DD4HEP_HOME} ${EIC_DD4HEP_HOME}/share/epic/ip6
+ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
 cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
@@ -197,10 +197,11 @@ export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
-export PODIO_ROOT=${PODIO}
 source ${PODIO_HOME}/env.sh
 export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
