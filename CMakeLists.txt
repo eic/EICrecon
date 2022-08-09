@@ -56,13 +56,22 @@ if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
 
+
+# Check and print what JANA2 is used
+find_package(JANA REQUIRED)
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
+message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
+
+
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
+
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
 include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
-include(cmake/jana_plugin.cmake)                             # Add common settings for plugins
+include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 

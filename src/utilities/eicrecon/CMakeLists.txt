@@ -19,6 +19,7 @@ set(SERVICES_LIBRARIES
         )
 set(DETECTOR_LIBRARIES
         BEMC_library
+        dd4hep_library
         # BTRK_library  lets exclude it until it is more ready-like
         )
 
