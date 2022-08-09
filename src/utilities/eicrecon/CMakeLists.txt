@@ -20,7 +20,6 @@ set(SERVICES_LIBRARIES
         )
 set(DETECTOR_LIBRARIES
         BEMC_library
-        BTRK_library
         )
 
 
