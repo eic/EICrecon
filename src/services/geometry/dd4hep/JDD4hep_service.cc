@@ -13,6 +13,25 @@
     
 #include <DD4hep/Printout.h>
 
+//----------------------------------------------------------------
+// detector
+//
+/// Return pointer to the dd4hep::Detector object.
+/// Call Initialize if needed.
+//----------------------------------------------------------------
+dd4hep::Detector* JDD4hep_service::detector() {
+    std::call_once( init_flag, &JDD4hep_service::Initialize, this);
+    return (m_dd4hepGeo);
+}
+
+//----------------------------------------------------------------
+// Initialize
+//
+/// Initialize the dd4hep geometry by reading in from the XML.
+/// Note that this is called automatically the first time detector()
+/// is called. Which XML file(s) are read is determined by the
+/// dd4hep:xml_files configuration parameter.
+//----------------------------------------------------------------
 void JDD4hep_service::Initialize() {
 
     if( m_dd4hepGeo ) {
