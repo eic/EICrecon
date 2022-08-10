@@ -8,13 +8,6 @@
 #include <TFile.h>
 
 #include <JANA/CLI/JMain.h>
-#include <JANA/JFactoryGenerator.h>
-
-#include <services/io/podio/JEventSourcePODIO.h>
-#include <services/io/podio/JEventSourcePODIOsimple.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <detectors/BEMC/BEMCRawCalorimeterHit_factory.h>
-#include <detectors/BEMC/BEMCRawCalorimeterHit_factory_utility.h>
 
 int main( int narg, char **argv)
 {
@@ -48,11 +41,11 @@ int main( int narg, char **argv)
 
     japp = jana::CreateJApplication(options);
 
-    japp->Add( new JEventSourceGeneratorT<JEventSourcePODIO>() );
-    japp->Add( new JEventSourceGeneratorT<JEventSourcePODIOsimple>() );
-    japp->Add( new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory>() );
-    japp->Add( new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory_utility>() );
-    japp->ProvideService( std::make_shared<JDD4hep_service>(japp) );
+    japp->AddPlugin( "podio"           );
+    japp->AddPlugin( "dd4hep"          );
+    japp->AddPlugin( "calorimetry"     );
+    japp->AddPlugin( "tracking"        );
+    japp->AddPlugin( "BEMC"            );
 
     auto exit_code = jana::Execute(japp, options);
 
