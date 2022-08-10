@@ -2,30 +2,30 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _JFactory_BEMCRawCalorimeterHit_utility_h_
-#define _JFactory_BEMCRawCalorimeterHit_utility_h_
+#ifndef _JFactory_BEMCRawCalorimeterHit_h_
+#define _JFactory_BEMCRawCalorimeterHit_h_
 
 #include <random>
 
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <algorithms/caolrimetry/CalorimeterHitDigi.h>
 
 #include "BEMCRawCalorimeterHit.h"
-#include "CalorimeterHitDigi.h"
 
-class JFactory_BEMCRawCalorimeterHit_utility : public JFactoryT<BEMCRawCalorimeterHit> {
+class JFactory_BEMCRawCalorimeterHit : public JFactoryT<BEMCRawCalorimeterHit>, CalorimeterHitDigi {
 
     // Insert any member variables here
 
 public:
-    JFactory_BEMCRawCalorimeterHit_utility();
+    JFactory_BEMCRawCalorimeterHit();
     void Init() override;
     void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
     void Process(const std::shared_ptr<const JEvent> &event) override;
 
 
-protected:
-    CalorimeterHitDigi m_calhitdigi;
+private:
+
 };
 
-#endif // _JFactory_BEMCRawCalorimeterHit_utility_h_
+#endif // _JFactory_BEMCRawCalorimeterHit_h_
