@@ -39,13 +39,15 @@ class JDD4hep_service : public JService
 public:
     JDD4hep_service( JApplication *app ):app(app){}
 
+     dd4hep::Detector* detector();
+
+protected:
     void Initialize();
 
-    dd4hep::Detector* detector(void) { if(!m_dd4hepGeo) Initialize(); return (m_dd4hepGeo); }
-
 private:
-    JDD4hep_service(){}
+    JDD4hep_service()=default;
 
+    std::once_flag init_flag;
     JApplication *app = nullptr;
     dd4hep::Detector* m_dd4hepGeo = nullptr;
 	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
