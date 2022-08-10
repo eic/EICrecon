@@ -140,7 +140,7 @@ located [here](https://github.com/eic/epic). This requires at least _ACTS_
 and the _{fmt}_ package the latter of which is built in the instructions here.
 
 Note: These instructions turn off the requirement of the DDG4 component in both the
-_ip6_ and _ecce_ geometries since it requires GEANT4 which is not needed here.
+_ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
 
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
@@ -161,9 +161,9 @@ cmake3 -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=
 cmake3 --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
 
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
-export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/epic.xml
 git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
 ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
+ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
 cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
@@ -193,26 +193,24 @@ export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
 export FMT_VERSION=9.0.0
 
-
-
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
-export PODIO_ROOT=${PODIO}
 source ${PODIO_HOME}/env.sh
 export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
+export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
-export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-export LD_LIBRARY_PATH=${IP6_DD4HEP_HOME}/lib64:${IP6_DD4HEP_HOME}/lib:${LD_LIBRARY_PATH}
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
-export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/epic.xml
-export LD_LIBRARY_PATH=${EIC_DD4HEP_HOME}/lib64:${EIC_DD4HEP_HOME}/lib:${LD_LIBRARY_PATH}
+source ${EICTOPDIR}/detectors/ip6/setup.sh
+source ${EICTOPDIR}/detectors/epic/setup.sh
+
+export JANA_PLUGIN_PATH=${EICTOPDIR}/EICrecon/plugins
 ~~~
 
 If you are using an IDE (e.g. CLion) then the easiest way to do ensure
@@ -240,15 +238,7 @@ official build system is established.
 ~~~
 git clone https://github.com/eic/EICrecon ${EICTOPDIR}/EICrecon
 
-cd ${EICTOPDIR}/EICrecon/GEOMETRY/plugins/jana_dd4hep
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
-cmake3 --build build --target install -- -j8
-
-cd ${EICTOPDIR}/EICrecon/I_O/plugins/jana_edm4hep
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
-cmake3 --build build --target install -- -j8
-
-cd ${EICTOPDIR}/EICrecon/RECON/plugins/BarrelEMCal
+cd ${EICTOPDIR}/EICrecon
 cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
 cmake3 --build build --target install -- -j8
 ~~~
@@ -258,8 +248,7 @@ Check that each of the plugins at least load correctly without crashing
 by running them without arguments:
 
 ~~~
-jana -PPLUGINS=jana_edm4hep
-jana -PPLUGINS=jana_dd4hep
+jana -PPLUGINS=podio,dd4hep
 ~~~
 
 ## plugins CMake API
