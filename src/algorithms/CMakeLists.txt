@@ -2,32 +2,37 @@ cmake_minimum_required(VERSION 3.16)
 
 print_header(">>>>   L I B R A R Y :   algorithms    <<<<")       # Fancy printing
 
-project(algorithms_prj)
+add_subdirectory( calorimetry )
+add_subdirectory( tracking )
 
-# Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
-find_package(fmt REQUIRED)
 
-set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
-set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
-
-set(ALGORITHMS_SOURCES
-        tracking/SimTrackerHitsCollector.h
-        tracking/SimTrackerHitsCollector.cpp
-
-        )
-
-add_library(algorithms_lib STATIC ${ALGORITHMS_SOURCES})
-target_include_directories(algorithms_lib SYSTEM PUBLIC ${INCLUDE_DIRS} )
-target_include_directories(algorithms_lib PUBLIC ${CMAKE_SOURCE_DIR})
-set_target_properties(algorithms_lib PROPERTIES PREFIX "lib" OUTPUT_NAME "algorithms" SUFFIX ".a")
-
-install(TARGETS algorithms_lib DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
-install(FILES ${HEADER_FILES} DESTINATION include/algorithms)
+#
+#project(algorithms_prj)
+#
+## Find dependencies
+#find_package(JANA REQUIRED)
+#find_package(EDM4HEP REQUIRED)
+#find_package(podio REQUIRED)
+#find_package(DD4hep REQUIRED)
+#find_package(ROOT REQUIRED)
+#find_package(fmt REQUIRED)
+#
+#set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
+#set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
+#
+#set(ALGORITHMS_SOURCES
+#        tracking/SimTrackerHitsCollector.h
+#        tracking/SimTrackerHitsCollector.cpp
+#
+#        )
+#
+#add_library(algorithms_lib STATIC ${ALGORITHMS_SOURCES})
+#target_include_directories(algorithms_lib SYSTEM PUBLIC ${INCLUDE_DIRS} )
+#target_include_directories(algorithms_lib PUBLIC ${CMAKE_SOURCE_DIR})
+#set_target_properties(algorithms_lib PROPERTIES PREFIX "lib" OUTPUT_NAME "algorithms" SUFFIX ".a")
+#
+#install(TARGETS algorithms_lib DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
+#install(FILES ${HEADER_FILES} DESTINATION include/algorithms)
 
 #message(STATUS "BEMC: {PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
 #message(STATUS "BEMC: {CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/services/geometry/")

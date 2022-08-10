@@ -12,7 +12,7 @@
 
 #include <services/io/podio/JEventSourcePODIO.h>
 #include <services/io/podio/JEventSourcePODIOsimple.h>
-#include <detectors/BEMC/JFactory_BEMCRawCalorimeterHit.h>
+#include <detectors/BEMC/BEMCRawCalorimeterHit_factory.h>
 
 int main( int narg, char **argv)
 {
@@ -48,7 +48,7 @@ int main( int narg, char **argv)
 
     japp->Add( new JEventSourceGeneratorT<JEventSourcePODIO>() );
     japp->Add(new JEventSourceGeneratorT<JEventSourcePODIOsimple>());
-    japp->Add( new JFactoryGeneratorT<JFactory_BEMCRawCalorimeterHit>() );
+    japp->Add( new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory>() );
 
     auto exit_code = jana::Execute(japp, options);
 

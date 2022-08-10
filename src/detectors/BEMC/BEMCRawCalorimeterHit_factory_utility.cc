@@ -4,7 +4,7 @@
 //  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "JFactory_BEMCRawCalorimeterHit_utility.h"
+#include "BEMCRawCalorimeterHit_factory_utility.h"
 
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -28,7 +28,7 @@ using namespace dd4hep;
 //------------------------
 // Constructor
 //------------------------
-JFactory_BEMCRawCalorimeterHit_utility::JFactory_BEMCRawCalorimeterHit_utility(){
+BEMCRawCalorimeterHit_factory_utility::BEMCRawCalorimeterHit_factory_utility(){
     SetTag("utility");
 
     // This allows one to get the objects from this factory as edm4hep::RawCalorimeterHit.
@@ -39,7 +39,7 @@ JFactory_BEMCRawCalorimeterHit_utility::JFactory_BEMCRawCalorimeterHit_utility()
 //------------------------
 // Init
 //------------------------
-void JFactory_BEMCRawCalorimeterHit_utility::Init() {
+void BEMCRawCalorimeterHit_factory_utility::Init() {
     auto app = GetApplication();
 
     // I set the default values for the configuration parameters here, near the
@@ -89,7 +89,7 @@ void JFactory_BEMCRawCalorimeterHit_utility::Init() {
 //------------------------
 // ChangeRun
 //------------------------
-void JFactory_BEMCRawCalorimeterHit_utility::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void BEMCRawCalorimeterHit_factory_utility::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     /// This is automatically run before Process, when a new run number is seen
     /// Usually we update our calibration constants by asking a JService
     /// to give us the latest data for this run number
@@ -104,7 +104,7 @@ void JFactory_BEMCRawCalorimeterHit_utility::ChangeRun(const std::shared_ptr<con
 //------------------------
 // Process
 //------------------------
-void JFactory_BEMCRawCalorimeterHit_utility::Process(const std::shared_ptr<const JEvent> &event) {
+void BEMCRawCalorimeterHit_factory_utility::Process(const std::shared_ptr<const JEvent> &event) {
     // Prefill inputs
     m_calhitdigi.simhits = event->Get<edm4hep::SimCalorimeterHit>( m_calhitdigi.m_input_tag );
 

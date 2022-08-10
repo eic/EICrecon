@@ -9,16 +9,16 @@
 
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/caolrimetry/CalorimeterHitDigi.h>
+#include <algorithms/calorimetry/CalorimeterHitDigi.h>
 
 #include "BEMCRawCalorimeterHit.h"
 
-class JFactory_BEMCRawCalorimeterHit : public JFactoryT<BEMCRawCalorimeterHit>, CalorimeterHitDigi {
+class BEMCRawCalorimeterHit_factory : public JFactoryT<BEMCRawCalorimeterHit>, CalorimeterHitDigi {
 
     // Insert any member variables here
 
 public:
-    JFactory_BEMCRawCalorimeterHit();
+    BEMCRawCalorimeterHit_factory();
     void Init() override;
     void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
     void Process(const std::shared_ptr<const JEvent> &event) override;
