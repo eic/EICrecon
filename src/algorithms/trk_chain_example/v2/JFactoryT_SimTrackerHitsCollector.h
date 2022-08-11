@@ -13,11 +13,11 @@
 #include <JANA/JEvent.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <edm4hep/SimTrackerHit.h>
-
+#include <algorithms/interfaces/ICollectionProducer.h>
 
 
 template <typename OutputT>
-class JFactoryT_SimTrackerHitsCollector : public JFactoryT<OutputT> {
+class JFactoryT_SimTrackerHitsCollector : public JFactoryT<OutputT>, eicrecon::ICollectionProducer {
 
 public:
     JFactoryT_SimTrackerHitsCollector() {

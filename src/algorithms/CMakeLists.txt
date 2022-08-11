@@ -16,13 +16,18 @@ set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
 
 set(ALGORITHMS_SOURCES
-        trk_chain_example/v1/SimTrackerHitsCollectorT.h
+        tracking/SimTrackerHitsCollectorT.h
         digi/RawTrackerHit.h
         digi/RawTrackerHit.cc
         digi/SiliconTrackerDigiConfig.h
         digi/SiliconTrackerDigiT.h
-        trk_chain_example/v1/SimTrackerHitsCollectorConfig.h
-        trk_chain_example/v1/SimTrackerHitsCollectorT.h
+        tracking/SimTrackerHitsCollectorConfig.h
+        tracking/SimTrackerHitsCollectorT.h
+
+        interfaces/ICollectionProducer.h
+        interfaces/ICollector.h
+        interfaces/ISingleProducer.h
+
         trk_chain_example/v1/TrackerHitReconstructionConfig.h
         trk_chain_example/v1/TrackerHitReconstructionT.h
 
