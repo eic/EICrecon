@@ -18,7 +18,7 @@ set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
 # datamodel_LinkDef.h files.
 add_custom_command(
         OUTPUT  datamodel_glue.h datamodel_includes.h         # Treated as relative to CMAKE_CURRENT_BINARY_DIR
-        COMMAND python ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR}
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
