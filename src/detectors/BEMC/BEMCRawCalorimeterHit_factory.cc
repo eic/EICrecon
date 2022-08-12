@@ -4,7 +4,7 @@
 //  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "JFactory_BEMCRawCalorimeterHit.h"
+#include "BEMCRawCalorimeterHit_factory.h"
 
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -28,7 +28,7 @@ using namespace dd4hep;
 //------------------------
 // Constructor
 //------------------------
-JFactory_BEMCRawCalorimeterHit::JFactory_BEMCRawCalorimeterHit(){
+BEMCRawCalorimeterHit_factory::BEMCRawCalorimeterHit_factory(){
     SetTag("");
 
     // This allows one to get the objects from this factory as edm4hep::RawCalorimeterHit.
@@ -39,7 +39,7 @@ JFactory_BEMCRawCalorimeterHit::JFactory_BEMCRawCalorimeterHit(){
 //------------------------
 // Init
 //------------------------
-void JFactory_BEMCRawCalorimeterHit::Init() {
+void BEMCRawCalorimeterHit_factory::Init() {
     auto app = GetApplication();
 
     // TODO: There are 3 config values that are arrays that are not currently handled
@@ -84,7 +84,7 @@ void JFactory_BEMCRawCalorimeterHit::Init() {
 //------------------------
 // ChangeRun
 //------------------------
-void JFactory_BEMCRawCalorimeterHit::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void BEMCRawCalorimeterHit_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     /// This is automatically run before Process, when a new run number is seen
     /// Usually we update our calibration constants by asking a JService
     /// to give us the latest data for this run number
@@ -99,7 +99,7 @@ void JFactory_BEMCRawCalorimeterHit::ChangeRun(const std::shared_ptr<const JEven
 //------------------------
 // Process
 //------------------------
-void JFactory_BEMCRawCalorimeterHit::Process(const std::shared_ptr<const JEvent> &event) {
+void BEMCRawCalorimeterHit_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     // Prefill inputs
     simhits = event->Get<edm4hep::SimCalorimeterHit>( m_input_tag );
