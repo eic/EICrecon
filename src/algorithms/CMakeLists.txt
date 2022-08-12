@@ -1,16 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-print_header(">>>>   L I B R A R Y :   algorithms    <<<<")       # Fancy printing
+print_header(">>>>   D I R E C T O R Y :   algorithms    <<<<")       # Fancy printing
 
-project(algorithms_prj)
+add_subdirectory( calorimetry )
+add_subdirectory( tracking )
 
-# Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
-find_package(fmt REQUIRED)
 
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 set(INCLUDE_DIRS ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR})
