@@ -44,9 +44,12 @@ public:
 
 private:
 
-    TDirectory* _dir_main;               /// Main TDirectory for this plugin 'occupancy_ana'
-    TH1F * _th1_prt_pz;                  /// MC Particles pz
-    TH2F * _th2_prt_pxy;                 /// MC Particles px,py
+    TDirectory* m_dir_main;               /// Main TDirectory for this plugin 'occupancy_ana'
+    TH1F * m_th1_prt_pz;                  /// MC Particles pz
+    TH1F * m_th1_prt_energy;              /// MC Particles total E
+    TH1F * m_th1_prt_theta;               /// MC Particles theta angle
+    TH1F * m_th1_prt_phi;                 /// MC Particles phi angle
+    TH2F * m_th2_prt_pxy;                 /// MC Particles px,py
 
 //    std::string VolNameToDetName(const std::string& vol_name);
 //
