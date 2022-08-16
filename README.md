@@ -90,7 +90,7 @@ source ${PODIO_HOME}/env.sh
 
 ### EDM4hep
 ~~~
-export EDM4HEP_VERSION=v00-05
+export EDM4HEP_VERSION=v00-06
 export EDM4HEP_HOME=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}
 export EDM4HEP=${EDM4HEP_HOME}/install 
 export EDM4HEP_ROOT=${EDM4HEP}
@@ -187,7 +187,7 @@ source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 export BOOST_VERSION=boost-1.79.0
 export JANA_VERSION=v2.0.5
 export PODIO_VERSION=v00-14-03
-export EDM4HEP_VERSION=v00-05
+export EDM4HEP_VERSION=v00-06
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
