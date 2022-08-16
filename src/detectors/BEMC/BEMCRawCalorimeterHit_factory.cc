@@ -12,6 +12,10 @@
 #include <fmt/format.h>
 using namespace dd4hep;
 
+#ifdef USE_ALGORITHMS
+#include "JugDigi/CalorimeterHitDigi.h"
+#endif
+
 //
 // This algorithm converted from:
 //
