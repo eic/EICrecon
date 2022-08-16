@@ -19,12 +19,23 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED)
+find_package(algorithms) # optional
+if(${algorithms_FOUND})
+  find_package(EICD REQUIRED)
+  message(STATUS "algorithms library found")
+  message(STATUS "${algorithms_INCLUDE_DIR}")
+  add_definitions("-DUSE_ALGORITHMS")
+  set(algorithms "algorithms::JugDigiPlugins")
+else()
+  message(STATUS "algorithms library not found.")
+  set(algorithms "")
+endif()
 
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore ${algorithms})
 
 # Additional libraries
 plugin_link_libraries(${PLUGIN_NAME} dd4hep_library calorimetry_library)
