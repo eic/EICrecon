@@ -8,6 +8,6 @@ project("RandGen_driver")
 
 add_executable("${PROJECT_NAME}" "RandGen_driver.cpp")
 
-install(TARGETS "${PROJECT_NAME}" DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+install(TARGETS "${PROJECT_NAME}" DESTINATION "${CMAKE_SOURCE_DIR}/tests")
 #install(FILES RandGen_driver.cpp DESTINATION src)
 
