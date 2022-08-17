@@ -56,7 +56,7 @@ target_link_libraries(dd4hep_plugin dd4hep_library ${LINK_LIBRARIES})
 set_target_properties(dd4hep_plugin PROPERTIES PREFIX "" OUTPUT_NAME "dd4hep" SUFFIX ".so")
 
 # Install plugin
-install(TARGETS dd4hep_plugin DESTINATION plugins)
+install(TARGETS dd4hep_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
 # Install headers for plugin
 file(GLOB my_headers "*.h*")

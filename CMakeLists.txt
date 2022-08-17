@@ -44,7 +44,7 @@ endif()
 
 # Default plugins installation directory is 'plugins'
 if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
-    set(PLUGIN_OUTPUT_DIRECTORY "plugins")
+    set(PLUGIN_OUTPUT_DIRECTORY "lib/EICrecon/plugins")
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
@@ -83,9 +83,18 @@ add_subdirectory( src/detectors )
 add_subdirectory( src/services )
 add_subdirectory( src/utilities )
 add_subdirectory( src/tests )
-
+add_subdirectory( src/scripts )
 
 # Print what we had built
 print_header("CMake processed subdirectories:")
 print_subdirectory_tree()
 message(STATUS "\n-------------------------------")
+
+
+# Print all cmake variables (for debugging)
+#find_package(fmt)
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
