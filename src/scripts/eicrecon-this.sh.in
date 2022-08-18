@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# This script was automatically generated from the src/scripts/eicrecon-this.sh.in file in the
+# EICrecon source directory when EICrecon was built. It can be sourced to set the environment
+# up to use this EICrecon build.
+#
+# This finds directories relative to this script. This should allow the entire EICrecon directory
+# to be moved and this script should still work.
+#
+# Dependency packages (i.e. JANA2 and ROOT) are setup using absolute paths
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
+
+#----------------- JANA2
+if [[ -f @JANA_ROOT_DIR@bin/jana-this.sh ]] ; then
+    source @JANA_ROOT_DIR@bin/jana-this.sh
+fi
+
+#----------------- ROOT
+if [[ -f @ROOT_BINDIR@/thisroot.sh ]] ; then
+    source @ROOT_BINDIR@/thisroot.sh
+fi
+
+#----------------- PODIO
+PODIO=$( readlink -f @podio_LIBRARY_DIR@/.. )
+if [[ -f ${PODIO}/env.sh ]] ; then
+    source ${PODIO}/env.sh
+    export podio_ROOT=${PODIO}
+fi
+
+#----------------- EDM4hep
+EDM4HEP=$( readlink -f @EDM4HEP_DIR@/../../.. )
+if [[ -d ${EDM4HEP} ]] ; then
+    export EDM4HEP_ROOT=${EDM4HEP}
+    EDM4HEP_LIBDIR=${EDM4HEP_ROOT}/lib64
+    if [[ ! ":$LD_LIBRARY_PATH:" == *":$EDM4HEP_LIBDIR:"* ]]; then
+        export LD_LIBRARY_PATH="${EDM4HEP_LIBDIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+    fi
+fi
+
+#----------------- DD4hep
+if [[ -f @DD4hep_DIR@/../bin/thisdd4hep.sh ]] ; then
+    source @DD4hep_DIR@/../bin/thisdd4hep.sh
+fi
+
+#----------------- fmt
+if [[ -d @fmt_DIR@/../../.. ]] ; then
+    export fmt_ROOT=@fmt_DIR@/../../..
+    fmt_LIBDIR=$( readlink -f ${fmt_ROOT}/lib* )
+    if [[ ! ":$LD_LIBRARY_PATH:" == *":$fmt_LIBDIR:"* ]]; then
+        export LD_LIBRARY_PATH="${fmt_LIBDIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+    fi
+fi
+
+#----------------- ip6,epic detector geometry
+if [[ -f @BEAMLINE_PATH@/../../setup.sh ]]; then
+    source @BEAMLINE_PATH@/../../setup.sh
+fi
+if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
+    source @DETECTOR_PATH@/../../setup.sh
+fi
+
+#----------------- EICrecon
+# Add bin to PATH if not already there
+if [[ ! ":$PATH:" == *":$SCRIPT_DIR:"* ]]; then
+    export PATH=${SCRIPT_DIR}:${PATH}
+fi
+
+# Add lib to LD_LIBRARY_PATH if not already there
+LIB_DIR=$( readlink -f ${EICrecon_ROOT}/lib )
+if [[ ! ":$LD_LIBRARY_PATH:" == *":$LIB_DIR:"* ]]; then
+    export LD_LIBRARY_PATH="${LIB_DIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+fi
+
+# Add plugins to JANA_PLUGIN_PATH if not already there
+PLUGINS_DIR=$( readlink -f @PLUGIN_OUTPUT_DIRECTORY@ )
+if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
+    export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+${JANA_PLUGIN_PATH}}"
+fi
+
+# Add plugins to ROOT_INCLUDE_PATH if not already there
+if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
+    export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+${ROOT_INCLUDE_PATH}}"
+fi
+

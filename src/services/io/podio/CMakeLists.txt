@@ -52,7 +52,7 @@ target_link_libraries(podio_plugin podio_library ${LINK_LIBRARIES})
 set_target_properties(podio_plugin PROPERTIES PREFIX "" OUTPUT_NAME "podio" SUFFIX ".so")
 
 # Install plugin
-install(TARGETS podio_plugin DESTINATION plugins)
+install(TARGETS podio_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
 # Install headers for plugin
 file(GLOB my_headers "*.h*")
@@ -66,7 +66,7 @@ install(FILES ${my_headers} DESTINATION include/services/io/podio)
 set_target_properties(podio_plugin PROPERTIES SKIP_BUILD_RPATH FALSE)
 set_target_properties(podio_plugin PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(podio_plugin PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-set_target_properties(podio_plugin PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/plugins)
+set_target_properties(podio_plugin PROPERTIES INSTALL_RPATH ${PLUGIN_OUTPUT_DIRECTORY})
 
 
 # Install root dictionaries made by PODIO
@@ -76,5 +76,5 @@ set(my_root_dict_files
 #        ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModel${CMAKE_SHARED_LIBRARY_SUFFIX}
 #        ${PROJECT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}EDM4HEPDataModelDict${CMAKE_SHARED_LIBRARY_SUFFIX}
         )
-install(FILES ${my_root_dict_files} DESTINATION plugins)
+install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
