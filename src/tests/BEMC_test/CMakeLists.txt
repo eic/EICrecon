@@ -31,5 +31,5 @@ install(FILES ${my_headers} DESTINATION include/BEMC_test)
 
 # For root dictionaries
 file(GLOB my_pcms "${CMAKE_CURRENT_BINARY_DIR}/*.pcm")
-install(FILES ${my_pcms} DESTINATION plugins)
+install(FILES ${my_pcms} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
