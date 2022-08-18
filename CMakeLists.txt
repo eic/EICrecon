@@ -91,6 +91,11 @@ print_subdirectory_tree()
 message(STATUS "\n-------------------------------")
 
 
+# Install all cmake helpers
+file(GLOB EICRECON_CMAKE_FILES cmake/*)
+install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
+
+
 # Print all cmake variables (for debugging)
 #find_package(fmt)
 #get_cmake_property(_variableNames VARIABLES)
