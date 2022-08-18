@@ -144,3 +144,5 @@ bin/
 src/tests/pyjano/eicrecon_path.py
 
 lib/
+
+tests/
