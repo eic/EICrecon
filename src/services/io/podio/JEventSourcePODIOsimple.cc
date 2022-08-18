@@ -22,6 +22,8 @@
 #include <podio/UserDataCollection.h>
 #include <podio/podioVersion.h>
 
+#include <fmt/format.h>
+
 // This file is generated automatically by make_datamodel_glue.py
 #include "datamodel_glue.h"
 
@@ -89,15 +91,18 @@ void JEventSourcePODIOsimple::Open() {
     try {
         // Have PODIO reader open file and get the number of events from it.
         reader.openFile( GetResourceName() );
+        if( ! reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );
 
         auto version = reader.currentFileVersion();
         bool version_mismatch = version.major > podio::version::build_version.major;
         version_mismatch |= (version.major == podio::version::build_version.major) && (version.minor>podio::version::build_version.minor);
-        if( version_mismatch ){
-            LOG_ERROR(default_cerr_logger) << "Mismatch in PODIO versions! " << version << " > " << podio::version::build_version << LOG_END;
-            GetApplication()->Quit();
-            return;
+        if( version_mismatch ) {
+            std::stringstream ss;
+            ss << "Mismatch in PODIO versions! " << version << " > " << podio::version::build_version;
+            // FIXME: The podio ROOTReader is somehow failing to read in the correct version numbers from the file
+//            throw JException(ss.str());
         }
+
         LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version << ")" << LOG_END;
 
         Nevents_in_file = reader.getEntries();
@@ -109,11 +114,8 @@ void JEventSourcePODIOsimple::Open() {
         if( print_type_table ) PrintCollectionTypeTable();
 
     }catch (std::exception &e ){
-        _DBG__;
-        LOG_ERROR(default_cerr_logger) << "Problem opening file \"" << GetResourceName() << "\"" << LOG_END;
         LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
-        GetApplication()->Quit();
-        return;
+        throw JException( fmt::format( "Problem opening file \"{}\"", GetResourceName() ) );
     }
 }
 
