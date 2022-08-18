@@ -75,6 +75,19 @@ cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
+### spdlog
+~~~
+export SPDLOG_VERSION=v1.10.0
+export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
+export spdlog_ROOT=${SPDLOG_HOME}/install
+git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
+cd ${SPDLOG_HOME}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT}
+cmake3 --build build --target install -- -j8
+~~~
+
+git clone https://github.com/gabime/spdlog.git
+
 ### PODIO
 ~~~
 export PODIO_VERSION=v00-14-03
@@ -197,6 +210,7 @@ source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 
 export BOOST_VERSION=boost-1.79.0
 export JANA_VERSION=v2.0.7
+export SPDLOG_VERSION=v1.10.0
 export PODIO_VERSION=v00-14-03
 export EDM4HEP_VERSION=v00-06
 export EICD_VERSION=v2.0.0
@@ -207,6 +221,7 @@ export FMT_VERSION=9.0.0
 
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
+export spdlog_ROOT=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}/install
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 source ${PODIO_HOME}/env.sh
