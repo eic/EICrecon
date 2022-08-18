@@ -13,9 +13,13 @@
 # Get directrory this script resides in
 SCRIPT_DIR=`readlink -f $(dirname -- "$0")`
 
-if [ -f ${SCRIPT_DIR}/../custom_environment.sh ]; then
+if [ -f ${SCRIPT_DIR}/../../custom_environment.sh ]; then
+  echo source ${SCRIPT_DIR}/../../custom_environment.sh
+  source ${SCRIPT_DIR}/../../custom_environment.sh
+elif [ -f ${SCRIPT_DIR}/../custom_environment.sh ]; then
   echo source ${SCRIPT_DIR}/../custom_environment.sh
   source ${SCRIPT_DIR}/../custom_environment.sh
+
 fi
 
 # Run cmake
