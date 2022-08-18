@@ -35,7 +35,17 @@ if [[ -d ${EDM4HEP} ]] ; then
     export EDM4HEP_ROOT=${EDM4HEP}
     EDM4HEP_LIBDIR=${EDM4HEP_ROOT}/lib64
     if [[ ! ":$LD_LIBRARY_PATH:" == *":$EDM4HEP_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4HEP_LIBDIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+        export LD_LIBRARY_PATH="${EDM4HEP_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    fi
+fi
+
+#----------------- EICD
+EICD=$( readlink -f @EICD_DIR@/../.. )
+if [[ -d ${EICD} ]] ; then
+    export EICD_ROOT=${EICD}
+    EICD_LIBDIR=$( readlink -f @EICD_DIR@/.. )
+    if [[ ! ":$LD_LIBRARY_PATH:" == *":EICD_LIBDIR:"* ]]; then
+        export LD_LIBRARY_PATH="${EICD_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
     fi
 fi
 
@@ -47,9 +57,9 @@ fi
 #----------------- fmt
 if [[ -d @fmt_DIR@/../../.. ]] ; then
     export fmt_ROOT=@fmt_DIR@/../../..
-    fmt_LIBDIR=$( readlink -f ${fmt_ROOT}/lib* )
+    fmt_LIBDIR=$( readlink -f @fmt_DIR@/../.. )
     if [[ ! ":$LD_LIBRARY_PATH:" == *":$fmt_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${fmt_LIBDIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+        export LD_LIBRARY_PATH="${fmt_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
     fi
 fi
 
@@ -70,17 +80,17 @@ fi
 # Add lib to LD_LIBRARY_PATH if not already there
 LIB_DIR=$( readlink -f ${EICrecon_ROOT}/lib )
 if [[ ! ":$LD_LIBRARY_PATH:" == *":$LIB_DIR:"* ]]; then
-    export LD_LIBRARY_PATH="${LIB_DIR}${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}}"
+    export LD_LIBRARY_PATH="${LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
 
 # Add plugins to JANA_PLUGIN_PATH if not already there
 PLUGINS_DIR=$( readlink -f @PLUGIN_OUTPUT_DIRECTORY@ )
 if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
-    export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+${JANA_PLUGIN_PATH}}"
+    export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}"
 fi
 
 # Add plugins to ROOT_INCLUDE_PATH if not already there
 if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
-    export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+${ROOT_INCLUDE_PATH}}"
+    export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
 
