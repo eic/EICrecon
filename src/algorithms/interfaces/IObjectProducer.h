@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_ISINGLEPRODUCER_H
-#define EICRECON_ISINGLEPRODUCER_H
+#ifndef EICRECON_IOBJECTPRODUCER_H
+#define EICRECON_IOBJECTPRODUCER_H
 
 namespace eicrecon {
 
@@ -16,10 +16,12 @@ namespace eicrecon {
      *
      * There might be many other applications
      */
-    class ISingleProducer {
+    template <typename InputT, typename OutputT>
+    class IObjectProducer {
 
+        virtual OutputT* produce(const InputT*) = 0;
     };
 
 } // eicrecon
 
-#endif //EICRECON_ISINGLEPRODUCER_H
+#endif //EICRECON_IOBJECTPRODUCER_H

@@ -1,4 +1,4 @@
-#include "OccupancyAnalysis.h"
+#include "DataChainAnalysis_processor.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -7,6 +7,7 @@
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
+#include <eicd/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -16,12 +17,15 @@
 #include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
+#include <spdlog/spdlog.h>
+
+
 using namespace fmt;
 
 //------------------
 // OccupancyAnalysis (Constructor)
 //------------------
-OccupancyAnalysis::OccupancyAnalysis(JApplication *app) :
+DataChainAnalysis_processor::DataChainAnalysis_processor(JApplication *app) :
 	JEventProcessor(app)
 {
 }
@@ -29,7 +33,7 @@ OccupancyAnalysis::OccupancyAnalysis(JApplication *app) :
 //------------------
 // Init
 //------------------
-void OccupancyAnalysis::Init()
+void DataChainAnalysis_processor::Init()
 {
 	// Ask service locator a file to write to
 
@@ -43,7 +47,7 @@ void OccupancyAnalysis::Init()
 	gDirectory->pwd();
 
 	// Create a directory for this plugin. And subdirectories for series of histograms
-	m_dir_main = gFile->mkdir("data_flow_test");
+	m_dir_main = gFile->mkdir("BTRK_test");
 
     // Hits by Z distribution
     m_th1_prt_pz = new TH1F("prt_pz", "MCParticles Pz distribution [GeV]", 100, 0, 30);
@@ -71,47 +75,55 @@ void OccupancyAnalysis::Init()
 //------------------
 // Process
 //------------------
-void OccupancyAnalysis::Process(const std::shared_ptr<const JEvent>& event)
+void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
     using namespace ROOT;
 
+
+
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
+    //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+    //auto raw_hits = event->Get<eicd::RawTrackerHit>("BarrelTrackerRawHit");
 
-    auto particles = event->Get<edm4hep::MCParticle>("MCParticles");
-    fmt::print("OccupancyAnalysis::Process() particles N {}\n", particles.size());
+    auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
 
-    for(auto& particle: particles) {
-        if(particle->getGeneratorStatus() != 1) continue;
-
-        fmt::print("OccupancyAnalysis::Process() stable: {}\n", particle->getPDG());
-
-        double px = particle->getMomentum().x;
-        double py = particle->getMomentum().y;
-        double pz = particle->getMomentum().z;
-        ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
-        ROOT::Math::Cartesian3D p(px, py, pz);
-        fmt::print("OccupancyAnalysis::Process() pz: {}\n", pz);
-
-        m_th1_prt_pz->Fill(pz);
-        m_th2_prt_pxy->Fill(px, py);
-
-        m_th1_prt_theta->Fill(p.Theta());
-        if(pz>0) {
-            m_th1_prt_phi->Fill(p.Phi());
-        } else {
-            m_th1_prt_phi->Fill(-p.Phi());
-        }
-
-        m_th1_prt_energy->Fill(p4v.E());
-
-
-        /*
-        fmt::print("OccupancyAnalysis::Process() theta  : {}\n", p.Theta());
-        fmt::print("OccupancyAnalysis::Process() theta2 : {}\n", acos(pz/p.R()));
-        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", p.Phi());
-        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", atan(py/px));
-         */
-    }
+//    fmt::print("BCAL {}\n", bcal[0]->getCellID());
+//
+//    auto particles = event->Get<edm4hep::MCParticle>("MCParticles");
+//    fmt::print("OccupancyAnalysis::Process() particles N {}\n", particles.size());
+//
+//    for(auto& particle: particles) {
+//        if(particle->getGeneratorStatus() != 1) continue;
+//
+//        fmt::print("OccupancyAnalysis::Process() stable: {}\n", particle->getPDG());
+//
+//        double px = particle->getMomentum().x;
+//        double py = particle->getMomentum().y;
+//        double pz = particle->getMomentum().z;
+//        ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+//        ROOT::Math::Cartesian3D p(px, py, pz);
+//        fmt::print("OccupancyAnalysis::Process() pz: {}\n", pz);
+//
+//        m_th1_prt_pz->Fill(pz);
+//        m_th2_prt_pxy->Fill(px, py);
+//
+//        m_th1_prt_theta->Fill(p.Theta());
+//        if(pz>0) {
+//            m_th1_prt_phi->Fill(p.Phi());
+//        } else {
+//            m_th1_prt_phi->Fill(-p.Phi());
+//        }
+//
+//        m_th1_prt_energy->Fill(p4v.E());
+//
+//
+//        /*
+//        fmt::print("OccupancyAnalysis::Process() theta  : {}\n", p.Theta());
+//        fmt::print("OccupancyAnalysis::Process() theta2 : {}\n", acos(pz/p.R()));
+//        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", p.Phi());
+//        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", atan(py/px));
+//         */
+//    }
 
 
 
@@ -149,7 +161,7 @@ void OccupancyAnalysis::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 // Finish
 //------------------
-void OccupancyAnalysis::Finish()
+void DataChainAnalysis_processor::Finish()
 {
 	fmt::print("OccupancyAnalysis::Finish() called\n");
 

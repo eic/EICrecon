@@ -4,26 +4,29 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
 
-#include "algorithms/digi/RawTrackerHit.h"
-#include <algorithms/trk_chain_example/v2/JFactoryT_SimTrackerHitsCollector.h>
-#include <algorithms/trk_chain_example/v2/JFactoryT_SiliconTrackerDigi.h>
-#include <algorithms/trk_chain_example/v2/JFactoryT_TrackerHitReconstruction.h>
 
-#include "BarrelTrackerSimHit.h"
-#include "BarrelTrackerRawHit.h"
+#include <eicd/RawTrackerHit.h>
+
+#include <algorithms/digi/SiliconTrackerDigi_factory.h>
+#include <algorithms/tracking/TrackerHitReconstruction_factory.h>
+
+#include <algorithms/interfaces/JChainFactoryGeneratorT.h>
+#include <algorithms/interfaces/JChainFactoryT.h>
 
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
 
-        // Hits collector
-        app->Add(new JFactoryGeneratorT<JFactoryT_SimTrackerHitsCollector<BarrelTrackerSimHit>>());
+        using namespace eicrecon;
 
-        // Digitisation
-        app->Add(new JFactoryGeneratorT<JFactoryT_SiliconTrackerDigi<BarrelTrackerSimHit, BarrelTrackerRawHit>>());
+        // Digitization
+        app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits"},"BarrelTrackerRawHit"));
 
+        // Convert raw digitized hits into hits with geometry info (ready for tracking)
+        app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
+
+        // app->Add(new EicFactoryGeneratorT<Factory>(output_tag);
 
     }
 }

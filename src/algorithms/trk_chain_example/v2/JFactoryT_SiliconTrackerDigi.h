@@ -12,10 +12,10 @@
 #include "algorithms/digi/RawTrackerHit.h"
 
 template <typename InputT, typename OutputT>
-class JFactoryT_SiliconTrackerDigi : public JFactoryT<OutputT> {
+class SiliconTrackerDigi_factoryT : public JFactoryT<OutputT> {
 
 public:
-    JFactoryT_SiliconTrackerDigi() {
+    SiliconTrackerDigi_factoryT() {
 
         // Static test that input and output are from  RawTrackerHit
         static_assert(std::is_base_of<edm4hep::SimTrackerHit, InputT>::value);
@@ -38,7 +38,7 @@ private:
 };
 
 template<typename SimTrackerHitInT, typename RawTrackerHitOutT>
-void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Init() {
+void SiliconTrackerDigi_factoryT<SimTrackerHitInT, RawTrackerHitOutT>::Init() {
     /** Initialization **/
     fmt::print("JFactory_BEMCRawCalorimeterHit<{}, {}>::Init()\n",
                typeid(SimTrackerHitInT).name(),
@@ -54,14 +54,14 @@ void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Init() {
 }
 
 template<typename SimTrackerHitInT, typename RawTrackerHitOutT>
-void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void SiliconTrackerDigi_factoryT<SimTrackerHitInT, RawTrackerHitOutT>::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     /** On run change preparations **/
 
     fmt::print("JFactory_BEMCRawCalorimeterHit<>::ChangeRun(...)\n");
 }
 
 template<typename SimTrackerHitInT, typename RawTrackerHitOutT>
-void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Process(const std::shared_ptr<const JEvent> &event) {
+void SiliconTrackerDigi_factoryT<SimTrackerHitInT, RawTrackerHitOutT>::Process(const std::shared_ptr<const JEvent> &event) {
     /** Event by event processing **/
 
     // Read input data
