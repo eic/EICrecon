@@ -27,7 +27,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon)
+project(EICRecon VERSION 0.0.0)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
@@ -92,7 +92,10 @@ message(STATUS "\n-------------------------------")
 
 
 # Install all cmake helpers
-file(GLOB EICRECON_CMAKE_FILES cmake/*)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(cmake/EICreconConfig.cmake.in cmake/EICreconConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
+install(FILES ${CMAKE_BINARY_DIR}/cmake/EICreconConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)  # why is this needed?
+file(GLOB EICRECON_CMAKE_FILES cmake/*.cmake)
 install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
 
 
