@@ -120,7 +120,7 @@ export EICD_HOME=${EICTOPDIR}/eicd/${EICD_VERSION}
 export EICD_ROOT=${EICD_HOME}/install 
 git clone https://github.com/eic/eicd -b ${EICD_VERSION} ${EICD_HOME}
 cd ${EICD_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${eicd_ROOT} -DCMAKE_CXX_STANDARD=17
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EICD_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake3 --build build --target install -- -j8
 ~~~
 
