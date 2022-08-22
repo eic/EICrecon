@@ -10,22 +10,26 @@ project(podio_project)
 # Find dependencies
 find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
+find_package(EICD REQUIRED)
 find_package(podio REQUIRED)
-set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict podio::podioRootIO)
+find_package(fmt REQUIRED)
+set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
+set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
+set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EICD::eicd EICD::eicd_utils podio::podioRootIO)
 
 # This is used to automatically run the make_datamodel_glue.py command
 # that generates the datamodel_glue.h, datamodel_includes.h, and
 # datamodel_LinkDef.h files.
 add_custom_command(
         OUTPUT  datamodel_glue.h datamodel_includes.h         # Treated as relative to CMAKE_CURRENT_BINARY_DIR
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR}
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EICD_INCLUDE_DIR=${EICD_INCLUDE_DIR}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.
-include_directories(${EDM4HEP_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} )
+include_directories(${EDM4HEP_INCLUDE_DIR} ${EICD_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${fmt_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} )
 root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
 
 

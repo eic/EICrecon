@@ -22,6 +22,7 @@ print('Generating datamodel_glue.h ...')
 
 # Default to "not found"
 EDM4HEP_INCLUDE_DIR = None
+EICD_INCLUDE_DIR = None
 
 # Try getting from environment first so we can overwrite
 # with command line below if available.
@@ -29,11 +30,17 @@ EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
 if EDM4HEP_ROOT :
     EDM4HEP_INCLUDE_DIR=EDM4HEP_ROOT+'/include'
 
+EICD_ROOT = os.environ.get("EICD_ROOT")
+if EICD_ROOT :
+    EICD_INCLUDE_DIR=EICD_ROOT+'/include'
+
+
 # poor man's command line parsing
 for arg in sys.argv:
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
         if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=')[1]
-
+    if arg.startswith('EICD_INCLUDE_DIR'):
+        if '=' in arg: EICD_INCLUDE_DIR = arg.split('=')[1]
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
@@ -46,38 +53,81 @@ if not EDM4HEP_INCLUDE_DIR:
           "                          or '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
     sys.exit(1)
 
+# Check if EICD_ROOT is set
+if not EICD_INCLUDE_DIR:
+    print("ERROR: EICD_INCLUDE_DIR not spcified on command line (with \n"
+          "EICD_INCLUDE_DIR=/path/to/EICD/include) and EICD_ROOT\n"
+          "env. variable is None or empty\n"
+          "       Please specify the EICD_INCLUDE_DIR value explicitly\n"
+          "       or point EICD_ROOT envar to EICD installation root.\n"
+          "       This script looks for '{EICD_INCLUDE_DIR}/EICD/*Collection.h'\n"
+          "                          or '{EICD_ROOT}/include/EICD/*Collection.h'\n")
+    sys.exit(1)
 
-collectionfiles = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
+
+def AddCollections(datamodelName, collectionfiles):
+    for f in collectionfiles:
+        header_fname = f.split('/'+datamodelName)[-1]
+        basename = header_fname.split('/')[-1].split('Collection.h')[0]
+
+        header = '#include <'+ datamodelName + header_fname + '>'
+        header_lines.append(header)
+
+        make_lines.append('    if( className == "vector<'+datamodelName+'::'+basename+'Data>"){ return new EICEventStore::DataVectorT<'+datamodelName+'::'+basename+'Data>(name, className, collectionID); }')
+
+        copy_lines.append( '    if( dv->className == "vector<'+datamodelName+'::'+basename+'Data>") {' )
+        copy_lines.append( '        auto *dvt = reinterpret_cast<EICEventStore::DataVectorT<'+datamodelName+'::'+basename+'Data>*>( dv );' )
+        copy_lines.append( '        return CopyToJEventT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Obj, '+datamodelName+'::'+basename+'Data, '+datamodelName+'::'+basename+'Collection>(dvt, event, podio_objs);' )
+        copy_lines.append( '    }')
+
+        copy_simple_lines.append( '    if( className == "'+datamodelName+'::'+basename+'Collection") {' )
+        copy_simple_lines.append( '        auto *collection_typed = reinterpret_cast<const '+datamodelName+'::'+basename+'Collection*>( collection );' )
+        copy_simple_lines.append( '        return CopyToJEventSimpleT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Collection>(collection_typed, name, event);' )
+        copy_simple_lines.append( '    }')
+
+        put_lines.append('    if( ! fac->GetAs<'+datamodelName+'::'+basename+'>().empty() )')
+        put_lines.append('       {return PutPODIODataT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Collection>( writer, fac, store );}')
+
+        put_simple_lines.append('    if( ! fac->GetAs<'+datamodelName+'::'+basename+'>().empty() )')
+        put_simple_lines.append('       {return writer->PutPODIODataT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Collection>( fac, store );}')
+
+
+collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
+collectionfiles_eicd    = glob.glob(EICD_INCLUDE_DIR+'/eicd/*Collection.h')
 header_lines      = []
 copy_lines        = []
 copy_simple_lines = []
 make_lines        = []
 put_lines         = []
 put_simple_lines  = []
-for f in collectionfiles:
-    header_fname = f.split('/edm4hep')[-1]
-    basename = header_fname.split('/')[-1].split('Collection.h')[0]
+AddCollections('edm4hep', collectionfiles_edm4hep)
+AddCollections('eicd'   , collectionfiles_eicd   )
 
-    header = '#include <edm4hep' + header_fname + '>'
-    header_lines.append(header)
 
-    make_lines.append('    if( className == "vector<edm4hep::'+basename+'Data>"){ return new EICEventStore::DataVectorT<edm4hep::'+basename+'Data>(name, className, collectionID); }')
-
-    copy_lines.append( '    if( dv->className == "vector<edm4hep::'+basename+'Data>") {' )
-    copy_lines.append( '        auto *dvt = reinterpret_cast<EICEventStore::DataVectorT<edm4hep::'+basename+'Data>*>( dv );' )
-    copy_lines.append( '        return CopyToJEventT<edm4hep::'+basename+', edm4hep::'+basename+'Obj, edm4hep::'+basename+'Data, edm4hep::'+basename+'Collection>(dvt, event, podio_objs);' )
-    copy_lines.append( '    }')
-
-    copy_simple_lines.append( '    if( className == "edm4hep::'+basename+'Collection") {' )
-    copy_simple_lines.append( '        auto *collection_typed = reinterpret_cast<const edm4hep::'+basename+'Collection*>( collection );' )
-    copy_simple_lines.append( '        return CopyToJEventSimpleT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>(collection_typed, name, event);' )
-    copy_simple_lines.append( '    }')
-
-    put_lines.append('    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )')
-    put_lines.append('       {return PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( writer, fac, store );}')
-
-    put_simple_lines.append('    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )')
-    put_simple_lines.append('       {return writer->PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( fac, store );}')
+# for f in collectionfiles:
+#     header_fname = f.split('/edm4hep')[-1]
+#     basename = header_fname.split('/')[-1].split('Collection.h')[0]
+#
+#     header = '#include <edm4hep' + header_fname + '>'
+#     header_lines.append(header)
+#
+#     make_lines.append('    if( className == "vector<edm4hep::'+basename+'Data>"){ return new EICEventStore::DataVectorT<edm4hep::'+basename+'Data>(name, className, collectionID); }')
+#
+#     copy_lines.append( '    if( dv->className == "vector<edm4hep::'+basename+'Data>") {' )
+#     copy_lines.append( '        auto *dvt = reinterpret_cast<EICEventStore::DataVectorT<edm4hep::'+basename+'Data>*>( dv );' )
+#     copy_lines.append( '        return CopyToJEventT<edm4hep::'+basename+', edm4hep::'+basename+'Obj, edm4hep::'+basename+'Data, edm4hep::'+basename+'Collection>(dvt, event, podio_objs);' )
+#     copy_lines.append( '    }')
+#
+#     copy_simple_lines.append( '    if( className == "edm4hep::'+basename+'Collection") {' )
+#     copy_simple_lines.append( '        auto *collection_typed = reinterpret_cast<const edm4hep::'+basename+'Collection*>( collection );' )
+#     copy_simple_lines.append( '        return CopyToJEventSimpleT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>(collection_typed, name, event);' )
+#     copy_simple_lines.append( '    }')
+#
+#     put_lines.append('    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )')
+#     put_lines.append('       {return PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( writer, fac, store );}')
+#
+#     put_simple_lines.append('    if( ! fac->GetAs<edm4hep::'+basename+'>().empty() )')
+#     put_simple_lines.append('       {return writer->PutPODIODataT<edm4hep::'+basename+', edm4hep::'+basename+'Collection>( fac, store );}')
 
 make_lines.append('    if( className == "vector<podio::ObjectID>"){ return new EICEventStore::DataVectorT<podio::ObjectID>(name, className); }')
 make_lines.append('    std::cerr << "Unknown classname: " << className << " for branch " << name << std::endl;')
@@ -121,14 +171,14 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n'.join(copy_simple_lines))
     f.write('\n}\n')
 
-    f.write('\n// Test data type held in given factory against being any of the known edm4hep data types.')
+    f.write('\n// Test data type held in given factory against being any of the known edm4hep or eicd data types.')
     f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for edm4hep type.)')
     f.write('\nstatic std::string PutPODIOData(EICRootWriter *writer, JFactory *fac, EICEventStore &store){\n')
     f.write('\n'.join(put_lines))
     f.write('\n}\n')
 
-    f.write('\n// Test data type held in given factory against being any of the known edm4hep data types.')
-    f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for edm4hep type.)')
+    f.write('\n// Test data type held in given factory against being any of the known edm4hep or eicd data types.')
+    f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for the edm4hep or eicd type.)')
     f.write('\nstatic std::string PutPODIODataSimple(EICRootWriterSimple *writer, JFactory *fac, podio::EventStore &store){\n')
     f.write('\n'.join(put_simple_lines))
     f.write('\n}\n')
