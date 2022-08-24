@@ -15,7 +15,6 @@ int main( int narg, char **argv)
 
     if (options.flags[jana::ShowUsage]) {
         // Show usage information and exit immediately
-        _DBG__;
         jana::PrintUsage();
         std::cout << std::endl << "-----------" << std::endl;
         std::cout << "    eicrecon parameters: (specify with -Pparam=value)" << std::endl;
@@ -40,6 +39,8 @@ int main( int narg, char **argv)
     }
 
     japp = jana::CreateJApplication(options);
+
+    if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
 
     japp->AddPlugin( "podio"           );
     japp->AddPlugin( "dd4hep"          );

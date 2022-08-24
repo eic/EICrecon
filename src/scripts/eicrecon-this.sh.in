@@ -13,8 +13,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
 
 #----------------- JANA2
-if [[ -f @JANA_ROOT_DIR@bin/jana-this.sh ]] ; then
-    source @JANA_ROOT_DIR@bin/jana-this.sh
+if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
+    export JANA_ROOT=$( readlink -f @JANA_DIR@/../../.. )
+    source @JANA_DIR@/../../../bin/jana-this.sh
 fi
 
 #----------------- ROOT
@@ -24,9 +25,11 @@ fi
 
 #----------------- PODIO
 PODIO=$( readlink -f @podio_LIBRARY_DIR@/.. )
-if [[ -f ${PODIO}/env.sh ]] ; then
-    source ${PODIO}/env.sh
+if [[ -d ${PODIO} ]] ; then
     export podio_ROOT=${PODIO}
+    if [[ -f ${PODIO}/../env.sh ]] ; then
+        source ${PODIO}/../env.sh
+    fi
 fi
 
 #----------------- EDM4hep
@@ -52,6 +55,7 @@ fi
 #----------------- DD4hep
 if [[ -f @DD4hep_DIR@/../bin/thisdd4hep.sh ]] ; then
     source @DD4hep_DIR@/../bin/thisdd4hep.sh
+    export DD4HEP_ROOT=@DD4hep_DIR@/..
 fi
 
 #----------------- fmt
@@ -84,7 +88,7 @@ if [[ ! ":$LD_LIBRARY_PATH:" == *":$LIB_DIR:"* ]]; then
 fi
 
 # Add plugins to JANA_PLUGIN_PATH if not already there
-PLUGINS_DIR=$( readlink -f @PLUGIN_OUTPUT_DIRECTORY@ )
+PLUGINS_DIR=$( readlink -f ${EICrecon_ROOT}/@PLUGIN_OUTPUT_DIRECTORY@ )
 if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
     export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}"
 fi
