@@ -24,7 +24,7 @@ target_include_directories(BEMC_test_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${
 target_link_libraries(BEMC_test_plugin ${JANA_LIB} ${ROOT_LIBRARIES})
 set_target_properties(BEMC_test_plugin PROPERTIES PREFIX "" OUTPUT_NAME "BEMC_test" SUFFIX ".so")
 
-install(TARGETS BEMC_test_plugin DESTINATION plugins)
+install(TARGETS BEMC_test_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
 file(GLOB my_headers "*.h*")
 install(FILES ${my_headers} DESTINATION include/BEMC_test)

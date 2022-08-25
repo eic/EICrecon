@@ -100,7 +100,7 @@ macro(plugin_glob_all _name)
     file(GLOB HEADER_FILES *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
-    string(REPLACE ${CMAKE_SOURCE_DIR} "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
+    string(REPLACE ${CMAKE_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
 
     # >oO Debug output if needed
     if(${EICRECON_VERBOSE_CMAKE})
@@ -123,7 +123,7 @@ macro(plugin_glob_all _name)
 
     #Add correct headers installation
     # Install headers for plugin
-    install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH}/${_name})
+    install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH})
 
     if(${_name}_WITH_STATIC_LIB)
         # Library don't need <plugin_name>.cc but Plugin does

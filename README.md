@@ -66,7 +66,7 @@ source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 
 ### JANA
 ~~~
-export JANA_VERSION=v2.0.5
+export JANA_VERSION=v2.0.7
 export JANA_HOME=${EICTOPDIR}/JANA/${JANA_VERSION}
 git clone https://github.com/JeffersonLab/JANA2 -b ${JANA_VERSION} ${JANA_HOME}
 cd ${JANA_HOME}
@@ -74,6 +74,19 @@ cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${JANA_HOME}
 cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
+
+### spdlog
+~~~
+export SPDLOG_VERSION=v1.10.0
+export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
+export spdlog_ROOT=${SPDLOG_HOME}/install
+git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
+cd ${SPDLOG_HOME}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT}
+cmake3 --build build --target install -- -j8
+~~~
+
+git clone https://github.com/gabime/spdlog.git
 
 ### PODIO
 ~~~
@@ -97,6 +110,17 @@ export EDM4HEP_ROOT=${EDM4HEP}
 git clone https://github.com/key4hep/EDM4hep -b ${EDM4HEP_VERSION} ${EDM4HEP_HOME}
 cd ${EDM4HEP_HOME}
 cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EDM4HEP} -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_CATCH2=OFF
+cmake3 --build build --target install -- -j8
+~~~
+
+### eicd
+~~~
+export EICD_VERSION=v2.0.0
+export EICD_HOME=${EICTOPDIR}/eicd/${EICD_VERSION} 
+export EICD_ROOT=${EICD_HOME}/install 
+git clone https://github.com/eic/eicd -b ${EICD_VERSION} ${EICD_HOME}
+cd ${EICD_HOME}
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EICD_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake3 --build build --target install -- -j8
 ~~~
 
@@ -185,9 +209,11 @@ source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
 source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 
 export BOOST_VERSION=boost-1.79.0
-export JANA_VERSION=v2.0.5
+export JANA_VERSION=v2.0.7
+export SPDLOG_VERSION=v1.10.0
 export PODIO_VERSION=v00-14-03
 export EDM4HEP_VERSION=v00-06
+export EICD_VERSION=v2.0.0
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
@@ -195,6 +221,7 @@ export FMT_VERSION=9.0.0
 
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
+export spdlog_ROOT=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}/install
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 source ${PODIO_HOME}/env.sh
@@ -202,6 +229,8 @@ export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
+export EICD_ROOT=${EICTOPDIR}/eicd/${EICD_VERSION}/install
+export LD_LIBRARY_PATH=${eicd_ROOT}/lib:${LD_LIBRARY_PATH}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh

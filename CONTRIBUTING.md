@@ -66,3 +66,29 @@ private:
 
 - Strongly follow [PEP-8](https://peps.python.org/pep-0008/) unless naming is dictated by C++ wrapping
 
+# Development policies
+
+## Use of data model classes
+
+**podio** generates mutable and unmutable classes to work with underlying POD objects. e.g. `TrackerHit` (unmutable) an `MutableTrakerHit`. Unmutable variants are to be used for factory outputs and as a base classes of types that will be factory outputs:
+
+```C++
+class MyClass: public TrackerHit            // Yes
+class MyClass: public MutableTrackerHit     // NO!
+
+std::vector<const TrackerHit*> results          // Yes
+std::vector<const MutableTrackerHit*> results   // NO!
+```
+
+## spdlog as a main logging engine
+
+[spdlog](https://github.com/gabime/spdlog) is suggested as the main logging engine for EICRecon. Based on 
+
+One can use a general and plugin level loggers as
+
+```C++
+// Create plugin level sub-log
+m_log = spdlog::stdout_color_mt("TrackerHitReconstruction_factory");
+```
+
+More documentation is available at [spdlog](https://github.com/gabime/spdlog)
