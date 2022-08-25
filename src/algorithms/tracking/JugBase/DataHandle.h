@@ -4,7 +4,7 @@
 #ifndef JUGBASE_DATAHANDLE_H
 #define JUGBASE_DATAHANDLE_H
 
-#include "JugBase/DataWrapper.h"
+//#include "JugBase/DataWrapper.h"
 #include "JugBase/PodioDataSvc.h"
 
 #include <GaudiKernel/AlgTool.h>

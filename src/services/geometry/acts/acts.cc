@@ -5,9 +5,10 @@
 
 #include "ACTSGeo_service.h"
 
+
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<JDD4hep_service>(app) );
+    app->ProvideService(std::make_shared<ACTSGeo_service>(app) );
 }
 }

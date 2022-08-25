@@ -24,7 +24,7 @@
 #include <random>
 #include <stdexcept>
 
-namespace {
+namespace eicrecon{
   using Updater  = Acts::GainMatrixUpdater;
   using Smoother = Acts::GainMatrixSmoother;
 
@@ -33,19 +33,19 @@ namespace {
   using Propagator = Acts::Propagator<Stepper, Navigator>;
   using CKF        = Acts::CombinatorialKalmanFilter<Propagator>;
 
-  /** Finder implmentation .
+  /** Finder implementation .
    *
    * \ingroup track
    */
   struct CKFTrackingFunctionImpl
-    : public Jug::Reco::CKFTracking::CKFTrackingFunction {
+: public eicrecon::CKFTracking::CKFTrackingFunction {
     CKF trackFinder;
 
     CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
-    Jug::Reco::CKFTracking::TrackFinderResult
+    eicrecon::CKFTracking::TrackFinderResult
     operator()(const Jug::TrackParametersContainer& initialParameters,
-               const Jug::Reco::CKFTracking::TrackFinderOptions& options)
+               const eicrecon::CKFTracking::TrackFinderOptions& options)
                const override
     {
       return trackFinder.findTracks(initialParameters, options);
@@ -54,7 +54,7 @@ namespace {
 
 } // namespace
 
-namespace Jug::Reco {
+namespace eicrecon {
 
   std::shared_ptr<CKFTracking::CKFTrackingFunction>
   CKFTracking::makeCKFTrackingFunction(

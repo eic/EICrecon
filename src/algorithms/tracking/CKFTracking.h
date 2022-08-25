@@ -9,12 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Gaudi/Property.h"
-#include "GaudiAlg/GaudiAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "JugBase/DataHandle.h"
-#include "JugBase/IGeoSvc.h"
+//#include "JugBase/DataHandle.h"
+#include "GeoSvc.h"
 #include "JugBase/BField/DD4hepBField.h"
 #include "JugTrack/GeometryContainers.hpp"
 #include "JugTrack/Index.hpp"
@@ -24,70 +20,76 @@
 #include "JugTrack/Trajectories.hpp"
 
 #include "eicd/TrackerHitCollection.h"
+#include <eicd/TrackParameters.h>
+#include <eicd/Trajectory.h>
 
 #include "Acts/Definitions/Common.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/TrackFinding/CombinatorialKalmanFilter.hpp"
 #include "Acts/TrackFinding/MeasurementSelector.hpp"
+#include "CKFTrackingConfig.h"
 
-namespace Jug::Reco {
+namespace eicrecon {
 
 /** Fitting algorithm implmentation .
  *
  * \ingroup tracking
  */
-class CKFTracking : public GaudiAlgorithm {
-public:
-  /// Track finder function that takes input measurements, initial trackstate
-  /// and track finder options and returns some track-finder-specific result.
-  using TrackFinderOptions  = Acts::CombinatorialKalmanFilterOptions<IndexSourceLinkAccessor::Iterator>;
-  using TrackFinderResult   = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult>>;
+    class CKFTracking {
+    public:
+        /// Track finder function that takes input measurements, initial trackstate
+        /// and track finder options and returns some track-finder-specific result.
+        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<Jug::IndexSourceLinkAccessor::Iterator>;
+        using TrackFinderResult = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult>>;
 
-  /// Find function that takes the above parameters
-  /// @note This is separated into a virtual interface to keep compilation units
-  /// small
-  class CKFTrackingFunction {
-   public:
-    virtual ~CKFTrackingFunction() = default;
-    virtual TrackFinderResult operator()(const TrackParametersContainer&,
-                                         const TrackFinderOptions&) const = 0;
-  };
+        /// Find function that takes the above parameters
+        /// @note This is separated into a virtual interface to keep compilation units
+        /// small
+        class CKFTrackingFunction {
+        public:
+            virtual ~CKFTrackingFunction() = default;
 
-  /// Create the track finder function implementation.
-  /// The magnetic field is intentionally given by-value since the variant
-  /// contains shared_ptr anyways.
-  static std::shared_ptr<CKFTrackingFunction> makeCKFTrackingFunction(
-    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
-    std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
+            virtual TrackFinderResult operator()(const Jug::TrackParametersContainer &,
+                                                 const TrackFinderOptions &) const = 0;
+        };
 
-public:
-  DataHandle<IndexSourceLinkContainer> m_inputSourceLinks{"inputSourceLinks", Gaudi::DataHandle::Reader, this};
-  DataHandle<MeasurementContainer> m_inputMeasurements{"inputMeasurements", Gaudi::DataHandle::Reader, this};
-  DataHandle<TrackParametersContainer> m_inputInitialTrackParameters{"inputInitialTrackParameters",
-                                                                     Gaudi::DataHandle::Reader, this};
-  DataHandle<TrajectoriesContainer> m_outputTrajectories{"outputTrajectories", Gaudi::DataHandle::Writer, this};
+        /// Create the track finder function implementation.
+        /// The magnetic field is intentionally given by-value since the variantresults
+        /// contains shared_ptr anyways.
+        static std::shared_ptr<CKFTrackingFunction> makeCKFTrackingFunction(
+                std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+                std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
 
-  Gaudi::Property<std::vector<double>> m_etaBins{this, "etaBins", {}};
-  Gaudi::Property<std::vector<double>> m_chi2CutOff{this, "chi2CutOff", {15.}};
-  Gaudi::Property<std::vector<size_t>> m_numMeasurementsCutOff{this, "numMeasurementsCutOff", {10}};
+    public:
+//  DataHandle<IndexSourceLinkContainer> m_inputSourceLinks{"inputSourceLinks", Gaudi::DataHandle::Reader, this};
+//  DataHandle<MeasurementContainer> m_inputMeasurements{"inputMeasurements", Gaudi::DataHandle::Reader, this};
+//  DataHandle<TrackParametersContainer> m_inputInitialTrackParameters{"inputInitialTrackParameters",
+//                                                                     Gaudi::DataHandle::Reader, this};
+//  DataHandle<TrajectoriesContainer> m_outputTrajectories{"outputTrajectories", Gaudi::DataHandle::Writer, this};
 
-  std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  SmartIF<IGeoSvc> m_geoSvc;
 
-  std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
-  Acts::GeometryContext m_geoctx;
-  Acts::CalibrationContext m_calibctx;
-  Acts::MagneticFieldContext m_fieldctx;
 
-  Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
-  Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
+        std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
+        GeoSvc *m_geoSvc;
 
-  CKFTracking(const std::string& name, ISvcLocator* svcLoc);
+        std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
+        Acts::GeometryContext m_geoctx;
+        Acts::CalibrationContext m_calibctx;
+        Acts::MagneticFieldContext m_fieldctx;
 
-  StatusCode initialize() override;
+        Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
 
-  StatusCode execute() override;
-};
+        eicrecon::CKFTrackingConfig m_cfg;
+
+        CKFTracking();
+
+        void initialize(GeoSvc *geo_svc);
+
+        Jug::TrajectoriesContainer execute(Jug::IndexSourceLinkContainer src_links,
+                                           Jug::MeasurementContainer measurements,
+                                           Jug::TrackParametersContainer init_trk_params);
+    };
 
 } // namespace Jug::Reco
 

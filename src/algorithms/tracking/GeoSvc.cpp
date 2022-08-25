@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
 
+#include <fmt/ostream.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
 #include "GeoSvc.h"
 
 #include "TGeoManager.h"
 
 #include "DD4hep/Printout.h"
 
-#include "JugBase/ACTSLogger.h"
+//#include "JugBase/ACTSLogger.h"
 #include "JugBase/Acts/MaterialWiper.hpp"
 
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -92,9 +94,9 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
 //      0., 0., this->centralMagneticField() * 10.0)); // gentfit uses kilo-Gauss
 //  genfit::MaterialEffects::getInstance()->init(new genfit::TGeoMaterialInterface());
 
-    m_dd4hepGeo = dd4hepGeo;
+    m_dd4hepDetector = dd4hepGeo;
   // create a list of all surfaces in the detector:
-  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepGeo ) ;
+  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepDetector ) ;
 
   m_log->debug(" surface manager ");
   const auto* const sM = surfMan.map("tracker") ;
@@ -144,17 +146,17 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
   double defaultLayerThickness = Acts::UnitConstants::fm;
   using Acts::sortDetElementsByID;
   m_trackingGeo = Acts::convertDD4hepDetector(
-      m_dd4hepGeo->world(),
-      m_actsLoggingLevel,
-      bTypePhi,
-      bTypeR,
-      bTypeZ,
-      layerEnvelopeR,
-      layerEnvelopeZ,
-      defaultLayerThickness,
-      sortDetElementsByID,
-      m_trackingGeoCtx,
-      m_materialDeco);
+          m_dd4hepDetector->world(),
+          m_actsLoggingLevel,
+          bTypePhi,
+          bTypeR,
+          bTypeZ,
+          layerEnvelopeR,
+          layerEnvelopeZ,
+          defaultLayerThickness,
+          sortDetElementsByID,
+          m_trackingGeoCtx,
+          m_materialDeco);
   // Visit surfaces
   if (m_trackingGeo) {
     draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
@@ -169,32 +171,33 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
         dynamic_cast<const Acts::DD4hepDetectorElement*>(surface->associatedDetectorElement());
 
       if (det_element == nullptr) {
-        error() << "invalid det_element!!! " << endmsg;
+          m_log->error("invalid det_element!!! det_element == nullptr ");
         return;
       }
       // more verbose output is lower enum value
-      debug() << " det_element->identifier() " << det_element->identifier() << endmsg;
-      auto volman  = m_dd4hepGeo->volumeManager();
+      m_log->debug(" det_element->identifier() = {} ", det_element->identifier());
+      auto volman  = m_dd4hepDetector->volumeManager();
       auto* vol_ctx = volman.lookupContext(det_element->identifier());
       auto vol_id  = vol_ctx->identifier;
 
-      if (msgLevel() <= MSG::DEBUG) {
-        auto de  = vol_ctx->element;
-        debug() << de.path() << endmsg;
-        debug() << de.placementPath() << endmsg;
+      if(m_log->level() <= spdlog::level::debug) {
+          auto de  = vol_ctx->element;
+          m_log->debug("  de.path          = {}", de.path());
+          m_log->debug("  de.placementPath = {}", de.placementPath());
       }
+
       this->m_surfaces.insert_or_assign(vol_id, surface);
     });
   }
 
   // Load ACTS magnetic field
-  m_magneticField = std::make_shared<const Jug::BField::DD4hepBField>(m_dd4hepGeo);
+  m_magneticField = std::make_shared<const Jug::BField::DD4hepBField>(m_dd4hepDetector);
   Acts::MagneticFieldContext m_fieldctx{Jug::BField::BFieldVariant(m_magneticField)};
   auto bCache = m_magneticField->makeCache(m_fieldctx);
   for (int z : {0, 1000, 2000, 4000}) {
     auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
-    debug() << "B(z=" << z << " mm) = " << b.transpose()  << " T" << endmsg;
+    m_log->debug("B(z = {} [mm]) = {} T",  z, b.transpose());
   }
 }
 
-dd4hep::DetElement GeoSvc::getDD4HepGeo() { return (detector()->world()); }
+
