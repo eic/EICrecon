@@ -71,7 +71,7 @@ How it works:
 
         using namespace eicrecon;
         // Digitization
-        app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits"},"BarrelTrackerRawHit"));
+        app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits1", "TrackerBarrelHits2"},"BarrelTrackerRawHit"));
 
         // Convert raw digitized hits into hits with geometry info (ready for tracking)
         app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
