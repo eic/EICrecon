@@ -22,6 +22,22 @@ flowchart TB
   TrackerEndcapRawHits --> TrackerSourceLinker  
 ```
 
+
+The proposed solution: 
+
+```
+JChainFactoryGeneratorT.h
+JChainFactoryT.h
+```
+
+Requirements satisfied
+
+- Works in JANA paradigm
+- Has the right defaults
+- Can be changed/rewired without recompilation
+- Can be raplaced by other plugin
+
+
 To simplify lets look at one chain: 
 
 
@@ -39,24 +55,9 @@ flowchart TB
 ```
 
 
-The proposed solution: 
-
-```
-JChainFactoryGeneratorT.h
-JChainFactoryT.h
-```
-
-Requirements satisfied
-
-- Works in JANA paradigm
-- Has the right defaults
-- Can be changed/rewired without recompilation
-- Can be raplaced by other plugin
-
-
 How it works: 
 
-1- JChainFactoryT is a JFactoryT, that have just one property: 
+1- JChainFactoryT is a JFactoryT, that have just one additional property: 
 
 ```c++
 std::vector<std::string> m_default_input_tags;
