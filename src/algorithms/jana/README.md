@@ -29,10 +29,10 @@ flowchart TB
   
   tracker_barrel_collections(Endcap trk:<br />TrackerBarrelHits1<br/>TrackerBarrelHits2<br/>TrackerBarrelHits3<br/><strong>edm4hep::SimHit</strong>)
   
-  tracker_barrel_collections --> TrackerDigi[TrackerDigi<br />SimHit\[\] to RawTrackingHit]:::alg
+  tracker_barrel_collections --> TrackerDigi[TrackerDigi<br />SimHit to RawTrackingHit]:::alg
   TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>eicd::RawTrackingHit</strong>)
     
-  TrackerSourceLinker[SomeReconstruction]:::alg  
+  TrackerSourceLinker[SomeReconstruction<br />RawTrackingHit to RecoHit]:::alg  
   TrackerBarrelRawHits --> TrackerSourceLinker
   
 ```
