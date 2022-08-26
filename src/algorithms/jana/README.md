@@ -11,10 +11,10 @@ flowchart TB
   end
   
   tracker_barrel_collections --> TrackerDigi[TrackerDigi]:::alg
-  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits)
+  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>eicd::RawTrackingHit</strong>)
     
   tracker_endcap_collections --> TrackerDigi2[TrackerDigi]:::alg
-  TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits)
+  TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits<br/><strong>eicd::RawTrackingHit</strong>)
   
   TrackerSourceLinker[SomeReconstruction]:::alg
   
