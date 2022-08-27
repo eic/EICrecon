@@ -11,8 +11,8 @@
 #include <algorithms/digi/SiliconTrackerDigi_factory.h>
 #include <algorithms/tracking/TrackerHitReconstruction_factory.h>
 
-#include <algorithms/interfaces/JChainFactoryGeneratorT.h>
-#include <algorithms/interfaces/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {

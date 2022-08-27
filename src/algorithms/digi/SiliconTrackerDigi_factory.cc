@@ -54,7 +54,7 @@ void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const J
     }
 
     // Digitize hits
-    auto digitised_hits = m_digi_algo.process(total_sim_hits);
+    auto digitised_hits = m_digi_algo.produce(total_sim_hits);
 
     // Add data as a factory output
     this->Set(digitised_hits);

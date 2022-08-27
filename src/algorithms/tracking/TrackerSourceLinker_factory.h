@@ -6,7 +6,7 @@
 #define EICRECON_TRACKERSOURCELINKER_FACTORY_H
 
 #include <spdlog/spdlog.h>
-#include <algorithms/interfaces/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 #include <algorithms/tracking/TrackerSourceLinker.h>
 
 #include "TrackSourceLinkerResult.h"

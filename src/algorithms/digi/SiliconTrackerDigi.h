@@ -16,7 +16,7 @@
 namespace eicrecon {
 
     /** digitization algorithm for a silicon trackers **/
-    class SiliconTrackerDigi:ICollectionProducer {
+    class SiliconTrackerDigi:ICollectionProducer<edm4hep::SimTrackerHit, eicd::RawTrackerHit> {
     public:
         SiliconTrackerDigi() = default;
 
@@ -24,7 +24,7 @@ namespace eicrecon {
         void init();
 
         /// ICollectionProducer processes RawTrackerHit collection from SimTrackerHit
-        std::vector<eicd::RawTrackerHit*> process(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
+        virtual std::vector<eicd::RawTrackerHit*> produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
 
         /// Get a configuration to be changed
         eicrecon::SiliconTrackerDigiConfig& getConfig() {return m_cfg;}

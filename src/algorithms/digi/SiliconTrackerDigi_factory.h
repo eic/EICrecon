@@ -6,7 +6,7 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
-#include <algorithms/interfaces/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 #include <JANA/JEvent.h>
 
 #include <edm4hep/SimTrackerHit.h>

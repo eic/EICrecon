@@ -7,7 +7,7 @@
 #include <JANA/JException.h>
 #include <TDatabasePDG.h>
 
-void eicrecon::TruthTrackSeeding::initialize() {
+void eicrecon::TruthTrackSeeding::init() {
 
     // TODO make a service?
     m_pdg_db = std::make_shared<TDatabasePDG>();

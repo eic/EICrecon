@@ -6,15 +6,17 @@
 #define EICRECON_CKFTracking_factory_H
 
 #include <spdlog/spdlog.h>
-#include <algorithms/interfaces/JChainFactoryT.h>
 
 #include <algorithms/tracking/TruthTrackSeeding.h>
+#include "TrackSourceLinkerResult.h"
+#include "GeoSvc.h"
 
+#include "extensions/jana/JChainFactoryT.h"
 
 
 namespace eicrecon {
 
-    class CKFTracking_factory : public JFactoryT<TrackSourceLinkerResult> {
+    class CKFTracking_factory : public JChainFactoryT<TrackSourceLinkerResult> {
 
     public:
         CKFTracking_factory( std::vector<std::string> default_input_tags ):
@@ -36,8 +38,8 @@ namespace eicrecon {
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
         std::string m_input_tag;                            /// Tag for the input data
+        GeoSvc *m_acts_context;
 
-        
     };
 
 } // eicrecon

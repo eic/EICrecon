@@ -17,7 +17,7 @@ void eicrecon::SiliconTrackerDigi::init() {
 
 
 std::vector<eicd::RawTrackerHit *>
-eicrecon::SiliconTrackerDigi::process(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits) {
+eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits) {
 //return std::vector<eicd::RawTrackerHit *>();
     /** Event by event processing **/
     namespace units = TGeoUnit;

@@ -2,6 +2,13 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 #include "CKFTracking_factory.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
+#include <JANA/JEvent.h>
 
 void eicrecon::CKFTracking_factory::Init() {
     // This prefix will be used for parameters
@@ -14,7 +21,7 @@ void eicrecon::CKFTracking_factory::Init() {
     auto pm = this->GetApplication()->GetJParameterManager();
 
     pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
+    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tag, "Input data tag name");
 
     // This level will work for this plugin only
     switch (m_verbose) {
@@ -36,7 +43,6 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Initialize algorithm
     auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-    m_source_linker.init(cellid_converter, m_log);
 }
 
 void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -45,18 +51,13 @@ void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
-    std::vector<std::string> &input_tags = m_input_tags;
-    if(input_tags.size() == 0) {
-        input_tags = GetDefaultInputTags();
+    std::string input_tag = m_input_tag;
+    if(input_tag.empty()) {
+        input_tag = GetDefaultInputTags()[0];
     }
 
     // Collect all hits
     std::vector<const eicd::TrackParameters *> total_sim_hits;
-    for(auto input_tag: input_tags) {
-        auto simHits = event->Get<edm4hep::MCParticle>(input_tag);
-        for (const auto ahit : simHits) {
-            total_sim_hits.push_back(ahit);                     /// TODO a better way to concatenate arrays
-        }
-    }
+    auto source_linker_result = event->GetSingle<eicrecon::TrackSourceLinkerResult>(input_tag);
 
 }

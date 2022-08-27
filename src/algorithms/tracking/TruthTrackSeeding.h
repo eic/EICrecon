@@ -14,11 +14,12 @@
 namespace eicrecon {
     class TruthTrackSeeding:
             public eicrecon::IObjectProducer<edm4hep::MCParticle, eicd::TrackParameters> {
-
-        void initialize();
+    public:
+        void init();
 
         eicd::TrackParameters * produce(const edm4hep::MCParticle *) override;
 
+    private:
         std::shared_ptr<TDatabasePDG> m_pdg_db;
     };
 }

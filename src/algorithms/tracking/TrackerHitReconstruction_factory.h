@@ -22,7 +22,7 @@
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "TrackerHitReconstruction.h"
 
-#include <algorithms/interfaces/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 
 
 class TrackerHitReconstruction_factory : public JChainFactoryT<eicd::TrackerHit> {

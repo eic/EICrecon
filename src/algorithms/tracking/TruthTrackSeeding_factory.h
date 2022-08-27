@@ -6,19 +6,21 @@
 #define EICRECON_TruthTrackSeeding_factory_H
 
 #include <spdlog/spdlog.h>
-#include <algorithms/interfaces/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 
 #include <algorithms/tracking/TruthTrackSeeding.h>
 
 
 
+
+
 namespace eicrecon {
 
-    class TruthTrackSeeding_factory : public JChainFactoryT<TrackSourceLinkerResult> {
+class TruthTrackSeeding_factory : public JChainFactoryT<eicd::TrackParameters> {
 
     public:
         TruthTrackSeeding_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<TrackSourceLinkerResult>( std::move(default_input_tags) ) {
+                JChainFactoryT<eicd::TrackParameters>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/
@@ -35,9 +37,10 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-        std::string m_input_tag;                            /// Tag for the input data
+        std::vector<std::string> m_input_tags;              /// Tag for the input data
 
-        eicrecon
+        eicrecon::TruthTrackSeeding m_truth_track_seeding_algo;  /// Truth track seeding algorithm
+
     };
 
 } // eicrecon
