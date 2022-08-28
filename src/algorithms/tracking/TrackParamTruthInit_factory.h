@@ -2,25 +2,22 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_CKFTracking_factory_H
-#define EICRECON_CKFTracking_factory_H
+#ifndef EICRECON_TrackParamTruthInit_factory_H
+#define EICRECON_TrackParamTruthInit_factory_H
 
 #include <spdlog/spdlog.h>
-
-#include <algorithms/tracking/CKFTracking.h>
-#include "TrackSourceLinkerResult.h"
-#include "GeoSvc.h"
-
 #include "extensions/jana/JChainFactoryT.h"
+
+#include <algorithms/tracking/TrackParamTruthInit.h>
 
 
 namespace eicrecon {
 
-    class CKFTracking_factory : public JChainFactoryT<TrackSourceLinkerResult> {
+class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters> {
 
     public:
-        CKFTracking_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<TrackSourceLinkerResult>( std::move(default_input_tags) ) {
+        TrackParamTruthInit_factory( std::vector<std::string> default_input_tags ):
+                JChainFactoryT<eicd::TrackParameters>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/
@@ -37,13 +34,12 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-        std::string m_input_tag;                            /// Tag for the input data
-        GeoSvc *m_acts_context;
+        std::vector<std::string> m_input_tags;              /// Tag for the input data
 
-        CKFTracking m_tracking_algo;                        /// Proxy tracking algorithm
+        eicrecon::TrackParamTruthInit m_truth_track_seeding_algo;  /// Truth track seeding algorithm
 
     };
 
 } // eicrecon
 
-#endif //EICRECON_CKFTracking_factory_H
+#endif //EICRECON_TrackParamTruthInit_factory_H

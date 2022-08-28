@@ -18,7 +18,7 @@ plugin_glob_all(${PLUGIN_NAME})
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EICD REQUIRED)
 find_package(spdlog REQUIRED)
 

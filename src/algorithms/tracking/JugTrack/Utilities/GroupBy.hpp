@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "JugTrack/Utilities/Range.hpp"
+#include "Range.hpp"
 
 #include <algorithm>
 #include <iterator>

@@ -15,7 +15,7 @@ void eicrecon::CKFTracking_factory::Init() {
     std::string param_prefix = "CKFTracking_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Create plugin level sub-log
-    m_log = spdlog::stdout_color_mt("TrackerSourceLinker_factory");
+    m_log = spdlog::stdout_color_mt("CKFTracking_factory");
 
     // Ask service locator for parameter manager. We want to get this plugin parameters.
     auto pm = this->GetApplication()->GetJParameterManager();
@@ -43,6 +43,8 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Initialize algorithm
     auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
+
+    m_tracking_algo.initialize(acts_service->acts_context());
 }
 
 void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -57,7 +59,15 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     }
 
     // Collect all hits
-    std::vector<const eicd::TrackParameters *> total_sim_hits;
     auto source_linker_result = event->GetSingle<eicrecon::TrackSourceLinkerResult>(input_tag);
+    auto track_parameters = event->Get<eicd::TrackParameters>();
+    Jug::TrackParametersContainer acts_track_params;
+    for(auto track_params_item: track_parameters) {
+        Jug::TrackParameters acts_track_params_item();
+        acts_track_params_item.
+    }
+
+
+    auto result = m_tracking_algo.execute(source_linker_result->sourceLinks, source_linker_result->measurements, truth_seed_info);
 
 }

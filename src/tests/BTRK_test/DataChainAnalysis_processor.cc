@@ -18,6 +18,9 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
+#include <eicd/TrackParameters.h>
+
+#include <algorithms/tracking/TrackSourceLinkerResult.h>
 
 
 using namespace fmt;
@@ -82,10 +85,16 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
 
 
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
+
+    auto t_param = event->Get<eicd::TrackParameters>();
+
     //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
     //auto raw_hits = event->Get<eicd::RawTrackerHit>("BarrelTrackerRawHit");
 
     auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
+
+    auto result = event->GetSingle<eicrecon::TrackSourceLinkerResult>("TrackerSourceLinkerResult");
+    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks.size(), result->measurements.size());
 
 //    fmt::print("BCAL {}\n", bcal[0]->getCellID());
 //

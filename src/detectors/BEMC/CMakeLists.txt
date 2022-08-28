@@ -18,7 +18,7 @@ plugin_glob_all(${PLUGIN_NAME})
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})

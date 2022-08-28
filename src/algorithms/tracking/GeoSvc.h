@@ -28,7 +28,7 @@
 #include "DDRec/Surface.h"
 #include "DD4hep/DD4hepUnits.h"
 
-#include "JugBase/BField/DD4hepBField.h"
+#include <JugBase/BField/DD4hepBField.h>
 
 #include <spdlog/spdlog.h>
 
@@ -40,6 +40,9 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 
 class GeoSvc {
 public:
+    GeoSvc() {
+        spdlog::info("I'm alive!");
+    }
     using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
 
     virtual void initialize(dd4hep::Detector *dd4hepGeo) final;

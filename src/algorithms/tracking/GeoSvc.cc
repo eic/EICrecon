@@ -69,7 +69,7 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 
 void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
 
-    m_log = spdlog::stdout_color_mt("TrackerHitReconstruction_factory");
+    m_log = spdlog::stdout_color_mt("ActsGeoService");
 
   // Turn off TGeo printouts if appropriate for the msg level
 

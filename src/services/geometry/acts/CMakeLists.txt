@@ -18,7 +18,7 @@ plugin_glob_all(${PLUGIN_NAME})
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EICD REQUIRED)
 find_package(spdlog REQUIRED)
 
@@ -51,5 +51,21 @@ plugin_link_libraries(${PLUGIN_NAME}
         DD4hep::DDCore
         EICD::eicd
         ActsCore
-        spdlog::spdlog)
+        ActsPluginDD4hep
+        ActsPluginJson
+        ActsPluginTGeo
+        spdlog::spdlog
+        tracking_library)
 
+
+target_link_libraries(${PLUGIN_NAME}_plugin
+        dd4hep_library
+        EDM4HEP::edm4hep
+        DD4hep::DDCore
+        EICD::eicd
+        ActsCore
+        ActsPluginDD4hep
+        ActsPluginJson
+        ActsPluginTGeo
+        spdlog::spdlog
+        tracking_library)

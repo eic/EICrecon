@@ -14,11 +14,13 @@ plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
+plugin_sources(${PLUGIN_NAME} JugBase/BField/DD4hepBField.cc)
+
 # Find dependencies
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EICD REQUIRED)
 find_package(spdlog REQUIRED)
 
@@ -46,9 +48,11 @@ plugin_include_directories(${PLUGIN_NAME}
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME}
+        ${ROOT_LIBRARIES}
         dd4hep_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
+        DD4hep::DDRec
         EICD::eicd
         ActsCore
         spdlog::spdlog)

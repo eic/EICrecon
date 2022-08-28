@@ -113,5 +113,6 @@ eicrecon::TrackSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::v
     auto result = new eicrecon::TrackSourceLinkerResult;
     result->sourceLinks = sourceLinks;
     result->measurements = measurements;
+    return result;
 }
 

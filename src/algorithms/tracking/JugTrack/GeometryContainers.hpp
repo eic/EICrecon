@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "JugTrack/Utilities/GroupBy.hpp"
-#include "JugTrack/Utilities/Range.hpp"
+#include "Utilities/GroupBy.hpp"
+#include "Utilities/Range.hpp"
 #include "Acts/Geometry/GeometryIdentifier.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 

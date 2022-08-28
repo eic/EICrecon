@@ -20,7 +20,8 @@ namespace eicrecon {
         m_log = spdlog::stdout_color_mt("TrackerSourceLinker_factory");
 
         // Ask service locator for parameter manager. We want to get this plugin parameters.
-        auto pm = this->GetApplication()->GetJParameterManager();
+        auto app =  this->GetApplication();
+        auto pm = app->GetJParameterManager();
 
         pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
         pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");

@@ -9,7 +9,7 @@ project(BEMC_test_project)
 
 # Find dependencies
 find_package(JANA REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 

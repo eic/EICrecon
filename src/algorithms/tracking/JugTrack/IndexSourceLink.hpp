@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "JugTrack/GeometryContainers.hpp"
-#include "JugTrack/Index.hpp"
+#include "GeometryContainers.hpp"
+#include "Index.hpp"
 
 #include "Acts/EventData/SourceLink.hpp"
 #include "Acts/Surfaces/Surface.hpp"

@@ -428,7 +428,7 @@ find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
