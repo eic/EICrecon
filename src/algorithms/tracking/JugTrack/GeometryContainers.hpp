@@ -6,7 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
+#ifndef H_JUG_GEOMETRY_CONTAINERS_H
+#define H_JUG_GEOMETRY_CONTAINERS_H
 
 #include "Utilities/GroupBy.hpp"
 #include "Utilities/Range.hpp"
@@ -186,3 +187,5 @@ struct GeometryIdMultisetAccessor {
 };
 
 }  // namespace FW
+
+#endif // H_JUG_GEOMETRY_CONTAINERS_H

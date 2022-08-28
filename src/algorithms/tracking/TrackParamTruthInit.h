@@ -11,6 +11,8 @@
 #include <spdlog/logger.h>
 #include "TrackParamTruthInitConfig.h"
 
+#include <TDatabasePDG.h>
+
 namespace eicrecon {
     class TrackParamTruthInit: eicrecon::IObjectProducer<edm4hep::MCParticle, Jug::TrackParameters> {
 
@@ -23,6 +25,7 @@ namespace eicrecon {
     private:
         std::shared_ptr<spdlog::logger> m_log;
         TrackParamTruthInitConfig m_cfg;
+        std::shared_ptr<TDatabasePDG> m_pdg_db;
     };
 }   // namespace eicrecon
 

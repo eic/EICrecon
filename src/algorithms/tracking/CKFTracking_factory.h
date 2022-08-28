@@ -8,19 +8,18 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithms/tracking/CKFTracking.h>
-#include "TrackSourceLinkerResult.h"
-#include "GeoSvc.h"
+#include "TrackerSourceLinkerResult.h"
 
 #include "extensions/jana/JChainFactoryT.h"
 
 
 namespace eicrecon {
 
-    class CKFTracking_factory : public JChainFactoryT<TrackSourceLinkerResult> {
+    class CKFTracking_factory : public JChainFactoryT<Jug::Trajectories> {
 
     public:
         CKFTracking_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<TrackSourceLinkerResult>( std::move(default_input_tags) ) {
+                JChainFactoryT<Jug::Trajectories>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/
@@ -38,7 +37,7 @@ namespace eicrecon {
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
         std::string m_input_tag;                            /// Tag for the input data
-        GeoSvc *m_acts_context;
+
 
         CKFTracking m_tracking_algo;                        /// Proxy tracking algorithm
 

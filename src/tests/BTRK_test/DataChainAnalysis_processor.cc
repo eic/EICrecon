@@ -1,4 +1,5 @@
 #include "DataChainAnalysis_processor.h"
+#include "algorithms/tracking/JugTrack/Trajectories.hpp"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -20,7 +21,8 @@
 #include <spdlog/spdlog.h>
 #include <eicd/TrackParameters.h>
 
-#include <algorithms/tracking/TrackSourceLinkerResult.h>
+#include <algorithms/tracking/TrackerSourceLinkerResult.h>
+#include <algorithms/tracking/JugTrack/Track.hpp>
 
 
 using namespace fmt;
@@ -82,19 +84,20 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
 {
     using namespace ROOT;
 
-
-
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
-
-    auto t_param = event->Get<eicd::TrackParameters>();
 
     //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
     //auto raw_hits = event->Get<eicd::RawTrackerHit>("BarrelTrackerRawHit");
 
     auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
 
-    auto result = event->GetSingle<eicrecon::TrackSourceLinkerResult>("TrackerSourceLinkerResult");
+    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("TrackerSourceLinkerResult");
     spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks.size(), result->measurements.size());
+
+    auto truth_init = event->Get<Jug::TrackParameters>("");
+    spdlog::info("truth_init.size()={}", truth_init.size());
+
+    auto trajectories = event->Get<Jug::Trajectories>("");
 
 //    fmt::print("BCAL {}\n", bcal[0]->getCellID());
 //

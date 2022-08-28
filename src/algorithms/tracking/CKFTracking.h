@@ -10,7 +10,7 @@
 #include <vector>
 
 //#include "JugBase/DataHandle.h"
-#include "GeoSvc.h"
+
 #include "JugBase/BField/DD4hepBField.h"
 #include "JugTrack/GeometryContainers.hpp"
 #include "JugTrack/Index.hpp"
@@ -29,12 +29,15 @@
 #include "Acts/TrackFinding/MeasurementSelector.hpp"
 #include "CKFTrackingConfig.h"
 
+class GeoSvc;
+
 namespace eicrecon {
 
 /** Fitting algorithm implmentation .
  *
  * \ingroup tracking
  */
+
     class CKFTracking {
     public:
         /// Track finder function that takes input measurements, initial trackstate
@@ -86,9 +89,9 @@ namespace eicrecon {
 
         void initialize(GeoSvc *geo_svc);
 
-        Jug::TrajectoriesContainer execute(Jug::IndexSourceLinkContainer src_links,
-                                           Jug::MeasurementContainer measurements,
-                                           Jug::TrackParametersContainer init_trk_params);
+        std::vector<Jug::Trajectories*> execute(Jug::IndexSourceLinkContainer src_links,
+                                                             Jug::MeasurementContainer measurements,
+                                                             Jug::TrackParametersContainer init_trk_params);
     };
 
 } // namespace Jug::Reco

@@ -5,7 +5,7 @@
 #ifndef EICRECON_TRACKER_SOURCE_LINKER_H
 #define EICRECON_TRACKER_SOURCE_LINKER_H
 
-#include "TrackSourceLinkerResult.h"
+#include "TrackerSourceLinkerResult.h"
 
 #include <vector>
 #include <eicd/TrackerHit.h>
@@ -25,7 +25,7 @@ namespace eicrecon {
         void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid_converter,
                   std::shared_ptr<spdlog::logger> logger);
 
-        eicrecon::TrackSourceLinkerResult *produce(std::vector<const eicd::TrackerHit *> trk_hits);
+        eicrecon::TrackerSourceLinkerResult *produce(std::vector<const eicd::TrackerHit *> trk_hits);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

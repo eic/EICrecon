@@ -30,6 +30,8 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 
+#include "GeoSvc.h"
+
 #include "eicd/TrackerHitCollection.h"
 
 #include <spdlog/fmt/ostr.h>
@@ -93,7 +95,7 @@ namespace eicrecon {
 //
     }
 
-    Jug::TrajectoriesContainer CKFTracking::execute(Jug::IndexSourceLinkContainer src_links,
+    std::vector<Jug::Trajectories*> CKFTracking::execute(Jug::IndexSourceLinkContainer src_links,
                                                          Jug::MeasurementContainer measurements,
                                                          Jug::TrackParametersContainer init_trk_params) {
         // Read input data
@@ -104,7 +106,7 @@ namespace eicrecon {
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
 
-        Jug::TrajectoriesContainer trajectories;
+        std::vector<Jug::Trajectories *>trajectories;
         trajectories.reserve(init_trk_params.size());
 
         //// Construct a perigee surface as the target surface
@@ -158,9 +160,9 @@ namespace eicrecon {
                 // Get the track finding output object
                 const auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
-                trajectories.emplace_back(std::move(trackFindingOutput.fittedStates),
-                                          std::move(trackFindingOutput.lastMeasurementIndices),
-                                          std::move(trackFindingOutput.fittedParameters));
+                trajectories.push_back(new Jug::Trajectories(std::move(trackFindingOutput.fittedStates),
+                                                           std::move(trackFindingOutput.lastMeasurementIndices),
+                                                           std::move(trackFindingOutput.fittedParameters)));
             } else {
                 spdlog::debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
             }

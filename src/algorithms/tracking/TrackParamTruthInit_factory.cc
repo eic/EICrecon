@@ -39,7 +39,7 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
             m_log->set_level(spdlog::level::info); break;
     }
 
-    m_truth_track_seeding_algo.init();
+    m_truth_track_seeding_algo.init(m_log);
 }
 
 void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -57,7 +57,7 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
     auto mc_particles = event->Get<edm4hep::MCParticle>(input_tags[0]);
 
     // Produce track parameters out of MCParticles
-    std::vector<eicd::TrackParameters*> results;
+    std::vector<Jug::TrackParameters*> results;
     for(auto mc_particle: mc_particles) {
 
         // Only stable particles from MC
@@ -70,7 +70,7 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
         // >oO debug output
         if(m_log->level() <= spdlog::level::debug) {
             const auto p = std::hypot(mc_particle->getMomentum().x, mc_particle->getMomentum().y, mc_particle->getMomentum().z);
-            const auto charge = result->getCharge();
+            const auto charge = result->charge();
             m_log->debug("Invoke track finding seeded by truth particle with:");
             m_log->debug("   p =  {} GeV\"", p);
             m_log->debug("   charge = {}", charge);

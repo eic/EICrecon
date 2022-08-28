@@ -10,9 +10,9 @@
 
 #include <algorithms/digi/SiliconTrackerDigi_factory.h>
 #include <algorithms/tracking/TrackerHitReconstruction_factory.h>
-#include <algorithms/tracking/TruthTrackSeeding_factory.h>
-#include <algorithms/tracking/TrackerSourceLinker_factory.h>
-
+#include <algorithms/tracking/TrackParamTruthInit_factory.h>
+//#include <algorithms/tracking/TrackerSourceLinker_factory.h>
+#include <algorithms/tracking/CKFTracking_factory.h>
 
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainFactoryT.h"
@@ -30,10 +30,14 @@ extern "C" {
         app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
 
         // Source linker
-        app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>({"BarrelTrackerHit"}, "TrackerSourceLinkerResult"));
+        //app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>({"BarrelTrackerHit"}, "TrackerSourceLinkerResult"));
 
 
-        app->Add(new JChainFactoryGeneratorT<TruthTrackSeeding_factory>({"MCParticles"}, ""));
+        app->Add(new JChainFactoryGeneratorT<TrackParamTruthInit_factory>({"MCParticles"}, ""));
+
+        app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>({"TrackerSourceLinkerResult"}, ""));
+
+
 
     }
 }

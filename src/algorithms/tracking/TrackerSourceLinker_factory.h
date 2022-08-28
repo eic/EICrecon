@@ -7,19 +7,22 @@
 
 #include <spdlog/spdlog.h>
 #include "extensions/jana/JChainFactoryT.h"
+#include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
 #include <algorithms/tracking/TrackerSourceLinker.h>
 
-#include "TrackSourceLinkerResult.h"
+#include "TrackerSourceLinkerResult.h"
 #include "GeoSvc.h"
 
 
 namespace eicrecon {
 
-    class TrackerSourceLinker_factory : public JChainFactoryT<TrackSourceLinkerResult> {
+    class TrackerSourceLinker;
+
+    class TrackerSourceLinker_factory : public JChainFactoryT<TrackerSourceLinkerResult> {
 
     public:
         TrackerSourceLinker_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<TrackSourceLinkerResult>( std::move(default_input_tags) ) {
+                JChainFactoryT<TrackerSourceLinkerResult>(std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/

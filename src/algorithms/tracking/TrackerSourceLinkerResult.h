@@ -2,14 +2,15 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKSOURCELINKERRESULT_H
-#define EICRECON_TRACKSOURCELINKERRESULT_H
+#ifndef EICRECON_TRACKERSOURCELINKERRESULT_H
+#define EICRECON_TRACKERSOURCELINKERRESULT_H
 
+#include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
 #include <algorithms/tracking/JugTrack/IndexSourceLink.hpp>
 #include <algorithms/tracking/JugTrack/Measurement.hpp>
 
 namespace eicrecon {
-    struct TrackSourceLinkerResult {
+    struct TrackerSourceLinkerResult {
         Jug::IndexSourceLinkContainer  sourceLinks;
         Jug::MeasurementContainer measurements;
     };
@@ -18,4 +19,4 @@ namespace eicrecon {
 
 
 
-#endif //EICRECON_TRACKSOURCELINKERRESULT_H
+#endif //EICRECON_TRACKERSOURCELINKERRESULT_H

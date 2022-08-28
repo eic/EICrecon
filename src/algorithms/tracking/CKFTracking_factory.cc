@@ -37,7 +37,7 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
-    m_acts_context = acts_service->acts_context();
+
 
     auto dd4hp_service = GetApplication()->GetService<JDD4hep_service>();
 
@@ -59,15 +59,17 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     }
 
     // Collect all hits
-    auto source_linker_result = event->GetSingle<eicrecon::TrackSourceLinkerResult>(input_tag);
-    auto track_parameters = event->Get<eicd::TrackParameters>();
+    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+    auto track_parameters = event->Get<Jug::TrackParameters>();
     Jug::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {
         Jug::TrackParameters acts_track_params_item();
-        acts_track_params_item.
+        acts_track_params.push_back(*track_params_item);
     }
 
 
-    auto result = m_tracking_algo.execute(source_linker_result->sourceLinks, source_linker_result->measurements, truth_seed_info);
+    auto trajectories = m_tracking_algo.execute(source_linker_result->sourceLinks, source_linker_result->measurements, acts_track_params);
+
+    Set(trajectories);
 
 }

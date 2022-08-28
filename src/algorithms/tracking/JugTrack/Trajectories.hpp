@@ -5,8 +5,8 @@
 #define JugTrack_Trajectories_HH
 
 #include "Acts/EventData/MultiTrajectory.hpp"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
+#include "IndexSourceLink.hpp"
+#include "Track.hpp"
 
 #include <algorithm>
 #include <unordered_map>

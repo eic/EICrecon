@@ -3,7 +3,7 @@
 //
 
 #include "TrackerSourceLinker.h"
-#include "TrackSourceLinkerResult.h"
+#include "TrackerSourceLinkerResult.h"
 
 #include "DD4hep/DD4hepUnits.h"
 #include "DD4hep/Volumes.h"
@@ -28,7 +28,7 @@ void eicrecon::TrackerSourceLinker::init(std::shared_ptr<const dd4hep::rec::Cell
 }
 
 
-eicrecon::TrackSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::vector<const eicd::TrackerHit*> trk_hits) {
+eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::vector<const eicd::TrackerHit*> trk_hits) {
     constexpr double mm_acts = Acts::UnitConstants::mm;
     constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 
@@ -110,7 +110,7 @@ eicrecon::TrackSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::v
 
         ihit++;
     }
-    auto result = new eicrecon::TrackSourceLinkerResult;
+    auto result = new eicrecon::TrackerSourceLinkerResult;
     result->sourceLinks = sourceLinks;
     result->measurements = measurements;
     return result;
