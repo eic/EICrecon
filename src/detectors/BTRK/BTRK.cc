@@ -1,3 +1,6 @@
+
+#include "Acts/TrackFinding/CombinatorialKalmanFilter.hpp"
+
 // Copyright 2022, Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
@@ -12,7 +15,7 @@
 #include <algorithms/tracking/TrackerHitReconstruction_factory.h>
 #include <algorithms/tracking/TrackParamTruthInit_factory.h>
 #include <algorithms/tracking/TrackerSourceLinker_factory.h>
-//#include <algorithms/tracking/CKFTracking_factory.h>
+#include <algorithms/tracking/CKFTracking_factory.h>
 
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainFactoryT.h"
@@ -35,7 +38,7 @@ extern "C" {
 
         app->Add(new JChainFactoryGeneratorT<TrackParamTruthInit_factory>({"MCParticles"}, ""));
 
-        //app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>({"TrackerSourceLinkerResult"}, ""));
+        app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>({"TrackerSourceLinkerResult"}, ""));
     }
 }
-    
+

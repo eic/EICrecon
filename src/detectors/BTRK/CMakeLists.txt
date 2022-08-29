@@ -17,6 +17,15 @@ find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EICD REQUIRED)
 find_package(spdlog REQUIRED)
 
+# ACTS
+find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+set(Acts_VERSION_MIN "19.0.0")
+set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
+        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
+    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
+endif()
+
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
@@ -36,4 +45,4 @@ message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 # (same as target_include_directories but for both plugin and library)
 plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} spdlog::spdlog EICD::eicd digi_library tracking_library)
 
-target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES})
+target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES} ActsCore)
