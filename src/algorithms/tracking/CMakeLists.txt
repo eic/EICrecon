@@ -55,5 +55,6 @@ plugin_link_libraries(${PLUGIN_NAME}
         DD4hep::DDRec
         EICD::eicd
         ActsCore
-        spdlog::spdlog)
+        spdlog::spdlog
+        Boost::boost)
 

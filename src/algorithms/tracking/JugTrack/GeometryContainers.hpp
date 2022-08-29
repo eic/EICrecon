@@ -9,6 +9,9 @@
 #ifndef H_JUG_GEOMETRY_CONTAINERS_H
 #define H_JUG_GEOMETRY_CONTAINERS_H
 
+#include <boost/container/flat_map.hpp>
+#include <boost/container/flat_set.hpp>
+
 #include "Utilities/GroupBy.hpp"
 #include "Utilities/Range.hpp"
 #include "Acts/Geometry/GeometryIdentifier.hpp"
@@ -18,8 +21,6 @@
 #include <cstddef>
 #include <utility>
 
-#include <boost/container/flat_map.hpp>
-#include <boost/container/flat_set.hpp>
 
 namespace Jug {
 namespace detail {
