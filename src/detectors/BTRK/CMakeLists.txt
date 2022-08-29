@@ -36,4 +36,4 @@ message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 # (same as target_include_directories but for both plugin and library)
 plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} spdlog::spdlog EICD::eicd digi_library tracking_library)
 
-target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES} /home/romanov/eic/soft/root/root-v6-26-04/lib/libEG.so)
+target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES})
