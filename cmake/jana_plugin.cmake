@@ -13,10 +13,6 @@ macro(plugin_add _name)
         endif()
     endforeach()
 
-    # Include fmt by default because... why not?
-    find_package(fmt REQUIRED)
-    set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
-
     # Include JANA by default
     find_package(JANA REQUIRED)
 
@@ -29,7 +25,7 @@ macro(plugin_add _name)
     target_include_directories(${_name}_plugin SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt spdlog::spdlog)
+    target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
 
     # Install plugin
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -42,7 +38,7 @@ macro(plugin_add _name)
         target_include_directories(${_name}_library SYSTEM PRIVATE ${fmt_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
-        target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt spdlog::spdlog)
+        target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
