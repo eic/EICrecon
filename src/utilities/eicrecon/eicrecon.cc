@@ -44,8 +44,8 @@ int main( int narg, char **argv)
 
     japp->AddPlugin( "podio"           );
     japp->AddPlugin( "dd4hep"          );
-    japp->AddPlugin( "calorimetry"     );
-    japp->AddPlugin( "tracking"        );
+    // japp->AddPlugin( "calorimetry"     );
+    // japp->AddPlugin( "tracking"        );
     japp->AddPlugin( "BEMC"            );
 
     auto exit_code = jana::Execute(japp, options);

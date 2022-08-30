@@ -48,7 +48,7 @@ cmake3 --build build --target install -- -j8
 ### ROOT
 We need a modern root version built using the C++17 standard. You may obtain
 this in a number of ways for your system, but here is how it may be built
-from source. Be aware that this is the longest step in the whole process
+from source. Be aware that this is the longest step in the whole produce
 since it may take several minutes (maybe much more). Adjust the number of
 threads in the _make_ command to match what is available on your system to
 speed it up.
@@ -379,7 +379,7 @@ Examples:
 
 EDPM is designed to be used with IDEs. In order to use with VSCode or IntelliJ types of IDE:
 
-1. Exit IDE completely (as they use a single process even when several instances are open)
+1. Exit IDE completely (as they use a single produce even when several instances are open)
 2. Source EDPM environment
 3. Run `clion` or `code` from the terminal where you sources the environment
 
@@ -428,7 +428,7 @@ find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets

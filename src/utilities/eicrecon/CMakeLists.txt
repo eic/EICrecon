@@ -9,7 +9,7 @@ find_package(JANA    REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ROOT    REQUIRED)
 find_package(fmt     REQUIRED)
-
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 
 # Compile all sources into executable
 file(GLOB SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)

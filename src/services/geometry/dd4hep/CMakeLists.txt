@@ -14,7 +14,7 @@ project(dd4hep_project)
 
 # Find dependencies
 find_package(JANA REQUIRED)
-find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(DD4hep REQUIRED)
 
 # DD4hep relies on programmatically finding and linking detector-specific

@@ -6,12 +6,15 @@
 #include <fmt/core.h>
 
 #include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/MCParticle.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <Math/LorentzVector.h>
+#include <Math/GenVector/PxPyPzM4D.h>
 
 using namespace fmt;
 
@@ -29,25 +32,39 @@ OccupancyAnalysis::OccupancyAnalysis(JApplication *app) :
 void OccupancyAnalysis::Init()
 {
 	// Ask service locator a file to write to
-	auto file = new TFile("data_work_flow.root");
 
 	// Root related, we switch gDirectory to this file
-	file->cd();
+    if(!gFile)
+    {
+        auto file = new TFile("data_work_flow.root");
+    }
+	//file->cd();
 	fmt::print("OccupancyAnalysis::gDirectory->pwd()\n");	// >oO Debug print
 	gDirectory->pwd();
 
 	// Create a directory for this plugin. And subdirectories for series of histograms
-	_dir_main = file->mkdir("data_flow_test");
+	m_dir_main = gFile->mkdir("data_flow_test");
 
     // Hits by Z distribution
-    _th1_prt_pz = new TH1F("hits_z", "Hits Z distribution [mm]", 100, -30, 30);
-    _th1_prt_pz->SetDirectory(_dir_main);
+    m_th1_prt_pz = new TH1F("prt_pz", "MCParticles Pz distribution [GeV]", 100, 0, 30);
+    m_th1_prt_pz->SetDirectory(m_dir_main);
+
+    // Stable particle energy distribution
+    m_th1_prt_energy = new TH1F("prt_energy", "MCParticles E distribution [GeV]", 100, 0, 30);
+    m_th1_prt_energy->SetDirectory(m_dir_main);
+
+    // Hits P Theta distribution
+    m_th1_prt_theta = new TH1F("prt_theta", "MCParticles Theta [deg]", 100, -7, 7);
+    m_th1_prt_theta->SetDirectory(m_dir_main);
+
+    // Hits P Phi distribution
+    m_th1_prt_phi = new TH1F("prt_phi", "MCParticles Phi [deg]", 100, -7, 7);
+    m_th1_prt_phi->SetDirectory(m_dir_main);
 
     // Total xy occupancy
-    _th2_prt_pxy = new TH2F(NAME_OF(total_occ), "Total XY occupancy (all Z)", 600, -2000, 2000, 300, -2000., 2000.);
-    _th2_prt_pxy->SetDirectory(_dir_main);
-    _th2_prt_pxy->SetOption("COLSCATZ");		// Draw as heat map by default
-
+    m_th2_prt_pxy = new TH2F("prt_pxpy", "MCParticles Px vs Py", 300, 0, 30, 300, 0, 30);
+    m_th2_prt_pxy->SetDirectory(m_dir_main);
+    m_th2_prt_pxy->SetOption("COLSCATZ");		// Draw as heat map by default
 }
 
 
@@ -56,10 +73,48 @@ void OccupancyAnalysis::Init()
 //------------------
 void OccupancyAnalysis::Process(const std::shared_ptr<const JEvent>& event)
 {
-
+    using namespace ROOT;
 
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
-    auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+
+    auto particles = event->Get<edm4hep::MCParticle>("MCParticles");
+    fmt::print("OccupancyAnalysis::Process() particles N {}\n", particles.size());
+
+    for(auto& particle: particles) {
+        if(particle->getGeneratorStatus() != 1) continue;
+
+        fmt::print("OccupancyAnalysis::Process() stable: {}\n", particle->getPDG());
+
+        double px = particle->getMomentum().x;
+        double py = particle->getMomentum().y;
+        double pz = particle->getMomentum().z;
+        ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+        ROOT::Math::Cartesian3D p(px, py, pz);
+        fmt::print("OccupancyAnalysis::Process() pz: {}\n", pz);
+
+        m_th1_prt_pz->Fill(pz);
+        m_th2_prt_pxy->Fill(px, py);
+
+        m_th1_prt_theta->Fill(p.Theta());
+        if(pz>0) {
+            m_th1_prt_phi->Fill(p.Phi());
+        } else {
+            m_th1_prt_phi->Fill(-p.Phi());
+        }
+
+        m_th1_prt_energy->Fill(p4v.E());
+
+
+        /*
+        fmt::print("OccupancyAnalysis::Process() theta  : {}\n", p.Theta());
+        fmt::print("OccupancyAnalysis::Process() theta2 : {}\n", acos(pz/p.R()));
+        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", p.Phi());
+        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", atan(py/px));
+         */
+    }
+
+
+
 
 //	// Get hits
 //	auto hits = event->Get<minimodel::McFluxHit>();
@@ -97,6 +152,8 @@ void OccupancyAnalysis::Process(const std::shared_ptr<const JEvent>& event)
 void OccupancyAnalysis::Finish()
 {
 	fmt::print("OccupancyAnalysis::Finish() called\n");
+
+
 
 	// Next we want to create several pretty canvases (with histograms drawn on "same")
 	// But we don't want those canvases to pop up. So we set root to batch mode

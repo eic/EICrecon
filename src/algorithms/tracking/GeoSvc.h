@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+//
+//  GeoSvc.h
+//
+//
+//  Created by Julia Hrdinka on 30/03/15.
+//
+//
+
+#ifndef GEOSVC_H
+#define GEOSVC_H
+
+
+// ACTS
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Definitions/Units.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Definitions/Common.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
+#include <Acts/Material/IMaterialDecorator.hpp>
+
+// DD4Hep
+#include "DD4hep/Detector.h"
+#include "DDRec/CellIDPositionConverter.h"
+#include "DDRec/SurfaceManager.h"
+#include "DDRec/Surface.h"
+#include "DD4hep/DD4hepUnits.h"
+
+#include <JugBase/BField/DD4hepBField.h>
+
+#include <spdlog/spdlog.h>
+
+/** Draw the surfaces and save to obj file.
+ *  This is useful for debugging the ACTS geometry. The obj file can
+ *  be loaded into various tools, such as FreeCAD, for inspection.
+ */
+void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const std::string &fname);
+
+class GeoSvc {
+public:
+    GeoSvc() {
+        spdlog::info("I'm alive!");
+    }
+    using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
+
+    virtual void initialize(dd4hep::Detector *dd4hepGeo) final;
+
+
+    /** Get the top level DetElement.
+     *   DD4hep Geometry
+     */
+    dd4hep::DetElement getDD4HepGeo() const { return (m_dd4hepDetector->world()); }
+
+    dd4hep::Detector*  dd4hepDetector() const {return m_dd4hepDetector; }
+
+
+    /** Gets the ACTS tracking geometry.
+     */
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry() const { return m_trackingGeo;}
+
+    std::shared_ptr<const Acts::MagneticFieldProvider> getFieldProvider() const  { return m_magneticField; }
+
+    double centralMagneticField() const  {
+        return m_dd4hepDetector->field().magneticField({0, 0, 0}).z() * (Acts::UnitConstants::T / dd4hep::tesla);
+    }
+
+    const VolumeSurfaceMap &surfaceMap() const  { return m_surfaces; }
+
+
+    std::map<int64_t, dd4hep::rec::Surface *> getDD4hepSurfaceMap() const { return m_surfaceMap; }
+
+private:
+
+    /** DD4hep detector interface class.
+     * This is the main dd4hep detector handle.
+     * <a href="https://dd4hep.web.cern.ch/dd4hep/reference/classdd4hep_1_1Detector.html">See DD4hep Detector documentation</a>
+     */
+    dd4hep::Detector *m_dd4hepDetector = nullptr;
+
+    /// DD4hep surface map
+    std::map<int64_t, dd4hep::rec::Surface *> m_surfaceMap;
+
+    /// ACTS Logging Level
+    Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
+
+    /// ACTS Tracking Geometry Context
+    Acts::GeometryContext m_trackingGeoCtx;
+
+    /// ACTS Tracking Geometry
+    std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
+
+    /// ACTS Material Decorator
+    std::shared_ptr<const Acts::IMaterialDecorator> m_materialDeco{nullptr};
+
+    /// ACTS surface lookup container for hit surfaces that generate smeared hits
+    VolumeSurfaceMap m_surfaces;
+
+    /** DD4hep CellID tool.
+     *  Use to lookup geometry information for a hit with cellid number (int64_t).
+     *  <a href="https://dd4hep.web.cern.ch/dd4hep/reference/classdd4hep_1_1rec_1_1CellIDPositionConverter.html">See DD4hep CellIDPositionConverter documentation</a>
+     */
+    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+
+    /// Acts magnetic field
+    std::shared_ptr<const Jug::BField::DD4hepBField> m_magneticField = nullptr;
+
+    std::shared_ptr<spdlog::logger> m_log;
+
+//  /// XML-files with the detector description
+//  Gaudi::Property<std::vector<std::string>> m_xmlFileNames{
+//      this, "detectors", {}, "Detector descriptions XML-files"};
+//
+//  /// JSON-file with the material map
+//  Gaudi::Property<std::string> m_jsonFileName{
+//      this, "materials", "", "Material map JSON-file"};
+//
+//  /// Gaudi logging output
+//  MsgStream m_log;
+};
+
+
+#endif // GEOSVC_H
