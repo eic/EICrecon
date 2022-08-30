@@ -19,9 +19,8 @@ class Spdlog_service : public JService
 public:
     explicit Spdlog_service( JApplication *app ): m_application(app){}
 
-    std::shared_ptr<spdlog::logger> makeLogger(const std::string &name);
-
     std::shared_ptr<spdlog::logger> getLogger(const std::string &name);
+
 
 protected:
     void Initialize();

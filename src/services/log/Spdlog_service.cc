@@ -10,18 +10,17 @@ void Spdlog_service::Initialize() {
     /* all global configuration of spdlog should be here */
 }
 
-std::shared_ptr<spdlog::logger> Spdlog_service::makeLogger(const std::string &name) {
-    try {
-        return spdlog::stdout_color_mt(name);
-    }
-    catch(const std::exception & exception) {
-        throw JException(exception.what());
-    }
-}
+
 
 std::shared_ptr<spdlog::logger> Spdlog_service::getLogger(const std::string &name) {
     try {
-        return spdlog::get(name);
+        // Try to get existing logger
+        auto logger = spdlog::get(name);
+        if(!logger) {
+            // or create a new one with current configuration
+            logger = spdlog::default_logger()->clone(name);
+        }
+        return logger;
     }
     catch(const std::exception & exception) {
         throw JException(exception.what());
