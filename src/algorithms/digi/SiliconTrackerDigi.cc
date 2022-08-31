@@ -8,7 +8,10 @@
 #include "SiliconTrackerDigi.h"
 
 
-void eicrecon::SiliconTrackerDigi::init() {
+void eicrecon::SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger) {
+    // set logger
+    m_log = logger;
+
     // Create random gauss function
     m_gauss = [&](){
         return m_random.Gaus(0, m_cfg.timeResolution);
@@ -49,7 +52,6 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
             cell_hit_map[sim_hit->getCellID()] = {
                     (std::int32_t) (sim_hit->getMCParticle().getTime() * 1e6 + m_gauss() * 1e3), // ns->fs
                     (std::int32_t) std::llround(sim_hit->getEDep() * 1e6)};
-
         } else {
             // There is previous values in the cell
             RawHit &hit = cell_hit_map[sim_hit->getCellID()];
@@ -57,7 +59,6 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
             hit.charge += (std::int32_t) std::llround(sim_hit->getEDep() * 1e6);
         }
     }
-
 
     // Create and fill output array
     std::vector<eicd::RawTrackerHit*> rawhits;

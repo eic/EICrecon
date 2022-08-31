@@ -21,7 +21,7 @@ namespace eicrecon {
         SiliconTrackerDigi() = default;
 
         /// Initialization function is called once (probably from corresponding factories)
-        void init();
+        void init(std::shared_ptr<spdlog::logger>& logger);
 
         /// ICollectionProducer processes RawTrackerHit collection from SimTrackerHit
         virtual std::vector<eicd::RawTrackerHit*> produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
@@ -29,8 +29,6 @@ namespace eicrecon {
         /// Get a configuration to be changed
         eicrecon::SiliconTrackerDigiConfig& getConfig() {return m_cfg;}
 
-        /// Sets logger to be used by the algorithm
-        void setLogger(std::shared_ptr<spdlog::logger>& logger) {m_log = logger;}
 
     private:
         /** configuration parameters **/

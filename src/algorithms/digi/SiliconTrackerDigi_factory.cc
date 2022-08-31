@@ -2,34 +2,42 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 #include "SiliconTrackerDigi_factory.h"
 
+
 void eicrecon::SiliconTrackerDigi_factory::Init() {
+    auto app = GetApplication();
+    auto pm = app->GetJParameterManager();
+
     // We will use plugin name to get parameters for correct factory
     // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
     //    "BTRK:parameter" or "FarForward:parameter"
     // That has limitations but the convenient in the most of the cases
-    std::string param_prefix = "SiTrkDigi_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = "SiliconTrackerDigi_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
-    // Create plugin level sub-log
-    m_log = spdlog::stdout_color_mt("SiliconTrackerDigi_factory");
+    // Set input tags
+    pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag names");
+    if(m_input_tags.empty()) {
+        m_input_tags = GetDefaultInputTags();
+    }
 
-    // This level will work for this plugin only
-    m_log->set_level(spdlog::level::debug);
+    // Logger. Get plugin level sub-log
+    m_log = app->GetService<Log_service>()->logger("SiliconTrackerDigi");
 
-    // Setup digitisation algorithm
-    m_digi_algo.setLogger(m_log);
+    // Get log level from user parameter or default
+    std::string log_level_str = "info";
+    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+    // Setup digitization algorithm
     auto &m_cfg = m_digi_algo.getConfig();
-    m_digi_algo.init();
+    pm->SetDefaultParameter(param_prefix + ":Threshold", m_cfg.threshold, "threshold");
+    pm->SetDefaultParameter(param_prefix + ":TimeResolution", m_cfg.timeResolution, "Time resolution. Probably ns. Fix my units!!!!");
 
-    // Ask service locator for parameter manager. We want to get this plugin parameters.
-    auto pm = this->GetApplication()->GetJParameterManager();
-    pm->SetDefaultParameter(param_prefix + ":threshold", m_cfg.threshold, "threshold");
-    pm->SetDefaultParameter(param_prefix + ":time_res", m_cfg.timeResolution, "Time resolution. Probably ns. Fix my units!!!!");
-
-    pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag names");
+    // Initialize digitization algorithm
+    m_digi_algo.init(m_log);
 }
 
 void eicrecon::SiliconTrackerDigi_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -38,26 +46,18 @@ void eicrecon::SiliconTrackerDigi_factory::ChangeRun(const std::shared_ptr<const
 
 void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-    // Now we check that user provided an input names
-    std::vector<std::string> &input_tags = m_input_tags;
-    if(input_tags.size() == 0) {
-        input_tags = GetDefaultInputTags();
-    }
-
-    // Collect all hits
+    // Collect all hits from different tags
     std::vector<const edm4hep::SimTrackerHit*> total_sim_hits;
-    for(auto input_tag: input_tags) {
-        auto simHits = event->Get<edm4hep::SimTrackerHit>(input_tag);
-        for (const auto ahit : simHits) {
-            total_sim_hits.push_back(ahit);                     /// TODO a better way to concatenate arrays
+    for(const auto &input_tag: m_input_tags) {
+        auto sim_hits = event->Get<edm4hep::SimTrackerHit>(input_tag);
+        for (const auto hit : sim_hits) {
+            total_sim_hits.push_back(hit);                     /// TODO a better way to concatenate arrays
         }
     }
 
-    // Digitize hits
-    auto digitised_hits = m_digi_algo.produce(total_sim_hits);
-
-    // Add data as a factory output
-    this->Set(digitised_hits);
+    // RUN algorithm
+    auto digitised_hits = m_digi_algo.produce(total_sim_hits);  // Digitize hits
+    this->Set(digitised_hits);                                                       // Add data as a factory output
 
     // >oO debug
     m_log->trace("SiliconTrackerDigi_factoryT<>::Process(...) end\n");

@@ -43,6 +43,8 @@ message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} spdlog::spdlog EICD::eicd digi_library tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} spdlog::spdlog EICD::eicd digi_library tracking_library ROOT::EG)
 
-target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES} ActsCore)
+target_link_libraries(${PLUGIN_NAME}_plugin  ${ROOT_LIBRARIES} ActsCore ROOT::EG)
+
+#/home/romanov/eic/soft/root/root-v6-26-04/lib/libCore.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libImt.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libRIO.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libNet.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libHist.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libGraf.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libGraf3d.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libGpad.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libROOTDataFrame.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libTree.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libTreePlayer.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libRint.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libPostscript.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libMatrix.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libPhysics.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libMathCore.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libThread.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libMultiProc.so;/home/romanov/eic/soft/root/root-v6-26-04/lib/libROOTVecOps.so
