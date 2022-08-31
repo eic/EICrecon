@@ -13,7 +13,8 @@ find_package(EDM4HEP REQUIRED)
 find_package(EICD REQUIRED)
 find_package(podio REQUIRED)
 find_package(fmt REQUIRED)
-set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
+find_package(spdlog REQUIRED)
+
 set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
 set(PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EICD::eicd EICD::eicd_utils podio::podioRootIO)
 
@@ -42,7 +43,7 @@ set( LIBRARY_SOURCES ${mysourcefiles} datamodel_includes.h G__datamodel_vectors.
 list(REMOVE_ITEM LIBRARY_SOURCES ${PLUGIN_SOURCES})
 
 set( INCLUDE_DIRS ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
-set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES})
+set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES} spdlog::spdlog)
 
 # Define library
 add_library( podio_library STATIC ${LIBRARY_SOURCES} )

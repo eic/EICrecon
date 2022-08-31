@@ -3,12 +3,12 @@
 //
 //
 
-#include "Spdlog_service.h"
+#include "Log_service.h"
 
 
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<Spdlog_service>(app) );
+    app->ProvideService(std::make_shared<Log_service>(app) );
 }
 }

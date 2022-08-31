@@ -14,20 +14,19 @@
 /**
  * The Service centralizes use of spdlog
  */
-class Spdlog_service : public JService
+class Log_service : public JService
 {
 public:
-    explicit Spdlog_service( JApplication *app ): m_application(app){}
+    explicit Log_service(JApplication *app );
 
-    std::shared_ptr<spdlog::logger> getLogger(const std::string &name);
+    std::shared_ptr<spdlog::logger> logger(const std::string &name);
 
-
-protected:
-    void Initialize();
 
 private:
-    Spdlog_service()=default;
-    JApplication *m_application;
+
+    Log_service()=default;
+
+    std::recursive_mutex m_lock;
 };
 
 #endif // __Spdlog_service_h__
