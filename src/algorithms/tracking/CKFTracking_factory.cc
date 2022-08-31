@@ -63,7 +63,6 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     auto track_parameters = event->Get<Jug::TrackParameters>();
     Jug::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {
-        Jug::TrackParameters acts_track_params_item();
         acts_track_params.push_back(*track_params_item);
     }
 
