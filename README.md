@@ -711,6 +711,29 @@ m_this_log->trace("Something related to this class/factory/plugin");
 m_tracking_log->info("Something relating to tracking in general");
 ```
 
+#### String format
+
+It is recommended to use fmt string formatting both from performance and safety points. But it is also very convenient!
+fmt can be accessed through spdlog headers: 
+
+```c++
+#include <spdlog/fmt/fmt.h>
+
+// code
+std::string hello = fmt::format("Hello world {}", 42);
+```
+
+#### CMake
+
+spdlog is included by default in every plugin if `plugin_add` macro is used: 
+
+```cmake
+plugin_add(${PLUGIN_NAME})  # <= spdlog will be included by default
+```
+
+eicrecon application also includes Log_service by default. So it should not appear on `-Pplugins` list. 
+
+
 ### Logging links
 
 - [spdlog](https://github.com/gabime/spdlog)
