@@ -10,7 +10,7 @@
 #include <JANA/JException.h>
 
 namespace eicrecon {
-    spdlog::level::level_enum ParseLogLevel(const std::string &input) {
+    inline spdlog::level::level_enum ParseLogLevel(const std::string &input) {
 
         // Convert the source string to lower case
         std::string lc_input;              // Lower case input

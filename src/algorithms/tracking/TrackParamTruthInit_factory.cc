@@ -65,6 +65,9 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
 
         // Do conversion
         auto result = m_truth_track_seeding_algo.produce(mc_particle);
+
+        if(!result) continue;   // result might be null
+
         results.push_back(result);
 
         // >oO debug output

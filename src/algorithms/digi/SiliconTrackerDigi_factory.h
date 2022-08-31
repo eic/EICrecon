@@ -47,7 +47,6 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;          /// Logger
         std::vector<std::string> m_input_tags;          /// Input base tags
         eicrecon::SiliconTrackerDigi m_digi_algo;       /// Actual digitisation algorithm
-        int m_verbose = 0;                              /// 0 - none, 1 - default, 2 - debug, 3 - trace
     };
 
 }
