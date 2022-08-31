@@ -517,12 +517,11 @@ EICrecon uses [spdlog](https://github.com/gabime/spdlog) library as a logging ba
 ([is C++20 standard](https://en.cppreference.com/w/cpp/utility/format)) and is very performant 
 (in many cases [is faster than printf and std streams](https://github.com/fmtlib/fmt#speed-tests))
 
-Here is the best practices of using logging for EICRecon.
 
 ### Basic usage
 
-EICRecon has a log service - that centralizes default logger configuration and helps spawn named loggers. 
-Each unit (a plugin, factory, class - whatever needs it) can spawn its own named logger and use it: 
+EICRecon has a log service that centralizes default logger configuration and helps spawn named loggers. 
+Each unit - a plugin, factory, class, etc. can spawn its own named logger and use it: 
 
 [FULL WORKING EXAMPLE](https://github.com/eic/EICrecon/blob/main/src/examples/log_example/log_example.cc)
 
@@ -541,10 +540,10 @@ public:
         // The service centralizes the use of spdlog and properly spawning logger
         auto log_service = app->GetService<Log_service>();
 
-        // Loggers are created by name. This allows to create specialized loggers like "MyClassLogger"
-        // or loggers with some context that might be shared between units like "tracking"
-        m_log = log_service->logger("LogServiceProcessor");
+        // Loggers are spawned by name.        
+        m_log = log_service->logger("ExampleProcessor");
         
+        // log things!
         m_log->info("Hello world! {}", 42);
     }
     
@@ -556,7 +555,7 @@ public:
     }
 ```
 
-Logger has a rich possibilities of text formatting. More examples and full 
+Thanks to fmt, logger has rich text formatting. More examples and full 
 specification is in [fmt documentation](https://github.com/fmtlib/fmt): 
 
 ```c++
@@ -594,17 +593,14 @@ m_log->info("{:<5} {:<7.2f} {:>10}", 25, 1.6180, 1.6180);
 // [info] 24    2.72        2.7182
 // [info] 25    1.62         1.618
 
-
-m_log->debug("This message should not be displayed by default..");
-
 // Compile time log levels
-// define SPDLOG_ACTIVE_LEVEL to desired level
-// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+// define SPDLOG_ACTIVE_LEVEL to desired level e.g.:
+//    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 SPDLOG_TRACE("Some trace message with param {}", 42);
 SPDLOG_DEBUG("Some debug message");
 ```
 
-In order to wire your logger level with a jana-parameter to change log level without recompilation, use this: 
+In order to wire your logger level with a jana-parameter to change log level without recompilation, use: 
 
 ```c++
 // includes: 
@@ -633,15 +629,15 @@ void Init() override {
 
 **How log levels should be used?**
 
-- **trace**    - something very verbose like each heat parameter
-- **debug**    - all information that is relevant for an expert to debug but should not be present outside of debugging
+- **trace**    - something very verbose like each hit parameter
+- **debug**    - all information that is relevant for an expert to debug but should not be present in production
 - **info**     - something that will always (almost) get into the global log
-- **warning**  - something bad that needs attention but results are considered usable
+- **warning**  - something that needs attention but results are likely usable
 - **error**    - something bad making results probably unusable
 - **critical** - imminent software failure and termination
 
 Sometimes one needs to know current log level to calculate debugging values. Use **<=** operator to check level.
-int value of trace=0, debug=1, ... critical= 5. So:
+It works because enum values are: trace=0, debug=1, ... critical= 5. So:
 
 ```c++
   // In general one doesn't need to manually check log debug level
@@ -688,10 +684,10 @@ Otherwise, use named logger.
 
 #### Shared names
 
-By default, spdlog fails if a logger with such name exists. And one can get existing named logger
-from registry. Logger service simplifies and automates it. This allows to use the same logger with the same name
-from different units or even plugins if the context is the same. Imagine you want to highlight that this
-message belongs to "tracking" you can do: 
+By default, spdlog fails if a logger with such name exists (but one can get existing logger
+from registry). EICrecon Logger service simplifies and automates it with a single function `logger(name)`. 
+This allows to use the same logger with the same name from different units if the context is the same. 
+Imagine you want to highlight that this message belongs to "tracking" you can do: 
 
 ```c++
 
@@ -710,9 +706,9 @@ You can mix named loggers depending on context
 m_this_log = app->GetService<Log_service>()->logger("ExampleFactoryName");
 m_tracking_log = app->GetService<Log_service>()->logger("tracking");
 
-// Event PROCESSING
+// Some class event PROCESSING
 m_this_log->trace("Something related to this class/factory/plugin");
-m_tracking_log->info("Something relating tracking in general");
+m_tracking_log->info("Something relating to tracking in general");
 ```
 
 ### Logging links
