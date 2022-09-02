@@ -19,7 +19,7 @@ int main( int narg, char **argv)
         std::cout << std::endl << "-----------" << std::endl;
         std::cout << "    eicrecon parameters: (specify with -Pparam=value)" << std::endl;
         std::cout << std::endl;
-        std::cout << "        histsfile file.root    Create a root file for histograms/trees produced by plugins" << std::endl;
+        std::cout << "        -Phistsfile=file.root    Set name for histograms/trees produced by plugins" << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
         return -1;
@@ -28,14 +28,6 @@ int main( int narg, char **argv)
         // Show version information and exit immediately
         jana::PrintVersion();
         return -1;
-    }
-
-    // Optionally create root file
-    // TODO: This needs to be done by a service that plugins can use to get the TDirectory from to avoid conflicts with podio files
-    TFile *rootfile = nullptr;
-    if (options.params.count("histsfile")){
-        LOG << "Creating root file: " << options.params["histsfile"] << " for histograms/trees from plugins" << LOG_END;
-        rootfile = new TFile(options.params["histsfile"].c_str(), "RECREATE", "eicrecon plugin histograms/trees");
     }
 
     japp = jana::CreateJApplication(options);
@@ -50,14 +42,6 @@ int main( int narg, char **argv)
     japp->AddPlugin( "BEMC"            );
 
     auto exit_code = jana::Execute(japp, options);
-
-    // If root file was created, then close it
-    if( rootfile ){
-        LOG << "Closing histsfile: " << rootfile->GetName() << LOG_END;
-        rootfile->Write();
-        rootfile->Close();
-        delete rootfile;
-    }
 
     delete japp;
     return exit_code;
