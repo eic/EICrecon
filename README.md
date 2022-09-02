@@ -144,7 +144,7 @@ export EIGEN_VERSION=3.4.0
 export EIGEN_HOME=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 git clone https://gitlab.com/libeigen/eigen.git -b ${EIGEN_VERSION} ${EIGEN_HOME}
 cd ${EIGEN_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17 
 cmake3 --build build --target install -- -j8
 export Eigen3_ROOT=${EIGEN_HOME}
 
@@ -152,7 +152,7 @@ export ACTS_VERSION=v19.4.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
 cd ${ACTS_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON 
 cmake3 --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
