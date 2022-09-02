@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include <JANA/JApplication.h>
 #include <services/log/Log_service.h>
@@ -23,7 +24,6 @@ public:
     ~RootFile_service() override { delete m_histfile; }
 
     void acquire_services(JServiceLocator *locater) override {
-        m_GlobalWriteLock = locater->get<JGlobalRootLock>();
         auto log_service = m_app->GetService<Log_service>();
         m_log = log_service->logger("RootFile");
     }
@@ -34,28 +34,25 @@ public:
     /// one will be created. If create_if_needed is false, the pointer
     /// to the existing file will be returned or nullptr if it does
     /// not already exist.
+    ///
+    /// NOTE: This should only be called by a thread already holding
+    /// the global root lock. The root lock will already be held if
+    /// calling from JEventProcessorSequentialRoot. For pretty much
+    /// everyplace else, the lock should be acquired manually.
+    /// e.g.
+    ///
+    ///    auto rootfile_service = japp->GetService<RootFile_service>();
+    ///    auto globalRootLock = japp->GetService<JGlobalRootLock>();
+    ///    globalRootLock->acquire_write_lock();
+    ///    auto rootfile = rootfile_service->GetHistFile();
+    ///    globalWriteLock->release_lock();
+    ///
+    /// \param create_if_needed create file if not already created
+    /// \return
     TDirectory* GetHistFile(bool create_if_needed=true){
 
         if( create_if_needed ) {
-
-            // Get root file name
-            std::string filename = "eicrecon.root";
-            m_app->SetDefaultParameter("histsfile", filename,
-                                     "Name of root file to be created for plugin histograms/trees");
-
-            m_GlobalWriteLock->acquire_write_lock(); // TODO: JANA needs this to allow lock_guard style usage
-            if (!m_histfile) {
-                try {
-                    m_histfile = new TFile(filename.c_str(), "RECREATE", "user histograms/trees");
-                    m_log->info("Created file: {} for user histograms", filename);
-                } catch (std::exception &ex) {
-                    m_GlobalWriteLock->release_lock();
-                    m_log->error("Problem opening root file for histograms: {}", ex.what());
-                    throw ex;
-                }
-            }
-
-            m_GlobalWriteLock->release_lock();
+            std::call_once(init_flag, &RootFile_service::CreateHistFile, this);
         }
         return m_histfile;
     }
@@ -69,26 +66,39 @@ public:
     /// execptional circumstances like the program is suffering
     /// a fatal crash and we want to try and save the work by
     /// closing the file cleanly.
-    ///
-    /// n.b. If GetHistFile() is called *after* this, then the file
-    /// will be created again, overwriting the previous one!
     void CloseHistFile(){
         if( m_histfile){
-            m_GlobalWriteLock->acquire_write_lock(); // Do we really want this here?
             delete m_histfile;
-            m_GlobalWriteLock->release_lock();
         }
         m_histfile = nullptr;
     }
 
 private:
 
+    /// Create the output rootfile. This will be called only once
+    /// which will happen the first time GetHistFile is called.
+    void CreateHistFile(){
+        // Get root file name
+        std::string filename = "eicrecon.root";
+        m_app->SetDefaultParameter("histsfile", filename,
+                                   "Name of root file to be created for plugin histograms/trees");
+        if (!m_histfile) {
+            try {
+                m_histfile = new TFile(filename.c_str(), "RECREATE", "user histograms/trees");
+                m_log->info("Created file: {} for user histograms", filename);
+            } catch (std::exception &ex) {
+                m_log->error("Problem opening root file for histograms: {}", ex.what());
+                throw ex;
+            }
+        }
+    }
+
     RootFile_service()=default;
 
     JApplication *m_app=nullptr;
-    std::shared_ptr<JGlobalRootLock> m_GlobalWriteLock;
     std::shared_ptr<spdlog::logger> m_log;
     TFile *m_histfile = nullptr;
+    std::once_flag init_flag;
 };
 
 #endif // __RootFile_service_h__
