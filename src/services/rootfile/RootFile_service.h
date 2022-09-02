@@ -21,7 +21,7 @@ class RootFile_service : public JService
 {
 public:
     explicit RootFile_service(JApplication *app ):m_app(app){}
-    ~RootFile_service() override { delete m_histfile; }
+    ~RootFile_service() override { CloseHistFile(); }
 
     void acquire_services(JServiceLocator *locater) override {
         auto log_service = m_app->GetService<Log_service>();
@@ -60,7 +60,8 @@ public:
     /// Close the histogram file. If no histogram file was opened,
     /// then this does nothing.
     ///
-    /// This should generally never be called. The file will be
+    /// This should generally never be called by anything other than
+    /// the destructor so that it is
     /// automatically closed when the service is destructed at
     /// the end of processing. This is only here for use in
     /// execptional circumstances like the program is suffering
@@ -68,8 +69,10 @@ public:
     /// closing the file cleanly.
     void CloseHistFile(){
         if( m_histfile){
+            std::string filename = m_histfile->GetName();
             m_histfile->Write();
             delete m_histfile;
+            m_log->info("Closed user histogram file: {}" , filename);
         }
         m_histfile = nullptr;
     }
