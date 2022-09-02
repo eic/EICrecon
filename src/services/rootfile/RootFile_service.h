@@ -68,6 +68,7 @@ public:
     /// closing the file cleanly.
     void CloseHistFile(){
         if( m_histfile){
+            m_histfile->Write();
             delete m_histfile;
         }
         m_histfile = nullptr;
