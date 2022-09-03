@@ -98,22 +98,6 @@ macro(plugin_glob_all _name)
     # We need plugin relative path for correct headers installation
     string(REPLACE ${CMAKE_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
 
-    # >oO Debug output if needed
-    if(${EICRECON_VERBOSE_CMAKE})
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
-        message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
-    endif()
-
-    # To somehow control GLOB lets at least PRINT files we are going to compile:
-    message(STATUS "Source files:")
-    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
-    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
-    message(STATUS "Header files:")
-    print_file_names("  " ${HEADER_FILES})  # Prints header files
-
     # Add sources to plugin
     target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
 
@@ -139,5 +123,21 @@ macro(plugin_glob_all _name)
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
     endif()     # WITH_STATIC_LIB
+
+    # >oO Debug output if needed
+    if(${EICRECON_VERBOSE_CMAKE})
+        message(STATUS "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
+        message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
+        message(STATUS "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
+        message(STATUS "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
+        message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
+    endif()
+
+    # To somehow control GLOB lets at least PRINT files we are going to compile:
+    message(STATUS "Source files:")
+    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
+    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
+    message(STATUS "Header files:")
+    print_file_names("  " ${HEADER_FILES})  # Prints header files
 
 endmacro()
