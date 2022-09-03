@@ -86,8 +86,6 @@ cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROO
 cmake3 --build build --target install -- -j8
 ~~~
 
-git clone https://github.com/gabime/spdlog.git
-
 ### PODIO
 ~~~
 export PODIO_VERSION=v00-14-03
