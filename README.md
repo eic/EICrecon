@@ -75,17 +75,6 @@ cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
-### spdlog
-~~~
-export SPDLOG_VERSION=v1.10.0
-export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
-export spdlog_ROOT=${SPDLOG_HOME}/install
-git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
-cd ${SPDLOG_HOME}
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT}
-cmake3 --build build --target install -- -j8
-~~~
-
 git clone https://github.com/gabime/spdlog.git
 
 ### PODIO
@@ -170,7 +159,7 @@ _ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
 
-export FMT_VERSION=9.0.0
+export FMT_VERSION=8.1.1
 mkdir -p ${EICTOPDIR}/detectors/fmt
 cd ${EICTOPDIR}/detectors/fmt
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
@@ -191,6 +180,18 @@ ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
 cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
+
+### spdlog
+~~~
+export SPDLOG_VERSION=v1.10.0
+export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
+export spdlog_ROOT=${SPDLOG_HOME}/install
+git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
+cd ${SPDLOG_HOME}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSPDLOG_FMT_EXTERNAL=ON
+cmake3 --build build --target install -- -j8
+~~~
+
 
 ### Capture environment
 The jana_edm4hep plugin requires all of the above packages which means 
