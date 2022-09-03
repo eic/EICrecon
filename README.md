@@ -82,7 +82,7 @@ export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
 export spdlog_ROOT=${SPDLOG_HOME}/install
 git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
 cd ${SPDLOG_HOME}
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DSPDLOG_BUILD_SHARED=ON
 cmake3 --build build --target install -- -j8
 ~~~
 
@@ -152,7 +152,7 @@ export ACTS_VERSION=v19.4.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
 cd ${ACTS_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON 
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON -DACTS_BUILD_PLUGIN_DIGITIZATION=ON 
 cmake3 --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
@@ -170,7 +170,7 @@ _ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
 
-export FMT_VERSION=9.0.0
+export FMT_VERSION=8.1.1
 mkdir -p ${EICTOPDIR}/detectors/fmt
 cd ${EICTOPDIR}/detectors/fmt
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
@@ -217,11 +217,12 @@ export EICD_VERSION=v2.0.0
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
-export FMT_VERSION=9.0.0
+export FMT_VERSION=8.1.1
 
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export spdlog_ROOT=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}/install
+export LD_LIBRARY_PATH=${spdlog_ROOT}/lib64:${LD_LIBRARY_PATH}
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 source ${PODIO_HOME}/env.sh
