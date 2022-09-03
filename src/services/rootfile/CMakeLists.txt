@@ -13,3 +13,6 @@ plugin_add(${PLUGIN_NAME} )
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+find_package(ROOT REQUIRED)
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS})
