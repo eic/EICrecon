@@ -40,6 +40,7 @@ execute_process (
 # this, root will complain about not having a compiled CollectionProxy.
 include_directories( ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
+target_sources(${PLUGIN_NAME}_plugin PRIVATE datamodel_includes.h G__datamodel_vectors.cxx)
 
 set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EICD::eicd EICD::eicd_utils podio::podioRootIO)
 
