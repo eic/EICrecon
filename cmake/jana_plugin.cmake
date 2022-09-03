@@ -19,11 +19,15 @@ macro(plugin_add _name)
     # include logging by default
     find_package(spdlog REQUIRED)
 
+    # include ROOT by default
+    find_package(ROOT REQUIRED)
+
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PRIVATE ${fmt_INCLUDE_DIR})
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
+    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
     target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
 
