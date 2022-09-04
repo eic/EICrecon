@@ -41,6 +41,7 @@ int main( int narg, char **argv)
     // japp->AddPlugin( "calorimetry"     );
     // japp->AddPlugin( "tracking"        );
     japp->AddPlugin( "BEMC"            );
+    japp->AddPlugin( "EEMC"            );
 
     auto exit_code = jana::Execute(japp, options);
 
