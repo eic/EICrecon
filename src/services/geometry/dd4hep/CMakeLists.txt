@@ -60,7 +60,7 @@ install(TARGETS dd4hep_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
 
 # Install headers for plugin
 file(GLOB my_headers "*.h*")
-install(FILES ${my_headers} DESTINATION include/services/dd4hep)
+install(FILES ${my_headers} DESTINATION include/services/geometry/dd4hep)
 
 # IDK if this is really still needed since we are not linking ip6 and epic anymore?  2022-08-09 DL
 
