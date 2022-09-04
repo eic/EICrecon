@@ -30,17 +30,20 @@ public:
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
-        m_thresholdFactor=0.0;//{this, "thresholdFactor", 0.0};
+        m_thresholdFactor=4.0;//{this, "thresholdFactor", 0.0};
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
+        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="readoutClass";
+//        m_readout="readoutClass";
+        m_readout="EcalEndcapNHits";
         m_layerField="layerField";
-        m_sectorField="sectorField";
+//        m_sectorField="sectorField";
+        m_sectorField="sector";
+
 
         app->SetDefaultParameter("EEMC:tag",              m_input_tag);
         app->SetDefaultParameter("EEMC:capacityADC",      m_capADC);
