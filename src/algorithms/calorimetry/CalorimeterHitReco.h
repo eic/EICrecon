@@ -59,35 +59,20 @@ public:
   std::string m_readout="readoutClass";
   std::string m_layerField="layerField";
   std::string m_sectorField="sectorField";
-  template<typename T>
-  void SetJANAConfigParameters(T *app, const std::string& prefix){
-        app->SetDefaultParameter(prefix+":capacityADC",             m_capADC);
-        app->SetDefaultParameter(prefix+":dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter(prefix+":pedestalMean",     m_pedMeanADC);
-        //app->SetDefaultParameter(prefix+":inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter(prefix+":outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter(prefix+":pedestalSigma",   m_pedSigmaADC);
-        app->SetDefaultParameter(prefix+":resolutionTDC",   m_resolutionTDC);
-        app->SetDefaultParameter(prefix+":thresholdFactor",   m_thresholdFactor);
-        app->SetDefaultParameter(prefix+":thresholdValue",  m_thresholdValue);
-        app->SetDefaultParameter(prefix+":samplingFraction",    m_sampFrac);
-        m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-        //auto geo_converter = m_geoSvc->cellIDPositionConverter();
-    }
-  
+
   dd4hep::BitFieldCoder* id_dec = nullptr;
   
   size_t sector_idx{0}, layer_idx{0};
 
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
-  std::string m_localDetElement="localDetElement";
-  std::vector<std::string> u_localDetFields={"localDetFields"};
+  std::string m_localDetElement="";
+  std::vector<std::string> u_localDetFields={};
   dd4hep::DetElement local;
   size_t local_mask = ~0;
 
     std::vector<eicd::CalorimeterHit*> hits;
-    std::vector<const eicd::RawCalorimeterHit*> rawhits;
+    std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
 
 private:
     //std::default_random_engine generator; // TODO: need something more appropriate here
