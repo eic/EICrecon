@@ -10,19 +10,23 @@ set(EICrecon_CXX_STANDARD @CMAKE_CXX_STANDARD@)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
+find_package(EICD REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(podio REQUIRED)
+
+set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
 
 print_header("> > >  p a c k a g e  v e r s i o n s < < <")
 message(STATUS "EICrecon version: @CMAKE_PROJECT_VERSION@"   )
 message(STATUS "ROOT     version: ${ROOT_VERSION}"   )
 message(STATUS "JANA     version: ${JANA_VERSION}"   )
 message(STATUS "EDM4HEP  version: ${EDM4HEP_VERSION}")
+message(STATUS "EICD     version: ${EICD_VERSION}")
 message(STATUS "DD4hep   version: ${DD4hep_VERSION}" )
 message(STATUS "podio    version: ${podio_VERSION}"  )
 message(STATUS "-------------------------------------------")
 
-include_directories( ${EICrecon_INCLUDE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS})
+include_directories( ${EICrecon_INCLUDE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${EICD_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS})
 
 # Set the output plugin directory based on whether the user has their EICrecon_MY envar set
 if( DEFINED ENV{EICrecon_MY} )
