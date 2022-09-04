@@ -38,14 +38,14 @@ public:
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-//        m_readout="readoutClass";
-        m_readout="EcalEndcapNHits";
-        m_layerField="layerField";
-//        m_sectorField="sectorField";
-        m_sectorField="sector";
+        m_readout="EcalEndcapNHits";  // from ATHENA's reconstruction.py
+        m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
+        m_sectorField="sector";       // from ATHENA's reconstruction.py
 
+        m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
+        u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
+//        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
         app->SetDefaultParameter("EEMC:capacityADC",      m_capADC);
         app->SetDefaultParameter("EEMC:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("EEMC:pedestalMean",     m_pedMeanADC);
@@ -69,7 +69,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        rawhits = event->Get<eicd::RawCalorimeterHit>(m_input_tag);
+        rawhits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
