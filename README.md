@@ -113,16 +113,26 @@ cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EICD_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake3 --build build --target install -- -j8
 ~~~
 
+### lcio
+~~~
+export LCIO_VERSION=v02-17-01
+export LCIO_HOME=${EICTOPDIR}/LCIO/${LCIO_VERSION} 
+export LCIO_ROOT=${LCIO_HOME}/install 
+git clone https://github.com/iLCSoft/LCIO -b ${LCIO_VERSION} ${LCIO_HOME}
+cmake3 -S ${LCIO_HOME} -B ${LCIO_HOME}/build -DCMAKE_INSTALL_PREFIX=${LCIO_ROOT} -DCMAKE_CXX_STANDARD=17
+cmake3 --build ${LCIO_HOME}/build --target install -- -j8
+~~~
+
 ### DD4hep
 These instructions build DD4hep without Geant4 support. The reconstruction
 framework does not otherwise require Geant4 so we avoid including support
 for it for now.
 ~~~
-export DD4HEP_VERSION=v01-20-02
+export DD4HEP_VERSION=v01-21
 export DD4HEP_HOME=${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}
 git clone https://github.com/AIDASoft/DD4hep -b ${DD4HEP_VERSION} ${DD4HEP_HOME}
 cd ${DD4HEP_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${DD4HEP_HOME}/install -DCMAKE_CXX_STANDARD=17 -DBUILD_DOCS=OFF -DBoost_NO_BOOST_CMAKE=ON -DROOT_DIR=$ROOTSYS
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${DD4HEP_HOME}/install -DCMAKE_CXX_STANDARD=17 -DBUILD_DOCS=OFF -DBoost_NO_BOOST_CMAKE=ON -DROOT_DIR=$ROOTSYS -DDD4HEP_USE_LCIO=ON -DDD4HEP_USE_EDM4HEP=ON
 cmake3 --build build --target install -- -j8
 source ${DD4HEP_HOME}/install/bin/thisdd4hep.sh
 ~~~
@@ -215,6 +225,7 @@ export SPDLOG_VERSION=v1.10.0
 export PODIO_VERSION=v00-14-03
 export EDM4HEP_VERSION=v00-06
 export EICD_VERSION=v2.0.0
+export LCIO_VERSION=v02-17-01
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
@@ -232,6 +243,8 @@ export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 export EICD_ROOT=${EICTOPDIR}/eicd/${EICD_VERSION}/install
 export LD_LIBRARY_PATH=${eicd_ROOT}/lib:${LD_LIBRARY_PATH}
+export LCIO_ROOT=${EICTOPDIR}/LCIO/${LCIO_VERSION}/install 
+export LD_LIBRARY_PATH=${LCIO_ROOT}/lib64:${LD_LIBRARY_PATH}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
