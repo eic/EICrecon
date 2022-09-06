@@ -91,8 +91,8 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
 
     auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
 
-    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("TrackerSourceLinkerResult");
-    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks.size(), result->measurements.size());
+    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
+    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
 
     auto truth_init = event->Get<Jug::TrackParameters>("");
     spdlog::info("truth_init.size()={}", truth_init.size());
