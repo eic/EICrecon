@@ -40,7 +40,7 @@ namespace eicrecon {
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
 
-        GeoSvc *m_acts_context;
+
         eicrecon::TrackerSourceLinker m_source_linker;      /// Track source linker algorithm
 
         std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data

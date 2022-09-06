@@ -44,7 +44,7 @@ void eicrecon::CKFTracking_factory::Init() {
     // Initialize algorithm
     auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
 
-    m_tracking_algo.initialize(acts_service->acts_context());
+    m_tracking_algo.init(acts_service->acts_context());
 }
 
 void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -67,7 +67,10 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     }
 
 
-    auto trajectories = m_tracking_algo.execute(source_linker_result->sourceLinks, source_linker_result->measurements, acts_track_params);
+    auto trajectories = m_tracking_algo.process(
+            *source_linker_result->sourceLinks,
+            *source_linker_result->measurements,
+            acts_track_params);
 
     Set(trajectories);
 

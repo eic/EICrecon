@@ -14,7 +14,7 @@ void TrackerHitReconstruction_factory::Init() {
     auto app = GetApplication();
 
     // This prefix will be used for parameters
-    std::string param_prefix = "TrackerHitReconstruction_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = "TrackerHitReconstruction:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Ask service locator for parameter manager. We want to get this plugin parameters.
     auto pm = app->GetJParameterManager();
@@ -27,7 +27,7 @@ void TrackerHitReconstruction_factory::Init() {
     }
 
     // Logger. Get plugin level sub-log
-    m_log = app->GetService<Log_service>()->logger("TrackerHitReconstruction");
+    m_log = app->GetService<Log_service>()->logger(param_prefix);
 
     // Get log level from user parameter or default
     std::string log_level_str = "info";
@@ -57,4 +57,8 @@ void TrackerHitReconstruction_factory::Process(const std::shared_ptr<const JEven
     for(auto raw_hit: raw_hits){
         hits.push_back(m_reco_algo.produce(raw_hit));
     }
+
+    Set(hits);
+
+    m_log->debug("End of process. Hits count: {}", hits.size());
 }
