@@ -23,8 +23,10 @@ find_package(EICD REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 
+set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
+
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR})
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EICD_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)

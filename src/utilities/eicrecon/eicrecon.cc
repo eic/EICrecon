@@ -38,7 +38,7 @@ int main( int narg, char **argv)
     japp->AddPlugin( "dd4hep"          );
     japp->AddPlugin( "log"             );
     japp->AddPlugin( "rootfile"        );
-    // japp->AddPlugin( "calorimetry"     );
+    japp->AddPlugin( "calorimetry"     );
     // japp->AddPlugin( "tracking"        );
     japp->AddPlugin( "BEMC"            );
     japp->AddPlugin( "EEMC"            );
