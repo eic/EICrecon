@@ -111,32 +111,7 @@ public:
   // unitless counterparts of the input parameters
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, sectorDist{0};
     std::array<double, 2> neighbourDist = {0., 0.};
-    // This may be used to declare the data members as JANA configuration parameters.
-    // This should compile OK even without JANA so long as you don't try using it.
-    // To use it, do something like the following:
-    //
-    //    mycalohitdigi->SetJANAConfigParameters( japp, "BEMC");
-    //
-    // The above will register config. parameters like: "BEMC:tag".
-    // The configuration parameter members of this class should be set to thier
-    // defaults *before* calling this.
-    template<typename T> // n.b. OutputType should be JApplication
-    void SetJANAConfigParameters(T *app, const std::string& prefix){
-        app->SetDefaultParameter(prefix+":splitCluster",             m_splitCluster);
-        app->SetDefaultParameter(prefix+":minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter(prefix+":minClusterCenterEdep",     m_minClusterCenterEdep);
-        //app->SetDefaultParameter(prefix+":inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter(prefix+":outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter(prefix+":sectorDist",   m_sectorDist);
-        app->SetDefaultParameter(prefix+":localDistXY",   u_localDistXY);
-        app->SetDefaultParameter(prefix+":localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter(prefix+":localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter(prefix+":globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter(prefix+":globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter(prefix+":dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-        //auto geo_converter = m_geoSvc->cellIDPositionConverter()
-    }
+
     //-----------------------------------------------
 
     // unitless counterparts of inputs
@@ -245,11 +220,13 @@ private:
     // split a group of hits according to the local maxima
     //TODO: confirm protoclustering without protoclustercollection
   void split_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, const std::vector<const CaloHit*>& maxima,
-                   std::vector<eicd::ProtoCluster *> proto) const {
+
+                   std::vector<eicd::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (1){//msgLevel(MSG::VERBOSE)) {
-        LOG_WARN(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
+      if (false){//msgLevel(MSG::VERBOSE)) {
+        LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
+
       }
       return;
     } else if (maxima.size() == 1) {
@@ -259,8 +236,9 @@ private:
         pcl.addToWeights(1.);
       }
       proto.push_back(new eicd::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
-      if (1){//msgLevel(MSG::VERBOSE)) {
-        LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
+
+      if (false){//msgLevel(MSG::VERBOSE)) {
+          LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
       }
       return;
     }

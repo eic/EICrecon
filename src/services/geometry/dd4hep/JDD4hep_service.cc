@@ -14,6 +14,16 @@
 #include <DD4hep/Printout.h>
 
 //----------------------------------------------------------------
+// destructor
+//----------------------------------------------------------------
+JDD4hep_service::~JDD4hep_service(){
+    try {
+        if(m_dd4hepGeo) m_dd4hepGeo->destroyInstance();
+        m_dd4hepGeo = nullptr;
+    } catch (...) {}
+}
+
+//----------------------------------------------------------------
 // detector
 //
 /// Return pointer to the dd4hep::Detector object.
