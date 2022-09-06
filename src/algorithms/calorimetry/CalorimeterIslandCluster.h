@@ -220,11 +220,13 @@ private:
     // split a group of hits according to the local maxima
     //TODO: confirm protoclustering without protoclustercollection
   void split_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, const std::vector<const CaloHit*>& maxima,
+
                    std::vector<eicd::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
       if (false){//msgLevel(MSG::VERBOSE)) {
         LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
+
       }
       return;
     } else if (maxima.size() == 1) {
@@ -234,6 +236,7 @@ private:
         pcl.addToWeights(1.);
       }
       proto.push_back(new eicd::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
+
       if (false){//msgLevel(MSG::VERBOSE)) {
           LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
       }

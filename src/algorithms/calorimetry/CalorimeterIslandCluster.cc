@@ -149,6 +149,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
     std::vector<bool> visits(hits.size(), false);
     //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
+
       if (false){//msgLevel(MSG::DEBUG)) {
         const auto& hit = hits[i];
         LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, "
@@ -173,6 +174,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       auto maxima = find_maxima(group, !m_splitCluster);
       split_group(group, maxima, protoClusters);
       //TODO: use proper logger
+
       if (false){//msgLevel(MSG::DEBUG)) {
         LOG_INFO(default_cout_logger) << "hits in a group: " << group.size() << ", "
                 << "local maxima: " << maxima.size() << LOG_END;

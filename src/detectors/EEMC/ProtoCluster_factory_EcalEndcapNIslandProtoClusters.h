@@ -39,6 +39,7 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
+
         app->SetDefaultParameter("EEMC:splitCluster",             m_splitCluster);
         app->SetDefaultParameter("EEMC:minClusterHitEdep",  m_minClusterHitEdep);
         app->SetDefaultParameter("EEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
