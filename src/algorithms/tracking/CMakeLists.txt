@@ -21,7 +21,7 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EDM4EIC REQUIRED)
+find_package(EICD REQUIRED)
 find_package(spdlog REQUIRED)
 
 # ACTS
@@ -42,7 +42,7 @@ plugin_include_directories(${PLUGIN_NAME}
                 ${EDM4HEP_INCLUDE_DIR}
                 ${DD4hep_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIRS}
-                ${EDM4EIC_INCLUDE_DIRS}
+                ${EICD_INCLUDE_DIRS}
                 ${Acts_INCLUDE_DIRS})
 
 
@@ -53,7 +53,7 @@ plugin_link_libraries(${PLUGIN_NAME}
         EDM4HEP::edm4hep
         DD4hep::DDCore
         DD4hep::DDRec
-        EDM4EIC::edm4eic
+        EICD::eicd
         ActsCore
         spdlog::spdlog
         Boost::boost)

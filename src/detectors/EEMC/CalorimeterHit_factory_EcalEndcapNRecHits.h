@@ -6,7 +6,7 @@
 
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 
-class CalorimeterHit_factory_EcalEndcapNRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalEndcapNRecHits : public JFactoryT<eicd::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------

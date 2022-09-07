@@ -13,7 +13,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
-using namespace edm4eic;
+using namespace eicd;
 
 //
 // This algorithm converted from:
@@ -144,7 +144,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
     std::vector<std::vector<std::pair<uint32_t, const CaloHit*>>> groups;
 
     //FIXME: protocluster collection to this?
-    std::vector<edm4eic::ProtoCluster> proto;
+    std::vector<eicd::ProtoCluster> proto;
 
     std::vector<bool> visits(hits.size(), false);
     //TODO: use the right logger

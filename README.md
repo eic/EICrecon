@@ -102,14 +102,14 @@ cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EDM4HEP} -DCMAKE_CXX_STANDARD=17 -
 cmake3 --build build --target install -- -j8
 ~~~
 
-### edm4eic
+### eicd
 ~~~
-export EDM4EIC_VERSION=v1.0.0
-export EDM4EIC_HOME=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION} 
-export EDM4EIC_ROOT=${EDM4EIC_HOME}/install 
-git clone https://github.com/eic/edm4eic -b ${EDM4EIC_VERSION} ${EDM4EIC_HOME}
-cd ${EDM4EIC_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EDM4EIC_ROOT} -DCMAKE_CXX_STANDARD=17
+export EICD_VERSION=v2.0.0
+export EICD_HOME=${EICTOPDIR}/eicd/${EICD_VERSION} 
+export EICD_ROOT=${EICD_HOME}/install 
+git clone https://github.com/eic/eicd -b ${EICD_VERSION} ${EICD_HOME}
+cd ${EICD_HOME}
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EICD_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake3 --build build --target install -- -j8
 ~~~
 
@@ -214,7 +214,7 @@ export JANA_VERSION=v2.0.7
 export SPDLOG_VERSION=v1.10.0
 export PODIO_VERSION=v00-14-03
 export EDM4HEP_VERSION=v00-06
-export EDM4EIC_VERSION=v1.0.0
+export EICD_VERSION=v2.0.0
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
@@ -230,8 +230,8 @@ export podio_ROOT=${PODIO}
 export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
-export EDM4EIC_ROOT=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}/install
-export LD_LIBRARY_PATH=${edm4eic_ROOT}/lib:${LD_LIBRARY_PATH}
+export EICD_ROOT=${EICTOPDIR}/eicd/${EICD_VERSION}/install
+export LD_LIBRARY_PATH=${eicd_ROOT}/lib:${LD_LIBRARY_PATH}
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh

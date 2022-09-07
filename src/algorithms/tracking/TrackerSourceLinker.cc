@@ -28,7 +28,7 @@ void eicrecon::TrackerSourceLinker::init(std::shared_ptr<const dd4hep::rec::Cell
 }
 
 
-eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
+eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std::vector<const eicd::TrackerHit*> trk_hits) {
     constexpr double mm_acts = Acts::UnitConstants::mm;
     constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 

@@ -32,7 +32,7 @@
 
 #include "GeoSvc.h"
 
-#include "edm4eic/TrackerHitCollection.h"
+#include "eicd/TrackerHitCollection.h"
 
 #include <spdlog/fmt/ostr.h>
 

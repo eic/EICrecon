@@ -10,13 +10,13 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MutableRawTrackerHit.h>
+#include <eicd/RawTrackerHit.h>
+#include <eicd/RawTrackerHitCollection.h>
+#include <eicd/MutableRawTrackerHit.h>
 
 #include <TGeoSystemOfUnits.h>
 #include <TRandomGen.h>
-#include <edm4eic/MutableTrackerHit.h>
+#include <eicd/MutableTrackerHit.h>
 
 #include "TrackerHitReconstructionConfig.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
@@ -25,11 +25,11 @@
 #include "extensions/jana/JChainFactoryT.h"
 
 
-class TrackerHitReconstruction_factory : public JChainFactoryT<edm4eic::TrackerHit> {
+class TrackerHitReconstruction_factory : public JChainFactoryT<eicd::TrackerHit> {
 
 public:
     TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags ):
-            JChainFactoryT<edm4eic::TrackerHit>( std::move(default_input_tags) ) {
+            JChainFactoryT<eicd::TrackerHit>( std::move(default_input_tags) ) {
     }
 
     /** One time initialization **/

@@ -7,17 +7,17 @@
 
 #include <algorithms/interfaces/IObjectProducer.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackParameters.h>
+#include <eicd/TrackParameters.h>
 #include <TDatabasePDG.h>
 
 
 namespace eicrecon {
     class TruthTrackSeeding:
-            public eicrecon::IObjectProducer<edm4hep::MCParticle, edm4eic::TrackParameters> {
+            public eicrecon::IObjectProducer<edm4hep::MCParticle, eicd::TrackParameters> {
     public:
         void init();
 
-        edm4eic::TrackParameters * produce(const edm4hep::MCParticle *) override;
+        eicd::TrackParameters * produce(const edm4hep::MCParticle *) override;
 
     private:
         std::shared_ptr<TDatabasePDG> m_pdg_db;

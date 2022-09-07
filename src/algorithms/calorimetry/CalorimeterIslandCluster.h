@@ -14,18 +14,18 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/vector_utils.h>
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/MutableProtoCluster.h>
+#include <eicd/CalorimeterHit.h>
+#include <eicd/vector_utils.h>
+#include <eicd/ProtoCluster.h>
+#include <eicd/MutableProtoCluster.h>
 
 using namespace dd4hep;
-using CaloHit = edm4eic::CalorimeterHit;
+using CaloHit = eicd::CalorimeterHit;
 
-//TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
+//TODO:Reconcile edm4hep::Vector2f and eicd::Vector3f especially with regards to the operators and sign convention
 static edm4hep::Vector2f localDistXY(const CaloHit *h1, const CaloHit *h2) {
-  //edm4eic::Vector3f h1_pos=geo_converter->position(h1.getCellID()); 
-  //edm4eic::Vector3f h2_pos=geo_converter->position(h2.getCellID());
+  //eicd::Vector3f h1_pos=geo_converter->position(h1.getCellID()); 
+  //eicd::Vector3f h2_pos=geo_converter->position(h2.getCellID());
   const auto delta =h1->getLocal() - h2->getLocal();
   return {delta.x, delta.y};
   //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
@@ -60,10 +60,10 @@ static edm4hep::Vector2f globalDistRPhi(const CaloHit *h1, const CaloHit *h2) {
   using vector_type = decltype(edm4hep::Vector2f::a);
   return {
     static_cast<vector_type>(
-      edm4eic::magnitude(h1->getPosition()) - edm4eic::magnitude(h2->getPosition())
+      eicd::magnitude(h1->getPosition()) - eicd::magnitude(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      eicd::angleAzimuthal(h1->getPosition()) - eicd::angleAzimuthal(h2->getPosition())
     )
   };
 }
@@ -72,10 +72,10 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit *h1,
   using vector_type = decltype(edm4hep::Vector2f::a);
   return {
     static_cast<vector_type>(
-      edm4eic::eta(h1->getPosition()) - edm4eic::eta(h2->getPosition())
+      eicd::eta(h1->getPosition()) - eicd::eta(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      eicd::angleAzimuthal(h1->getPosition()) - eicd::angleAzimuthal(h2->getPosition())
     )
   };
 }
@@ -121,8 +121,8 @@ public:
     uint64_t         id_mask{0}, ref_mask{0};
 
     // inputs/outputs
-    std::vector<const edm4eic::CalorimeterHit*> hits;
-    std::vector<edm4eic::ProtoCluster*> protoClusters;
+    std::vector<const eicd::CalorimeterHit*> hits;
+    std::vector<eicd::ProtoCluster*> protoClusters;
 
 private:
     std::default_random_engine generator; // TODO: need something more appropriate here
@@ -137,7 +137,7 @@ private:
           // different sector, local coordinates do not work, using global coordinates
         } else {
           // sector may have rotation (barrel), so z is included
-          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= sectorDist);
+          return (eicd::magnitude(h1->getPosition() - h2->getPosition()) <= sectorDist);
         }
    }
 
@@ -221,7 +221,7 @@ private:
     //TODO: confirm protoclustering without protoclustercollection
   void split_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, const std::vector<const CaloHit*>& maxima,
 
-                   std::vector<edm4eic::ProtoCluster *>& proto) const {
+                   std::vector<eicd::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
       if (false){//msgLevel(MSG::VERBOSE)) {
@@ -230,12 +230,12 @@ private:
       }
       return;
     } else if (maxima.size() == 1) {
-      edm4eic::MutableProtoCluster pcl;
+      eicd::MutableProtoCluster pcl;
       for (auto& [idx, hit] : group) {
         pcl.addToHits(*hit);
         pcl.addToWeights(1.);
       }
-      proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
+      proto.push_back(new eicd::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
 
       if (false){//msgLevel(MSG::VERBOSE)) {
           LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;

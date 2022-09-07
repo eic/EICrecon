@@ -11,8 +11,8 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
+#include <eicd/RawTrackerHit.h>
+#include <eicd/TrackerHit.h>
 
 #include <algorithms/interfaces/ICollectionProducer.h>
 
@@ -25,18 +25,18 @@
 namespace eicrecon {
 
     /**
-     * Produces edm4eic::TrackerHit with geometric infor from edm4eic::RawTrackerHit
+     * Produces eicd::TrackerHit with geometric infor from eicd::RawTrackerHit
      *
-     * IObjectProducer means that this class produces edm4eic::TrackerHit out of edm4eic::RawTrackerHit
+     * IObjectProducer means that this class produces eicd::TrackerHit out of eicd::RawTrackerHit
      */
-    class TrackerHitReconstruction: public IObjectProducer<edm4eic::RawTrackerHit, edm4eic::TrackerHit>{
+    class TrackerHitReconstruction: public IObjectProducer<eicd::RawTrackerHit, eicd::TrackerHit>{
     public:
 
         /// Once in a lifetime initialization
         void init(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
 
         /// Processes RawTrackerHit and produces a TrackerHit
-        edm4eic::TrackerHit* produce(const edm4eic::RawTrackerHit * raw_hit) override;
+        eicd::TrackerHit* produce(const eicd::RawTrackerHit * raw_hit) override;
 
 
         /// Get a configuration to be changed
