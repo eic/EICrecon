@@ -6,7 +6,7 @@
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <eicd/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
 #include <JANA/JEvent.h>
 
 void TrackerHitReconstruction_factory::Init() {
@@ -48,10 +48,10 @@ void TrackerHitReconstruction_factory::ChangeRun(const std::shared_ptr<const JEv
 void TrackerHitReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     // Get RawTrackerHit-s with the proper tag
-    auto raw_hits = event->Get<eicd::RawTrackerHit>(m_input_tags[0]);
+    auto raw_hits = event->Get<edm4eic::RawTrackerHit>(m_input_tags[0]);
 
     // Output array
-    std::vector<eicd::TrackerHit*> hits;
+    std::vector<edm4eic::TrackerHit*> hits;
 
     // Create output hits using TrackerHitReconstruction algorithm
     for(auto raw_hit: raw_hits){

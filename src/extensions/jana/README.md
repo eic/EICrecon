@@ -11,10 +11,10 @@ flowchart TB
   end
   
   tracker_barrel_collections --> TrackerDigi[TrackerDigi]:::alg
-  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>eicd::RawTrackingHit</strong>)
+  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
     
   tracker_endcap_collections --> TrackerDigi2[TrackerDigi]:::alg
-  TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits<br/><strong>eicd::RawTrackingHit</strong>)
+  TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
   
   TrackerSourceLinker[SomeReconstruction]:::alg
   
@@ -48,7 +48,7 @@ flowchart TB
   tracker_barrel_collections(Endcap trk:<br />TrackerBarrelHits1<br/>TrackerBarrelHits2<br/>TrackerBarrelHits3<br/><strong>SimHit</strong>)
   
   tracker_barrel_collections --> TrackerDigi[TrackerDigi<br /><strong>SimHit</strong> to <strong>RawTrackerHit</strong>]:::alg
-  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>eicd::RawTrackingHit</strong>)
+  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
     
   TrackerSourceLinker[SomeReconstruction<br /><strong>RawTrackerHit</strong> to <strong>RecoParticle</strong>]:::alg  
   TrackerBarrelRawHits --> TrackerSourceLinker
