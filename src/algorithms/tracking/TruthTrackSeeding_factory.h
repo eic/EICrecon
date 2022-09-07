@@ -16,11 +16,11 @@
 
 namespace eicrecon {
 
-class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters> {
+class TruthTrackSeeding_factory : public JChainFactoryT<eicd::TrackParameters> {
 
     public:
         TruthTrackSeeding_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<edm4eic::TrackParameters>( std::move(default_input_tags) ) {
+                JChainFactoryT<eicd::TrackParameters>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/

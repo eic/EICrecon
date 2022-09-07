@@ -142,14 +142,14 @@ void CalorimeterHitReco::AlgorithmProcess() {
 
         //create constant vectors for passing to hit initializer list
         //FIXME: needs to come from the geometry service/converter
-        const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
+        const decltype(eicd::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
                                                                     gpos.z() / m_lUnit);
-        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
+        const decltype(eicd::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
                                                                       cdim[2] / m_lUnit);
-        const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
+        const decltype(eicd::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
                                                                        pos.z() / m_lUnit);
 
-        auto hit = new edm4eic::CalorimeterHit(rh->getCellID(),
+        auto hit = new eicd::CalorimeterHit(rh->getCellID(),
                                             energy,
                                             0,
                                             time,

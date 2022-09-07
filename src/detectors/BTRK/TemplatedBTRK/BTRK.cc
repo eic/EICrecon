@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include <edm4eic/RawTrackerHit.h>
+#include <eicd/RawTrackerHit.h>
 
 #include <algorithms/digi/SiliconTrackerDigi_factoryT.h>
 #include <algorithms/tracking/TrackerHitReconstruction_factoryT.h>

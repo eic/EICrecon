@@ -23,7 +23,7 @@ print('Generating datamodel_glue.h ...')
 # Default to "not found"
 WORKING_DIR = None
 EDM4HEP_INCLUDE_DIR = None
-EDM4EIC_INCLUDE_DIR = None
+EICD_INCLUDE_DIR = None
 
 # Try getting from environment first so we can overwrite
 # with command line below if available.
@@ -31,9 +31,9 @@ EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
 if EDM4HEP_ROOT :
     EDM4HEP_INCLUDE_DIR=EDM4HEP_ROOT+'/include'
 
-EDM4EIC_ROOT = os.environ.get("EDM4EIC_ROOT")
-if EDM4EIC_ROOT :
-    EDM4EIC_INCLUDE_DIR=EDM4EIC_ROOT+'/include'
+EICD_ROOT = os.environ.get("EICD_ROOT")
+if EICD_ROOT :
+    EICD_INCLUDE_DIR=EICD_ROOT+'/include'
 
 
 # poor man's command line parsing
@@ -42,8 +42,8 @@ for arg in sys.argv:
         if '=' in arg: WORKING_DIR = arg.split('=')[1]
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
         if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=')[1]
-    if arg.startswith('EDM4EIC_INCLUDE_DIR'):
-        if '=' in arg: EDM4EIC_INCLUDE_DIR = arg.split('=')[1]
+    if arg.startswith('EICD_INCLUDE_DIR'):
+        if '=' in arg: EICD_INCLUDE_DIR = arg.split('=')[1]
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
@@ -56,15 +56,15 @@ if not EDM4HEP_INCLUDE_DIR:
           "                          or '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
     sys.exit(1)
 
-# Check if EDM4EIC_ROOT is set
-if not EDM4EIC_INCLUDE_DIR:
-    print("ERROR: EDM4EIC_INCLUDE_DIR not spcified on command line (with \n"
-          "EDM4EIC_INCLUDE_DIR=/path/to/EDM4EIC/include) and EDM4EIC_ROOT\n"
+# Check if EICD_ROOT is set
+if not EICD_INCLUDE_DIR:
+    print("ERROR: EICD_INCLUDE_DIR not spcified on command line (with \n"
+          "EICD_INCLUDE_DIR=/path/to/EICD/include) and EICD_ROOT\n"
           "env. variable is None or empty\n"
-          "       Please specify the EDM4EIC_INCLUDE_DIR value explicitly\n"
-          "       or point EDM4EIC_ROOT envar to EDM4EIC installation root.\n"
-          "       This script looks for '{EDM4EIC_INCLUDE_DIR}/EDM4EIC/*Collection.h'\n"
-          "                          or '{EDM4EIC_ROOT}/include/EDM4EIC/*Collection.h'\n")
+          "       Please specify the EICD_INCLUDE_DIR value explicitly\n"
+          "       or point EICD_ROOT envar to EICD installation root.\n"
+          "       This script looks for '{EICD_INCLUDE_DIR}/EICD/*Collection.h'\n"
+          "                          or '{EICD_ROOT}/include/EICD/*Collection.h'\n")
     sys.exit(1)
 
 
@@ -96,7 +96,7 @@ def AddCollections(datamodelName, collectionfiles):
 
 
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
-collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
+collectionfiles_eicd    = glob.glob(EICD_INCLUDE_DIR+'/eicd/*Collection.h')
 header_lines      = []
 copy_lines        = []
 copy_simple_lines = []
@@ -104,7 +104,7 @@ make_lines        = []
 put_lines         = []
 put_simple_lines  = []
 AddCollections('edm4hep', collectionfiles_edm4hep)
-AddCollections('edm4eic'   , collectionfiles_edm4eic   )
+AddCollections('eicd'   , collectionfiles_eicd   )
 
 
 # for f in collectionfiles:
@@ -176,14 +176,14 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n'.join(copy_simple_lines))
     f.write('\n}\n')
 
-    f.write('\n// Test data type held in given factory against being any of the known edm4hep or edm4eic data types.')
+    f.write('\n// Test data type held in given factory against being any of the known edm4hep or eicd data types.')
     f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for edm4hep type.)')
     f.write('\nstatic std::string PutPODIOData(EICRootWriter *writer, JFactory *fac, EICEventStore &store){\n')
     f.write('\n'.join(put_lines))
     f.write('\n}\n')
 
-    f.write('\n// Test data type held in given factory against being any of the known edm4hep or edm4eic data types.')
-    f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for the edm4hep or edm4eic type.)')
+    f.write('\n// Test data type held in given factory against being any of the known edm4hep or eicd data types.')
+    f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for the edm4hep or eicd type.)')
     f.write('\nstatic std::string PutPODIODataSimple(EICRootWriterSimple *writer, JFactory *fac, podio::EventStore &store){\n')
     f.write('\n'.join(put_simple_lines))
     f.write('\n}\n')

@@ -14,7 +14,7 @@ void eicrecon::TruthTrackSeeding::init() {
 
 }
 
-edm4eic::TrackParameters *eicrecon::TruthTrackSeeding::produce(const edm4hep::MCParticle *part) {
+eicd::TrackParameters *eicrecon::TruthTrackSeeding::produce(const edm4hep::MCParticle *part) {
 
     // getGeneratorStatus = 1 means thrown G4Primary
     if(part->getGeneratorStatus() != 1 ) {
@@ -38,7 +38,7 @@ edm4eic::TrackParameters *eicrecon::TruthTrackSeeding::produce(const edm4hep::MC
 
     float q_over_p = charge / p;
 
-    auto params = new edm4eic::TrackParameters {-1,                // type --> seed (-1)
+    auto params = new eicd::TrackParameters {-1,                // type --> seed (-1)
                                  {0.0F, 0.0F},      // location on surface
                                  {0.1, 0.1, 0.1},   // Covariance on location
                                  theta,             // theta (rad)

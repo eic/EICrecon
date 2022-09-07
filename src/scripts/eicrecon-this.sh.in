@@ -42,13 +42,13 @@ if [[ -d ${EDM4HEP} ]] ; then
     fi
 fi
 
-#----------------- EDM4EIC
-EDM4EIC=$( readlink -f @EDM4EIC_DIR@/../.. )
-if [[ -d ${EDM4EIC} ]] ; then
-    export EDM4EIC_ROOT=${EDM4EIC}
-    EDM4EIC_LIBDIR=$( readlink -f @EDM4EIC_DIR@/.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":EDM4EIC_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4EIC_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+#----------------- EICD
+EICD=$( readlink -f @EICD_DIR@/../.. )
+if [[ -d ${EICD} ]] ; then
+    export EICD_ROOT=${EICD}
+    EICD_LIBDIR=$( readlink -f @EICD_DIR@/.. )
+    if [[ ! ":$LD_LIBRARY_PATH:" == *":EICD_LIBDIR:"* ]]; then
+        export LD_LIBRARY_PATH="${EICD_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
     fi
 fi
 

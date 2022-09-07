@@ -13,9 +13,9 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MutableRawTrackerHit.h>
+#include <eicd/RawTrackerHit.h>
+#include <eicd/RawTrackerHitCollection.h>
+#include <eicd/MutableRawTrackerHit.h>
 
 #include <TGeoSystemOfUnits.h>
 #include <TRandomGen.h>
@@ -27,7 +27,7 @@ namespace eicrecon {
 
     class SiliconTrackerDigi;
 
-    class SiliconTrackerDigi_factory : public  JChainFactoryT<edm4eic::RawTrackerHit> {
+    class SiliconTrackerDigi_factory : public  JChainFactoryT<eicd::RawTrackerHit> {
 
     public:
 
