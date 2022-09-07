@@ -9,7 +9,7 @@
 #include <JANA/JApplication.h>
 
 
-#include <eicd/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
 
 #include <algorithms/digi/SiliconTrackerDigi_factory.h>
 #include <algorithms/tracking/TrackerHitReconstruction_factory.h>

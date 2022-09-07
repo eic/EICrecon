@@ -8,7 +8,7 @@
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
-#include <eicd/TrackerHit.h>
+#include <edm4eic/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -19,7 +19,7 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
-#include <eicd/TrackParameters.h>
+#include <edm4eic/TrackParameters.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
@@ -87,9 +87,9 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
 
     //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
-    //auto raw_hits = event->Get<eicd::RawTrackerHit>("BarrelTrackerRawHit");
+    //auto raw_hits = event->Get<edm4eic::RawTrackerHit>("BarrelTrackerRawHit");
 
-    auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
+    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
 
     auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("TrackerSourceLinkerResult");
     spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks.size(), result->measurements.size());

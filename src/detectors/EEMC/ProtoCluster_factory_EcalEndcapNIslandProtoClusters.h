@@ -11,7 +11,7 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 
-class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<eicd::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
@@ -67,7 +67,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        hits = event->Get<eicd::CalorimeterHit>(m_input_tag);
+        hits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
