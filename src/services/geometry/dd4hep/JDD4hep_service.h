@@ -38,8 +38,10 @@ class JDD4hep_service : public JService
 {
 public:
     JDD4hep_service( JApplication *app ):app(app){}
+    ~JDD4hep_service();
 
-     dd4hep::Detector* detector();
+    dd4hep::Detector* detector();
+    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter(){ return m_cellid_converter; }
 
 protected:
     void Initialize();
