@@ -122,11 +122,11 @@ namespace eicrecon {
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
-        Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory> extensions;
+        Acts::CombinatorialKalmanFilterExtensions extensions;
         extensions.calibrator.connect<&Jug::MeasurementCalibrator::calibrate>(&calibrator);
-        extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(&kfUpdater);
-        extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(&kfSmoother);
-        extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
+        extensions.updater.connect<&Acts::GainMatrixUpdater::operator()>(&kfUpdater);
+        extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()>(&kfSmoother);
+        extensions.measurementSelector.connect<&Acts::MeasurementSelector::select>(&measSel);
 
         Jug::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;

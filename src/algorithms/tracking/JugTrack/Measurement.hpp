@@ -11,7 +11,6 @@
 
 #include <cassert>
 #include <vector>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
 
 namespace Jug {
 
@@ -38,7 +37,7 @@ namespace Jug {
     /// @param gctx The geometry context (unused)
     /// @param trackState The track state to calibrate
     void calibrate(const Acts::GeometryContext& /*gctx*/,
-                   Acts::MultiTrajectory<Acts::VectorMultiTrajectory>::TrackStateProxy trackState) const {
+                   Acts::MultiTrajectory::TrackStateProxy trackState) const {
       const auto& sourceLink =
           static_cast<const IndexSourceLink&>(trackState.uncalibrated());
       std::visit(

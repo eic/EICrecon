@@ -45,8 +45,8 @@ namespace eicrecon {
     public:
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
-        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<Jug::IndexSourceLinkAccessor::Iterator, Acts::VectorMultiTrajectory>;
-        using TrackFinderResult = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult<Acts::VectorMultiTrajectory>>>;
+        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<Jug::IndexSourceLinkAccessor::Iterator>;
+        using TrackFinderResult = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult>>;
 
         /// Find function that takes the above parameters
         /// @note This is separated into a virtual interface to keep compilation units

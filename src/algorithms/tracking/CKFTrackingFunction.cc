@@ -31,7 +31,7 @@ namespace eicrecon{
   using Stepper    = Acts::EigenStepper<>;
   using Navigator  = Acts::Navigator;
   using Propagator = Acts::Propagator<Stepper, Navigator>;
-  using CKF        = Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
+  using CKF        = Acts::CombinatorialKalmanFilter<Propagator>;
 
   /** Finder implementation .
    *
