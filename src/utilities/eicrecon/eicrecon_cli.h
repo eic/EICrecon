@@ -9,7 +9,16 @@
 
 namespace jana {
 
-    enum Flag {Unknown, ShowUsage, ShowVersion, ShowConfigs, LoadConfigs, DumpConfigs, Benchmark};
+    enum Flag {
+        Unknown,
+        ShowUsage,
+        ShowVersion,
+        ShowConfigs,
+        LoadConfigs,
+        DumpConfigs,
+        Benchmark,
+        ListFactories
+    };
 
     struct UserOptions {
         /// Code representation of all user options.
@@ -28,6 +37,7 @@ namespace jana {
     UserOptions ParseCommandLineOptions(int nargs, char *argv[], bool expect_extra=true);
     JApplication* CreateJApplication(UserOptions& options);
     int Execute(JApplication* app, UserOptions& options);
+    void PrintFactories(JApplication* app);
 
 }
 
