@@ -104,7 +104,7 @@ cmake3 --build build --target install -- -j8
 
 ### edm4eic
 ~~~
-export EDM4EIC_VERSION=v1.0.0
+export EDM4EIC_VERSION=v2.0.0
 export EDM4EIC_HOME=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION} 
 export EDM4EIC_ROOT=${EDM4EIC_HOME}/install 
 git clone https://github.com/eic/edm4eic -b ${EDM4EIC_VERSION} ${EDM4EIC_HOME}
@@ -214,7 +214,7 @@ export JANA_VERSION=v2.0.7
 export SPDLOG_VERSION=v1.10.0
 export PODIO_VERSION=v00-14-03
 export EDM4HEP_VERSION=v00-06
-export EDM4EIC_VERSION=v1.0.0
+export EDM4EIC_VERSION=v2.0.0
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
