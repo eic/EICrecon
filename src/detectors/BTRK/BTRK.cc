@@ -27,7 +27,12 @@ extern "C" {
         using namespace eicrecon;
 
         // Digitization
-        app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits"},"BarrelTrackerRawHit"));
+        app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"InnerTrackerEndcapPHits",
+                                                                          "InnerTrackerEndcapNHits",
+                                                                          "MiddleTrackerEndcapPHits",
+                                                                          "MiddleTrackerEndcapNHits",
+                                                                          "OuterTrackerEndcapPHits",
+                                                                          "OuterTrackerEndcapNHits"},"BarrelTrackerRawHit"));
 
         // Convert raw digitized hits into hits with geometry info (ready for tracking)
         app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));

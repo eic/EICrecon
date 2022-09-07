@@ -148,7 +148,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     m_log->debug("All hits processed measurements->size(): {}", measurements.size());
 
     auto result = new eicrecon::TrackerSourceLinkerResult();
-    result->sourceLinks = sourceLinks;
+    //result->sourceLinks = sourceLinks;
     //result->measurements = &measurements;
     return result;
 }
