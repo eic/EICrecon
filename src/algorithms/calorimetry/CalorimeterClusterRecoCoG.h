@@ -43,7 +43,8 @@ public:
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
-    std::string m_input_tag;
+    std::string m_input_simhit_tag;
+    std::string m_input_protoclust_tag;
     
     double m_sampFrac;//{this, "samplingFraction", 1.0};
     double m_logWeightBase;//{this, "logWeightBase", 3.6};
