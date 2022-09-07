@@ -7,7 +7,7 @@
 
 #include <TFile.h>
 
-#include <JANA/CLI/JMain.h>
+#include "eicrecon_cli.h"
 
 int main( int narg, char **argv)
 {
@@ -34,6 +34,7 @@ int main( int narg, char **argv)
 
     if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
 
+    // TODO: add by command line paras
     japp->AddPlugin( "podio"           );
     japp->AddPlugin( "dd4hep"          );
     japp->AddPlugin( "acts"        );
