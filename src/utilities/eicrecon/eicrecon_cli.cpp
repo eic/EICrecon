@@ -3,12 +3,11 @@
 //
 
 #include "eicrecon_cli.h"
+#include "print_info.h"
 
 #include <JANA/CLI/JVersion.h>
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
-
-
 
 
 namespace jana {
@@ -42,6 +41,7 @@ namespace jana {
         std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
         std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
         std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
+        std::cout << "   -L   --list_factories        List all the factories without running" << std::endl;
         std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl << std::endl;
     }
 
@@ -84,16 +84,9 @@ namespace jana {
     }
 
     void PrintFactories(JApplication* app) {
-        auto cs = app->GetComponentSummary();
-
-        std::cout << "************** Print all the factories ************" << std::endl;
-        std::cout << " Plugin | Object name | Tag" << std::endl;
-
-        for (const auto& factory : cs.factories) {
-            std::cout << factory.plugin_name << "|";
-            std::cout << factory.object_name << "|";
-            std::cout << factory.factory_tag << std::endl;
-        }
+        std::cout << std::endl << "List all the factories:" << std::endl << std::endl;
+        printFactoryTable(app->GetComponentSummary());
+        std::cout << std::endl;
     }
 
     int Execute(JApplication* app, UserOptions &options) {
@@ -134,6 +127,10 @@ namespace jana {
             JBenchmarker benchmarker(app); // Benchmarking params override default params
             benchmarker.RunUntilFinished(); // Benchmarker will control JApp Run/Stop
         }
+        else if (options.flags[ListFactories]) {
+            app->Initialize();
+            PrintFactories(app);
+        }
         else {
             // Run JANA in normal mode
             try {
@@ -169,6 +166,8 @@ namespace jana {
         tokenizer["--dumpconfigs"] = DumpConfigs;
         tokenizer["-b"] = Benchmark;
         tokenizer["--benchmark"] = Benchmark;
+        tokenizer["-L"] = ListFactories;
+        tokenizer["--list_factories"] = ListFactories;
 
         if (nargs == 1) {
             options.flags[ShowUsage] = true;
@@ -220,6 +219,10 @@ namespace jana {
                     } else {
                         options.dump_config_file = "jana.config";
                     }
+                    break;
+
+                case ListFactories:
+                    options.flags[ListFactories] = true;
                     break;
 
                 case Unknown:
