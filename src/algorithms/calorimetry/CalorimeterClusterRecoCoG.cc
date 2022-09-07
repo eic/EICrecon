@@ -1,77 +1,42 @@
 
 
-#include "CalorimeterHitReco.h"
+#include "CalorimeterClusterRecoCoG.h"
 
 #include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include <map>
+
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <edm4hep/MCParticle.h>
+#include <eicd/MutableMCRecoClusterParticleAssociation.h>
 
 using namespace dd4hep;
-
-//this algorithm converted from https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp
-
 
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterHitReco::AlgorithmInit() {
+void CalorimeterClusterRecoCoG::AlgorithmInit() {
 
-    //unitless conversion
-    dyRangeADC = m_dyRangeADC / GeV;
-    // threshold for firing
-    thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
-    // TDC channels to timing conversion
-    stepTDC = ns / m_resolutionTDC;
-
-    // do not get the layer/sector ID if no readout class provided
-    if (m_readout.empty()) {
-        return;
+    // update depth correction if a name is provided
+    if (m_moduleDimZName != "") {
+      m_depthCorrection = m_geoSvc->detector()->constantAsDouble(m_moduleDimZName);
     }
 
-    auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
-    try {
-        id_dec = id_spec.decoder();
-        if (!m_sectorField.empty()) {
-            sector_idx = id_dec->index(m_sectorField);
-            LOG_INFO(default_cerr_logger) << "Find sector field " << m_sectorField << ", index = " << sector_idx
-                                          << LOG_END;
-        }
-        if (!m_layerField.empty()) {
-            layer_idx = id_dec->index(m_layerField);
-            LOG_INFO(default_cerr_logger) << "Find layer field " << m_layerField << ", index = " << sector_idx
-                                          << LOG_END;
-        }
-    } catch (...) {
-        LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
-        return;
+    // select weighting method
+    std::string ew = m_energyWeight;
+    // make it case-insensitive
+    std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+    auto it = weightMethods.find(ew);
+    if (it == weightMethods.end()) {
+      LOG_ERROR(default_cerr_logger) << fmt::format("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight,
+                             boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "))
+              << LOG_END;
+      return;
     }
-
-
-    // local detector name has higher priority
-    if (!m_localDetElement.empty()) {
-        try {
-            local = m_geoSvc->detector()->detector(m_localDetElement);
-            LOG_INFO(default_cerr_logger) << "local coordinate system from DetElement " << m_localDetElement << LOG_END;
-        } catch (...) {
-            LOG_ERROR(default_cerr_logger) << "failed to load local coordinate system from DetElement "
-                                           << m_localDetElement << LOG_END;
-            return;
-        }
-    } else {
-        std::vector <std::pair<std::string, int >> fields;
-        for (auto f : u_localDetFields) {
-            fields.emplace_back(f, 0);
-        }
-        local_mask = id_spec.get_mask(fields);
-        // use all fields if nothing provided
-        if (fields.empty()) {
-            local_mask = ~0;
-        }
-        // TODO: Fix the broken fmt::join for the fields type
-//    LOG_INFO(default_cerr_logger) << fmt::format("Local DetElement mask {:#064b} from fields [{}]", local_mask, fmt::join(fields, ", "))
-//				  << LOG_END;
-
-    }
+    weightFunc = it->second;
+    // info() << "z_length " << depth << endmsg;
 
     return;
 }
@@ -79,87 +44,107 @@ void CalorimeterHitReco::AlgorithmInit() {
 //------------------------
 // AlgorithmChangeRun
 //------------------------
-void CalorimeterHitReco::AlgorithmChangeRun() {
+void CalorimeterClusterRecoCoG::AlgorithmChangeRun() {
 }
 
 //------------------------
 // AlgorithmProcess
 //------------------------
-void CalorimeterHitReco::AlgorithmProcess() {
+void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
-    auto converter = m_geoSvc->cellIDPositionConverter();
-    for (const auto rh: rawhits) {
-//        #pragma GCC diagnostic push
-//        #pragma GCC diagnostic error "-Wsign-converstion"
+    // input collections
+    const auto& proto  = m_inputProto;
+    auto& clusters     = m_outputClusters;
 
-        //did not pass the zero-suppresion threshold
-        if (rh->getAmplitude() < m_pedMeanADC + thresholdADC) {
-            continue;
+    // Optional input MC data
+    std::vector<const edm4hep::SimCalorimeterHit*> mchits = m_inputSimhits;
+
+    // Optional output associations
+    //associations removed in favor of referencing underlying vector m_outputAssociations
+    //std::vector<eicd::MCRecoClusterParticleAssociation*> associations = m_outputAssociations;
+
+
+    for (const auto& pcl : proto) {
+      auto cl = reconstruct(pcl);
+
+      if (false) {
+        LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", "
+                << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
+      }
+      clusters.push_back(&cl);
+
+      // If mcHits are available, associate cluster with MCParticle
+      // 1. find proto-cluster hit with largest energy deposition
+      // 2. find first mchit with same CellID
+      // 3. assign mchit's MCParticle as cluster truth
+      if (!mchits.empty() && !m_outputAssociations.empty()) {
+
+        // 1. find pclhit with largest energy deposition
+        auto pclhits = pcl->getHits();
+        auto pclhit = std::max_element(
+          pclhits.begin(),
+          pclhits.end(),
+          [](const auto& pclhit1, const auto& pclhit2) {
+            return pclhit1.getEnergy() < pclhit2.getEnergy();
+          }
+        );
+
+        // 2. find mchit with same CellID
+        // find_if not working, https://github.com/AIDASoft/podio/pull/273
+        //auto mchit = std::find_if(
+        //  mchits.begin(),
+        //  mchits.end(),
+        //  [&pclhit](const auto& mchit1) {
+        //    return mchit1.getCellID() == pclhit->getCellID();
+        //  }
+        //);
+        auto mchit = mchits.begin();
+        for ( ; mchit != mchits.end(); ++mchit) {
+          // break loop when CellID match found
+          if ( (*mchit)->getCellID() == pclhit->getCellID()) {
+            break;
+          }
+        }
+        if (!(mchit != mchits.end())) {
+          // break if no matching hit found for this CellID
+          LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID()
+                    << ", but no mc hit with that CellID was found." << LOG_END;
+          LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
+          for (const auto& pclhit1: pclhits) {
+            LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
+          }
+          LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
+          for (const auto& mchit1: mchits) {
+            LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
+          }
+          break;
         }
 
-        // convert ADC to energy
-        const float energy =
-                (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * dyRangeADC /
-                m_sampFrac;
-        const float time = rh->getTimeStamp() / stepTDC;
+        // 3. find mchit's MCParticle
+        const auto& mcp = (*mchit)->getContributions(0).getParticle();
 
-//        #pragma GCC diagnostic pop
-
-        const auto cellID = rh->getCellID();
-        const int lid =
-                id_dec != nullptr && !m_layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
-        const int sid =
-                id_dec != nullptr && !m_sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
-
-        dd4hep::Position gpos;
-        try {
-            // global positions
-            gpos = converter->position(cellID);
-
-            // local positions
-            if (m_localDetElement.empty()) {
-                auto volman = m_geoSvc->detector()->volumeManager();
-                local = volman.lookupDetElement(cellID & local_mask);
-            }
-        } catch (...) {
-            // Error looking up cellID. Messages should already have been printed
-            // so just skip this hit. User will decide what to do with error messages
-            continue;
+        // debug output
+        if (false) {
+          LOG_INFO(default_cout_logger) << "cluster has largest energy in cellID: " << pclhit->getCellID() << LOG_END;
+          LOG_INFO(default_cout_logger) << "pcl hit with highest energy " << pclhit->getEnergy() << " at index " << pclhit->getObjectID().index << LOG_END;
+          LOG_INFO(default_cout_logger) << "corresponding mc hit energy " << (*mchit)->getEnergy() << " at index " << (*mchit)->getObjectID().index << LOG_END;
+          LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << eicd::magnitude(mcp.getMomentum()) << LOG_END;
         }
 
-        const auto pos = local.nominal().worldToLocal(gpos);
-//                dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));//dd4hep::Position(gpos.x, gpos.y, gpos.z)
-        std::vector<double> cdim;
-        // get segmentation dimensions
-        if (converter->findReadout(local).segmentation().type() != "NoSegmentation") {
-            cdim = converter->cellDimensions(cellID);
-        } else {
-            // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
-            cdim = converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-            std::transform(cdim.begin(), cdim.end(), cdim.begin(),
-                           std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
+        // set association
+        eicd::MutableMCRecoClusterParticleAssociation* clusterassoc = new eicd::MutableMCRecoClusterParticleAssociation();
+        clusterassoc->setRecID(cl.getObjectID().index);
+        clusterassoc->setSimID(mcp.getObjectID().index);
+        clusterassoc->setWeight(1.0);
+        clusterassoc->setRec(cl);
+        //clusterassoc.setSim(mcp);
+        m_outputAssociations.push_back(clusterassoc);
+      } else {
+        if (false) {
+          LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;
         }
-
-        //create constant vectors for passing to hit initializer list
-        //FIXME: needs to come from the geometry service/converter
-        const decltype(eicd::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
-                                                                    gpos.z() / m_lUnit);
-        const decltype(eicd::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
-                                                                      cdim[2] / m_lUnit);
-        const decltype(eicd::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
-                                                                       pos.z() / m_lUnit);
-
-        auto hit = new eicd::CalorimeterHit(rh->getCellID(),
-                                            energy,
-                                            0,
-                                            time,
-                                            0,
-                                            position,
-                                            dimension,
-                                            sid,
-                                            lid,
-                                            local_position);
-        hits.push_back(hit);
+      }
     }
+
     return;
 }
