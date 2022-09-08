@@ -45,6 +45,7 @@ plugin_include_directories(${PLUGIN_NAME}
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME}
         dd4hep_library
+        digi_algorithms_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
         EICD::eicd
