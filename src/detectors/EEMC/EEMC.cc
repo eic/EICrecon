@@ -12,8 +12,7 @@
 #include "ProtoCluster_factory_EcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 #include "Cluster_factory_EcalEndcapNClusters.h"
-//#include "Cluster_factory_EcalEndcapNClusters.h"
-//#include "Cluster_factory_EcalEndcapNMergedClusters.h"
+#include "Cluster_factory_EcalEndcapNMergedClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -23,9 +22,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
-        
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
 //        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
-//        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
+        
     }
 }
     
