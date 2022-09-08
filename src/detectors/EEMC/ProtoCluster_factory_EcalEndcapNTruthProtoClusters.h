@@ -13,7 +13,7 @@
 
 
 
-class ProtoCluster_factory_EcalEndcapNTruthProtoClusters : public JFactoryT<eicd::MutableProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_EcalEndcapNTruthProtoClusters : public JFactoryT<eicd::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------

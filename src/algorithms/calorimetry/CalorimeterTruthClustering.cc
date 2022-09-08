@@ -35,7 +35,8 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
     const auto& hits = m_inputHits;
     const auto& mc   = m_mcHits;
     // Create output collections
-    auto& proto = m_outputProtoClusters;
+
+    std::vector<eicd::MutableProtoCluster*> proto;
 
     // Map mc track ID to protoCluster index
     std::map<int32_t, int32_t> protoIndex;
@@ -52,6 +53,12 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
       // Add hit to the appropriate protocluster
       proto[protoIndex[trackID]]->addToHits(*hit);
       proto[protoIndex[trackID]]->addToWeights(1);
+    }
+
+    // iterate over proto and push to m_outputProtoClusters
+    for (auto& p : proto) {
+      eicd::ProtoCluster* to_add=new eicd::ProtoCluster(*p);
+      m_outputProtoClusters.push_back(to_add);
     }
 
     return;
