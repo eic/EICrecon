@@ -24,4 +24,4 @@ set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EICD_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} dd4hep_library EDM4HEP::edm4hep DD4hep::DDCore)
+plugin_link_libraries(${PLUGIN_NAME} dd4hep_library EDM4HEP::edm4hep DD4hep::DDCore calorimetry_algorithms_library)

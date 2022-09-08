@@ -71,22 +71,12 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
 
     m_log = spdlog::stdout_color_mt("ActsGeoService");
 
-  // Turn off TGeo printouts if appropriate for the msg level
-
+    // Turn off TGeo printouts if appropriate for the msg level
     if (m_log->level() >= (int)spdlog::level::info) {
       TGeoManager::SetVerboseLevel(0);
     }
   // TODO
   uint printoutLevel = (uint)m_log->level();
-  dd4hep::setPrintLevel(dd4hep::PrintLevel(printoutLevel));
-  //m_incidentSvc->addListener(this, "GeometryFailure");
-
-
-//  if (buildDD4HepGeo().isFailure()) {
-//    m_log << MSG::ERROR << "Could not build DD4Hep geometry" << endmsg;
-//  } else {
-//    m_log << MSG::INFO << "DD4Hep geometry SUCCESSFULLY built" << endmsg;
-//  }
 
   // DELETE
 //  // Genfit
@@ -96,23 +86,23 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
 
     m_dd4hepDetector = dd4hepGeo;
   // create a list of all surfaces in the detector:
-  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepDetector ) ;
-
-  m_log->debug(" surface manager ");
-  const auto* const sM = surfMan.map("tracker") ;
-  if (sM != nullptr) {
-      m_log->debug(" surface map  size: {}", sM->size());
-    // setup  dd4hep surface map
-    //for( dd4hep::rec::SurfaceMap::const_iterator it = sM->begin() ; it != sM->end() ; ++it ){
-    for( const auto& [id, s] :   *sM) {
-      //dd4hep::rec::Surface* surf = s ;
-      m_surfaceMap[ id ] = dynamic_cast<dd4hep::rec::Surface*>(s) ;
-        //m_log->debug(" surface : {}", *s );
-//      m_detPlaneMap[id] = std::shared_ptr<genfit::DetPlane>(
-//          new genfit::DetPlane({s->origin().x(), s->origin().y(), s->origin().z()}, {s->u().x(), s->u().y(), s->u().z()},
-//                               {s->v().x(), s->v().y(), s->v().z()}));
-    }
-  }
+//  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepDetector ) ;
+//
+//  m_log->debug(" surface manager ");
+//  const auto* const sM = surfMan.map("tracker") ;
+//  if (sM != nullptr) {
+//      m_log->debug(" surface map  size: {}", sM->size());
+//    // setup  dd4hep surface map
+//    //for( dd4hep::rec::SurfaceMap::const_iterator it = sM->begin() ; it != sM->end() ; ++it ){
+//    for( const auto& [id, s] :   *sM) {
+//      //dd4hep::rec::Surface* surf = s ;
+//      m_surfaceMap[ id ] = dynamic_cast<dd4hep::rec::Surface*>(s) ;
+//        //m_log->debug(" surface : {}", *s );
+////      m_detPlaneMap[id] = std::shared_ptr<genfit::DetPlane>(
+////          new genfit::DetPlane({s->origin().x(), s->origin().y(), s->origin().z()}, {s->u().x(), s->u().y(), s->u().z()},
+////                               {s->v().x(), s->v().y(), s->v().z()}));
+//    }
+//  }
 
   // Set ACTS logging level
   //auto im = s_msgMap.find(msgLevel());
@@ -145,6 +135,7 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
   double layerEnvelopeZ = Acts::UnitConstants::mm;
   double defaultLayerThickness = Acts::UnitConstants::fm;
   using Acts::sortDetElementsByID;
+    m_actsLoggingLevel = Acts::Logging::VERBOSE;
   m_trackingGeo = Acts::convertDD4hepDetector(
           m_dd4hepDetector->world(),
           m_actsLoggingLevel,

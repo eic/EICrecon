@@ -76,7 +76,7 @@ namespace eicrecon {
 
 
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-        GeoSvc *m_geoSvc;
+        std::shared_ptr<const GeoSvc> m_geoSvc;
 
         std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
         Acts::GeometryContext m_geoctx;
@@ -90,11 +90,11 @@ namespace eicrecon {
 
         CKFTracking();
 
-        void initialize(GeoSvc *geo_svc);
+        void init(std::shared_ptr<const GeoSvc> geo_svc);
 
-        std::vector<Jug::Trajectories*> execute(Jug::IndexSourceLinkContainer src_links,
-                                                             Jug::MeasurementContainer measurements,
-                                                             Jug::TrackParametersContainer init_trk_params);
+        std::vector<Jug::Trajectories*> process(const Jug::IndexSourceLinkContainer &src_links,
+                                                const Jug::MeasurementContainer &measurements,
+                                                const Jug::TrackParametersContainer &init_trk_params);
     };
 
 } // namespace Jug::Reco
