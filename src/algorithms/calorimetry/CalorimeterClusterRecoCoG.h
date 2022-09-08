@@ -68,12 +68,12 @@ public:
     std::vector<const eicd::ProtoCluster*> m_inputProto; //e.g. EcalEndcapNTruthProtoClusters  //{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
 
   //outputs
-    std::vector<eicd::MutableCluster*> m_outputClusters;
-    std::vector<eicd::MutableMCRecoClusterParticleAssociation*> m_outputAssociations;
+    std::vector<eicd::Cluster*> m_outputClusters;
+    std::vector<eicd::MCRecoClusterParticleAssociation*> m_outputAssociations;
 
 
 private:
-eicd::MutableCluster reconstruct(const eicd::ProtoCluster* pcl) const {
+eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
     eicd::MutableCluster cl;
     cl.setNhits(pcl->hits_size());
 
@@ -169,8 +169,8 @@ eicd::MutableCluster reconstruct(const eicd::ProtoCluster* pcl) const {
       cl.addToShapeParameters(radius);
       cl.addToShapeParameters(0 /* skewness */); // skewness not yet calculated
     }
-
-    return cl;
+    eicd::Cluster c(cl);
+    return c;
   }
 
     

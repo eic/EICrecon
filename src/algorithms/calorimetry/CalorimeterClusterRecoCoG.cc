@@ -10,7 +10,7 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4hep/MCParticle.h>
-#include <eicd/MutableMCRecoClusterParticleAssociation.h>
+
 
 using namespace dd4hep;
 
@@ -138,7 +138,8 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         clusterassoc->setWeight(1.0);
         clusterassoc->setRec(cl);
         //clusterassoc.setSim(mcp);
-        m_outputAssociations.push_back(clusterassoc);
+        eicd::MCRecoClusterParticleAssociation* cassoc = new eicd::MCRecoClusterParticleAssociation(*clusterassoc);
+        m_outputAssociations.push_back(cassoc);
       } else {
         if (false) {
           LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;
