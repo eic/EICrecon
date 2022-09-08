@@ -9,6 +9,10 @@
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
 
+#include <JANA/Services/JComponentManager.h>
+
+#include <JANA/JEventSource.h>
+
 
 namespace jana {
 
@@ -89,6 +93,25 @@ namespace jana {
         std::cout << std::endl;
     }
 
+    void PrintPodioCollections(JApplication* app) {
+        if (app->GetJParameterManager()->Exists("PODIO:PRINT_TYPE_TABLE")) {
+            auto print_type_table = app->GetJParameterManager()->FindParameter("PODIO:PRINT_TYPE_TABLE")->GetValue();
+
+            // cli criteria: Ppodio:print_type_table=1
+            if (print_type_table == "1") {
+
+                auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+                for (auto event_source : event_sources) {
+//                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
+//                    std::cout << event_source->GetResourceName() << std::endl;
+                    if (event_source->GetPluginName().find("podio") != std::string::npos)
+                        event_source->DoInitialize();
+                }
+            }
+
+        }
+    }
+
     int Execute(JApplication* app, UserOptions &options) {
 
         std::cout << std::endl;
@@ -104,8 +127,8 @@ namespace jana {
                      "((   ,M9  d'      YM. M      \\MM   d'      YM. ,M'      \n"
                      " YMMMM9 _dM_     _dMM_M_      \\M _dM_     _dMM_MMMMMMMM " << std::endl << std::endl;
 
-        // std::cout << "JANA " << JVersion::GetVersion() << " [" << JVersion::GetRevision() << "]" << std::endl;
         JSignalHandler::register_handlers(app);
+        // std::cout << "JANA " << JVersion::GetVersion() << " [" << JVersion::GetRevision() << "]" << std::endl;
 
         if (options.flags[ShowConfigs]) {
             // Load all plugins, collect all parameters, exit without running anything
@@ -130,6 +153,9 @@ namespace jana {
         else if (options.flags[ListFactories]) {
             app->Initialize();
             PrintFactories(app);
+
+            // TODO: more elegant processing here
+            PrintPodioCollections(app);
         }
         else {
             // Run JANA in normal mode

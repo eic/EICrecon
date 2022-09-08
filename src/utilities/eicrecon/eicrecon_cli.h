@@ -38,7 +38,7 @@ namespace jana {
     JApplication* CreateJApplication(UserOptions& options);
     int Execute(JApplication* app, UserOptions& options);
     void PrintFactories(JApplication* app);
-
+    void PrintPodioCollections(JApplication* app);
 }
 
 #endif //EICRECON_EICRECON_CLI_H
