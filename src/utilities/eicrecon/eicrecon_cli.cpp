@@ -3,6 +3,7 @@
 //
 
 #include "eicrecon_cli.h"
+#include "print_info.h"
 
 #include <JANA/CLI/JVersion.h>
 #include <JANA/CLI/JBenchmarker.h>
@@ -83,14 +84,9 @@ namespace jana {
     }
 
     void PrintFactories(JApplication* app) {
-        auto cs = app->GetComponentSummary();
-
-        std::cout << "Plugin, Object name, Tag" << std::endl;
-        for (const auto& factory : cs.factories) {
-            std::cout << factory.plugin_name << ", ";
-            std::cout << factory.object_name << ", ";
-            std::cout << factory.factory_tag << std::endl;
-        }
+        std::cout << std::endl << "List all the factories:" << std::endl << std::endl;
+        printFactoryTable(app->GetComponentSummary());
+        std::cout << std::endl;
     }
 
     int Execute(JApplication* app, UserOptions &options) {
@@ -122,9 +118,7 @@ namespace jana {
         }
         else if (options.flags[ListFactories]) {
             app->Initialize();
-            std::cout << "\n************** List all the factories ************\n" << std::endl;
             PrintFactories(app);
-            std::cout << "\n**************************************************\n" << std::endl;
         }
         else {
             // Run JANA in normal mode
