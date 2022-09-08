@@ -40,7 +40,7 @@ namespace jana {
         std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
         std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
         std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
-        std::cout << "   --list_factories             List all the factories without running" << std::endl;
+        std::cout << "   -L   --list_factories        List all the factories without running" << std::endl;
         std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl << std::endl;
     }
 
@@ -161,6 +161,7 @@ namespace jana {
         tokenizer["--dumpconfigs"] = DumpConfigs;
         tokenizer["-b"] = Benchmark;
         tokenizer["--benchmark"] = Benchmark;
+        tokenizer["-L"] = ListFactories;
         tokenizer["--list_factories"] = ListFactories;
 
         if (nargs == 1) {
