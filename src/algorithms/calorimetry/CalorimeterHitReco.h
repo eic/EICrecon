@@ -29,26 +29,26 @@ public:
     // Name of input data type (collection)
     std::string              m_input_tag;
 
-    double m_lUnit= 1.0 * dd4hep::mm;
+    double m_lUnit;
 
   // digitization settings, must be consistent with digi class
-  unsigned int m_capADC=8096;//{this, "capacityADC", 8096};
-  double m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
-  unsigned int m_pedMeanADC=400;//{this, "pedestalMean", 400};
-  double m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
-  double m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+  unsigned int m_capADC;//{this, "capacityADC", 8096};
+  double m_dyRangeADC;//{this, "dynamicRangeADC", 100. * MeV};
+  unsigned int m_pedMeanADC;//{this, "pedestalMean", 400};
+  double m_pedSigmaADC;//{this, "pedestalSigma", 3.2};
+  double m_resolutionTDC;//{this, "resolutionTDC", 10 * ps};
 
   // zero suppression values
-  double m_thresholdFactor=0.0;//{this, "thresholdFactor", 0.0};
-  double m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
+  double m_thresholdFactor;//{this, "thresholdFactor", 0.0};
+  double m_thresholdValue;//{this, "thresholdValue", 0.0};
 
   // energy correction with sampling fraction
-  double m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
+  double m_sampFrac;//{this, "samplingFraction", 1.0};
 
   // unitless counterparts of the input parameters
-  double dyRangeADC{0};
-  double thresholdADC{0};
-  double stepTDC{0};
+  double dyRangeADC;
+  double thresholdADC;
+  double stepTDC;
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
   //DataHandle<eicd::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};

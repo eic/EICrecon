@@ -7,7 +7,8 @@
 #include <TFile.h>
 
 #include <edm4hep/SimCalorimeterHit.h>
-#include <detectors/BEMC/BEMCRawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <detectors/BEMC/RawCalorimeterHit_factory_EcalBarrelNRawHits.h>
 
 
 /// This class is used to demonstrate getting data objects that
@@ -22,7 +23,7 @@ private:
 
     // Data objects we will need from JANA
     PrefetchT<edm4hep::SimCalorimeterHit> rawhits   = {this, "EcalBarrelHits"};
-    PrefetchT<BEMCRawCalorimeterHit>      digihits  = {this};
+    PrefetchT<edm4hep::RawCalorimeterHit>      digihits  = {this};
 
     // Histograms
     TH1D* hEraw  = nullptr;
