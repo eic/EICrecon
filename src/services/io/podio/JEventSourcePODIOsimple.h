@@ -33,6 +33,9 @@ protected:
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;
 
+    // User may optionally specify a file of background events to overlay
+    std::vector<std::tuple<podio::ROOTReader*, podio::EventStore*, uint64_t>> readers_background; // uint64_t is current event read
+
     std::string m_include_collections_str;
     std::string m_exclude_collections_str;
     std::set<std::string> m_INPUT_INCLUDE_COLLECTIONS;
