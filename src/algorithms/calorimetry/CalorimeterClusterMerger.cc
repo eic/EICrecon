@@ -6,7 +6,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
 #include <edm4hep/MCParticle.h>
-#include <eicd/vector_utils.h>
+#include <edm4eic/vector_utils.h>
 
 using namespace dd4hep;
 
@@ -66,19 +66,19 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
                   << " for this particle, copying" << LOG_END;
         }
         auto nclus= clus->clone();
-        eicd::Cluster* new_clus = new eicd::Cluster(nclus);
+        edm4eic::Cluster* new_clus = new edm4eic::Cluster(nclus);
         merged.push_back(new_clus);
         
-        auto ca = new eicd::MutableMCRecoClusterParticleAssociation();
+        auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setRecID(new_clus->getObjectID().index);
         ca->setSimID(mcID);
         ca->setWeight(1.0);
         ca->setRec(*new_clus);
-        eicd::MCRecoClusterParticleAssociation* toadd = new eicd::MCRecoClusterParticleAssociation(*ca);
+        edm4eic::MCRecoClusterParticleAssociation* toadd = new edm4eic::MCRecoClusterParticleAssociation(*ca);
         assoc2.push_back(toadd);
         //ca.setSim(//FIXME);
       } else {
-        eicd::MutableCluster* new_clus = new eicd::MutableCluster();// merged.create();
+        edm4eic::MutableCluster* new_clus = new edm4eic::MutableCluster();// merged.create();
         // calculate aggregate info
         float energy      = 0;
         float energyError = 0;
@@ -107,11 +107,11 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         if (false) {
           LOG_INFO(default_cout_logger) << "   --> Merged cluster with energy: " << new_clus->getEnergy() << LOG_END;
         }
-        auto ca = new eicd::MutableMCRecoClusterParticleAssociation();
+        auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setSimID(mcID);
         ca->setWeight(1.0);
-        ca->setRec(eicd::Cluster(*new_clus));
-        eicd::MCRecoClusterParticleAssociation* toadd = new eicd::MCRecoClusterParticleAssociation(*ca);
+        ca->setRec(edm4eic::Cluster(*new_clus));
+        edm4eic::MCRecoClusterParticleAssociation* toadd = new edm4eic::MCRecoClusterParticleAssociation(*ca);
         assoc2.push_back(toadd);
       }
     }
