@@ -11,6 +11,7 @@
 #include "CalorimeterHit_factory_EcalEndcapNRecHits.h"
 //#include "ProtoCluster_factory_EcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
+#include "Cluster_factory_EcalEndcapNClusters.h"
 //#include "Cluster_factory_EcalEndcapNClusters.h"
 //#include "Cluster_factory_EcalEndcapNMergedClusters.h"
 
@@ -21,6 +22,8 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>());
 //        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
+        
 //        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
 //        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
     }
