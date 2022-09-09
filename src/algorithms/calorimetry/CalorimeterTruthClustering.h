@@ -7,10 +7,10 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <eicd/CalorimeterHit.h>
+#include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
-#include <eicd/ProtoCluster.h>
-#include <eicd/MutableProtoCluster.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/MutableProtoCluster.h>
 
 
 using namespace dd4hep;
@@ -32,10 +32,10 @@ public:
     std::string              m_inputMCHit_tag;
 
 
-  std::vector<const eicd::CalorimeterHit*> m_inputHits;//{"inputHits", Gaudi::DataHandle::Reader, this};
+  std::vector<const edm4eic::CalorimeterHit*> m_inputHits;//{"inputHits", Gaudi::DataHandle::Reader, this};
   std::vector<const edm4hep::SimCalorimeterHit*> m_mcHits;//{"mcHits", Gaudi::DataHandle::Reader, this};
 
-  std::vector<eicd::ProtoCluster*> m_outputProtoClusters;//{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
+  std::vector<edm4eic::ProtoCluster*> m_outputProtoClusters;//{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
 
 private:
 

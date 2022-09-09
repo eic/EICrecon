@@ -36,7 +36,7 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
     const auto& mc   = m_mcHits;
     // Create output collections
 
-    std::vector<eicd::MutableProtoCluster*> proto;
+    std::vector<edm4eic::MutableProtoCluster*> proto;
 
     // Map mc track ID to protoCluster index
     std::map<int32_t, int32_t> protoIndex;
@@ -47,7 +47,7 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
       const auto& trackID   = mcHit->getContributions(0).getParticle().id();
       // Create a new protocluster if we don't have one for this trackID
       if (protoIndex.count(trackID) == 0) {
-        auto pcl = new eicd::ProtoCluster();
+        auto pcl = new edm4eic::ProtoCluster();
         protoIndex[trackID] = proto.size() - 1;
       }
       // Add hit to the appropriate protocluster
@@ -57,7 +57,7 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
 
     // iterate over proto and push to m_outputProtoClusters
     for (auto& p : proto) {
-      eicd::ProtoCluster* to_add=new eicd::ProtoCluster(*p);
+      edm4eic::ProtoCluster* to_add=new edm4eic::ProtoCluster(*p);
       m_outputProtoClusters.push_back(to_add);
     }
 
