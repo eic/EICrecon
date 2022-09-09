@@ -53,7 +53,7 @@ void eicrecon::TruthTrackSeeding_factory::Process(const std::shared_ptr<const JE
     auto mc_particles = event->Get<edm4hep::MCParticle>(input_tags[0]);
 
     // Produce track parameters out of MCParticles
-    std::vector<eicd::TrackParameters*> results;
+    std::vector<edm4eic::TrackParameters*> results;
     for(auto mc_particle: mc_particles) {
 
         // Only stable particles from MC

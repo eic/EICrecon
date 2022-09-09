@@ -51,10 +51,10 @@ namespace eicrecon {
 
     void TrackerSourceLinker_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits
-        std::vector<const eicd::TrackerHit*> total_hits;
+        std::vector<const edm4eic::TrackerHit*> total_hits;
 
         for(auto input_tag: m_input_tags) {
-            auto hits = event->Get<eicd::TrackerHit>(input_tag);
+            auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
             for (const auto hit : hits) {
                 total_hits.push_back(hit);
             }

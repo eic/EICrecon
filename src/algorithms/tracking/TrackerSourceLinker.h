@@ -11,7 +11,7 @@
 #include "TrackerSourceLinkerResult.h"
 
 #include <vector>
-#include <eicd/TrackerHit.h>
+#include <edm4eic/TrackerHit.h>
 #include <spdlog/logger.h>
 #include <list>
 #include <DDRec/CellIDPositionConverter.h>
@@ -29,7 +29,7 @@ namespace eicrecon {
                   std::shared_ptr<const GeoSvc> acts_context,
                   std::shared_ptr<spdlog::logger> logger);
 
-        eicrecon::TrackerSourceLinkerResult *produce(std::vector<const eicd::TrackerHit *> trk_hits);
+        eicrecon::TrackerSourceLinkerResult *produce(std::vector<const edm4eic::TrackerHit *> trk_hits);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

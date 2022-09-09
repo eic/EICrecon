@@ -9,15 +9,15 @@ project(podio_project)
 
 # Find dependencies (JANA and spdlog automatically added already)
 find_package(EDM4HEP REQUIRED)
-find_package(EICD REQUIRED)
+find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(fmt REQUIRED)
 
-set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
+set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
-set(INCLUDE_DIRS ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EICD_INCLUDE_DIR} ${fmt_INCLUDE_DIR})
+set(INCLUDE_DIRS ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EDM4EIC_INCLUDE_DIR} ${fmt_INCLUDE_DIR})
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
@@ -33,7 +33,7 @@ plugin_glob_all(${PLUGIN_NAME})
 # but that never really worked quite right. Thus, we just force-run it
 # whenever cmake is run.
 execute_process (
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${PROJECT_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EICD_INCLUDE_DIR=${EICD_INCLUDE_DIR}
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${PROJECT_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
 )
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
@@ -42,7 +42,7 @@ include_directories( ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT
 root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
 target_sources(${PLUGIN_NAME}_plugin PRIVATE datamodel_includes.h G__datamodel_vectors.cxx)
 
-set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EICD::eicd EICD::eicd_utils podio::podioRootIO)
+set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
 
 # Add include directories (works same as target_include_directories)
 message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
@@ -73,33 +73,33 @@ return()
 # Find dependencies
 find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
-find_package(EICD REQUIRED)
+find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(spdlog REQUIRED)
 
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 dump_cmake_variables(fmt)
 
-set(EICD_INCLUDE_DIR ${EICD_DIR}/../../include)
+set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # This is used to automatically run the make_datamodel_glue.py command
 # that generates the datamodel_glue.h, datamodel_includes.h, and
 # datamodel_LinkDef.h files.
 add_custom_command(
         OUTPUT  datamodel_glue.h datamodel_includes.h         # Treated as relative to CMAKE_CURRENT_BINARY_DIR
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EICD_INCLUDE_DIR=${EICD_INCLUDE_DIR}
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.
-include_directories(${EDM4HEP_INCLUDE_DIR} ${EICD_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${fmt_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} )
+include_directories(${EDM4HEP_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${fmt_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} )
 root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
 
 
 set( INCLUDE_DIRS ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${fmt_INCLUDE_DIR} )
-set( PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EICD::eicd EICD::eicd_utils podio::podioRootIO )
+set( PODIO_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO )
 set( LINK_LIBRARIES ${JANA_LIB} ${PODIO_LIBRARIES} spdlog::spdlog)
 
 
