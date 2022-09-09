@@ -75,7 +75,16 @@ cmake3 --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
-git clone https://github.com/gabime/spdlog.git
+### spdlog
+~~~
+export SPDLOG_VERSION=v1.10.0
+export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
+export spdlog_ROOT=${SPDLOG_HOME}/install
+git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
+cd ${SPDLOG_HOME}
+cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DSPDLOG_BUILD_SHARED=ON
+cmake3 --build build --target install -- -j8
+~~~
 
 ### PODIO
 ~~~
@@ -133,7 +142,7 @@ export EIGEN_VERSION=3.4.0
 export EIGEN_HOME=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 git clone https://gitlab.com/libeigen/eigen.git -b ${EIGEN_VERSION} ${EIGEN_HOME}
 cd ${EIGEN_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17 
 cmake3 --build build --target install -- -j8
 export Eigen3_ROOT=${EIGEN_HOME}
 
@@ -141,7 +150,7 @@ export ACTS_VERSION=v19.4.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
 cd ${ACTS_HOME}
-cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on
+cmake3 -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON -DACTS_BUILD_PLUGIN_DIGITIZATION=ON 
 cmake3 --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
@@ -181,18 +190,6 @@ cmake3 -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=
 cmake3 --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
 
-### spdlog
-~~~
-export SPDLOG_VERSION=v1.10.0
-export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
-export spdlog_ROOT=${SPDLOG_HOME}/install
-git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
-cd ${SPDLOG_HOME}
-cmake3 -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSPDLOG_FMT_EXTERNAL=ON
-cmake3 --build build --target install -- -j8
-~~~
-
-
 ### Capture environment
 The jana_edm4hep plugin requires all of the above packages which means 
 they must be set up in your environment. You will also need these in
@@ -218,11 +215,12 @@ export EICD_VERSION=v2.0.0
 export DD4HEP_VERSION=v01-20-02
 export EIGEN_VERSION=3.4.0
 export ACTS_VERSION=v19.4.0
-export FMT_VERSION=9.0.0
+export FMT_VERSION=8.1.1
 
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
 source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
 export spdlog_ROOT=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}/install
+export LD_LIBRARY_PATH=${spdlog_ROOT}/lib64:${LD_LIBRARY_PATH}
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 source ${PODIO_HOME}/env.sh
