@@ -11,8 +11,6 @@
 
 #include <JANA/Services/JComponentManager.h>
 
-#include <JANA/JEventSource.h>
-
 
 namespace jana {
 
@@ -66,6 +64,13 @@ namespace jana {
             params->SetParameter(pair.first, pair.second);
         }
 
+        if (options.flags[ListFactories]) {
+            params->SetParameter(
+                    "log:off",
+                    "JPluginLoader,JComponentManager,JArrowProcessingController,JArrow"
+                    );
+        }
+
         if (options.flags[LoadConfigs]) {
             // If the user specified an external config file, we should definitely use that
             try {
@@ -116,7 +121,6 @@ namespace jana {
 
         std::cout << std::endl;
 
-        JSignalHandler::register_handlers(app);
         // std::cout << "JANA " << JVersion::GetVersion() << " [" << JVersion::GetRevision() << "]" << std::endl;
 
         if (options.flags[ShowConfigs]) {
@@ -135,6 +139,7 @@ namespace jana {
             app->GetJParameterManager()->WriteConfigFile(options.dump_config_file);
         }
         else if (options.flags[Benchmark]) {
+            JSignalHandler::register_handlers(app);
             // Run JANA in benchmark mode
             JBenchmarker benchmarker(app); // Benchmarking params override default params
             benchmarker.RunUntilFinished(); // Benchmarker will control JApp Run/Stop
@@ -150,6 +155,7 @@ namespace jana {
             // Run JANA in normal mode
             try {
                 printJANAHeaderIMG();
+                JSignalHandler::register_handlers(app);
                 app->Run();
             }
             catch (JException& e) {
