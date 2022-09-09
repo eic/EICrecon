@@ -128,7 +128,7 @@ These instructions build DD4hep without Geant4 support. The reconstruction
 framework does not otherwise require Geant4 so we avoid including support
 for it for now.
 ~~~
-export DD4HEP_VERSION=v01-21
+export DD4HEP_VERSION=v01-20-02
 export DD4HEP_HOME=${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}
 git clone https://github.com/AIDASoft/DD4hep -b ${DD4HEP_VERSION} ${DD4HEP_HOME}
 cd ${DD4HEP_HOME}
