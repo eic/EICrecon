@@ -2,25 +2,24 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TruthTrackSeeding_factory_H
-#define EICRECON_TruthTrackSeeding_factory_H
+#ifndef EICRECON_CKFTracking_factory_H
+#define EICRECON_CKFTracking_factory_H
 
 #include <spdlog/spdlog.h>
+
+#include <algorithms/tracking/CKFTracking.h>
+#include "TrackerSourceLinkerResult.h"
+
 #include "extensions/jana/JChainFactoryT.h"
-
-#include <algorithms/tracking/TruthTrackSeeding.h>
-
-
-
 
 
 namespace eicrecon {
 
-class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters> {
+    class CKFTracking_factory : public JChainFactoryT<Jug::Trajectories> {
 
     public:
-        TruthTrackSeeding_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<edm4eic::TrackParameters>( std::move(default_input_tags) ) {
+        CKFTracking_factory( std::vector<std::string> default_input_tags ):
+                JChainFactoryT<Jug::Trajectories>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/
@@ -37,12 +36,13 @@ class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters
         std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-        std::vector<std::string> m_input_tags;              /// Tag for the input data
+        std::string m_input_tag;                            /// Tag for the input data
 
-        eicrecon::TruthTrackSeeding m_truth_track_seeding_algo;  /// Truth track seeding algorithm
+
+        CKFTracking m_tracking_algo;                        /// Proxy tracking algorithm
 
     };
 
 } // eicrecon
 
-#endif //EICRECON_TruthTrackSeeding_factory_H
+#endif //EICRECON_CKFTracking_factory_H

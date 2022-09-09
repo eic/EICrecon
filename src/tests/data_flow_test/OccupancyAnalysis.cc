@@ -15,6 +15,8 @@
 #include <TTree.h>
 #include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
+#include <services/rootfile/RootFile_service.h>
+
 
 using namespace fmt;
 
@@ -34,16 +36,15 @@ void OccupancyAnalysis::Init()
 	// Ask service locator a file to write to
 
 	// Root related, we switch gDirectory to this file
-    if(!gFile)
-    {
-        auto file = new TFile("data_work_flow.root");
-    }
-	//file->cd();
-	fmt::print("OccupancyAnalysis::gDirectory->pwd()\n");	// >oO Debug print
-	gDirectory->pwd();
+    auto japp = GetApplication();
+    auto rootfile_service = japp->GetService<RootFile_service>();
+    auto globalRootLock = japp->GetService<JGlobalRootLock>();
+    globalRootLock->acquire_write_lock();
+    auto file = rootfile_service->GetHistFile();
+    globalRootLock->release_lock();
 
 	// Create a directory for this plugin. And subdirectories for series of histograms
-	m_dir_main = gFile->mkdir("data_flow_test");
+	m_dir_main = file->mkdir("data_flow_test");
 
     // Hits by Z distribution
     m_th1_prt_pz = new TH1F("prt_pz", "MCParticles Pz distribution [GeV]", 100, 0, 30);

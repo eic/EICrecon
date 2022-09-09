@@ -7,13 +7,13 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <edm4hep/SimCalorimeterHit.h>
-#include <eicd/ProtoCluster.h>
-#include <eicd/Cluster.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/Cluster.h>
 
-#include <eicd/MCRecoClusterParticleAssociation.h>
-#include <eicd/MutableMCRecoClusterParticleAssociation.h>
-#include <eicd/MutableCluster.h>
-#include <eicd/vector_utils.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MutableMCRecoClusterParticleAssociation.h>
+#include <edm4eic/MutableCluster.h>
+#include <edm4eic/vector_utils.h>
 #include <map>
 
 
@@ -65,16 +65,16 @@ public:
 
   //inputs
     std::vector<const edm4hep::SimCalorimeterHit*> m_inputSimhits; //e.g. EcalEndcapNHits
-    std::vector<const eicd::ProtoCluster*> m_inputProto; //e.g. EcalEndcapNTruthProtoClusters  //{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
+    std::vector<const edm4eic::ProtoCluster*> m_inputProto; //e.g. EcalEndcapNTruthProtoClusters  //{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
 
   //outputs
-    std::vector<eicd::Cluster*> m_outputClusters;
-    std::vector<eicd::MCRecoClusterParticleAssociation*> m_outputAssociations;
+    std::vector<edm4eic::Cluster*> m_outputClusters;
+    std::vector<edm4eic::MCRecoClusterParticleAssociation*> m_outputAssociations;
 
 
 private:
-eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
-    eicd::MutableCluster cl;
+edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
+    edm4eic::MutableCluster cl;
     cl.setNhits(pcl->hits_size());
 
     // no hits
@@ -103,7 +103,7 @@ eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
       totalE += energy;
       if (energy > maxE) {
       }
-      const float eta = eicd::eta(hit.getPosition());
+      const float eta = edm4eic::eta(hit.getPosition());
       if (eta < minHitEta) {
         minHitEta = eta;
       }
@@ -134,14 +134,14 @@ eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
 
     // Optionally constrain the cluster to the hit eta values
     if (m_enableEtaBounds) {
-      const bool overflow  = (eicd::eta(cl.getPosition()) > maxHitEta);
-      const bool underflow = (eicd::eta(cl.getPosition()) < minHitEta);
+      const bool overflow  = (edm4eic::eta(cl.getPosition()) > maxHitEta);
+      const bool underflow = (edm4eic::eta(cl.getPosition()) < minHitEta);
       if (overflow || underflow) {
         const double newEta   = overflow ? maxHitEta : minHitEta;
-        const double newTheta = eicd::etaToAngle(newEta);
-        const double newR     = eicd::magnitude(cl.getPosition());
-        const double newPhi   = eicd::angleAzimuthal(cl.getPosition());
-        cl.setPosition(eicd::sphericalToVector(newR, newTheta, newPhi));
+        const double newTheta = edm4eic::etaToAngle(newEta);
+        const double newR     = edm4eic::magnitude(cl.getPosition());
+        const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
+        cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
         if (false) {
           LOG_INFO(default_cout_logger) << "Bound cluster position to contributing hits due to " << (overflow ? "overflow" : "underflow")
                   << LOG_END;
@@ -153,8 +153,8 @@ eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
 
     // best estimate on the cluster direction is the cluster position
     // for simple 2D CoG clustering
-    cl.setIntrinsicTheta(eicd::anglePolar(cl.getPosition()));
-    cl.setIntrinsicPhi(eicd::angleAzimuthal(cl.getPosition()));
+    cl.setIntrinsicTheta(edm4eic::anglePolar(cl.getPosition()));
+    cl.setIntrinsicPhi(edm4eic::angleAzimuthal(cl.getPosition()));
     // TODO errors
 
     // Calculate radius
@@ -169,7 +169,7 @@ eicd::Cluster reconstruct(const eicd::ProtoCluster* pcl) const {
       cl.addToShapeParameters(radius);
       cl.addToShapeParameters(0 /* skewness */); // skewness not yet calculated
     }
-    eicd::Cluster c(cl);
+    edm4eic::Cluster c(cl);
     return c;
   }
 

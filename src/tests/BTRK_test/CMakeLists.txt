@@ -13,7 +13,7 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EICD)
+find_package(EDM4EIC)
 
 # ACTS
 find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
@@ -37,7 +37,7 @@ plugin_glob_all(${PLUGIN_NAME})
 # (same as target_include_directories but for both plugin and library)
 plugin_include_directories(${PLUGIN_NAME}
         SYSTEM PUBLIC
-            ${EICD_INCLUDE_DIR}
+            ${EDM4EIC_INCLUDE_DIR}
             ${podio_INCLUDE_DIR}
             ${EDM4HEP_INCLUDE_DIR}
             ${DD4hep_INCLUDE_DIRS}
@@ -46,4 +46,4 @@ plugin_include_directories(${PLUGIN_NAME}
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore EICD::eicd)
+plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)

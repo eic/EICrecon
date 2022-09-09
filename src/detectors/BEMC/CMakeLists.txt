@@ -27,4 +27,4 @@ plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${E
 plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
 
 # Additional libraries
-plugin_link_libraries(${PLUGIN_NAME} dd4hep_library calorimetry_library)
+plugin_link_libraries(${PLUGIN_NAME} dd4hep_library algorithms_calorimetry_library)

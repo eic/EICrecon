@@ -61,7 +61,7 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
     // Optional output associations
     //associations removed in favor of referencing underlying vector m_outputAssociations
-    //std::vector<eicd::MCRecoClusterParticleAssociation*> associations = m_outputAssociations;
+    //std::vector<edm4eic::MCRecoClusterParticleAssociation*> associations = m_outputAssociations;
 
 
     for (const auto& pcl : proto) {
@@ -128,17 +128,17 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
           LOG_INFO(default_cout_logger) << "cluster has largest energy in cellID: " << pclhit->getCellID() << LOG_END;
           LOG_INFO(default_cout_logger) << "pcl hit with highest energy " << pclhit->getEnergy() << " at index " << pclhit->getObjectID().index << LOG_END;
           LOG_INFO(default_cout_logger) << "corresponding mc hit energy " << (*mchit)->getEnergy() << " at index " << (*mchit)->getObjectID().index << LOG_END;
-          LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << eicd::magnitude(mcp.getMomentum()) << LOG_END;
+          LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << edm4eic::magnitude(mcp.getMomentum()) << LOG_END;
         }
 
         // set association
-        eicd::MutableMCRecoClusterParticleAssociation* clusterassoc = new eicd::MutableMCRecoClusterParticleAssociation();
+        edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
         clusterassoc->setRecID(cl.getObjectID().index);
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
         clusterassoc->setRec(cl);
         //clusterassoc.setSim(mcp);
-        eicd::MCRecoClusterParticleAssociation* cassoc = new eicd::MCRecoClusterParticleAssociation(*clusterassoc);
+        edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);
       } else {
         if (false) {

@@ -5,11 +5,11 @@
 #ifndef EICRECON_BARRELTRACKERHITRECONSTRUCTION_H
 #define EICRECON_BARRELTRACKERHITRECONSTRUCTION_H
 
-#include <eicd/MutableTrackerHit.h>
+#include <edm4eic/MutableTrackerHit.h>
 
-class BarrelTrackerHitReconstruction: public eicd::TrackerHit{
+class BarrelTrackerHitReconstruction: public edm4eic::TrackerHit{
 public:
-    BarrelTrackerHitReconstruction(std::uint64_t cellID, eicd::Vector3f position, eicd::CovDiag3f positionError, float time, float timeError, float edep, float edepError):
+    BarrelTrackerHitReconstruction(std::uint64_t cellID, edm4eic::Vector3f position, edm4eic::CovDiag3f positionError, float time, float timeError, float edep, float edepError):
             MutableTrackerHit(cellID, position, positionError, time, timeError, edep, edepError)
     {
     }

@@ -7,8 +7,13 @@ This is guinea pig plugin for active development phase
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=2000 --random.seed 1 --enableGun --gun.energy 2*GeV --gun.thetaMin 0*deg --gun.thetaMax 90*deg --gun.distribution uniform --outputFile tracking_test_gun.root
 
 
+ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=2000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-08-15_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_2k.edm4hep.root
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=10000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-08-15_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_10k.edm4hep.root
+
+# 5 x e- per event
+ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.multiplicity 5 --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-04_pgun_5xe-_
+podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 
 --gun.momentumMax
 --gun.momentumMin
@@ -17,10 +22,14 @@ ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=10000 --random.seed 1 --enableGun
 
 ```bash
 eicrecon
--Pplugins=BTRK,data_flow_test
+-Pplugins=acts,BTRK_test,BTRK
 -Pnthreads=1
+-Pjana:nevents=10
 -Pjana:debug_plugin_loading=1
--Pnthreads=1
-/home/romanov/work/data/eicrecon_test/tracking_test_gun.root
+-PSiliconTrackerDigi_BarrelTrackerRawHit:LogLevel=trace
+-PTrackerHitReconstruction:BarrelTrackerHit:LogLevel=trace
+-PTrackerSourceLinker:CentralTrackerSourceLinker:LogLevel=trace
+-Pdd4hep:print_level=5
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
+/home/romanov/work/data/eicrecon_test/2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_100ev.edm4hep.root
 ```
