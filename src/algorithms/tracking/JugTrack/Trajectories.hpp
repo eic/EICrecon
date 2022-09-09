@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
+
 namespace Jug {
 
 /// Store reconstructed trajectories from track finding/fitting.
@@ -24,7 +25,7 @@ namespace Jug {
 struct Trajectories final {
  public:
   /// (Reconstructed) trajectory with multiple states.
-  using MultiTrajectory = ::Acts::MultiTrajectory;
+  using MultiTrajectory = Acts::MultiTrajectory;
   /// Fitted parameters identified by indices in the multi trajectory.
   using IndexedParameters = std::unordered_map<size_t, TrackParameters>;
 
@@ -36,7 +37,7 @@ struct Trajectories final {
   /// @param multiTraj The multi trajectory
   /// @param tTips Tip indices that identify valid trajectories
   /// @param parameters Fitted track parameters indexed by trajectory index
-  Trajectories(const MultiTrajectory& multiTraj,
+  Trajectories(MultiTrajectory multiTraj,
                const std::vector<size_t>& tTips,
                const IndexedParameters& parameters)
       : m_multiTrajectory(multiTraj),
@@ -47,10 +48,12 @@ struct Trajectories final {
   bool empty() const { return m_trackTips.empty(); }
 
   /// Access the underlying multi trajectory.
-  const MultiTrajectory& multiTrajectory() const { return m_multiTrajectory; }
+  const MultiTrajectory& multiTrajectory() const { return *m_multiTrajectory; }
 
   /// Access the tip indices that identify valid trajectories.
-  const std::vector<size_t>& tips() const { return m_trackTips; }
+  const std::vector<size_t>& tips() const {
+      return m_trackTips;
+  }
 
   /// Check if a trajectory exists for the given index.
   ///
@@ -84,7 +87,7 @@ struct Trajectories final {
 
  private:
   // The multiTrajectory
-  MultiTrajectory m_multiTrajectory;
+  std::optional<MultiTrajectory> m_multiTrajectory;
   // The entry indices of trajectories stored in multiTrajectory
   std::vector<size_t> m_trackTips = {};
   // The fitted parameters at the provided surface for individual trajectories

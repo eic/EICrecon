@@ -19,9 +19,9 @@ void eicrecon::SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger)
 }
 
 
-std::vector<eicd::RawTrackerHit *>
+std::vector<edm4eic::RawTrackerHit *>
 eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits) {
-//return std::vector<eicd::RawTrackerHit *>();
+//return std::vector<edm4eic::RawTrackerHit *>();
     /** Event by event processing **/
     namespace units = TGeoUnit;
 
@@ -61,9 +61,9 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
     }
 
     // Create and fill output array
-    std::vector<eicd::RawTrackerHit*> rawhits;
+    std::vector<edm4eic::RawTrackerHit*> rawhits;
     for (auto item : cell_hit_map) {
-        rawhits.push_back(new eicd::RawTrackerHit(
+        rawhits.push_back(new edm4eic::RawTrackerHit(
                 item.first,
                 item.second.charge,
                 item.second.time_stamp));
