@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Automatically set plugin name the same as the directory name
-# Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
-get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+set(PLUGIN_NAME "algorithms_digi")
 print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -19,7 +17,7 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EICD REQUIRED)
+find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
 
 # ACTS
@@ -40,7 +38,7 @@ plugin_include_directories(${PLUGIN_NAME}
                 ${EDM4HEP_INCLUDE_DIR}
                 ${DD4hep_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIRS}
-                ${EICD_INCLUDE_DIRS}
+                ${EDM4EIC_INCLUDE_DIRS}
                 ${Acts_INCLUDE_DIRS})
 
 
@@ -49,7 +47,7 @@ plugin_link_libraries(${PLUGIN_NAME}
         dd4hep_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
-        EICD::eicd
+        EDM4EIC::edm4eic
         ActsCore
         spdlog::spdlog)
 

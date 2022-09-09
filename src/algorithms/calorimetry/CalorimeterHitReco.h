@@ -7,10 +7,10 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <eicd/RawCalorimeterHit.h>
+#include <edm4eic/RawCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
-#include <eicd/CalorimeterHit.h>
-#include <eicd/vector_utils.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/vector_utils.h>
 
 using namespace dd4hep;
 
@@ -51,8 +51,8 @@ public:
   double stepTDC;
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
-  //DataHandle<eicd::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};
-  //DataHandle<eicd::CalorimeterHitCollection> m_outputHitCollection{"outputHitCollection", Gaudi::DataHandle::Writer,   this};
+  //DataHandle<edm4eic::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};
+  //DataHandle<edm4eic::CalorimeterHitCollection> m_outputHitCollection{"outputHitCollection", Gaudi::DataHandle::Writer,   this};
 
   // geometry service to get ids, ignored if no names provided
   std::string m_geoSvcName="geoServiceName";
@@ -71,7 +71,7 @@ public:
   dd4hep::DetElement local;
   size_t local_mask = ~0;
 
-    std::vector<eicd::CalorimeterHit*> hits;
+    std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
 
 private:

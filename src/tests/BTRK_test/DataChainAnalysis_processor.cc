@@ -8,7 +8,7 @@
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
-#include <eicd/TrackerHit.h>
+#include <edm4eic/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -19,11 +19,11 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
-#include <eicd/TrackParameters.h>
+#include <edm4eic/TrackParameters.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
-
+#include <services/rootfile/RootFile_service.h>
 
 using namespace fmt;
 
@@ -42,17 +42,16 @@ void DataChainAnalysis_processor::Init()
 {
 	// Ask service locator a file to write to
 
-	// Root related, we switch gDirectory to this file
-    if(!gFile)
-    {
-        auto file = new TFile("data_work_flow.root");
-    }
-	//file->cd();
-	fmt::print("OccupancyAnalysis::gDirectory->pwd()\n");	// >oO Debug print
-	gDirectory->pwd();
+    // Root related, we switch gDirectory to this file
+    auto japp = GetApplication();
+    auto rootfile_service = japp->GetService<RootFile_service>();
+    auto globalRootLock = japp->GetService<JGlobalRootLock>();
+    globalRootLock->acquire_write_lock();
+    auto file = rootfile_service->GetHistFile();
+    globalRootLock->release_lock();
 
 	// Create a directory for this plugin. And subdirectories for series of histograms
-	m_dir_main = gFile->mkdir("BTRK_test");
+	m_dir_main = file->mkdir("BTRK_test");
 
     // Hits by Z distribution
     m_th1_prt_pz = new TH1F("prt_pz", "MCParticles Pz distribution [GeV]", 100, 0, 30);
@@ -87,12 +86,12 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
     fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
 
     //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
-    //auto raw_hits = event->Get<eicd::RawTrackerHit>("BarrelTrackerRawHit");
+    //auto raw_hits = event->Get<edm4eic::RawTrackerHit>("BarrelTrackerRawHit");
 
-    auto hits = event->Get<eicd::TrackerHit>("BarrelTrackerHit");
+    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
 
-    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("TrackerSourceLinkerResult");
-    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks.size(), result->measurements.size());
+    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
+    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
 
     auto truth_init = event->Get<Jug::TrackParameters>("");
     spdlog::info("truth_init.size()={}", truth_init.size());

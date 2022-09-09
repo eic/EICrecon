@@ -13,7 +13,7 @@
 
 
 
-class Cluster_factory_EcalEndcapNClusters : public JFactoryT<eicd::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalEndcapNClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
@@ -68,7 +68,7 @@ public:
         
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<eicd::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
 
         // Call Process for generic algorithm
         AlgorithmProcess();

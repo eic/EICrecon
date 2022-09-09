@@ -32,7 +32,7 @@
 
 #include "GeoSvc.h"
 
-#include "eicd/TrackerHitCollection.h"
+#include "edm4eic/TrackerHitCollection.h"
 
 #include <spdlog/fmt/ostr.h>
 
@@ -64,7 +64,7 @@ namespace eicrecon {
 //    declareProperty("outputTrajectories", m_outputTrajectories, "");
     }
 
-    void CKFTracking::initialize(GeoSvc *geo_svc) {
+    void CKFTracking::init(std::shared_ptr<const GeoSvc> geo_svc) {
 
         m_geoSvc = geo_svc;
 
@@ -95,9 +95,9 @@ namespace eicrecon {
 //
     }
 
-    std::vector<Jug::Trajectories*> CKFTracking::execute(Jug::IndexSourceLinkContainer src_links,
-                                                         Jug::MeasurementContainer measurements,
-                                                         Jug::TrackParametersContainer init_trk_params) {
+    std::vector<Jug::Trajectories*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
+                                                         const Jug::MeasurementContainer &measurements,
+                                                         const Jug::TrackParametersContainer &init_trk_params) {
         // Read input data
         //const auto* const src_links       = m_inputSourceLinks.get();
         //const auto* const init_trk_params = m_inputInitialTrackParameters.get();
@@ -125,10 +125,8 @@ namespace eicrecon {
         Acts::CombinatorialKalmanFilterExtensions extensions;
         extensions.calibrator.connect<&Jug::MeasurementCalibrator::calibrate>(&calibrator);
         extensions.updater.connect<&Acts::GainMatrixUpdater::operator()>(&kfUpdater);
-        extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()>(
-                &kfSmoother);
-        extensions.measurementSelector.connect<&Acts::MeasurementSelector::select>(
-                &measSel);
+        extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()>(&kfSmoother);
+        extensions.measurementSelector.connect<&Acts::MeasurementSelector::select>(&measSel);
 
         Jug::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;

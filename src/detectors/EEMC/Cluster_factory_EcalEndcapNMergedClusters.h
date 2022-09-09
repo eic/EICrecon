@@ -13,7 +13,7 @@
 
 
 
-class Cluster_factory_EcalEndcapNMergedClusters : public JFactoryT<eicd::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalEndcapNMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
@@ -45,8 +45,8 @@ public:
 
         
         // Prefill inputs
-        m_inputClusters=event->Get<eicd::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<eicd::MCRecoClusterParticleAssociation>(m_inputAssociations_tag); 
+        m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag); 
 
         // Call Process for generic algorithm
         AlgorithmProcess();

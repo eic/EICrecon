@@ -28,7 +28,7 @@
 #include "DDRec/Surface.h"
 #include "DD4hep/DD4hepUnits.h"
 
-#include <JugBase/BField/DD4hepBField.h>
+#include "JugBase/BField/DD4hepBField.h"
 
 #include <spdlog/spdlog.h>
 
