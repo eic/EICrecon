@@ -73,6 +73,10 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
 //------------------------------------------------------------------------------
 JEventSourcePODIOsimple::~JEventSourcePODIOsimple() {
     LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
+    for( auto &[bg_reader, bg_store, ievent] : readers_background ){
+        delete bg_store;
+        delete bg_reader;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -86,7 +90,7 @@ void JEventSourcePODIOsimple::Open() {
     GetApplication()->SetDefaultParameter("podio:run_forever", m_run_forever, "set to true to recycle through events continuously");
 
     bool print_type_table = false;
-    GetApplication()->SetDefaultParameter("podio:print_type_tablE", print_type_table, "Print list of collection names and their types");
+    GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table, "Print list of collection names and their types");
 
     std::string background_filename;
     GetApplication()->SetDefaultParameter("podio:background_filename", background_filename, "Name of file containing background events to merge in (default is not to merge any background)");
@@ -148,10 +152,16 @@ void JEventSourcePODIOsimple::Open() {
 //            throw JException(ss.str());
             }
 
+            // Need to offset where events are read from each file so they are not duplicating background events
+            // (at least any more than necessary)
+            auto Nentries_background = bg_reader->getEntries();
+            auto offset = (readers_background.size()*Nentries_background)/num_background_events;
+
             bg_store->setReader(bg_reader);
+            bg_reader->goToEvent(offset);
             bg_reader->readEvent();
 
-            readers_background.emplace_back(bg_reader, bg_store, 0);
+            readers_background.emplace_back(bg_reader, bg_store, offset);
         }
 
         LOG << "Merging " << readers_background.size() << " background events from " << background_filename << LOG_END;
