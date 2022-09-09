@@ -14,7 +14,7 @@ find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EICD REQUIRED)
+find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
 
 # ACTS
@@ -34,7 +34,7 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add include directories
 # (same as target_include_directories but for both plugin and library)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EICD_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} )
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} )
 
 message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 
@@ -44,7 +44,7 @@ message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep EICD::eicd algorithms_digi_library algorithms_tracking_library ROOT::EG)
+plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
 
 #target_link_libraries(${PLUGIN_NAME}_plugin ActsCore)
 
