@@ -1,21 +1,32 @@
 
-### podio JEventSource Overview
+## podio JEventSource Overview
 
-This is the podio/edm4hep JANA plugin. It provides the ability to read/write podio/edm4hep
-formated root files. Use it like this:
+This is the podio/edm4hep/edm4eic JANA plugin. This plugin is automatically
+used by _eicrecon_ to read/write podio files. It may also be used with any
+jana executable (including the generic _jana_ executable that comes with
+JANA.) To use it with eicrecon to read in a podio file, you don't need to
+do anything other than provide a podio file(s) on the command line:
 
 ~~~
-jana -Pplugins=podio infile.root
-
-or
-
-jana -Pplugins=podio infile.root -Ppodio:output_File=outfile.root
+eicrecon infile.root [infile2.root [infile3.root ...]]
 ~~~
 
+To write to an output file, set the _podio:output_file_ configuration
+parameter to the name of the output file. 
+
+~~~
+eicrecon -Pplugins=podio infile.root -Ppodio:output_file=outfile.root
+~~~
+_n.b. if you set the output file name to "1" it will use the name "podio_output.root"_
+
+### Finding available collections
+For _eicrecon_, there are direct command line options to list all available
+object types/names which includes those in the input file. The podio plugin
+itself also provides a mechanism to list only what is in the podio file.
 To see a list of collections and their types contained in a file do this:
 
 ~~~
-jana -Pplugins=podio -Ppodio:print_type_table=1 infile.root
+eicrecon -Ppodio:print_type_table=1 infile.root
 ...
 Available Collections
 
@@ -73,33 +84,25 @@ TaggerCalorimeter2HitsContributions  vector<edm4hep::CaloHitContributionData>
 ...
 ~~~
 
+### Include/exclude collection lists for reading and writing
 You may speed up how fast events are read in if you are only interested in certain collections
 by configuring the include and exclude lists. For example if you are only interested in the
 _MCParticles_ collection then do this:
 ~~~
-jana -Pplugins=podio -Ppodio:input_include_collections=MCParticles infile.root 
+eicrecon -Ppodio:input_include_collections=MCParticles infile.root 
 ~~~
 
 You may also specify multiple collections using a comma separated list:
 ~~~
-jana -Pplugins=podio -Ppodio:input_include_collections=MCParticles,EcalEndcapNHits infile.root 
+eicrecon -Ppodio:input_include_collections=MCParticles,EcalEndcapNHits infile.root 
 ~~~
 
 Specify a list of collections to exclude like this:
 ~~~
-jana -Pplugins=podio -Ppodio:input_exclude_collections=MCParticles,EcalEndcapNHits infile.root 
+eicrecon -Ppodio:input_exclude_collections=MCParticles,EcalEndcapNHits infile.root 
 ~~~
 
 You may specify both an include list and an exclude list.
-
-
-To write to an output file, set the _podio:output_file_ configuration parameter:
-~~~
-jana -Pplugins=podio -Ppodio:output_file=my_output.root infile.root 
-~~~
-
-If you specify the output file name as "1" (_e.g. -Ppodio:output_file=1_) then the
-default filename of _"podio_output.root"_ will be used.
 
 
 Similar to the input, you may also specify which collections to write out using the
@@ -111,7 +114,7 @@ There may be certain instances where you would like to test an infinite stream o
 have a limited number of events in your root file. The _podio:run_forever_ flag will cause
 the file to be repeatedly cycled over. For example:
 ~~~
-jana -Pplugins=podio -Ppodio:run_forever=1 infile.root
+eicrecon -Ppodio:run_forever=1 infile.root
 ~~~
 Note that with this option set, only the first file will be read repeatedly. Any additional
 files given on the command line will be ignored.
@@ -121,18 +124,37 @@ One my specify that an additional copy of the output root file be made at the ve
 end of processing. The second file will have the same name as the first, but the
 directory for this second copy may be specified like this:
 ~~~
-jana -Pplugins=podio -Ppodio:output_file=myfile1.root -Ppodio:output_file_copy_dir=/path/to/copydir infile.root 
+eicrecon -Ppodio:output_file=myfile1.root -Ppodio:output_file_copy_dir=/path/to/copydir infile.root 
 ~~~
 The above will result in a file _myfile1.root_ in the local directory and another copy
 at _/path/to/copydir/myfile1.root_ .
 
+### Merging in background events
+One may specify a background event file that will have 1 or more events read and
+merged into the primary event as it is read in. This is controlled by the
+_podio:background_filename_ and _podio:num_background_events_ configuration
+parameters.
+
+Example: The command below will read in the primary (signal) events from _inputfile.root_
+and for each signal event, it will add objects from 3 events from the file _background.root_
+file.
+~~~
+eicrecon inputfile.root -Ppodio:background_filename=bacground.root -Ppodio:num_background_events=3
+~~~
+
+*NOTES:*
+
+* The objects from the background events file will not be written to the output file (if
+specified). Only objects from the primary input file and reconstructed values will be.
+(This may change in the near future.)
+* The background events will be recycled as needed so that the number of events in the
+background file may be smaller than the number of events in the primary input file.
+* This is implemented by opening _num_background_events_ instances of the background
+events file. This not terribly efficient and will work fine up to about
+_num_background_events_ <= 10. For values much larger than that, you 
 
 ### Techincal notes
 
-* This code does not use the _RootReader_, _RootWriter_, or _EventStore_ classes from
-podio. The authors indicated those were meant only as examples and were not written to
- work in a multi-threaded implementation. The _EICRootReader_, _EICRootWriter_, and
- _EICEventStore_ classes were written to work with multiple threads.
 
 * This uses a code generator to generate some routines that can take a class name 
 in the form of a string and then call a templated function which can then use
