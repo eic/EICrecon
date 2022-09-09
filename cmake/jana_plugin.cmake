@@ -54,7 +54,13 @@ endmacro()
 
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
-    target_link_libraries(${_name}_plugin  ${ARGN})
+
+    #foreach(arg IN ITEMS ${ARGN})
+    #    target_link_libraries(${_name}_plugin ${arg})
+    target_link_libraries(${_name}_plugin ${ARGN})
+    #endforeach()
+
+
 
     if(${_name}_WITH_STATIC_LIB)
         target_link_libraries(${_name}_library ${ARGN})

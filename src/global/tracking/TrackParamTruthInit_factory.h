@@ -2,25 +2,23 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TruthTrackSeeding_factory_H
-#define EICRECON_TruthTrackSeeding_factory_H
+#ifndef EICRECON_TrackParamTruthInit_factory_H
+#define EICRECON_TrackParamTruthInit_factory_H
 
 #include <spdlog/spdlog.h>
 #include "extensions/jana/JChainFactoryT.h"
 
-#include <algorithms/tracking/TruthTrackSeeding.h>
-
-
+#include <algorithms/tracking/TrackParamTruthInit.h>
 
 
 
 namespace eicrecon {
 
-class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters> {
+class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters> {
 
     public:
-        TruthTrackSeeding_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<edm4eic::TrackParameters>( std::move(default_input_tags) ) {
+        TrackParamTruthInit_factory( std::vector<std::string> default_input_tags ):
+                JChainFactoryT<Jug::TrackParameters>( std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/
@@ -39,10 +37,10 @@ class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters
         int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
         std::vector<std::string> m_input_tags;              /// Tag for the input data
 
-        eicrecon::TruthTrackSeeding m_truth_track_seeding_algo;  /// Truth track seeding algorithm
+        eicrecon::TrackParamTruthInit m_truth_track_seeding_algo;  /// Truth track seeding algorithm
 
     };
 
 } // eicrecon
 
-#endif //EICRECON_TruthTrackSeeding_factory_H
+#endif //EICRECON_TrackParamTruthInit_factory_H

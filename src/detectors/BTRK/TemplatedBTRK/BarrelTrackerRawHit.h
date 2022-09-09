@@ -5,12 +5,12 @@
 #ifndef EICRECON_BARRELTRACKERRAWHIT_H
 #define EICRECON_BARRELTRACKERRAWHIT_H
 
-#include <eicd/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
 
-class BarrelTrackerRawHit: public eicd::RawTrackerHit {
+class BarrelTrackerRawHit: public edm4eic::RawTrackerHit {
 public:
     BarrelTrackerRawHit(uint64_t cellID, int32_t charge, int32_t timeStamp):
-            eicd::RawTrackerHit(cellID, charge, timeStamp) {}
+            edm4eic::RawTrackerHit(cellID, charge, timeStamp) {}
 
 };
 

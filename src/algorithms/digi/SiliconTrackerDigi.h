@@ -8,7 +8,7 @@
 #include <algorithms/interfaces/ICollectionProducer.h>
 
 #include <edm4hep/SimTrackerHit.h>
-#include <eicd/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
 #include <TRandomGen.h>
 
 #include "SiliconTrackerDigiConfig.h"
@@ -16,7 +16,7 @@
 namespace eicrecon {
 
     /** digitization algorithm for a silicon trackers **/
-    class SiliconTrackerDigi:ICollectionProducer<edm4hep::SimTrackerHit, eicd::RawTrackerHit> {
+    class SiliconTrackerDigi:ICollectionProducer<edm4hep::SimTrackerHit, edm4eic::RawTrackerHit> {
     public:
         SiliconTrackerDigi() = default;
 
@@ -24,7 +24,7 @@ namespace eicrecon {
         void init(std::shared_ptr<spdlog::logger>& logger);
 
         /// ICollectionProducer processes RawTrackerHit collection from SimTrackerHit
-        virtual std::vector<eicd::RawTrackerHit*> produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
+        virtual std::vector<edm4eic::RawTrackerHit*> produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
 
         /// Get a configuration to be changed
         eicrecon::SiliconTrackerDigiConfig& getConfig() {return m_cfg;}

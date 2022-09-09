@@ -23,7 +23,7 @@ void eicrecon::TrackerHitReconstruction::init(dd4hep::Detector* detector, std::s
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
 }
 
-eicd::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const eicd::RawTrackerHit *raw_hit) {
+edm4eic::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const edm4eic::RawTrackerHit *raw_hit) {
     constexpr auto mm = dd4hep::mm;
 
     auto id = raw_hit->getCellID();
@@ -50,7 +50,7 @@ eicd::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const eicd::RawTra
     //      - XYZ segmentation: xx -> sigma_x, yy-> sigma_y, zz -> sigma_z, tt -> 0
     //    This is properly in line with how we get the local coordinates for the hit
     //    in the TrackerSourceLinker.
-    return new eicd::TrackerHit(
+    return new edm4eic::TrackerHit(
             raw_hit->getCellID(), // Raw DD4hep cell ID
          {static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm), static_cast<float>(pos.z() / mm)}, // mm
          {get_variance(dim[0] / mm), get_variance(dim[1] / mm), // variance (see note above)
