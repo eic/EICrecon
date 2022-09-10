@@ -93,32 +93,32 @@ public:
 
     //-------- Configuration Parameters ------------
     std::string m_input_tag;
-    bool m_splitCluster=true;//{this, "splitCluster", true};
-    double m_minClusterHitEdep=0.;//{this, "minClusterHitEdep", 0.};
-    double m_minClusterCenterEdep=50.0 * MeV;//{this, "minClusterCenterEdep", 50.0 * MeV};
+    bool m_splitCluster;//{this, "splitCluster", true};
+    double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
+    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * MeV};
 
     // neighbour checking distances
-    double m_sectorDist=5.0 * cm;//{this, "sectorDist", 5.0 * cm};
-    std::vector<double> u_localDistXY={};//{this, "localDistXY", {}};
-    std::vector<double> u_localDistXZ={};//{this, "localDistXZ", {}};
-    std::vector<double> u_localDistYZ={};//{this, "localDistYZ", {}};
-    std::vector<double> u_globalDistRPhi={};//{this, "globalDistRPhi", {}};
-    std::vector<double> u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-    std::vector<double> u_dimScaledLocalDistXY={1.8,1.8};//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
+    double m_sectorDist;//{this, "sectorDist", 5.0 * cm};
+    std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
+    std::vector<double> u_localDistXZ;//{this, "localDistXZ", {}};
+    std::vector<double> u_localDistYZ;//{this, "localDistYZ", {}};
+    std::vector<double> u_globalDistRPhi;//{this, "globalDistRPhi", {}};
+    std::vector<double> u_globalDistEtaPhi;//{this, "globalDistEtaPhi", {}};
+    std::vector<double> u_dimScaledLocalDistXY;//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
   // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
   // unitless counterparts of the input parameters
-    double minClusterHitEdep{0}, minClusterCenterEdep{0}, sectorDist{0};
-    std::array<double, 2> neighbourDist = {0., 0.};
+    double minClusterHitEdep, minClusterCenterEdep, sectorDist;
+    std::array<double, 2> neighbourDist;
 
     //-----------------------------------------------
 
     // unitless counterparts of inputs
-    double           dyRangeADC{0}, stepTDC{0}, tRes{0}, eRes[3] = {0., 0., 0.};
+    double           dyRangeADC, stepTDC, tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
     std::shared_ptr<JDD4hep_service> m_geoSvc;
-    uint64_t         id_mask{0}, ref_mask{0};
+    uint64_t         id_mask, ref_mask;
 
     // inputs/outputs
     std::vector<const edm4eic::CalorimeterHit*> hits;
