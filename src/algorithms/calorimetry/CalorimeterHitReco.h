@@ -29,7 +29,7 @@ public:
     // Name of input data type (collection)
     std::string              m_input_tag;
 
-    double m_lUnit;
+    double m_lUnit = 1.0 * dd4hep::mm;
 
   // digitization settings, must be consistent with digi class
   unsigned int m_capADC;//{this, "capacityADC", 8096};
@@ -46,9 +46,9 @@ public:
   double m_sampFrac;//{this, "samplingFraction", 1.0};
 
   // unitless counterparts of the input parameters
-  double dyRangeADC;
-  double thresholdADC;
-  double stepTDC;
+  double dyRangeADC{0};
+  double thresholdADC{0};
+  double stepTDC{0};
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
   //DataHandle<edm4eic::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};
