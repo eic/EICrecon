@@ -17,10 +17,10 @@ void InitPlugin(JApplication *app) {
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIOsimple>());
 
     // Only add a EICRootWriter if the user has specified a configuration parameter relevant to writing
-    if( app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE")
-        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_FILE_COPY_DIR")
-        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_INCLUDE_COLLECTIONS")
-        ||  app->GetJParameterManager()->Exists("PODIO:OUTPUT_EXCLUDE_COLLECTIONS")        ){
+    if( app->GetJParameterManager()->Exists("podio:output_file")
+        ||  app->GetJParameterManager()->Exists("podio:output_file_copy_dir")
+        ||  app->GetJParameterManager()->Exists("podio:output_include_collections")
+        ||  app->GetJParameterManager()->Exists("podio:output_exclude_collections")        ){
         app->Add(new EICRootWriterSimple());
     }
 }
