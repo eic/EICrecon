@@ -7,14 +7,14 @@
 #include <JANA/JFactoryGenerator.h>
 
 
-#include "BEMCRawCalorimeterHit_factory.h"
-#include "BEMCRawCalorimeterHit_factory_utility.h"
+#include "RawCalorimeterHit_factory_EcalBarrelNRawHits.h"
+//#include "BEMCRawCalorimeterHit_factory_utility.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
-        app->Add(new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory>());
-        app->Add(new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory_utility>());
+        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelNRawHits>());
+        //app->Add(new JFactoryGeneratorT<BEMCRawCalorimeterHit_factory_utility>());
     }
 }
     

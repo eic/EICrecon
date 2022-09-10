@@ -54,23 +54,6 @@ public:
     // The above will register config. parameters like: "BEMC:tag".
     // The configuration parameter members of this class should be set to thier
     // defaults *before* calling this.
-    template<typename T> // n.b. OutputType should be JApplication
-    void SetJANAConfigParameters(T *app, const std::string& prefix){
-        app->SetDefaultParameter(prefix+":tag",             m_input_tag, "tag/collection name for edm4hep::SimCalorimeterHit objects to use");
-        app->SetDefaultParameter(prefix+":energyResolutions",u_eRes);
-        app->SetDefaultParameter(prefix+":timeResolution",  m_tRes);
-        app->SetDefaultParameter(prefix+":capacityADC",     m_capADC);
-        app->SetDefaultParameter(prefix+":dynamicRangeADC", m_dyRangeADC);
-        app->SetDefaultParameter(prefix+":pedestalMean",    m_pedMeanADC);
-        app->SetDefaultParameter(prefix+":pedestalSigma",   m_pedSigmaADC);
-        app->SetDefaultParameter(prefix+":resolutionTDC",   m_resolutionTDC);
-        app->SetDefaultParameter(prefix+":scaleResponse",   m_corrMeanScale);
-        app->SetDefaultParameter(prefix+":signalSumFields", u_fields);
-        app->SetDefaultParameter(prefix+":fieldRefNumbers", u_refs);
-        app->SetDefaultParameter(prefix+":geoServiceName",  m_geoSvcName);
-        app->SetDefaultParameter(prefix+":readoutClass",    m_readout);
-        m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-    }
     //-----------------------------------------------
 
     // unitless counterparts of inputs
