@@ -44,7 +44,19 @@ message(STATUS "{ROOT_LIBRARIES} ${ROOT_LIBRARIES}")
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
+plugin_link_libraries(${PLUGIN_NAME}
+            ${JANA_LIB}
+            ${ROOT_LIBRARIES}
+            ActsCore
+            ActsPluginIdentification
+            ActsPluginTGeo
+            ActsPluginDD4hep
+            EDM4EIC::edm4eic
+            algorithms_digi_library
+            algorithms_tracking_library
+            tracking_library
+            digi_library
+            ROOT::EG)
 
 #target_link_libraries(${PLUGIN_NAME}_plugin ActsCore)
 

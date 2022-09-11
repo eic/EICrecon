@@ -10,7 +10,8 @@
 #include <spdlog/fmt/ostr.h>
 #include <JANA/JEvent.h>
 
-#include "TrackParamTruthInitConfig.h"
+#include <algorithms/tracking/TrackParamTruthInit.h>
+#include <algorithms/tracking/TrackParamTruthInitConfig.h>
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
     // This prefix will be used for parameters

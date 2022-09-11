@@ -18,11 +18,10 @@
 #include <TRandomGen.h>
 #include <edm4eic/MutableTrackerHit.h>
 
-#include "TrackerHitReconstructionConfig.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
-#include "TrackerHitReconstruction.h"
-
-#include "extensions/jana/JChainFactoryT.h"
+#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
+#include <algorithms/tracking/TrackerHitReconstruction.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <extensions/jana/JChainFactoryT.h>
 
 
 class TrackerHitReconstruction_factory : public JChainFactoryT<edm4eic::TrackerHit> {

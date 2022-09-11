@@ -19,8 +19,7 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>(
-            {"SagittaSiBarrelHits"
-             "OuterSiBarrelHits"},
+            {"SagittaSiBarrelHits", "OuterSiBarrelHits"},
             "BarrelTrackerRawHit"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
