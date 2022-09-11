@@ -20,10 +20,10 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>(
             {"InnerMPGDBarrelHits", "OuterMPGDBarrelHits"},
-            "MPGDRawHit"));
+            "MPGDTrackerRawHit"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"MPGDRawHit"}, "MPGDHit"));
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"MPGDTrackerRawHit"}, "MPGDTrackerHit"));
 
 }
 } // extern "C"

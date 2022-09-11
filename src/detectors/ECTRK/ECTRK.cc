@@ -25,10 +25,10 @@ void InitPlugin(JApplication *app) {
              "MiddleTrackerEndcapNHits",
              "OuterTrackerEndcapPHits",
              "OuterTrackerEndcapNHits"},
-            "BarrelTrackerRawHit"));
+            "EndcapTrackerRawHit"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"EndcapTrackerRawHit"}, "EndcapTrackerHit"));
 
 }
 } // extern "C"
