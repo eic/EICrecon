@@ -20,8 +20,8 @@
 #include <TGeoSystemOfUnits.h>
 #include <TRandomGen.h>
 
-#include "SiliconTrackerDigiConfig.h"
-#include "SiliconTrackerDigi.h"
+#include <algorithms/digi/SiliconTrackerDigi.h>
+#include <algorithms/digi/SiliconTrackerDigiConfig.h>
 
 namespace eicrecon {
 

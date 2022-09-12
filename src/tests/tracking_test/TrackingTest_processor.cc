@@ -1,4 +1,4 @@
-#include "DataChainAnalysis_processor.h"
+#include "TrackingTest_processor.h"
 #include "algorithms/tracking/JugTrack/Trajectories.hpp"
 
 #include <JANA/JApplication.h>
@@ -30,7 +30,7 @@ using namespace fmt;
 //------------------
 // OccupancyAnalysis (Constructor)
 //------------------
-DataChainAnalysis_processor::DataChainAnalysis_processor(JApplication *app) :
+TrackingTest_processor::TrackingTest_processor(JApplication *app) :
 	JEventProcessor(app)
 {
 }
@@ -38,7 +38,7 @@ DataChainAnalysis_processor::DataChainAnalysis_processor(JApplication *app) :
 //------------------
 // Init
 //------------------
-void DataChainAnalysis_processor::Init()
+void TrackingTest_processor::Init()
 {
 	// Ask service locator a file to write to
 
@@ -50,53 +50,41 @@ void DataChainAnalysis_processor::Init()
     auto file = rootfile_service->GetHistFile();
     globalRootLock->release_lock();
 
-	// Create a directory for this plugin. And subdirectories for series of histograms
-	m_dir_main = file->mkdir("BTRK_test");
+    // Create a directory for this plugin. And subdirectories for series of histograms
+    m_dir_main = file->mkdir("tracking_test");
 
-    // Hits by Z distribution
-    m_th1_prt_pz = new TH1F("prt_pz", "MCParticles Pz distribution [GeV]", 100, 0, 30);
-    m_th1_prt_pz->SetDirectory(m_dir_main);
-
-    // Stable particle energy distribution
-    m_th1_prt_energy = new TH1F("prt_energy", "MCParticles E distribution [GeV]", 100, 0, 30);
-    m_th1_prt_energy->SetDirectory(m_dir_main);
-
-    // Hits P Theta distribution
-    m_th1_prt_theta = new TH1F("prt_theta", "MCParticles Theta [deg]", 100, -7, 7);
-    m_th1_prt_theta->SetDirectory(m_dir_main);
-
-    // Hits P Phi distribution
-    m_th1_prt_phi = new TH1F("prt_phi", "MCParticles Phi [deg]", 100, -7, 7);
-    m_th1_prt_phi->SetDirectory(m_dir_main);
-
-    // Total xy occupancy
-    m_th2_prt_pxy = new TH2F("prt_pxpy", "MCParticles Px vs Py", 300, 0, 30, 300, 0, 30);
-    m_th2_prt_pxy->SetDirectory(m_dir_main);
-    m_th2_prt_pxy->SetOption("COLSCATZ");		// Draw as heat map by default
+    // Occupancy analysis
+    m_occupancy_analysis.init(japp, m_dir_main);
+    m_hit_reco_analysis.init(japp, m_dir_main);
 }
 
 
 //------------------
 // Process
 //------------------
-void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& event)
+void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
+
+    m_occupancy_analysis.process(event);
+    m_hit_reco_analysis.process(event);
     using namespace ROOT;
 
-    fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
 
-    //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
-    //auto raw_hits = event->Get<edm4eic::RawTrackerHit>("BarrelTrackerRawHit");
-
-    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
-
-    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
-    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
-
-    auto truth_init = event->Get<Jug::TrackParameters>("");
-    spdlog::info("truth_init.size()={}", truth_init.size());
-
-    auto trajectories = event->Get<Jug::Trajectories>("");
+//
+//    fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
+//
+//    //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
+//    //auto raw_hits = event->Get<edm4eic::RawTrackerHit>("BarrelTrackerRawHit");
+//
+//    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
+//
+//    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
+//    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
+//
+//    auto truth_init = event->Get<Jug::TrackParameters>("");
+//    spdlog::info("truth_init.size()={}", truth_init.size());
+//
+//    auto trajectories = event->Get<Jug::Trajectories>("");
 
 //    fmt::print("BCAL {}\n", bcal[0]->getCellID());
 //
@@ -172,7 +160,7 @@ void DataChainAnalysis_processor::Process(const std::shared_ptr<const JEvent>& e
 //------------------
 // Finish
 //------------------
-void DataChainAnalysis_processor::Finish()
+void TrackingTest_processor::Finish()
 {
 	fmt::print("OccupancyAnalysis::Finish() called\n");
 

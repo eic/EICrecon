@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PLUGIN_NAME "algorithms_calorimetry")
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
+
 plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp

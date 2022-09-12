@@ -12,7 +12,7 @@ ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=2000 --random.seed 1 --enableGun 
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=10000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-08-15_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_10k.edm4hep.root
 
 # 5 x e- per event
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.multiplicity 5 --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-04_pgun_5xe-_
+ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.multiplicity 3 --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-10_pgun_3xe-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 
 --gun.momentumMax

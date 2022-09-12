@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithms/tracking/CKFTracking.h>
-#include "TrackerSourceLinkerResult.h"
+#include <algorithms/tracking/TrackerSourceLinkerResult.h>
 
 #include "extensions/jana/JChainFactoryT.h"
 

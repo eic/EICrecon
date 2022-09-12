@@ -10,9 +10,8 @@
 #include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
 #include <algorithms/tracking/TrackerSourceLinker.h>
 
-#include "TrackerSourceLinkerResult.h"
-#include "GeoSvc.h"
-
+#include <algorithms/tracking/TrackerSourceLinker.h>
+#include <algorithms/tracking/GeoSvc.h>
 
 namespace eicrecon {
 

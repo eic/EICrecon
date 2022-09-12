@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PLUGIN_NAME "algorithms_tracking")
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -11,8 +11,6 @@ plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
-
-plugin_sources(${PLUGIN_NAME} JugBase/BField/DD4hepBField.cc)
 
 # Find dependencies
 find_package(EDM4HEP REQUIRED)
@@ -48,7 +46,7 @@ plugin_include_directories(${PLUGIN_NAME}
 plugin_link_libraries(${PLUGIN_NAME}
         ${ROOT_LIBRARIES}
         dd4hep_library
-        tracking_algorithms_library
+        algorithms_tracking_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
         DD4hep::DDRec
