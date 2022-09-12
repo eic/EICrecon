@@ -5,8 +5,7 @@
 
 #include "JEventSourcePODIO.h"
 #include "JEventSourcePODIOsimple.h"
-//#include "EICRootWriter.h"
-#include "EICRootWriterSimple.h"
+#include "JEventProcessorPODIO.h"
 
 
 // Make this a JANA plugin

@@ -1,9 +1,8 @@
 
-#include "EICRootWriterSimple.h"
+#include "JEventProcessorPODIO.h"
 #include <JANA/JLogger.h>
 
 #include <datamodel_glue.h>
-#include "EICPodioBindings.h"
 
 enum class InsertResult { Success, AlreadyInStore, Failure };
 
