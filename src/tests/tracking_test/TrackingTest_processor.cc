@@ -78,7 +78,7 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 //
 //    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
 //
-//    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
+    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
 //    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
 //
 //    auto truth_init = event->Get<Jug::TrackParameters>("");

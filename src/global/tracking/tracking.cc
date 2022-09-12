@@ -5,8 +5,10 @@
 
 #include <JANA/JApplication.h>
 #include <extensions/jana/JChainFactoryGeneratorT.h>
+#include <Acts/Propagator/Navigator.hpp>
 #include "TrackerSourceLinker_factory.h"
-
+#include "TrackParamTruthInit_factory.h"
+#include "CKFTracking_factory.h"
 
 
 extern "C" {
@@ -15,11 +17,21 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    // Digitization
-//    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-//            {"SagittaSiBarrelHits", "OuterSiBarrelHits"},
-//            "BarrelTrackerRawHit"));
 
+    app->Add(new JChainFactoryGeneratorT<TrackParamTruthInit_factory>(
+            {"MCParticles"}, "InitTrackParams"));
+
+    // Source linker
+    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
+            {"BarrelTrackerHit",
+             "BarrelVertexHit",
+             "EndcapTrackerHit",
+             "MPGDTrackerHit"   },
+            "CentralTrackerSourceLinker"));
+
+    // tracking
+    app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
+            {"CentralTrackerSourceLinker"}, "Trajectories"));
 }
 } // extern "C"
 

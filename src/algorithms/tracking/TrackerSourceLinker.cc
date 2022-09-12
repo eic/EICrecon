@@ -113,35 +113,35 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         linkStorage.emplace_back(surface->geometryId(), ihit);
         Jug::IndexSourceLink& sourceLink = linkStorage.back();
 
-        std::vector<Jug::Measurement> measurements;
-        m_log->debug("measurements->size(): {}", measurements.size());
+        //std::vector<Jug::Measurement> measurements;
+        //m_log->debug("measurements->size(): {}", measurements.size());
 
         Jug::IndexSourceLink sourceLink2(surface->geometryId(), ihit);
         m_log->debug("sourceLink: {}", sourceLink.geometryId());
         m_log->debug("sourceLink2: {}", sourceLink2.geometryId());
         auto meas = Acts::makeMeasurement(sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-        measurements.push_back(meas);
-        m_log->debug("measurements->size(): {}", measurements.size());
-        auto m = measurements[0];
-        m_log->debug("measurements->size(): {}", m.index());
+        measurements.emplace_back(std::move(meas));
+        //m_log->debug("measurements->size(): {}", measurements.size());
+        //auto m = measurements[0];
+        //m_log->debug("measurements->size(): {}", m.index());
 
 
 
 
-        m_log->debug("meas.size() = {}", meas.size());
-        auto meas2=meas;
-        m_log->debug("meas2.size() = {}", meas2.size());
-        Jug::Measurement measurement = meas2;
-        m_log->debug("measurement.index() = {}", measurement.index());
-        Jug::Measurement measurement2 = measurement;
-        m_log->debug("measurement2.index() = {}", measurement2.index());
+//        m_log->debug("meas.size() = {}", meas.size());
+//        auto meas2=meas;
+//        m_log->debug("meas2.size() = {}", meas2.size());
+//        Jug::Measurement measurement = meas2;
+//        m_log->debug("measurement.index() = {}", measurement.index());
+//        Jug::Measurement measurement2 = measurement;
+//        m_log->debug("measurement2.index() = {}", measurement2.index());
 
 
         // add to output containers. since the input is already geometry-order,
         // new elements in geometry containers can just be appended at the end.
         sourceLinks->emplace_hint(sourceLinks->end(), sourceLink);
-        measurements.push_back(measurement2);
-        m_log->debug("measurements->size(): {}", measurements.size());
+        //measurements.push_back(measurement2);
+        //m_log->debug("measurements->size(): {}", measurements.size());
 
         ihit++;
     }
