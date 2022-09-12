@@ -8,15 +8,12 @@
 #include <podio/EventStore.h>
 
 
-class EICRootWriterSimple : public JEventProcessor {
+class JEventProcessorPODIO : public JEventProcessor {
 
 public:
 
-    EICRootWriterSimple();
-    virtual ~EICRootWriterSimple() = default;
-
-    template <class T, class C>
-    std::string PutPODIODataT( JFactory *fac,  podio::EventStore &store);
+    JEventProcessorPODIO();
+    virtual ~JEventProcessorPODIO() = default;
 
     void Init() override;
     void Process(const std::shared_ptr<const JEvent>& event) override;

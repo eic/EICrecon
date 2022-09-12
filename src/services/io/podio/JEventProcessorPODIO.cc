@@ -27,11 +27,11 @@ struct InsertFacIntoEventStore {
     }
 };
 
-EICRootWriterSimple::EICRootWriterSimple() {
+JEventProcessorPODIO::JEventProcessorPODIO() {
     SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
 }
 
-void EICRootWriterSimple::Init() {
+void JEventProcessorPODIO::Init() {
 
     japp->SetDefaultParameter("podio:output_file", m_output_file, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
 
@@ -57,7 +57,7 @@ void EICRootWriterSimple::Init() {
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(), output_exclude_collections.end());
 }
 
-void EICRootWriterSimple::Process(const std::shared_ptr<const JEvent> &event) {
+void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     // For now, we rely on the EventStore object having been created by the source and added to the event.
     // Copy it to a stack variable first so we can ensure it is the same EventStore object we use for
@@ -140,7 +140,7 @@ void EICRootWriterSimple::Process(const std::shared_ptr<const JEvent> &event) {
 
 }
 
-void EICRootWriterSimple::Finish() {
+void JEventProcessorPODIO::Finish() {
 
     m_writer->finish();
 }
