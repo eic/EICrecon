@@ -8,7 +8,7 @@ enum class InsertResult { Success, AlreadyInStore, Failure };
 
 template <typename PodioT, typename PodioCollectionT>
 struct InsertFacIntoEventStore {
-    InsertResult operator() (JFactory* fac, podio::EventStore* store) {
+    InsertResult operator() (JFactory* fac, eic::EventStore* store) {
 
         std::string collection_name = fac->GetTag();
 
@@ -54,50 +54,36 @@ void JEventProcessorPODIO::Init() {
     japp->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections, "Comma separated list of collection names to not write out.");
     m_output_include_collections = std::set<std::string>(output_include_collections.begin(), output_include_collections.end());
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(), output_exclude_collections.end());
+
+    m_store = new eic::EventStore();
+    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
 }
+
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
-    // For now, we rely on the EventStore object having been created by the source and added to the event.
-    // Copy it to a stack variable first so we can ensure it is the same EventStore object we use for
-    // every event. This is because once the ROOTWriter is created below, we cannot change the EventStore
-    // pointer it uses.
-    auto store = event->GetSingle<podio::EventStore>();
-    if( ! m_store ) m_store = const_cast<podio::EventStore*>(store);
-    if( m_store != store ){
-        LOG_ERROR(default_cerr_logger) << "podio::EventStore pointer has changed!" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "This podio writer requires that the same EventStore object be used" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "for every event. The one obtained from JANA for this event appears" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "to be different from the previous event (" << store << " != " << m_store << LOG_END;
-        throw JException("podio::EventStore pointer has changed between JANA events");
-    }
+    /*
+    // Get list of collection names
+    auto collectionIDtable = m_store->getCollectionIDTable();
+    auto &collNames = collectionIDtable->names();
+    std::set<std::string> collNames_set(collNames.begin(), collNames.end());
 
-    // Create podio::ROOTWriter object if not already created
-    // We must do this here because we don't have the EventStore in Init()
-    if(m_writer == nullptr ){
-        // TODO: Check for error
-        m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
+    // Determine what to include from include list (or include all if empty)
+    if( m_output_include_collections.empty() ){
+        m_collections_to_write = collNames_set; // user didn't specify. Assume all collections should be included
 
-        // Get list of collection names
-        auto collectionIDtable = m_store->getCollectionIDTable();
-        auto &collNames = collectionIDtable->names();
-        std::set<std::string> collNames_set(collNames.begin(), collNames.end());
-
-        // Determine what to include from include list (or include all if empty)
-        if( m_output_include_collections.empty() ){
-            m_collections_to_write = collNames_set; // user didn't specify. Assume all collections should be included
-        }else{
-            for( const auto &n : m_output_include_collections ){
-                if( collNames_set.count( n ) ) m_collections_to_write.insert(n);
-            }
+    }else{
+        for( const auto &n : m_output_include_collections ){
+            if( collNames_set.count( n ) ) m_collections_to_write.insert(n);
         }
-
-        // Determine which to exclude from exclude list
-        for( const auto &n : m_output_exclude_collections ) m_collections_to_write.erase( n );
-
-        // Apply include/exclude lists.
-        for( const auto &collName : m_collections_to_write ) m_writer->registerForWrite( collName );
     }
+
+    // Determine which to exclude from exclude list
+    for( const auto &n : m_output_exclude_collections ) m_collections_to_write.erase( n );
+
+    // Apply include/exclude lists.
+    for( const auto &collName : m_collections_to_write ) m_writer->registerForWrite( collName );
+    */
 
     jout << "==================================" << jendl;
     jout << "Event #" << event->GetEventNumber() << jendl;
@@ -116,7 +102,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         // so that needs to have been called in the factory constructor.
         try {
 
-            auto result = CallWithPODIOType<InsertFacIntoEventStore, InsertResult, JFactory*, podio::EventStore*>(fac->GetObjectName(), fac, m_store);
+            auto result = CallWithPODIOType<InsertFacIntoEventStore, InsertResult, JFactory*, eic::EventStore*>(fac->GetObjectName(), fac, m_store);
 
             if (result == std::nullopt) {
                 jout << "EICRootWriterSimple::Process: Not a recognized PODIO type: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
@@ -126,7 +112,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             }
             else {
                 m_writer->registerForWrite(fac->GetTag());
-                jout << "EICRootWriterSimple::Process: ADDING TO STORE: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
+                jout << "EICRootWriterSimple::Process: ADDING TO STORE: " << fac->GetObjectName() << ":" << fac->GetTag() << "; store collection count = " << m_store->getCollectionIDTable()->names().size() << jendl;
             }
         }
         catch(std::exception &e){

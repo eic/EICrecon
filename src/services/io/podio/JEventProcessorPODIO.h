@@ -5,7 +5,7 @@
 #include <JANA/JEventProcessor.h>
 
 #include "ROOTWriter.h"
-#include <podio/EventStore.h>
+#include "EventStore.h"
 
 
 class JEventProcessorPODIO : public JEventProcessor {
@@ -19,7 +19,7 @@ public:
     void Process(const std::shared_ptr<const JEvent>& event) override;
     void Finish() override;
 
-    podio::EventStore *m_store=nullptr;
+    eic::EventStore *m_store=nullptr;
     std::shared_ptr<eic::ROOTWriter> m_writer;
 
     std::string m_output_file = "podio_output.root";

@@ -14,7 +14,7 @@
 
 namespace eic {
 
-    ROOTWriter::ROOTWriter(const std::string &filename, podio::EventStore *store) : 
+    ROOTWriter::ROOTWriter(const std::string &filename, eic::EventStore *store) : 
         m_filename(filename),
         m_store(store),
         m_file(new TFile(filename.c_str(), "RECREATE", "data file")),
@@ -60,6 +60,7 @@ namespace eic {
 
     void ROOTWriter::createBranches(const std::vector<StoreCollection> &collections)
     {
+        int iCollection = 0;
         for (auto &[name, coll] : collections)
         {
             podio::root_utils::CollectionBranches branches;
@@ -97,8 +98,8 @@ namespace eic {
                     ++i;
                 }
             }
-
             m_collectionBranches.push_back(branches);
+            std::cout << "RootWriter::createBranches(): " << m_collectionBranches.size()-1 << ": " << name << " : " << coll->size() << " items" << std::endl;
         }
     }
 
@@ -107,6 +108,8 @@ namespace eic {
         size_t iCollection = 0;
         for (auto &coll : collections)
         {
+            std::cout << "RootWriter::setBranches(): " << iCollection << ": " << coll.first << " : " 
+                      << coll.second->size() << " items" << std::endl;
             const auto &branches = m_collectionBranches[iCollection];
             podio::root_utils::setCollectionAddresses(coll.second, branches);
 

@@ -1,9 +1,9 @@
 #ifndef EIC_PODIO_ROOTWRITER_H
 #define EIC_PODIO_ROOTWRITER_H
 
-#include "podio/CollectionBase.h"
-#include "podio/CollectionBranches.h"
-#include "podio/EventStore.h"
+#include <podio/CollectionBase.h>
+#include <podio/CollectionBranches.h>
+#include "EventStore.h"
 
 #include "TBranch.h"
 
@@ -21,7 +21,7 @@ namespace eic {
 class ROOTWriter {
 
 public:
-  ROOTWriter(const std::string& filename, podio::EventStore* store);
+  ROOTWriter(const std::string& filename, eic::EventStore* store);
   ~ROOTWriter();
 
   // non-copyable
@@ -39,7 +39,7 @@ private:
 
   // members
   std::string m_filename;
-  podio::EventStore* m_store;
+  eic::EventStore* m_store;
   TFile* m_file;
   TTree* m_datatree;
   TTree* m_metadatatree;
