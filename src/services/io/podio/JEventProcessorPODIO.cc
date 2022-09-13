@@ -76,7 +76,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // We must do this here because we don't have the EventStore in Init()
     if(m_writer == nullptr ){
         // TODO: Check for error
-        m_writer = std::make_shared<podio::ROOTWriter>(m_output_file, m_store);
+        m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
 
         // Get list of collection names
         auto collectionIDtable = m_store->getCollectionIDTable();
@@ -119,14 +119,14 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             auto result = CallWithPODIOType<InsertFacIntoEventStore, InsertResult, JFactory*, podio::EventStore*>(fac->GetObjectName(), fac, m_store);
 
             if (result == std::nullopt) {
-                // jout << "... match failure" << jendl;
+                jout << "EICRootWriterSimple::Process: Not a recognized PODIO type: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
             }
             else if (result == InsertResult::AlreadyInStore) {
-                // jout << "... already in store!" << jendl;
+                jout << "EICRootWriterSimple::Process: Already in store: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
             }
             else {
                 m_writer->registerForWrite(fac->GetTag());
-                jout << "EICRootWriterSimple::Process: Adding to store: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
+                jout << "EICRootWriterSimple::Process: ADDING TO STORE: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
             }
         }
         catch(std::exception &e){

@@ -4,7 +4,7 @@
 
 #include <JANA/JEventProcessor.h>
 
-#include <podio/ROOTWriter.h>
+#include "ROOTWriter.h"
 #include <podio/EventStore.h>
 
 
@@ -20,7 +20,7 @@ public:
     void Finish() override;
 
     podio::EventStore *m_store=nullptr;
-    std::shared_ptr<podio::ROOTWriter> m_writer;
+    std::shared_ptr<eic::ROOTWriter> m_writer;
 
     std::string m_output_file = "podio_output.root";
     std::string m_output_file_copy_dir = "";
