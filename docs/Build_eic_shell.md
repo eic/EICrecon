@@ -12,6 +12,69 @@ Follow the below tutorials to set up the `eic-shell` environment.
 - [EIC Tutorial: Setting Up Your Environment](https://eic.github.io/tutorial-setting-up-environment/index.html)
 - [`eic-shell` video tutorial](https://www.youtube.com/watch?v=Y0Mg24XLomY)
 
+
+| Dependent packages | eic-shell version | Manual compiling version |
+|:-------------------|:-----------------:|:------------------------:|
+| Boost              |      1.79.0       |            --            |
+| ROOT               |      6.26.06      |         6.26.04          |
+| JANA2              |       2.0.7       |            --            |
+| Spdlog             |       1.9.2       |            --            |
+| PODIO              |       0.15        |           0.14           |
+| EDM4hep            |        0.6        |            --            |
+| EDM4eic            |       1.0.1       |          1.0.0           |
+| LCIO               |      2.17.1       |            --            |
+| DD4hep             |       1.21        |          1.20.2          |
+| EIGEN              |       3.4.0       |            --            |
+| ACTS               |      19.7.0       |          19.4.0          |
+| FMT                |       8.1.1       |            --            |
+
+
+As of Sep 13, 2022, the `eic-shell` has the above packages pre-installed.
+ The table also lists the `eic-shell` package versions and the versions
+ given in the [manual installation guide](Build_bare_metal.md), where "--"
+ stands for identical with the left-hand side.
+
+
+### Further steps
+
+#### 1. Install `ip6` and `epic`
+In the `eic-shell` environment, the installation process begins with configuring
+ the detectors `ip6` and `epic`.
+
+```bash
+export EICTOPDIR=${PWD}
+
+mkdir -p ${EICTOPDIR}/detectors
+cd ${EICTOPDIR}/detectors
+
+export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
+git clone https://github.com/eic/ip6.git ${IP6_DD4HEP_HOME}
+cmake -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
+cmake --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
+
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
+git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
+ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
+mkdir -p ${EIC_DD4HEP_HOME}/share/epic/ip6
+ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
+cmake -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
+cmake --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
+```
+
+#### 2. Install `EICrecon`
+```bash
+cd ${EICTOPDIR}
+git clone https://github.com/eic/EICrecon ${EICTOPDIR}/EICrecon
+cd ${EICTOPDIR}/EICrecon
+cmake -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Debug
+```
+
+Once installed successfully, configure the EICrecon environment as below.
+
+```bash
+source bin/eicrecon-this.sh
+```
+
 ## EDPM installation
 
 **edpm** stands for **E**IC **d**evelopment  **p**acket ~~**m**anager~~ helper
@@ -122,5 +185,5 @@ More documentation and source:
 [https://github.com/eic/edpm](https://github.com/eic/edpm)
 
 ## Manual compiling
-The bare-metal compiling is not encouraged, but would give you much freedom in
+The bare-metal compiling is not encouraged, but would give you much more freedom in
 debugging. Please refer to the [complete guide](Build_bare_metal.md) for the details.

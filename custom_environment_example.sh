@@ -1,4 +1,3 @@
-#
 # This is an example of a custom environment setup file. This is
 # useful if you want to use the tools/cmake_wrapper.sh script
 # in place of "cmake" in your IDE to ensure the proper environment
