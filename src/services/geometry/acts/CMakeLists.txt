@@ -58,6 +58,7 @@ message(STATUS "LINK_LIBRARIES = ${ACTSPLUGINLIBS}")
 #LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
 #                                            dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
 target_link_libraries(${PLUGIN_NAME}_plugin
+        Eigen3::Eigen
         dd4hep_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
@@ -67,5 +68,4 @@ target_link_libraries(${PLUGIN_NAME}_plugin
         ActsPluginJson
         ActsPluginTGeo
         spdlog::spdlog
-        algorithms_tracking_library
-        Eigen3::Eigen)
+        algorithms_tracking_library)

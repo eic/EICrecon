@@ -9,6 +9,7 @@ plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
 find_package(JANA REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
@@ -46,4 +47,4 @@ plugin_include_directories(${PLUGIN_NAME}
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)
+plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)
