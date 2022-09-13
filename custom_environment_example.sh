@@ -1,4 +1,3 @@
-#
 # This is an example of a custom environment setup file. This is
 # useful if you want to use the tools/cmake_wrapper.sh script
 # in place of "cmake" in your IDE to ensure the proper environment
@@ -42,5 +41,5 @@ source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/ecce
-export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/ecce.xml
+export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
+export EIC_DD4HEP_XML=${EIC_DD4HEP_HOME}/epic.xml
