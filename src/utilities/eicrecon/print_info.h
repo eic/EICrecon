@@ -23,6 +23,18 @@ void printFactoryTable(JComponentSummary const& cs) {
     std::cout << ss.str() << std::endl;
 }
 
+void printPluginNames(std::vector<std::string> const& plugin_names) {
+    JTablePrinter plugin_table;
+    plugin_table.AddColumn("Plugin name");
+    for (const auto& plugin_name : plugin_names) {
+        plugin_table | plugin_name;
+    }
+
+    std::ostringstream ss;
+    plugin_table.Render(ss);
+    std::cout << ss.str() << std::endl;
+}
+
 void printJANAHeaderIMG() {
     std::cout << "     ____      _     ___      ___       _               \n"
                  "     `MM'     dM.    `MM\\     `M'      dM.              \n"
