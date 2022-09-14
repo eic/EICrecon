@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Clusters_factory_EcalEndcapNClusters_h_
-#define _Clusters_factory_EcalEndcapNClusters_h_
+#ifndef _Cluster_factory_EcalEndcapNClusters_h_
+#define _Cluster_factory_EcalEndcapNClusters_h_
 
 #include <random>
 
@@ -84,4 +84,4 @@ public:
     }
 };
 
-#endif // _Clusters_factory_EcalEndcapNClusters_h_
+#endif // _Cluster_factory_EcalEndcapNClusters_h_
