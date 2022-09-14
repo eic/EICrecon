@@ -18,7 +18,7 @@ and will create objects of type `edm4hep::Cluster` with collection name
 
 To start with, create a file in the `EICrecon` source tree called:
 ~~~
-src/detectors/EEMC/Clusters_factory_EcalEndcapNIslandClusters.h
+src/detectors/EEMC/Cluster_factory_EcalEndcapNIslandClusters.h
 ~~~
 Edit the file to have these contents:
 
@@ -32,11 +32,11 @@ Edit the file to have these contents:
 #include <edm4eic/Cluster.h>
 #include <edm4eic/ProtoCluster.h>
 
-class Clusters_factory_EcalEndcapNIslandClusters : public JFactoryT<edm4eic::Cluster> {
+class Cluster_factory_EcalEndcapNIslandClusters : public JFactoryT<edm4eic::Cluster> {
 public:
     //------------------------------------------
     // Constructor
-    Clusters_factory_EcalEndcapNIslandClusters(){
+    Cluster_factory_EcalEndcapNIslandClusters(){
         SetTag("EcalEndcapNIslandClusters");
     }
 
@@ -59,7 +59,7 @@ public:
         auto protoclusters = event->Get<edm4eic::ProtoCluster>("EcalEndcapNIslandProtoClusters");
 
         // Loop over protoclusters and turn each into a cluster
-        std::vector<edm4eic::Cluster*> outpuClusters;
+        std::vector<edm4eic::Cluster*> outputClusters;
         for( auto proto : protoclusters ) {
 
             // Fill cumulative values by looping over all hits in proto cluster
@@ -107,11 +107,11 @@ public:
                 edm4eic::Cov2f() // intrinsicDirectionError
                 );
 
-            outpuClusters.push_back( cluster );
+            outputClusters.push_back( cluster );
         }
 
         // Hand ownership of algorithm objects over to JANA
-        Set(outpuClusters);
+        Set(outputClusters);
     }
 
 private:
@@ -143,7 +143,7 @@ declare the new factory.
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 #include "Cluster_factory_EcalEndcapNClusters.h"
 #include "Cluster_factory_EcalEndcapNMergedClusters.h"
-#include "Clusters_factory_EcalEndcapNIslandClusters.h"
+#include "Cluster_factory_EcalEndcapNIslandClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -154,11 +154,37 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
-        app->Add( new JFactoryGeneratorT<Clusters_factory_EcalEndcapNIslandClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNIslandClusters>());
     }
 }
 ```
 
+### Testing the new factory
+
+Please follow the instructions on [creating a user plugin](HowTo_make_plugin.md)
+to get a working plugin. Then add these lines in the inidacted places:
+
+```c++
+// Place this at the top of the processor header file (e.g. DaveTestProcessor.h)
+#include <edm4eic/Cluster.h>
+
+// Place this in the body of the class definition of the processor header file
+PrefetchT<edm4eic::Cluster> clusters = { this, "EcalEndcapNIslandClusters"};
+TH1D* hRecClusterEnergy = nullptr;
+
+// Place this in the InitWithGlobalRootLock() method in the processor implementation
+// file (e.g. DaveTestProcessor.cc)
+hRecClusterEnergy  = new TH1D("hRecClusterEnergy",  "EcalEndcapNIslandClusters energy (MeV)",  250, 0.0, 400.0);
+
+// Place this in the ProcessSequential method of the same file
+for( auto cluster : clusters() ) hRecClusterEnergy->Fill(  cluster->getEnergy() / dd4hep::MeV );
+```
+
+Run some events through and have a look at the result. Here is what this looks like 
+for the file:
+[https://eicaidata.s3.amazonaws.com/2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root]()
+
+![EcalEndcapNIslandClusters energy](EcalEndcapNIslandClusters_energy.png)
 
 ## Generic algorithms
 For EPIC, we have as a goal to use generic algorithms that are framework unaware.
@@ -173,11 +199,11 @@ initial simulation campaign.
 To see an example of how a generic algorithm is being implemented, look at these
 files:
 
-~~~bash
-src/detectors/EEMC/RawCalorimeterHit_factory_EcalEndcapNRawHits.h
-src/algorithms/calorimetry/CalorimeterHitDigi.h
-src/algorithms/calorimetry/CalorimeterHitDigi.cc
-~~~
+
+[src/detectors/EEMC/RawCalorimeterHit_factory_EcalEndcapNRawHits.h]()<br>
+[src/algorithms/calorimetry/CalorimeterHitDigi.h]()<br>
+[src/algorithms/calorimetry/CalorimeterHitDigi.cc]()<br>
+
 
 Using generic algorithms requires additional classes and so makes things
 slightly more complex. However, the generic algorithms can be recycled
