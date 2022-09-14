@@ -70,7 +70,7 @@ public:
   /// access a collection by name
   /// returns a collection w/ setting isValid to true if successful
   template <typename T>
-  const T& get(const std::string& name);
+  T& get(const std::string& name);
 
   /// empties collections.
   void clearCollections();
@@ -154,8 +154,8 @@ bool EventStore::get(const std::string& name, const T*& collection) {
 }
 
 template <typename T>
-const T& EventStore::get(const std::string& name) {
-  const T* tmp(0);
+T& EventStore::get(const std::string& name) {
+  T* tmp(0);
   auto success = this->get(name, tmp);
   if (!success) {
     throw std::runtime_error("No collection \'" + name + "\' is present in the EventStore");
