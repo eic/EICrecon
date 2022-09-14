@@ -1,7 +1,9 @@
 # EICrecon manual compiling
-These are temporary build instructions as the build system and environment
-setup system needs to be identified. These instructions include building
-all of the dependencies manually.
+These are instructions for building `EICrecon` and all of its dependencies manually.
+These are a last resort. Please see [instructions for `eic-shell`](Use_with_eic_shell.md).
+You can also look at using [EDPM](EDPM.md) to build these for you.
+
+## Let's go!
 
 Start by setting the EICTOPDIR environment variable. This makes it easier
 to reference directories in the instructions below. Set this to a
