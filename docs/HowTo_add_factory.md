@@ -13,7 +13,7 @@ collections with the algorithm that produces them.
 ## Creating a new factory
 For this example, we will create a factory that takes reconstructed 
 `edm4eic::ProtoCluster` objects from the collection `EcalEndcapNIslandProtoClusters`
-and will create objects of type `edm4hep::Cluster` with collection name
+and will create objects of type `edm4eic::Cluster` with collection name
 `EcalEndcapNIslandClusters`.
 
 To start with, create a file in the `EICrecon` source tree called:
