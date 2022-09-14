@@ -78,4 +78,4 @@ At this point, you can [create your own user plugin](HowTo_make_plugin.md) or
 
 ## Manual compiling
 The bare-metal compiling is not encouraged, but would give you much more freedom in
-debugging. Please refer to the [complete guide](Build_bare_metal.md) for the details.
+debugging. Please refer to the [complete guide](Manual_Build.md) for the details.
