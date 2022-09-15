@@ -16,6 +16,7 @@
 #include <string>
 #include <filesystem>
 
+
 namespace jana {
 
     void PrintUsageOptions() {
@@ -96,7 +97,7 @@ namespace jana {
     }
 
     /// Get the plugin names by searching for files named as *.so under $JANA_PLUGIN_PATH and $EICrecon_MY/plugins.
-    /// It does not guarantee any effectiveness of the plugins.
+    /// @note It does not guarantee any effectiveness of the plugins.
     void GetPluginNamesFromEnvPath(std::set<std::string> & plugin_names, const char* env_var) {
         std::string dir_path, paths;
 
@@ -156,6 +157,23 @@ namespace jana {
         return false;
     }
 
+    void AddAvailablePluginsToOptionParams(UserOptions& options, std::vector<std::string> const& default_plugins) {
+        std::set<std::string> set_plugins;
+        for (std::string s : default_plugins) {
+            // TODO: have problems in loading "EEMC" or "BEMC" in this way
+            if (s != "EEMC" && s != "BEMC")
+                set_plugins.insert(s);
+        }
+
+        // Add the plugins at $EICrecon_MY/plugins. May override with the same name.
+        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");
+
+        std::string plugins_str;
+        for (std::string s : set_plugins)
+            plugins_str += s + ",";  // join the string
+        options.params.insert({"plugins", plugins_str.substr(0, plugins_str.size() - 1)});   // exclude the last ","
+    }
+
     JApplication* CreateJApplication(UserOptions& options) {
 
         auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
@@ -165,6 +183,7 @@ namespace jana {
             para_mgr->SetParameter(pair.first, pair.second);
         }
 
+        // Shut down the [INFO] msg of adding plugins, printing cpu info
         if (options.flags[ListFactories]) {
             para_mgr->SetParameter(
                     "log:off",
@@ -191,6 +210,11 @@ namespace jana {
             app->Add(event_src);
         }
         return app;
+    }
+
+    void AddDefaultPluginsToJApplication(JApplication* app, std::vector<std::string> const& default_plugins) {
+        for (std::string s : default_plugins)
+            app->AddPlugin(s);
     }
 
     void PrintFactories(JApplication* app) {

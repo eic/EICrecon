@@ -10,6 +10,7 @@
 #include "eicrecon_cli.h"
 
 /// The default plugins
+/// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "podio",
         "dd4hep",
@@ -39,20 +40,13 @@ int main( int narg, char **argv)
 
     japp = jana::CreateJApplication(options);
 
-    if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
-
-    // TODO: add by command line paras
-    for( auto plugin : default_plugins) japp->AddPlugin( plugin );
-//    japp->AddPlugin( "podio"           );
-//    japp->AddPlugin( "dd4hep"          );
-//    japp->AddPlugin( "acts"        );
-//    japp->AddPlugin( "log"             );
-//    japp->AddPlugin( "rootfile"        );
-//    japp->AddPlugin( "algorithms_calorimetry");
-//    japp->AddPlugin( "algorithms_tracking");
-//    japp->AddPlugin( "algorithms_digi" );
-//    japp->AddPlugin( "BEMC"            );
-//    japp->AddPlugin( "EEMC"            );
+    /// @note: the default plugins and the plugins at $EICrecon_MY are not managed by the JComponentManager,
+    /// thus they will not be shown with the "eicrecon -c" option.
+    // Add the plugins at $EICrecon_MY/plugins
+    if(const char* env_p = std::getenv("EICrecon_MY"))
+        japp->AddPluginPath( std::string(env_p) + "/plugins" );
+    // Add the default plugins
+    jana::AddDefaultPluginsToJApplication(japp, default_plugins);
 
     auto exit_code = jana::Execute(japp, options);
 
