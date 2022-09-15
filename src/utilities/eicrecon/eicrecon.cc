@@ -45,6 +45,7 @@ int main( int narg, char **argv)
     japp->AddPlugin( "algorithms_digi" );
     japp->AddPlugin( "BEMC"            );
     japp->AddPlugin( "EEMC"            );
+    japp->AddPlugin( "RPOTS"            );
 
     auto exit_code = jana::Execute(japp, options);
 
