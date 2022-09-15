@@ -67,4 +67,5 @@ target_link_libraries(${PLUGIN_NAME}_plugin
         ActsCore
         ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep
         spdlog::spdlog
-        Boost::boost)
+        Boost::boost
+        EG)
