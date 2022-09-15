@@ -46,13 +46,7 @@ int main( int narg, char **argv)
     japp->AddPlugin( "algorithms_tracking");
     japp->AddPlugin( "algorithms_digi" );
     japp->AddPlugin( "BEMC"            );
-    japp->AddPlugin( "BTRK"            );
-    japp->AddPlugin( "BVTX"            );
-//    japp->AddPlugin( "ECGEM"           );
-    japp->AddPlugin( "ECTRK"           );
     japp->AddPlugin( "EEMC"            );
-    japp->AddPlugin( "MPGD"            );
-    japp->AddPlugin( "tracking"        );
 
     auto exit_code = jana::Execute(japp, options);
 

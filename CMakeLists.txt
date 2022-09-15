@@ -86,7 +86,6 @@ add_subdirectory( src/scripts )
 add_subdirectory( src/services )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
-add_subdirectory( src/benchmarks/reconstruction/TRACKINGcheck )
 
 
 # Print what we had built
