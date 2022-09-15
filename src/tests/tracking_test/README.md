@@ -18,6 +18,19 @@ podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 --gun.momentumMax
 --gun.momentumMin
 
+
+-Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_test
+-Pnthreads=1
+-Pjana:debug_plugin_loading=1
+-Pjana:nevents=1
+-Pjana:debug_mode=1
+-Pjana:timeout=0
+-PTracking:CentralTrackerSourceLinker:LogLevel=info
+-PCKFTracking:Trajectories:LogLevel=trace
+-Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
+-Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
+/home/romanov/work/data/eicrecon_test/2022-09-10_pgun_3xe-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
+
 ```
 
 ```bash

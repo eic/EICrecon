@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include "CKFTracking.h"
 
@@ -30,7 +30,7 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 
-#include "GeoSvc.h"
+#include "ActsGeometryProvider.h"
 
 #include "edm4eic/TrackerHitCollection.h"
 
@@ -57,22 +57,12 @@ namespace eicrecon {
     using namespace Acts::UnitLiterals;
 
     CKFTracking::CKFTracking() {
-
-//    declareProperty("inputSourceLinks", m_inputSourceLinks, "");
-//    declareProperty("inputMeasurements", m_inputMeasurements, "");
-//    declareProperty("inputInitialTrackParameters", m_inputInitialTrackParameters, "");
-//    declareProperty("outputTrajectories", m_outputTrajectories, "");
     }
 
-    void CKFTracking::init(std::shared_ptr<const GeoSvc> geo_svc) {
+    void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log) {
+        m_log = log;
 
         m_geoSvc = geo_svc;
-
-        // TODO make sure it is checked in factory
-        //    if (!m_geoSvc) {
-        //      error() << "Unable to locate Geometry Service. "
-        //              << "Make sure you have GeoSvc and SimSvc in the right order in the configuration." << endmsg;
-        //    }
 
         m_BField = std::dynamic_pointer_cast<const Jug::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
         m_fieldctx = Jug::BField::BFieldVariant(m_BField);
@@ -98,10 +88,6 @@ namespace eicrecon {
     std::vector<Jug::Trajectories*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
                                                          const Jug::MeasurementContainer &measurements,
                                                          const Jug::TrackParametersContainer &init_trk_params) {
-        // Read input data
-        //const auto* const src_links       = m_inputSourceLinks.get();
-        //const auto* const init_trk_params = m_inputInitialTrackParameters.get();
-        //const auto* const measurements    = m_inputMeasurements.get();
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
@@ -121,6 +107,7 @@ namespace eicrecon {
         Acts::GainMatrixUpdater kfUpdater;
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
+        //Acts::MeasurementSelector measSel;
 
         Acts::CombinatorialKalmanFilterExtensions extensions;
         extensions.calibrator.connect<&Jug::MeasurementCalibrator::calibrate>(&calibrator);
@@ -162,8 +149,9 @@ namespace eicrecon {
                                                            std::move(trackFindingOutput.lastMeasurementIndices),
                                                            std::move(trackFindingOutput.fittedParameters)));
             } else {
-                spdlog::debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
+                m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
             }
+
         }
         return trajectories;
     }

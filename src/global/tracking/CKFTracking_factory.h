@@ -33,13 +33,11 @@ namespace eicrecon {
 
     private:
 
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+        std::shared_ptr<spdlog::logger> m_log;            /// Logger for this factory
 
-        int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-        std::string m_input_tag;                            /// Tag for the input data
+        std::vector<std::string> m_input_tags;            /// Tag for the input data
 
-
-        CKFTracking m_tracking_algo;                        /// Proxy tracking algorithm
+        CKFTracking m_tracking_algo;                      /// Proxy tracking algorithm
 
     };
 

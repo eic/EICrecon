@@ -13,6 +13,7 @@ namespace eicrecon {
     struct TrackerSourceLinkerResult {
         std::shared_ptr<Jug::IndexSourceLinkContainer>  sourceLinks;
         std::shared_ptr<Jug::MeasurementContainer> measurements;
+        std::vector<std::shared_ptr<Jug::IndexSourceLink>> dumbSourceLinks;
     };
 }
 

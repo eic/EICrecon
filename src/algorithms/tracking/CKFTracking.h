@@ -25,6 +25,7 @@
 #include "edm4eic/TrackerHitCollection.h"
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
+#include <spdlog/logger.h>
 
 #include "Acts/Definitions/Common.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -32,7 +33,7 @@
 #include "Acts/TrackFinding/MeasurementSelector.hpp"
 #include "CKFTrackingConfig.h"
 
-class GeoSvc;
+class ActsGeometryProvider;
 
 namespace eicrecon {
 
@@ -76,7 +77,7 @@ namespace eicrecon {
 
 
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-        std::shared_ptr<const GeoSvc> m_geoSvc;
+        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
         std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
         Acts::GeometryContext m_geoctx;
@@ -90,11 +91,14 @@ namespace eicrecon {
 
         CKFTracking();
 
-        void init(std::shared_ptr<const GeoSvc> geo_svc);
+        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
 
         std::vector<Jug::Trajectories*> process(const Jug::IndexSourceLinkContainer &src_links,
                                                 const Jug::MeasurementContainer &measurements,
                                                 const Jug::TrackParametersContainer &init_trk_params);
+
+    private:
+        std::shared_ptr<spdlog::logger> m_log;
     };
 
 } // namespace Jug::Reco

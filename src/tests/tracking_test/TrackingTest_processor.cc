@@ -1,3 +1,4 @@
+
 #include "TrackingTest_processor.h"
 #include "algorithms/tracking/JugTrack/Trajectories.hpp"
 
@@ -22,6 +23,7 @@
 #include <edm4eic/TrackParameters.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
 #include <services/rootfile/RootFile_service.h>
 
@@ -56,6 +58,9 @@ void TrackingTest_processor::Init()
     // Occupancy analysis
     m_occupancy_analysis.init(japp, m_dir_main);
     m_hit_reco_analysis.init(japp, m_dir_main);
+
+    m_log = japp->GetService<Log_service>()->logger(GetPluginName());
+    m_log->set_level(spdlog::level::trace);
 }
 
 
@@ -66,7 +71,7 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
 
     m_occupancy_analysis.process(event);
-    m_hit_reco_analysis.process(event);
+    //m_hit_reco_analysis.process(event);
     using namespace ROOT;
 
 
@@ -78,30 +83,57 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 //
 //    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
 //
-    auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
+    //auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
 //    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
 //
 //    auto truth_init = event->Get<Jug::TrackParameters>("");
 //    spdlog::info("truth_init.size()={}", truth_init.size());
 //
-//    auto trajectories = event->Get<Jug::Trajectories>("");
+    //auto trajectories = event->Get<Jug::Trajectories>("Trajectories");
 
 //    fmt::print("BCAL {}\n", bcal[0]->getCellID());
+
+    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
+
+
+    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
+    m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
+
+
+    auto reco_particles = trk_result->particles();
+
+    for(size_t i=0; i < reco_particles->size(); i++) {
+        auto particle = (*reco_particles)[i];
+
+        double px = particle.getMomentum().x;
+        double py = particle.getMomentum().y;
+        double pz = particle.getMomentum().z;
+        // ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
+        ROOT::Math::Cartesian3D p(px, py, pz);
+        m_log->debug("   {:<5} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,  px, py, pz, p.R(), p.R()*3);
+    }
+
+    auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
+//    fmt::print("OccupancyAnalysis::Process() mc_particles N {}\n", mc_particles.size());
 //
-//    auto particles = event->Get<edm4hep::MCParticle>("MCParticles");
-//    fmt::print("OccupancyAnalysis::Process() particles N {}\n", particles.size());
+
+    m_log->debug("MC particles N={}: ", mc_particles.size());
+    m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
+    for(size_t i=0; i < mc_particles.size(); i++) {
+
+        auto particle=mc_particles[i];
+
+        if(particle->getGeneratorStatus() != 1) continue;
 //
-//    for(auto& particle: particles) {
-//        if(particle->getGeneratorStatus() != 1) continue;
-//
-//        fmt::print("OccupancyAnalysis::Process() stable: {}\n", particle->getPDG());
-//
-//        double px = particle->getMomentum().x;
-//        double py = particle->getMomentum().y;
-//        double pz = particle->getMomentum().z;
-//        ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
-//        ROOT::Math::Cartesian3D p(px, py, pz);
-//        fmt::print("OccupancyAnalysis::Process() pz: {}\n", pz);
+        double px = particle->getMomentum().x;
+        double py = particle->getMomentum().y;
+        double pz = particle->getMomentum().z;
+        ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+        ROOT::Math::Cartesian3D p(px, py, pz);
+        if(p.R()<1) continue;
+
+        m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i, particle->getGeneratorStatus(), particle->getPDG(),  px, py, pz, p.R());
+
 //
 //        m_th1_prt_pz->Fill(pz);
 //        m_th2_prt_pxy->Fill(px, py);
@@ -122,7 +154,16 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 //        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", p.Phi());
 //        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", atan(py/px));
 //         */
+    }
+
+//    for(auto& trajectory: trajectories) {
+//        m_log->debug("Trajectory empty {}", trajectory->empty());
+//        m_log->debug("Trajectory multiTrajectory size {}", trajectory->multiTrajectory().size());
+//        m_log->debug("Trajectory trajectory->trackParameters(0).momentum().x() {}", trajectory->trackParameters(0).momentum().x());
 //    }
+
+
+
 
 
 
