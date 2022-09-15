@@ -32,7 +32,7 @@ using namespace edm4eic;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterIslandCluster::AlgorithmInit() {
+void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     // Assume all configuration parameter data members have been filled in already.
 
@@ -51,102 +51,7 @@ void CalorimeterIslandCluster::AlgorithmInit() {
     // now, just use default values defined in header file.
 
 
-    m_logger->set_level(spdlog::level::info);
-    // unitless conversion, keep consistency with juggler internal units (GeV, mm, ns, rad)
-    minClusterHitEdep    = m_minClusterHitEdep / GeV;
-    minClusterCenterEdep = m_minClusterCenterEdep / GeV;
-    sectorDist           = m_sectorDist / mm;
-
-    static std::map<std::string,
-                std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>
-    distMethods{
-        {"localDistXY", {localDistXY, {mm, mm}}},        {"localDistXZ", {localDistXZ, {mm, mm}}},
-        {"localDistYZ", {localDistYZ, {mm, mm}}},        {"dimScaledLocalDistXY", {dimScaledLocalDistXY, {1., 1.}}},
-        {"globalDistRPhi", {globalDistRPhi, {mm, rad}}}, {"globalDistEtaPhi", {globalDistEtaPhi, {1., rad}}}
-    };
-
-
-    // set coordinate system
-    auto set_dist_method = [this](std::pair<std::string, std::vector<double>> uprop) {
-      if (uprop.second.size() == 0) {
-        return false;
-      }
-      auto& [method, units] = distMethods[uprop.first];
-      if (uprop.second.size() != units.size()) {
-        //LOG_INFO(default_cout_logger) << units.size() << LOG_END;
-        m_logger->info("units.size() = {}", units.size());
-        //LOG_WARN(default_cout_logger) << fmt::format("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size())  << LOG_END;
-        m_logger->warn("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size());
-        return false;
-      } else {
-        for (size_t i = 0; i < units.size(); ++i) {
-          neighbourDist[i] = uprop.second[i] / units[i];
-        }
-        hitsDist = method;
-        //LOG_INFO(default_cout_logger) << fmt::format("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ",")) << LOG_END;
-        m_logger->info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
-      }
-      return true;
-    };
-
-    std::map<std::string, std::vector<double>> uprops{
-            {"localDistXY", u_localDistXY},
-            {"localDistXZ", u_localDistXZ},
-            {"localDistYZ", u_localDistYZ},
-            {"globalDistRPhi", u_globalDistRPhi},
-            {"globalDistEtaPhi", u_globalDistEtaPhi},
-            // default one should be the last one
-            {"dimScaledLocalDistXY", u_dimScaledLocalDistXY}
-    };
-
-//    std::vector<std::vector<double>> uprops{
-//        u_localDistXY,
-//        u_localDistXZ,
-//        u_localDistYZ,
-//        u_globalDistRPhi,
-//        u_globalDistEtaPhi,
-//        // default one should be the last one
-//        u_dimScaledLocalDistXY,
-//    };
-
-    bool method_found = false;
-    for (auto& uprop : uprops) {
-      if (set_dist_method(uprop)) {
-        method_found = true;
-        break;
-      }
-    }
-    if (not method_found) {
-        //LOG_ERROR(default_cerr_logger) << "Cannot determine the clustering coordinates" << LOG_END;
-        m_logger->error("Cannot determine the clustering coordinates");
-        japp->Quit();
-        return;
-    }
-
-    return;
-    
-}
-
-void CalorimeterIslandCluster::AlgorithmInit(spdlog::level::level_enum loglevel) {
-
-    // Assume all configuration parameter data members have been filled in already.
-
-    // Gaudi implments a random number generator service. It is not clear to me how this
-    // can work. There are multiple race conditions that occur in parallel event processing:
-    // 1. The exact same events processed by a given thread in one invocation will not
-    //    neccessarily be the combination of events any thread sees in a subsequest
-    //    invocation. Thus, you can't rely on thread_local storage.
-    // 2. Its possible for the factory execution order to be modified by the presence of
-    //    a processor (e.g. monitoring plugin). This is not as serious since changing the
-    //    command line should cause one not to expect reproducibility. Still, one may
-    //    expect the inclusion of an "observer" plugin not to have such side affects.
-    //
-    // More information will be needed. In the meantime, we implement a local random number
-    // generator. Ideally, this would be seeded with the run number+event number, but for
-    // now, just use default values defined in header file.
-
-
-    m_logger->set_level(loglevel);
+    m_logger=logger;
     // unitless conversion, keep consistency with juggler internal units (GeV, mm, ns, rad)
     minClusterHitEdep    = m_minClusterHitEdep / GeV;
     minClusterCenterEdep = m_minClusterCenterEdep / GeV;
@@ -250,7 +155,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
     //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
 
-      if (m_logger->level() == spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
+      if (m_logger->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
         const auto& hit = hits[i];
         //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
         m_logger->info("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
@@ -272,7 +177,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       split_group(group, maxima, protoClusters);
       //TODO: use proper logger
 
-      if (m_logger->level() == spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
+      if (m_logger->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
         //LOG_INFO(default_cout_logger) << "hits in a group: " << group.size() << ", " << "local maxima: " << maxima.size() << LOG_END;
         m_logger->info("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
       }

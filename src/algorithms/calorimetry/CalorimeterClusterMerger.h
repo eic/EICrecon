@@ -25,14 +25,13 @@ class CalorimeterClusterMerger {
 public:
     CalorimeterClusterMerger() = default;
     ~CalorimeterClusterMerger(){} // better to use smart pointer?
-    virtual void AlgorithmInit(spdlog::level::level_enum);
-    virtual void AlgorithmInit();
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    spdlog::logger* m_logger = new spdlog::logger("CalorimeterClusterMerger");
+    std::shared_ptr<spdlog::logger> m_logger;
 
     
     // Name of input data type (collection)

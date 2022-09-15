@@ -17,32 +17,10 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterClusterRecoCoG::AlgorithmInit() {
-    m_logger->set_level(spdlog::level::info);
-    // update depth correction if a name is provided
-    if (m_moduleDimZName != "") {
-      m_depthCorrection = m_geoSvc->detector()->constantAsDouble(m_moduleDimZName);
-    }
 
-    // select weighting method
-    std::string ew = m_energyWeight;
-    // make it case-insensitive
-    std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
-    auto it = weightMethods.find(ew);
-    if (it == weightMethods.end()) {
-      //LOG_ERROR(default_cerr_logger) << fmt::format("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", ")) << LOG_END;
-      m_logger->error("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
-      return;
-    }
-    weightFunc = it->second;
-    // info() << "z_length " << depth << endmsg;
+void CalorimeterClusterRecoCoG::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
-    return;
-}
-
-void CalorimeterClusterRecoCoG::AlgorithmInit(spdlog::level::level_enum loglevel) {
-
-    m_logger->set_level(loglevel);
+    m_logger=logger;
     // update depth correction if a name is provided
     if (m_moduleDimZName != "") {
       m_depthCorrection = m_geoSvc->detector()->constantAsDouble(m_moduleDimZName);

@@ -5,6 +5,8 @@
 #include <JANA/JFactoryT.h>
 
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 
 class CalorimeterHit_factory_EcalEndcapNRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
@@ -56,7 +58,15 @@ public:
         app->SetDefaultParameter("EEMC:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        AlgorithmInit();
+        std::string tag=this->GetTag();
+        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+
+        // Get log level from user parameter or default
+        std::string log_level_str = "info";
+        auto pm = app->GetJParameterManager();
+        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

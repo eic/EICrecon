@@ -14,75 +14,10 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterHitReco::AlgorithmInit() {
+void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     //unitless conversion
-    m_logger->set_level(spdlog::level::info);
-    dyRangeADC = m_dyRangeADC / GeV;
-    // threshold for firing
-    thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
-    // TDC channels to timing conversion
-    stepTDC = ns / m_resolutionTDC;
-
-    // do not get the layer/sector ID if no readout class provided
-    if (m_readout.empty()) {
-        return;
-    }
-
-    auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
-    try {
-        id_dec = id_spec.decoder();
-        if (!m_sectorField.empty()) {
-            sector_idx = id_dec->index(m_sectorField);
-            //LOG_INFO(default_cerr_logger) << "Find sector field " << m_sectorField << ", index = " << sector_idx  << LOG_END;
-            m_logger->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
-        }
-        if (!m_layerField.empty()) {
-            layer_idx = id_dec->index(m_layerField);
-            //LOG_INFO(default_cerr_logger) << "Find layer field " << m_layerField << ", index = " << sector_idx << LOG_END;
-            m_logger->info("Find layer field {}, index = {}", m_layerField, sector_idx);
-        }
-    } catch (...) {
-        //LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
-        m_logger->error("Failed to load ID decoder for {}", m_readout);
-        return;
-    }
-
-
-    // local detector name has higher priority
-    if (!m_localDetElement.empty()) {
-        try {
-            local = m_geoSvc->detector()->detector(m_localDetElement);
-            //LOG_INFO(default_cerr_logger) << "local coordinate system from DetElement " << m_localDetElement << LOG_END;
-            m_logger->info("local coordinate system from DetElement {}", m_localDetElement);
-        } catch (...) {
-            //LOG_ERROR(default_cerr_logger) << "failed to load local coordinate system from DetElement " << m_localDetElement << LOG_END;
-            m_logger->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
-            return;
-        }
-    } else {
-        std::vector <std::pair<std::string, int >> fields;
-        for (auto f : u_localDetFields) {
-            fields.emplace_back(f, 0);
-        }
-        local_mask = id_spec.get_mask(fields);
-        // use all fields if nothing provided
-        if (fields.empty()) {
-            local_mask = ~0;
-        }
-        // TODO: Fix the broken fmt::join for the fields type
-//    LOG_INFO(default_cerr_logger) << fmt::format("Local DetElement mask {:#064b} from fields [{}]", local_mask, fmt::join(fields, ", "))
-//				  << LOG_END;
-
-    }
-
-    return;
-}
-
-void CalorimeterHitReco::AlgorithmInit(spdlog::level::level_enum log_level) {
-
-    //unitless conversion
-    m_logger->set_level(log_level);
+    m_logger=logger;
     dyRangeADC = m_dyRangeADC / GeV;
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;

@@ -16,13 +16,8 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterClusterMerger::AlgorithmInit(spdlog::level::level_enum loglevel) {
-    m_logger->set_level(loglevel);
-    return;
-}
-
-void CalorimeterClusterMerger::AlgorithmInit() {
-    m_logger->set_level(spdlog::level::info);
+void CalorimeterClusterMerger::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
+    m_logger=logger;
     return;
 }
 
@@ -44,14 +39,14 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
     auto& assoc2 = m_outputAssociations;
 
     if (!split.size()) {
-      if (m_logger->level() == spdlog::level::debug) {
+      if (m_logger->level() <=spdlog::level::debug) {
         m_logger->debug("Nothing to do for this event, returning...");
         //LOG_INFO(default_cout_logger) << "Nothing to do for this event, returning..." << LOG_END;
       }
       return;
     }
 
-    if (m_logger->level() == spdlog::level::debug) {
+    if (m_logger->level() <=spdlog::level::debug) {
        m_logger->debug( "Step 0/1: Getting indexed list of clusters..." );
       //LOG_INFO(default_cout_logger) << "Step 0/1: Getting indexed list of clusters..." << LOG_END;
     }
@@ -59,16 +54,16 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
     auto clusterMap = indexedClusterLists(split, assoc);
 
     // loop over all position clusters and match with energy clusters
-    if (m_logger->level() == spdlog::level::debug) {
+    if (m_logger->level() <=spdlog::level::debug) {
        m_logger->debug( "Step 1/1: Merging clusters where needed" );
     }
     for (const auto& [mcID, clusters] : clusterMap) {
-      if (m_logger->level() == spdlog::level::debug) {
+      if (m_logger->level() <=spdlog::level::debug) {
          m_logger->debug( " --> Processing {} clusters for mcID {}",clusters.size(), mcID );
       }
       if (clusters.size() == 1) {
         const auto& clus = clusters[0];
-        if (m_logger->level() == spdlog::level::debug) {
+        if (m_logger->level() <=spdlog::level::debug) {
            m_logger->debug( "   --> Only a single cluster, energy: {} for this particle, copying",clus->getEnergy());
         }
         auto nclus= clus->clone();
@@ -92,7 +87,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         int nhits = 0;
         auto position = new_clus->getPosition();
         for (auto clus : clusters) {
-          if (m_logger->level() == spdlog::level::debug) {
+          if (m_logger->level() <=spdlog::level::debug) {
              m_logger->debug( "   --> Adding cluster with energy: {}" , clus->getEnergy() );
           }
           energy += clus->getEnergy();
@@ -110,7 +105,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         new_clus->setTime(time / energy);
         new_clus->setNhits(nhits);
         new_clus->setPosition(position / energy);
-        if (m_logger->level() == spdlog::level::debug) {
+        if (m_logger->level() <=spdlog::level::debug) {
            m_logger->debug( "   --> Merged cluster with energy: {}",new_clus->getEnergy() );
         }
         auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();

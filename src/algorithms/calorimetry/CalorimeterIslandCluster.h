@@ -88,14 +88,13 @@ class CalorimeterIslandCluster {
 public:
     CalorimeterIslandCluster() = default;
     virtual ~CalorimeterIslandCluster(){} // better to use smart pointer?
-     virtual void AlgorithmInit(spdlog::level::level_enum);
-    virtual void AlgorithmInit();
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    spdlog::logger* m_logger = new spdlog::logger("CalorimeterIslandCluster");
+    std::shared_ptr<spdlog::logger> m_logger;
 
     std::string m_input_tag;
     bool m_splitCluster;//{this, "splitCluster", true};

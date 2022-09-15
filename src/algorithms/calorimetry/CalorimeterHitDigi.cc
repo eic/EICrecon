@@ -29,7 +29,7 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterHitDigi::AlgorithmInit() {
+void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     // Assume all configuration parameter data members have been filled in already.
 
@@ -48,74 +48,7 @@ void CalorimeterHitDigi::AlgorithmInit() {
     // now, just use default values defined in header file.
 
     // set energy resolution numbers
-    m_logger->set_level(spdlog::level::info);
-    for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
-        eRes[i] = u_eRes[i];
-    }
-
-    // using juggler internal units (GeV, mm, radian, ns)
-    dyRangeADC = m_dyRangeADC / GeV;
-    tRes       = m_tRes / ns;
-    stepTDC    = ns / m_resolutionTDC;
-
-    // need signal sum
-    if (!u_fields.empty()) {
-
-        // sanity checks
-        if (!m_geoSvc) {
-            LOG_ERROR(default_cerr_logger) << "Unable to locate Geometry Service. " << LOG_END;
-            japp->Quit();
-            return;
-        }
-        if (m_readout.empty()) {
-            LOG_ERROR(default_cerr_logger) << "readoutClass is not provided, it is needed to know the fields in readout ids" << LOG_END;
-            japp->Quit();
-            return;
-        }
-
-        // get decoders
-        try {
-            auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
-            id_mask = 0;
-            std::vector<std::pair<std::string, int>> ref_fields;
-            for (size_t i = 0; i < u_fields.size(); ++i) {
-                id_mask |= id_desc.field(u_fields[i])->mask();
-                // use the provided id number to find ref cell, or use 0
-                int ref = i < u_refs.size() ? u_refs[i] : 0;
-                ref_fields.emplace_back(u_fields[i], ref);
-            }
-            ref_mask = id_desc.encode(ref_fields);
-            // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
-        } catch (...) {
-            LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
-            japp->Quit();
-            return;
-        }
-        id_mask = ~id_mask;
-        LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
-    }
-}
-
-void CalorimeterHitDigi::AlgorithmInit(spdlog::level::level_enum loglevel) {
-
-    // Assume all configuration parameter data members have been filled in already.
-
-    // Gaudi implments a random number generator service. It is not clear to me how this
-    // can work. There are multiple race conditions that occur in parallel event processing:
-    // 1. The exact same events processed by a given thread in one invocation will not
-    //    neccessarily be the combination of events any thread sees in a subsequest
-    //    invocation. Thus, you can't rely on thread_local storage.
-    // 2. Its possible for the factory execution order to be modified by the presence of
-    //    a processor (e.g. monitoring plugin). This is not as serious since changing the
-    //    command line should cause one not to expect reproducibility. Still, one may
-    //    expect the inclusion of an "observer" plugin not to have such side affects.
-    //
-    // More information will be needed. In the meantime, we implement a local random number
-    // generator. Ideally, this would be seeded with the run number+event number, but for
-    // now, just use default values defined in header file.
-
-    // set energy resolution numbers
-    m_logger->set_level(loglevel);
+    m_logger=logger;
     for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
         eRes[i] = u_eRes[i];
     }
@@ -166,6 +99,8 @@ void CalorimeterHitDigi::AlgorithmInit(spdlog::level::level_enum loglevel) {
         m_logger->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
     }
 }
+
+
 
 //------------------------
 // AlgorithmChangeRun

@@ -20,14 +20,13 @@ class CalorimeterHitDigi {
 public:
     CalorimeterHitDigi() = default;
     ~CalorimeterHitDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
-    virtual void AlgorithmInit(spdlog::level::level_enum);
-    virtual void AlgorithmInit();
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    spdlog::logger* m_logger = new spdlog::logger("CalorimeterHitDigi");
+    std::shared_ptr<spdlog::logger> m_logger;
 
     // Name of input data type (collection)
     std::string              m_input_tag;

@@ -39,14 +39,13 @@ class CalorimeterClusterRecoCoG {
 public:
     CalorimeterClusterRecoCoG() = default;
     ~CalorimeterClusterRecoCoG(){} // better to use smart pointer?
-    virtual void AlgorithmInit(spdlog::level::level_enum);
-    virtual void AlgorithmInit();
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    spdlog::logger* m_logger = new spdlog::logger("CalorimeterClusterRecoCoG");
+    std::shared_ptr<spdlog::logger> m_logger;
 
 
     std::string m_input_simhit_tag;
@@ -84,7 +83,7 @@ edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
     cl.setNhits(pcl->hits_size());
 
     // no hits
-    if (m_logger->level() == spdlog::level::debug) {
+    if (m_logger->level() <=spdlog::level::debug) {
       //LOG_INFO(default_cout_logger) << "hit size = " << pcl->hits_size() << LOG_END;
       m_logger->debug("hit size = {}", pcl->hits_size());
     }
@@ -103,7 +102,7 @@ edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
     for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
       const auto& hit   = pcl->getHits()[i];
       const auto weight = pcl->getWeights()[i];
-      if (m_logger->level() == spdlog::level::debug) {
+      if (m_logger->level() <=spdlog::level::debug) {
         //LOG_INFO(default_cout_logger) << "hit energy = " << hit.getEnergy() << " hit weight: " << weight << LOG_END;
         m_logger->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
       }
@@ -151,7 +150,7 @@ edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
         const double newR     = edm4eic::magnitude(cl.getPosition());
         const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
         cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
-        if (m_logger->level() == spdlog::level::debug) {
+        if (m_logger->level() <=spdlog::level::debug) {
           //LOG_INFO(default_cout_logger) << "Bound cluster position to contributing hits due to " << (overflow ? "overflow" : "underflow") << LOG_END;
           m_logger->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
         }
