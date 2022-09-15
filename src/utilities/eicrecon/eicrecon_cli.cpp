@@ -76,7 +76,7 @@ namespace jana {
         std::cout << std::endl << std::endl;
     }
 
-    void AddPluginNamesInDir(std::set<std::string> & plugin_names, std::string dir_str) {
+    void GetPluginNamesInDir(std::set<std::string> & plugin_names, std::string dir_str) {
         std::string full_path, filename;
         for (const auto & entry : std::filesystem::directory_iterator(dir_str)) {
             full_path = std::string(entry.path());   // Example: "/usr/local/plugins/Tutorial.so"
@@ -89,19 +89,23 @@ namespace jana {
         }
     }
 
-    void GetPluginNamesStrFromEnvPath(std::set<std::string> & plugin_names, const char* env_var) {
+    /// Get the plugin names by searching for files named as *.so under $JANA_PLUGIN_PATH and $EICrecon_MY/plugins.
+    /// It does not guarantee any effectiveness of the plugins.
+    void GetPluginNamesFromEnvPath(std::set<std::string> & plugin_names, const char* env_var) {
         std::string dir_path, paths;
 
         const char* env_p = getenv(env_var);
         if (env_p) {
-            if (env_var == "EICrecon_MY")
+            if (strcmp(env_var, "EICrecon_MY") == 0) {
                 paths = std::string(env_p) + "/plugins";
-            else
+            }
+            else {
                 paths = std::string(env_p);
+            }
 
             std::stringstream envvar_ss(paths);
             while (getline(envvar_ss, dir_path, ':')) {
-                AddPluginNamesInDir(plugin_names, dir_path);
+                GetPluginNamesInDir(plugin_names, dir_path);
             }
         }
     }
@@ -113,8 +117,8 @@ namespace jana {
         for (std::string s : default_plugins)
             set_plugin_name.insert(s);
 
-        jana::GetPluginNamesStrFromEnvPath(set_plugin_name, "JANA_PLUGIN_PATH");
-        jana::GetPluginNamesStrFromEnvPath(set_plugin_name, "EICrecon_MY");
+        jana::GetPluginNamesFromEnvPath(set_plugin_name, "JANA_PLUGIN_PATH");
+        jana::GetPluginNamesFromEnvPath(set_plugin_name, "EICrecon_MY");
 
         std::vector<std::string> plugin_names(set_plugin_name.begin(), set_plugin_name.end());
         return plugin_names;
