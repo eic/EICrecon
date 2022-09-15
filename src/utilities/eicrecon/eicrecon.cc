@@ -7,33 +7,36 @@
 
 #include <TFile.h>
 
-#include <JANA/CLI/JMain.h>
+#include "eicrecon_cli.h"
+
+/// The default plugins
+std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
+        "podio",
+        "dd4hep",
+        "acts",
+        "log",
+        "rootfile",
+        "algorithms_calorimetry",
+        "algorithms_tracking",
+        "algorithms_digi",
+        "BEMC",
+        "EEMC"
+};
 
 int main( int narg, char **argv)
 {
-    auto options = jana::ParseCommandLineOptions(narg, argv, false);
+    std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
 
-    if (options.flags[jana::ShowUsage]) {
-        // Show usage information and exit immediately
-        jana::PrintUsage();
-        std::cout << std::endl << "-----------" << std::endl;
-        std::cout << "    eicrecon parameters: (specify with -Pparam=value)" << std::endl;
-        std::cout << std::endl;
-        std::cout << "        -Phistsfile=file.root    Set name for histograms/trees produced by plugins" << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
+    auto options = jana::GetCliOptions(narg, argv, false);
+
+    if (jana::HasPrintOnlyCliOptions(options, default_plugins))
         return -1;
-    }
-    if (options.flags[jana::ShowVersion]) {
-        // Show version information and exit immediately
-        jana::PrintVersion();
-        return -1;
-    }
 
     japp = jana::CreateJApplication(options);
 
     if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
 
+    // TODO: add by command line paras
     japp->AddPlugin( "podio"           );
     japp->AddPlugin( "dd4hep"          );
     japp->AddPlugin( "acts"        );

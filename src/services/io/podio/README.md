@@ -15,7 +15,7 @@ To write to an output file, set the _podio:output_file_ configuration
 parameter to the name of the output file. 
 
 ~~~
-eicrecon -Pplugins=podio infile.root -Ppodio:output_file=outfile.root
+eicrecon infile.root -Ppodio:output_file=outfile.root
 ~~~
 _n.b. if you set the output file name to "1" it will use the name "podio_output.root"_
 
