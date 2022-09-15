@@ -11,6 +11,7 @@
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
+#include <spdlog/spdlog.h>
 
 class CalorimeterHitDigi {
 
@@ -19,11 +20,15 @@ class CalorimeterHitDigi {
 public:
     CalorimeterHitDigi() = default;
     ~CalorimeterHitDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
-    virtual void AlgorithmInit() ;
+    virtual void AlgorithmInit(spdlog::level::level_enum);
+    virtual void AlgorithmInit();
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
+    //instantiate new spdlog logger
+    spdlog::logger* m_logger = new spdlog::logger("CalorimeterHitDigi");
+
     // Name of input data type (collection)
     std::string              m_input_tag;
 

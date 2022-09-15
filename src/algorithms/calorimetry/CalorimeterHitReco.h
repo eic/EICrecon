@@ -11,6 +11,7 @@
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/vector_utils.h>
+#include <spdlog/spdlog.h>
 
 using namespace dd4hep;
 
@@ -21,11 +22,14 @@ class CalorimeterHitReco {
 public:
     CalorimeterHitReco() = default;
     ~CalorimeterHitReco(){} // better to use smart pointer?
-    virtual void AlgorithmInit() ;
+    virtual void AlgorithmInit(spdlog::level::level_enum);
+    virtual void AlgorithmInit();
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
+    //instantiate new spdlog logger
+    spdlog::logger* m_logger = new spdlog::logger("CalorimeterHitReco");
     // Name of input data type (collection)
     std::string              m_input_tag;
 

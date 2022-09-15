@@ -18,6 +18,7 @@
 #include <edm4eic/vector_utils.h>
 #include <edm4eic/ProtoCluster.h>
 #include <edm4eic/MutableProtoCluster.h>
+#include <spdlog/spdlog.h>
 
 using namespace dd4hep;
 using CaloHit = edm4eic::CalorimeterHit;
@@ -87,11 +88,15 @@ class CalorimeterIslandCluster {
 public:
     CalorimeterIslandCluster() = default;
     virtual ~CalorimeterIslandCluster(){} // better to use smart pointer?
-    virtual void AlgorithmInit() ;
+     virtual void AlgorithmInit(spdlog::level::level_enum);
+    virtual void AlgorithmInit();
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
+    //instantiate new spdlog logger
+    spdlog::logger* m_logger = new spdlog::logger("CalorimeterIslandCluster");
+
     std::string m_input_tag;
     bool m_splitCluster;//{this, "splitCluster", true};
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
@@ -224,9 +229,9 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (false){//msgLevel(MSG::VERBOSE)) {
-        LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-
+      if (m_logger->level() >= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
+        //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
+        m_logger->trace("No maxima found, not building any clusters");
       }
       return;
     } else if (maxima.size() == 1) {
@@ -237,8 +242,9 @@ private:
       }
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
 
-      if (false){//msgLevel(MSG::VERBOSE)) {
-          LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
+      if (m_logger->level() >= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
+          //LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
+          m_logger->warn("A single maximum found, added one ProtoCluster");
       }
       return;
     }
