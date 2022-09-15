@@ -70,13 +70,13 @@ private:
       }
       
       //TODO:spdlog verbosity
-      if ( m_logger->level() == spdlog::level::debug) {
+      if ( m_logger->level() <= spdlog::level::debug) {
         m_logger->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
         //LOG_INFO(default_cout_logger) << " --> Found cluster with mcID " << mcID << " and energy " << cluster->getEnergy() << LOG_END;
       }
 
       if (mcID < 0) {
-        if (m_logger->level() == spdlog::level::debug) {
+        if (m_logger->level() <= spdlog::level::debug) {
           m_logger->debug("   --> WARNING: no valid MC truth link found, skipping cluster...");
           //LOG_INFO(default_cout_logger) << "   --> WARNING: no valid MC truth link found, skipping cluster..." << LOG_END;
         }
