@@ -47,8 +47,8 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
         // Get inputs
-        auto sim_hits1 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotsHits1");
-        auto sim_hits2 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotsHits2");
+        auto sim_hits1 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits1");
+        auto sim_hits2 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits2");
         auto sim_hits_all = sim_hits1;
         sim_hits_all.insert( sim_hits_all.end(), sim_hits2.begin(), sim_hits2.end() );
 
