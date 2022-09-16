@@ -77,6 +77,12 @@ namespace jana {
     }
 
     void GetPluginNamesInDir(std::set<std::string> & plugin_names, std::string dir_str) {
+        // Edge case handler: taking care of invalid and empty dirs
+        if (std::filesystem::is_directory(dir_str) == false)
+            return;
+        if (std::filesystem::is_empty(dir_str))
+            return;
+
         std::string full_path, filename;
         for (const auto & entry : std::filesystem::directory_iterator(dir_str)) {
             full_path = std::string(entry.path());   // Example: "/usr/local/plugins/Tutorial.so"
