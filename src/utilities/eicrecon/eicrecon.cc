@@ -20,7 +20,12 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "algorithms_tracking",
         "algorithms_digi",
         "BEMC",
-        "EEMC"
+        "BTRK",
+        "BVTX",
+        "ECTRK",
+        "EEMC",
+        "MPGD",
+        "tracking"
 };
 
 int main( int narg, char **argv)
@@ -37,16 +42,17 @@ int main( int narg, char **argv)
     if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
 
     // TODO: add by command line paras
-    japp->AddPlugin( "podio"           );
-    japp->AddPlugin( "dd4hep"          );
-    japp->AddPlugin( "acts"        );
-    japp->AddPlugin( "log"             );
-    japp->AddPlugin( "rootfile"        );
-    japp->AddPlugin( "algorithms_calorimetry");
-    japp->AddPlugin( "algorithms_tracking");
-    japp->AddPlugin( "algorithms_digi" );
-    japp->AddPlugin( "BEMC"            );
-    japp->AddPlugin( "EEMC"            );
+    for( auto plugin : default_plugins) japp->AddPlugin( plugin );
+//    japp->AddPlugin( "podio"           );
+//    japp->AddPlugin( "dd4hep"          );
+//    japp->AddPlugin( "acts"        );
+//    japp->AddPlugin( "log"             );
+//    japp->AddPlugin( "rootfile"        );
+//    japp->AddPlugin( "algorithms_calorimetry");
+//    japp->AddPlugin( "algorithms_tracking");
+//    japp->AddPlugin( "algorithms_digi" );
+//    japp->AddPlugin( "BEMC"            );
+//    japp->AddPlugin( "EEMC"            );
 
     auto exit_code = jana::Execute(japp, options);
 
