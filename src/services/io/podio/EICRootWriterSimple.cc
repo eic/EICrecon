@@ -98,14 +98,17 @@ std::string EICRootWriterSimple::PutPODIODataT( JFactory *fac,  podio::EventStor
     return collection_name;
 }
 
-
+// ---------------------------------------------------------------------
+// constructor
+//
 EICRootWriterSimple::EICRootWriterSimple() {
     SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
-}
 
-void EICRootWriterSimple::Init() {
-
-    japp->SetDefaultParameter("podio:output_file", m_output_file, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
+    japp->SetDefaultParameter(
+            "podio:output_file",
+            m_output_file,
+            "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to."
+            );
 
     // Allow user to set PODIO:OUTPUT_FILE to "1" to specify using the default name.
     if( m_output_file == "1" ){
@@ -118,15 +121,33 @@ void EICRootWriterSimple::Init() {
 
     // Get the output directory path for creating a second copy of the output file at the end of processing.
     // (this is duplicating similar functionality in Juggler/Gaudi so assume it is useful).
-    japp->SetDefaultParameter("podio:output_file_copy_dir", m_output_file_copy_dir, "Directory name to make an additional copy of the output file to. Copy will be done at end of processing. Default is empty string which means do not make a copy. No check is made on path existing.");
+    japp->SetDefaultParameter(
+            "podio:output_file_copy_dir",
+            m_output_file_copy_dir,
+            "Directory name to make an additional copy of the output file to. Copy will be done at end of processing. Default is empty string which means do not make a copy. No check is made on path existing."
+            );
 
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections;  // need to get as vector, then convert to set
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
-    japp->SetDefaultParameter("podio:output_include_collections", output_include_collections, "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection.");
-    japp->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections, "Comma separated list of collection names to not write out.");
-    m_output_include_collections = std::set<std::string>(output_include_collections.begin(), output_include_collections.end());
-    m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(), output_exclude_collections.end());
+    japp->SetDefaultParameter(
+            "podio:output_include_collections",
+            output_include_collections,
+            "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection."
+    );
+    japp->SetDefaultParameter(
+            "podio:output_exclude_collections",
+            output_exclude_collections,
+            "Comma separated list of collection names to not write out."
+            );
+    m_output_include_collections = std::set<std::string>(output_include_collections.begin(),
+                                                         output_include_collections.end());
+    m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(),
+                                                         output_exclude_collections.end());
+
+}
+
+void EICRootWriterSimple::Init() {
 }
 
 void EICRootWriterSimple::Process(const std::shared_ptr<const JEvent> &event) {
