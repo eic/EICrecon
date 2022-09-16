@@ -167,7 +167,7 @@ namespace jana {
             // Shut down the [INFO] msg by adding plugins, cpu info, etc.
             params->SetParameter(
                     "log:off",
-                    "JPluginLoader,JComponentManager,JArrowProcessingController,JArrow"
+                    "JPluginLoader,JArrowProcessingController,JArrow"
                     );
         }
 
