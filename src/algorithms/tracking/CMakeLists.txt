@@ -31,6 +31,8 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
 
+set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
+
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME}
             PUBLIC
@@ -42,7 +44,6 @@ plugin_include_directories(${PLUGIN_NAME}
                 ${ROOT_INCLUDE_DIRS}
                 ${EDM4EIC_INCLUDE_DIRS}
                 ${Acts_INCLUDE_DIRS})
-
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME}
