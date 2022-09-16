@@ -106,7 +106,48 @@ void write_read_test() {
     }
 }
 
+void read_write_test() {
+
+    eic::EventStore store;
+
+    podio::ROOTReader reader;
+    reader.openFile("test_out.root"); // comes from prev test
+    store.setReader(&reader);
+
+    eic::ROOTWriter writer("test2_out.root", &store);
+
+    auto& clusters_filtered = store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
+
+    auto nevents = reader.getEntries();
+    for (int i=0; i<nevents; ++i) {
+        std::cout << "Processing event " << i << std::endl;
+        reader.goToEvent(i);
+        auto& hits = store.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
+        auto& clusters = store.get<edm4eic::ClusterCollection>("MyFunClusters");
+        reader.endOfEvent();
+
+        // auto& clusters_out = store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
+        for (auto cluster : clusters) {
+            if (cluster.getEnergy() > 10) {
+                std::cout << "Adding cluster with energy " << cluster.getEnergy() << std::endl;
+                clusters_filtered.push_back(cluster.clone()); 
+                // will this do a deep or shallow copy in memory?
+                // what about in file?
+                // will references be included?
+            }
+        }
+
+        // writer.registerForWrite("MyFunHits");
+        // Let's not write out the hits, just to make sure we can
+        writer.registerForWrite("MyFunClusters");
+        writer.registerForWrite("MyExhilaratingClusters"); // Collection needs to be added to store first
+        writer.writeEvent();
+        store.clearCollections();
+    }
+    writer.finish();
+    reader.closeFile();
+}
 
 int main() {
-    write_read_test();
+    read_write_test();
 }
