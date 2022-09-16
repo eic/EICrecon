@@ -19,6 +19,7 @@ find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Boost REQUIRED)
 
 # ACTS
 find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
@@ -52,6 +53,24 @@ plugin_link_libraries(${PLUGIN_NAME}
         DD4hep::DDRec
         EDM4EIC::edm4eic
         ActsCore
+        ActsPluginIdentification
+        ActsPluginTGeo
+        ActsPluginDD4hep
+        spdlog::spdlog
+        Boost::boost
+        EG)
+
+target_link_libraries(${PLUGIN_NAME}_plugin
+        ${ROOT_LIBRARIES}
+        dd4hep_library
+        algorithms_tracking_library
+        EDM4HEP::edm4hep
+        DD4hep::DDCore
+        DD4hep::DDRec
+        EDM4EIC::edm4eic
+        ActsCore
+        ActsPluginIdentification
+        ActsPluginTGeo
+        ActsPluginDD4hep
         spdlog::spdlog
         Boost::boost)
-

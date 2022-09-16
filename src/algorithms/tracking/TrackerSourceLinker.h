@@ -19,14 +19,14 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Measurement.hpp"
 
-#include "GeoSvc.h"
+#include "ActsGeometryProvider.h"
 
 namespace eicrecon {
 
     class TrackerSourceLinker {
     public:
         void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid_converter,
-                  std::shared_ptr<const GeoSvc> acts_context,
+                  std::shared_ptr<const ActsGeometryProvider> acts_context,
                   std::shared_ptr<spdlog::logger> logger);
 
         eicrecon::TrackerSourceLinkerResult *produce(std::vector<const edm4eic::TrackerHit *> trk_hits);
@@ -37,7 +37,7 @@ namespace eicrecon {
         /// Cell ID position converter
         std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
-        std::shared_ptr<const GeoSvc> m_acts_context;
+        std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
     };
 

@@ -57,7 +57,7 @@ private:
     TH1F * m_th1_prt_phi;                 /// MC Particles phi angle
     TH2F * m_th2_prt_pxy;                 /// MC Particles px,py
 
-    std::shared_ptr<Log_service> m_log;
+    std::shared_ptr<spdlog::logger> m_log;
 };
 
 #endif //EICRECON_OCCUPANCY_ANALYSIS_H
