@@ -116,7 +116,6 @@ void read_write_test() {
 
     eic::ROOTWriter writer("test2_out.root", &store);
 
-    auto& clusters_filtered = store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
 
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
@@ -124,11 +123,13 @@ void read_write_test() {
         reader.goToEvent(i);
         auto& hits = store.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
         auto& clusters = store.get<edm4eic::ClusterCollection>("MyFunClusters");
-        reader.endOfEvent();
+
+        auto& clusters_filtered = store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
+        // auto& clusters_filtered_temp = store.get<edm4eic::ClusterCollection>("MyExhilaratingClusters");
 
         // auto& clusters_out = store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
         for (auto cluster : clusters) {
-            if (cluster.getEnergy() > 10) {
+            if (cluster.getEnergy() < 50) {
                 std::cout << "Adding cluster with energy " << cluster.getEnergy() << std::endl;
                 clusters_filtered.push_back(cluster.clone()); 
                 // will this do a deep or shallow copy in memory?
@@ -136,13 +137,14 @@ void read_write_test() {
                 // will references be included?
             }
         }
-
         // writer.registerForWrite("MyFunHits");
         // Let's not write out the hits, just to make sure we can
         writer.registerForWrite("MyFunClusters");
         writer.registerForWrite("MyExhilaratingClusters"); // Collection needs to be added to store first
+
         writer.writeEvent();
-        store.clearCollections();
+        store.clear();
+        reader.endOfEvent();
     }
     writer.finish();
     reader.closeFile();
