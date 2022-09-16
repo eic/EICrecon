@@ -85,7 +85,8 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
-        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
+//        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
+        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::FATAL; // FIXME: this is to suppress lots of errors about "No track is found with the initial parameters"
 
         eicrecon::CKFTrackingConfig m_cfg;
 
