@@ -58,6 +58,11 @@ namespace jana {
     void PrintFactories(JApplication* app);
     void PrintPodioCollections(JApplication* app);
 
+    /// Copy the @param options params (from the cli or the config file) to a JParameterManager @var para_mgr.
+    /// Create an empty JApplication @var app.
+    /// Add the event sources got from the cli input to @var app, and then return.
+    /// @note The cli -Pkey=value pairs are not processed when the function returns. They are processed,
+    /// or, added to @var app at calling JApplication::Initialize().
     JApplication* CreateJApplication(UserOptions& options);
     int Execute(JApplication* app, UserOptions& options);
 

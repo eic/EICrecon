@@ -158,14 +158,15 @@ namespace jana {
 
     JApplication* CreateJApplication(UserOptions& options) {
 
-        auto params = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+        auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+
+        // Add the cli options based on the user inputs
         for (auto pair : options.params) {
-            params->SetParameter(pair.first, pair.second);
+            para_mgr->SetParameter(pair.first, pair.second);
         }
 
         if (options.flags[ListFactories]) {
-            // Shut down the [INFO] msg by adding plugins, cpu info, etc.
-            params->SetParameter(
+            para_mgr->SetParameter(
                     "log:off",
                     "JPluginLoader,JArrowProcessingController,JArrow"
                     );
@@ -174,7 +175,7 @@ namespace jana {
         if (options.flags[LoadConfigs]) {
             // If the user specified an external config file, we should definitely use that
             try {
-                params->ReadConfigFile(options.load_config_file);
+                para_mgr->ReadConfigFile(options.load_config_file);
             }
             catch (JException &e) {
                 std::cout << "Problem loading config file '" << options.load_config_file << "'. Exiting." << std::endl
@@ -184,7 +185,7 @@ namespace jana {
             std::cout << "Loaded config file '" << options.load_config_file << "'." << std::endl << std::endl;
         }
 
-        auto app = new JApplication(params);
+        auto app = new JApplication(para_mgr);
 
         for (auto event_src : options.eventSources) {
             app->Add(event_src);
