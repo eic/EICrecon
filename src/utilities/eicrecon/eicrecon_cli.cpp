@@ -200,11 +200,10 @@ namespace jana {
 
     void PrintPodioCollections(JApplication* app) {
         if (app->GetJParameterManager()->Exists("PODIO:PRINT_TYPE_TABLE")) {
-            auto print_type_table = app->GetJParameterManager()->FindParameter("PODIO:PRINT_TYPE_TABLE")->GetValue();
+            bool print_type_table = app->GetParameterValue<bool>("podio:print_type_table");
 
             // cli criteria: Ppodio:print_type_table=1
-            if (print_type_table == "1") {
-
+            if (print_type_table) {
                 auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
                 for (auto event_source : event_sources) {
 //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
