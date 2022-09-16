@@ -116,8 +116,8 @@ void read_write_test() {
     input_store.setReader(&reader);
 
     eic::ROOTWriter writer("test2_out.root", &output_store);
-    auto& clusters_out = output_store.create<edm4eic::ClusterCollection>("MyFunClusters");
-    auto& clusters_out_filtered = output_store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
+    output_store.create<edm4eic::ClusterCollection>("MyFunClusters");
+    output_store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
 
     writer.registerForWrite("MyFunClusters");
     writer.registerForWrite("MyExhilaratingClusters"); // Collection needs to be added to store first
@@ -130,6 +130,8 @@ void read_write_test() {
         auto& clusters_in = input_store.get<edm4eic::ClusterCollection>("MyFunClusters");
 
         for (auto cluster : clusters_in) {
+            auto& clusters_out = output_store.get<edm4eic::ClusterCollection>("MyFunClusters");
+            auto& clusters_out_filtered = output_store.get<edm4eic::ClusterCollection>("MyExhilaratingClusters");
             clusters_out.push_back(cluster.clone());
             if (cluster.getEnergy() < 50) {
                 std::cout << "Adding cluster with energy " << cluster.getEnergy() << std::endl;

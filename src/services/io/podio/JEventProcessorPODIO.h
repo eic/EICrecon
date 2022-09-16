@@ -22,6 +22,9 @@ public:
     eic::EventStore *m_store=nullptr;
     std::shared_ptr<eic::ROOTWriter> m_writer;
 
+    std::mutex m_mutex;
+    bool m_is_first_event = true;
+
     std::string m_output_file = "podio_output.root";
     std::string m_output_file_copy_dir = "";
     std::set<std::string> m_output_include_collections;  // config. parameter

@@ -4,25 +4,20 @@
 
 #include <datamodel_glue.h>
 
-enum class InsertResult { Success, AlreadyInStore, Failure };
 
 template <typename PodioT, typename PodioCollectionT>
-struct InsertFacIntoEventStore {
-    InsertResult operator() (JFactory* fac, eic::EventStore* store) {
-
+struct InsertFacIntoStore {
+    size_t operator() (JFactory* fac, eic::EventStore* store, bool create) {
         std::string collection_name = fac->GetTag();
-
-        const PodioCollectionT* collection = nullptr;
-        if (store->get(collection_name, collection)) {
-            return InsertResult::AlreadyInStore;
+        if (create) {
+            store->create<PodioCollectionT>(collection_name);
         }
-
-        auto& mutable_collection = store->create<PodioCollectionT>(collection_name);
+        auto& collection = store->get<PodioCollectionT>(collection_name);
         auto tobjs = fac->GetAs<PodioT>();
         for (auto t : tobjs) {
-            mutable_collection->push_back( t->clone() );
+            collection.push_back( t->clone() );
         }
-        return InsertResult::Success;
+        return tobjs.size();
     }
 };
 
@@ -85,9 +80,11 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     for( const auto &collName : m_collections_to_write ) m_writer->registerForWrite( collName );
     */
 
+    std::lock_guard<std::mutex> lock(m_mutex);
+
     jout << "==================================" << jendl;
     jout << "Event #" << event->GetEventNumber() << jendl;
-
+    
     // Look for objects created by JANA, but not part of a collection in the EventStore and add them
     // Loop over all factories.
     for( auto fac : event->GetAllFactories() ){
@@ -102,31 +99,28 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         // so that needs to have been called in the factory constructor.
         try {
 
-            auto result = CallWithPODIOType<InsertFacIntoEventStore, InsertResult, JFactory*, eic::EventStore*>(fac->GetObjectName(), fac, m_store);
+            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
             if (result == std::nullopt) {
                 jout << "EICRootWriterSimple::Process: Not a recognized PODIO type: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
             }
-            else if (result == InsertResult::AlreadyInStore) {
-                jout << "EICRootWriterSimple::Process: Already in store: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
-            }
             else {
-                m_writer->registerForWrite(fac->GetTag());
-                jout << "EICRootWriterSimple::Process: ADDING TO STORE: " << fac->GetObjectName() << ":" << fac->GetTag() << "; store collection count = " << m_store->getCollectionIDTable()->names().size() << jendl;
+                jout << "EICRootWriterSimple::Process: Successfully added to output store: " << fac->GetObjectName() << ":" << fac->GetTag() << "; store collection count = " << *result << jendl;
+                if (m_is_first_event) {
+                    m_writer->registerForWrite(fac->GetTag());
+                }
             }
         }
         catch(std::exception &e){
             LOG_ERROR(default_cerr_logger) << e.what() << " : " << fac->GetObjectName() << LOG_END;
         }
     }
-
     m_writer->writeEvent();
-    // n.b. we don't call clearCollections() here so we can leave that to the event source which owns the EventStore.
-
+    m_store->clearCollections();
+    m_is_first_event = false;
 }
 
 void JEventProcessorPODIO::Finish() {
-
     m_writer->finish();
 }
 
