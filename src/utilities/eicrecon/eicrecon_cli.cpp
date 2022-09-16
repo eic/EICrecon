@@ -26,13 +26,13 @@ namespace jana {
         std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
         std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
         std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
-        std::cout << "   -L   --list_factories        List all the factories without running" << std::endl;
+        std::cout << "   -L   --list-factories        List all the factories without running" << std::endl;
         std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl;
         std::cout << "   -Pplugin:param=value         Specify a parameter value for a plugin" << std::endl;
         std::cout << std::endl;
 
-        std::cout << "   --list_default_plugins       List all the default plugins" << std::endl;
-        std::cout << "   --list_available_plugins     List plugins at $JANA_PLUGIN_PATH and $EICrecon_MY" << std::endl;
+        std::cout << "   --list-default-plugins       List all the default plugins" << std::endl;
+        std::cout << "   --list-available-plugins     List plugins at $JANA_PLUGIN_PATH and $EICrecon_MY" << std::endl;
         std::cout << std::endl << std::endl;
     }
 
@@ -289,9 +289,9 @@ namespace jana {
         tokenizer["-b"] = Benchmark;
         tokenizer["--benchmark"] = Benchmark;
         tokenizer["-L"] = ListFactories;
-        tokenizer["--list_factories"] = ListFactories;
-        tokenizer["--list_default_plugins"] = ShowDefaultPlugins;
-        tokenizer["--list_available_plugins"] = ShowAvailablePlugins;
+        tokenizer["--list-factories"] = ListFactories;
+        tokenizer["--list-default-plugins"] = ShowDefaultPlugins;
+        tokenizer["--list-available-plugins"] = ShowAvailablePlugins;
 
         // `eicrecon` has the same effect with `eicrecon -h`
         if (nargs == 1) {
