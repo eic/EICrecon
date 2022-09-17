@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
-#define _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
+#ifndef _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
+#define _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
 
 #include <random>
 
@@ -16,17 +16,18 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalBarrelNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalBarrelNRawHits() {
-        SetTag("EcalBarrelNRawHits");
+    RawCalorimeterHit_factory_EcalBarrelRawHits() {
+        SetTag("EcalBarrelRawHits");
     }
 
     //------------------------------------------
@@ -35,7 +36,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelNHits";
+        m_input_tag = "EcalBarrelHits";
         m_tRes = 0.0 * ns;
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
@@ -49,19 +50,19 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("EEMC:energyResolutions",u_eRes);
-        app->SetDefaultParameter("EEMC:timeResolution",   m_tRes);
-        app->SetDefaultParameter("EEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("EEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("EEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("EEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("EEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("EEMC:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("EEMC:signalSumFields",  u_fields);
-        app->SetDefaultParameter("EEMC:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("EEMC:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("EEMC:readoutClass",     m_readout);
+//        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("BEMC:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
@@ -97,4 +98,4 @@ public:
 
 };
 
-#endif // _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
+#endif // _RawCalorimeterHit_factory_EcalBarrelRawHits_h_

@@ -241,10 +241,8 @@ private:
       }
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
 
-      if (m_logger->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
-          //LOG_WARN(default_cout_logger) << "A single maximum found, added one ProtoCluster" << LOG_END;
-          m_logger->warn("A single maximum found, added one ProtoCluster");
-      }
+      m_logger->debug("A single maximum found, added one ProtoCluster");
+
       return;
     }
 }
