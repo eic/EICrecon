@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalBarrelNClusters_h_
-#define _Cluster_factory_EcalBarrelNClusters_h_
+#ifndef _Cluster_factory_EcalBarrelClusters_h_
+#define _Cluster_factory_EcalBarrelClusters_h_
 
 #include <random>
 
@@ -15,13 +15,13 @@
 
 
 
-class Cluster_factory_EcalBarrelNClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelNClusters(){
-        SetTag("EcalBarrelNClusters");
+    Cluster_factory_EcalBarrelClusters(){
+        SetTag("EcalBarrelClusters");
     }
 
     //------------------------------------------
@@ -29,8 +29,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelNHits";
-        m_input_protoclust_tag="EcalBarrelNTruthProtoClusters";
+        m_input_simhit_tag="EcalBarrelHits";
+        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -96,4 +96,4 @@ public:
     }
 };
 
-#endif // _Cluster_factory_EcalBarrelNClusters_h_
+#endif // _Cluster_factory_EcalBarrelClusters_h_

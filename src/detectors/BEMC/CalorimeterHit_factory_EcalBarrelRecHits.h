@@ -1,6 +1,6 @@
 
-#ifndef CalorimeterHit_factory_EcalBarrelNRecHits_h_
-#define CalorimeterHit_factory_EcalBarrelNRecHits_h_
+#ifndef CalorimeterHit_factory_EcalBarrelRecHits_h_
+#define CalorimeterHit_factory_EcalBarrelRecHits_h_
 
 #include <JANA/JFactoryT.h>
 
@@ -8,13 +8,13 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelNRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalBarrelRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalBarrelNRecHits(){
-        SetTag("EcalBarrelNRecHits");
+    CalorimeterHit_factory_EcalBarrelRecHits(){
+        SetTag("EcalBarrelRecHits");
     }
 
     //------------------------------------------
@@ -22,7 +22,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "EcalBarrelNRawHits";
+        m_input_tag = "EcalBarrelRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096;//{this, "capacityADC", 8096};
@@ -40,7 +40,7 @@ public:
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="EcalBarrelNHits";  // from ATHENA's reconstruction.py
+        m_readout="EcalBarrelHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
         m_sectorField="sector";       // from ATHENA's reconstruction.py
 
@@ -91,4 +91,4 @@ public:
 
 };
 
-#endif // CalorimeterHit_factory_EcalBarrelNRecHits_h_
+#endif // CalorimeterHit_factory_EcalBarrelRecHits_h_

@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_EcalBarrelNIslandProtoClusters_h_
-#define _ProtoCLuster_factory_EcalBarrelNIslandProtoClusters_h_
+#ifndef _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_
+#define _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_
 
 #include <random>
 
@@ -13,20 +13,20 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalBarrelNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalBarrelIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalBarrelNIslandProtoClusters(){
-        SetTag("EcalBarrelNIslandProtoClusters");
+    ProtoCluster_factory_EcalBarrelIslandProtoClusters(){
+        SetTag("EcalBarrelIslandProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalBarrelNRecHits";
+        m_input_tag = "EcalBarrelRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
@@ -88,4 +88,4 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_EcalBarrelNIslandProtoClusters_h_
+#endif // _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_

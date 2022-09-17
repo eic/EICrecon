@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
-#define _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
+#ifndef _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
+#define _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
 
 #include <random>
 
@@ -20,14 +20,14 @@
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalBarrelNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalBarrelNRawHits() {
-        SetTag("EcalBarrelNRawHits");
+    RawCalorimeterHit_factory_EcalBarrelRawHits() {
+        SetTag("EcalBarrelRawHits");
     }
 
     //------------------------------------------
@@ -36,7 +36,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelNHits";
+        m_input_tag = "EcalBarrelHits";
         m_tRes = 0.0 * ns;
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
@@ -98,4 +98,4 @@ public:
 
 };
 
-#endif // _RawCalorimeterHit_factory_EcalBarrelNRawHits_h_
+#endif // _RawCalorimeterHit_factory_EcalBarrelRawHits_h_

@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_EcalBarrelNTruthProtoClusters_h_
-#define _TruthCluster_factory_EcalBarrelNTruthProtoClusters_h_
+#ifndef _TruthCluster_factory_EcalBarrelTruthProtoClusters_h_
+#define _TruthCluster_factory_EcalBarrelTruthProtoClusters_h_
 
 #include <random>
 
@@ -11,23 +11,21 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-
-
-class ProtoCluster_factory_EcalBarrelNTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class TruthCluster_factory_EcalBarrelTruthProtoClusters : public JFactoryT<eicd::MutableProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalBarrelNTruthProtoClusters(){
-        SetTag("EcalBarrelNTruthProtoClusters");
+    ProtoCluster_factory_EcalBarrelIslandProtoClusters(){
+        SetTag("EcalBarrelTruthProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        std::string              m_inputHit_tag="EcalBarrelNRecHits";
-        std::string              m_inputMCHit_tag="EcalBarrelNHits";
+        std::string              m_inputHit_tag;
+        std::string              m_inputMCHit_tag;
 
         AlgorithmInit();
     }
@@ -42,7 +40,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
+        m_inputHits = event->Get<eicd::CalorimeterHit>(m_inputHit_tag);
         m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
 
         // Call Process for generic algorithm
@@ -54,4 +52,4 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_EcalBarrelNIslandProtoClusters_h_
+#endif // _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_
