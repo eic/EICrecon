@@ -4,8 +4,8 @@
 
 #include <JANA/JEventProcessor.h>
 
-#include "ROOTWriter.h"
-#include "EventStore.h"
+#include <services/io/podio/RootWriter.h>
+#include <services/io/podio/EventStore.h>
 
 
 class JEventProcessorPODIO : public JEventProcessor {
