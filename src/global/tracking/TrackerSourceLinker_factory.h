@@ -11,7 +11,7 @@
 #include <algorithms/tracking/TrackerSourceLinker.h>
 
 #include <algorithms/tracking/TrackerSourceLinker.h>
-#include <algorithms/tracking/GeoSvc.h>
+#include <algorithms/tracking/ActsGeometryProvider.h>
 
 namespace eicrecon {
 

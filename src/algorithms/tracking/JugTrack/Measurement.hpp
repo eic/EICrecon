@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 namespace Jug {
 
@@ -40,6 +41,7 @@ namespace Jug {
                    Acts::MultiTrajectory::TrackStateProxy trackState) const {
       const auto& sourceLink =
           static_cast<const IndexSourceLink&>(trackState.uncalibrated());
+
       std::visit(
           [&trackState](const auto& meas) { trackState.setCalibrated(meas); },
           (*m_measurements)[sourceLink.index()]);

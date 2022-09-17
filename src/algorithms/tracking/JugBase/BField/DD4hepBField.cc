@@ -20,7 +20,10 @@ namespace Jug::BField {
                                                      Acts::MagneticFieldProvider::Cache& /*cache*/) const
   {
     dd4hep::Position pos(position[0]/10.0,position[1]/10.0,position[2]/10.0);
-    auto field = m_det->field().magneticField(pos) * (Acts::UnitConstants::T / dd4hep::tesla); 
+    auto fieldObj = m_det->field();
+
+
+    auto field = fieldObj.magneticField(pos) * (Acts::UnitConstants::T / dd4hep::tesla);
     return Acts::Result<Acts::Vector3>::success({field.x(), field.y(),field.z()});
   }
 
