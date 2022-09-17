@@ -29,7 +29,7 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterHitDigi::AlgorithmInit() {
+void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     // Assume all configuration parameter data members have been filled in already.
 
@@ -48,6 +48,7 @@ void CalorimeterHitDigi::AlgorithmInit() {
     // now, just use default values defined in header file.
 
     // set energy resolution numbers
+    m_logger=logger;
     for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
         eRes[i] = u_eRes[i];
     }
@@ -62,12 +63,14 @@ void CalorimeterHitDigi::AlgorithmInit() {
 
         // sanity checks
         if (!m_geoSvc) {
-            LOG_ERROR(default_cerr_logger) << "Unable to locate Geometry Service. " << LOG_END;
+            //LOG_ERROR(default_cerr_logger) << "Unable to locate Geometry Service. " << LOG_END;
+            m_logger->error("Unable to locate Geometry Service.");
             japp->Quit();
             return;
         }
         if (m_readout.empty()) {
-            LOG_ERROR(default_cerr_logger) << "readoutClass is not provided, it is needed to know the fields in readout ids" << LOG_END;
+            //LOG_ERROR(default_cerr_logger) << "readoutClass is not provided, it is needed to know the fields in readout ids" << LOG_END;
+            m_logger->error("readoutClass is not provided, it is needed to know the fields in readout ids");
             japp->Quit();
             return;
         }
@@ -86,14 +89,18 @@ void CalorimeterHitDigi::AlgorithmInit() {
             ref_mask = id_desc.encode(ref_fields);
             // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
-            LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
+            //LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
+            m_logger->error("Failed to load ID decoder for {}", m_readout);
             japp->Quit();
             return;
         }
         id_mask = ~id_mask;
-        LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
+        //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
+        m_logger->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
     }
 }
+
+
 
 //------------------------
 // AlgorithmChangeRun

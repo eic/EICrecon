@@ -17,8 +17,10 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterClusterRecoCoG::AlgorithmInit() {
 
+void CalorimeterClusterRecoCoG::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
+
+    m_logger=logger;
     // update depth correction if a name is provided
     if (m_moduleDimZName != "") {
       m_depthCorrection = m_geoSvc->detector()->constantAsDouble(m_moduleDimZName);
@@ -30,9 +32,8 @@ void CalorimeterClusterRecoCoG::AlgorithmInit() {
     std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
     auto it = weightMethods.find(ew);
     if (it == weightMethods.end()) {
-      LOG_ERROR(default_cerr_logger) << fmt::format("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight,
-                             boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "))
-              << LOG_END;
+      //LOG_ERROR(default_cerr_logger) << fmt::format("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", ")) << LOG_END;
+      m_logger->error("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
       return;
     }
     weightFunc = it->second;
@@ -67,9 +68,9 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
     for (const auto& pcl : proto) {
       auto cl = reconstruct(pcl);
 
-      if (false) {
-        LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", "
-                << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
+      if (m_logger->level() <= spdlog::level::debug) {
+        //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", " << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
+        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / GeV, cl.getPosition().x / mm, cl.getPosition().y / mm, cl.getPosition().z / mm);
       }
       clusters.push_back(&cl);
 
@@ -107,15 +108,19 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         }
         if (!(mchit != mchits.end())) {
           // break if no matching hit found for this CellID
-          LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID()
-                    << ", but no mc hit with that CellID was found." << LOG_END;
-          LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
+          //LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID() << ", but no mc hit with that CellID was found." << LOG_END;
+          m_logger->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
+          //LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
+          m_logger->info("Proto-cluster hits: ");
           for (const auto& pclhit1: pclhits) {
-            LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
+            //LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
+            m_logger->info("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
           }
-          LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
+          //LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
+          m_logger->info("MC hits: ");
           for (const auto& mchit1: mchits) {
-            LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
+            //LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
+            m_logger->info("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
           }
           break;
         }
@@ -124,11 +129,15 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         const auto& mcp = (*mchit)->getContributions(0).getParticle();
 
         // debug output
-        if (false) {
-          LOG_INFO(default_cout_logger) << "cluster has largest energy in cellID: " << pclhit->getCellID() << LOG_END;
-          LOG_INFO(default_cout_logger) << "pcl hit with highest energy " << pclhit->getEnergy() << " at index " << pclhit->getObjectID().index << LOG_END;
-          LOG_INFO(default_cout_logger) << "corresponding mc hit energy " << (*mchit)->getEnergy() << " at index " << (*mchit)->getObjectID().index << LOG_END;
-          LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << edm4eic::magnitude(mcp.getMomentum()) << LOG_END;
+        if (m_logger->level() <= spdlog::level::debug) {
+          //LOG_INFO(default_cout_logger) << "cluster has largest energy in cellID: " << pclhit->getCellID() << LOG_END;
+          m_logger->debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
+          //LOG_INFO(default_cout_logger) << "pcl hit with highest energy " << pclhit->getEnergy() << " at index " << pclhit->getObjectID().index << LOG_END;
+          m_logger->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
+          //LOG_INFO(default_cout_logger) << "corresponding mc hit energy " << (*mchit)->getEnergy() << " at index " << (*mchit)->getObjectID().index << LOG_END;
+          m_logger->debug("corresponding mc hit energy {} at index {}", (*mchit)->getEnergy(), (*mchit)->getObjectID().index);
+          //LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << edm4eic::magnitude(mcp.getMomentum()) << LOG_END;
+          m_logger->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
         }
 
         // set association
@@ -141,8 +150,9 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);
       } else {
-        if (false) {
-          LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;
+        if (m_logger->level() <= spdlog::level::debug) {
+          //LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;
+          m_logger->debug("No mcHitCollection was provided, so no truth association will be performed.");
         }
       }
     }

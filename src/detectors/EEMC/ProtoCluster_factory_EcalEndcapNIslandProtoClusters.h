@@ -10,6 +10,8 @@
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 
 class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
@@ -54,7 +56,15 @@ public:
         app->SetDefaultParameter("EEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
-        AlgorithmInit();
+        std::string tag=this->GetTag();
+        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+
+        // Get log level from user parameter or default
+        std::string log_level_str = "info";
+        auto pm = app->GetJParameterManager();
+        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

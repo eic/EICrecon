@@ -32,7 +32,7 @@ using namespace edm4eic;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterIslandCluster::AlgorithmInit() {
+void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     // Assume all configuration parameter data members have been filled in already.
 
@@ -50,6 +50,8 @@ void CalorimeterIslandCluster::AlgorithmInit() {
     // generator. Ideally, this would be seeded with the run number+event number, but for
     // now, just use default values defined in header file.
 
+
+    m_logger=logger;
     // unitless conversion, keep consistency with juggler internal units (GeV, mm, ns, rad)
     minClusterHitEdep    = m_minClusterHitEdep / GeV;
     minClusterCenterEdep = m_minClusterCenterEdep / GeV;
@@ -71,16 +73,18 @@ void CalorimeterIslandCluster::AlgorithmInit() {
       }
       auto& [method, units] = distMethods[uprop.first];
       if (uprop.second.size() != units.size()) {
-        LOG_INFO(default_cout_logger) << units.size() << LOG_END;
-        LOG_WARN(default_cout_logger) << fmt::format("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size())  << LOG_END;
+        //LOG_INFO(default_cout_logger) << units.size() << LOG_END;
+        m_logger->info("units.size() = {}", units.size());
+        //LOG_WARN(default_cout_logger) << fmt::format("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size())  << LOG_END;
+        m_logger->warn("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size());
         return false;
       } else {
         for (size_t i = 0; i < units.size(); ++i) {
           neighbourDist[i] = uprop.second[i] / units[i];
         }
         hitsDist = method;
-        LOG_INFO(default_cout_logger) << fmt::format("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","))
-               << LOG_END;
+        //LOG_INFO(default_cout_logger) << fmt::format("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ",")) << LOG_END;
+        m_logger->info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
       }
       return true;
     };
@@ -113,7 +117,8 @@ void CalorimeterIslandCluster::AlgorithmInit() {
       }
     }
     if (not method_found) {
-        LOG_ERROR(default_cerr_logger) << "Cannot determine the clustering coordinates" << LOG_END;
+        //LOG_ERROR(default_cerr_logger) << "Cannot determine the clustering coordinates" << LOG_END;
+        m_logger->error("Cannot determine the clustering coordinates");
         japp->Quit();
         return;
     }
@@ -150,13 +155,10 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
     //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
 
-      if (false){//msgLevel(MSG::DEBUG)) {
+      if (m_logger->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
         const auto& hit = hits[i];
-        LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, "
-                               "global=({:.4f}, {:.4f}, {:.4f}) mm",
-                               i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,
-                               hit->getPosition().y, hit->getPosition().z)
-                << LOG_END;
+        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
+        m_logger->info("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
       }
       // already in a group
       if (visits[i]) {
@@ -175,9 +177,9 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       split_group(group, maxima, protoClusters);
       //TODO: use proper logger
 
-      if (false){//msgLevel(MSG::DEBUG)) {
-        LOG_INFO(default_cout_logger) << "hits in a group: " << group.size() << ", "
-                << "local maxima: " << maxima.size() << LOG_END;
+      if (m_logger->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
+        //LOG_INFO(default_cout_logger) << "hits in a group: " << group.size() << ", " << "local maxima: " << maxima.size() << LOG_END;
+        m_logger->info("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
       }
     }
 
