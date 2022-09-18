@@ -1,10 +1,18 @@
 
 #include "JEventProcessorPODIO.h"
 #include <services/log/Log_service.h>
+#include <JANA/Services/JComponentManager.h>
 
 #include <datamodel_glue.h>
 #include <algorithm>
 
+
+template <typename PodioT, typename PodioCollectionT>
+struct TestIfPodioType {
+    bool operator() () {
+        return true;
+    }
+};
 
 template <typename PodioT, typename PodioCollectionT>
 struct InsertFacIntoStore {
@@ -68,55 +76,99 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
 }
 
+
 void JEventProcessorPODIO::Init() {
 
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-
+    m_log->set_level(spdlog::level::debug);
     m_store = new eic::EventStore();
     m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
+
 }
 
 
-void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
+void JEventProcessorPODIO::FindCollectionsToWrite(const std::vector<JFactory*>& factories) {
 
-    // Set up the set of collections_to_write
-    if (m_is_first_event) {
-        std::set<std::string> all_factory_collections;
-        for (auto fac : event->GetAllFactories()) {
-            all_factory_collections.insert(fac->GetTag());
+    // Set up the set of collections_to_write.
+    std::map<std::string, std::string> all_collections_to_types;
+    for (auto fac : factories) {
+        const auto& colname = fac->GetTag();
+        if (colname.empty()) {
+            m_log->debug("Factory producing type '{}' has an empty collection name, omitting.", fac->GetObjectName());
         }
-
-        if (m_output_include_collections.empty()) {
-            // User has not specified an include list, so we include _all_ JFactories present in first event.
-            // (Non-PODIO types will be ignored later)
-            m_collections_to_write = all_factory_collections;
+        else if (all_collections_to_types.count(colname) != 0) {
+            throw JException("Collection name collision: Collection '%s' provided by factories producing types '%s' and '%s'.",
+                             colname, all_collections_to_types[colname], fac->GetObjectName());
         }
         else {
-            // We match up the include list with what is actually present in the JFactorySet
-            std::set_intersection(m_output_include_collections.begin(),
-                                  m_output_include_collections.end(),
-                                  all_factory_collections.begin(),
-                                  all_factory_collections.end(),
-                                  std::inserter(m_collections_to_write, m_collections_to_write.begin()));
+            all_collections_to_types[fac->GetTag()] = fac->GetObjectName();
         }
+    }
+    std::map<std::string, std::string> collections_to_include;
 
-        // We remove any collections on the exclude list
-        // (whether it be from the include list or the list of all factories)
-        for (const auto& col : m_output_exclude_collections) {
-            m_collections_to_write.erase(col);
+    if (m_output_include_collections.empty()) {
+        // User has not specified an include list, so we include _all_ JFactories present in first event.
+        // (Non-PODIO types will be ignored later)
+        m_log->debug("Persisting full set of valid podio types");
+        collections_to_include = all_collections_to_types;
+    }
+    else {
+        m_log->debug("Persisting podio types from includes list");
+        // We match up the include list with what is actually present in the JFactorySet
+        for (const auto& col : m_output_include_collections) {
+            auto it = all_collections_to_types.find(col);
+            if (it != all_collections_to_types.end()) {
+                collections_to_include[it->first] = it->second;
+            }
+            else {
+                m_log->warn("Explicitly included collection '{}' not present in JFactorySet, omitting.", col);
+            }
         }
     }
 
+    // We remove any collections on the exclude list
+    // (whether it be from the include list or the list of all factories)
+    for (const auto& col : m_output_exclude_collections) {
+        m_log->info("Excluding collection '{}'", col);
+        collections_to_include.erase(col);
+    }
+
+    // If any of these collections are not PODIO types, remove from collections_to_write and inform the user right away.
+    for (const auto& pair : collections_to_include) {
+        const auto& col = pair.first;
+        const auto& coltype = pair.second;
+
+        if (CallWithPODIOType<TestIfPodioType, bool>(coltype) == std::nullopt) {
+            // Severity of the log message depends on whether the user explicitly included the collection or not
+            if (m_output_include_collections.empty()) {
+                m_log->info("Collection '{}' has non-PODIO type '{}', omitting.", col, coltype);
+            }
+            else {
+                m_log->warn("Explicitly included collection '{}' has non-PODIO type '{}', omitting.", col, coltype);
+            }
+        }
+        else {
+            // This IS a PODIO type, and should be included.
+            m_collections_to_write[col] = coltype;
+            m_log->debug("Writing collection '{}'", pair.first);
+        }
+    }
+}
+
+void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
+
     std::lock_guard<std::mutex> lock(m_mutex);
+    if (m_is_first_event) {
+        FindCollectionsToWrite(event->GetAllFactories());
+    }
 
-    m_log->debug("==================================");
-    m_log->debug("Event #{}", event->GetEventNumber());
+    m_log->trace("==================================");
+    m_log->trace("Event #{}", event->GetEventNumber());
 
-
-    // Look for objects created by JANA, but not part of a collection in the EventStore and add them
-    // Loop over all factories.
-    for( auto fac : event->GetAllFactories() ){
+    // Loop over all collections/factories to write
+    for( const auto& pair : (m_collections_to_write) ){
+        JFactory* fac = event->GetFactory(pair.second, pair.first); // Object name, tag name=collection name
 
         // Attempt to put data from all factories into the store.
         // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
@@ -131,14 +183,13 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
             if (result == std::nullopt) { 
-                m_log->debug("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag()); 
+                m_log->error("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
             }
             else {
-                m_log->debug("Successfully added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
+                m_log->trace("Added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
                 if (m_is_first_event) {
-                    // We only want to register for write once, since internally PODIO uses a vector such that
-                    // duplicates cause segfaults.
-                    // We only register if we have also confirmed that this is actually a valid PODIO type.
+                    // We only want to register for write once.
+                    // If we register the same collection multiple times, PODIO will segfault.
                     m_writer->registerForWrite(fac->GetTag());
                 }
             }

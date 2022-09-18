@@ -155,7 +155,7 @@ namespace eic {
         const podio::CollectionBase *tmp_coll(nullptr);
         if (!m_store->get(name, tmp_coll))
         {
-            std::cerr << "no such collection to write, throw exception." << std::endl;
+            std::cerr << "RootWriter: Omitting bad collection name: " << name << std::endl;
             return false;
         }
 
