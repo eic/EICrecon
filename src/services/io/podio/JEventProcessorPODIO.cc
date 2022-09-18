@@ -3,6 +3,7 @@
 #include <services/log/Log_service.h>
 
 #include <datamodel_glue.h>
+#include <algorithm>
 
 
 template <typename PodioT, typename PodioCollectionT>
@@ -62,34 +63,40 @@ void JEventProcessorPODIO::Init() {
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
-    /*
-    // Get list of collection names
-    auto collectionIDtable = m_store->getCollectionIDTable();
-    auto &collNames = collectionIDtable->names();
-    std::set<std::string> collNames_set(collNames.begin(), collNames.end());
+    // Set up the set of collections_to_write
+    if (m_is_first_event) {
+        std::set<std::string> all_factory_collections;
+        for (auto fac : event->GetAllFactories()) {
+            all_factory_collections.insert(fac->GetTag());
+        }
 
-    // Determine what to include from include list (or include all if empty)
-    if( m_output_include_collections.empty() ){
-        m_collections_to_write = collNames_set; // user didn't specify. Assume all collections should be included
+        if (m_output_include_collections.empty()) {
+            // User has not specified an include list, so we include _all_ JFactories present in first event.
+            // (Non-PODIO types will be ignored later)
+            m_collections_to_write = all_factory_collections;
+        }
+        else {
+            // We match up the include list with what is actually present in the JFactorySet
+            std::set_intersection(m_output_include_collections.begin(),
+                                  m_output_include_collections.end(),
+                                  all_factory_collections.begin(),
+                                  all_factory_collections.end(),
+                                  std::inserter(m_collections_to_write, m_collections_to_write.begin()));
+        }
 
-    }else{
-        for( const auto &n : m_output_include_collections ){
-            if( collNames_set.count( n ) ) m_collections_to_write.insert(n);
+        // We remove any collections on the exclude list
+        // (whether it be from the include list or the list of all factories)
+        for (const auto& col : m_output_exclude_collections) {
+            m_collections_to_write.erase(col);
         }
     }
-
-    // Determine which to exclude from exclude list
-    for( const auto &n : m_output_exclude_collections ) m_collections_to_write.erase( n );
-
-    // Apply include/exclude lists.
-    for( const auto &collName : m_collections_to_write ) m_writer->registerForWrite( collName );
-    */
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
     m_log->trace("=================================="); 
     m_log->trace("Event #{}", event->GetEventNumber()); 
-    
+
+
     // Look for objects created by JANA, but not part of a collection in the EventStore and add them
     // Loop over all factories.
     for( auto fac : event->GetAllFactories() ){
@@ -112,6 +119,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             else {
                 m_log->info("Successfully added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
                 if (m_is_first_event) {
+                    // We only want to register for write once, since internally PODIO uses a vector such that
+                    // duplicates cause segfaults.
+                    // We only register if we have also confirmed that this is actually a valid PODIO type.
                     m_writer->registerForWrite(fac->GetTag());
                 }
             }
