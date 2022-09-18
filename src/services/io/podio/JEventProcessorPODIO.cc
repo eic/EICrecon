@@ -110,8 +110,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    m_log->trace("=================================="); 
-    m_log->trace("Event #{}", event->GetEventNumber()); 
+    m_log->debug("==================================");
+    m_log->debug("Event #{}", event->GetEventNumber());
 
 
     // Look for objects created by JANA, but not part of a collection in the EventStore and add them
@@ -134,7 +134,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 m_log->debug("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag()); 
             }
             else {
-                m_log->info("Successfully added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
+                m_log->debug("Successfully added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
                 if (m_is_first_event) {
                     // We only want to register for write once, since internally PODIO uses a vector such that
                     // duplicates cause segfaults.
