@@ -20,11 +20,11 @@ namespace eicrecon {
         auto pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "TrackerSourceLinker:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+        std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
         // Now we check that user provided an input names
         pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
-        if(m_input_tags.size() == 0) {
+        if(m_input_tags.empty()) {
             m_input_tags = GetDefaultInputTags();
         }
 
@@ -62,6 +62,12 @@ namespace eicrecon {
         m_log->debug("TrackerSourceLinker_factory::Process");
 
         auto result = m_source_linker.produce(total_hits);
+
+        for(auto sourceLink: *result->sourceLinks) {
+            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink.get().index(), sourceLink.get().geometryId().value());
+
+        }
+
         Insert(result);
     }
 } // eicrecon

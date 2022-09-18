@@ -20,7 +20,7 @@
 /// Return pointer to the dd4hep::Detector object.
 /// Call Initialize if needed.
 //----------------------------------------------------------------
-std::shared_ptr<const GeoSvc> ACTSGeo_service::acts_context() {
+std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::acts_context() {
     std::call_once( init_flag, &ACTSGeo_service::Initialize, this);
     return m_acts_context;
 }
@@ -30,7 +30,7 @@ void ACTSGeo_service::Initialize() {
         throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
     }
 
-    m_acts_context = std::make_shared<GeoSvc>();
+    m_acts_context = std::make_shared<ActsGeometryProvider>();
     m_acts_context->initialize(m_dd4hepGeo);
 }
 

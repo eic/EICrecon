@@ -25,8 +25,8 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
 
-set(Acts_INCLUDE_DIR "${Acts_DIR}/../../../include/")
-message("{Acts_INCLUDE_DIR} ${Acts_INCLUDE_DIR}")
+set(Acts_INCLUDE_DIRS "${Acts_DIR}/../../../include/")
+message("{Acts_INCLUDE_DIRS} ${Acts_INCLUDE_DIRS}")
 
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp

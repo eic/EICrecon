@@ -2,24 +2,26 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Clusters_factory_EcalEndcapNClusters_h_
-#define _Clusters_factory_EcalEndcapNClusters_h_
+#ifndef _Cluster_factory_EcalBarrelClusters_h_
+#define _Cluster_factory_EcalBarrelClusters_h_
 
 #include <random>
 
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 
 
 
-class Clusters_factory_EcalEndcapNClusters : public JFactoryT<eicd::MutableCluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Clusters_factory_EcalEndcapNClusters(){
-        SetTag("EcalEndcapNClusters");
+    Cluster_factory_EcalBarrelClusters(){
+        SetTag("EcalBarrelClusters");
     }
 
     //------------------------------------------
@@ -27,8 +29,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalEndcapNHits";
-        m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
+        m_input_simhit_tag="EcalBarrelHits";
+        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -41,18 +43,28 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:depthCorrection",     m_depthCorrection);
-        //app->SetDefaultParameter("EEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("EEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("EEMC:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("BEMC:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("BEMC:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("BEMC:depthCorrection",     m_depthCorrection);
+        //app->SetDefaultParameter("BEMC:inputHitCollection", m_inputHitCollection);
+        //app->SetDefaultParameter("BEMC:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("BEMC:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("BEMC:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("BEMC:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
-        AlgorithmInit();
+        std::string tag=this->GetTag();
+        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+
+        // Get log level from user parameter or default
+        std::string log_level_str = "info";
+        auto pm = app->GetJParameterManager();
+        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------
@@ -68,7 +80,7 @@ public:
         
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<eicd::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -78,10 +90,10 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapMCRecoClusterParticleAssociation");
+        event->Insert(m_outputAssociations, "EcalBarrelMCRecoClusterParticleAssociation");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
 
-#endif // _Clusters_factory_EcalEndcapNClusters_h_
+#endif // _Cluster_factory_EcalBarrelClusters_h_

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+
+// Originally this file was called GeoSvc. It was split between JANA2 services dd4hep service and acts service
 //
-//  GeoSvc.h
+//  ActsGeometryProvider.h
 //
 //
 //  Created by Julia Hrdinka on 30/03/15.
 //
 //
-
 #ifndef GEOSVC_H
 #define GEOSVC_H
-
 
 // ACTS
 #include "Acts/Utilities/Logger.hpp"
@@ -38,10 +38,10 @@
  */
 void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const std::string &fname);
 
-class GeoSvc {
+class ActsGeometryProvider {
 public:
-    GeoSvc() {
-        spdlog::info("I'm alive!");
+    ActsGeometryProvider() {
+        spdlog::info("ActsGeometryProvider... I'm alive!");
     }
     using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
 

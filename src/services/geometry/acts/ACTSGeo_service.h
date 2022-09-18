@@ -32,7 +32,7 @@
 #include "DDRec/SurfaceManager.h"
 #include "DDRec/Surface.h"
 #include "DD4hep/DD4hepUnits.h"
-#include <algorithms/tracking/GeoSvc.h>
+#include <algorithms/tracking/ActsGeometryProvider.h>
 
 
 class ACTSGeo_service : public JService
@@ -40,7 +40,7 @@ class ACTSGeo_service : public JService
 public:
     ACTSGeo_service( JApplication *app ):app(app){}
 
-    std::shared_ptr<const GeoSvc> acts_context();
+    std::shared_ptr<const ActsGeometryProvider> acts_context();
 
 protected:
     void Initialize();
@@ -52,7 +52,7 @@ private:
     std::once_flag init_flag;
     JApplication *app = nullptr;
     dd4hep::Detector* m_dd4hepGeo = nullptr;
-    std::shared_ptr<GeoSvc> m_acts_context;
+    std::shared_ptr<ActsGeometryProvider> m_acts_context;
 	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xmlFileNames;
 

@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
+// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include <fmt/ostream.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include "GeoSvc.h"
+#include "ActsGeometryProvider.h"
 
 #include "TGeoManager.h"
 
@@ -67,7 +67,7 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 
 
 
-void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
+void ActsGeometryProvider::initialize(dd4hep::Detector* dd4hepGeo) {
 
     m_log = spdlog::stdout_color_mt("ActsGeoService");
 
@@ -135,7 +135,7 @@ void GeoSvc::initialize(dd4hep::Detector* dd4hepGeo) {
   double layerEnvelopeZ = Acts::UnitConstants::mm;
   double defaultLayerThickness = Acts::UnitConstants::fm;
   using Acts::sortDetElementsByID;
-    m_actsLoggingLevel = Acts::Logging::VERBOSE;
+    m_actsLoggingLevel = Acts::Logging::INFO;
   m_trackingGeo = Acts::convertDD4hepDetector(
           m_dd4hepDetector->world(),
           m_actsLoggingLevel,

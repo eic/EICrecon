@@ -6,6 +6,7 @@ src/services/io/podio/datamodel_glue.h
 # Indirectory builds
 include/*
 plugins/*
+build/*
 
 ##### C++ basic gitignore #####
 

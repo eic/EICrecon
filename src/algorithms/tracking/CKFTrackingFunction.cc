@@ -48,7 +48,7 @@ namespace eicrecon{
                const eicrecon::CKFTracking::TrackFinderOptions& options)
                const override
     {
-      return trackFinder.findTracks(initialParameters, options);
+        return trackFinder.findTracks(initialParameters, options);
     };
   };
 

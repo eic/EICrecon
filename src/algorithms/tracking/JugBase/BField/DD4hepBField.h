@@ -35,7 +35,7 @@ namespace Jug::BField {
    */
   class DD4hepBField final : public Acts::MagneticFieldProvider {
   public:
-    std::shared_ptr<dd4hep::Detector> m_det;
+      dd4hep::Detector* m_det;
 
   public:
     struct Cache {
@@ -51,7 +51,7 @@ namespace Jug::BField {
     *
     * @param [in] DD4hep detector instance
     */
-    explicit DD4hepBField(dd4hep::Detector* det) : m_det(std::shared_ptr<dd4hep::Detector>(det)) {}
+    explicit DD4hepBField(dd4hep::Detector* det) : m_det(det) {}
 
     /**  retrieve magnetic field value.
      *
