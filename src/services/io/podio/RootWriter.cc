@@ -99,7 +99,6 @@ namespace eic {
                 }
             }
             m_collectionBranches.push_back(branches);
-            std::cout << "RootWriter::createBranches(): " << m_collectionBranches.size()-1 << ": " << name << " : " << coll->size() << " items" << std::endl;
         }
     }
 
@@ -108,8 +107,6 @@ namespace eic {
         size_t iCollection = 0;
         for (auto &coll : collections)
         {
-            std::cout << "RootWriter::setBranches(): " << iCollection << ": " << coll.first << " : " 
-                      << coll.second->size() << " items" << std::endl;
             const auto &branches = m_collectionBranches[iCollection];
             podio::root_utils::setCollectionAddresses(coll.second, branches);
 

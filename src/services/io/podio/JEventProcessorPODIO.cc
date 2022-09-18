@@ -1,6 +1,6 @@
 
 #include "JEventProcessorPODIO.h"
-#include <JANA/JLogger.h>
+#include <services/log/Log_service.h>
 
 #include <datamodel_glue.h>
 
@@ -27,7 +27,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
 void JEventProcessorPODIO::Init() {
 
-    japp->SetDefaultParameter("podio:output_file", m_output_file, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
+    auto app = GetApplication();
+    m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
+
+    app->SetDefaultParameter("podio:output_file", m_output_file, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
+
+    app->SetDefaultParameter("podio:output_file", m_output_file, "Name of EDM4hep/podio output file to write to. Setting this will cause the output file to be created and written to.");
 
     // Allow user to set PODIO:OUTPUT_FILE to "1" to specify using the default name.
     if( m_output_file == "1" ){
@@ -40,13 +45,13 @@ void JEventProcessorPODIO::Init() {
 
     // Get the output directory path for creating a second copy of the output file at the end of processing.
     // (this is duplicating similar functionality in Juggler/Gaudi so assume it is useful).
-    japp->SetDefaultParameter("podio:output_file_copy_dir", m_output_file_copy_dir, "Directory name to make an additional copy of the output file to. Copy will be done at end of processing. Default is empty string which means do not make a copy. No check is made on path existing.");
+    app->SetDefaultParameter("podio:output_file_copy_dir", m_output_file_copy_dir, "Directory name to make an additional copy of the output file to. Copy will be done at end of processing. Default is empty string which means do not make a copy. No check is made on path existing.");
 
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections;  // need to get as vector, then convert to set
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
-    japp->SetDefaultParameter("podio:output_include_collections", output_include_collections, "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection.");
-    japp->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections, "Comma separated list of collection names to not write out.");
+    app->SetDefaultParameter("podio:output_include_collections", output_include_collections, "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection.");
+    app->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections, "Comma separated list of collection names to not write out.");
     m_output_include_collections = std::set<std::string>(output_include_collections.begin(), output_include_collections.end());
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(), output_exclude_collections.end());
 
@@ -82,8 +87,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    jout << "==================================" << jendl;
-    jout << "Event #" << event->GetEventNumber() << jendl;
+    m_log->trace("=================================="); 
+    m_log->trace("Event #{}", event->GetEventNumber()); 
     
     // Look for objects created by JANA, but not part of a collection in the EventStore and add them
     // Loop over all factories.
@@ -101,18 +106,18 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
-            if (result == std::nullopt) {
-                jout << "EICRootWriterSimple::Process: Not a recognized PODIO type: " << fac->GetObjectName() << ":" << fac->GetTag() << jendl;
+            if (result == std::nullopt) { 
+                m_log->debug("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag()); 
             }
             else {
-                jout << "EICRootWriterSimple::Process: Successfully added to output store: " << fac->GetObjectName() << ":" << fac->GetTag() << "; store collection count = " << *result << jendl;
+                m_log->info("Successfully added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
                 if (m_is_first_event) {
                     m_writer->registerForWrite(fac->GetTag());
                 }
             }
         }
         catch(std::exception &e){
-            LOG_ERROR(default_cerr_logger) << e.what() << " : " << fac->GetObjectName() << LOG_END;
+            m_log->error("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
         }
     }
     m_writer->writeEvent();

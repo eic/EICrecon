@@ -3,6 +3,7 @@
 #define _EICRootWriterSimple_h_
 
 #include <JANA/JEventProcessor.h>
+#include <spdlog/spdlog.h>
 
 #include <services/io/podio/RootWriter.h>
 #include <services/io/podio/EventStore.h>
@@ -24,6 +25,8 @@ public:
 
     std::mutex m_mutex;
     bool m_is_first_event = true;
+
+    std::shared_ptr<spdlog::logger> m_log;
 
     std::string m_output_file = "podio_output.root";
     std::string m_output_file_copy_dir = "";
