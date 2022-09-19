@@ -1,6 +1,6 @@
 
-#ifndef CalorimeterHit_factory_EcalEndcapNRecHits_h_
-#define CalorimeterHit_factory_EcalEndcapNRecHits_h_
+#ifndef CalorimeterHit_factory_EcalBarrelRecHits_h_
+#define CalorimeterHit_factory_EcalBarrelRecHits_h_
 
 #include <JANA/JFactoryT.h>
 
@@ -8,13 +8,13 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalEndcapNRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalBarrelRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalEndcapNRecHits(){
-        SetTag("EcalEndcapNRecHits");
+    CalorimeterHit_factory_EcalBarrelRecHits(){
+        SetTag("EcalBarrelRecHits");
     }
 
     //------------------------------------------
@@ -22,7 +22,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "EcalEndcapNRawHits";
+        m_input_tag = "EcalBarrelRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096;//{this, "capacityADC", 8096};
@@ -40,22 +40,22 @@ public:
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="EcalEndcapNHits";  // from ATHENA's reconstruction.py
+        m_readout="EcalBarrelHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
         m_sectorField="sector";       // from ATHENA's reconstruction.py
 
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-//        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("EEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("EEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("EEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("EEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("EEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("EEMC:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("EEMC:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("EEMC:samplingFraction", m_sampFrac);
+//        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("BEMC:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("BEMC:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();
@@ -91,4 +91,4 @@ public:
 
 };
 
-#endif // CalorimeterHit_factory_EcalEndcapNRecHits_h_
+#endif // CalorimeterHit_factory_EcalBarrelRecHits_h_

@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
-#define _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
+#ifndef _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_
+#define _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_
 
 #include <random>
 
@@ -13,20 +13,20 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalBarrelIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalEndcapNIslandProtoClusters(){
-        SetTag("EcalEndcapNIslandProtoClusters");
+    ProtoCluster_factory_EcalBarrelIslandProtoClusters(){
+        SetTag("EcalBarrelIslandProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalEndcapNRecHits";
+        m_input_tag = "EcalBarrelRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
@@ -42,18 +42,18 @@ public:
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
 
-        app->SetDefaultParameter("EEMC:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
-        //app->SetDefaultParameter("EEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("EEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("EEMC:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("BEMC:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("BEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
+        //app->SetDefaultParameter("BEMC:inputHitCollection", m_inputHitCollection);
+        //app->SetDefaultParameter("BEMC:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("BEMC:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("BEMC:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("BEMC:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("BEMC:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("BEMC:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("BEMC:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("BEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();
@@ -88,4 +88,4 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
+#endif // _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_

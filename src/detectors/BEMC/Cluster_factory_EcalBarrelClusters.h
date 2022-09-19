@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalEndcapNClusters_h_
-#define _Cluster_factory_EcalEndcapNClusters_h_
+#ifndef _Cluster_factory_EcalBarrelClusters_h_
+#define _Cluster_factory_EcalBarrelClusters_h_
 
 #include <random>
 
@@ -15,13 +15,13 @@
 
 
 
-class Cluster_factory_EcalEndcapNClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalEndcapNClusters(){
-        SetTag("EcalEndcapNClusters");
+    Cluster_factory_EcalBarrelClusters(){
+        SetTag("EcalBarrelClusters");
     }
 
     //------------------------------------------
@@ -29,8 +29,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalEndcapNHits";
-        m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
+        m_input_simhit_tag="EcalBarrelHits";
+        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -43,14 +43,14 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:depthCorrection",     m_depthCorrection);
-        //app->SetDefaultParameter("EEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("EEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("EEMC:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("BEMC:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("BEMC:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("BEMC:depthCorrection",     m_depthCorrection);
+        //app->SetDefaultParameter("BEMC:inputHitCollection", m_inputHitCollection);
+        //app->SetDefaultParameter("BEMC:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("BEMC:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("BEMC:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("BEMC:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -90,10 +90,10 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapMCRecoClusterParticleAssociation");
+        event->Insert(m_outputAssociations, "EcalBarrelMCRecoClusterParticleAssociation");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
 
-#endif // _Cluster_factory_EcalEndcapNClusters_h_
+#endif // _Cluster_factory_EcalBarrelClusters_h_

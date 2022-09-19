@@ -58,7 +58,7 @@ plugin_link_libraries(${PLUGIN_NAME}
         ActsPluginDD4hep
         spdlog::spdlog
         Boost::boost
-        ROOT::EG)
+        ${ROOT_EG_LIBRARY})
 
 #target_link_libraries(${PLUGIN_NAME}_plugin
 #        ${ROOT_LIBRARIES}

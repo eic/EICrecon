@@ -5,8 +5,7 @@
 
 #include "JEventSourcePODIO.h"
 #include "JEventSourcePODIOsimple.h"
-//#include "EICRootWriter.h"
-#include "EICRootWriterSimple.h"
+#include "JEventProcessorPODIO.h"
 
 
 // Make this a JANA plugin
@@ -21,7 +20,7 @@ void InitPlugin(JApplication *app) {
         ||  app->GetJParameterManager()->Exists("podio:output_file_copy_dir")
         ||  app->GetJParameterManager()->Exists("podio:output_include_collections")
         ||  app->GetJParameterManager()->Exists("podio:output_exclude_collections")        ){
-        app->Add(new EICRootWriterSimple());
+        app->Add(new JEventProcessorPODIO());
     }
 }
 }

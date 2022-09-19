@@ -14,9 +14,10 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterHitReco::AlgorithmInit() {
+void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     //unitless conversion
+    m_logger=logger;
     dyRangeADC = m_dyRangeADC / GeV;
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
@@ -33,16 +34,17 @@ void CalorimeterHitReco::AlgorithmInit() {
         id_dec = id_spec.decoder();
         if (!m_sectorField.empty()) {
             sector_idx = id_dec->index(m_sectorField);
-            LOG_INFO(default_cerr_logger) << "Find sector field " << m_sectorField << ", index = " << sector_idx
-                                          << LOG_END;
+            //LOG_INFO(default_cerr_logger) << "Find sector field " << m_sectorField << ", index = " << sector_idx  << LOG_END;
+            m_logger->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
         }
         if (!m_layerField.empty()) {
             layer_idx = id_dec->index(m_layerField);
-            LOG_INFO(default_cerr_logger) << "Find layer field " << m_layerField << ", index = " << sector_idx
-                                          << LOG_END;
+            //LOG_INFO(default_cerr_logger) << "Find layer field " << m_layerField << ", index = " << sector_idx << LOG_END;
+            m_logger->info("Find layer field {}, index = {}", m_layerField, sector_idx);
         }
     } catch (...) {
-        LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
+        //LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
+        m_logger->error("Failed to load ID decoder for {}", m_readout);
         return;
     }
 
@@ -51,10 +53,11 @@ void CalorimeterHitReco::AlgorithmInit() {
     if (!m_localDetElement.empty()) {
         try {
             local = m_geoSvc->detector()->detector(m_localDetElement);
-            LOG_INFO(default_cerr_logger) << "local coordinate system from DetElement " << m_localDetElement << LOG_END;
+            //LOG_INFO(default_cerr_logger) << "local coordinate system from DetElement " << m_localDetElement << LOG_END;
+            m_logger->info("local coordinate system from DetElement {}", m_localDetElement);
         } catch (...) {
-            LOG_ERROR(default_cerr_logger) << "failed to load local coordinate system from DetElement "
-                                           << m_localDetElement << LOG_END;
+            //LOG_ERROR(default_cerr_logger) << "failed to load local coordinate system from DetElement " << m_localDetElement << LOG_END;
+            m_logger->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
             return;
         }
     } else {

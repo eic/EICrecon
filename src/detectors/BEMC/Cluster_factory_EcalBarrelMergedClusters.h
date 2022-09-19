@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalEndcapNMergedClusters_h_
-#define _Cluster_factory_EcalEndcapNMergedClusters_h_
+#ifndef _Cluster_factory_EcalBarrelMergedClusters_h_
+#define _Cluster_factory_EcalBarrelMergedClusters_h_
 
 #include <random>
 
@@ -15,13 +15,13 @@
 
 
 
-class Cluster_factory_EcalEndcapNMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalEndcapNMergedClusters(){
-        SetTag("EcalEndcapNMergedClusters");
+    Cluster_factory_EcalBarrelMergedClusters(){
+        SetTag("EcalBarrelMergedClusters");
     }
 
     //------------------------------------------
@@ -29,8 +29,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_tag="EcalEndcapNClusters";
-        m_inputAssociations_tag="EcalEndcapNClustersAssoc";
+        m_input_tag="EcalBarrelClusters";
+        m_inputAssociations_tag="EcalBarrelClustersAssoc";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
@@ -65,10 +65,10 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapNMergedClustersAssoc");
+        event->Insert(m_outputAssociations, "EcalBarrelMergedClustersAssoc");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
 
-#endif // _Cluster_factory_EcalEndcapNMergedClusters_h_
+#endif // _Cluster_factory_EcalBarrelMergedClusters_h_
