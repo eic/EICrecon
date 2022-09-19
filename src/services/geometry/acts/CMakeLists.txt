@@ -21,6 +21,7 @@ find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # ACTS
 find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep PluginJson)
@@ -57,6 +58,7 @@ message(STATUS "LINK_LIBRARIES = ${ACTSPLUGINLIBS}")
 #LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
 #                                            dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
 target_link_libraries(${PLUGIN_NAME}_plugin
+        Eigen3::Eigen
         dd4hep_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
