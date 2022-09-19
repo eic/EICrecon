@@ -17,7 +17,6 @@
 #include <JANA/JFactoryGenerator.h>
 
 // podio specific includes
-#include <podio/EventStore.h>
 #include <podio/IReader.h>
 #include <podio/UserDataCollection.h>
 #include <podio/podioVersion.h>
@@ -156,8 +155,8 @@ void JEventSourcePODIOsimple::Open() {
     // collection and a collection to be owned by an EventStore. Thus, we do it this way.
     if( ! background_filename.empty() ) {
         for (int i = 0; i < num_background_events; i++) {
-            auto bg_reader = new podio::ROOTReader();
-            auto bg_store = new podio::EventStore();
+            auto bg_reader = new eic::ROOTReader();
+            auto bg_store = new eic::EventStore();
             bg_reader->openFile( background_filename );
             if (!bg_reader->isValid())
                 throw std::runtime_error(fmt::format("podio ROOTReader says background events file {} is invalid", background_filename));
