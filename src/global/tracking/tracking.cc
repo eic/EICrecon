@@ -30,10 +30,10 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerSourceLinker"));
 
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
-            {"CentralTrackerSourceLinker"}, "Trajectories"));
+            {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
 
     app->Add(new JChainFactoryGeneratorT<TrackingParticles_factory>(
-            {"Trajectories"}, "CentralTrackingParticles"));
+            {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
 }
 } // extern "C"
 

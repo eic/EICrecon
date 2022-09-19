@@ -31,7 +31,7 @@ void TrackerHitReconstruction_factory::Init() {
 
     // Get log level from user parameter or default
     std::string log_level_str = "info";
-    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
     // get geometry service

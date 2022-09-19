@@ -58,19 +58,19 @@ plugin_link_libraries(${PLUGIN_NAME}
         ActsPluginDD4hep
         spdlog::spdlog
         Boost::boost
-        EG)
+        ROOT::EG)
 
-target_link_libraries(${PLUGIN_NAME}_plugin
-        ${ROOT_LIBRARIES}
-        dd4hep_library
-        algorithms_tracking_library
-        EDM4HEP::edm4hep
-        DD4hep::DDCore
-        DD4hep::DDRec
-        EDM4EIC::edm4eic
-        ActsCore
-        ActsPluginIdentification
-        ActsPluginTGeo
-        ActsPluginDD4hep
-        spdlog::spdlog
-        Boost::boost)
+#target_link_libraries(${PLUGIN_NAME}_plugin
+#        ${ROOT_LIBRARIES}
+#        dd4hep_library
+#        algorithms_tracking_library
+#        EDM4HEP::edm4hep
+#        DD4hep::DDCore
+#        DD4hep::DDRec
+#        EDM4EIC::edm4eic
+#        ActsCore
+#        ActsPluginIdentification
+#        ActsPluginTGeo
+#        ActsPluginDD4hep
+#        spdlog::spdlog
+#        Boost::boost)
