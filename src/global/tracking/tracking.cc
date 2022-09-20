@@ -4,12 +4,21 @@
 //
 
 #include <Acts/Propagator/Navigator.hpp>
+
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+
+#include <extensions/jana/JChainFactoryGeneratorT.h>
+
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
-#include "TrackingParticles_factory.h"
+#include "TrackingResult_factory.h"
+#include "ReconstructedParticle_factory.h"
+#include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
-#include <JANA/JApplication.h>
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+
+
+
 
 //
 extern "C" {
@@ -32,8 +41,14 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
 
-    app->Add(new JChainFactoryGeneratorT<TrackingParticles_factory>(
+    app->Add(new JChainFactoryGeneratorT<TrackingResult_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticle_factory>(
+            {"CentralTrackingParticles"}, "ReconstructedParticles"));
+
+    app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
+            {"CentralTrackingParticles"}, "TrackParameters"));
 }
 } // extern "C"
 

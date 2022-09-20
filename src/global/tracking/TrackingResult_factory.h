@@ -2,17 +2,17 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKINGPARTICLES_FACTORY_H
-#define EICRECON_TRACKINGPARTICLES_FACTORY_H
+#ifndef EICRECON_TRACKINGRESULT_FACTORY_H
+#define EICRECON_TRACKINGRESULT_FACTORY_H
 
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFit.h>
 #include "extensions/jana/JChainFactoryT.h"
 #include <spdlog/logger.h>
 
-class TrackingParticles_factory: public JChainFactoryT<ParticlesFromTrackFitResult> {
+class TrackingResult_factory: public JChainFactoryT<ParticlesFromTrackFitResult> {
 public:
-    TrackingParticles_factory( std::vector<std::string> default_input_tags ):
+    TrackingResult_factory(std::vector<std::string> default_input_tags ):
     JChainFactoryT<ParticlesFromTrackFitResult>(std::move(default_input_tags) ) {
     }
 
@@ -39,4 +39,4 @@ private:
 };
 
 
-#endif //EICRECON_TRACKINGPARTICLES_FACTORY_H
+#endif //EICRECON_TRACKINGRESULT_FACTORY_H

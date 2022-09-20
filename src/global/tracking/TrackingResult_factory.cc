@@ -2,12 +2,12 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "TrackingParticles_factory.h"
+#include "TrackingResult_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include <JANA/JEvent.h>
 
-void TrackingParticles_factory::Init() {
+void TrackingResult_factory::Init() {
     // This prefix will be used for parameters
     std::string param_prefix = "CKFTracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
@@ -31,11 +31,11 @@ void TrackingParticles_factory::Init() {
     m_particle_maker_algo.init(m_log);
 }
 
-void TrackingParticles_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void TrackingResult_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
 
 }
 
-void TrackingParticles_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
     std::string input_tag = m_input_tags[0];
 
