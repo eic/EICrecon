@@ -23,13 +23,13 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
+#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/JugTrack/Trajectories.hpp"
 
-#include <services/rootfile/RootFile_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "services/rootfile/RootFile_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 
 //------------------
