@@ -18,14 +18,14 @@ eicrecon
 
 Flags explained:
 ```bash
-#This flags enables plugins/submodules needed to turn on all tracking
+#This flag lists plugins(submodules) needed to run tracking reconstruction and analysis
 -Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
 
-# Number of parallel threads. Currently only 1. 
+# Number of parallel threads. Currently only 1 works. 
 # It is a limitation of an event model IO and will be fixed later 
 -Pnthreads=1
 
-# Write exact process of loading plugins
+# Write exactly what happens when plugins are loading. Good during debugging time.  
 -Pjana:debug_plugin_loading=1
 
 # Removes self "hang" watchdog. 
@@ -38,15 +38,14 @@ Flags explained:
 # debug    - all information that is relevant for an expert to debug but should not be present in production
 # info     - something that will always (almost) get into the global log
 # warning  - something that needs attention but results are likely usable
-# error    - something bad making results probably unusable
+# error    - something bad that makes results probably unusable
 # critical - imminent software failure and termination
 # Logging explained here: 
 https://github.com/eic/EICrecon/blob/main/docs/Logging.md
 
 
 # DD4Hep xml file for the detector describing the geometry. 
-# Can be set by this flag or env. variables combinations
-# (Defaults to ${DETECTOR_PATH}/${DETECTOR}.xml using envars
+# Can be set by this flag or env. variables combinations: ${DETECTOR_PATH}/${DETECTOR}.xml
 -Pdd4hep:xml_files=...
 
 # Example 1: full path to detector.xml
@@ -55,15 +54,16 @@ https://github.com/eic/EICrecon/blob/main/docs/Logging.md
 # Example2: DETECTOR_PATH env var is set in eic_shell, so it could be 
 -Pdd4hep:xml_files=${DETECTOR_PATH}/epic_tracking_only.xml
 
-# Or could be set through environment variables. 
-# Then -Pdd4hep:xml_files flag is not needed)
+
+# Alternatively it could be set through environment variables to not to add -Pdd4hep:xml_files every run
+# Then -Pdd4hep:xml_files flag is not needed. (!) Note that ".xml" is not needed in ${DETECTOR}
 export DETECTOR_PATH="/path/to/dd4hep/epic/"
-export DETECTOR="epic_tracking_only.xml"
+export DETECTOR="epic_tracking_only"
  
 # There is a centralized file where plugins can save their histograms:
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
 
-# all filenames that doesn't start with -<flag> interpretted as input files
-# This is an input file
+# all filenames that doesn't start with -<flag> are interpreted as input files
+# So this is an input file path
 /home/romanov/work/data/eicrecon_test/output.edm4hep.root
 ```
