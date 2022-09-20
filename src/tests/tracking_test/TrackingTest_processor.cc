@@ -8,10 +8,6 @@
 
 #include <fmt/core.h>
 
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
-
 #include <TDirectory.h>
 #include <TCanvas.h>
 #include <TROOT.h>
@@ -21,7 +17,12 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
+
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/TrackerHit.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/ReconstructedParticle.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
@@ -120,6 +121,9 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 //    fmt::print("OccupancyAnalysis::Process() mc_particles N {}\n", mc_particles.size());
 //
+
+    auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+    auto track_params = event->GetSingle<edm4eic::TrackParameters>("TrackParameters");
 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
