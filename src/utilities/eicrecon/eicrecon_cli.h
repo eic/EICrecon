@@ -59,7 +59,6 @@ namespace jana {
 
     /// Add the default plugins and the plugins at $EICrecon_MY/plugins to @param options.params.
     /// It comes before creating the @class JApplication.
-    /// @note It's not used in eicrecon.cc.
     void AddAvailablePluginsToOptionParams(UserOptions& options, std::vector<std::string> const& default_plugins);
 
     void AddDefaultPluginsToJApplication(JApplication* app, std::vector<std::string> const& default_plugins);

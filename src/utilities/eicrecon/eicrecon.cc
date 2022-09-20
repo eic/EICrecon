@@ -38,15 +38,9 @@ int main( int narg, char **argv)
     if (jana::HasPrintOnlyCliOptions(options, default_plugins))
         return -1;
 
-    japp = jana::CreateJApplication(options);
+    AddAvailablePluginsToOptionParams(options, default_plugins);
 
-    /// @note: the default plugins and the plugins at $EICrecon_MY are not managed by the JComponentManager,
-    /// thus they will not be shown with the "eicrecon -c" option.
-    // Add the plugins at $EICrecon_MY/plugins
-    if(const char* env_p = std::getenv("EICrecon_MY"))
-        japp->AddPluginPath( std::string(env_p) + "/plugins" );
-    // Add the default plugins
-    jana::AddDefaultPluginsToJApplication(japp, default_plugins);
+    japp = jana::CreateJApplication(options);
 
     auto exit_code = jana::Execute(japp, options);
 
