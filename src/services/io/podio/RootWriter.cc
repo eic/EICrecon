@@ -8,15 +8,16 @@
 #include "podio/ROOTWriter.h"
 #include "podio/podioVersion.h"
 
+#include <services/io/podio/EventStore.h>
+
 // ROOT specifc includes
 #include "TFile.h"
 #include "TTree.h"
 
 namespace eic {
 
-    ROOTWriter::ROOTWriter(const std::string &filename, eic::EventStore *store) : 
+    ROOTWriter::ROOTWriter(const std::string &filename) :
         m_filename(filename),
-        m_store(store),
         m_file(new TFile(filename.c_str(), "RECREATE", "data file")),
         m_datatree(new TTree("events", "Events tree")),
         m_metadatatree(new TTree("metadata", "Metadata tree")),
@@ -24,7 +25,8 @@ namespace eic {
         m_evtMDtree(new TTree("evt_metadata", "Event metadata tree")),
         m_colMDtree(new TTree("col_metadata", "Collection metadata tree"))
     {
-        m_evtMDtree->Branch("evtMD", "GenericParameters", m_store->eventMetaDataPtr());
+        // m_evtMDtree->Branch("evtMD", "GenericParameters", m_store->eventMetaDataPtr());
+        // NWB: TODO: Where should this go? What is this really keyed off of? I assume writeEvent?
     }
 
     ROOTWriter::~ROOTWriter()
@@ -32,14 +34,14 @@ namespace eic {
         delete m_file;
     }
 
-    void ROOTWriter::writeEvent()
+    void ROOTWriter::writeEvent(eic::EventStore* store)
     {
         std::vector<StoreCollection> collections;
         collections.reserve(m_collectionsToWrite.size());
         for (const auto &name : m_collectionsToWrite)
         {
             const podio::CollectionBase *coll;
-            m_store->get(name, coll);
+            store->get(name, coll);
             collections.emplace_back(name, const_cast<podio::CollectionBase *>(coll));
             collections.back().second->prepareForWrite();
         }

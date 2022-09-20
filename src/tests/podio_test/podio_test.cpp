@@ -2,9 +2,9 @@
 // Copyright 2022, Jefferson Science Associates, LLC.
 // Subject to the terms in the LICENSE file found in the top-level directory.
 #include <iostream>
-#include "services/io/podio/RootWriter.h"
-#include "services/io/podio/EventStore.h"
-#include <podio/ROOTReader.h>
+#include <services/io/podio/RootWriter.h>
+#include <services/io/podio/EventStore.h>
+#include <services/io/podio/RootReader.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 
@@ -81,7 +81,7 @@ void write_read_test() {
 
     eic::EventStore es_in;
 
-    podio::ROOTReader reader;
+    eic::ROOTReader reader;
     reader.openFile("test_out.root");
     es_in.setReader(&reader);
 
@@ -111,7 +111,7 @@ void read_write_test() {
     eic::EventStore input_store;
     eic::EventStore output_store;
 
-    podio::ROOTReader reader;
+    eic::ROOTReader reader;
     reader.openFile("test_out.root"); // comes from prev test
     input_store.setReader(&reader);
 
@@ -152,5 +152,6 @@ void read_write_test() {
 }
 
 int main() {
+    write_read_test();
     read_write_test();
 }

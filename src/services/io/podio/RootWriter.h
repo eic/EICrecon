@@ -3,7 +3,6 @@
 
 #include <podio/CollectionBase.h>
 #include <podio/CollectionBranches.h>
-#include "EventStore.h"
 
 #include "TBranch.h"
 
@@ -12,16 +11,19 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include <map>
 
 // forward declarations
 class TFile;
 class TTree;
 
 namespace eic {
+class EventStore;
+
 class ROOTWriter {
 
 public:
-  ROOTWriter(const std::string& filename, eic::EventStore* store);
+  ROOTWriter(const std::string& filename);
   ~ROOTWriter();
 
   // non-copyable
@@ -29,7 +31,7 @@ public:
   ROOTWriter& operator=(const ROOTWriter&) = delete;
 
   bool registerForWrite(const std::string& name);
-  void writeEvent();
+  void writeEvent(eic::EventStore* store);
   void finish();
 
 private:
@@ -39,22 +41,16 @@ private:
 
   // members
   std::string m_filename;
-  eic::EventStore* m_store;
   TFile* m_file;
   TTree* m_datatree;
   TTree* m_metadatatree;
   TTree* m_runMDtree;
   TTree* m_evtMDtree;
   TTree* m_colMDtree;
-  std::vector<std::string> m_collectionsToWrite{};
-  // In order to avoid having to look up the branches from the datatree for
-  // every event, we cache them in this vector, that is populated the first
-  // time we write an event. Since the collections and their order do not
-  // change between events, the assocation between the collections to write
-  // and their branches is simply index based
-  std::vector<podio::root_utils::CollectionBranches> m_collectionBranches{};
 
+  std::map<std::string, podio::root_utils::CollectionBranches> m_collectionBranchesToWrite{};
   bool m_firstEvent{true};
+
 };
 
 } // namespace eic
