@@ -1,0 +1,33 @@
+name: doxygen
+
+on:
+  push:
+  schedule:
+    - cron: '41 4 * * 0'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+      volumes:
+      - /home/runner/work/_temp:/home/runner/work/_temp
+      # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        apk add doxygen graphviz
+        doxygen Doxyfile
+    - uses: actions/upload-artifact@v3
+      with:
+        name: docs
+        path: html/
+        if-no-files-found: error
+    - run: |
+        apk add tar bash
+        # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
+    - uses: actions/upload-pages-artifact@v1
+      if: github.ref == 'refs/heads/main'
+      with:
+        path: html/
+        retention-days: 7
