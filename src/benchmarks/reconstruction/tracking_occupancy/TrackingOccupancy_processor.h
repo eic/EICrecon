@@ -1,21 +1,21 @@
-#ifndef EICRECON_OCCUPANCY_ANALYSIS_H
-#define EICRECON_OCCUPANCY_ANALYSIS_H
+#ifndef EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H
+#define EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-#include <services/log/Log_service.h>
-
-#include <TDirectory.h>
+#include "TrackingOccupancyAnalysis.h"
+#include "HitReconstructionAnalysis.h"
+#include "services/log/Log_service.h"
 
 class JEvent;
 class JApplication;
 
-class TrackingTest_processor:public JEventProcessor
+class TrackingOccupancy_processor:public JEventProcessor
 {
 public:
-    explicit TrackingTest_processor(JApplication *);
-    ~TrackingTest_processor() override = default;
+    explicit TrackingOccupancy_processor(JApplication *);
+    ~TrackingOccupancy_processor() override = default;
 
     //----------------------------
     // Init
@@ -45,8 +45,19 @@ public:
 
 private:
 
+    TrackingOccupancyAnalysis m_occupancy_analysis;
+    HitReconstructionAnalysis m_hit_reco_analysis;
+
+
+
+    TDirectory* m_dir_main;               /// Main TDirectory for this plugin 'occupancy_ana'
+    TH1F * m_th1_prt_pz;                  /// MC Particles pz
+    TH1F * m_th1_prt_energy;              /// MC Particles total E
+    TH1F * m_th1_prt_theta;               /// MC Particles theta angle
+    TH1F * m_th1_prt_phi;                 /// MC Particles phi angle
+    TH2F * m_th2_prt_pxy;                 /// MC Particles px,py
+
     std::shared_ptr<spdlog::logger> m_log;
-    TDirectory *m_dir_main;
 };
 
-#endif //EICRECON_OCCUPANCY_ANALYSIS_H
+#endif //EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H
