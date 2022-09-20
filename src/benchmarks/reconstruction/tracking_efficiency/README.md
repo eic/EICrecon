@@ -2,7 +2,7 @@ To run this plugin with tracking
 
 ```bash
 eicrecon
--Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
+-Pplugins=tracking_occupancy,tracking_efficiency
 -Pnthreads=1
 -Pjana:debug_plugin_loading=1
 -Pjana:nevents=100
@@ -11,6 +11,8 @@ eicrecon
 -PTracking:CentralTrackerSourceLinker:LogLevel=info
 -PCKFTracking:Trajectories:LogLevel=info
 -Ptracking_efficiency:LogLevel=debug
+-Ppodio:output_include_collections="ReconstructedParticles,TrackParameters,MCParticles"
+-Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
 -Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
 /home/romanov/work/data/eicrecon_test/output.edm4hep.root
@@ -64,6 +66,12 @@ https://github.com/eic/EICrecon/blob/main/docs/Logging.md
 # Then -Pdd4hep:xml_files flag is not needed. (!) Note that ".xml" is not needed in ${DETECTOR}
 export DETECTOR_PATH="/path/to/dd4hep/epic/"
 export DETECTOR="epic_tracking_only"
+
+# This makes tracking output data and input MC particles to be written to the output
+-Ppodio:output_include_collections="ReconstructedParticles,TrackParameters,MCParticles"
+
+# This sets file path containing output tree
+-Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
  
 # There is a centralized file where plugins can save their histograms:
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
@@ -72,3 +80,6 @@ export DETECTOR="epic_tracking_only"
 # So this is an input file path
 /home/romanov/work/data/eicrecon_test/output.edm4hep.root
 ```
+
+Saving collections to a file: 
+
