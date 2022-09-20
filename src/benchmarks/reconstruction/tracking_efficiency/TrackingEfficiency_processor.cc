@@ -1,40 +1,29 @@
 
 #include "TrackingEfficiency_processor.h"
 
-
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
-
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/TrackParameters.h>
 
-#include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
 #include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
-#include "algorithms/tracking/JugTrack/Track.hpp"
-#include "algorithms/tracking/JugTrack/Trajectories.hpp"
-
-#include "services/rootfile/RootFile_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
+#include <algorithms/tracking/JugTrack/Track.hpp>
+#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <services/rootfile/RootFile_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 
 
-//------------------
+//--------------------------------
 // OccupancyAnalysis (Constructor)
-//------------------
+//--------------------------------
 TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication *app) :
 	JEventProcessor(app)
 {
@@ -77,6 +66,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 {
     using namespace ROOT;
 
+    // EXAMPLE I
     // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
     auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
 
@@ -96,6 +86,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
         m_log->debug("   {:<5} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,  px, py, pz, p.R(), p.R()*3);
     }
 
+    // EXAMPLE II
     // This gets access to more direct ACTS results from CFKTracking
     auto acts_results = event->Get<Jug::Trajectories>("CentralCKFTrajectories");
     m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
@@ -118,13 +109,6 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
         // Collect the trajectory summary info
         auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-        //int  m_nMeasurements = trajState.nMeasurements;
-        //int  m_nStates       = trajState.nStates;
-
-
-
-        // Get the fitted track parameter
-        //
         if (traj->hasTrackParameters(trackTip)) {
             const auto &boundParam = traj->trackParameters(trackTip);
             const auto &parameter = boundParam.parameters();
@@ -144,13 +128,15 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
     }
 
 
+    // EXAMPLE III
+    // Loop over MC particles
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
-
         auto particle=mc_particles[i];
 
+        // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4
         if(particle->getGeneratorStatus() != 1) continue;
 
         double px = particle->getMomentum().x;

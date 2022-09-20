@@ -1,48 +1,69 @@
-This is guinea pig plugin for active development phase
-
-```bash
-
-# uniform spread inside an angle:
-
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=2000 --random.seed 1 --enableGun --gun.energy 2*GeV --gun.thetaMin 0*deg --gun.thetaMax 90*deg --gun.distribution uniform --outputFile tracking_test_gun.root
-
-
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=2000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-08-15_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_2k.edm4hep.root
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=10000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-08-15_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_10k.edm4hep.root
-
-# 5 x e- per event
-ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun  --gun.particle="e-" --gun.multiplicity 3 --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile 2022-09-10_pgun_3xe-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
-podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
-
---gun.momentumMax
---gun.momentumMin
-
-
--Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy
--Pnthreads=1
--Pjana:debug_plugin_loading=1
--Pjana:nevents=1
--Pjana:debug_mode=1
--Pjana:timeout=0
--PTracking:CentralTrackerSourceLinker:LogLevel=info
--PCKFTracking:Trajectories:LogLevel=trace
--Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
--Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
-/home/romanov/work/data/eicrecon_test/2022-09-10_pgun_3xe-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
-
-```
+To run this plugin with tracking
 
 ```bash
 eicrecon
--Pplugins=acts,BTRK_test,BTRK
+-Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
 -Pnthreads=1
--Pjana:nevents=10
 -Pjana:debug_plugin_loading=1
--PSiliconTrackerDigi_BarrelTrackerRawHit:LogLevel=trace
--PTrackerHitReconstruction:BarrelTrackerHit:LogLevel=trace
--PTrackerSourceLinker:CentralTrackerSourceLinker:LogLevel=trace
--Pdd4hep:print_level=5
+-Pjana:nevents=100
+-Pjana:timeout=0
+-Ptracking_efficiency:LogLevel=info
+-PTracking:CentralTrackerSourceLinker:LogLevel=info
+-PCKFTracking:Trajectories:LogLevel=info
+-Ptracking_efficiency:LogLevel=debug
+-Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
-/home/romanov/work/data/eicrecon_test/2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_100ev.edm4hep.root
+/home/romanov/work/data/eicrecon_test/output.edm4hep.root
+```
+
+Flags explained:
+```bash
+#This flags enables plugins/submodules needed to turn on all tracking
+-Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
+
+# Number of parallel threads. Currently only 1. 
+# It is a limitation of an event model IO and will be fixed later 
+-Pnthreads=1
+
+# Write exact process of loading plugins
+-Pjana:debug_plugin_loading=1
+
+# Removes self "hang" watchdog. 
+# Needed during debugging if you pause code execution with breakpoints
+-Pjana:timeout=0
+
+# xxx:LogLevel - various plugins/factories logging levels
+# trace, debug, info, warn, error, critical, off:
+# trace    - something very verbose like each hit parameter
+# debug    - all information that is relevant for an expert to debug but should not be present in production
+# info     - something that will always (almost) get into the global log
+# warning  - something that needs attention but results are likely usable
+# error    - something bad making results probably unusable
+# critical - imminent software failure and termination
+# Logging explained here: 
+https://github.com/eic/EICrecon/blob/main/docs/Logging.md
+
+
+# DD4Hep xml file for the detector describing the geometry. 
+# Can be set by this flag or env. variables combinations
+# (Defaults to ${DETECTOR_PATH}/${DETECTOR}.xml using envars
+-Pdd4hep:xml_files=...
+
+# Example 1: full path to detector.xml
+-Pdd4hep:xml_files=/path/to/dd4hep/epic/epic_tracking_only.xml
+
+# Example2: DETECTOR_PATH env var is set in eic_shell, so it could be 
+-Pdd4hep:xml_files=${DETECTOR_PATH}/epic_tracking_only.xml
+
+# Or could be set through environment variables. 
+# Then -Pdd4hep:xml_files flag is not needed)
+export DETECTOR_PATH="/path/to/dd4hep/epic/"
+export DETECTOR="epic_tracking_only.xml"
+ 
+# There is a centralized file where plugins can save their histograms:
+-Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
+
+# all filenames that doesn't start with -<flag> interpretted as input files
+# This is an input file
+/home/romanov/work/data/eicrecon_test/output.edm4hep.root
 ```
