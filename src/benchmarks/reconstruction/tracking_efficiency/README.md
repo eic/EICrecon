@@ -32,6 +32,11 @@ Flags explained:
 # Needed during debugging if you pause code execution with breakpoints
 -Pjana:timeout=0
 
+
+# Number of events to process. 
+# (If events needs to be skipped there is also -Pjana:nskip flag) 
+-Pjana:nevents=100
+
 # xxx:LogLevel - various plugins/factories logging levels
 # trace, debug, info, warn, error, critical, off:
 # trace    - something very verbose like each hit parameter
