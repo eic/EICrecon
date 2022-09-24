@@ -10,6 +10,7 @@
 #include "eicrecon_cli.h"
 
 /// The default plugins
+/// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "podio",
         "dd4hep",
@@ -37,22 +38,9 @@ int main( int narg, char **argv)
     if (jana::HasPrintOnlyCliOptions(options, default_plugins))
         return -1;
 
+    AddAvailablePluginsToOptionParams(options, default_plugins);
+
     japp = jana::CreateJApplication(options);
-
-    if(const char* env_p = std::getenv("EICrecon_MY")) japp->AddPluginPath( std::string(env_p) + "/plugins" );
-
-    // TODO: add by command line paras
-    for( auto plugin : default_plugins) japp->AddPlugin( plugin );
-//    japp->AddPlugin( "podio"           );
-//    japp->AddPlugin( "dd4hep"          );
-//    japp->AddPlugin( "acts"        );
-//    japp->AddPlugin( "log"             );
-//    japp->AddPlugin( "rootfile"        );
-//    japp->AddPlugin( "algorithms_calorimetry");
-//    japp->AddPlugin( "algorithms_tracking");
-//    japp->AddPlugin( "algorithms_digi" );
-//    japp->AddPlugin( "BEMC"            );
-//    japp->AddPlugin( "EEMC"            );
 
     auto exit_code = jana::Execute(japp, options);
 

@@ -1,15 +1,12 @@
 
 #include "TrackingTest_processor.h"
 #include "algorithms/tracking/JugTrack/Trajectories.hpp"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
 #include <fmt/core.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -20,7 +17,12 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
+
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/TrackerHit.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/ReconstructedParticle.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
@@ -42,25 +44,31 @@ TrackingTest_processor::TrackingTest_processor(JApplication *app) :
 //------------------
 void TrackingTest_processor::Init()
 {
-	// Ask service locator a file to write to
+    std::string plugin_name=("tracking_test");
 
-    // Root related, we switch gDirectory to this file
-    auto japp = GetApplication();
-    auto rootfile_service = japp->GetService<RootFile_service>();
-    auto globalRootLock = japp->GetService<JGlobalRootLock>();
+    // Get JANA application
+    auto app = GetApplication();
+
+    // Ask service locator a file to write histograms to
+    auto root_file_service = app->GetService<RootFile_service>();
+
+    // Get TDirectory for histograms root file
+    auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = rootfile_service->GetHistFile();
+    auto file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
-    m_dir_main = file->mkdir("tracking_test");
+    m_dir_main = file->mkdir(plugin_name.c_str());
 
-    // Occupancy analysis
-    m_occupancy_analysis.init(japp, m_dir_main);
-    m_hit_reco_analysis.init(japp, m_dir_main);
-
-    m_log = japp->GetService<Log_service>()->logger(GetPluginName());
-    m_log->set_level(spdlog::level::trace);
+    // Get log level from user parameter or default
+    std::string log_level_str = "info";
+    m_log = app->GetService<Log_service>()->logger(plugin_name);
+    app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
+    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+    for(auto pair: app->GetJParameterManager()->GetAllParameters()) {
+        m_log->info("{:<20} | {}", pair.first, pair.second->GetDescription());
+    }
 }
 
 
@@ -69,9 +77,6 @@ void TrackingTest_processor::Init()
 //------------------
 void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
-
-    m_occupancy_analysis.process(event);
-    //m_hit_reco_analysis.process(event);
     using namespace ROOT;
 
 
@@ -116,6 +121,9 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 //    fmt::print("OccupancyAnalysis::Process() mc_particles N {}\n", mc_particles.size());
 //
+
+    auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+    auto track_params = event->GetSingle<edm4eic::TrackParameters>("TrackParameters");
 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");

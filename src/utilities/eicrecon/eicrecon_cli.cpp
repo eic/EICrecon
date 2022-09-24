@@ -16,6 +16,7 @@
 #include <string>
 #include <filesystem>
 
+
 namespace jana {
 
     void PrintUsageOptions() {
@@ -96,7 +97,7 @@ namespace jana {
     }
 
     /// Get the plugin names by searching for files named as *.so under $JANA_PLUGIN_PATH and $EICrecon_MY/plugins.
-    /// It does not guarantee any effectiveness of the plugins.
+    /// @note It does not guarantee any effectiveness of the plugins.
     void GetPluginNamesFromEnvPath(std::set<std::string> & plugin_names, const char* env_var) {
         std::string dir_path, paths;
 
@@ -156,25 +157,79 @@ namespace jana {
         return false;
     }
 
+    /// Detect whether the cli params @param options.params contain "-Pplugins_to_ignore=...<erase_str>...".
+    /// If true, delete @param erase_str from the original cli string "-Pplugins_to_ignore".
+    bool HasExcludeDefaultPluginsInCliParams(UserOptions& options, const std::string erase_str) {
+        auto has_ignore_plugins = options.params.find("plugins_to_ignore");
+        if (has_ignore_plugins == options.params.end())
+            return false;
+
+        // Has cli option "-Pplugins_to_ignore". Look for @param erase_str
+        size_t pos = has_ignore_plugins->second.find(erase_str);
+        if (pos == std::string::npos)  // does not contain @param erase_str
+            return false;
+
+        // Detect @param flag_str. Delete flag_str from the original cli option.
+        std::string ignore_str;
+        if (erase_str.length() + pos == has_ignore_plugins->second.length()) { // @param flag_str is at the end
+            ignore_str = has_ignore_plugins->second.erase(pos, erase_str.length());
+        } else { // erase "<flag_str>," from "-Pplugins_to_ignore".
+            ignore_str = has_ignore_plugins->second.erase(pos, erase_str.length() + 1);
+        }
+        options.params["plugins_to_ignore"] = ignore_str;
+        return true;
+    }
+
+    void AddAvailablePluginsToOptionParams(UserOptions& options, std::vector<std::string> const& default_plugins) {
+
+        std::set<std::string> set_plugins;
+        // Add the plugins at $EICrecon_MY/plugins.
+        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");
+
+        std::string plugins_str;  // the complete plugins list
+        for (std::string s : set_plugins)
+            plugins_str += s + ",";
+
+        // Add the default plugins into the plugin set if there is no
+        // "-Pplugins_to_ignore=default (exclude all default plugins)" option
+        if (HasExcludeDefaultPluginsInCliParams(options, "default") == false)
+            /// @note: The sequence of adding the default plugins matters.
+            /// Have to keep the original sequence to not causing troubles.
+            for (std::string s : default_plugins) {
+                plugins_str += s + ",";
+            }
+
+        // Insert other plugins in cli option "-Pplugins=pl1,pl2,..."
+        auto has_cli_plugin_params = options.params.find("plugins");
+        if (has_cli_plugin_params != options.params.end()) {
+            plugins_str += has_cli_plugin_params->second;
+            options.params["plugins"] = plugins_str;
+        } else {
+            options.params["plugins"] = plugins_str.substr(0, plugins_str.size() - 1); // exclude last ","
+        }
+    }
+
     JApplication* CreateJApplication(UserOptions& options) {
 
-        auto params = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+        auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+
+        // Add the cli options based on the user inputs
         for (auto pair : options.params) {
-            params->SetParameter(pair.first, pair.second);
+            para_mgr->SetParameter(pair.first, pair.second);
         }
 
+        // Shut down the [INFO] msg of adding plugins, printing cpu info
         if (options.flags[ListFactories]) {
-            // Shut down the [INFO] msg by adding plugins, cpu info, etc.
-            params->SetParameter(
+            para_mgr->SetParameter(
                     "log:off",
-                    "JPluginLoader,JComponentManager,JArrowProcessingController,JArrow"
+                    "JPluginLoader,JArrowProcessingController,JArrow"
                     );
         }
 
         if (options.flags[LoadConfigs]) {
             // If the user specified an external config file, we should definitely use that
             try {
-                params->ReadConfigFile(options.load_config_file);
+                para_mgr->ReadConfigFile(options.load_config_file);
             }
             catch (JException &e) {
                 std::cout << "Problem loading config file '" << options.load_config_file << "'. Exiting." << std::endl
@@ -184,12 +239,17 @@ namespace jana {
             std::cout << "Loaded config file '" << options.load_config_file << "'." << std::endl << std::endl;
         }
 
-        auto app = new JApplication(params);
+        auto app = new JApplication(para_mgr);
 
         for (auto event_src : options.eventSources) {
             app->Add(event_src);
         }
         return app;
+    }
+
+    void AddDefaultPluginsToJApplication(JApplication* app, std::vector<std::string> const& default_plugins) {
+        for (std::string s : default_plugins)
+            app->AddPlugin(s);
     }
 
     void PrintFactories(JApplication* app) {
@@ -200,11 +260,10 @@ namespace jana {
 
     void PrintPodioCollections(JApplication* app) {
         if (app->GetJParameterManager()->Exists("PODIO:PRINT_TYPE_TABLE")) {
-            auto print_type_table = app->GetJParameterManager()->FindParameter("PODIO:PRINT_TYPE_TABLE")->GetValue();
+            bool print_type_table = app->GetParameterValue<bool>("podio:print_type_table");
 
             // cli criteria: Ppodio:print_type_table=1
-            if (print_type_table == "1") {
-
+            if (print_type_table) {
                 auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
                 for (auto event_source : event_sources) {
 //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so

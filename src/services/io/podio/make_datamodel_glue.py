@@ -91,8 +91,10 @@ def AddCollections(datamodelName, collectionfiles):
         put_lines.append('    if( ! fac->GetAs<'+datamodelName+'::'+basename+'>().empty() )')
         put_lines.append('       {return PutPODIODataT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Collection>( writer, fac, store );}')
 
-        put_simple_lines.append('    if( ! fac->GetAs<'+datamodelName+'::'+basename+'>().empty() )')
-        put_simple_lines.append('       {return writer->PutPODIODataT<'+datamodelName+'::'+basename+', '+datamodelName+'::'+basename+'Collection>( fac, store );}')
+        put_simple_lines.append('    if (podio_typename == "' + datamodelName + '::' + basename + '") {')
+        put_simple_lines.append('        auto helper = FuncT<'+datamodelName + '::' + basename + ',' + datamodelName + '::' + basename + 'Collection>();')
+        put_simple_lines.append('        return helper(std::forward<ArgsT>(args)...);')
+        put_simple_lines.append('    }')
 
 
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
@@ -138,7 +140,6 @@ make_lines.append('    return nullptr;')
 copy_lines.append('    std::cerr << "Unknown classname: " << dv->className << std::endl;')
 copy_simple_lines.append('    std::cerr << "Unknown classname: " << className << std::endl;')
 put_lines.append('    return "";')
-put_simple_lines.append('    return "";')
 
 if WORKING_DIR : os.chdir( WORKING_DIR )
 
@@ -155,8 +156,9 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#include <podio/CollectionIDTable.h>\n')
     f.write('#include <services/io/podio/EICEventStore.h>\n')
     f.write('#include <services/io/podio/EICRootWriter.h>\n')
-    f.write('#include <services/io/podio/EICRootWriterSimple.h>\n')
+    f.write('#include <services/io/podio/JEventProcessorPODIO.h>\n')
     f.write('#include <services/io/podio/datamodel_includes.h>\n')
+    f.write('#include <optional>\n')
     f.write('\n')
     f.write('\ntemplate <typename T, typename Tobj, typename Tdata, typename Tcollection> void CopyToJEventT(EICEventStore::DataVectorT<Tdata> *dvt, std::shared_ptr <JEvent> &jevent, std::vector<podio::ObjBase*> &podio_objs);')
     f.write('\ntemplate <typename T, typename Tcollection> void CopyToJEventSimpleT(const Tcollection *collection, const std::string &name, std::shared_ptr <JEvent> &jevent);')
@@ -182,9 +184,10 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n'.join(put_lines))
     f.write('\n}\n')
 
-    f.write('\n// Test data type held in given factory against being any of the known edm4hep or edm4eic data types.')
-    f.write('\n// Call PutPODIODataT if match is found. (Factory must have called EnableAs for the edm4hep or edm4eic type.)')
-    f.write('\nstatic std::string PutPODIODataSimple(EICRootWriterSimple *writer, JFactory *fac, podio::EventStore &store){\n')
+    f.write('\n// Call FuncT<PodioT,PodioCollectionT> if match is found. (Factory must have called EnableAs for the edm4hep or edm4eic type.)\n\n')
+
+    f.write('\ntemplate <template <typename, typename> typename FuncT, typename RetValT, typename ... ArgsT>')
+    f.write('\nstd::optional<RetValT> CallWithPODIOType(std::string podio_typename, ArgsT... args) {\n')
     f.write('\n'.join(put_simple_lines))
-    f.write('\n}\n')
+    f.write('\n    return std::nullopt;\n}\n')
     f.close()

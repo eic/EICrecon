@@ -42,7 +42,7 @@ namespace jana {
 
     /// If the user option contains print only flags, print the info ann return true; otherwise return false.
     /// The print only flags include: "-v", "-h", "-L", "--list_default_plugins", "--list_available_plugins".
-    /// When these flags are effective, the application will exit immediately.
+    /// When the info is shown, the application will exit immediately.
     bool HasPrintOnlyCliOptions(UserOptions& options, std::vector<std::string> const& default_plugins);
 
     void PrintUsage();
@@ -53,11 +53,24 @@ namespace jana {
     void PrintDefaultPlugins(std::vector<std::string> const& default_plugins);
 
     /// List all the available plugins at @env_var $JANA_PLUGIN_PATH and @env_var $EICrecon_MY/plugins.
+    /// @note Does not guarantee the effectiveness of the plugins.
+    /// @note The plugins can be override if they use the same name under different locations.
     void PrintAvailablePlugins(std::vector<std::string> const& default_plugins);
+
+    /// Add the default plugins and the plugins at $EICrecon_MY/plugins to @param options.params.
+    /// It comes before creating the @class JApplication.
+    void AddAvailablePluginsToOptionParams(UserOptions& options, std::vector<std::string> const& default_plugins);
+
+    void AddDefaultPluginsToJApplication(JApplication* app, std::vector<std::string> const& default_plugins);
 
     void PrintFactories(JApplication* app);
     void PrintPodioCollections(JApplication* app);
 
+    /// Copy the @param options params (from the cli or the config file) to a JParameterManager @var para_mgr.
+    /// Create an empty JApplication @var app.
+    /// Add the event sources got from the cli input to @var app, and then return.
+    /// @note The cli -Pkey=value pairs are not processed when the function returns. They are processed,
+    /// or, added to @var app at calling JApplication::Initialize().
     JApplication* CreateJApplication(UserOptions& options);
     int Execute(JApplication* app, UserOptions& options);
 

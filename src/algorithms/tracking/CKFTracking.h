@@ -68,13 +68,6 @@ namespace eicrecon {
                 std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
 
     public:
-//  DataHandle<IndexSourceLinkContainer> m_inputSourceLinks{"inputSourceLinks", Gaudi::DataHandle::Reader, this};
-//  DataHandle<MeasurementContainer> m_inputMeasurements{"inputMeasurements", Gaudi::DataHandle::Reader, this};
-//  DataHandle<TrackParametersContainer> m_inputInitialTrackParameters{"inputInitialTrackParameters",
-//                                                                     Gaudi::DataHandle::Reader, this};
-//  DataHandle<TrajectoriesContainer> m_outputTrajectories{"outputTrajectories", Gaudi::DataHandle::Writer, this};
-
-
 
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
