@@ -184,7 +184,7 @@ namespace jana {
 
         std::set<std::string> set_plugins;
         // Add the plugins at $EICrecon_MY/plugins.
-        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");
+//        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");  // disabled as we do not want to automatically add these
 
         std::string plugins_str;  // the complete plugins list
         for (std::string s : set_plugins)
