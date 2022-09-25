@@ -115,6 +115,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::vector<JFactory*>& 
     }
     else {
         m_log->debug("Persisting podio types from includes list");
+        m_user_included_collections = true;
         // We match up the include list with what is actually present in the JFactorySet
         for (const auto& col : m_output_include_collections) {
             auto it = all_collections_to_types.find(col);
@@ -179,7 +180,13 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         // an empty string. Note that this relies on the JFactory::EnableAs mechanism
         // so that needs to have been called in the factory constructor.
         try {
-
+            if (m_user_included_collections) {
+                // If the user specified some collections to include, we make sure that the corresponding factory
+                // actually ran. If the user didn't specify any collections in the include list, we don't: For factories
+                // that had not already been triggered by an EventProcessor, we simply write out zero objects.
+                m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
+                fac->Create(event, mApplication, event->GetRunNumber());
+            }
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
             if (result == std::nullopt) { 
