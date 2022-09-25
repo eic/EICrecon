@@ -25,11 +25,10 @@ public:
 
     static std::string GetDescription();
 
-    void PrintCollectionTypeTable(void);
+    void PrintCollectionTypeTable(eic::EventStore* store);
 
 protected:
     eic::ROOTReader reader;
-    eic::EventStore store;
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;
 

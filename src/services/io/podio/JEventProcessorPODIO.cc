@@ -82,8 +82,7 @@ void JEventProcessorPODIO::Init() {
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
-    m_store = new eic::EventStore();
-    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
+    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file);
 
 }
 
@@ -166,8 +165,11 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     m_log->trace("==================================");
     m_log->trace("Event #{}", event->GetEventNumber());
 
+    auto store = const_cast<eic::EventStore*>(event->GetSingle<eic::EventStore>()); // Assumes that JEventSourcePODIO already populated this somewhat
+
     // Loop over all collections/factories to write
     for( const auto& pair : (m_collections_to_write) ){
+        // TODO: Check if collection was already added to store by the reader
         JFactory* fac = event->GetFactory(pair.second, pair.first); // Object name, tag name=collection name
 
         // Attempt to put data from all factories into the store.
@@ -179,8 +181,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         // an empty string. Note that this relies on the JFactory::EnableAs mechanism
         // so that needs to have been called in the factory constructor.
         try {
-
-            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
+            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, store, m_is_first_event);
 
             if (result == std::nullopt) { 
                 m_log->error("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
@@ -198,8 +199,13 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             m_log->error("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
         }
     }
-    m_writer->writeEvent();
-    m_store->clearCollections();
+    m_writer->writeEvent(m_store);
+    m_store->clear();
+    // TODO: Clear correctly.
+    // Tricky bit: How does the split ownership work out? If the JFactory owns the "reference" object but the collection
+    // owns the "data" object, and the JFactory outlives the podio collection (by a little bit).
+    // I think we can belatedly set JFactory::NOT_OBJECT_OWNER once we add to collection. Although that might actually
+    // cause the PODIO data object to never get freed.
     m_is_first_event = false;
 }
 

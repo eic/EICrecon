@@ -139,10 +139,12 @@ void JEventSourcePODIOsimple::Open() {
         Nevents_in_file = reader.getEntries();
         LOG << "Opened PODIO file \"" << GetResourceName() << "\" with " << Nevents_in_file << " events" << LOG_END;
 
-        store.setReader(&reader);
-        reader.readEvent();
 
-        if( print_type_table ) PrintCollectionTypeTable();
+        if( print_type_table ) {
+            eic::EventStore store;
+            reader.readEvent(&store, 0);
+            PrintCollectionTypeTable(&store);
+        }
 
     }catch (std::exception &e ){
         LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
@@ -215,14 +217,13 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     m_inflight = true;
 
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
-    store.clear();
+    eic::EventStore* store = new eic::EventStore();
+    event->Insert(store); // Let JANA own this and clear it at the end. TODO: Make sure EventStore dtor actually clears
     reader.endOfEvent();
     reader.goToEvent( Nevents_read++ );
-    auto fac = event->Insert( &store );
-    fac->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER); // jana should not delete this
 
     // Loop over collections in EventStore and copy pointers to their contents into jevent
-    auto collectionIDtable = store.getCollectionIDTable();
+    auto collectionIDtable = store->getCollectionIDTable();
     for( auto id : collectionIDtable->ids() ){
          podio::CollectionBase *coll={nullptr};
         if( store.get(id, coll) ){
@@ -307,14 +308,14 @@ double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::strin
 /// with their types. This will be called automatically when the file is
 /// open if the PODIO:PRINT_TYPE_TABLE variable is set to a non-zero value
 //------------------------------------------------------------------------------
-void JEventSourcePODIOsimple::PrintCollectionTypeTable(void) {
+void JEventSourcePODIOsimple::PrintCollectionTypeTable(eic::EventStore* store) {
 
     // First, get maximum length of the collection name strings so
     // we can print nicely aligned columns.
     size_t max_name_len = 0;
     size_t max_type_len = 0;
     std::map<std::string, std::string> collectionNames;
-    auto collectionIDtable = store.getCollectionIDTable();
+    auto collectionIDtable = reader.getCollectionIDTable();
     for (auto id : collectionIDtable->ids()) {
         auto name = collectionIDtable->name(id);
         podio::CollectionBase *coll = {nullptr};

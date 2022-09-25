@@ -55,6 +55,9 @@ public:
     /// Read all collections requested
     void readEvent();
 
+    /// Read all collections requested and _insert_ into provided event store
+    void readEvent(eic::EventStore* store, uint64_t event_nr);
+
     /// Read CollectionIDTable from ROOT file
     podio::CollectionIDTable* getCollectionIDTable() override {
         return m_table;

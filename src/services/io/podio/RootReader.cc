@@ -16,10 +16,32 @@
 #include "TTree.h"
 #include "TTreeCache.h"
 #include <memory>
+#include <podio/CollectionBase.h>
+#include <podio/CollectionIDTable.h>
+#include <services/io/podio/EventStore.h>
 
 namespace eic {
 // todo: see https://github.com/AIDASoft/podio/issues/290
 ROOTReader::~ROOTReader() { // NOLINT(modernize-use-equals-default)
+}
+
+
+/// Multithreaded API
+void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
+    m_eventNumber = event_nr;
+    m_chain->GetEntry(m_eventNumber);
+    // Prepare all collections in memory
+    for (auto inputs : m_inputs) {
+        inputs.first->prepareAfterRead();
+    }
+    for (auto collection_name : m_table->names()) {
+        auto collection = readCollection(collection_name);
+        store->registerCollection(collection_name, collection);
+        // TODO: calling registerCollection() changes the collection id. This presumably breaks all references
+        //       to the collection. I think the correct behavior is to keep the collection id the same as what
+        //       was read, and throw an error if there is a collision. However, this means we need to correctly
+        //       check for collisions, and also generate new ids in a way that doesn't also generate new collisions :/
+    }
 }
 
 std::pair<TTree*, unsigned> ROOTReader::getLocalTreeAndEntry(const std::string& treename) {
