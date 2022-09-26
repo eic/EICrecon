@@ -18,9 +18,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>(
-            {"SagittaSiBarrelHits", "OuterSiBarrelHits"},
-            "BarrelTrackerRawHit"));
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"SiBarrelHits"}, "BarrelTrackerRawHit"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
