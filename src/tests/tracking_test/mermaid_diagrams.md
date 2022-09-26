@@ -179,10 +179,9 @@ flowchart TB
   subgraph Simulation output
     direction LR
         
-    tracker_endcap_collections(Endcap trk:<br />InnerTrackerEndcapPHits<br/>InnerTrackerEndcapNHits<br/>MiddleTrackerEndcapPHits<br/>MiddleTrackerEndcapNHits<br/>OuterTrackerEndcapPHits<br/>OuterTrackerEndcapNHits<br/>)
-    gem_endcap_collections(Endcap GEM:<br/>GEMTrackerEndcapHits1<br/>GEMTrackerEndcapHits2<br/>GEMTrackerEndcapHits3)
-    tracker_barrel_collections(Barrel trk:<br/>SagittaSiBarrelHits<br/>OuterSiBarrelHits)    
-    mpgd_barrel_collections(InnerMPGDBarrelHits<br/>OuterMPGDBarrelHits)
+    tracker_endcap_collections(Endcap trk:<br />TrackerEndcapHits)    
+    tracker_barrel_collections(Barrel trk:<br/>SiBarrelHits)    
+    mpgd_barrel_collections(MPGD<br/>MPGDBarrelHits)
     vertex_barrel_collections(Barrel vtx:<br/>VertexBarrelHits)
   end
   
@@ -191,11 +190,7 @@ flowchart TB
   TrackerEndcapRawHits --> TrackerHitReconstruction2[TrackerHitReconstruction]:::alg
   TrackerHitReconstruction2 --> TrackerEndcapRecHits(TrackerEndcapRecHits)
   
-  gem_endcap_collections --> TrackerDigi5[TrackerDigi]:::alg
-  TrackerDigi5 --> GEMTrackerEndcapRawHits(GEMTrackerEndcapRawHits)
-  GEMTrackerEndcapRawHits --> TrackerHitReconstruction5[TrackerHitReconstruction]:::alg
-  TrackerHitReconstruction5 --> GEMTrackerEndcapRecHits(GEMTrackerEndcapRecHits)
-  
+ 
   tracker_barrel_collections --> TrackerDigi[TrackerDigi]:::alg
   TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits)
   TrackerBarrelRawHits --> TrackerHitReconstruction[TrackerHitReconstruction]:::alg
@@ -217,7 +212,6 @@ flowchart TB
   TrackerEndcapRecHits --> TrackerSourceLinker
   VertexBarrelRecHits --> TrackerSourceLinker
   MPGDTrackerBarrelRecHits --> TrackerSourceLinker
-  GEMTrackerEndcapRecHits --> TrackerSourceLinker   
   
   TrackerSourceLinker --> TrackSourceLinks(TrackSourceLinks)
   TrackerSourceLinker --> TrackMeasurements(TrackMeasurements)
