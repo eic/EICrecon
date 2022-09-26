@@ -81,5 +81,30 @@ export DETECTOR="epic_tracking_only"
 /home/romanov/work/data/eicrecon_test/output.edm4hep.root
 ```
 
-Saving collections to a file: 
+### Saving collections to a file
+
+In order to save podio data to the file one has to provide 2 parameters 
+defining a list of objects and the output file name: 
+
+```bash
+# This makes tracking output data and input MC particles to be written to the output
+-Ppodio:output_include_collections="ReconstructedParticles,TrackParameters,MCParticles"
+
+# This sets file path containing output tree
+-Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
+```
+
+One can see the list of data names, when eicrecon is running: 
+
+```
+  FACTORIES
+  ----------------------------------------------------------------------------------
+    Plugin                Object name                               Tag                
+  -----------  -------------------------------------  ------------------------------  
+  ...            
+  tracking.so  edm4eic::TrackParameters               TrackParameters                 
+  tracking.so  edm4eic::ReconstructedParticle         ReconstructedParticles          
+  ...                                                 ^
+                                                      this name
+```
 
