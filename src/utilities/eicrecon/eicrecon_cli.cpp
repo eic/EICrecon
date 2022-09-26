@@ -247,6 +247,11 @@ namespace jana {
 
         auto app = new JApplication(para_mgr);
 
+        const char* env_p = getenv("EICrecon_MY");
+        if( env_p ){
+            app->AddPluginPath( std::string(env_p) + "/plugins" );
+        }
+
         for (auto event_src : options.eventSources) {
             app->Add(event_src);
         }
