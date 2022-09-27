@@ -63,9 +63,8 @@ namespace eicrecon {
 
         auto result = m_source_linker.produce(total_hits);
 
-        for(auto sourceLink: *result->sourceLinks) {
-            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink.get().index(), sourceLink.get().geometryId().value());
-
+        for(auto sourceLink: result->sourceLinks) {
+            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(), sourceLink->geometryId().value());
         }
 
         Insert(result);

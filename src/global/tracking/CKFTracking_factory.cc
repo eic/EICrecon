@@ -68,7 +68,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     // Convert vector of source links to a sorted in geometry order container used in tracking
     Jug::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
-    for(auto &sourceLink: source_linker_result->dumbSourceLinks){
+    for(auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,
         // new elements in geometry containers can just be appended at the end.
         source_links.emplace_hint(source_links.end(), *sourceLink);
