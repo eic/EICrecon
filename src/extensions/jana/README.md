@@ -67,15 +67,15 @@ std::vector<std::string> m_default_input_tags;
 
  ```c++
  extern "C" {
- void InitPlugin(JApplication *app) {
-      InitJANAPlugin(app);
+ void InitPlugin(JApplication *m_app) {
+      InitJANAPlugin(m_app);
 
       using namespace eicrecon;
       // Digitization
-      app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits1", "TrackerBarrelHits2"},"BarrelTrackerRawHit"));
+      m_app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits1", "TrackerBarrelHits2"},"BarrelTrackerRawHit"));
 
       // Convert raw digitized hits into hits with geometry info (ready for tracking)
-      app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
+      m_app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
 
       // ...
 ```

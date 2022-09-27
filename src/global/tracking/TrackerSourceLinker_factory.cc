@@ -41,7 +41,7 @@ namespace eicrecon {
 
         // Initialize algorithm
         auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-        m_source_linker.init(cellid_converter, acts_service->acts_context(), m_log);
+        m_source_linker.init(cellid_converter, acts_service->actsGeoProvider(), m_log);
     }
 
 
