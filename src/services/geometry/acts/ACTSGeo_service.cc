@@ -31,8 +31,13 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
         }
 
+        // Get material map from user parameter
+        std::string material_map_file = "";
+        m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSon material map file path");
+
+        // Initialize m_acts_provider
         m_acts_provider = std::make_shared<ActsGeometryProvider>();
-        m_acts_provider->initialize(m_dd4hepGeo);
+        m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
     });
     return m_acts_provider;
 }

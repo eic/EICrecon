@@ -74,13 +74,12 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
 
     // Set ACTS logging level
     auto acts_init_log_level = eicrecon::SpdlogToActsLevel(m_init_log->level());
-    acts_log_level = eicrecon::SpdlogToActsLevel(m_init_log->level());
 
     // Surfaces conversion log level
     uint printoutLevel = (uint) m_init_log->level();
 
-
     m_dd4hepDetector = dd4hep_geo;
+
     // create a list of all surfaces in the detector:
 //  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepDetector ) ;
 //
@@ -149,6 +148,7 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
                 m_init_log->error("invalid det_element!!! det_element == nullptr ");
                 return;
             }
+
             // more verbose output is lower enum value
             m_init_log->debug(" det_element->identifier() = {} ", det_element->identifier());
             auto volman = m_dd4hepDetector->volumeManager();
