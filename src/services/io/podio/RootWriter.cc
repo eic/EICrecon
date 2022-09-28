@@ -14,7 +14,7 @@
 
 namespace eic {
 
-    ROOTWriter::ROOTWriter(const std::string &filename, eic::EventStore *store) : 
+    ROOTWriter::ROOTWriter(const std::string &filename, eic::EventStore *store, std::shared_ptr<spdlog::logger> &logger) :
         m_filename(filename),
         m_store(store),
         m_file(new TFile(filename.c_str(), "RECREATE", "data file")),
@@ -22,7 +22,8 @@ namespace eic {
         m_metadatatree(new TTree("metadata", "Metadata tree")),
         m_runMDtree(new TTree("run_metadata", "Run metadata tree")),
         m_evtMDtree(new TTree("evt_metadata", "Event metadata tree")),
-        m_colMDtree(new TTree("col_metadata", "Collection metadata tree"))
+        m_colMDtree(new TTree("col_metadata", "Collection metadata tree")),
+        m_log( logger )
     {
         m_evtMDtree->Branch("evtMD", "GenericParameters", m_store->eventMetaDataPtr());
     }
@@ -38,10 +39,37 @@ namespace eic {
         collections.reserve(m_collectionsToWrite.size());
         for (const auto &name : m_collectionsToWrite)
         {
+            // (see long comment below)
+            if( unwritable_collections.count(name) != 0 ) continue;
+
             const podio::CollectionBase *coll;
             m_store->get(name, coll);
             collections.emplace_back(name, const_cast<podio::CollectionBase *>(coll));
-            collections.back().second->prepareForWrite();
+            try {
+                // For objects that have one-to-many relations, podio will loop
+                // over these and check that the objectID of each of the related
+                // objects is being "tracked". If one is not, then an exception
+                // is thrown. Presumably, this is to ensure the related objects
+                // are also being written to the podio output file since podio
+                // just writes indexes for each of these and needs them to be there
+                // when it tries to read them back in. Currently, since we are not
+                // fully in on the podio collection management, these objects
+                // are often "untracked". For example, the EcalEndcapNIslandProtoClusters
+                // have edm4eic::CalorimeterHit objects that are currently "untracked".
+                // Thus, when prepareForWrite is called for the EcalEndcapNIslandProtoClusters
+                // collection, an exception is thrown.
+                // (See for example ProtoClusterCollectionData.cc)
+                collections.back().second->prepareForWrite();
+            }catch( std::exception &e) {
+                // podio threw an exception (see comments above). In this case, just
+                // don't write out the collection to the file. Warn user on first occurance
+                // for each type.
+                collections.pop_back();
+                if( unwritable_collections.count(name) ==0 ){
+                    m_log->error( fmt::format("Unable to write collection {} to output file. Skipping.", name) );
+                    unwritable_collections.insert( name );
+                }
+            }
         }
 
         if (m_firstEvent)

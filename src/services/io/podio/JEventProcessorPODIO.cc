@@ -83,7 +83,7 @@ void JEventProcessorPODIO::Init() {
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
     m_store = new eic::EventStore();
-    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store);
+    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store, m_log);
 
 }
 
