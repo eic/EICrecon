@@ -11,7 +11,7 @@ namespace eicrecon {
 
 class Algorithms_service: public JService {
 public:
-    explicit Algorithms_service( JApplication *app ): {}
+    explicit Algorithms_service( JApplication *app ){}
     void acquire_services(JServiceLocator *) override;
 
 private:

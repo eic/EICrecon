@@ -35,9 +35,13 @@ public:
         auto app = GetApplication();
 
         auto algo_svc = app->GetService<eicrecon::Algorithms_service>();
-        m_algo.inputNames()
+        auto &property_map = m_algo.getProperties();
 
-
+        for (auto & [property_name, property] : property_map){
+            fmt::print("{} {}\n", property_name);
+            //app->SetDefaultParameter(std::string(property_name), property.get(), "hahaha");
+        }
+        m_algo.init();
 
     }
 
@@ -50,7 +54,7 @@ public:
     // Minimize what is done while locked since that directly affects
     // the multi-threaded performance.
     void Process(const std::shared_ptr<const JEvent>& event) override {
-        edm4eic::ProtoCluster
+
 
     }
 
@@ -70,7 +74,7 @@ private:
     TDirectory *m_dir_main;
 };
 
-#endif //EICRECON_OCCUPANCY_ANALYSIS_H
+
 
 
 extern "C" {
