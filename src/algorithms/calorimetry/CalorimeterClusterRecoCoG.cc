@@ -70,9 +70,9 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
       if (m_logger->level() <= spdlog::level::debug) {
         //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", " << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
-        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / GeV, cl.getPosition().x / mm, cl.getPosition().y / mm, cl.getPosition().z / mm);
+        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / GeV, cl->getPosition().x / mm, cl->getPosition().y / mm, cl->getPosition().z / mm);
       }
-      clusters.push_back(&cl);
+      clusters.push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
       // 1. find proto-cluster hit with largest energy deposition
@@ -142,10 +142,10 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
-        clusterassoc->setRecID(cl.getObjectID().index);
+        clusterassoc->setRecID(cl->getObjectID().index);
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
-        clusterassoc->setRec(cl);
+        clusterassoc->setRec(*cl);
         //clusterassoc.setSim(mcp);
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);
