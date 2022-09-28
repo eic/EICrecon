@@ -1,8 +1,6 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-// Original header from Gaudi algorithm
+// Original license from Gaudi algorithm:
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck
+// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 // TODO refactor header when license is clear
 
 #include "TrackerSourceLinker.h"
@@ -41,29 +39,23 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
     // input collection
     auto hits = trk_hits;
+
     // Create output collections
     std::list<Jug::IndexSourceLink> linkStorage;
-    auto sourceLinks = std::make_shared<Jug::IndexSourceLinkContainer>();
-    auto dumbSourceLinks = std::vector<std::shared_ptr<Jug::IndexSourceLink>>();
+    auto sourceLinks = std::vector<std::shared_ptr<Jug::IndexSourceLink>>();
     auto measurements = std::make_shared<Jug::MeasurementContainer>();
-    //std::vector<Jug::Measurement> measurements;
-
-    sourceLinks->reserve(trk_hits.size());
-    //measurements->reserve(trk_hits.size());
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
     int hit_index = 0;
-    for (auto ahit: trk_hits) {
+    for (auto hit: trk_hits) {
 
         Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
-        cov(0, 0)            = ahit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
-        cov(1, 1)            = ahit->getPositionError().yy * mm_acts * mm_acts;
+        cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
+        cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
 
 
-
-
-        const auto* vol_ctx = m_cellid_converter->findContext(ahit->getCellID());
+        const auto* vol_ctx = m_cellid_converter->findContext(hit->getCellID());
         auto vol_id = vol_ctx->identifier;
 
         auto surfaceMap = m_acts_context->surfaceMap();
@@ -81,7 +73,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         // variable surf_center not used anywhere;
         // auto surf_center = surface->center(Acts::GeometryContext());
 
-        auto& hit_pos = ahit->getPosition();
+        auto& hit_pos = hit->getPosition();
 
         // transform global position into local coordinates
         // geometry context contains nothing here
@@ -106,27 +98,21 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
             m_log->trace("   acts loc pos     : {:8<.2f}, {:8<.2f}", loc[Acts::eBoundLoc0], loc[Acts::eBoundLoc1]);
         }
 
-        // the measurement container is unordered and the index under which the
-        // measurement will be stored is known before adding it.
-        // ...
-        // This is from Gaudi. JANA info gives different lifetime of objects
-        // linkStorage.emplace_back(surface->geometryId(), hit_index);
-        // Jug::IndexSourceLink& sourceLink = linkStorage.back();
 
         // Create source links
-        auto sourceLink3 = std::make_shared<Jug::IndexSourceLink>(surface->geometryId(), hit_index);
-        dumbSourceLinks.emplace_back(sourceLink3);
+        auto sourceLink = std::make_shared<Jug::IndexSourceLink>(surface->geometryId(), hit_index);
+        sourceLinks.emplace_back(sourceLink);
 
-        auto meas = Acts::makeMeasurement(*sourceLink3, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-        measurements->emplace_back(std::move(meas));
+        auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+        measurements->emplace_back(std::move(measurement));
 
         hit_index++;
     }
     m_log->debug("All hits processed measurements->size(): {}", measurements->size());
 
     auto result = new eicrecon::TrackerSourceLinkerResult();
+
     result->sourceLinks = sourceLinks;
-    result->dumbSourceLinks = dumbSourceLinks;
     result->measurements = measurements;
 
     return result;

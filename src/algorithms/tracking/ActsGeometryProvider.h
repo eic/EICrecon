@@ -1,7 +1,13 @@
+// TODO: Fix the following:
+// This class inspired by and benefited from the work done here at the following
+// links. A couple of lines were outright copied.
+//
+// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.h
+// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.cpp
+//
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
-
-// Originally this file was called GeoSvc. It was split between JANA2 services dd4hep service and acts service
+// Originally this file was called GeoSvc.
 //
 //  ActsGeometryProvider.h
 //
@@ -40,12 +46,13 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 
 class ActsGeometryProvider {
 public:
-    ActsGeometryProvider() {
-        spdlog::info("ActsGeometryProvider... I'm alive!");
-    }
+    ActsGeometryProvider() {}
     using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
 
-    virtual void initialize(dd4hep::Detector *dd4hepGeo) final;
+    virtual void initialize(dd4hep::Detector* dd4hep_geo,
+                            std::string material_file,
+                            std::shared_ptr<spdlog::logger> log,
+                            std::shared_ptr<spdlog::logger> init_log) final;
 
 
     /** Get the top level DetElement.
@@ -83,7 +90,7 @@ private:
     std::map<int64_t, dd4hep::rec::Surface *> m_surfaceMap;
 
     /// ACTS Logging Level
-    Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
+    Acts::Logging::Level acts_log_level = Acts::Logging::INFO;
 
     /// ACTS Tracking Geometry Context
     Acts::GeometryContext m_trackingGeoCtx;
@@ -106,7 +113,15 @@ private:
     /// Acts magnetic field
     std::shared_ptr<const Jug::BField::DD4hepBField> m_magneticField = nullptr;
 
+    ///  ACTS general logger that is used for running ACTS
     std::shared_ptr<spdlog::logger> m_log;
+
+    /// Logger that is used for geometry initialization
+    /// By default its level the same as ACTS general logger (m_log)
+    /// But it might be customized to solely printout geometry information
+    std::shared_ptr<spdlog::logger> m_init_log;
+
+
 
 //  /// XML-files with the detector description
 //  Gaudi::Property<std::vector<std::string>> m_xmlFileNames{
@@ -118,6 +133,7 @@ private:
 //
 //  /// Gaudi logging output
 //  MsgStream m_log;
+
 };
 
 

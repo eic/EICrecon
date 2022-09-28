@@ -6,7 +6,7 @@
 #define EICRECON_TRACKERSOURCELINKER_FACTORY_H
 
 #include <spdlog/spdlog.h>
-#include "extensions/jana/JChainFactoryT.h"
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
 #include <algorithms/tracking/TrackerSourceLinker.h>
 
@@ -36,13 +36,8 @@ namespace eicrecon {
     private:
 
         std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-
-        int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-
-
-        eicrecon::TrackerSourceLinker m_source_linker;      /// Track source linker algorithm
-
         std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
+        eicrecon::TrackerSourceLinker m_source_linker;      /// Track source linker algorithm
     };
 
 } // eicrecon

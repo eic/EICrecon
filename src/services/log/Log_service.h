@@ -27,6 +27,7 @@ private:
     Log_service()=default;
 
     std::recursive_mutex m_lock;
+    JApplication* m_application;
 };
 
 #endif // __Spdlog_service_h__
