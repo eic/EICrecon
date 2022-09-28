@@ -17,16 +17,15 @@ namespace Jug::Reco {
      *
      * \ingroup tracking
      */
-    class ParticlesFromTrackFit{
+    class ParticlesFromTrackFit {
     private:
         std::shared_ptr<spdlog::logger> m_log;
-
 
 
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        ParticlesFromTrackFitResult* execute(const std::vector<const Jug::Trajectories*> &trajectories);
+        ParticlesFromTrackFitResult *execute(const std::vector<const Jug::Trajectories *> &trajectories);
 
     };
 } // namespace Jug::Reco

@@ -41,7 +41,7 @@ namespace eicrecon {
 
         // Initialize algorithm
         auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-        m_source_linker.init(cellid_converter, acts_service->acts_context(), m_log);
+        m_source_linker.init(cellid_converter, acts_service->actsGeoProvider(), m_log);
     }
 
 
@@ -63,9 +63,8 @@ namespace eicrecon {
 
         auto result = m_source_linker.produce(total_hits);
 
-        for(auto sourceLink: *result->sourceLinks) {
-            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink.get().index(), sourceLink.get().geometryId().value());
-
+        for(auto sourceLink: result->sourceLinks) {
+            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(), sourceLink->geometryId().value());
         }
 
         Insert(result);

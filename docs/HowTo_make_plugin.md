@@ -296,9 +296,9 @@ coming straight from the file.
 
 // The following just makes this a JANA plugin
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new DaveTestProcessor);
+    void InitPlugin(JApplication *m_app) {
+        InitJANAPlugin(m_app);
+        m_app->Add(new DaveTestProcessor);
     }
 }
 
@@ -357,7 +357,7 @@ for creating a plugin from scratch without `eicmkplugin.py`.
 There is a copy/paste CMake file that should automatically create plugin out of sources.
 
 - plugin name is taken from a directory name
-- there should be <plugin name>.cc file with `void InitPlugin(JApplication *app)` function
+- there should be <plugin name>.cc file with `void InitPlugin(JApplication *m_app)` function
 
 
 ### Create a plugin:

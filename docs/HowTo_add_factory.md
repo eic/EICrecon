@@ -43,12 +43,12 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto m_app = GetApplication();
 
         // This is an example of how to declare a configuration parameter that
         // can be set at run time. e.g. with -PEEMC:EcalEndcapNIslandClusters:scaleFactor=0.97
         m_scaleFactor =0.98;
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandClusters:scaleFactor", m_scaleFactor, "Energy scale factor");
+        m_app->SetDefaultParameter("EEMC:EcalEndcapNIslandClusters:scaleFactor", m_scaleFactor, "Energy scale factor");
     }
 
     //------------------------------------------
@@ -146,15 +146,15 @@ declare the new factory.
 #include "Cluster_factory_EcalEndcapNIslandClusters.h"
 
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNIslandClusters>());
+    void InitPlugin(JApplication *m_app) {
+        InitJANAPlugin(m_app);
+        m_app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>());
+        m_app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>());
+        m_app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>());
+        m_app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
+        m_app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
+        m_app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
+        m_app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNIslandClusters>());
     }
 }
 ```

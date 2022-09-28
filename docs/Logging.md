@@ -20,13 +20,13 @@ private:
     std::shared_ptr<spdlog::logger> m_log;
 
 public:
-    /// Once in app lifetime function call
+    /// Once in m_app lifetime function call
     void Init() override {        
 
-        auto app = GetApplication();
+        auto m_app = GetApplication();
 
         // The service centralizes the use of spdlog and properly spawning logger
-        auto log_service = app->GetService<Log_service>();
+        auto log_service = m_app->GetService<Log_service>();
 
         // Loggers are spawned by name.        
         m_log = log_service->logger("ExampleProcessor");
@@ -103,7 +103,7 @@ void Init() override {
    std::string log_level_str = "info";
    
    // Ask service locator for parameter manager. We want to get this plugin parameters.
-   auto pm = app->GetJParameterManager();
+   auto pm = m_app->GetJParameterManager();
    
    // Define parameter
    pm->SetDefaultParameter("log_example:log-level", log_level_str, "log_level: trace, debug, info, warn, err, critical, off");
@@ -180,10 +180,10 @@ Imagine you want to highlight that this message belongs to "tracking" you can do
 ```c++
 
 // One class
-m_tracking_log = app->GetService<Log_service>()->logger("tracking");
+m_tracking_log = m_app->GetService<Log_service>()->logger("tracking");
 
 // Another class
-m_tracking_log = app->GetService<Log_service>()->logger("tracking");
+m_tracking_log = m_app->GetService<Log_service>()->logger("tracking");
 ```
 
 You can mix named loggers depending on context
@@ -191,8 +191,8 @@ You can mix named loggers depending on context
 ```c++
 
 // Some class INIT
-m_this_log = app->GetService<Log_service>()->logger("ExampleFactoryName");
-m_tracking_log = app->GetService<Log_service>()->logger("tracking");
+m_this_log = m_app->GetService<Log_service>()->logger("ExampleFactoryName");
+m_tracking_log = m_app->GetService<Log_service>()->logger("tracking");
 
 // Some class event PROCESSING
 m_this_log->trace("Something related to this class/factory/plugin");
