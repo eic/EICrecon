@@ -78,7 +78,8 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
       // 1. find proto-cluster hit with largest energy deposition
       // 2. find first mchit with same CellID
       // 3. assign mchit's MCParticle as cluster truth
-      if (!mchits.empty() && !m_outputAssociations.empty()) {
+//      if (!mchits.empty() && !m_outputAssociations.empty()) {  // ? having m_outputAssociations be not empty doesn't make sense ?
+      if (!mchits.empty() ) {
 
         // 1. find pclhit with largest energy deposition
         auto pclhits = pcl->getHits();
@@ -142,7 +143,8 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
-        clusterassoc->setRecID(cl->getObjectID().index);
+//        clusterassoc->setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc->setRecID((uint32_t)((uint64_t)cl&0xFFFFFFFF)); // mask lower 32 bits of cluster pointer as unique ID FIXME:
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
         clusterassoc->setRec(*cl);

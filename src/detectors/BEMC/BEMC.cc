@@ -14,7 +14,7 @@
 #include "Cluster_factory_EcalBarrelClusters.h"
 #include "Cluster_factory_EcalBarrelMergedClusters.h"
 #include "Cluster_factory_EcalBarrelTruthClusters.h"
-//#include "Cluster_factory_EcalBarrelMergedTruthClusters.h"
+#include "Cluster_factory_EcalBarrelMergedTruthClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -26,7 +26,7 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelMergedClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelTruthClusters>());
-//        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelMergedTruthClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelMergedTruthClusters>());
     }
 }
     

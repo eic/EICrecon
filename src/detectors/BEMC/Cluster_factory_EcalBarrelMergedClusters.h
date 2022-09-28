@@ -1,9 +1,7 @@
 // Copyright 2022, Thomas Britton
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-
-#ifndef _Cluster_factory_EcalBarrelMergedClusters_h_
-#define _Cluster_factory_EcalBarrelMergedClusters_h_
+#pragma once
 
 #include <random>
 
@@ -30,7 +28,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalBarrelClusters";
-        m_inputAssociations_tag="EcalBarrelClustersAssoc";
+        m_inputAssociations_tag="EcalBarrelClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
@@ -65,10 +63,14 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelMergedClustersAssoc");
+        event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
+
+private:
+    // Name of input data type (collection)
+    std::string              m_input_tag;
+    std::string              m_inputAssociations_tag;
 };
 
-#endif // _Cluster_factory_EcalBarrelMergedClusters_h_
