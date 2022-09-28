@@ -18,14 +18,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>(
-            {"InnerTrackerEndcapPHits",
-             "InnerTrackerEndcapNHits",
-             "MiddleTrackerEndcapPHits",
-             "MiddleTrackerEndcapNHits",
-             "OuterTrackerEndcapPHits",
-             "OuterTrackerEndcapNHits"},
-            "EndcapTrackerRawHit"));
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerEndcapHits"}, "EndcapTrackerRawHit"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"EndcapTrackerRawHit"}, "EndcapTrackerHit"));

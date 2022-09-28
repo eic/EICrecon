@@ -28,5 +28,29 @@ namespace eicrecon {
         auto err_msg = fmt::format("ParseLogLevel can't parse input string: '{}'", input);
         throw JException(err_msg);
     }
+
+    inline std::string LogLevelToString(spdlog::level::level_enum input) {
+
+        // Convert the source string to lower case
+        switch (input) {
+            case spdlog::level::trace:
+                return "trace";
+            case spdlog::level::debug:
+                return "debug";
+            case spdlog::level::info:
+                return "info";
+            case spdlog::level::warn:
+                return "warn";
+            case spdlog::level::err:
+                return "error";
+            case spdlog::level::critical:
+                return "critical";
+            case spdlog::level::off:
+                return "off";
+        }
+
+        auto err_msg = fmt::format("ParseLogLevel don't know this log level: '{}'", input);
+        throw JException(err_msg);
+    }
 }
 #endif //EICRECON_SPDLOGEXTENSIONS_H

@@ -9,8 +9,8 @@
 //
 // Copyright carried by that code:
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
-// Copyright 2022, David Lawrence
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck,
+// Copyright 2022, Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -38,24 +38,27 @@
 class ACTSGeo_service : public JService
 {
 public:
-    ACTSGeo_service( JApplication *app ):app(app){}
+    ACTSGeo_service( JApplication *app ): m_app(app){}
 
-    std::shared_ptr<const ActsGeometryProvider> acts_context();
+    std::shared_ptr<const ActsGeometryProvider> actsGeoProvider();
 
 protected:
-    void Initialize();
+
 
 private:
     ACTSGeo_service()=default;
     void acquire_services(JServiceLocator *) override;
 
     std::once_flag init_flag;
-    JApplication *app = nullptr;
+    JApplication *m_app = nullptr;
     dd4hep::Detector* m_dd4hepGeo = nullptr;
-    std::shared_ptr<ActsGeometryProvider> m_acts_context;
-	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
-    std::vector<std::string> m_xmlFileNames;
+    std::shared_ptr<ActsGeometryProvider> m_acts_provider;
+	//std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+    //std::vector<std::string> m_xmlFileNames;
 
+    // General acts log
+    std::shared_ptr<spdlog::logger> m_log;
+    std::shared_ptr<spdlog::logger> m_init_log;
 };
 
 #endif // __ACTSGeo_service_h__

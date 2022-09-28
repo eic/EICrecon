@@ -11,7 +11,8 @@
 void write_read_test() {
     std::cout << "Hello world!" << std::endl;
     eic::EventStore es;
-    eic::ROOTWriter writer("test_out.root", &es);
+    auto logger = spdlog::default_logger();
+    eic::ROOTWriter writer("test_out.root", &es, logger);
 
     // Set up writer
     auto& hits = es.create<edm4eic::CalorimeterHitCollection>("MyFunHits");
@@ -115,7 +116,8 @@ void read_write_test() {
     reader.openFile("test_out.root"); // comes from prev test
     input_store.setReader(&reader);
 
-    eic::ROOTWriter writer("test2_out.root", &output_store);
+    auto logger = spdlog::default_logger();
+    eic::ROOTWriter writer("test2_out.root", &output_store, logger);
     output_store.create<edm4eic::ClusterCollection>("MyFunClusters");
     output_store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
 

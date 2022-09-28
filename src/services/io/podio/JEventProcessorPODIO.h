@@ -26,6 +26,7 @@ public:
     std::shared_ptr<eic::ROOTWriter> m_writer;
     std::mutex m_mutex;
     bool m_is_first_event = true;
+    bool m_user_included_collections = false;
     std::shared_ptr<spdlog::logger> m_log;
 
     std::string m_output_file = "podio_output.root";

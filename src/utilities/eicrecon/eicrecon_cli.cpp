@@ -184,7 +184,7 @@ namespace jana {
 
         std::set<std::string> set_plugins;
         // Add the plugins at $EICrecon_MY/plugins.
-        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");
+//        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");  // disabled as we do not want to automatically add these
 
         std::string plugins_str;  // the complete plugins list
         for (std::string s : set_plugins)
@@ -239,7 +239,18 @@ namespace jana {
             std::cout << "Loaded config file '" << options.load_config_file << "'." << std::endl << std::endl;
         }
 
+        // If the user hasn't specified a timeout (on cmd line or in config file), set the timeout to something reasonably high
+        if (para_mgr->FindParameter("jana:timeout") == nullptr) {
+            para_mgr->SetParameter("jana:timeout", 60); // seconds
+            para_mgr->SetParameter("jana:warmup_timeout", 60); // seconds
+        }
+
         auto app = new JApplication(para_mgr);
+
+        const char* env_p = getenv("EICrecon_MY");
+        if( env_p ){
+            app->AddPluginPath( std::string(env_p) + "/plugins" );
+        }
 
         for (auto event_src : options.eventSources) {
             app->Add(event_src);

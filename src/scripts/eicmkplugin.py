@@ -23,6 +23,7 @@ cmake_minimum_required(VERSION 3.16)
 project({0}_project)
 
 find_package(EICrecon REQUIRED)
+find_package(spdlog REQUIRED)
 
 set(CMAKE_CXX_STANDARD ${{EICrecon_CXX_STANDARD}})
 
@@ -32,7 +33,7 @@ set( {0}_PLUGIN_SOURCES ${{mysourcefiles}} )
 
 # Create plugin
 add_library({0}_plugin SHARED ${{{0}_PLUGIN_SOURCES}})
-target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}})
+target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}} spdlog::spdlog)
 set_target_properties({0}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "{0}" SUFFIX ".so")
 
 # Install plugin USER_PLUGIN_OUTPUT_DIRECTORY is set depending on EICrecon_MY envar.
@@ -80,6 +81,8 @@ processor_sequentialroot_implementation_template = """
 //
 
 #include "{0}.h"
+#include <services/rootfile/RootFile_service.h>
+
      
 // The following just makes this a JANA plugin
 extern "C" {{
@@ -93,6 +96,9 @@ extern "C" {{
 // InitWithGlobalRootLock
 //-------------------------------------------
 void {0}::InitWithGlobalRootLock(){{
+    auto rootfile_svc = GetApplication()->GetService<RootFile_service>();
+    auto rootfile = rootfile_svc->GetHistFile();
+    rootfile->mkdir("{1}")->cd();
 
     // Create histograms here. e.g.
     // hEraw  = new TH1D("Eraw",  "BEMC hit energy (raw)",  100, 0, 0.075);
@@ -167,7 +173,7 @@ with open(pluginName+"/{}.h".format(className), 'w') as f:
 
 with open(pluginName+"/{}.cc".format(className), 'w') as f:
     print( "Writing "+pluginName+"/{}.cc".format(className) +" ...")
-    f.write( processor_sequentialroot_implementation_template.format(className) )
+    f.write( processor_sequentialroot_implementation_template.format(className, pluginName) )
     f.close()
 
 print("""

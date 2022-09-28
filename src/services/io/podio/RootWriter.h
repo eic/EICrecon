@@ -13,6 +13,8 @@
 #include <vector>
 #include <map>
 
+#include <services/log/Log_service.h>
+
 // forward declarations
 class TFile;
 class TTree;
@@ -23,7 +25,7 @@ class EventStore;
 class ROOTWriter {
 
 public:
-  ROOTWriter(const std::string& filename);
+  ROOTWriter(const std::string& filename, std::shared_ptr<spdlog::logger> &logger);
   ~ROOTWriter();
 
   // non-copyable
@@ -50,7 +52,9 @@ private:
 
   std::map<std::string, podio::root_utils::CollectionBranches> m_collectionBranchesToWrite{};
   bool m_firstEvent{true};
+  std::set<std::string> unwritable_collections; // keep list of collections that threw exception during prepareForWrite
 
+  std::shared_ptr<spdlog::logger> m_log;
 };
 
 } // namespace eic

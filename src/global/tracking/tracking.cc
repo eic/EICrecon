@@ -16,6 +16,7 @@
 #include "ReconstructedParticle_factory.h"
 #include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
+#include "TrackerHitCollector_factory.h"
 
 
 
@@ -37,6 +38,13 @@ void InitPlugin(JApplication *app) {
              "EndcapTrackerHit",
              "MPGDTrackerHit"   },
             "CentralTrackerSourceLinker"));
+
+    app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
+                     {"BarrelTrackerHit",
+                      "BarrelVertexHit",
+                      "EndcapTrackerHit",
+                      "MPGDTrackerHit"   },
+                     "trackerHits"));
 
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
