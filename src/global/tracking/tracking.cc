@@ -31,20 +31,17 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<TrackParamTruthInit_factory>(
             {"MCParticles"}, "InitTrackParams"));
 
-    // Source linker
-    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-            {"BarrelTrackerHit",
-             "BarrelVertexHit",
-             "EndcapTrackerHit",
-             "MPGDTrackerHit"   },
-            "CentralTrackerSourceLinker"));
-
+    // Tracker hits collector
     app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
                      {"BarrelTrackerHit",
                       "BarrelVertexHit",
                       "EndcapTrackerHit",
                       "MPGDTrackerHit"   },
                      "trackerHits"));
+
+    // Source linker
+    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
+            {"trackerHits"}, "CentralTrackerSourceLinker"));
 
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
