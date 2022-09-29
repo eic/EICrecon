@@ -32,7 +32,7 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         auto &config = getConfig();
         config.threshold = 0.0;
-        config.timeResolution = 8.0 * dd4hep::ns; // correct units?
+        config.timeResolution = 8.0; // units are ns
 
         app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:threshold",     config.threshold );
         app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:timeResolution",config.timeResolution );
@@ -47,13 +47,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
         // Get inputs
-        auto sim_hits1 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits1");
-        auto sim_hits2 = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits2");
-        auto sim_hits_all = sim_hits1;
-        sim_hits_all.insert( sim_hits_all.end(), sim_hits2.begin(), sim_hits2.end() );
+        auto sim_hits = event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 
         // Call Process for generic algorithm
-        auto rawhits = produce( sim_hits_all );
+        auto rawhits = produce( sim_hits );
 
         // Hand owner of algorithm objects over to JANA
         Set(rawhits);
