@@ -26,6 +26,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "ECTRK",
         "EEMC",
         "MPGD",
+        "RPOTS",
         "tracking"
 };
 
