@@ -26,9 +26,7 @@ void RPOTScheckProcessor::InitWithGlobalRootLock(){
     auto rootfile = rootfile_svc->GetHistFile();
     rootfile->mkdir("RPOTS")->cd();
 
-    hist1D["ForwardRomanPotHits1_hits_per_event"]  =  new TH1I("ForwardRomanPotHits1_hits_per_event",  "RPOTS (1) Simulated hit Nhits/event;Nhits",  201, -0.5, 200.5);
-    hist1D["ForwardRomanPotHits2_hits_per_event"]  =  new TH1I("ForwardRomanPotHits2_hits_per_event",  "RPOTS (2) Simulated hit Nhits/event;Nhits",  201, -0.5, 200.5);
-    hist1D["ForwardRomanPotHits_hits_per_event"]  =  new TH1I("ForwardRomanPotHits_hits_per_event",  "RPOTS (all) Simulated hit Nhits/event;Nhits",  201, -0.5, 200.5);
+    hist1D["ForwardRomanPotHits_hits_per_event"]  =  new TH1I("ForwardRomanPotHits_hits_per_event",  "RPOTS Simulated hit Nhits/event;Nhits",  201, -0.5, 200.5);
     hist1D["ForwardRomanPotHits_EDep"] =  new TH1D("ForwardRomanPotHits_EDep",  "RPOTS Simulated hit energy;MeV",  1000, 0.0, 5.0);
     hist1D["ForwardRomanPotHits_time"] =  new TH1D("ForwardRomanPotHits_time",  "RPOTS Simulated hit time;time (ns)",  150, 85.0, 100.0);
     hist1D["ForwardRomanPotHits_pathlength"] =  new TH1D("ForwardRomanPotHits_pathlength",  "RPOTS Simulated hit path length;path length",  200, 0.0, 5.0);
@@ -50,10 +48,7 @@ void RPOTScheckProcessor::InitWithGlobalRootLock(){
 
     hist1D["FarForwardParticles_particles_per_event"]  =  new TH1I("FarForwardParticles_particles_per_event",  "RPOTS Reconstructed particles/event;Nparticles",  201, -0.5, 200.5);
 
-//    hist1D["EcalEndcapNIslandProtoClusters_clusters_per_event"]  =  new TH1I("EcalEndcapNIslandProtoClusters_clusters_per_event",  "EEMC Protoclusters Nclusters/event;Nclusters",  21, -0.5, 20.5);
-//    hist1D["EcalEndcapNIslandProtoClusters_hits_per_cluster"] = new TH1I("EcalEndcapNIslandProtoClusters_hits_per_cluster",  "EEMC Protoclusters Nhits/cluster;Nhits",  101, -0.5, 100.5);
-//
-//    // Set some draw options
+    // Set some draw options
     hist2D["ForwardRomanPotHits_xy"]->SetOption("colz");
     hist2D["ForwardRomanPotRecHits_xy"]->SetOption("colz");
 }
@@ -66,13 +61,9 @@ void RPOTScheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>&
     // Fill histograms here
 
     // ForwardRomanPotHits
-    hist1D["ForwardRomanPotHits1_hits_per_event"]->Fill(ForwardRomanPotHits1().size());
-    hist1D["ForwardRomanPotHits2_hits_per_event"]->Fill(ForwardRomanPotHits2().size());
-    auto ForwardRomanPotHits = ForwardRomanPotHits1();
-    ForwardRomanPotHits.insert(ForwardRomanPotHits.end(), ForwardRomanPotHits2().begin(), ForwardRomanPotHits2().end());
-    hist1D["ForwardRomanPotHits_hits_per_event"]->Fill(ForwardRomanPotHits.size());
+    hist1D["ForwardRomanPotHits_hits_per_event"]->Fill(ForwardRomanPotHits().size());
 
-    for( auto hit : ForwardRomanPotHits ){
+    for( auto hit : ForwardRomanPotHits() ){
         hist1D["ForwardRomanPotHits_EDep"]->Fill( hit->getEDep() / dd4hep::MeV);
         hist1D["ForwardRomanPotHits_time"]->Fill( hit->getTime());
         hist1D["ForwardRomanPotHits_pathlength"]->Fill( hit->getPathLength());

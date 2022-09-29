@@ -17,8 +17,7 @@ class RPOTScheckProcessor: public JEventProcessorSequentialRoot {
 private:
 
     // Data objects we will need from JANA
-    PrefetchT<edm4hep::SimTrackerHit>         ForwardRomanPotHits1     = {this, "ForwardRomanPotHits1"};
-    PrefetchT<edm4hep::SimTrackerHit>         ForwardRomanPotHits2     = {this, "ForwardRomanPotHits2"};
+    PrefetchT<edm4hep::SimTrackerHit>         ForwardRomanPotHits     = {this, "ForwardRomanPotHits"};
     PrefetchT<edm4eic::RawTrackerHit>         ForwardRomanPotRawHits    = {this, "ForwardRomanPotRawHits"};
     PrefetchT<edm4eic::TrackerHit>            ForwardRomanPotRecHits    = {this, "ForwardRomanPotRecHits"};
     PrefetchT<edm4eic::ReconstructedParticle> ForwardRomanPotParticles  = {this, "ForwardRomanPotParticles"};
