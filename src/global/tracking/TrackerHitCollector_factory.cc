@@ -26,6 +26,11 @@ namespace eicrecon {
         std::string log_level_str = "info";
         app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+        // jana should not delete edm4eic::TrackerHit from this factory
+        // TrackerHits created by other factories, this factory only collect them together
+        SetFactoryFlag(JFactory::NOT_OBJECT_OWNER);
+
     }
 
     void TrackerHitCollector_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -38,7 +43,7 @@ namespace eicrecon {
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
             for (const auto hit : hits) {
-                total_hits.push_back(new edm4eic::TrackerHit(*hit));
+                total_hits.push_back(const_cast<edm4eic::TrackerHit*>(hit));
             }
         }
         Set(total_hits);
