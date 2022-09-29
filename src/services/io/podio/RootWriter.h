@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <set>
 
 #include <services/log/Log_service.h>
 
@@ -23,6 +24,16 @@ namespace eic {
 class EventStore;
 
 class ROOTWriter {
+
+    struct CollectionInfo {
+        int id;
+        std::string name;
+        std::string podtype;
+        bool write_requested = false;
+        bool write_failed = false;
+        bool is_subset = false;
+        podio::root_utils::CollectionBranches branches;
+    };
 
 public:
   ROOTWriter(const std::string& filename, std::shared_ptr<spdlog::logger> &logger);
@@ -37,9 +48,7 @@ public:
   void finish();
 
 private:
-  using StoreCollection = std::pair<const std::string&, podio::CollectionBase*>;
-  void createBranches(const std::vector<StoreCollection>& collections);
-  void setBranches(const std::vector<StoreCollection>& collections);
+  void createBranches(const std::string&, podio::CollectionBase* collection);
 
   // members
   std::string m_filename;
@@ -50,10 +59,9 @@ private:
   TTree* m_evtMDtree;
   TTree* m_colMDtree;
 
-  std::map<std::string, podio::root_utils::CollectionBranches> m_collectionBranchesToWrite{};
+  std::map<std::string, std::unique_ptr<CollectionInfo>> m_collection_infos;
+  std::set<std::string> m_write_requests;
   bool m_firstEvent{true};
-  std::set<std::string> unwritable_collections; // keep list of collections that threw exception during prepareForWrite
-
   std::shared_ptr<spdlog::logger> m_log;
 };
 

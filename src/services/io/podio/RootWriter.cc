@@ -35,161 +35,150 @@ namespace eic {
         delete m_file;
     }
 
-    void ROOTWriter::writeEvent(eic::EventStore* store)
-    {
-        std::vector<StoreCollection> collections;
-        collections.reserve(m_collectionsToWrite.size());
-        for (const auto &name : m_collectionsToWrite)
-        {
-            // (see long comment below)
-            if( unwritable_collections.count(name) != 0 ) continue;
+    // Important: David's explanation about why prepareForWrite() sometimes excepts:
+    // For objects that have one-to-many relations, podio will loop
+    // over these and check that the objectID of each of the related
+    // objects is being "tracked". If one is not, then an exception
+    // is thrown. Presumably, this is to ensure the related objects
+    // are also being written to the podio output file since podio
+    // just writes indexes for each of these and needs them to be there
+    // when it tries to read them back in. Currently, since we are not
+    // fully in on the podio collection management, these objects
+    // are often "untracked". For example, the EcalEndcapNIslandProtoClusters
+    // have edm4eic::CalorimeterHit objects that are currently "untracked".
+    // Thus, when prepareForWrite is called for the EcalEndcapNIslandProtoClusters
+    // collection, an exception is thrown.
+    // (See for example ProtoClusterCollectionData.cc)
 
-            const podio::CollectionBase *coll;
-            store->get(name, coll);
-            collections.emplace_back(name, const_cast<podio::CollectionBase *>(coll));
-            try {
-                // For objects that have one-to-many relations, podio will loop
-                // over these and check that the objectID of each of the related
-                // objects is being "tracked". If one is not, then an exception
-                // is thrown. Presumably, this is to ensure the related objects
-                // are also being written to the podio output file since podio
-                // just writes indexes for each of these and needs them to be there
-                // when it tries to read them back in. Currently, since we are not
-                // fully in on the podio collection management, these objects
-                // are often "untracked". For example, the EcalEndcapNIslandProtoClusters
-                // have edm4eic::CalorimeterHit objects that are currently "untracked".
-                // Thus, when prepareForWrite is called for the EcalEndcapNIslandProtoClusters
-                // collection, an exception is thrown.
-                // (See for example ProtoClusterCollectionData.cc)
-                collections.back().second->prepareForWrite();
-            }catch( std::exception &e) {
-                // podio threw an exception (see comments above). In this case, just
-                // don't write out the collection to the file. Warn user on first occurance
-                // for each type.
-                collections.pop_back();
-                if( unwritable_collections.count(name) ==0 ){
-                    m_log->error( fmt::format("Unable to write collection {} to output file. Skipping.", name) );
-                    unwritable_collections.insert( name );
+    void ROOTWriter::writeEvent(eic::EventStore* store) {
+
+        if (m_firstEvent) {
+            // Populate collection infos
+            auto& names = store->getCollectionIDTable()->names();
+            auto& ids = store->getCollectionIDTable()->ids();
+            size_t collection_count = names.size();
+            for (int i=0; i<collection_count; ++i) {
+                auto collection_info = std::make_unique<CollectionInfo>();
+                collection_info->name = names[i];
+                collection_info->id = ids[i];
+                if (m_write_requests.count(names[i]) != 0) collection_info->write_requested = true;
+                collection_info->write_failed = false;
+            }
+            // TODO: Check whether everything in m_write_requests matched up to an entry in the collection ID table
+        }
+
+        for (auto& pair : m_collection_infos) {
+            if (pair.second->write_requested && !pair.second->write_failed) {
+
+                podio::CollectionBase* collection;
+                store->get(pair.first, collection);
+                try {
+                    collection->prepareForWrite();
+                }
+                catch (std::exception &e) {
+                    m_log->error("Unable to write collection {} to output file. Skipping.", pair.first);
+                    pair.second->write_failed = true;
+                }
+                if (m_firstEvent) {
+                    pair.second->podtype = collection->getTypeName();
+                    createBranches(pair.first, collection);
+                }
+                else {
+                    podio::root_utils::setCollectionAddresses(collection, pair.second->branches);
                 }
             }
         }
-
-        if (m_firstEvent)
-        {
-            createBranches(collections);
-            m_firstEvent = false;
-        }
-        else
-        {
-            setBranches(collections);
-        }
-
+        m_firstEvent = false;
         m_datatree->Fill();
         m_evtMDtree->Fill();
     }
 
-    void ROOTWriter::createBranches(const std::vector<StoreCollection> &collections)
-    {
-        int iCollection = 0;
-        for (auto &[name, coll] : collections)
+    void ROOTWriter::createBranches(const std::string& name, podio::CollectionBase* collection) {
+
+        // TODO: This lookup is unnecessary if we pass in the CollectionInfo ref instead of the name
+        auto pair = m_collection_infos.find(name);
+        if (pair == m_collection_infos.end()) {
+            throw std::runtime_error("Unrecognized collection!");
+        }
+        auto& branches = pair->second->branches;
+
+        // podio::root_utils::CollectionBranches branches;
+        const auto collBuffers = collection->getBuffers();
+        if (collBuffers.data)
         {
-            podio::root_utils::CollectionBranches branches;
-            const auto collBuffers = coll->getBuffers();
-            if (collBuffers.data)
+            // only create the data buffer branch if necessary
+
+            auto collClassName = "vector<" + collection->getDataTypeName() + ">";
+
+            branches.data = m_datatree->Branch(name.c_str(), collClassName.c_str(), collBuffers.data);
+        }
+
+        // reference collections
+        if (auto refColls = collBuffers.references)
+        {
+            int i = 0;
+            for (auto &c : (*refColls))
             {
-                // only create the data buffer branch if necessary
-
-                auto collClassName = "vector<" + coll->getDataTypeName() + ">";
-
-                branches.data = m_datatree->Branch(name.c_str(), collClassName.c_str(), collBuffers.data);
+                const auto brName = podio::root_utils::refBranch(name, i);
+                branches.refs.push_back(m_datatree->Branch(brName.c_str(), c.get()));
+                ++i;
             }
+        }
 
-            // reference collections
-            if (auto refColls = collBuffers.references)
+        // vector members
+        if (auto vminfo = collBuffers.vectorMembers)
+        {
+            int i = 0;
+            for (auto &[type, vec] : (*vminfo))
             {
-                int i = 0;
-                for (auto &c : (*refColls))
-                {
-                    const auto brName = podio::root_utils::refBranch(name, i);
-                    branches.refs.push_back(m_datatree->Branch(brName.c_str(), c.get()));
-                    ++i;
-                }
+                const auto typeName = "vector<" + type + ">";
+                const auto brName = podio::root_utils::vecBranch(name, i);
+                branches.vecs.push_back(m_datatree->Branch(brName.c_str(), typeName.c_str(), vec));
+                ++i;
             }
-
-            // vector members
-            if (auto vminfo = collBuffers.vectorMembers)
-            {
-                int i = 0;
-                for (auto &[type, vec] : (*vminfo))
-                {
-                    const auto typeName = "vector<" + type + ">";
-                    const auto brName = podio::root_utils::vecBranch(name, i);
-                    branches.vecs.push_back(m_datatree->Branch(brName.c_str(), typeName.c_str(), vec));
-                    ++i;
-                }
-            }
-            m_collectionBranches.push_back(branches);
         }
     }
 
-    void ROOTWriter::setBranches(const std::vector<StoreCollection> &collections)
-    {
-        size_t iCollection = 0;
-        for (auto &coll : collections)
-        {
-            const auto &branches = m_collectionBranches[iCollection];
-            podio::root_utils::setCollectionAddresses(coll.second, branches);
-
-            iCollection++;
-        }
-    }
 
     void ROOTWriter::finish()
     {
-        // now we want to safe the metadata. This includes info about the
-        // collections
-        const auto collIDTable = m_store->getCollectionIDTable();
-        m_metadatatree->Branch("CollectionIDs", collIDTable);
+        // Extract ([names],[ids])
+        std::vector<int> ids;
+        std::vector<std::string> names;
+        for (const auto& item: m_collection_infos) {
+            ids.push_back(item.second->id);
+            names.push_back(item.second->name);
+        }
+        auto collection_id_table = podio::CollectionIDTable(std::move(ids), std::move(names));
+        m_metadatatree->Branch("CollectionIDs", &collection_id_table);
 
-        // collectionID, collection type, subset collection
-        std::vector<podio::root_utils::CollectionInfoT> collectionInfo;
-        collectionInfo.reserve(m_collectionsToWrite.size());
-        for (const auto &name : m_collectionsToWrite)
-        {
-            const auto collID = collIDTable->collectionID(name);
-            const podio::CollectionBase *coll{nullptr};
-            // No check necessary, only registered collections possible
-            m_store->get(name, coll);
-            const auto collType = coll->getTypeName();
-            collectionInfo.emplace_back(collID, std::move(collType), coll->isSubsetCollection());
+        // Extract (collection_id, collection_type, is_subset)
+        std::vector<podio::root_utils::CollectionInfoT> collectionTypeInfo;
+        collectionTypeInfo.reserve(m_collection_infos.size());
+        for (const auto &pair : m_collection_infos) {
+            auto& collection_info = pair.second;
+            collectionTypeInfo.emplace_back(collection_info->id, collection_info->podtype, collection_info->is_subset);
         }
 
-        m_metadatatree->Branch("CollectionTypeInfo", &collectionInfo);
+        m_metadatatree->Branch("CollectionTypeInfo", &collectionTypeInfo);
 
         podio::version::Version podioVersion = podio::version::build_version;
         m_metadatatree->Branch("PodioVersion", &podioVersion);
 
         m_metadatatree->Fill();
 
-        m_colMDtree->Branch("colMD", "std::map<int,podio::GenericParameters>", m_store->getColMetaDataMap());
-        m_colMDtree->Fill();
-        m_runMDtree->Branch("runMD", "std::map<int,podio::GenericParameters>", m_store->getRunMetaDataMap());
-        m_runMDtree->Fill();
+        // TODO: Re-enable these when I understand them
+        // m_colMDtree->Branch("colMD", "std::map<int,podio::GenericParameters>", m_store->getColMetaDataMap());
+        // m_colMDtree->Fill();
+        // m_runMDtree->Branch("runMD", "std::map<int,podio::GenericParameters>", m_store->getRunMetaDataMap());
+        // m_runMDtree->Fill();
 
         m_file->Write();
         m_file->Close();
     }
 
-    bool ROOTWriter::registerForWrite(const std::string &name)
-    {
-        const podio::CollectionBase *tmp_coll(nullptr);
-        if (!m_store->get(name, tmp_coll))
-        {
-            std::cerr << "RootWriter: Omitting bad collection name: " << name << std::endl;
-            return false;
-        }
-
-        m_collectionsToWrite.push_back(name);
+    bool ROOTWriter::registerForWrite(const std::string &name) {
+        m_write_requests.insert(name);
         return true;
     }
 

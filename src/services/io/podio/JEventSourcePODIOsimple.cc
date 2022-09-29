@@ -226,7 +226,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     auto collectionIDtable = store->getCollectionIDTable();
     for( auto id : collectionIDtable->ids() ){
          podio::CollectionBase *coll={nullptr};
-        if( store.get(id, coll) ){
+        if( store->get(id, coll) ){
             auto name = collectionIDtable->name(id);
             auto className = coll->getTypeName();
             CopyToJEventSimple( className, name, coll, event);
@@ -319,7 +319,7 @@ void JEventSourcePODIOsimple::PrintCollectionTypeTable(eic::EventStore* store) {
     for (auto id : collectionIDtable->ids()) {
         auto name = collectionIDtable->name(id);
         podio::CollectionBase *coll = {nullptr};
-        if (store.get(id, coll)) {
+        if (store->get(id, coll)) {
             auto type = coll->getTypeName();
             max_name_len = std::max(max_name_len, name.length());
             max_type_len = std::max(max_type_len, type.length());
