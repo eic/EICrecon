@@ -4,12 +4,11 @@ eicrecon
 -Ppodio:output_include_collections="ReconstructedParticles,MCParticles"
 -Pnthreads=1
 -Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4hep.root
--Pacts:MaterialMap=https://eicweb.phy.anl.gov/EIC/detectors/athena/uploads/56b64d544442a93904488e7292aa509d/material-maps.cbor
--Pacts:InitLogLevel=trace
 -Pjana:debug_plugin_loading=1
 -Pjana:nevents=200
 -Pjana:debug_mode=1
 -Pjana:timeout=0
+-Pjana:plugin_path=/home/romanov/eic/soft/eicrecon/main/lib/EICrecon/plugins
 -Ptracking_efficiency:LogLevel=info
 -PCKFTracking:CentralTrackerSourceLinker:LogLevel=info
 -PCKFTracking:CentralCKFTrajectories:LogLevel=info
