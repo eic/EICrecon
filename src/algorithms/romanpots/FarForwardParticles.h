@@ -140,7 +140,7 @@ public:
     void execute() {
         auto &rawhits = m_inputHits;
 //            auto &rc = *(m_outputParticles.createAndPut());
-        std::vector<edm4eic::MutableReconstructedParticle *> rc;
+//        std::vector<edm4eic::MutableReconstructedParticle *> rc;
 
         auto converter = m_cellid_converter;
 
