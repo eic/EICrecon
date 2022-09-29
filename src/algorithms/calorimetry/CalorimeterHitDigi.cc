@@ -117,6 +117,7 @@ void CalorimeterHitDigi::AlgorithmChangeRun() {
 void CalorimeterHitDigi::AlgorithmProcess()  {
 
     // Delete any output objects left from last event.
+    // (Should already have been done for us, but just to be bullet-proof.)
     for( auto h : rawhits ) delete h;
     rawhits.clear();
 

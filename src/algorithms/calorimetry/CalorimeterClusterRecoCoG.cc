@@ -70,15 +70,16 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
       if (m_logger->level() <= spdlog::level::debug) {
         //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", " << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
-        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / GeV, cl.getPosition().x / mm, cl.getPosition().y / mm, cl.getPosition().z / mm);
+        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / GeV, cl->getPosition().x / mm, cl->getPosition().y / mm, cl->getPosition().z / mm);
       }
-      clusters.push_back(&cl);
+      clusters.push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
       // 1. find proto-cluster hit with largest energy deposition
       // 2. find first mchit with same CellID
       // 3. assign mchit's MCParticle as cluster truth
-      if (!mchits.empty() && !m_outputAssociations.empty()) {
+//      if (!mchits.empty() && !m_outputAssociations.empty()) {  // ? having m_outputAssociations be not empty doesn't make sense ?
+      if (!mchits.empty() ) {
 
         // 1. find pclhit with largest energy deposition
         auto pclhits = pcl->getHits();
@@ -142,10 +143,11 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
-        clusterassoc->setRecID(cl.getObjectID().index);
+//        clusterassoc->setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc->setRecID((uint32_t)((uint64_t)cl&0xFFFFFFFF)); // mask lower 32 bits of cluster pointer as unique ID FIXME:
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
-        clusterassoc->setRec(cl);
+        clusterassoc->setRec(*cl);
         //clusterassoc.setSim(mcp);
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);

@@ -26,8 +26,8 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        std::string              m_inputHit_tag="EcalBarrelRecHits";
-        std::string              m_inputMCHit_tag="EcalBarrelHits";
+        m_inputHit_tag="EcalBarrelRecHits";
+        m_inputMCHit_tag="EcalBarrelHits";
 
         AlgorithmInit();
     }

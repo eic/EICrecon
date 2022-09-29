@@ -33,11 +33,6 @@ public:
     //instantiate new spdlog logger
     std::shared_ptr<spdlog::logger> m_logger;
 
-    
-    // Name of input data type (collection)
-    std::string              m_input_tag;
-    std::string              m_inputAssociations_tag;
-
     //inputs
     std::vector<const edm4eic::Cluster*> m_inputClusters;//{"InputClusters", Gaudi::DataHandle::Reader, this};
     std::vector<const edm4eic::MCRecoClusterParticleAssociation*> m_inputAssociations;//{"InputAssociations", Gaudi::DataHandle::Reader, this};
@@ -63,12 +58,13 @@ private:
 
       // find associated particle
       for (const auto& assoc : associations) {
-        if (assoc->getRec() == (*cluster)) {
+          auto id = (uint32_t)((uint64_t)cluster&0xFFFFFFFF); // FIXME: This is a hack. See code near bottom of CalorimeterClusterRecoCoG::AlgorithmProcess()
+        if( assoc->getRecID() == id){
           mcID = assoc->getSimID();
           break;
         }
       }
-      
+
       //TODO:spdlog verbosity
       if ( m_logger->level() <= spdlog::level::debug) {
         m_logger->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());

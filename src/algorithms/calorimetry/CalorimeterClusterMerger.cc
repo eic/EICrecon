@@ -45,14 +45,12 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
       }
       return;
     }
-
     if (m_logger->level() <=spdlog::level::debug) {
        m_logger->debug( "Step 0/1: Getting indexed list of clusters..." );
       //LOG_INFO(default_cout_logger) << "Step 0/1: Getting indexed list of clusters..." << LOG_END;
     }
     // get an indexed map of all vectors of clusters, indexed by mcID
     auto clusterMap = indexedClusterLists(split, assoc);
-
     // loop over all position clusters and match with energy clusters
     if (m_logger->level() <=spdlog::level::debug) {
        m_logger->debug( "Step 1/1: Merging clusters where needed" );
@@ -79,13 +77,13 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         assoc2.push_back(toadd);
         //ca.setSim(//FIXME);
       } else {
-        edm4eic::MutableCluster* new_clus = new edm4eic::MutableCluster();// merged.create();
+        edm4eic::MutableCluster new_clus;// merged.create();
         // calculate aggregate info
         float energy      = 0;
         float energyError = 0;
         float time        = 0;
         int nhits = 0;
-        auto position = new_clus->getPosition();
+        auto position = new_clus.getPosition();
         for (auto clus : clusters) {
           if (m_logger->level() <=spdlog::level::debug) {
              m_logger->debug( "   --> Adding cluster with energy: {}" , clus->getEnergy() );
@@ -95,23 +93,24 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
           time += clus->getTime() * clus->getEnergy();
           nhits += clus->getNhits();
           position = position + energy * clus->getPosition();
-          new_clus->addToClusters(*clus);
+          new_clus.addToClusters(*clus);
           for (auto& hit : clus->getHits()) {
-            new_clus->addToHits(hit);
+            new_clus.addToHits(hit);
           }
         }
-        new_clus->setEnergy(energy);
-        new_clus->setEnergyError(sqrt(energyError));
-        new_clus->setTime(time / energy);
-        new_clus->setNhits(nhits);
-        new_clus->setPosition(position / energy);
+        new_clus.setEnergy(energy);
+        new_clus.setEnergyError(sqrt(energyError));
+        new_clus.setTime(time / energy);
+        new_clus.setNhits(nhits);
+        new_clus.setPosition(position / energy);
+        merged.push_back( new edm4eic::Cluster(new_clus) );
         if (m_logger->level() <=spdlog::level::debug) {
-           m_logger->debug( "   --> Merged cluster with energy: {}",new_clus->getEnergy() );
+           m_logger->debug( "   --> Merged cluster with energy: {}",new_clus.getEnergy() );
         }
         auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setSimID(mcID);
         ca->setWeight(1.0);
-        ca->setRec(edm4eic::Cluster(*new_clus));
+        ca->setRec(edm4eic::Cluster(new_clus));
         edm4eic::MCRecoClusterParticleAssociation* toadd = new edm4eic::MCRecoClusterParticleAssociation(*ca);
         assoc2.push_back(toadd);
       }

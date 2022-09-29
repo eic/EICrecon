@@ -1,9 +1,7 @@
 // Copyright 2022, Thomas Britton
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-
-#ifndef _Cluster_factory_EcalBarrelClusters_h_
-#define _Cluster_factory_EcalBarrelClusters_h_
+#pragma once
 
 #include <random>
 
@@ -15,13 +13,13 @@
 
 
 
-class Cluster_factory_EcalBarrelClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelClusters(){
-        SetTag("EcalBarrelClusters");
+    Cluster_factory_EcalBarrelTruthClusters(){
+        SetTag("EcalBarrelTruthClusters");
     }
 
     //------------------------------------------
@@ -30,8 +28,8 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalBarrelHits";
-        m_input_protoclust_tag="EcalBarrelIslandProtoClusters";
-    
+        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
@@ -43,14 +41,14 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:input_protoclust_tag", m_input_protoclust_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("BEMC:EcalBarrelClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_simhit_tag", m_input_simhit_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_protoclust_tag", m_input_protoclust_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -90,10 +88,9 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelClusterAssociations");
+        event->Insert(m_outputAssociations, "EcalBarrelTruthClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
 
-#endif // _Cluster_factory_EcalBarrelClusters_h_
