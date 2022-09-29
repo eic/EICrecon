@@ -10,15 +10,15 @@
 
 void write_read_test() {
     std::cout << "Hello world!" << std::endl;
-    eic::EventStore es;
     auto logger = spdlog::default_logger();
-    eic::ROOTWriter writer("test_out.root", &es, logger);
-
-    // Set up writer
-    auto& hits = es.create<edm4eic::CalorimeterHitCollection>("MyFunHits");
-    auto& clusters = es.create<edm4eic::ClusterCollection>("MyFunClusters");
+    eic::ROOTWriter writer("test_out.root", logger);
     writer.registerForWrite("MyFunHits");
     writer.registerForWrite("MyFunClusters");
+
+    // Set up writer
+    eic::EventStore es;
+    auto& hits = es.create<edm4eic::CalorimeterHitCollection>("MyFunHits");
+    auto& clusters = es.create<edm4eic::ClusterCollection>("MyFunClusters");
 
     // Save several events
 
@@ -52,7 +52,7 @@ void write_read_test() {
     clusters.push_back(cluster1);
     clusters.push_back(cluster2);
 
-    writer.writeEvent();
+    writer.writeEvent(&es);
 
     es.clearCollections();
     // es.clear();
@@ -77,11 +77,11 @@ void write_read_test() {
     hits.push_back(hit5);
     clusters.push_back(cluster3);
 
-    writer.writeEvent();
+    writer.writeEvent(&es);
     writer.finish();
 
     eic::EventStore es_in;
-
+/*
     eic::ROOTReader reader;
     reader.openFile("test_out.root");
     es_in.setReader(&reader);
@@ -105,13 +105,14 @@ void write_read_test() {
         reader.endOfEvent();
         es_in.clear();
     }
+    */
 }
 
 void read_write_test() {
 
     eic::EventStore input_store;
     eic::EventStore output_store;
-
+/*
     eic::ROOTReader reader;
     reader.openFile("test_out.root"); // comes from prev test
     input_store.setReader(&reader);
@@ -151,6 +152,7 @@ void read_write_test() {
     }
     writer.finish();
     reader.closeFile();
+    */
 }
 
 int main() {

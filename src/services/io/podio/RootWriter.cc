@@ -81,7 +81,7 @@ namespace eic {
                 }
                 if (m_firstEvent) {
                     pair.second->podtype = collection->getTypeName();
-                    createBranches(pair.first, collection);
+                    createBranches(*(pair.second), collection);
                 }
                 else {
                     podio::root_utils::setCollectionAddresses(collection, pair.second->branches);
@@ -93,16 +93,10 @@ namespace eic {
         m_evtMDtree->Fill();
     }
 
-    void ROOTWriter::createBranches(const std::string& name, podio::CollectionBase* collection) {
+    void ROOTWriter::createBranches(CollectionInfo& info, podio::CollectionBase* collection) {
 
-        // TODO: This lookup is unnecessary if we pass in the CollectionInfo ref instead of the name
-        auto pair = m_collection_infos.find(name);
-        if (pair == m_collection_infos.end()) {
-            throw std::runtime_error("Unrecognized collection!");
-        }
-        auto& branches = pair->second->branches;
+        auto& branches = info.branches;
 
-        // podio::root_utils::CollectionBranches branches;
         const auto collBuffers = collection->getBuffers();
         if (collBuffers.data)
         {
@@ -110,7 +104,7 @@ namespace eic {
 
             auto collClassName = "vector<" + collection->getDataTypeName() + ">";
 
-            branches.data = m_datatree->Branch(name.c_str(), collClassName.c_str(), collBuffers.data);
+            branches.data = m_datatree->Branch(info.name.c_str(), collClassName.c_str(), collBuffers.data);
         }
 
         // reference collections
@@ -119,7 +113,7 @@ namespace eic {
             int i = 0;
             for (auto &c : (*refColls))
             {
-                const auto brName = podio::root_utils::refBranch(name, i);
+                const auto brName = podio::root_utils::refBranch(info.name, i);
                 branches.refs.push_back(m_datatree->Branch(brName.c_str(), c.get()));
                 ++i;
             }
@@ -132,7 +126,7 @@ namespace eic {
             for (auto &[type, vec] : (*vminfo))
             {
                 const auto typeName = "vector<" + type + ">";
-                const auto brName = podio::root_utils::vecBranch(name, i);
+                const auto brName = podio::root_utils::vecBranch(info.name, i);
                 branches.vecs.push_back(m_datatree->Branch(brName.c_str(), typeName.c_str(), vec));
                 ++i;
             }

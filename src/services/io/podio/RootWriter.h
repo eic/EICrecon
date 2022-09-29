@@ -48,7 +48,7 @@ public:
   void finish();
 
 private:
-  void createBranches(const std::string&, podio::CollectionBase* collection);
+  void createBranches(CollectionInfo& info, podio::CollectionBase* collection);
 
   // members
   std::string m_filename;
