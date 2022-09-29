@@ -9,6 +9,7 @@ plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
 find_package(JANA REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
@@ -24,8 +25,8 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
 
-set(Acts_INCLUDE_DIR "${Acts_DIR}/../../../include/")
-message("{Acts_INCLUDE_DIR} ${Acts_INCLUDE_DIR}")
+set(Acts_INCLUDE_DIRS "${Acts_DIR}/../../../include/")
+message("{Acts_INCLUDE_DIRS} ${Acts_INCLUDE_DIRS}")
 
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
@@ -46,4 +47,4 @@ plugin_include_directories(${PLUGIN_NAME}
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)
+plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)

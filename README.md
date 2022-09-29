@@ -20,5 +20,7 @@ A preliminary tutorial on JANA2 is being developed here:
 4. [Contributing and Conventions](./CONTRIBUTING.md)
 5. [Logging](./docs/Logging.md)
 6. [Manual Build instructions](./docs/Manual_Build.md)
-   * [EDPM](./docs/EDPM.md)
+   * [Installation via EDPM](./docs/EDPM.md)
+7. [Tracking implementation](./docs/tracking_implementation.md)
+
 

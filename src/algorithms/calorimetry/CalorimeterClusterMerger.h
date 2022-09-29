@@ -4,7 +4,7 @@
 #define _CalorimeterClusterMerger_h_
 
 #include <random>
-
+#include <spdlog/spdlog.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cluster.h>
@@ -25,14 +25,13 @@ class CalorimeterClusterMerger {
 public:
     CalorimeterClusterMerger() = default;
     ~CalorimeterClusterMerger(){} // better to use smart pointer?
-    virtual void AlgorithmInit() ;
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
-    // Name of input data type (collection)
-    std::string              m_input_tag;
-    std::string              m_inputAssociations_tag;
+    //instantiate new spdlog logger
+    std::shared_ptr<spdlog::logger> m_logger;
 
     //inputs
     std::vector<const edm4eic::Cluster*> m_inputClusters;//{"InputClusters", Gaudi::DataHandle::Reader, this};
@@ -59,20 +58,23 @@ private:
 
       // find associated particle
       for (const auto& assoc : associations) {
-        if (assoc->getRec() == (*cluster)) {
+          auto id = (uint32_t)((uint64_t)cluster&0xFFFFFFFF); // FIXME: This is a hack. See code near bottom of CalorimeterClusterRecoCoG::AlgorithmProcess()
+        if( assoc->getRecID() == id){
           mcID = assoc->getSimID();
           break;
         }
       }
+
       //TODO:spdlog verbosity
-      if (false) {
-        LOG_INFO(default_cout_logger) << " --> Found cluster with mcID " << mcID << " and energy "
-                  << cluster->getEnergy() << LOG_END;
+      if ( m_logger->level() <= spdlog::level::debug) {
+        m_logger->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
+        //LOG_INFO(default_cout_logger) << " --> Found cluster with mcID " << mcID << " and energy " << cluster->getEnergy() << LOG_END;
       }
 
       if (mcID < 0) {
-        if (false) {
-          LOG_INFO(default_cout_logger) << "   --> WARNING: no valid MC truth link found, skipping cluster..." << LOG_END;
+        if (m_logger->level() <= spdlog::level::debug) {
+          m_logger->debug("   --> WARNING: no valid MC truth link found, skipping cluster...");
+          //LOG_INFO(default_cout_logger) << "   --> WARNING: no valid MC truth link found, skipping cluster..." << LOG_END;
         }
         continue;
       }

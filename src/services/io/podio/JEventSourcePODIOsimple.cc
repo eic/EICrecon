@@ -66,6 +66,35 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
 
     // Tell JANA that we want it to call the FinishEvent() method.
     EnableFinishEvent();
+
+    // Allow user to specify to recycle events forever
+    GetApplication()->SetDefaultParameter(
+            "podio:run_forever",
+            m_run_forever,
+            "set to true to recycle through events continuously"
+            );
+
+    bool print_type_table = false;
+    GetApplication()->SetDefaultParameter(
+            "podio:print_type_table",
+            print_type_table,
+            "Print list of collection names and their types"
+            );
+
+    std::string background_filename;
+    GetApplication()->SetDefaultParameter(
+            "podio:background_filename",
+            background_filename,
+            "Name of file containing background events to merge in (default is not to merge any background)"
+            );
+
+    int num_background_events=1;
+    GetApplication()->SetDefaultParameter(
+            "podio:num_background_events",
+            num_background_events,
+            "Number of background events to add to every primary event."
+    );
+
 }
 
 //------------------------------------------------------------------------------
@@ -86,17 +115,9 @@ JEventSourcePODIOsimple::~JEventSourcePODIOsimple() {
 //------------------------------------------------------------------------------
 void JEventSourcePODIOsimple::Open() {
 
-    // Allow user to specify to recycle events forever
-    GetApplication()->SetDefaultParameter("podio:run_forever", m_run_forever, "set to true to recycle through events continuously");
-
-    bool print_type_table = false;
-    GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table, "Print list of collection names and their types");
-
-    std::string background_filename;
-    GetApplication()->SetDefaultParameter("podio:background_filename", background_filename, "Name of file containing background events to merge in (default is not to merge any background)");
-
-    int num_background_events=1;
-    GetApplication()->SetDefaultParameter("podio:num_background_events", num_background_events, "Number of background events to add to every primary event.");
+    bool print_type_table = GetApplication()->GetParameterValue<bool>("podio:print_type_table");
+    std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
+    int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
     // Open primary events file
     try {

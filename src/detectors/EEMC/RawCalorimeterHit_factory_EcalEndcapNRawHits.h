@@ -14,6 +14,9 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
+
 using namespace dd4hep;
 
 
@@ -42,7 +45,7 @@ public:
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
-        m_geoSvcName = "GeoSvc";
+        m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
@@ -62,7 +65,15 @@ public:
         app->SetDefaultParameter("EEMC:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
-        AlgorithmInit();
+        std::string tag=this->GetTag();
+        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+
+        // Get log level from user parameter or default
+        std::string log_level_str = "info";
+        auto pm = app->GetJParameterManager();
+        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

@@ -20,11 +20,11 @@ namespace eicrecon {
         auto pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "TrackerSourceLinker:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+        std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
         // Now we check that user provided an input names
         pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
-        if(m_input_tags.size() == 0) {
+        if(m_input_tags.empty()) {
             m_input_tags = GetDefaultInputTags();
         }
 
@@ -41,7 +41,7 @@ namespace eicrecon {
 
         // Initialize algorithm
         auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-        m_source_linker.init(cellid_converter, acts_service->acts_context(), m_log);
+        m_source_linker.init(cellid_converter, acts_service->actsGeoProvider(), m_log);
     }
 
 
@@ -62,6 +62,11 @@ namespace eicrecon {
         m_log->debug("TrackerSourceLinker_factory::Process");
 
         auto result = m_source_linker.produce(total_hits);
+
+        for(auto sourceLink: result->sourceLinks) {
+            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(), sourceLink->geometryId().value());
+        }
+
         Insert(result);
     }
 } // eicrecon

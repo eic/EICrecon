@@ -79,6 +79,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
 add_subdirectory( src/algorithms )
+add_subdirectory( src/benchmarks )
 add_subdirectory( src/detectors )
 add_subdirectory( src/examples )
 add_subdirectory( src/global )
@@ -87,6 +88,7 @@ add_subdirectory( src/services )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
 add_subdirectory( src/benchmarks )
+
 
 
 # Print what we had built

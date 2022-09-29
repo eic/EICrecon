@@ -15,7 +15,7 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
     // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
     //    "BTRK:parameter" or "FarForward:parameter"
     // That has limitations but the convenient in the most of the cases
-    std::string param_prefix = "SiliconTrackerDigi_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = "SiliconTrackerDigi:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Set input tags
     pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag names");

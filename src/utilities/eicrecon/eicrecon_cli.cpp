@@ -11,8 +11,39 @@
 
 #include <JANA/Services/JComponentManager.h>
 
+#include <set>
+#include <iostream>
+#include <string>
+#include <filesystem>
+
 
 namespace jana {
+
+    void PrintUsageOptions() {
+        std::cout << "Options:" << std::endl;
+        std::cout << "   -h   --help                  Display this message" << std::endl;
+        std::cout << "   -v   --version               Display version information" << std::endl;
+        std::cout << "   -c   --configs               Display configuration parameters" << std::endl;
+        std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
+        std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
+        std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
+        std::cout << "   -L   --list-factories        List all the factories without running" << std::endl;
+        std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl;
+        std::cout << "   -Pplugin:param=value         Specify a parameter value for a plugin" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "   --list-default-plugins       List all the default plugins" << std::endl;
+        std::cout << "   --list-available-plugins     List plugins at $JANA_PLUGIN_PATH and $EICrecon_MY" << std::endl;
+        std::cout << std::endl << std::endl;
+    }
+
+    void PrintUsageExample() {
+
+        std::cout << "Example:" << std::endl;
+        std::cout << "    eicrecon -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root" << std::endl;
+        std::cout << "    eicrecon -Ppodio:print_type_table=1 infile.root" << std::endl << std::endl;
+        std::cout << std::endl << std::endl;
+    }
 
     void PrintUsage() {
         /// Prints jana.cc command-line options to stdout, for use by the CLI.
@@ -21,60 +52,184 @@ namespace jana {
 
         std::cout << std::endl;
         std::cout << "Usage:" << std::endl;
-        std::cout << "    jana [options] source1 source2 ..." << std::endl << std::endl;
+        std::cout << "    eicrecon [options] source1 source2 ..." << std::endl;
+        std::cout << std::endl;
 
         std::cout << "Description:" << std::endl;
         std::cout << "    Command-line interface for running JANA plugins. This can be used to" << std::endl;
         std::cout << "    read in events and process them. Command-line flags control configuration" << std::endl;
         std::cout << "    while additional arguments denote input files, which are to be loaded and" << std::endl;
-        std::cout << "    processed by the appropriate EventSource plugin." << std::endl << std::endl;
+        std::cout << "    processed by the appropriate EventSource plugin." << std::endl;
+        std::cout << std::endl;
 
-        std::cout << "Options:" << std::endl;
-        std::cout << "   -h   --help                  Display this message" << std::endl;
         PrintUsageOptions();
-        std::cout << "Example:" << std::endl;
-        std::cout << "    jana -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 inputfile1.txt" << std::endl << std::endl;
-
-    }
-
-    void PrintUsageOptions() {
-        std::cout << "   -v   --version               Display version information" << std::endl;
-        std::cout << "   -c   --configs               Display configuration parameters" << std::endl;
-        std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
-        std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
-        std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
-        std::cout << "   -L   --list_factories        List all the factories without running" << std::endl;
-        std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl << std::endl;
+        PrintUsageExample();
     }
 
     void PrintVersion() {
-        /// Prints JANA version information to stdout, for use by the CLI.
+        std::cout << "      EICrecon version: " << "0.0.0" << std::endl;
+        std::cout << std::endl << std::endl;
+    }
 
-        std::cout << "          JANA version: " << JVersion::GetVersion() << std::endl;
-        std::cout << "        JANA ID string: " << JVersion::GetIDstring() << std::endl;
-        std::cout << "     JANA git revision: " << JVersion::GetRevision() << std::endl;
-        std::cout << "JANA last changed date: " << JVersion::GetDate() << std::endl;
-        std::cout << "           JANA source: " << JVersion::GetSource() << std::endl;
+    void PrintDefaultPlugins(std::vector<std::string> const& default_plugins) {
+        std::cout << "\n List default plugins:\n\n";
+        printPluginNames(default_plugins);
+        std::cout << std::endl << std::endl;
+    }
+
+    void GetPluginNamesInDir(std::set<std::string> & plugin_names, std::string dir_str) {
+        // Edge case handler: taking care of invalid and empty dirs
+        if (std::filesystem::is_directory(dir_str) == false)
+            return;
+        if (std::filesystem::is_empty(dir_str))
+            return;
+
+        std::string full_path, filename;
+        for (const auto & entry : std::filesystem::directory_iterator(dir_str)) {
+            full_path = std::string(entry.path());   // Example: "/usr/local/plugins/Tutorial.so"
+            filename = full_path.substr(full_path.find_last_of("/") + 1);  // Example: "Tutorial.so"
+            if (filename.substr(filename.size() - 3) == ".so") {
+                std::string s = filename.substr(0, filename.size() - 3);
+//                std::cout << filename << "==> "  << s << std::endl;
+                plugin_names.insert(s);
+            }
+        }
+    }
+
+    /// Get the plugin names by searching for files named as *.so under $JANA_PLUGIN_PATH and $EICrecon_MY/plugins.
+    /// @note It does not guarantee any effectiveness of the plugins.
+    void GetPluginNamesFromEnvPath(std::set<std::string> & plugin_names, const char* env_var) {
+        std::string dir_path, paths;
+
+        const char* env_p = getenv(env_var);
+        if (env_p) {
+            if (strcmp(env_var, "EICrecon_MY") == 0) {
+                paths = std::string(env_p) + "/plugins";
+            }
+            else {
+                paths = std::string(env_p);
+            }
+
+            std::stringstream envvar_ss(paths);
+            while (getline(envvar_ss, dir_path, ':')) {
+                GetPluginNamesInDir(plugin_names, dir_path);
+            }
+        }
+    }
+
+    std::vector<std::string> GetAvailablePluginNames(std::vector<std::string> const& default_plugins) {
+        // Use set to remove duplicates.
+        /// @note The plugins will be override if you use the same plugin name at different paths.
+        std::set<std::string> set_plugin_name;
+        for (std::string s : default_plugins)
+            set_plugin_name.insert(s);
+
+        jana::GetPluginNamesFromEnvPath(set_plugin_name, "JANA_PLUGIN_PATH");
+        jana::GetPluginNamesFromEnvPath(set_plugin_name, "EICrecon_MY");
+
+        std::vector<std::string> plugin_names(set_plugin_name.begin(), set_plugin_name.end());
+        return plugin_names;
+    }
+
+    void PrintAvailablePlugins(std::vector<std::string> const& default_plugins) {
+        std::cout << "\n List available plugins:\n\n";
+        printPluginNames(GetAvailablePluginNames(default_plugins));
+        std::cout << std::endl << std::endl;
+    }
+
+    bool HasPrintOnlyCliOptions(UserOptions& options, std::vector<std::string> const& default_plugins) {
+        if (options.flags[jana::ShowUsage]) {
+            jana::PrintUsage();
+            return true;
+        }
+        if (options.flags[jana::ShowVersion]) {
+            jana::PrintVersion();
+            return true;
+        }
+        if (options.flags[jana::ShowDefaultPlugins]) {
+            jana::PrintDefaultPlugins(default_plugins);
+            return true;
+        }
+        if (options.flags[jana::ShowAvailablePlugins]) {
+            jana::PrintAvailablePlugins(default_plugins);
+            return true;
+        }
+        return false;
+    }
+
+    /// Detect whether the cli params @param options.params contain "-Pplugins_to_ignore=...<erase_str>...".
+    /// If true, delete @param erase_str from the original cli string "-Pplugins_to_ignore".
+    bool HasExcludeDefaultPluginsInCliParams(UserOptions& options, const std::string erase_str) {
+        auto has_ignore_plugins = options.params.find("plugins_to_ignore");
+        if (has_ignore_plugins == options.params.end())
+            return false;
+
+        // Has cli option "-Pplugins_to_ignore". Look for @param erase_str
+        size_t pos = has_ignore_plugins->second.find(erase_str);
+        if (pos == std::string::npos)  // does not contain @param erase_str
+            return false;
+
+        // Detect @param flag_str. Delete flag_str from the original cli option.
+        std::string ignore_str;
+        if (erase_str.length() + pos == has_ignore_plugins->second.length()) { // @param flag_str is at the end
+            ignore_str = has_ignore_plugins->second.erase(pos, erase_str.length());
+        } else { // erase "<flag_str>," from "-Pplugins_to_ignore".
+            ignore_str = has_ignore_plugins->second.erase(pos, erase_str.length() + 1);
+        }
+        options.params["plugins_to_ignore"] = ignore_str;
+        return true;
+    }
+
+    void AddAvailablePluginsToOptionParams(UserOptions& options, std::vector<std::string> const& default_plugins) {
+
+        std::set<std::string> set_plugins;
+        // Add the plugins at $EICrecon_MY/plugins.
+//        jana::GetPluginNamesFromEnvPath(set_plugins, "EICrecon_MY");  // disabled as we do not want to automatically add these
+
+        std::string plugins_str;  // the complete plugins list
+        for (std::string s : set_plugins)
+            plugins_str += s + ",";
+
+        // Add the default plugins into the plugin set if there is no
+        // "-Pplugins_to_ignore=default (exclude all default plugins)" option
+        if (HasExcludeDefaultPluginsInCliParams(options, "default") == false)
+            /// @note: The sequence of adding the default plugins matters.
+            /// Have to keep the original sequence to not causing troubles.
+            for (std::string s : default_plugins) {
+                plugins_str += s + ",";
+            }
+
+        // Insert other plugins in cli option "-Pplugins=pl1,pl2,..."
+        auto has_cli_plugin_params = options.params.find("plugins");
+        if (has_cli_plugin_params != options.params.end()) {
+            plugins_str += has_cli_plugin_params->second;
+            options.params["plugins"] = plugins_str;
+        } else {
+            options.params["plugins"] = plugins_str.substr(0, plugins_str.size() - 1); // exclude last ","
+        }
     }
 
     JApplication* CreateJApplication(UserOptions& options) {
 
-        auto params = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+        auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+
+        // Add the cli options based on the user inputs
         for (auto pair : options.params) {
-            params->SetParameter(pair.first, pair.second);
+            para_mgr->SetParameter(pair.first, pair.second);
         }
 
+        // Shut down the [INFO] msg of adding plugins, printing cpu info
         if (options.flags[ListFactories]) {
-            params->SetParameter(
+            para_mgr->SetParameter(
                     "log:off",
-                    "JPluginLoader,JComponentManager,JArrowProcessingController,JArrow"
+                    "JPluginLoader,JArrowProcessingController,JArrow"
                     );
         }
 
         if (options.flags[LoadConfigs]) {
             // If the user specified an external config file, we should definitely use that
             try {
-                params->ReadConfigFile(options.load_config_file);
+                para_mgr->ReadConfigFile(options.load_config_file);
             }
             catch (JException &e) {
                 std::cout << "Problem loading config file '" << options.load_config_file << "'. Exiting." << std::endl
@@ -84,12 +239,28 @@ namespace jana {
             std::cout << "Loaded config file '" << options.load_config_file << "'." << std::endl << std::endl;
         }
 
-        auto app = new JApplication(params);
+        // If the user hasn't specified a timeout (on cmd line or in config file), set the timeout to something reasonably high
+        if (para_mgr->FindParameter("jana:timeout") == nullptr) {
+            para_mgr->SetParameter("jana:timeout", 60); // seconds
+            para_mgr->SetParameter("jana:warmup_timeout", 60); // seconds
+        }
+
+        auto app = new JApplication(para_mgr);
+
+        const char* env_p = getenv("EICrecon_MY");
+        if( env_p ){
+            app->AddPluginPath( std::string(env_p) + "/plugins" );
+        }
 
         for (auto event_src : options.eventSources) {
             app->Add(event_src);
         }
         return app;
+    }
+
+    void AddDefaultPluginsToJApplication(JApplication* app, std::vector<std::string> const& default_plugins) {
+        for (std::string s : default_plugins)
+            app->AddPlugin(s);
     }
 
     void PrintFactories(JApplication* app) {
@@ -100,11 +271,10 @@ namespace jana {
 
     void PrintPodioCollections(JApplication* app) {
         if (app->GetJParameterManager()->Exists("PODIO:PRINT_TYPE_TABLE")) {
-            auto print_type_table = app->GetJParameterManager()->FindParameter("PODIO:PRINT_TYPE_TABLE")->GetValue();
+            bool print_type_table = app->GetParameterValue<bool>("podio:print_type_table");
 
             // cli criteria: Ppodio:print_type_table=1
-            if (print_type_table == "1") {
-
+            if (print_type_table) {
                 auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
                 for (auto event_source : event_sources) {
 //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
@@ -171,7 +341,7 @@ namespace jana {
     }
 
 
-    UserOptions ParseCommandLineOptions(int nargs, char *argv[], bool expect_extra) {
+    UserOptions GetCliOptions(int nargs, char *argv[], bool expect_extra) {
 
         UserOptions options;
 
@@ -189,8 +359,11 @@ namespace jana {
         tokenizer["-b"] = Benchmark;
         tokenizer["--benchmark"] = Benchmark;
         tokenizer["-L"] = ListFactories;
-        tokenizer["--list_factories"] = ListFactories;
+        tokenizer["--list-factories"] = ListFactories;
+        tokenizer["--list-default-plugins"] = ShowDefaultPlugins;
+        tokenizer["--list-available-plugins"] = ShowAvailablePlugins;
 
+        // `eicrecon` has the same effect with `eicrecon -h`
         if (nargs == 1) {
             options.flags[ShowUsage] = true;
         }
@@ -198,7 +371,7 @@ namespace jana {
         for (int i = 1; i < nargs; i++) {
 
             std::string arg = argv[i];
-            //std::cout << "Found arg " << arg << std::endl;
+            // std::cout << "Found arg " << arg << std::endl;
 
             if (argv[i][0] != '-') {
                 options.eventSources.push_back(arg);
@@ -247,6 +420,15 @@ namespace jana {
                     options.flags[ListFactories] = true;
                     break;
 
+                case ShowDefaultPlugins:
+                    options.flags[ShowDefaultPlugins] = true;
+                    break;
+
+                case ShowAvailablePlugins:
+                    options.flags[ShowAvailablePlugins] = true;
+                    break;
+
+                // TODO: add exclude plugin options
                 case Unknown:
                     if (argv[i][0] == '-' && argv[i][1] == 'P') {
 

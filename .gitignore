@@ -41,7 +41,7 @@ build/*
 # Executables
 *.exe
 *.out
-*.app
+*.m_app
 
 
 ##### i g n o r i n g   I D E s #####
@@ -146,4 +146,5 @@ src/tests/pyjano/eicrecon_path.py
 
 lib/
 
-tests/
+/tests
+/build
