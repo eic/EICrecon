@@ -35,7 +35,7 @@ class EventStore;
 This class has the function to read available data from disk
 and to prepare collections and buffers.
 **/
-class ROOTReader : public podio::IReader {
+class ROOTReader {
     friend EventStore;
 
 public:
@@ -47,9 +47,9 @@ public:
     ROOTReader(const ROOTReader&) = delete;
     ROOTReader& operator=(const ROOTReader&) = delete;
 
-    void openFile(const std::string& filename) override;
+    void openFile(const std::string& filename);
     void openFiles(const std::vector<std::string>& filenames);
-    void closeFile() override;
+    void closeFile();
     void closeFiles();
 
     /// Read all collections requested
@@ -59,38 +59,38 @@ public:
     void readEvent(eic::EventStore* store, uint64_t event_nr);
 
     /// Read CollectionIDTable from ROOT file
-    podio::CollectionIDTable* getCollectionIDTable() override {
+    podio::CollectionIDTable* getCollectionIDTable() {
         return m_table;
     }
 
     /// Returns number of entries in the TTree
-    unsigned getEntries() const override;
+    unsigned getEntries() const;
 
     /// Preparing to read next event
-    void endOfEvent() override;
+    void endOfEvent(); // TODO: What does this even do?
 
     /// Preparing to read a given event
     void goToEvent(unsigned evnum);
 
-    podio::version::Version currentFileVersion() const override {
+    podio::version::Version currentFileVersion() const {
         return m_fileVersion;
     }
 
     /// Check if TFile is valid
-    bool isValid() const override;
+    bool isValid() const;
 
 private:
     /// Implementation for collection reading
-    podio::CollectionBase* readCollection(const std::string& name) override;
+    podio::CollectionBase* readCollection(const std::string& name);
 
     /// read event meta data for current event
-    podio::GenericParameters* readEventMetaData() override;
+    podio::GenericParameters* readEventMetaData();
 
     /// read the collection meta data
-    std::map<int, podio::GenericParameters>* readCollectionMetaData() override;
+    std::map<int, podio::GenericParameters>* readCollectionMetaData();
 
     /// read the run meta data
-    std::map<int, podio::GenericParameters>* readRunMetaData() override;
+    std::map<int, podio::GenericParameters>* readRunMetaData();
 
 private:
     void createCollectionBranches(const std::vector<std::tuple<int, std::string, bool>>& collInfo);
