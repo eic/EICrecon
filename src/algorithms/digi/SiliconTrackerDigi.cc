@@ -50,12 +50,13 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
         if (cell_hit_map.count(sim_hit->getCellID()) == 0) {
             // This cell doesn't have hits
             cell_hit_map[sim_hit->getCellID()] = {
-                    (std::int32_t) (sim_hit->getMCParticle().getTime() * 1e6 + m_gauss() * 1e3), // ns->fs
-                    (std::int32_t) std::llround(sim_hit->getEDep() * 1e6)};
+                    (std::int32_t) std::llround(sim_hit->getEDep() * 1e6),
+                    (std::int32_t) (sim_hit->getMCParticle().getTime() * 1e3 + m_gauss() * 1e3)}; // ns->ps
         } else {
             // There is previous values in the cell
             RawHit &hit = cell_hit_map[sim_hit->getCellID()];
-            hit.time_stamp = (std::int32_t) (sim_hit->getMCParticle().getTime() * 1e6 + m_gauss() * 1e3);
+            auto time_stamp = (std::int32_t) (sim_hit->getMCParticle().getTime() * 1e3 + m_gauss() * 1e3);
+            hit.time_stamp = std::min(time_stamp, hit.time_stamp);  // keep earliest time for hit
             hit.charge += (std::int32_t) std::llround(sim_hit->getEDep() * 1e6);
         }
     }
