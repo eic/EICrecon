@@ -53,9 +53,7 @@ void write_read_test() {
     clusters.push_back(cluster2);
 
     writer.writeEvent(&es);
-
-    es.clearCollections();
-    // es.clear();
+    es.clear();
 
     edm4eic::MutableCalorimeterHit hit4;
     hit4.setCellID(42);
@@ -81,15 +79,12 @@ void write_read_test() {
     writer.finish();
 
     eic::EventStore es_in;
-/*
     eic::ROOTReader reader;
     reader.openFile("test_out.root");
-    es_in.setReader(&reader);
 
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
-        reader.goToEvent(i);
-        // reader.readEvent();
+        reader.readEvent(&es_in, i);
         auto& hits_in = es_in.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
         auto& clusters_in = es_in.get<edm4eic::ClusterCollection>("MyFunClusters");
         std::cout << "Event " << i << std::endl;
@@ -102,10 +97,8 @@ void write_read_test() {
             }
             std::cout << std::endl;
         }
-        reader.endOfEvent();
         es_in.clear();
     }
-    */
 }
 
 void read_write_test() {

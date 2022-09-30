@@ -36,12 +36,9 @@ void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
     }
     for (auto collection_name : m_table->names()) {
         auto collection = readCollection(collection_name);
-        store->registerCollection(collection_name, collection);
-        // TODO: calling registerCollection() changes the collection id. This presumably breaks all references
-        //       to the collection. I think the correct behavior is to keep the collection id the same as what
-        //       was read, and throw an error if there is a collision. However, this means we need to correctly
-        //       check for collisions, and also generate new ids in a way that doesn't also generate new collisions :/
+        store->put(collection_name, collection);
     }
+    // TODO: Iterate over all collections and set references this time
 }
 
 std::pair<TTree*, unsigned> ROOTReader::getLocalTreeAndEntry(const std::string& treename) {
@@ -227,18 +224,8 @@ bool ROOTReader::isValid() const {
     return m_chain->GetFile()->IsOpen() && !m_chain->GetFile()->IsZombie();
 }
 
-void ROOTReader::endOfEvent() {
-    ++m_eventNumber;
-    m_inputs.clear();
-}
-
 unsigned ROOTReader::getEntries() const {
     return m_chain->GetEntries();
-}
-
-void ROOTReader::goToEvent(unsigned eventNumber) {
-    m_eventNumber = eventNumber;
-    m_inputs.clear();
 }
 
 void ROOTReader::createCollectionBranches(const std::vector<podio::root_utils::CollectionInfoT>& collInfo) {

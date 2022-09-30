@@ -66,12 +66,6 @@ public:
     /// Returns number of entries in the TTree
     unsigned getEntries() const;
 
-    /// Preparing to read next event
-    void endOfEvent(); // TODO: What does this even do?
-
-    /// Preparing to read a given event
-    void goToEvent(unsigned evnum);
-
     podio::version::Version currentFileVersion() const {
         return m_fileVersion;
     }

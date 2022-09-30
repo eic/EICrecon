@@ -54,14 +54,11 @@ namespace eic {
 
         if (m_firstEvent) {
             // Populate collection infos
-            auto& names = store->getCollectionIDTable()->names();
-            auto& ids = store->getCollectionIDTable()->ids();
-            size_t collection_count = names.size();
-            for (int i=0; i<collection_count; ++i) {
+            for (const auto& c : store->get_all()) {
                 auto collection_info = std::make_unique<CollectionInfo>();
-                collection_info->name = names[i];
-                collection_info->id = ids[i];
-                if (m_write_requests.count(names[i]) != 0) collection_info->write_requested = true;
+                collection_info->name = c.name;
+                collection_info->id = c.id;
+                if (m_write_requests.count(c.name) != 0) collection_info->write_requested = true;
                 collection_info->write_failed = false;
             }
             // TODO: Check whether everything in m_write_requests matched up to an entry in the collection ID table
@@ -70,8 +67,7 @@ namespace eic {
         for (auto& pair : m_collection_infos) {
             if (pair.second->write_requested && !pair.second->write_failed) {
 
-                podio::CollectionBase* collection;
-                store->get(pair.first, collection);
+                podio::CollectionBase* collection = store->get_untyped(pair.first);
                 try {
                     collection->prepareForWrite();
                 }

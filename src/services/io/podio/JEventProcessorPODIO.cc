@@ -16,16 +16,20 @@ struct TestIfPodioType {
 
 template <typename PodioT, typename PodioCollectionT>
 struct InsertFacIntoStore {
-    size_t operator() (JFactory* fac, eic::EventStore* store, bool create) {
+    size_t operator() (JFactory* fac, eic::EventStore* store) {
         std::string collection_name = fac->GetTag();
-        if (create) {
-            store->create<PodioCollectionT>(collection_name);
-        }
-        auto& collection = store->get<PodioCollectionT>(collection_name);
+        // TODO: Re-enable me
+        // auto preexisting = store->get<PodioCollectionT>(collection_name);
+        // if (preexisting != nullptr) {
+        //     return preexisting.size();
+        // }
+        PodioCollectionT* collection = new PodioCollectionT;
         auto tobjs = fac->GetAs<PodioT>();
         for (auto t : tobjs) {
-            collection.push_back( t->clone() );
+            collection->push_back(*t);
+            fac->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER); // Transfer ownership away from JFactory
         }
+        store->put(collection_name, collection);
         return tobjs.size();
     }
 };
@@ -189,7 +193,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
                 fac->Create(event, mApplication, event->GetRunNumber());
             }
-            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
+            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*>(fac->GetObjectName(), fac, m_store);
 
             if (result == std::nullopt) { 
                 m_log->error("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());

@@ -151,6 +151,8 @@ void JEventSourcePODIOsimple::Open() {
         throw JException( fmt::format( "Problem opening file \"{}\"", GetResourceName() ) );
     }
 
+    // TODO: Re-enable background events
+#if 0
     // If the user specified a background events file, then create dedicated readers
     // and EventStores for the number of background events to be added to each primary event.
     // This seems a bit over-the-top, but podio likes the data objects to be owned by a
@@ -188,6 +190,7 @@ void JEventSourcePODIOsimple::Open() {
 
         LOG << "Merging " << readers_background.size() << " background events from " << background_filename << LOG_END;
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -217,30 +220,24 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     m_inflight = true;
 
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
-    eic::EventStore* store = new eic::EventStore();
+    auto store = new eic::EventStore;
+    reader.readEvent(store, Nevents_read++);
     event->Insert(store); // Let JANA own this and clear it at the end. TODO: Make sure EventStore dtor actually clears
-    reader.endOfEvent();
-    reader.goToEvent( Nevents_read++ );
 
     // Loop over collections in EventStore and copy pointers to their contents into jevent
-    auto collectionIDtable = store->getCollectionIDTable();
-    for( auto id : collectionIDtable->ids() ){
-         podio::CollectionBase *coll={nullptr};
-        if( store->get(id, coll) ){
-            auto name = collectionIDtable->name(id);
-            auto className = coll->getTypeName();
-            CopyToJEventSimple( className, name, coll, event);
-
-            if( name == "EventHeader"){
-                auto ehc = reinterpret_cast<const edm4hep::EventHeaderCollection *>(coll);
-                if( ehc && ehc->size() ){
-                    event->SetEventNumber( (*ehc)[0].getEventNumber());
-                    event->SetRunNumber( (*ehc)[0].getRunNumber());
-                }
+    for( auto c : store->get_all() ){
+        CopyToJEventSimple( c.collection->getTypeName(), c.name, c.collection, event);
+        if( c.name == "EventHeader"){
+            auto ehc = reinterpret_cast<const edm4hep::EventHeaderCollection *>(c.collection);
+            if( ehc && ehc->size() ){
+                event->SetEventNumber( (*ehc)[0].getEventNumber());
+                event->SetRunNumber( (*ehc)[0].getRunNumber());
             }
         }
     }
 
+    // TODO: Re-add background hits
+#if 0
     // If user specified to add background hits, do that here
     for( auto &[bg_reader, bg_store, ievent] : readers_background ){
         bg_store->clear();
@@ -258,6 +255,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
             }
         }
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
