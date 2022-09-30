@@ -43,6 +43,9 @@ public:
     }
 ```
 
+
+### Formatting example
+
 Thanks to fmt, logger has rich text formatting. More examples and full
 specification is in [fmt documentation](https://github.com/fmtlib/fmt):
 
@@ -88,6 +91,8 @@ SPDLOG_TRACE("Some trace message with param {}", 42);
 SPDLOG_DEBUG("Some debug message");
 ```
 
+### Log level
+
 In order to wire your logger level with a jana-parameter to change log level without recompilation, use:
 
 ```c++
@@ -106,7 +111,7 @@ void Init() override {
    auto pm = m_app->GetJParameterManager();
    
    // Define parameter
-   pm->SetDefaultParameter("log_example:log-level", log_level_str, "log_level: trace, debug, info, warn, err, critical, off");
+   pm->SetDefaultParameter("log_example:LogLevel", log_level_str, "log_level: trace, debug, info, warn, err, critical, off");
    
    // At this point log_level_str is initialized with user provided flag value or the default value
    
@@ -139,6 +144,40 @@ It works because enum values are: trace=0, debug=1, ... critical= 5. So:
       int x = event->GetRunNumber()*1000000 + event->GetEventNumber()/2;
       m_log->debug("Calculated debug value #{}", x);
   }
+```
+
+### SpdlogMixin
+
+Since getting a log from service and setting log level is all-the-same boilerplate, there is a SpdlogMixin 
+made for convenience. SpdlogMixin works with any class, that has GetApplication() method. 
+
+SpdlogMixin provides: 
+1. `std::shared_ptr<spdlog::logger> m_log;` - protected member.
+2. `InitLogger(string param_prefix, string default_level)` - Initializes m_log through the standard (for EICrecon) procedure
+   - `param_prefix` defines logger name. User parameter name will be "<param_prefix>:LogLevel"
+   - `default_level` - default logger level if user didn't use a parameter(flag)
+
+
+```cpp
+#include <extensions/spdlog/SpdlogMixin.h>
+
+
+class MyFactory : SpdlogMixin<MyFactory>, JFactory {    // CRTP template mixin
+    void Init() {
+        
+        // Will initialize `m_log` logger with name "MyPlugin:MyFactory"  
+        // and check "-PBTRK:TrackerHits:LogLevel" user parameter for log level
+        // If user parameter is not set, "info" will be set as log level
+        InitLogger("MyPlugin:MyFactory", "info");
+        
+        // Logger is ready and can be used:
+        m_log->info("MyFactory logger initialized");
+    }
+
+    void Process(...) {
+        m_log->trace("Using logger!");
+    }
+};
 ```
 
 ### Logging hints
