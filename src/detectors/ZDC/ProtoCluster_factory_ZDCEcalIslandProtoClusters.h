@@ -42,18 +42,18 @@ public:
         u_dimScaledLocalDistXY={50.0*dd4hep::mm, 50.0*dd4hep::mm};// from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
 
-        app->SetDefaultParameter("BEMC:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("BEMC:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("BEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
-        //app->SetDefaultParameter("BEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("BEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("BEMC:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("BEMC:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("BEMC:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("BEMC:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("BEMC:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("BEMC:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("BEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("ZDC:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("ZDC:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("ZDC:minClusterCenterEdep",     m_minClusterCenterEdep);
+        //app->SetDefaultParameter("ZDC:inputHitCollection", m_inputHitCollection);
+        //app->SetDefaultParameter("ZDC:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("ZDC:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("ZDC:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("ZDC:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("ZDC:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("ZDC:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("ZDC:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("ZDC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();

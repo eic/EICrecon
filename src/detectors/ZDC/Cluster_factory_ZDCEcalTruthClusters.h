@@ -41,14 +41,14 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:input_protoclust_tag", m_input_protoclust_tag);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("BEMC:ZDCEcalTruthClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:input_simhit_tag", m_input_simhit_tag);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:input_protoclust_tag", m_input_protoclust_tag);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("ZDC:ZDCEcalTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 

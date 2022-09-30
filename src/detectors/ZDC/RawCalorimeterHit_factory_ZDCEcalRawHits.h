@@ -50,19 +50,19 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:readoutClass",     m_readout);
+//        app->SetDefaultParameter("ZDC:tag",              m_input_tag);
+        app->SetDefaultParameter("ZDC:energyResolutions",u_eRes);
+        app->SetDefaultParameter("ZDC:timeResolution",   m_tRes);
+        app->SetDefaultParameter("ZDC:capacityADC",      m_capADC);
+        app->SetDefaultParameter("ZDC:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("ZDC:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("ZDC:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("ZDC:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("ZDC:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("ZDC:signalSumFields",  u_fields);
+        app->SetDefaultParameter("ZDC:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("ZDC:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("ZDC:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
