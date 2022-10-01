@@ -126,19 +126,67 @@ namespace eic {
                     ++i;
                 }
             }
-            m_collectionBranches.push_back(branches);
+            m_collectionBranches[name] = branches; // (see note in setBranches below)
         }
     }
 
     void ROOTWriter::setBranches(const std::vector<StoreCollection> &collections)
     {
-        size_t iCollection = 0;
+
+//        size_t iCollection = 0;
         for (auto &coll : collections)
         {
-            const auto &branches = m_collectionBranches[iCollection];
+            // FIXME:
+            // Original code from podio assumed the passed in "collections" vector
+            // was perfectly aligned with member m_collectionBranches. This would be
+            // true if the collections passed into createBranches are always the same
+            // as those passed into setBranches. However, the code above was modified
+            // to exclude collections in which prepareForWrite failed. It is possible
+            // that this may happen for the first event, but not every event. It may
+            // also happen the other way around.
+            //
+            // It is easy to handle the case where collection branches were never
+            // created. We simply ignore the collection here. The case where the
+            // branch was created though is tougher since it has already written
+            // at least one event and the branch pointers may now be stale. This we
+            // handle by removing the branches from the tree and marking the collection
+            // as unwritable.
+            auto &name = coll.first;
+            if( !m_collectionBranches.count(name) ) continue; // no branch was made for collection
+            const auto &branches = m_collectionBranches[name];
+
             podio::root_utils::setCollectionAddresses(coll.second, branches);
 
-            iCollection++;
+//            iCollection++;
+        }
+
+        // Check for existing branches that have no entry in collections and set branch pointers to null
+        for (auto &[name, branch] : m_collectionBranches){
+            int count=0;
+            for (auto &[coll_name, coll] : collections) if(coll_name == name) count++;
+            if( count!=1 )emptyBranches( name );
+        }
+
+    }
+
+    void ROOTWriter::emptyBranches(const std::string &name){
+        /// This is called if a branch was created, but then we encounter an
+        /// event in which the collection was unwritable. Set all relevant
+        /// branch pointers for the collection to nullptr so ROOT can handle it.
+
+        // Bullet-proof
+        if( !m_collectionBranches.count(name) ) return;
+
+        // Get list of all TBranch objects to remove.
+        auto branches = m_collectionBranches[name];
+        std::vector<TBranch *> branches_to_delete;
+        branches_to_delete.push_back(branches.data);
+        for( auto b : branches.refs) branches_to_delete.push_back(b);
+        for( auto b : branches.vecs) branches_to_delete.push_back(b);
+
+        // Set all branch pointers for this collection to nullptr
+        for( auto b : branches_to_delete ) {
+            b->SetAddress(nullptr);
         }
     }
 
