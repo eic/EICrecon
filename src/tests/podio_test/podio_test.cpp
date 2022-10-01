@@ -17,8 +17,10 @@ void write_read_test() {
 
     // Set up writer
     eic::EventStore es;
-    auto& hits = es.create<edm4eic::CalorimeterHitCollection>("MyFunHits");
-    auto& clusters = es.create<edm4eic::ClusterCollection>("MyFunClusters");
+    auto hits = new edm4eic::CalorimeterHitCollection;
+    auto clusters = new edm4eic::ClusterCollection;
+    es.put("MyFunHits", hits);
+    es.put("MyFunClusters", clusters);
 
     // Save several events
 
@@ -45,12 +47,12 @@ void write_read_test() {
     cluster2.setNhits(1);
     cluster2.addToHits(hit2);
 
-    hits.push_back(hit1);
-    hits.push_back(hit2);
-    hits.push_back(hit3);
+    hits->push_back(hit1);
+    hits->push_back(hit2);
+    hits->push_back(hit3);
 
-    clusters.push_back(cluster1);
-    clusters.push_back(cluster2);
+    clusters->push_back(cluster1);
+    clusters->push_back(cluster2);
 
     writer.writeEvent(&es);
     es.clear();
@@ -71,9 +73,9 @@ void write_read_test() {
     // auto& hits2 = es.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
     // auto& clusters2 = es.get<edm4eic::ClusterCollection>("MyFunClusters");
 
-    hits.push_back(hit4);
-    hits.push_back(hit5);
-    clusters.push_back(cluster3);
+    hits->push_back(hit4);
+    hits->push_back(hit5);
+    clusters->push_back(cluster3);
 
     writer.writeEvent(&es);
     writer.finish();
@@ -85,13 +87,13 @@ void write_read_test() {
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
         reader.readEvent(&es_in, i);
-        auto& hits_in = es_in.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
-        auto& clusters_in = es_in.get<edm4eic::ClusterCollection>("MyFunClusters");
+        auto* hits_in = es_in.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
+        auto* clusters_in = es_in.get<edm4eic::ClusterCollection>("MyFunClusters");
         std::cout << "Event " << i << std::endl;
-        std::cout << "Hits: " << hits_in.size() << std::endl;
-        std::cout << "Clusters: " << clusters_in.size() << std::endl;
-        std::cout << "Associations: " << clusters_in.size() << std::endl;
-        for (auto cluster : clusters_in) {
+        std::cout << "Hits: " << hits_in->size() << std::endl;
+        std::cout << "Clusters: " << clusters_in->size() << std::endl;
+        std::cout << "Associations: " << clusters_in->size() << std::endl;
+        for (auto cluster : *clusters_in) {
             for (auto i=cluster.hits_begin(), end=cluster.hits_end(); i != end; ++i) {
                 std::cout << i->getCellID() << " ";
             }
@@ -103,49 +105,41 @@ void write_read_test() {
 
 void read_write_test() {
 
-    eic::EventStore input_store;
-    eic::EventStore output_store;
-/*
     eic::ROOTReader reader;
     reader.openFile("test_out.root"); // comes from prev test
-    input_store.setReader(&reader);
+    // Read everything = MyFunHits, MyFunClusters
 
     auto logger = spdlog::default_logger();
-    eic::ROOTWriter writer("test2_out.root", &output_store, logger);
-    output_store.create<edm4eic::ClusterCollection>("MyFunClusters");
-    output_store.create<edm4eic::ClusterCollection>("MyExhilaratingClusters");
-
+    eic::ROOTWriter writer("test2_out.root", logger);
     writer.registerForWrite("MyFunClusters");
     writer.registerForWrite("MyExhilaratingClusters"); // Collection needs to be added to store first
 
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
         std::cout << "Processing event " << i << std::endl;
-        reader.goToEvent(i);
-        auto& hits_in = input_store.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
-        auto& clusters_in = input_store.get<edm4eic::ClusterCollection>("MyFunClusters");
 
-        for (auto cluster : clusters_in) {
-            auto& clusters_out = output_store.get<edm4eic::ClusterCollection>("MyFunClusters");
-            auto& clusters_out_filtered = output_store.get<edm4eic::ClusterCollection>("MyExhilaratingClusters");
-            clusters_out.push_back(cluster.clone());
+        auto store = new eic::EventStore;
+        reader.readEvent(store, i);
+        // This should populate hits_in and clusters_in
+        auto* hits_in = store->get<edm4eic::CalorimeterHitCollection>("MyFunHits");
+        auto* clusters_in = store->get<edm4eic::ClusterCollection>("MyFunClusters");
+
+        auto* clusters_out_filtered = new edm4eic::ClusterCollection;
+        store->put("MyExhilaratingClusters", clusters_out_filtered);
+        for (auto cluster : *clusters_in) {
             if (cluster.getEnergy() < 50) {
                 std::cout << "Adding cluster with energy " << cluster.getEnergy() << std::endl;
-                clusters_out_filtered.push_back(cluster.clone()); 
+                clusters_out_filtered->push_back(cluster.clone());
                 // will this do a deep or shallow copy in memory?
                 // what about in file?
                 // will references be included?
             }
         }
-        writer.writeEvent();
-        reader.endOfEvent();
-
-        input_store.clear();
-        output_store.clearCollections();
+        writer.writeEvent(store);
+        store->clear();
     }
     writer.finish();
     reader.closeFile();
-    */
 }
 
 int main() {

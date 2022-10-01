@@ -47,7 +47,7 @@ public:
 
     /// access a collection by name
     template<typename T>
-    T &get(const std::string& name);
+    T* get(const std::string& name);
 
     void put(const std::string name, podio::CollectionBase* collection);
     void clear();
@@ -76,14 +76,14 @@ public:
 };
 
 template<typename T>
-T& EventStore::get(const std::string& name) {
+T* EventStore::get(const std::string& name) {
     auto result = get_untyped(name);
     if (result == nullptr) {
         std::ostringstream oss;
         oss << "Collection '" << name << "' not present in event store!";
         throw std::runtime_error(oss.str());
     }
-    return static_cast<T>(*result);
+    return static_cast<T*>(result);
 }
 
 } // namespace podio
