@@ -13,21 +13,32 @@
 
 #include "JChainFactoryT.h"
 
-template<class T>
+template<class FactoryT>
 class JChainFactoryGeneratorT : public JFactoryGenerator {
 
 public:
 
-    explicit JChainFactoryGeneratorT(std::vector<std::string> default_input_tags, std::string tag):
-        m_default_input_tags(std::move(default_input_tags)),
-        m_tag(std::move(tag))
+    using FactoryOuptutType = typename FactoryT::OutputType;
+    using FactoryConfigType = typename FactoryT::ConfigType;
+
+    /// Constructor with config
+    explicit JChainFactoryGeneratorT(std::vector<std::string> default_input_tags, std::string tag, FactoryConfigType cfg):
+            m_default_input_tags(std::move(default_input_tags)),
+            m_output_tag(std::move(tag)),
+            m_default_cfg(cfg)
         {};
 
-    void GenerateFactories(JFactorySet *factory_set) override {
-        T *factory = new T(m_default_input_tags);
+    /// Constructor for NoConfig configuration
+    explicit JChainFactoryGeneratorT(std::vector<std::string> default_input_tags, std::string tag):
+            m_default_input_tags(std::move(default_input_tags)),
+            m_output_tag(std::move(tag))
+    {};
 
-        factory->SetTag(m_tag);
-        factory->SetFactoryName(JTypeInfo::demangle<T>());
+    void GenerateFactories(JFactorySet *factory_set) override {
+        auto *factory = new FactoryT(m_default_input_tags, m_default_cfg);
+
+        factory->SetTag(m_output_tag);
+        factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
         factory->SetPluginName(this->GetPluginName());
         factory_set->Add(factory);
     }
@@ -35,8 +46,9 @@ public:
     std::vector<std::string>& GetDefaultInputTags() { return m_default_input_tags; }
 
 private:
-    std::string m_tag;
+    std::string m_output_tag;
     std::vector<std::string> m_default_input_tags;
+    FactoryConfigType m_default_cfg;                   /// Default config for a factories. (!) Must be properly copyable
 };
 
 

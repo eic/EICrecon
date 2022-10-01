@@ -7,15 +7,18 @@
 
 #include <edm4eic/ReconstructedParticle.h>
 #include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
 
 namespace eicrecon {
 
-    class ReconstructedParticle_factory : public JChainFactoryT<edm4eic::ReconstructedParticle> {
+    class ReconstructedParticle_factory :
+            public JChainFactoryT<edm4eic::ReconstructedParticle>,
+            public SpdlogMixin<ReconstructedParticle_factory> {
 
     public:
-        ReconstructedParticle_factory( std::vector<std::string> default_input_tags):
-            JChainFactoryT<edm4eic::ReconstructedParticle>( std::move(default_input_tags) ) {
+        explicit ReconstructedParticle_factory( std::vector<std::string> default_input_tags):
+            JChainFactoryT<edm4eic::ReconstructedParticle>( std::move(default_input_tags)) {
         }
 
         /** One time initialization **/
@@ -26,11 +29,6 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    private:
-
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-        std::vector<std::string> m_input_tags;              /// Tag for the input data
     };
 
 } // eicrecon
