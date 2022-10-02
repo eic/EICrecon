@@ -60,6 +60,7 @@ namespace eic {
                 collection_info->id = c.id;
                 if (m_write_requests.count(c.name) != 0) collection_info->write_requested = true;
                 collection_info->write_failed = false;
+                m_collection_infos[c.name] = std::move(collection_info);
             }
             // TODO: Check whether everything in m_write_requests matched up to an entry in the collection ID table
         }
@@ -68,18 +69,26 @@ namespace eic {
             if (pair.second->write_requested && !pair.second->write_failed) {
 
                 podio::CollectionBase* collection = store->get_untyped(pair.first);
+                if (collection == nullptr) {
+                    m_log->error("RootWriter: Unable to find collection '{}' in event store. Skipping.", pair.first);
+                    pair.second->write_failed = true;
+                    continue;
+                }
                 try {
                     collection->prepareForWrite();
                 }
                 catch (std::exception &e) {
                     m_log->error("Unable to write collection {} to output file. Skipping.", pair.first);
                     pair.second->write_failed = true;
+                    continue;
                 }
                 if (m_firstEvent) {
+                    m_log->debug("RootWriter: Creating branches for collection '{}' ({})", pair.first, pair.second->id);
                     pair.second->podtype = collection->getTypeName();
                     createBranches(*(pair.second), collection);
                 }
                 else {
+                    m_log->debug("RootWriter: Moving branch pointer for collection '{}' ({})", pair.first, pair.second->id);
                     podio::root_utils::setCollectionAddresses(collection, pair.second->branches);
                 }
             }
@@ -87,6 +96,7 @@ namespace eic {
         m_firstEvent = false;
         m_datatree->Fill();
         m_evtMDtree->Fill();
+        m_log->debug("Finished writing event");
     }
 
     void ROOTWriter::createBranches(CollectionInfo& info, podio::CollectionBase* collection) {
@@ -132,12 +142,14 @@ namespace eic {
 
     void ROOTWriter::finish()
     {
+        m_log->debug("Calling ROOTWriter::finish");
         // Extract ([names],[ids])
         std::vector<int> ids;
         std::vector<std::string> names;
         for (const auto& item: m_collection_infos) {
             ids.push_back(item.second->id);
             names.push_back(item.second->name);
+            m_log->debug("Writing collection metadata '{}' with id {}", item.second->name, item.second->id);
         }
         auto collection_id_table = podio::CollectionIDTable(std::move(ids), std::move(names));
         m_metadatatree->Branch("CollectionIDs", &collection_id_table);
@@ -165,6 +177,7 @@ namespace eic {
 
         m_file->Write();
         m_file->Close();
+        m_log->debug("RootWriter::finish: Wrote and closed file");
     }
 
     bool ROOTWriter::registerForWrite(const std::string &name) {

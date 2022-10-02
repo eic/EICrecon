@@ -70,12 +70,14 @@ void write_read_test() {
     cluster3.setNhits(1);
     cluster3.addToHits(hit5);
 
-    // auto& hits2 = es.get<edm4eic::CalorimeterHitCollection>("MyFunHits");
-    // auto& clusters2 = es.get<edm4eic::ClusterCollection>("MyFunClusters");
+    auto hits2 = new edm4eic::CalorimeterHitCollection;
+    auto clusters2 = new edm4eic::ClusterCollection;
+    es.put("MyFunHits", hits2);
+    es.put("MyFunClusters", clusters2);
 
-    hits->push_back(hit4);
-    hits->push_back(hit5);
-    clusters->push_back(cluster3);
+    hits2->push_back(hit4);
+    hits2->push_back(hit5);
+    clusters2->push_back(cluster3);
 
     writer.writeEvent(&es);
     writer.finish();

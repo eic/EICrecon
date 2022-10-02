@@ -54,9 +54,6 @@ public:
     void closeFile();
     void closeFiles();
 
-    /// Read all collections requested
-    void readEvent();
-
     /// Read all collections requested and _insert_ into provided event store
     void readEvent(eic::EventStore* store, uint64_t event_nr);
 
@@ -102,10 +99,6 @@ private:
     podio::CollectionBase* getCollection(const std::pair<std::string, CollectionInfo>& collInfo);
     podio::CollectionBase* readCollectionData(const podio::root_utils::CollectionBranches& branches, podio::CollectionBase* collection,
                                        Long64_t entry, const std::string& name);
-
-    // cache collections that have been read already in a given event
-    typedef std::pair<podio::CollectionBase*, std::string> Input;
-    std::vector<Input> m_inputs{};
 
     // cache the necessary information to more quickly construct and read each
     // collection after it has been read the very first time

@@ -33,19 +33,19 @@ ROOTReader::~ROOTReader() { // NOLINT(modernize-use-equals-default)
 
 /// Multithreaded API
 void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
+    m_log->debug("ROOTReader: Reading event {}", event_nr);
     m_eventNumber = event_nr;
     m_chain->GetEntry(m_eventNumber);
-    // Prepare all collections in memory
-    for (auto inputs : m_inputs) {
-        m_log->debug("ROOTReader: Preparing to read input {}", inputs.second);
-        inputs.first->prepareAfterRead();
-    }
+
     for (auto collection_name : m_table->names()) {
         m_log->debug("ROOTReader: Reading collection {}", collection_name);
         auto collection = readCollection(collection_name);
         store->put(collection_name, collection);
     }
-    // TODO: Iterate over all collections and set references this time
+    for (auto& c : store->get_all()) {
+        c.collection->prepareAfterRead();
+        c.collection->setReferences(store);
+    }
 }
 
 std::pair<TTree*, unsigned> ROOTReader::getLocalTreeAndEntry(const std::string& treename) {
@@ -80,13 +80,6 @@ std::map<int, podio::GenericParameters>* ROOTReader::readRunMetaData() {
 }
 
 podio::CollectionBase* ROOTReader::readCollection(const std::string& name) {
-    // has the collection already been constructed?
-    auto p =
-            std::find_if(begin(m_inputs), end(m_inputs), [&name](const ROOTReader::Input& t) { return t.second == name; });
-    if (p != end(m_inputs)) {
-        return p->first;
-    }
-
     // Do we know about this collection? If so, read it
     if (const auto& info = m_storedClasses.find(name); info != m_storedClasses.end()) {
         return getCollection(*info);
@@ -160,8 +153,6 @@ podio::CollectionBase* ROOTReader::readCollectionData(const podio::root_utils::C
     const auto id = m_table->collectionID(name);
     collection->setID(id);
     collection->prepareAfterRead();
-
-    m_inputs.emplace_back(std::make_pair(collection, name));
     return collection;
 }
 
@@ -215,18 +206,6 @@ void ROOTReader::closeFiles() {
     delete m_chain;
 }
 
-void ROOTReader::readEvent() {
-    m_chain->GetEntry(m_eventNumber);
-    // first prepare all collections in memory...
-    for (auto inputs : m_inputs) {
-        inputs.first->prepareAfterRead();
-    }
-    // ...then clean-up the references between them
-    //    for(auto inputs : m_inputs){
-    //    inputs.first->setReferences(m_registry);
-
-    //  }
-}
 bool ROOTReader::isValid() const {
     return m_chain->GetFile()->IsOpen() && !m_chain->GetFile()->IsZombie();
 }
