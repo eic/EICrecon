@@ -50,7 +50,7 @@ void CopyToJEventSimpleT(const Tcollection *collection, const std::string &name,
         const auto &obj = (*collection)[i];  // Create new object of type "T" on stack that uses existing "Obj" object.
         tptrs.push_back( new T(obj) ); // Create new object of type "T" on heap that uses existing "Obj" object.
     }
-    event->Insert( tptrs, name );
+    event->Insert( tptrs, name )->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER);
 }
 
 //------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
     auto store = new eic::EventStore;
     reader.readEvent(store, Nevents_read++);
-    event->Insert(store); // Let JANA own this and clear it at the end. TODO: Make sure EventStore dtor actually clears
+    event->Insert(store); // Let JANA own this and clear it at the end.
 
     // Loop over collections in EventStore and copy pointers to their contents into jevent
     for( auto c : store->get_all() ){

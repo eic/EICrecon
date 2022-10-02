@@ -37,7 +37,7 @@ public:
     };
 
     EventStore();
-    ~EventStore() = default;
+    ~EventStore();
     EventStore(const EventStore &) = delete;
     EventStore &operator=(const EventStore &) = delete;
 

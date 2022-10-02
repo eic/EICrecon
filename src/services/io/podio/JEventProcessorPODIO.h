@@ -6,7 +6,6 @@
 #include <spdlog/spdlog.h>
 
 #include <services/io/podio/RootWriter.h>
-#include <services/io/podio/EventStore.h>
 
 
 class JEventProcessorPODIO : public JEventProcessor {
@@ -22,7 +21,6 @@ public:
 
     void FindCollectionsToWrite(const std::vector<JFactory*>& factories);
 
-    eic::EventStore *m_store=nullptr;
     std::shared_ptr<eic::ROOTWriter> m_writer;
     std::mutex m_mutex;
     bool m_is_first_event = true;

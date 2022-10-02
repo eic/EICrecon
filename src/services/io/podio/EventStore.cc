@@ -10,6 +10,11 @@ EventStore::EventStore() {
     m_log = spdlog::default_logger();
     m_log->set_level(spdlog::level::trace);
 }
+
+EventStore::~EventStore() {
+    clear();
+}
+
 void EventStore::put(const std::string name, podio::CollectionBase* collection) {
 
     // Check if we've already seen this
