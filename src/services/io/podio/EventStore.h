@@ -15,6 +15,8 @@
 #include <podio/IMetaDataProvider.h>
 #include <sstream>
 
+#include <spdlog/spdlog.h>
+
 /**
 The event store holds the object collections.
 **/
@@ -34,7 +36,7 @@ public:
         podio::CollectionBase *collection;
     };
 
-    EventStore() = default;
+    EventStore();
     ~EventStore() = default;
     EventStore(const EventStore &) = delete;
     EventStore &operator=(const EventStore &) = delete;
@@ -53,7 +55,10 @@ public:
     void clear();
 
 private:
+    int m_next_collection_id = 1;
     std::vector<CollectionInfo> m_collections;
+
+    std::shared_ptr<spdlog::logger> m_log;
 
     typedef std::map<int, podio::GenericParameters> RunMDMap;
     typedef std::map<int, podio::GenericParameters> ColMDMap;

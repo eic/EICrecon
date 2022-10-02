@@ -21,10 +21,15 @@
 #include <services/io/podio/EventStore.h>
 
 namespace eic {
+
+ROOTReader::ROOTReader() {
+    m_log = spdlog::default_logger();
+    m_log->set_level(spdlog::level::trace);
+}
+
 // todo: see https://github.com/AIDASoft/podio/issues/290
 ROOTReader::~ROOTReader() { // NOLINT(modernize-use-equals-default)
 }
-
 
 /// Multithreaded API
 void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
@@ -32,9 +37,11 @@ void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
     m_chain->GetEntry(m_eventNumber);
     // Prepare all collections in memory
     for (auto inputs : m_inputs) {
+        m_log->debug("ROOTReader: Preparing to read input {}", inputs.second);
         inputs.first->prepareAfterRead();
     }
     for (auto collection_name : m_table->names()) {
+        m_log->debug("ROOTReader: Reading collection {}", collection_name);
         auto collection = readCollection(collection_name);
         store->put(collection_name, collection);
     }

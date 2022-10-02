@@ -14,6 +14,8 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <memory>
+#include <spdlog/spdlog.h>
 
 // forward declarations
 class TClass;
@@ -39,7 +41,7 @@ class ROOTReader {
     friend EventStore;
 
 public:
-    ROOTReader() = default;
+    ROOTReader();
     // todo: see https://github.com/AIDASoft/podio/issues/290
     ~ROOTReader(); // NOLINT(modernize-use-equals-default)
 
@@ -85,6 +87,9 @@ private:
 
     /// read the run meta data
     std::map<int, podio::GenericParameters>* readRunMetaData();
+
+    /// logging
+    std::shared_ptr<spdlog::logger> m_log;
 
 private:
     void createCollectionBranches(const std::vector<std::tuple<int, std::string, bool>>& collInfo);
