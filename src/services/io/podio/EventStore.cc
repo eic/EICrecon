@@ -11,6 +11,33 @@ EventStore::EventStore() {
     m_log->set_level(spdlog::level::trace);
 }
 void EventStore::put(const std::string name, podio::CollectionBase* collection) {
+
+    // Check if we've already seen this
+    for (auto& collection_info : m_collections) {
+        if (collection_info.name == name) {
+            // We have a match!
+            if (collection_info.collection == nullptr) {
+                collection_info.collection = collection;
+                collection->setID(collection_info.id);
+                // If the user creates a collection and doesn't set the collection id, we still
+                // want it to go to the correct place.
+                // TODO: Overriding the specified collection id like this is ugly.
+                //       Probably a better option is to take control of collection creation completely.
+                return;
+            }
+            else {
+                std::ostringstream oss;
+                oss << "EventStore::put: Already have a collection with name '" << collection_info.name << "'";
+                throw std::runtime_error(oss.str());
+            }
+        }
+    }
+
+    // If control flow reaches this point, this is the first time this EventStore has seen a collection with this name.
+    // Now we need to assign it a non-conflicting id. We try to preserve the existing id whenever possible in case
+    // we ever need to read and write different collections to different files while keeping the ids consistent.
+    // Honestly we'd be better off manually assigning the ids manually instead.
+
     auto id = collection->getID();
     if (id == 0) {
         collection->setID(m_next_collection_id);
@@ -33,13 +60,6 @@ void EventStore::put(const std::string name, podio::CollectionBase* collection) 
                 oss << "EventStore::put: Collision on id '" << collection_info.id << "'";
                 throw std::runtime_error(oss.str());
             }
-        }
-    }
-    // Check for name collisions
-    for (const auto& collection_info : m_collections) {
-        if (collection_info.name == name) {
-            std::ostringstream oss;
-            oss << "EventStore::put: Collision on name '" << name << "'";
         }
     }
     CollectionInfo info;
@@ -83,7 +103,10 @@ podio::GenericParameters& EventStore::getCollectionMetaData(int colID) {
 
 
 void EventStore::clear() {
-    m_collections.clear();
+    for (auto& c : m_collections) {
+        delete c.collection;
+        c.collection = nullptr;
+    }
     m_evtMD.clear();
 }
 

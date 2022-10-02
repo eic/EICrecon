@@ -35,8 +35,6 @@ ROOTReader::~ROOTReader() { // NOLINT(modernize-use-equals-default)
 void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
     m_log->debug("ROOTReader: Reading event {}", event_nr);
     m_eventNumber = event_nr;
-    m_chain->GetEntry(m_eventNumber);
-
     for (auto collection_name : m_table->names()) {
         m_log->debug("ROOTReader: Reading collection {}", collection_name);
         auto collection = readCollection(collection_name);
@@ -46,6 +44,7 @@ void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
         c.collection->prepareAfterRead();
         c.collection->setReferences(store);
     }
+    // TODO: We probably want to bring back registerToRead.
 }
 
 std::pair<TTree*, unsigned> ROOTReader::getLocalTreeAndEntry(const std::string& treename) {

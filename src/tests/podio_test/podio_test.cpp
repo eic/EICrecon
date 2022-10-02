@@ -80,12 +80,13 @@ void write_read_test() {
     clusters2->push_back(cluster3);
 
     writer.writeEvent(&es);
-    writer.finish();
+    es.clear();
 
-    eic::EventStore es_in;
+    writer.finish();
     eic::ROOTReader reader;
     reader.openFile("test_out.root");
 
+    eic::EventStore es_in;
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
         reader.readEvent(&es_in, i);
