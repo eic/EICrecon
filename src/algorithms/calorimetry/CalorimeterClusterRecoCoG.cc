@@ -91,6 +91,14 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
           }
         );
 
+        // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
+        // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
+        // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
+        // FIXME: Thus, the cellID values passed on through to here no longer match those
+        // FIXME: in the low-level truth hits. It likely works for other detectors because
+        // FIXME: their u_fields and u_refs members are left empty which effectively results
+        // FIXME: in the cellID being unchanged.
+
         // 2. find mchit with same CellID
         // find_if not working, https://github.com/AIDASoft/podio/pull/273
         //auto mchit = std::find_if(
@@ -112,16 +120,16 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
           //LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID() << ", but no mc hit with that CellID was found." << LOG_END;
           m_logger->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
           //LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
-          m_logger->info("Proto-cluster hits: ");
+          m_logger->debug("Proto-cluster hits: ");
           for (const auto& pclhit1: pclhits) {
             //LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
-            m_logger->info("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
+            m_logger->debug("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
           }
           //LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
-          m_logger->info("MC hits: ");
+          m_logger->debug("MC hits: ");
           for (const auto& mchit1: mchits) {
             //LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
-            m_logger->info("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
+            m_logger->debug("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
           }
           break;
         }
