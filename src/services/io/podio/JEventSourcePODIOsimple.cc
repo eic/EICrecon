@@ -64,7 +64,7 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
 
     // Tell JANA that we want it to call the FinishEvent() method.
-    EnableFinishEvent();
+    // EnableFinishEvent();
 
     // Allow user to specify to recycle events forever
     GetApplication()->SetDefaultParameter(
@@ -215,10 +215,6 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
         }
     }
 
-    // The podio supplied RootReader and EventStore are not multi-thread capable so limit to a single event in flight
-    if( m_inflight ) throw RETURN_STATUS ::kBUSY;
-    m_inflight = true;
-
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
     auto store = new eic::EventStore;
     reader.readEvent(store, Nevents_read++);
@@ -266,8 +262,6 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
 /// \param event
 //------------------------------------------------------------------------------
 void JEventSourcePODIOsimple::FinishEvent(JEvent &event){
-
-    m_inflight = false;
 }
 
 //------------------------------------------------------------------------------

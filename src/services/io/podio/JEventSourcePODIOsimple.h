@@ -41,8 +41,6 @@ protected:
     std::set<std::string> m_INPUT_EXCLUDE_COLLECTIONS;
     bool m_run_forever=false;
 
-    bool m_inflight = false; // is an event currently in flight (and therefore using the EventStore)?
-
 };
 
 template <>
