@@ -27,10 +27,6 @@ public:
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
-    // Name of input data type (collection)
-    std::string              m_inputHit_tag;
-    std::string              m_inputMCHit_tag;
-
 
   std::vector<const edm4eic::CalorimeterHit*> m_inputHits;//{"inputHits", Gaudi::DataHandle::Reader, this};
   std::vector<const edm4hep::SimCalorimeterHit*> m_mcHits;//{"mcHits", Gaudi::DataHandle::Reader, this};
