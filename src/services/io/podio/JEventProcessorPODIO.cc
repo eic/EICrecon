@@ -20,11 +20,7 @@ template <typename PodioT, typename PodioCollectionT>
 struct InsertFacIntoStore {
     size_t operator() (JFactory* fac, eic::EventStore* store) {
         std::string collection_name = fac->GetTag();
-        // TODO: Re-enable me
-        // auto preexisting = store->get<PodioCollectionT>(collection_name);
-        // if (preexisting != nullptr) {
-        //     return preexisting.size();
-        // }
+
         PodioCollectionT* collection = new PodioCollectionT;
         auto tobjs = fac->GetAs<PodioT>();
         for (auto t : tobjs) {
@@ -183,7 +179,6 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     // Loop over all collections/factories to write
     for( const auto& pair : (m_collections_to_write) ){
-        // TODO: Check if collection was already added to store by the reader
         JFactory* fac = event->GetFactory(pair.second, pair.first); // Object name, tag name=collection name
 
         // Attempt to put data from all factories into the store.
@@ -201,6 +196,23 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 // that had not already been triggered by an EventProcessor, we simply write out zero objects.
                 m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
                 fac->Create(event, mApplication, event->GetRunNumber());
+            }
+            // Check to see whether the data has already been inserted into the event store
+            auto collection_name = fac->GetTag();
+            auto* collection = store->get_untyped(collection_name);
+            if (collection != nullptr) {
+                m_log->debug("Ignoring collection '{}' because it is already in the EventStore", collection_name);
+                auto coll_size = collection->size();
+                auto fac_size = fac->GetNumObjects();
+                if ( coll_size != fac_size) {
+                    m_log->error("Mismatch: Podio collection '{}' size={}, but factory size={}!", collection_name, coll_size, fac_size);
+                }
+                if (m_is_first_event) {
+                    // We only want to register for write once.
+                    // If we register the same collection multiple times, PODIO will segfault.
+                    m_writer->registerForWrite(fac->GetTag());
+                }
+                continue;
             }
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*>(fac->GetObjectName(), fac, store);
 
