@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
-#define _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -13,21 +12,21 @@
 
 
 
-class ProtoCluster_factory_HcalBarrelTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_EcalEndcapPTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_HcalBarrelTruthProtoClusters(){
-        SetTag("HcalBarrelTruthProtoClusters");
+    ProtoCluster_factory_EcalEndcapPTruthProtoClusters(){
+        SetTag("EcalEndcapPTruthProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag="HcalBarrelRecHits";
-        m_inputMCHit_tag="HcalBarrelHits";
+        m_inputHit_tag="EcalEndcapPRecHits";
+        m_inputMCHit_tag="EcalEndcapPHits";
 
         AlgorithmInit();
     }
@@ -58,4 +57,3 @@ private:
     std::string              m_inputMCHit_tag;
 };
 
-#endif // _ProtoCLuster_factory_HcalBarrelIslandProtoClusters_h_

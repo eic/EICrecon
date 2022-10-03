@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
-#define _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -11,23 +10,21 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-
-
-class ProtoCluster_factory_HcalBarrelTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class TruthCluster_factory_EcalEndcapPTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_HcalBarrelTruthProtoClusters(){
-        SetTag("HcalBarrelTruthProtoClusters");
+    TruthCluster_factory_EcalEndcapPTruthProtoClusters(){
+        SetTag("EcalEndcapPTruthProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag="HcalBarrelRecHits";
-        m_inputMCHit_tag="HcalBarrelHits";
+        m_inputHit_tag = "EcalEndcapPTruthProtoClusters";
+        m_inputMCHit_tag = "EcalEndcapPHits";
 
         AlgorithmInit();
     }
@@ -52,10 +49,10 @@ public:
         Set(m_outputProtoClusters);
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
+
 private:
     // Name of input data type (collection)
     std::string              m_inputHit_tag;
     std::string              m_inputMCHit_tag;
 };
 
-#endif // _ProtoCLuster_factory_HcalBarrelIslandProtoClusters_h_

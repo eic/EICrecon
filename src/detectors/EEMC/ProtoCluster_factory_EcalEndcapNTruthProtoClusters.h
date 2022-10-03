@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_EcalEndcapNTruthProtoClusters_h_
-#define _TruthCluster_factory_EcalEndcapNTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -26,8 +25,8 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        std::string              m_inputHit_tag="EcalEndcapNRecHits";
-        std::string              m_inputMCHit_tag="EcalEndcapNHits";
+        m_inputHit_tag="EcalEndcapNRecHits";
+        m_inputMCHit_tag="EcalEndcapNHits";
 
         AlgorithmInit();
     }
@@ -52,6 +51,10 @@ public:
         Set(m_outputProtoClusters);
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
+
+private:
+    // Name of input data type (collection)
+    std::string              m_inputHit_tag;
+    std::string              m_inputMCHit_tag;
 };
 
-#endif // _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
