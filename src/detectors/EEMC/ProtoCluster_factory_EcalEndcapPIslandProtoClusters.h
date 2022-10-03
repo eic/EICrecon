@@ -12,20 +12,20 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalEndcapPIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalEndcapNIslandProtoClusters(){
-        SetTag("EcalEndcapNIslandProtoClusters");
+    ProtoCluster_factory_EcalEndcapPIslandProtoClusters(){
+        SetTag("EcalEndcapPIslandProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalEndcapNRecHits";
+        m_input_tag = "EcalEndcapPRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
@@ -41,16 +41,16 @@ public:
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
 
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();
