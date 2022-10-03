@@ -3,13 +3,13 @@
 //
 
 #include <JANA/JEvent.h>
-#include "ReconstructedParticle_factory.h"
+#include "TrackerReconstructedParticle_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ParticlesFromTrackFitResult.h"
 
 namespace eicrecon {
-    void ReconstructedParticle_factory::Init() {
+    void TrackerReconstructedParticle_factory::Init() {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
@@ -22,11 +22,11 @@ namespace eicrecon {
         InitLogger(param_prefix, "info");
     }
 
-    void ReconstructedParticle_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void TrackerReconstructedParticle_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
         // Nothing to do here
     }
 
-    void ReconstructedParticle_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void TrackerReconstructedParticle_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto tracking_data = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
         std::vector<edm4eic::ReconstructedParticle*> result;
         for(size_t i=0; i < tracking_data->particles()->size(); i++) {

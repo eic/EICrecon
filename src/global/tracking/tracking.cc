@@ -13,7 +13,7 @@
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackingResult_factory.h"
-#include "ReconstructedParticle_factory.h"
+#include "TrackerReconstructedParticle_factory.h"
 #include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackerHitCollector_factory.h"
@@ -49,7 +49,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<TrackingResult_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
 
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticle_factory>(
+    app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
             {"CentralTrackingParticles"}, "ReconstructedParticles"));
 
     app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
