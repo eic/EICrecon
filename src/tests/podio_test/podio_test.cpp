@@ -2,21 +2,21 @@
 // Copyright 2022, Jefferson Science Associates, LLC.
 // Subject to the terms in the LICENSE file found in the top-level directory.
 #include <iostream>
-#include <services/io/podio/RootWriter.h>
-#include <services/io/podio/EventStore.h>
-#include <services/io/podio/RootReader.h>
+#include <services/io/podio/MTRootWriter.h>
+#include <services/io/podio/MTEventStore.h>
+#include <services/io/podio/MTRootReader.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 
 void write_read_test() {
     std::cout << "Hello world!" << std::endl;
     auto logger = spdlog::default_logger();
-    eic::ROOTWriter writer("test_out.root", logger);
+    eic::MTRootWriter writer("test_out.root", logger);
     writer.registerForWrite("MyFunHits");
     writer.registerForWrite("MyFunClusters");
 
     // Set up writer
-    eic::EventStore es(logger);
+    eic::MTEventStore es(logger);
     auto hits = new edm4eic::CalorimeterHitCollection;
     auto clusters = new edm4eic::ClusterCollection;
     es.put("MyFunHits", hits);
@@ -83,10 +83,10 @@ void write_read_test() {
     es.clear();
 
     writer.finish();
-    eic::ROOTReader reader;
+    eic::MTRootReader reader;
     reader.openFile("test_out.root");
 
-    eic::EventStore es_in(logger);
+    eic::MTEventStore es_in(logger);
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
         reader.readEvent(&es_in, i);
@@ -108,12 +108,12 @@ void write_read_test() {
 
 void read_write_test() {
 
-    eic::ROOTReader reader;
+    eic::MTRootReader reader;
     reader.openFile("test_out.root"); // comes from prev test
     // Read everything = MyFunHits, MyFunClusters
 
     auto logger = spdlog::default_logger();
-    eic::ROOTWriter writer("test2_out.root", logger);
+    eic::MTRootWriter writer("test2_out.root", logger);
     writer.registerForWrite("MyFunClusters");
     writer.registerForWrite("MyExhilaratingClusters"); // Collection needs to be added to store first
 
@@ -121,7 +121,7 @@ void read_write_test() {
     for (int i=0; i<nevents; ++i) {
         std::cout << "Processing event " << i << std::endl;
 
-        auto store = new eic::EventStore(logger);
+        auto store = new eic::MTEventStore(logger);
         reader.readEvent(store, i);
         // This should populate hits_in and clusters_in
         auto* hits_in = store->get<edm4eic::CalorimeterHitCollection>("MyFunHits");

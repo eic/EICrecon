@@ -148,7 +148,7 @@ void JEventSourcePODIOsimple::Open() {
         m_log->info("Opened PODIO file '{}' containing {} events", GetResourceName(), Nevents_in_file);
 
         if( print_type_table ) {
-            eic::EventStore store(m_log);
+            eic::MTEventStore store(m_log);
             reader.readEvent(&store, 0);
             PrintCollectionTypeTable(&store);
         }
@@ -223,7 +223,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     }
 
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
-    auto store = new eic::EventStore(m_log);
+    auto store = new eic::MTEventStore(m_log);
     reader.readEvent(store, Nevents_read++);
     event->Insert(store); // Let JANA own this and clear it at the end.
 
@@ -307,7 +307,7 @@ double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::strin
 /// with their types. This will be called automatically when the file is
 /// open if the PODIO:PRINT_TYPE_TABLE variable is set to a non-zero value
 //------------------------------------------------------------------------------
-void JEventSourcePODIOsimple::PrintCollectionTypeTable(eic::EventStore* store) {
+void JEventSourcePODIOsimple::PrintCollectionTypeTable(eic::MTEventStore* store) {
 
     // First, get maximum length of the collection name strings so
     // we can print nicely aligned columns.

@@ -1,5 +1,5 @@
 
-#include "RootWriter.h"
+#include "MTRootWriter.h"
 #include "rootUtils.h"
 
 // podio specific includes
@@ -8,7 +8,7 @@
 #include "podio/ROOTWriter.h"
 #include "podio/podioVersion.h"
 
-#include <services/io/podio/EventStore.h>
+#include <services/io/podio/MTEventStore.h>
 
 // ROOT specifc includes
 #include "TFile.h"
@@ -16,7 +16,7 @@
 
 namespace eic {
 
-    ROOTWriter::ROOTWriter(const std::string &filename, std::shared_ptr<spdlog::logger> &logger) :
+    MTRootWriter::MTRootWriter(const std::string &filename, std::shared_ptr<spdlog::logger> &logger) :
         m_filename(filename),
         m_file(new TFile(filename.c_str(), "RECREATE", "data file")),
         m_datatree(new TTree("events", "Events tree")),
@@ -30,7 +30,7 @@ namespace eic {
         // NWB: TODO: Where should this go? What is this really keyed off of? I assume writeEvent?
     }
 
-    ROOTWriter::~ROOTWriter()
+    MTRootWriter::~MTRootWriter()
     {
         delete m_file;
     }
@@ -50,7 +50,7 @@ namespace eic {
     // collection, an exception is thrown.
     // (See for example ProtoClusterCollectionData.cc)
 
-    void ROOTWriter::writeEvent(eic::EventStore* store) {
+    void MTRootWriter::writeEvent(eic::MTEventStore* store) {
 
         if (m_firstEvent) {
             // Populate collection infos
@@ -100,7 +100,7 @@ namespace eic {
         m_log->debug("Finished writing event");
     }
 
-    void ROOTWriter::createBranches(CollectionInfo& info, podio::CollectionBase* collection) {
+    void MTRootWriter::createBranches(CollectionInfo& info, podio::CollectionBase* collection) {
 
         auto& branches = info.branches;
 
@@ -141,7 +141,7 @@ namespace eic {
     }
 
 
-    void ROOTWriter::finish()
+    void MTRootWriter::finish()
     {
         m_log->debug("Calling ROOTWriter::finish");
         // Extract ([names],[ids])
@@ -181,7 +181,7 @@ namespace eic {
         m_log->debug("RootWriter::finish: Wrote and closed file");
     }
 
-    bool ROOTWriter::registerForWrite(const std::string &name) {
+    bool MTRootWriter::registerForWrite(const std::string &name) {
         m_write_requests.insert(name);
         return true;
     }

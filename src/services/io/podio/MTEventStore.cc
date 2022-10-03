@@ -1,20 +1,20 @@
 
 // podio specific includes
-#include "EventStore.h"
+#include "MTEventStore.h"
 #include <podio/CollectionBase.h>
 #include <podio/IReader.h>
 
 namespace eic {
 
-EventStore::EventStore(std::shared_ptr<spdlog::logger>& logger) {
+MTEventStore::MTEventStore(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
 }
 
-EventStore::~EventStore() {
+MTEventStore::~MTEventStore() {
     clear();
 }
 
-void EventStore::put(const std::string name, podio::CollectionBase* collection) {
+void MTEventStore::put(const std::string name, podio::CollectionBase* collection) {
 
     // Check if we've already seen this
     for (auto& collection_info : m_collections) {
@@ -74,7 +74,7 @@ void EventStore::put(const std::string name, podio::CollectionBase* collection) 
     m_log->debug("eic::EventStore: Added collection '{}' with id {}", name, info.id);
 }
 
-podio::CollectionBase* EventStore::get_untyped(const std::string& name) {
+podio::CollectionBase* MTEventStore::get_untyped(const std::string& name) {
     for (const auto& c : m_collections) {
         if (c.name == name) {
             return c.collection;
@@ -83,7 +83,7 @@ podio::CollectionBase* EventStore::get_untyped(const std::string& name) {
     return nullptr;
 }
 
-bool EventStore::get(int id, podio::CollectionBase*& collection) const {
+bool MTEventStore::get(int id, podio::CollectionBase*& collection) const {
     for (const auto &c: m_collections) {
         if (c.id == id) {
             collection = c.collection;
@@ -93,20 +93,20 @@ bool EventStore::get(int id, podio::CollectionBase*& collection) const {
     return false;
 }
 
-podio::GenericParameters& EventStore::getEventMetaData() {
+podio::GenericParameters& MTEventStore::getEventMetaData() {
   return m_evtMD;
 }
 
-podio::GenericParameters& EventStore::getRunMetaData(int runID) {
+podio::GenericParameters& MTEventStore::getRunMetaData(int runID) {
   return m_runMDMap[runID];
 }
 
-podio::GenericParameters& EventStore::getCollectionMetaData(int colID) {
+podio::GenericParameters& MTEventStore::getCollectionMetaData(int colID) {
     return m_colMDMap[colID];
 }
 
 
-void EventStore::clear() {
+void MTEventStore::clear() {
     for (auto& c : m_collections) {
         delete c.collection;
         c.collection = nullptr;

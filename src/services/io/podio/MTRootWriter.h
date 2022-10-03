@@ -21,9 +21,9 @@ class TFile;
 class TTree;
 
 namespace eic {
-class EventStore;
+class MTEventStore;
 
-class ROOTWriter {
+class MTRootWriter {
 
     struct CollectionInfo {
         int id;
@@ -36,15 +36,15 @@ class ROOTWriter {
     };
 
 public:
-  ROOTWriter(const std::string& filename, std::shared_ptr<spdlog::logger> &logger);
-  ~ROOTWriter();
+  MTRootWriter(const std::string& filename, std::shared_ptr<spdlog::logger> &logger);
+  ~MTRootWriter();
 
   // non-copyable
-  ROOTWriter(const ROOTWriter&) = delete;
-  ROOTWriter& operator=(const ROOTWriter&) = delete;
+  MTRootWriter(const MTRootWriter&) = delete;
+  MTRootWriter& operator=(const MTRootWriter&) = delete;
 
   bool registerForWrite(const std::string& name);
-  void writeEvent(eic::EventStore* store);
+  void writeEvent(eic::MTEventStore* store);
   void finish();
 
 private:

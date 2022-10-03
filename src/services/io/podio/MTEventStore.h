@@ -28,7 +28,7 @@ class CollectionBase;
 namespace eic {
 
 
-class EventStore : public podio::ICollectionProvider, public podio::IMetaDataProvider {
+class MTEventStore : public podio::ICollectionProvider, public podio::IMetaDataProvider {
 public:
     struct CollectionInfo {
         int id; // This might be redundant with what is on the collection itself, but I don't trust PODIO to do the right thing here
@@ -36,10 +36,10 @@ public:
         podio::CollectionBase *collection;
     };
 
-    EventStore(std::shared_ptr<spdlog::logger>& logger);
-    ~EventStore();
-    EventStore(const EventStore &) = delete;
-    EventStore &operator=(const EventStore &) = delete;
+    MTEventStore(std::shared_ptr<spdlog::logger>& logger);
+    ~MTEventStore();
+    MTEventStore(const MTEventStore &) = delete;
+    MTEventStore &operator=(const MTEventStore &) = delete;
 
     podio::CollectionBase* get_untyped(const std::string& name);
     const std::vector<CollectionInfo>& get_all() { return m_collections; }
@@ -81,7 +81,7 @@ public:
 };
 
 template<typename T>
-T* EventStore::get(const std::string& name) {
+T* MTEventStore::get(const std::string& name) {
     auto result = get_untyped(name);
     if (result == nullptr) {
         std::ostringstream oss;

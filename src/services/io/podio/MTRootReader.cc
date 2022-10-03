@@ -1,6 +1,6 @@
 // Copied from https://github.com/AIDASoft/podio/blob/master/src/ROOTReader.cc
 
-#include "ROOTReader.h"
+#include "MTRootReader.h"
 
 #include "rootUtils.h"
 
@@ -17,20 +17,20 @@
 #include "TTreeCache.h"
 #include <memory>
 
-#include <services/io/podio/EventStore.h>
+#include <services/io/podio/MTEventStore.h>
 
 
 namespace eic {
 
-ROOTReader::ROOTReader() {
+MTRootReader::MTRootReader() {
 }
 
 // todo: see https://github.com/AIDASoft/podio/issues/290
-ROOTReader::~ROOTReader() { // NOLINT(modernize-use-equals-default)
+MTRootReader::~MTRootReader() { // NOLINT(modernize-use-equals-default)
 }
 
 /// Multithreaded API
-void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
+void MTRootReader::readEvent(eic::MTEventStore* store, uint64_t event_nr) {
     m_log->debug("ROOTReader: Reading event {}", event_nr);
     m_eventNumber = event_nr;
     for (auto collection_name : m_table->names()) {
@@ -45,13 +45,13 @@ void ROOTReader::readEvent(eic::EventStore* store, uint64_t event_nr) {
     // TODO: We probably want to bring back registerToRead.
 }
 
-std::pair<TTree*, unsigned> ROOTReader::getLocalTreeAndEntry(const std::string& treename) {
+std::pair<TTree*, unsigned> MTRootReader::getLocalTreeAndEntry(const std::string& treename) {
     auto localEntry = m_chain->LoadTree(m_eventNumber);
     auto* tree = static_cast<TTree*>(m_chain->GetFile()->Get(treename.c_str()));
     return {tree, localEntry};
 }
 
-podio::GenericParameters* ROOTReader::readEventMetaData() {
+podio::GenericParameters* MTRootReader::readEventMetaData() {
     auto* emd = new podio::GenericParameters();
     auto [evt_metadatatree, entry] = getLocalTreeAndEntry("evt_metadata");
     auto* branch = podio::root_utils::getBranch(evt_metadatatree, "evtMD");
@@ -59,7 +59,7 @@ podio::GenericParameters* ROOTReader::readEventMetaData() {
     evt_metadatatree->GetEntry(entry);
     return emd;
 }
-std::map<int, podio::GenericParameters>* ROOTReader::readCollectionMetaData() {
+std::map<int, podio::GenericParameters>* MTRootReader::readCollectionMetaData() {
     auto* emd = new std::map<int, podio::GenericParameters>;
     auto* col_metadatatree = getLocalTreeAndEntry("col_metadata").first;
     auto* branch = podio::root_utils::getBranch(col_metadatatree, "colMD");
@@ -67,7 +67,7 @@ std::map<int, podio::GenericParameters>* ROOTReader::readCollectionMetaData() {
     col_metadatatree->GetEntry(0);
     return emd;
 }
-std::map<int, podio::GenericParameters>* ROOTReader::readRunMetaData() {
+std::map<int, podio::GenericParameters>* MTRootReader::readRunMetaData() {
     auto* emd = new std::map<int, podio::GenericParameters>;
     auto* run_metadatatree = getLocalTreeAndEntry("run_metadata").first;
     auto* branch = podio::root_utils::getBranch(run_metadatatree, "runMD");
@@ -76,7 +76,7 @@ std::map<int, podio::GenericParameters>* ROOTReader::readRunMetaData() {
     return emd;
 }
 
-podio::CollectionBase* ROOTReader::readCollection(const std::string& name) {
+podio::CollectionBase* MTRootReader::readCollection(const std::string& name) {
     // Do we know about this collection? If so, read it
     if (const auto& info = m_storedClasses.find(name); info != m_storedClasses.end()) {
         return getCollection(*info);
@@ -87,7 +87,7 @@ podio::CollectionBase* ROOTReader::readCollection(const std::string& name) {
     return nullptr;
 }
 
-podio::CollectionBase* ROOTReader::getCollection(const std::pair<std::string, CollectionInfo>& collInfo) {
+podio::CollectionBase* MTRootReader::getCollection(const std::pair<std::string, CollectionInfo>& collInfo) {
     const auto& name = collInfo.first;
     const auto& [theClass, collectionClass, index] = collInfo.second;
     auto& branches = m_collectionBranches[index];
@@ -133,8 +133,8 @@ podio::CollectionBase* ROOTReader::getCollection(const std::pair<std::string, Co
     return readCollectionData(branches, collection, localEntry, name);
 }
 
-podio::CollectionBase* ROOTReader::readCollectionData(const podio::root_utils::CollectionBranches& branches,
-                                               podio::CollectionBase* collection, Long64_t entry, const std::string& name) {
+podio::CollectionBase* MTRootReader::readCollectionData(const podio::root_utils::CollectionBranches& branches,
+                                                        podio::CollectionBase* collection, Long64_t entry, const std::string& name) {
     // Read all data
     if (branches.data) {
         branches.data->GetEntry(entry);
@@ -153,11 +153,11 @@ podio::CollectionBase* ROOTReader::readCollectionData(const podio::root_utils::C
     return collection;
 }
 
-void ROOTReader::openFile(const std::string& filename) {
+void MTRootReader::openFile(const std::string& filename) {
     openFiles({filename});
 }
 
-void ROOTReader::openFiles(const std::vector<std::string>& filenames) {
+void MTRootReader::openFiles(const std::vector<std::string>& filenames) {
     m_chain = new TChain("events");
     for (const auto& filename : filenames) {
         m_chain->Add(filename.c_str());
@@ -195,23 +195,23 @@ void ROOTReader::openFiles(const std::vector<std::string>& filenames) {
     delete versionPtr;
 }
 
-void ROOTReader::closeFile() {
+void MTRootReader::closeFile() {
     closeFiles();
 }
 
-void ROOTReader::closeFiles() {
+void MTRootReader::closeFiles() {
     delete m_chain;
 }
 
-bool ROOTReader::isValid() const {
+bool MTRootReader::isValid() const {
     return m_chain->GetFile()->IsOpen() && !m_chain->GetFile()->IsZombie();
 }
 
-unsigned ROOTReader::getEntries() const {
+unsigned MTRootReader::getEntries() const {
     return m_chain->GetEntries();
 }
 
-void ROOTReader::createCollectionBranches(const std::vector<podio::root_utils::CollectionInfoT>& collInfo) {
+void MTRootReader::createCollectionBranches(const std::vector<podio::root_utils::CollectionInfoT>& collInfo) {
     size_t collectionIndex{0};
 
     for (const auto& [collID, collType, isSubsetColl] : collInfo) {

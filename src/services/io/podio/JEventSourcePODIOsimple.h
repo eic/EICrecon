@@ -8,8 +8,8 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 
-#include <services/io/podio/ROOTReader.h>
-#include <services/io/podio/EventStore.h>
+#include <services/io/podio/MTRootReader.h>
+#include <services/io/podio/MTEventStore.h>
 #include <spdlog/spdlog.h>
 
 class JEventSourcePODIOsimple : public JEventSource {
@@ -26,15 +26,15 @@ public:
 
     static std::string GetDescription();
 
-    void PrintCollectionTypeTable(eic::EventStore* store);
+    void PrintCollectionTypeTable(eic::MTEventStore* store);
 
 protected:
-    eic::ROOTReader reader;
+    eic::MTRootReader reader;
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;
 
     // User may optionally specify a file of background events to overlay
-    std::vector<std::tuple<eic::ROOTReader*, eic::EventStore*, uint64_t>> readers_background; // uint64_t is current event read
+    std::vector<std::tuple<eic::MTRootReader*, eic::MTEventStore*, uint64_t>> readers_background; // uint64_t is current event read
 
     std::string m_include_collections_str;
     std::string m_exclude_collections_str;

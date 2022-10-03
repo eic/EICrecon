@@ -31,23 +31,22 @@ class GenericParameters;
 }
 
 namespace eic {
-class EventStore;
+class MTEventStore;
 
 /**
 This class has the function to read available data from disk
 and to prepare collections and buffers.
 **/
-class ROOTReader {
-    friend EventStore;
+class MTRootReader {
 
 public:
-    ROOTReader();
+    MTRootReader();
     // todo: see https://github.com/AIDASoft/podio/issues/290
-    ~ROOTReader(); // NOLINT(modernize-use-equals-default)
+    ~MTRootReader(); // NOLINT(modernize-use-equals-default)
 
     // non-copyable
-    ROOTReader(const ROOTReader&) = delete;
-    ROOTReader& operator=(const ROOTReader&) = delete;
+    MTRootReader(const MTRootReader&) = delete;
+    MTRootReader& operator=(const MTRootReader&) = delete;
 
     void openFile(const std::string& filename);
     void openFiles(const std::vector<std::string>& filenames);
@@ -55,7 +54,7 @@ public:
     void closeFiles();
 
     /// Read all collections requested and _insert_ into provided event store
-    void readEvent(eic::EventStore* store, uint64_t event_nr);
+    void readEvent(eic::MTEventStore* store, uint64_t event_nr);
 
     /// Read CollectionIDTable from ROOT file
     podio::CollectionIDTable* getCollectionIDTable() {

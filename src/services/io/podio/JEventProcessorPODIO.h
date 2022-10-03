@@ -5,7 +5,7 @@
 #include <JANA/JEventProcessor.h>
 #include <spdlog/spdlog.h>
 
-#include <services/io/podio/RootWriter.h>
+#include <services/io/podio/MTRootWriter.h>
 
 
 class JEventProcessorPODIO : public JEventProcessor {
@@ -21,7 +21,7 @@ public:
 
     void FindCollectionsToWrite(const std::vector<JFactory*>& factories);
 
-    std::shared_ptr<eic::ROOTWriter> m_writer;
+    std::shared_ptr<eic::MTRootWriter> m_writer;
     std::mutex m_mutex;
     bool m_is_first_event = true;
     bool m_user_included_collections = false;

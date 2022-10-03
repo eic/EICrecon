@@ -2,7 +2,7 @@
 #include "JEventProcessorPODIO.h"
 
 #include <services/log/Log_service.h>
-#include <services/io/podio/EventStore.h>
+#include <services/io/podio/MTEventStore.h>
 #include <JANA/Services/JComponentManager.h>
 
 #include <datamodel_glue.h>
@@ -18,7 +18,7 @@ struct TestIfPodioType {
 
 template <typename PodioT, typename PodioCollectionT>
 struct InsertFacIntoStore {
-    size_t operator() (JFactory* fac, eic::EventStore* store) {
+    size_t operator() (JFactory* fac, eic::MTEventStore* store) {
         std::string collection_name = fac->GetTag();
 
         PodioCollectionT* collection = new PodioCollectionT;
@@ -84,7 +84,7 @@ void JEventProcessorPODIO::Init() {
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::info); // TODO: Figure out how to configure logger via LoggerService; remove this
-    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_log);
+    m_writer = std::make_shared<eic::MTRootWriter>(m_output_file, m_log);
 
 }
 
@@ -169,12 +169,12 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     m_log->trace("Event #{}", event->GetEventNumber());
 
 
-    auto store = const_cast<eic::EventStore*>(event->GetSingle<eic::EventStore>()); // Assumes that JEventSourcePODIO already populated this somewhat
+    auto store = const_cast<eic::MTEventStore*>(event->GetSingle<eic::MTEventStore>()); // Assumes that JEventSourcePODIO already populated this somewhat
     // If the event source is not podio aware, there won't be an EventStore in the JEvent.
     // However, we might still want to be able to write results from JFactories that produce
     // PODIO types.
     if (store == nullptr) {
-        store = new eic::EventStore(m_log);
+        store = new eic::MTEventStore(m_log);
     }
 
     // Loop over all collections/factories to write
@@ -214,7 +214,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
                 continue;
             }
-            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*>(fac->GetObjectName(), fac, store);
+            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::MTEventStore*>(fac->GetObjectName(), fac, store);
 
             if (result == std::nullopt) { 
                 m_log->error("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
