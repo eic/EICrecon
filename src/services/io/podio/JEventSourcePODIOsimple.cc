@@ -158,19 +158,17 @@ void JEventSourcePODIOsimple::Open() {
         throw JException( fmt::format( "Problem opening file '{}'", GetResourceName() ), e);
     }
 
-    // TODO: Re-enable background events
-#if 0
     // If the user specified a background events file, then create dedicated readers
     // and EventStores for the number of background events to be added to each primary event.
     // This seems a bit over-the-top, but podio likes the data objects to be owned by a
     // collection and a collection to be owned by an EventStore. Thus, we do it this way.
     if( ! background_filename.empty() ) {
         for (int i = 0; i < num_background_events; i++) {
-            auto bg_reader = new eic::ROOTReader();
-            auto bg_store = new eic::EventStore();
+            auto bg_reader = new eic::MTRootReader();
+            auto bg_store = new eic::MTEventStore(m_log);
             bg_reader->openFile( background_filename );
             if (!bg_reader->isValid())
-                throw std::runtime_error(fmt::format("podio ROOTReader says background events file {} is invalid", background_filename));
+                throw std::runtime_error(fmt::format("MTRootReader says background events file {} is invalid", background_filename));
 
             auto version = bg_reader->currentFileVersion();
             bool version_mismatch = version.major > podio::version::build_version.major;
@@ -188,16 +186,10 @@ void JEventSourcePODIOsimple::Open() {
             auto Nentries_background = bg_reader->getEntries();
             auto offset = (readers_background.size()*Nentries_background)/num_background_events;
 
-            bg_store->setReader(bg_reader);
-            bg_reader->goToEvent(offset);
-            bg_reader->readEvent();
-
             readers_background.emplace_back(bg_reader, bg_store, offset);
         }
-
         m_log->debug("Merging {} background events from file '{}'", readers_background.size(), background_filename);
     }
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -239,26 +231,17 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
         }
     }
 
-    // TODO: Re-add background hits
-#if 0
-    // If user specified to add background hits, do that here
+    // If user specified additional background hits, introduce them here
     for( auto &[bg_reader, bg_store, ievent] : readers_background ){
         bg_store->clear();
-        bg_reader->endOfEvent();
-        if( ++ievent >= bg_reader->getEntries() ) ievent = 0; // rewind if we have used all events
-        bg_reader->goToEvent( ievent );
-        event->Insert( bg_store ); // factory already flagged as NOT_OBJECT_OWNER above
-        auto bg_collectionIDtable = bg_store->getCollectionIDTable();
-        for (auto id: bg_collectionIDtable->ids()) {
-            podio::CollectionBase *coll = {nullptr};
-            if (bg_store->get(id, coll)) {
-                auto name = bg_collectionIDtable->name(id);
-                auto className = coll->getTypeName();
-                CopyToJEventSimple(className, name, coll, event); // n.b. this will add to existing objects
-            }
+        if( ++ievent >= bg_reader->getEntries() ) ievent = 0; // Rewind if we have used all events
+        bg_reader->readEvent(bg_store, ievent);
+        event->Insert( bg_store ); // This factory has already been flagged as NOT_OBJECT_OWNER above
+        for (auto c: bg_store->get_all()) {
+            CopyToJEventSimple(c.collection->getTypeName(), c.name, c.collection, event);
+            // n.b. this will add to existing objects
         }
     }
-#endif
 }
 
 //------------------------------------------------------------------------------
