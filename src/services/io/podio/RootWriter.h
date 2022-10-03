@@ -38,6 +38,7 @@ private:
   using StoreCollection = std::pair<const std::string&, podio::CollectionBase*>;
   void createBranches(const std::vector<StoreCollection>& collections);
   void setBranches(const std::vector<StoreCollection>& collections);
+  void emptyBranches(const std::string &name);
 
   // members
   std::string m_filename;
@@ -54,7 +55,8 @@ private:
   // time we write an event. Since the collections and their order do not
   // change between events, the assocation between the collections to write
   // and their branches is simply index based
-  std::vector<podio::root_utils::CollectionBranches> m_collectionBranches{};
+//  std::vector<podio::root_utils::CollectionBranches> m_collectionBranches{};
+  std::map<std::string, podio::root_utils::CollectionBranches> m_collectionBranches{}; // (see note in setBranches() )
 
   bool m_firstEvent{true};
   std::set<std::string> unwritable_collections; // keep list of collections that threw exception during prepareForWrite

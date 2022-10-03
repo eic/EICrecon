@@ -21,6 +21,8 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "algorithms_tracking",
         "algorithms_digi",
         "BEMC",
+        "HCAL",
+        "ZDC",
         "BTRK",
         "BVTX",
         "ECTRK",
