@@ -36,7 +36,9 @@ void InitPlugin(JApplication *app) {
                      {"BarrelTrackerHit",
                       "BarrelVertexHit",
                       "EndcapTrackerHit",
-                      "MPGDTrackerHit"   },
+                      "MPGDTrackerHit",
+                      "TOFEndcapTrackerHit",
+                      "TOFBarrelTrackerHits"},
                      "trackerHits"));
 
     // Source linker
