@@ -35,7 +35,15 @@ public:
     {};
 
     void GenerateFactories(JFactorySet *factory_set) override {
-        auto *factory = new FactoryT(m_default_input_tags, m_default_cfg);
+
+        FactoryT *factory;
+        if constexpr(std:: is_base_of<NoConfig,FactoryConfigType>()) {
+            factory = new FactoryT(m_default_input_tags);
+        } else {
+            factory = new FactoryT(m_default_input_tags, m_default_cfg);
+        }
+
+
 
         factory->SetTag(m_output_tag);
         factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());

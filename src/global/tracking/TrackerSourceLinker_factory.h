@@ -20,7 +20,7 @@ namespace eicrecon {
     class TrackerSourceLinker_factory : public JChainFactoryT<TrackerSourceLinkerResult> {
 
     public:
-        TrackerSourceLinker_factory( std::vector<std::string> default_input_tags ):
+        TrackerSourceLinker_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<TrackerSourceLinkerResult>(std::move(default_input_tags) ) {
         }
 

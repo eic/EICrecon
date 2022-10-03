@@ -12,7 +12,7 @@
 
 class TrackingResult_factory: public JChainFactoryT<ParticlesFromTrackFitResult> {
 public:
-    TrackingResult_factory(std::vector<std::string> default_input_tags ):
+    TrackingResult_factory(std::vector<std::string> default_input_tags):
     JChainFactoryT<ParticlesFromTrackFitResult>(std::move(default_input_tags) ) {
     }
 

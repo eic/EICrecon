@@ -18,7 +18,7 @@ namespace eicrecon {
     class CKFTracking_factory : public JChainFactoryT<Jug::Trajectories> {
 
     public:
-        CKFTracking_factory( std::vector<std::string> default_input_tags ):
+        CKFTracking_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<Jug::Trajectories>( std::move(default_input_tags) ) {
         }
 

@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PARTICLESWITHTRUTHPIDRESULT_H
-#define EICRECON_PARTICLESWITHTRUTHPIDRESULT_H
+#ifndef EICRECON_PARTICLESWITHASSOCIATION_H
+#define EICRECON_PARTICLESWITHASSOCIATION_H
 
 #include <vector>
 
@@ -12,11 +12,11 @@
 
 namespace eicrecon {
 
-    class ParticlesWithTruthPIDResult {
+    class ParticlesWithAssociation {
     public:
 
-        explicit ParticlesWithTruthPIDResult(std::vector<edm4eic::ReconstructedParticle*> particles,
-                                             std::vector<edm4eic::MCRecoParticleAssociation*> associations):
+        explicit ParticlesWithAssociation(std::vector<edm4eic::ReconstructedParticle*> particles,
+                                          std::vector<edm4eic::MCRecoParticleAssociation*> associations):
                 m_particles(std::move(particles)), m_associations(std::move(associations))
                 {}
 
@@ -33,4 +33,4 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_PARTICLESWITHTRUTHPIDRESULT_H
+#endif //EICRECON_PARTICLESWITHASSOCIATION_H

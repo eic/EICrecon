@@ -17,7 +17,7 @@ namespace eicrecon {
 class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters> {
 
     public:
-        TrackParamTruthInit_factory( std::vector<std::string> default_input_tags ):
+        TrackParamTruthInit_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<Jug::TrackParameters>( std::move(default_input_tags) ) {
         }
 

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten
+// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Sylvester Joosten, Dmitry Romanov
 
 // Takes a list of particles (presumed to be from tracking), and all available clusters.
 // 1. Match clusters to their tracks using the mcID field
@@ -7,16 +7,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <vector>
+#include <map>
 
+#include <spdlog/spdlog.h>
 #include <fmt/format.h>
-
-#include "Gaudi/Algorithm.h"
-#include "GaudiAlg/GaudiTool.h"
-#include "GaudiAlg/Producer.h"
-#include "GaudiAlg/Transformer.h"
-#include "GaudiKernel/RndmGenerators.h"
-
-#include "JugBase/DataHandle.h"
 
 // Event Model related classes
 #include "edm4hep/MCParticleCollection.h"
@@ -27,53 +22,46 @@
 #include "edm4eic/TrackParametersCollection.h"
 #include "edm4eic/vector_utils.h"
 
-namespace Jug::Fast {
+#include "ParticlesWithAssociation.h"
 
-class MatchClusters : public GaudiAlgorithm {
+namespace eicrecon {
+
+class MatchClusters {
 private:
-  // input data
-  DataHandle<edm4hep::MCParticleCollection> m_inputMCParticles{"MCParticles", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4eic::ReconstructedParticleCollection> m_inputParticles{"ReconstructedChargedParticles",
-                                                                    Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4eic::MCRecoParticleAssociationCollection> m_inputParticlesAssoc{"ReconstructedChargedParticlesAssoc",
-                                                                    Gaudi::DataHandle::Reader, this};
-  Gaudi::Property<std::vector<std::string>> m_inputClusters{this, "inputClusters", {}, "Clusters to be aggregated"};
-  Gaudi::Property<std::vector<std::string>> m_inputClustersAssoc{this, "inputClustersAssoc", {}, "Cluster associations to be aggregated"};
-  std::vector<DataHandle<edm4eic::ClusterCollection>*> m_inputClustersCollections;
-  std::vector<DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>*> m_inputClustersAssocCollections;
-
-  // output data
-  DataHandle<edm4eic::ReconstructedParticleCollection> m_outputParticles{"ReconstructedParticles",
-                                                                     Gaudi::DataHandle::Writer, this};
-  DataHandle<edm4eic::MCRecoParticleAssociationCollection> m_outputParticlesAssoc{"ReconstructedParticlesAssoc",
-                                                                     Gaudi::DataHandle::Writer, this};
+//  // input data
+//  DataHandle<edm4hep::MCParticleCollection> m_inputMCParticles{"MCParticles", Gaudi::DataHandle::Reader, this};
+//  DataHandle<edm4eic::ReconstructedParticleCollection> m_inputParticles{"ReconstructedChargedParticles", Gaudi::DataHandle::Reader, this};
+//  DataHandle<edm4eic::MCRecoParticleAssociationCollection> m_inputParticlesAssoc{"ReconstructedChargedParticlesAssoc", Gaudi::DataHandle::Reader, this};
+//  Gaudi::Property<std::vector<std::string>> m_inputClusters{this, "inputClusters", {}, "Clusters to be aggregated"};
+//  Gaudi::Property<std::vector<std::string>> m_inputClustersAssoc{this, "inputClustersAssoc", {}, "Cluster associations to be aggregated"};
+//  std::vector<DataHandle<edm4eic::ClusterCollection>*> m_inputClustersCollections;
+//  std::vector<DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>*> m_inputClustersAssocCollections;
+//
+//  // output data
+//  DataHandle<edm4eic::ReconstructedParticleCollection> m_outputParticles{"ReconstructedParticles", Gaudi::DataHandle::Writer, this};
+//  DataHandle<edm4eic::MCRecoParticleAssociationCollection> m_outputParticlesAssoc{"ReconstructedParticlesAssoc", Gaudi::DataHandle::Writer, this};
 
 public:
-  MatchClusters(const std::string& name, ISvcLocator* svcLoc)
-      : GaudiAlgorithm(name, svcLoc) {
-    declareProperty("inputMCParticles", m_inputMCParticles, "MCParticles");
-    declareProperty("inputParticles", m_inputParticles, "ReconstructedChargedParticles");
-    declareProperty("inputParticlesAssoc", m_inputParticlesAssoc, "ReconstructedChargedParticlesAssoc");
-    declareProperty("outputParticles", m_outputParticles, "ReconstructedParticles");
-    declareProperty("outputParticlesAssoc", m_outputParticlesAssoc, "ReconstructedParticlesAssoc");
-  }
 
-  StatusCode initialize() override {
-    if (GaudiAlgorithm::initialize().isFailure()) {
-      return StatusCode::FAILURE;
-    }
-    m_inputClustersCollections = getClusterCollections(m_inputClusters);
-    m_inputClustersAssocCollections = getClusterAssociations(m_inputClustersAssoc);
-    return StatusCode::SUCCESS;
-  }
-  StatusCode execute() override {
+        void init(std::shared_ptr<spdlog::logger> logger) {
+            m_log = logger;
+        }
+
+  ParticlesWithAssociation* execute(
+          std::vector<edm4hep::MCParticle*> mcparticles,
+          std::vector<edm4eic::ReconstructedParticle*> inparts,
+          std::vector<edm4eic::MCRecoParticleAssociation*> inpartsassoc) {
     if (msgLevel(MSG::DEBUG)) {
       debug() << "Processing cluster info for new event" << endmsg;
     }
-    // input collection
-    const auto& mcparticles  = *(m_inputMCParticles.get());
-    const auto& inparts      = *(m_inputParticles.get());
-    const auto& inpartsassoc = *(m_inputParticlesAssoc.get());
+
+
+      // Resulting reconstructed particles
+      std::vector<edm4eic::ReconstructedParticle *> outparts;
+
+      // Resulting associations
+      std::vector<edm4eic::MCRecoParticleAssociation *> outpartsassoc;
+
     auto& outparts           = *(m_outputParticles.createAndPut());
     auto& outpartsassoc      = *(m_outputParticlesAssoc.createAndPut());
 
@@ -183,86 +171,62 @@ public:
   }
 
 private:
-  std::vector<DataHandle<edm4eic::ClusterCollection>*> getClusterCollections(const std::vector<std::string>& cols) {
-    std::vector<DataHandle<edm4eic::ClusterCollection>*> ret;
-    for (const auto& colname : cols) {
-      debug() << "initializing cluster collection: " << colname << endmsg;
-      ret.push_back(new DataHandle<edm4eic::ClusterCollection>{colname, Gaudi::DataHandle::Reader, this});
-    }
-    return ret;
-  }
 
-  std::vector<DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>*> getClusterAssociations(const std::vector<std::string>& cols) {
-    std::vector<DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>*> ret;
-    for (const auto& colname : cols) {
-      debug() << "initializing cluster association collection: " << colname << endmsg;
-      ret.push_back(new DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>{colname, Gaudi::DataHandle::Reader, this});
-    }
-    return ret;
-  }
 
-  // get a map of mcID --> cluster
-  // input: cluster_collections --> list of handles to all cluster collections
-  std::map<int, edm4eic::Cluster>
-  indexedClusters(
-      const std::vector<DataHandle<edm4eic::ClusterCollection>*>& cluster_collections,
-      const std::vector<DataHandle<edm4eic::MCRecoClusterParticleAssociationCollection>*>& associations_collections
-  ) const {
-    std::map<int, edm4eic::Cluster> matched = {};
+    // get a map of mcID --> cluster
+    // input: cluster_collections --> list of handles to all cluster collections
+    std::map<int, edm4eic::Cluster> indexedClusters(
+            const std::vector<std::vector<edm4eic::Cluster>>& cluster_collections,
+            const std::vector<std::vector<edm4eic::MCRecoClusterParticleAssociation>>& associations_collections)
+    {
+        std::map<int, edm4eic::Cluster> matched = {};
 
-    // loop over cluster collections
-    for (const auto& cluster_handle : cluster_collections) {
-      const auto& clusters = *(cluster_handle->get());
+        // loop over cluster collections
+        for (const auto& clusters : cluster_collections) {
 
-      // loop over clusters
-      for (const auto& cluster : clusters) {
+            // loop over clusters
+            for (const auto& cluster : clusters) {
 
-        int mcID = -1;
+                int mcID = -1;
 
-        // loop over association collections
-        for (const auto& associations_handle : associations_collections) {
-          const auto& associations = *(associations_handle->get());
+                // loop over association collections
+                for (const auto& associations : associations_collections) {
 
-          // find associated particle
-          for (const auto& assoc : associations) {
-            if (assoc.getRec() == cluster) {
-              mcID = assoc.getSimID();
-              break;
+                    // find associated particle
+                    for (const auto& assoc : associations) {
+                        if (assoc.getRec() == cluster) {
+                            mcID = assoc.getSimID();
+                            break;
+                        }
+                    }
+
+                    // found associated particle
+                    if (mcID != -1) {
+                        break;
+                    }
+                }
+
+                m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
+
+                if (mcID < 0) {
+                    m_log->trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
+                    continue;
+                }
+
+                const bool duplicate = matched.count(mcID);
+                if (duplicate) {
+                    m_log->trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
+
+                    if (cluster.getEnergy() < matched[mcID].getEnergy()) {
+                        continue;
+                    }
+                }
+                matched[mcID] = cluster;
             }
-          }
-
-          // found associated particle
-          if (mcID != -1) {
-            break;
-          }
         }
-
-        if (msgLevel(MSG::VERBOSE)) {
-          verbose() << " --> Found cluster with mcID " << mcID << " and energy "
-                    << cluster.getEnergy() << endmsg;
-        }
-
-        if (mcID < 0) {
-          if (msgLevel(MSG::VERBOSE)) {
-            verbose() << "   --> WARNING: no valid MC truth link found, skipping cluster..." << endmsg;
-          }
-          continue;
-        }
-
-        const bool duplicate = matched.count(mcID);
-        if (duplicate) {
-          if (msgLevel(MSG::VERBOSE)) {
-            verbose() << "   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster" << endmsg;
-          }
-          if (cluster.getEnergy() < matched[mcID].getEnergy()) {
-            continue;
-          }
-        }
-        matched[mcID] = cluster;
-      }
+        return matched;
     }
-    return matched;
-  }
+
 
   // reconstruct a neutral cluster
   // (for now assuming the vertex is at (0,0,0))
@@ -281,7 +245,10 @@ private:
     part.setMass(mass);
     return part;
   }
-}; // namespace Jug::Fast
+
+        std::shared_ptr<spdlog::logger> m_log;
+
+    }; // namespace Jug::Fast
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 DECLARE_COMPONENT(MatchClusters)

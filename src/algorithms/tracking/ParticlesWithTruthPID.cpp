@@ -8,8 +8,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "JugBase/DataHandle.h"
-
 // Event Model related classes
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
@@ -18,7 +16,7 @@
 #include "edm4eic/vector_utils.h"
 
 #include "ParticlesWithTruthPIDConfig.h"
-#include "ParticlesWithTruthPIDResult.h"
+#include "algorithms/reco/ParticlesWithAssociation.h"
 #include <algorithms/interfaces/WithPodConfig.h>
 
 namespace eicrecon {
@@ -31,7 +29,7 @@ namespace eicrecon {
             m_log = logger;
         }
 
-        ParticlesWithTruthPIDResult *execute(
+        ParticlesWithAssociation *execute(
                 const std::vector<edm4hep::MCParticle> &mc_particles,
                 const std::vector<edm4eic::TrackParameters> &track_params) {
             // input collection
@@ -140,7 +138,7 @@ namespace eicrecon {
             }
 
             // Assembling the results
-            return new ParticlesWithTruthPIDResult(std::move(reco_particles), std::move(associations));
+            return new ParticlesWithAssociation(std::move(reco_particles), std::move(associations));
         }
 
     private:
