@@ -10,6 +10,7 @@
 
 #include <services/io/podio/ROOTReader.h>
 #include <services/io/podio/EventStore.h>
+#include <spdlog/spdlog.h>
 
 class JEventSourcePODIOsimple : public JEventSource {
 
@@ -41,6 +42,7 @@ protected:
     std::set<std::string> m_INPUT_EXCLUDE_COLLECTIONS;
     bool m_run_forever=false;
 
+    std::shared_ptr<spdlog::logger> m_log;
 };
 
 template <>

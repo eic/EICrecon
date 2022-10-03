@@ -72,6 +72,8 @@ public:
     /// Check if TFile is valid
     bool isValid() const;
 
+    inline void setLogger(std::shared_ptr<spdlog::logger> log) { m_log = log; }
+
 private:
     /// Implementation for collection reading
     podio::CollectionBase* readCollection(const std::string& name);

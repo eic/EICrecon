@@ -22,6 +22,7 @@
 #include <podio/podioVersion.h>
 
 #include <fmt/format.h>
+#include <spdlog/fmt/ostr.h>
 
 // This file is generated automatically by make_datamodel_glue.py
 #include "datamodel_glue.h"
@@ -66,6 +67,11 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
     // Tell JANA that we want it to call the FinishEvent() method.
     // EnableFinishEvent();
 
+    // Enable logger
+    m_log = app->GetService<Log_service>()->logger("JEventSourcePODIO");
+    m_log->set_level(spdlog::level::info); // TODO: Figure out how to configure logger via LoggerService; remove this
+    reader.setLogger(m_log);
+
     // Allow user to specify to recycle events forever
     GetApplication()->SetDefaultParameter(
             "podio:run_forever",
@@ -100,7 +106,7 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
 // Destructor
 //------------------------------------------------------------------------------
 JEventSourcePODIOsimple::~JEventSourcePODIOsimple() {
-    LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
+    m_log->info("Closing event source '{}'", GetResourceName());
     for( auto &[bg_reader, bg_store, ievent] : readers_background ){
         delete bg_store;
         delete bg_reader;
@@ -127,28 +133,29 @@ void JEventSourcePODIOsimple::Open() {
         auto version = reader.currentFileVersion();
         bool version_mismatch = version.major > podio::version::build_version.major;
         version_mismatch |= (version.major == podio::version::build_version.major) && (version.minor>podio::version::build_version.minor);
-        if( version_mismatch ) {
+        if (version_mismatch) {
+            m_log->error("PODIO version mismatch: file={}, executable={}", version, podio::version::build_version);
+            // FIXME: The podio ROOTReader is somehow failing to read in the correct version numbers from the file
             std::stringstream ss;
             ss << "Mismatch in PODIO versions! " << version << " > " << podio::version::build_version;
-            // FIXME: The podio ROOTReader is somehow failing to read in the correct version numbers from the file
-//            throw JException(ss.str());
+            // throw JException(ss.str());
+        }
+        else {
+            m_log->info("PODIO version match: file={}, executable={}", version, podio::version::build_version);
         }
 
-        LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version << ")" << LOG_END;
-
         Nevents_in_file = reader.getEntries();
-        LOG << "Opened PODIO file \"" << GetResourceName() << "\" with " << Nevents_in_file << " events" << LOG_END;
-
+        m_log->info("Opened PODIO file '{}' containing {} events", GetResourceName(), Nevents_in_file);
 
         if( print_type_table ) {
-            eic::EventStore store;
+            eic::EventStore store(m_log);
             reader.readEvent(&store, 0);
             PrintCollectionTypeTable(&store);
         }
 
     }catch (std::exception &e ){
-        LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
-        throw JException( fmt::format( "Problem opening file \"{}\"", GetResourceName() ) );
+        m_log->error("Problem opening file '{}': {}", GetResourceName(), e.what());
+        throw JException( fmt::format( "Problem opening file '{}'", GetResourceName() ), e);
     }
 
     // TODO: Re-enable background events
@@ -188,7 +195,7 @@ void JEventSourcePODIOsimple::Open() {
             readers_background.emplace_back(bg_reader, bg_store, offset);
         }
 
-        LOG << "Merging " << readers_background.size() << " background events from " << background_filename << LOG_END;
+        m_log->debug("Merging {} background events from file '{}'", readers_background.size(), background_filename);
     }
 #endif
 }
@@ -216,7 +223,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     }
 
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
-    auto store = new eic::EventStore;
+    auto store = new eic::EventStore(m_log);
     reader.readEvent(store, Nevents_read++);
     event->Insert(store); // Let JANA own this and clear it at the end.
 

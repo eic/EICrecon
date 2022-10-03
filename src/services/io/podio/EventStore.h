@@ -36,7 +36,7 @@ public:
         podio::CollectionBase *collection;
     };
 
-    EventStore();
+    EventStore(std::shared_ptr<spdlog::logger>& logger);
     ~EventStore();
     EventStore(const EventStore &) = delete;
     EventStore &operator=(const EventStore &) = delete;

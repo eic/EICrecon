@@ -16,7 +16,7 @@ void write_read_test() {
     writer.registerForWrite("MyFunClusters");
 
     // Set up writer
-    eic::EventStore es;
+    eic::EventStore es(logger);
     auto hits = new edm4eic::CalorimeterHitCollection;
     auto clusters = new edm4eic::ClusterCollection;
     es.put("MyFunHits", hits);
@@ -86,7 +86,7 @@ void write_read_test() {
     eic::ROOTReader reader;
     reader.openFile("test_out.root");
 
-    eic::EventStore es_in;
+    eic::EventStore es_in(logger);
     auto nevents = reader.getEntries();
     for (int i=0; i<nevents; ++i) {
         reader.readEvent(&es_in, i);
@@ -121,7 +121,7 @@ void read_write_test() {
     for (int i=0; i<nevents; ++i) {
         std::cout << "Processing event " << i << std::endl;
 
-        auto store = new eic::EventStore;
+        auto store = new eic::EventStore(logger);
         reader.readEvent(store, i);
         // This should populate hits_in and clusters_in
         auto* hits_in = store->get<edm4eic::CalorimeterHitCollection>("MyFunHits");

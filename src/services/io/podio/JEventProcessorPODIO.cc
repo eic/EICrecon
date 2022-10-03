@@ -83,7 +83,7 @@ void JEventProcessorPODIO::Init() {
 
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-    m_log->set_level(spdlog::level::debug);
+    m_log->set_level(spdlog::level::info); // TODO: Figure out how to configure logger via LoggerService; remove this
     m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_log);
 
 }
@@ -174,7 +174,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // However, we might still want to be able to write results from JFactories that produce
     // PODIO types.
     if (store == nullptr) {
-        store = new eic::EventStore;
+        store = new eic::EventStore(m_log);
     }
 
     // Loop over all collections/factories to write

@@ -6,9 +6,8 @@
 
 namespace eic {
 
-EventStore::EventStore() {
-    m_log = spdlog::default_logger();
-    m_log->set_level(spdlog::level::trace);
+EventStore::EventStore(std::shared_ptr<spdlog::logger>& logger) {
+    m_log = logger;
 }
 
 EventStore::~EventStore() {

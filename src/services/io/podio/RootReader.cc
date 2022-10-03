@@ -16,15 +16,13 @@
 #include "TTree.h"
 #include "TTreeCache.h"
 #include <memory>
-#include <podio/CollectionBase.h>
-#include <podio/CollectionIDTable.h>
+
 #include <services/io/podio/EventStore.h>
+
 
 namespace eic {
 
 ROOTReader::ROOTReader() {
-    m_log = spdlog::default_logger();
-    m_log->set_level(spdlog::level::trace);
 }
 
 // todo: see https://github.com/AIDASoft/podio/issues/290
