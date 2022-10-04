@@ -20,6 +20,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "algorithms_calorimetry",
         "algorithms_tracking",
         "algorithms_digi",
+        "digi",
         "BEMC",
         "HCAL",
         "ZDC",
