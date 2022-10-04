@@ -6,7 +6,8 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
-#include "extensions/jana/JChainFactoryT.h"
+#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 #include <JANA/JEvent.h>
 
 #include <edm4hep/SimTrackerHit.h>
@@ -27,11 +28,13 @@ namespace eicrecon {
 
     class SiliconTrackerDigi;
 
-    class SiliconTrackerDigi_factory : public  JChainFactoryT<edm4eic::RawTrackerHit> {
+    class SiliconTrackerDigi_factory :
+            public JChainFactoryT<edm4eic::RawTrackerHit, SiliconTrackerDigiConfig>,
+            public SpdlogMixin<SiliconTrackerDigi_factory> {
 
     public:
 
-        explicit SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags);
+        explicit SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags, SiliconTrackerDigiConfig cfg);
 
         /** One time initialization **/
         void Init() override;
@@ -44,8 +47,6 @@ namespace eicrecon {
 
     private:
 
-        std::shared_ptr<spdlog::logger> m_log;          /// Logger
-        std::vector<std::string> m_input_tags;          /// Input base tags
         eicrecon::SiliconTrackerDigi m_digi_algo;       /// Actual digitisation algorithm
     };
 

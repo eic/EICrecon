@@ -29,6 +29,8 @@ namespace eicrecon {
         /// Get a configuration to be changed
         eicrecon::SiliconTrackerDigiConfig& getConfig() {return m_cfg;}
 
+        /// Sets a configuration (config is properly copyible)
+        eicrecon::SiliconTrackerDigiConfig& applyConfig(eicrecon::SiliconTrackerDigiConfig cfg) { m_cfg = cfg; return m_cfg;}
 
     private:
         /** configuration parameters **/

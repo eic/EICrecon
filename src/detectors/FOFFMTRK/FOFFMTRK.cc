@@ -24,14 +24,14 @@ void InitPlugin(JApplication *app) {
     SiliconTrackerDigiConfig digi_default_cfg;
     digi_default_cfg.threshold = 0;
     digi_default_cfg.timeResolution = 8;
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDBarrelHits"}, "MPGDTrackerRawHit", digi_default_cfg));
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"ForwardOffMTrackerAllHits"}, "ForwardOffMTrackerRawHits", digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
     hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
-            {"MPGDTrackerRawHit"},     // Input data collection tags
-            "MPGDTrackerHit",          // Output data tag
+            {"ForwardOffMTrackerRawHits"},     // Input data collection tags
+            "ForwardOffMTrackerRecHits",          // Output data tag
              hit_reco_cfg));           // Hit reco default config for factories
 
 }

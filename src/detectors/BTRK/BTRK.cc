@@ -20,8 +20,12 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"SiBarrelHits"}, "BarrelTrackerRawHit"));
 
+
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit"));
+
+    TrackerHitReconstructionConfig hit_reco_cfg;
+    // change default parameters like hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "BarrelTrackerHit", hit_reco_cfg));
 
 }
 } // extern "C"

@@ -8,17 +8,18 @@
 #include <spdlog/logger.h>
 #include <edm4eic/TrackerHit.h>
 #include <extensions/jana/JChainFactoryT.h>
+#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
 
 
 namespace eicrecon {
 
     /// This factory just collects reconstructed hits edm4eic::TrackerHit from different sources
     /// And makes a single array out of them
-    class TrackerHitCollector_factory : public JChainFactoryT<edm4eic::TrackerHit> {
+    class TrackerHitCollector_factory : public JChainFactoryT<edm4eic::TrackerHit, TrackerHitReconstructionConfig> {
 
     public:
-        TrackerHitCollector_factory( std::vector<std::string> default_input_tags ):
-        JChainFactoryT<edm4eic::TrackerHit>(std::move(default_input_tags) ) {
+        TrackerHitCollector_factory( std::vector<std::string> default_input_tags, TrackerHitReconstructionConfig cfg ):
+                JChainFactoryT<edm4eic::TrackerHit, TrackerHitReconstructionConfig>(std::move(default_input_tags), cfg ) {
         }
 
         /** One time initialization **/
