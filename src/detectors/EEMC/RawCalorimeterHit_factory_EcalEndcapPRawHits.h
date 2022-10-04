@@ -19,14 +19,14 @@
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalEndcapNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalEndcapPRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalEndcapNRawHits() {
-        SetTag("EcalEndcapNRawHits");
+    RawCalorimeterHit_factory_EcalEndcapPRawHits() {
+        SetTag("EcalEndcapPRawHits");
     }
 
     //------------------------------------------
@@ -35,7 +35,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalEndcapNHits";
+        m_input_tag = "EcalEndcapPHits";
         m_tRes = 0.0 * ns;
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
@@ -50,18 +50,18 @@ public:
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:readoutClass",     m_readout);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
