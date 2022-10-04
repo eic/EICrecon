@@ -18,6 +18,12 @@ jobs:
     - run: |
         apk add doxygen graphviz
         doxygen Doxyfile
+        pwd
+        echo "-------------------------------------------"
+        ls
+        echo "-------------------------------------------"
+        env
+        echo "-------------------------------------------"
     - uses: actions/upload-artifact@v3
       with:
         name: docs
