@@ -78,7 +78,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 //            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
             "HcalBarrelTruthClusters",
             "EcalBarrelTruthClusters",
-            "ZDCEcalTruthClusters"
+            "ZDCEcalTruthClusters",
+            "SmearedFarForwardParticles"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
