@@ -124,18 +124,27 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
     double layerEnvelopeZ = Acts::UnitConstants::mm;
     double defaultLayerThickness = Acts::UnitConstants::fm;
     using Acts::sortDetElementsByID;
-    m_trackingGeo = Acts::convertDD4hepDetector(
-            m_dd4hepDetector->world(),
-            acts_init_log_level,
-            bTypePhi,
-            bTypeR,
-            bTypeZ,
-            layerEnvelopeR,
-            layerEnvelopeZ,
-            defaultLayerThickness,
-            sortDetElementsByID,
-            m_trackingGeoCtx,
-            m_materialDeco);
+
+    try {
+        m_trackingGeo = Acts::convertDD4hepDetector(
+                m_dd4hepDetector->world(),
+                acts_init_log_level,
+                bTypePhi,
+                bTypeR,
+                bTypeZ,
+                layerEnvelopeR,
+                layerEnvelopeZ,
+                defaultLayerThickness,
+                sortDetElementsByID,
+                m_trackingGeoCtx,
+                m_materialDeco);
+    }
+    catch(std::exception &ex) {
+        m_init_log->error("Error during DD4Hep -> ACTS geometry conversion. See error reason below...");
+        m_init_log->info ("Set parameter acts::InitLogLevel=trace to see conversion info and possibly identify failing geometry");
+        throw JException(ex.what());
+    }
+
     m_init_log->info("DD4Hep geometry converted!");
 
     // Visit surfaces
