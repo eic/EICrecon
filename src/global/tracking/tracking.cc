@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
                       "EndcapTrackerHit",
                       "MPGDTrackerHit",
                       "TOFEndcapTrackerHit",
-                      "TOFBarrelTrackerHits"},
+                      "TOFBarrelTrackerHit"},
                      "trackerHits"));
 
     // Source linker
