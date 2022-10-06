@@ -17,9 +17,7 @@
 #include "DDRec/Surface.h"
 #include "DDRec/SurfaceManager.h"
 
-//#include "JugBase/DataHandle.h"
-//#include "JugBase/IGeoSvc.h"
-//#include "JugReco/ClusterTypes.h"
+#include <spdlog/spdlog.h>
 
 // Event Model related classes
 #include "edm4eic/CalorimeterHit.h"
