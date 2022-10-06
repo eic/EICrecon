@@ -1,6 +1,15 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence
+
+// A general digitization for CalorimeterHit from simulation
+// 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
+// 2. Digitize the energy with dynamic ADC range and add pedestal (mean +- sigma)
+// 3. Time conversion with smearing resolution (absolute value)
+// 4. Signal is summed if the SumFields are provided
 //
+// Author: Chao Peng
+// Date: 06/02/2021
+
 
 #ifndef _CalorimeterHitDigi_h_
 #define _CalorimeterHitDigi_h_
@@ -34,6 +43,9 @@ public:
     // additional smearing resolutions
     std::vector<double>      u_eRes;
     double                   m_tRes;
+
+    // single hit energy deposition threshold
+    double                   m_threshold=1.0*dd4hep::keV; // {this, "threshold", 1. * keV};
 
     // digitization settings
     unsigned int             m_capADC;
