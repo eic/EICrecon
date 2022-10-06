@@ -85,9 +85,6 @@ public:
         // Call Process for generic algorithm
         AlgorithmProcess();
 
-
-        //outputs
-
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
         event->Insert(m_outputAssociations, "EcalBarrelScFiClusterAssociations");
