@@ -19,19 +19,11 @@ namespace eicrecon {
         // This prefix will be used for parameters
         std::string param_prefix = "Tracking:" + GetTag();
 
-        // Get input data tags
-        app->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
-        if(m_input_tags.empty()) {
-            m_input_tags = GetDefaultInputTags();
-        }
+        // Set input data tags properly
+        InitDataTags(param_prefix);
 
-        // Logger. Get plugin level sub-log
-        m_log = app->GetService<Log_service>()->logger(param_prefix);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        // SpdlogMixin logger initialization, sets m_log
+        InitLogger(param_prefix, "info");
     }
 
     void TrackParameters_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {

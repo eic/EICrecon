@@ -19,8 +19,6 @@
 #include "TrackerHitCollector_factory.h"
 
 
-
-
 //
 extern "C" {
 void InitPlugin(JApplication *app) {

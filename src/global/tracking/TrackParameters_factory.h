@@ -7,11 +7,14 @@
 
 #include <edm4eic/TrackParameters.h>
 #include <extensions/jana/JChainFactoryT.h>
-#include <spdlog/logger.h>
+#include <extensions/spdlog/SpdlogMixin.h>
+
+
 
 namespace eicrecon {
 
-    class TrackParameters_factory : public JChainFactoryT<edm4eic::TrackParameters> {
+    class TrackParameters_factory : public JChainFactoryT<edm4eic::TrackParameters>,
+                                    public SpdlogMixin<TrackParameters_factory> {
 
     public:
         TrackParameters_factory(std::vector<std::string> default_input_tags):
@@ -29,7 +32,6 @@ namespace eicrecon {
 
     private:
 
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
         std::vector<std::string> m_input_tags;              /// Tag for the input data
     };
 

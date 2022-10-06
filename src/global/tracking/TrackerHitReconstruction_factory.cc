@@ -14,7 +14,7 @@ void TrackerHitReconstruction_factory::Init() {
     auto app = GetApplication();
 
     // This prefix will be used for parameters
-    std::string param_prefix = "TrackerHitReconstruction:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Ask service locator for parameter manager. We want to get this plugin parameters.
     auto pm = app->GetJParameterManager();

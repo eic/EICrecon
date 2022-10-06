@@ -66,7 +66,7 @@ Jug::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCPa
     // note that we cannot trust the mcparticles charge, as DD4hep
     // sets this value to zero! let's lookup by PDGID instead
     //const double charge = m_pidSvc->particle(part->getPDG()).charge;
-    double charge =m_pdg_db->GetParticle(part->getPDG())->Charge();
+    double charge = std::copysign(1.0,m_pdg_db->GetParticle(part->getPDG())->Charge());
     if (abs(charge) < std::numeric_limits<double>::epsilon()) {
         m_log->trace("ignoring neutral particle");
         return nullptr;
