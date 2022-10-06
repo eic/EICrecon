@@ -13,13 +13,15 @@ namespace eicrecon {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "GlbReco:" + GetTag();
+        std::string param_prefix = "tracking:" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(param_prefix, "info");
+        auto level = m_log->level();
+        m_log->info("Log level {} set to {}", param_prefix, level);
     }
 
     void TrackerReconstructedParticle_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {

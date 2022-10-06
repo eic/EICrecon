@@ -24,21 +24,28 @@
 /// Call Initialize if needed.
 //----------------------------------------------------------------
 std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
-    std::call_once( init_flag, [this](){
-        // Assemble everything on the first call
 
-        if(!m_dd4hepGeo) {
-            throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
-        }
+    try{
+        std::call_once( init_flag, [this](){
+            // Assemble everything on the first call
 
-        // Get material map from user parameter
-        std::string material_map_file = "";
-        m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSon material map file path");
+            if(!m_dd4hepGeo) {
+                throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
+            }
 
-        // Initialize m_acts_provider
-        m_acts_provider = std::make_shared<ActsGeometryProvider>();
-        m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
-    });
+            // Get material map from user parameter
+            std::string material_map_file = "";
+            m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSon material map file path");
+
+            // Initialize m_acts_provider
+            m_acts_provider = std::make_shared<ActsGeometryProvider>();
+            m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
+        });
+    }
+    catch (std::exception &ex) {
+        throw JException(ex.what());
+    }
+
     return m_acts_provider;
 }
 
@@ -55,12 +62,14 @@ void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
     string log_level_str = "info";
     m_app->SetDefaultParameter("acts:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+    m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str, m_log->level());
 
     // ACTS init log level (geometry conversion):
     m_init_log = log_service->logger("acts_init");
-    string init_log_level_str = eicrecon::LogLevelToString(spdlog::default_logger()->level());  // set general acts log level, if not given by user
+    string init_log_level_str = eicrecon::LogLevelToString(m_log->level());  // set general acts log level, if not given by user
     m_app->SetDefaultParameter("acts:InitLogLevel", init_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
+    m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, m_init_log->level());
 
     // DD4Hep geometry
     auto dd4hep_service = srv_locator->get<JDD4hep_service>();
