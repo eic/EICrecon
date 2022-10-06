@@ -23,6 +23,7 @@
 #include "CalorimeterHit_factory_EcalBarrelImagingRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelImagingProtoClusters.h"
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
+#include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
 #include "ProtoCluster_factory_EcalBarrelTruthProtoClusters.h"
 #include "Cluster_factory_EcalBarrelTruthClusters.h"
@@ -47,6 +48,7 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>());
 
         // Inserted types (so they can be written to output podio file)
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
