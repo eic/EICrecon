@@ -22,11 +22,13 @@ find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
+set(Eigen3_INCLUDE_DIR ${Eigen3_DIR}/../../../include/eigen3)
 
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR})
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${Eigen3_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
