@@ -21,10 +21,9 @@ namespace eicrecon {
 
 
     void MatchClusters_factory::Init() {
-        auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "GlbReco:" + GetTag();
+        std::string param_prefix = "reco:" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);

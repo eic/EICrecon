@@ -52,7 +52,7 @@ namespace eicrecon {
             m_log = app->GetService<Log_service>()->logger(param_prefix);
 
             // Get log level from user parameter or default
-            std::string log_level_str = "info";
+            std::string log_level_str = default_level;
             app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
             m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         }

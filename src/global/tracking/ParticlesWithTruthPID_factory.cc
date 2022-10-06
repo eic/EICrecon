@@ -14,7 +14,7 @@ namespace eicrecon {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "GlbReco:" + GetTag();
+        std::string param_prefix = "Tracking:" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);
