@@ -15,7 +15,7 @@
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "TrkHitReco_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Create plugin level sub-log
     m_log = spdlog::stdout_color_mt("TrackParamTruthInit_factory");

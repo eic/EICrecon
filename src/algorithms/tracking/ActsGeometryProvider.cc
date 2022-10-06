@@ -20,6 +20,7 @@
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 
+
 #include <extensions/spdlog/SpdlogToActs.h>
 
 
@@ -67,6 +68,9 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
     m_log = log;
     m_init_log = init_log;
 
+    m_init_log->debug("ActsGeometryProvider initializing...");
+
+    m_init_log->debug("Set TGeoManager and acts_init_log_level log levels");
     // Turn off TGeo printouts if appropriate for the msg level
     if (m_log->level() >= (int) spdlog::level::info) {
         TGeoManager::SetVerboseLevel(0);
@@ -112,6 +116,7 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
     }
 
     // Convert DD4hep geometry to ACTS
+    m_init_log->info("Converting DD4Hep geometry to ACTS...");
     Acts::BinningType bTypePhi = Acts::equidistant;
     Acts::BinningType bTypeR = Acts::equidistant;
     Acts::BinningType bTypeZ = Acts::equidistant;
@@ -119,21 +124,34 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
     double layerEnvelopeZ = Acts::UnitConstants::mm;
     double defaultLayerThickness = Acts::UnitConstants::fm;
     using Acts::sortDetElementsByID;
-    m_trackingGeo = Acts::convertDD4hepDetector(
-            m_dd4hepDetector->world(),
-            acts_init_log_level,
-            bTypePhi,
-            bTypeR,
-            bTypeZ,
-            layerEnvelopeR,
-            layerEnvelopeZ,
-            defaultLayerThickness,
-            sortDetElementsByID,
-            m_trackingGeoCtx,
-            m_materialDeco);
+
+    try {
+        m_trackingGeo = Acts::convertDD4hepDetector(
+                m_dd4hepDetector->world(),
+                acts_init_log_level,
+                bTypePhi,
+                bTypeR,
+                bTypeZ,
+                layerEnvelopeR,
+                layerEnvelopeZ,
+                defaultLayerThickness,
+                sortDetElementsByID,
+                m_trackingGeoCtx,
+                m_materialDeco);
+    }
+    catch(std::exception &ex) {
+        m_init_log->error("Error during DD4Hep -> ACTS geometry conversion. See error reason below...");
+        m_init_log->info ("Set parameter acts::InitLogLevel=trace to see conversion info and possibly identify failing geometry");
+        throw JException(ex.what());
+    }
+
+    m_init_log->info("DD4Hep geometry converted!");
+
     // Visit surfaces
+    m_init_log->info("Checking surfaces...");
     if (m_trackingGeo) {
         draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
+
         m_init_log->debug("visiting all the surfaces  ");
         m_trackingGeo->visitSurfaces([this](const Acts::Surface *surface) {
             // for now we just require a valid surface
@@ -164,15 +182,21 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
             this->m_surfaces.insert_or_assign(vol_id, surface);
         });
     }
+    else {
+        m_init_log->error("m_trackingGeo==null why am I still alive???");
+    }
 
     // Load ACTS magnetic field
+    m_init_log->info("Loading magnetic field...");
     m_magneticField = std::make_shared<const Jug::BField::DD4hepBField>(m_dd4hepDetector);
     Acts::MagneticFieldContext m_fieldctx{Jug::BField::BFieldVariant(m_magneticField)};
     auto bCache = m_magneticField->makeCache(m_fieldctx);
-    for (int z: {0, 1000, 2000, 4000}) {
+    for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
         auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
-        m_init_log->debug("B(z = {} [mm]) = {} T", z, b.transpose());
+        m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose());
     }
+
+    m_init_log->info("ActsGeometryProvider initialization complete");
 }
 
 

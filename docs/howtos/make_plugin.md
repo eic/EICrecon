@@ -357,7 +357,7 @@ for creating a plugin from scratch without `eicmkplugin.py`.
 There is a copy/paste CMake file that should automatically create plugin out of sources.
 
 - plugin name is taken from a directory name
-- there should be <plugin name>.cc file with `void InitPlugin(JApplication *m_app)` function
+- there should be /</plugin name/>/.cc file with `void InitPlugin(JApplication *m_app)` function
 
 
 ### Create a plugin:
@@ -448,7 +448,7 @@ plugin_glob_all(my_plugin)
 
 Same as target_sources both for library (if enabled) and a plugin.
 If library creation is enabled, the function automatically removes
-`<plugin-name>.cc` file from library sources
+`/</plugin-name/>/.cc` file from library sources
 
 ```cmake
 plugin_sources(my_plugin File1.cc File2.cc)

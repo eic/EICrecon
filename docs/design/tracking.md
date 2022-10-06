@@ -36,6 +36,7 @@ acts:MaterialMap=/path/to/file/material.cbp
 
 
 ### Reconstructed particles chart
+
 ```mermaid
 flowchart LR
   classDef alg fill:#f96;

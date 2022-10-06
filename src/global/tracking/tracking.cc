@@ -19,8 +19,6 @@
 #include "TrackerHitCollector_factory.h"
 
 
-
-
 //
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -36,7 +34,7 @@ void InitPlugin(JApplication *app) {
                      {"BarrelTrackerHit",
                       "BarrelVertexHit",
                       "EndcapTrackerHit",
-                      "MPGDTrackerHit"   },
+                      "MPGDTrackerHit"},
                      "trackerHits"));
 
     // Source linker
