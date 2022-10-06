@@ -200,9 +200,9 @@ To see an example of how a generic algorithm is being implemented, look at these
 files:
 
 
-[src/detectors/EEMC/RawCalorimeterHit_factory_EcalEndcapNRawHits.h]()<br>
-[src/algorithms/calorimetry/CalorimeterHitDigi.h]()<br>
-[src/algorithms/calorimetry/CalorimeterHitDigi.cc]()<br>
+[src/detectors/EEMC/RawCalorimeterHit_factory_EcalEndcapNRawHits.h]()<br/>
+[src/algorithms/calorimetry/CalorimeterHitDigi.h]()<br/>
+[src/algorithms/calorimetry/CalorimeterHitDigi.cc]()<br/>
 
 
 Using generic algorithms requires additional classes and so makes things
