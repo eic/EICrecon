@@ -26,7 +26,7 @@ void TrackingResult_factory::ChangeRun(const std::shared_ptr<const JEvent> &even
 
 void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
-    std::string input_tag = m_input_tags[0];
+    std::string input_tag = GetInputTags()[0];
 
     // Collect all hits
     auto trajectories = event->Get<Jug::Trajectories>(input_tag);
