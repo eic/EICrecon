@@ -17,7 +17,9 @@
 #include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackerHitCollector_factory.h"
-
+#include "TrackParameters_factory.h"
+#include "ParticlesWithTruthPID_factory.h"
+#include "ReconstructedChargedParticles_factory.h"
 
 //
 extern "C" {
@@ -52,6 +54,15 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
             {"CentralTrackingParticles"}, "TrackParameters"));
+
+    app->Add(new JChainFactoryGeneratorT<ParticlesWithTruthPID_factory>(
+        {"MCParticles",         // Tag for edm4hep::MCParticle
+         "TrackParameters"},    // Tag for edm4eic::TrackParameters
+        "ChargedParticlesWithAssociations"));    // eicrecon::ParticlesWithAssociation
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedChargedParticles_factory>(
+            {"ChargedParticlesWithAssociations"},
+            "ReconstructedChargedParticles"));    // eicrecon::ParticlesWithAssociation
 }
 } // extern "C"
 
