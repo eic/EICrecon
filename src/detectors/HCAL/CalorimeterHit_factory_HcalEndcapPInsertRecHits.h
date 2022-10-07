@@ -25,10 +25,10 @@ public:
         m_input_tag = "HcalEndcapPInsertRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_capADC=32768;//{this, "capacityADC", 8096};
+        m_dyRangeADC=200. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
         m_pedMeanADC=400;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
+        m_pedSigmaADC=10.;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
@@ -36,7 +36,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
@@ -48,14 +48,14 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
-        app->SetDefaultParameter("HCAL:capacityADC",      m_capADC);
-        app->SetDefaultParameter("HCAL:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("HCAL:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("HCAL:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("HCAL:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("HCAL:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("HCAL:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("HCAL:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();
