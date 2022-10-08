@@ -7,6 +7,7 @@
     * [Add Factory](howtos/add_factory.md)
     * [Make Plugin.md](howtos/make_plugin.md)
 * Design
+    * [Flags&Env](design/common_flags_env.md)
     * [Cmake](design/cmake.md)
     * [Logging](design/logging.md)
     * [Tracking](design/tracking.md)
