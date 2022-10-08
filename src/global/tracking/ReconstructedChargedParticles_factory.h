@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_ParticlesWithTruthPID_factory_H
-#define EICRECON_ParticlesWithTruthPID_factory_H
+#ifndef EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
+#define EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
 
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainFactoryT.h"
@@ -14,13 +14,13 @@
 
 namespace eicrecon {
 
-    class ParticlesWithTruthPID_factory :
-            public JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>,
-            public SpdlogMixin<ParticlesWithTruthPID_factory> {
+    class ReconstructedChargedParticles_factory:
+            public JChainFactoryT<edm4eic::ReconstructedParticle>,
+            public SpdlogMixin<ReconstructedChargedParticles_factory> {
 
     public:
-        explicit ParticlesWithTruthPID_factory( std::vector<std::string> default_input_tags, ParticlesWithTruthPIDConfig cfg):
-            JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>(std::move(default_input_tags), cfg) {
+        explicit ReconstructedChargedParticles_factory( std::vector<std::string> default_input_tags):
+            JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
         }
 
         /** One time initialization **/
@@ -32,11 +32,8 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
-    private:
-        eicrecon::ParticlesWithTruthPID m_matching_algo;
-
     };
 
 } // eicrecon
 
-#endif //EICRECON_ParticlesWithTruthPID_factory_H
+#endif //EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
