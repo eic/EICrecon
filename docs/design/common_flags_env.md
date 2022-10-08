@@ -1,5 +1,9 @@
-# EICrecon common flags
+# EICrecon common flags and environment
 
+This page does not provide all available run flags/parameters for EICrecon.
+There are many more parameters that can be used in algorithms. 
+Moreover dynamically attached plugins add their own parameters. 
+Here is a list of common flags/parameters and environment variables to conrtrol the core flow of EICrecon execution.  
 
 
 ## Geometry: 
@@ -24,7 +28,7 @@ ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml
 **dd4hep:xml_files** - Comma separated list of XML files describing the DD4hep geometry.
 **dd4hep:print_level** - Set DD4hep print level (see DD4hep/Printout.h)
 
-If xml_files are given and DETECTOR_PATH is set, then EICrecon first tries to open xml_file[i] if it fails, it tries
+If xml_files are given and DETECTOR_PATH is set, then EICrecon first tries to open xml_file\[i\] if it fails, it tries
 `${DETECTOR_PATH}/file`
 
 ```bash
