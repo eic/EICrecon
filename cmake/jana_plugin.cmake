@@ -186,6 +186,17 @@ macro(plugin_add_acts _name)
     plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
 endmacro()
 
+
+# Adds IRT PID reconstruction package for a plugin
+macro(plugin_add_irt _name)
+    if(NOT IRT_FOUND)
+        find_package(IRT REQUIRED)
+        set(IRT_INCLUDE_DIR ${IRT_DIR}/../../include)
+    endif()
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
+    plugin_link_libraries(${PLUGIN_NAME} IRT)
+endmacro()
+
 # Adds podio, edm4hep, edm4eic for a plugin
 macro(plugin_add_event_model _name)
 
