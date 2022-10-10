@@ -11,26 +11,29 @@ jobs:
     container:
       image: alpine:latest
       volumes:
-      - /home/runner/work/_temp:/home/runner/work/_temp
+        - /home/runner/work/_temp:/home/runner/work/_temp
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
-    - uses: actions/checkout@v2
-    - run: |
-        apk add doxygen graphviz
-        doxygen Doxyfile
-    - uses: actions/upload-artifact@v3
-      with:
-        name: docs
-        path: html/
-        if-no-files-found: error
-    - run: |
-        apk add tar bash
+      - uses: actions/checkout@v2
+      - run: |
+          apk add doxygen graphviz
+          doxygen Doxyfile        
+          cp -r docs publishing_docs
+          mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: error
+      - run:
+
+          apk add tar bash
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
-    - uses: actions/upload-pages-artifact@v1
-      if: github.ref == 'refs/heads/main'
-      with:
-        path: html/
-        retention-days: 7
+      - uses: actions/upload-pages-artifact@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: publishing_docs/
+          retention-days: 7
 
   deploy-docs:
     needs: build-docs
@@ -43,6 +46,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v1
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

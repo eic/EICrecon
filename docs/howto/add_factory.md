@@ -22,7 +22,7 @@ src/detectors/EEMC/Cluster_factory_EcalEndcapNIslandClusters.h
 ~~~
 Edit the file to have these contents:
 
-```c++
+```cpp
 #pragma once
 
 #include <cmath>
@@ -127,7 +127,7 @@ __src/detectors/EEMC/EEMC.cc_. It should look something like the following where
 the last `include` line and the last _app->Add(...)_ line have been added to
 declare the new factory.
 
-```c++
+```cpp
 // Copyright 2022, David Lawrence
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
@@ -159,12 +159,12 @@ extern "C" {
 }
 ```
 
-### Testing the new factory
+## Testing the new factory
 
 Please follow the instructions on [creating a user plugin](HowTo_make_plugin.md)
 to get a working plugin. Then add these lines in the inidacted places:
 
-```c++
+```cpp
 // Place this at the top of the processor header file (e.g. DaveTestProcessor.h)
 #include <edm4eic/Cluster.h>
 
