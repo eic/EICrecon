@@ -3,7 +3,7 @@ These are instructions for building `EICrecon` and all of its dependencies manua
 These are a last resort. Please see [instructions for `eic-shell`](Use_with_eic_shell.md).
 You can also look at using [EDPM](EDPM.md) to build these for you.
 
-## Let's go!
+### Let's go!
 
 Start by setting the EICTOPDIR environment variable. This makes it easier
 to reference directories in the instructions below. Set this to a
