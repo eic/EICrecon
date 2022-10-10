@@ -10,7 +10,7 @@ the `EICrecon` source tree, but that compiles against it. Thus, if you have
 access to a read-only `EICrecon` build, you can still use it to make a plugin
 that can install to a directory you do have write access to.
 
-## _EICrecon_MY_
+## EICrecon_MY
 The `EICrecon_MY` environment variable is usful for building plugins outside
 of the `EICrecon` source tree. Set this to a directory where you have write
 permission. The build instructions below will install the plugin to that
@@ -411,62 +411,3 @@ plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
 There are `plugin_...` macros that are slim wrappers trying to minimize an amount of boilerplate
 code of each plugin cmake scripts. Macros mimic CMake functions like `target_link_libraries` => `plugin_link_libraries`.
 
-
-#### plugin_add
-
-```cmake
-# Function creates ${PLUGIN_NAME}_plugin target
-# Sets default includes, libraries and installation paths
-plugin_add(my_plugin)
-```
-
-It is possible to also automatically crate a static library from a plugin
-sources in addition to the plugin itself. Adding `WITH_STATIC_LIBRARY` to
-`plugin_add`. All other `plugin_xxx` functions will know about the second target then.
-
-```cmake
-# Now function will create 2 targets and ${PLUGIN_NAME}_plugin ${PLUGIN_NAME}_library
-# one can add WITH_STATIC_LIBRARY flag to also create a static library with plugin sources
-plugin_add(my_plugin WITH_STATIC_LIBRARY)
-```
-
-If `WITH_STATIC_LIBRARY` flag is given, all `plugin_...` macros will work on both targets:
-a plugin and a static library.
-
-#### plugin_glob_all
-
-The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
-Then correctly sets sources for ${plugin_name}_plugin and ${plugin_name}_library
-targets (if library is enabled).
-Adds headers to the correct installation directory
-
-```cmake
-plugin_glob_all(my_plugin)
-```
-
-#### plugin_sources
-
-Same as target_sources both for library (if enabled) and a plugin.
-If library creation is enabled, the function automatically removes
-`/</plugin-name/>/.cc` file from library sources
-
-```cmake
-plugin_sources(my_plugin File1.cc File2.cc)
-```
-
-### plugin_include_directories
-
-Runs target_include_directories for both a plugin and a library (if enabled)
-
-```cmake
-#example 
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC  ${ROOT_INCLUDE_DIRS})
-```
-
-### plugin_link_libraries
-Runs target_link_libraries for both a plugin and a library (if enabled)
-
-```cmake
-# example
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
-```
