@@ -11,12 +11,13 @@ access to a read-only `EICrecon` build, you can still use it to make a plugin
 that can install to a directory you do have write access to.
 
 ## EICrecon_MY
-The `EICrecon_MY` environment variable is usful for building plugins outside
-of the `EICrecon` source tree. Set this to a directory where you have write
+The `EICrecon_MY` environment variable is useful for building plugins outside 
+the `EICrecon` source tree. Set this to a directory where you have write
 permission. The build instructions below will install the plugin to that
 directory. When `eicrecon` is run, it will also look for plugins in the
 `$EICrecon_MY` directory (as well as the central `EICrecon` build you are using.)
-~~~
+
+~~~bash
 mkdir EICrecon_MY
 export EICrecon_MY=${PWD}/EICrecon_MY
 ~~~
@@ -28,6 +29,7 @@ of the boilerplate code for a new plugin. This includes a directory, a
 _CMakeLists.txt_ file, and some skeleton code. The instructions below create
 a plugin called _DaveTest_ and then compile it. It will be installed in
 the directory pointed to by your `EICrecon_MY` environment variable (if set).
+
 ~~~bash
 eicmkplugin.py DaveTest
 cmake -S DaveTest -B DaveTest/build
@@ -36,9 +38,11 @@ cmake --build DaveTest/build --target install
 
 You can test that the plugin installed and can load correctly by running
 `eicrecon` with it.
-~~~
+
+~~~bash
 eicrecon -Pplugins=DaveTest,JTest -Pjana:nevents=10
 ~~~
+
 <details>
     <summary>Click here to see full output of above command</summary>
 
@@ -255,7 +259,7 @@ below. You will need to add include lines for each data type you are interested
 in (see ```#include <edm4hep/Cluster.h>```), a Prefetch line for each collection
 type, and then pointer for every histogram or tree you wish to create.
 
-```c++
+```cpp
 #include <JANA/JEventProcessorSequentialRoot.h>
 #include <TH2D.h>
 #include <TFile.h>
@@ -290,7 +294,7 @@ call all agorithms needed to produce the `Cluster` objects prior to calling
 `ProcessSequential`. This works for objects created by algorithms or ones
 coming straight from the file.
 
-```c++
+```cpp
 #include "DaveTestProcessor.h"
 #include <services/rootfile/RootFile_service.h>
 
