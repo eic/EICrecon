@@ -15,8 +15,8 @@ A preliminary tutorial on JANA2 is being developed here:
 
 ## Table of contents
 1. [Getting started with eic-shell](./docs/get-started/eic-shell.md)
-2. [Creating a user plugin (custom histograms/trees)](./docs/howtos/make_plugin.md)
-3. [Adding a factory (algorithm)](./docs/howtos/add_factory.md)
+2. [Creating a user plugin (custom histograms/trees)](docs/howto/make_plugin.md)
+3. [Adding a factory (algorithm)](docs/howto/add_factory.md)
 4. [Contributing and Conventions](./docs/tutorial/05-contributing.md)
 5. [Logging](./docs/design/logging.md)
 6. [Manual Build instructions](./docs/get-started/manual-build.md)
