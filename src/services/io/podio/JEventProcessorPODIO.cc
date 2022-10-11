@@ -22,12 +22,19 @@ struct InsertFacIntoStore {
         std::string collection_name = fac->GetTag();
 
         PodioCollectionT* collection = new PodioCollectionT;
+        store->put(collection_name, collection);
+        // Add collection to store BEFORE adding podio types to collections.
+        // Adding the podio types to the collections might throw an exception, in which case the event store
+        // would be otherwise be left in a bad state, causing ROOT to segfault.
+
+        fac->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER);
+        // Transfer ownership away from JFactory.
+        // If `collection->push_back()` excepts, we are left with a small memory leak as opposed to a segfault.
+
         auto tobjs = fac->GetAs<PodioT>();
         for (auto t : tobjs) {
             collection->push_back(*t);
-            fac->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER); // Transfer ownership away from JFactory
         }
-        store->put(collection_name, collection);
         return tobjs.size();
     }
 };
@@ -83,7 +90,7 @@ void JEventProcessorPODIO::Init() {
 
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-    m_log->set_level(spdlog::level::info); // TODO: Figure out how to configure logger via LoggerService; remove this
+    m_log->set_level(spdlog::level::trace); // TODO: Figure out how to configure logger via LoggerService; remove this
     m_writer = std::make_shared<eic::MTRootWriter>(m_output_file, m_log);
 
 }
@@ -196,6 +203,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 // that had not already been triggered by an EventProcessor, we simply write out zero objects.
                 m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
                 fac->Create(event, mApplication, event->GetRunNumber());
+                m_log->trace("Finished calling factory '{}:{}'.", fac->GetObjectName(), fac->GetTag());
             }
             // Check to see whether the data has already been inserted into the event store
             auto collection_name = fac->GetTag();
@@ -214,6 +222,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
                 continue;
             }
+            m_log->trace("Manually inserting factory into store: {}:{} (This should eventually be done by the objects themselves)", fac->GetObjectName(), fac->GetTag());
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::MTEventStore*>(fac->GetObjectName(), fac, store);
 
             if (result == std::nullopt) { 

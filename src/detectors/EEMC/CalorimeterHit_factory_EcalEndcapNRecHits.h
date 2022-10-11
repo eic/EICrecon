@@ -4,9 +4,13 @@
 
 #include <JANA/JFactoryT.h>
 
+#include <edm4eic/CalorimeterHitCollection.h>
+
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
+
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/jana/JPodioUtils.h>
 
 class CalorimeterHit_factory_EcalEndcapNRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
@@ -85,7 +89,10 @@ public:
         AlgorithmProcess();
 
         // Hand owner of algorithm objects over to JANA
-        Set(hits);
+        for (auto* hit : hits) {
+            LOG << "EcalEndcapNRecHits: Adding hit with object id (" << hit->getObjectID().collectionID << ", " << hit->getObjectID().index << ") and ptr " << hit << LOG_END;
+        }
+        StorePodioData<edm4eic::CalorimeterHit, edm4eic::CalorimeterHitCollection>(hits, this, event);
         hits.clear(); // not really needed, but better to not leave dangling pointers around
     }
 

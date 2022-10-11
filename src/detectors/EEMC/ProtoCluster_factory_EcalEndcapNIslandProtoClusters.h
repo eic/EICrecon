@@ -8,10 +8,14 @@
 #include <random>
 
 #include <JANA/JFactoryT.h>
+
+#include <edm4eic/ProtoClusterCollection.h>
+
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/jana/JPodioUtils.h>
 
 class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
@@ -83,7 +87,7 @@ public:
         AlgorithmProcess();
 
         // Hand owner of algorithm objects over to JANA
-        Set(protoClusters);
+        StorePodioData<edm4eic::ProtoCluster, edm4eic::ProtoClusterCollection>(protoClusters, this, event);
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
