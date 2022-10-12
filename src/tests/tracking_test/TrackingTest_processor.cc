@@ -156,6 +156,9 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     }
 //auto hits = event->Get<edm4eic::TrackerHit>("trackerHits");
 
+    auto final_reco_particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+
+    auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 
 }
 
