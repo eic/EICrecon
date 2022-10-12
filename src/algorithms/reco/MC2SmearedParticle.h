@@ -11,16 +11,16 @@
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <algorithms/interfaces/IObjectProducer.h>
 
+#include <algorithms/reco/MC2SmearedParticleConfig.h>
+
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-
-#include <MC2SmearedParticleConfig.h>
 
 
 namespace eicrecon {
 
     /**
-     * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
+     * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle with momentum smearing
      */
     class MC2SmearedParticle:
             public IObjectProducer<edm4hep::MCParticle, edm4eic::ReconstructedParticle>,
@@ -31,7 +31,7 @@ namespace eicrecon {
         void init(std::shared_ptr<spdlog::logger> logger);
 
         /** process function convert one data type to another **/
-        virtual edm4eic::ReconstructedParticle * process(const edm4hep::MCParticle * mc_particle);
+        edm4eic::ReconstructedParticle * produce(const edm4hep::MCParticle * mc_particle) override;
 
     private:
         /** algorithm logger */

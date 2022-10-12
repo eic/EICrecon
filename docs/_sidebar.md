@@ -11,6 +11,7 @@
     * [Cmake](design/cmake.md)
     * [Logging](design/logging.md)
     * [Tracking](design/tracking.md)
+    * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
 * Tutorials 
     * [Introduction](tutorial/01-introduction.md)

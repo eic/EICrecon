@@ -55,5 +55,3 @@ void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const J
     m_log->trace("SiliconTrackerDigi_factoryT<>::Process(...) end\n");
 }
 
-eicrecon::SiliconTrackerDigi_factory::SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags, SiliconTrackerDigiConfig cfg)
-        : JChainFactoryT(default_input_tags, cfg) {}
