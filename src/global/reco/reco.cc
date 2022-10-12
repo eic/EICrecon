@@ -23,6 +23,10 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
             {"MCParticles"}, "GeneratedParticles", smearing_default_config));
+
+    app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
+            {"EcalBarrelClusters"}, "ReconstructedParticles"));
+
 }
 } // extern "C"
 
