@@ -57,20 +57,20 @@ namespace eicrecon {
         for(auto &input_tag: GetInputTags()) {
             auto clusters = event->Get<edm4eic::Cluster>(input_tag);
             input_cluster_vectors.push_back(clusters);
-            m_log->debug("Clusters '{}' len: {}", input_tag,  clusters.size());
-            for(auto cluster: clusters) {
-                m_log->debug("  {} {}", cluster->getObjectID().collectionID, cluster->getEnergy());
-            }
+//            m_log->debug("Clusters '{}' len: {}", input_tag,  clusters.size());
+//            for(auto cluster: clusters) {
+//                m_log->debug("  {} {}", cluster->getObjectID().collectionID, cluster->getEnergy());
+//            }
         }
 
         for(auto &input_tag: m_input_assoc_tags) {
             auto assocs = event->Get<edm4eic::MCRecoClusterParticleAssociation>(input_tag);
             input_cluster_assoc.push_back(assocs);
 
-            m_log->debug("Associations '{}' len: {}", input_tag, assocs.size());
-            for(auto assoc: assocs) {
-                m_log->debug("  {} {} {} {}", assoc->getRecID(), assoc->getSimID(), assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
-            }
+//            m_log->debug("Associations '{}' len: {}", input_tag, assocs.size());
+//            for(auto assoc: assocs) {
+//                m_log->debug("  {} {} {} {}", assoc->getRecID(), assoc->getSimID(), assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
+//            }
         }
 
         auto result = m_match_algo.execute(mc_particles,
@@ -84,6 +84,6 @@ namespace eicrecon {
 //            auto particle = (*tracking_data->particles())[i];
 //            result.push_back(new edm4eic::ReconstructedParticle(particle));
 //        }
-        Insert(result);
+        Insert(new ParticlesWithAssociation(charged_prt_with_assoc->particles(), charged_prt_with_assoc->associations()));
     }
 } // eicrecon
