@@ -50,10 +50,10 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
 
     app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
-            {"CentralTrackingParticles"}, "ReconstructedParticles"));
+            {"CentralTrackingParticles"}, "outputParticles"));
 
     app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
-            {"CentralTrackingParticles"}, "TrackParameters"));
+            {"CentralTrackingParticles"}, "outputTrackParameters"));
 
     app->Add(new JChainFactoryGeneratorT<ParticlesWithTruthPID_factory>(
         {"MCParticles",         // Tag for edm4hep::MCParticle
