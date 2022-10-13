@@ -34,7 +34,6 @@ namespace eicrecon {
         /// Resulting associations
         std::vector<edm4eic::MCRecoParticleAssociation *> associations;
 
-
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         std::vector<bool> consumed(mc_particles.size(), false);
         for (const auto &trk: track_params) {
@@ -60,9 +59,9 @@ namespace eicrecon {
                 const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(mom) - p_phi)));
                 const double deta = std::abs((edm4eic::eta(mom) - p_eta));
 
-                if (dp_rel < m_cfg.pRelativeTolerance && deta < m_cfg.etaTolerance && dsphi < sinPhiOver2Tolerance) {
+                if (dp_rel < m_cfg.momentumRelativeTolerance && deta < m_cfg.etaTolerance && dsphi < sinPhiOver2Tolerance) {
                     const double delta =
-                            std::hypot(dp_rel / m_cfg.pRelativeTolerance, deta / m_cfg.etaTolerance,
+                            std::hypot(dp_rel / m_cfg.momentumRelativeTolerance, deta / m_cfg.etaTolerance,
                                        dsphi / sinPhiOver2Tolerance);
                     if (delta < best_delta) {
                         best_match = ip;
@@ -101,7 +100,7 @@ namespace eicrecon {
                 rec_assoc.setSimID(mc_particles[best_match]->getObjectID().index);
                 rec_assoc.setWeight(1);
                 rec_assoc.setRec(rec_part);
-                //rec_assoc.setSim(mc[best_match]);
+                rec_assoc.setSim(mc[best_match]);
                 associations.emplace_back(new edm4eic::MCRecoParticleAssociation(rec_assoc));
             }
             if (m_log->level() <= spdlog::level::debug) {

@@ -8,11 +8,11 @@
 namespace eicrecon {
 
     struct ParticlesWithTruthPIDConfig {
-        double pRelativeTolerance = 0.1;    /// Matching momentum tolerance requires 10% by default;
+        double momentumRelativeTolerance = 0.1;    /// Matching momentum tolerance requires 10% by default;
 
-        double phiTolerance = 0.030;        /// Matching phi tolerance of 10 mrad
+        double phiTolerance = 0.030;        /// Matching phi tolerance [mrad]
 
-        double etaTolerance = 0.2;          /// Matching eta tolerance of 0.1
+        double etaTolerance = 0.2;          /// Matching eta tolerance of 0.2
     };
 
 } // eicrecon
