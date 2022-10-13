@@ -6,6 +6,7 @@
 #define EICRECON_TRACKPARAMTRUTHINIT_H
 
 #include <algorithms/interfaces/IObjectProducer.h>
+#include <algorithms/interfaces/WithPodConfig.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
 #include <edm4hep/MCParticle.h>
 #include <spdlog/logger.h>
@@ -14,7 +15,9 @@
 #include <TDatabasePDG.h>
 
 namespace eicrecon {
-    class TrackParamTruthInit: eicrecon::IObjectProducer<edm4hep::MCParticle, Jug::TrackParameters> {
+    class TrackParamTruthInit:
+            public eicrecon::IObjectProducer<edm4hep::MCParticle, Jug::TrackParameters>,
+            public WithPodConfig<TrackParamTruthInitConfig> {
 
     public:
 
@@ -24,7 +27,6 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        TrackParamTruthInitConfig m_cfg;
         std::shared_ptr<TDatabasePDG> m_pdg_db;
     };
 }   // namespace eicrecon

@@ -12,8 +12,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
-
-
+#include <TRandom.h>
 
 
 void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &logger) {
@@ -35,7 +34,6 @@ Jug::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCPa
         m_log->trace("ignoring particle with generatorStatus = {}", part->getGeneratorStatus());
         return nullptr;
     }
-
 
     // require close to interaction vertex
     if (abs(part->getVertex().x) * mm > m_cfg.m_maxVertexX
@@ -81,13 +79,26 @@ Jug::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCPa
     cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = (0.1*0.1) / (GeV*GeV);
     cov(Acts::eBoundTime, Acts::eBoundTime)     = 10.0e9*ns*10.0e9*ns;
 
+    const auto phi_smear = phi + m_cfg.phi_smearing * gRandom->Gaus(0.,phi);
+    const auto theta_smear = theta + m_cfg.theta_smearing * gRandom->Gaus(0.,theta);
+    const auto pmag_true = pmag;
+    const auto pmag_smear = pmag_true + m_cfg.pmag_smearing * gRandom->Gaus(0.,pmag_true);
+
     Acts::BoundVector  params;
     params(Acts::eBoundLoc0)   = 0.0 * mm ;  // cylinder radius
     params(Acts::eBoundLoc1)   = 0.0 * mm ;  // cylinder length
-    params(Acts::eBoundPhi)    = phi;
-    params(Acts::eBoundTheta)  = theta;
-    params(Acts::eBoundQOverP) = charge / (pmag * GeV);
+    params(Acts::eBoundPhi)    = phi_smear;
+    params(Acts::eBoundTheta)  = theta_smear;
+    params(Acts::eBoundQOverP) = charge / (pmag_smear);
     params(Acts::eBoundTime)   = part->getTime() * ns;
+
+//    Acts::BoundVector  params;
+//    params(Acts::eBoundLoc0)   = 0.0 * mm ;  // cylinder radius
+//    params(Acts::eBoundLoc1)   = 0.0 * mm ;  // cylinder length
+//    params(Acts::eBoundPhi)    = phi;
+//    params(Acts::eBoundTheta)  = theta;
+//    params(Acts::eBoundQOverP) = charge / (pmag * GeV);
+//    params(Acts::eBoundTime)   = part->getTime() * ns;
 
     //// Construct a perigee surface as the target surface
     auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
