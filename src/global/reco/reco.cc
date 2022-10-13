@@ -11,6 +11,7 @@
 
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
+#include "ReconstructedParticles_factory.h"
 
 //
 extern "C" {
@@ -26,6 +27,10 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
             {"EcalBarrelClusters"}, "ReconstructedParticlesWithAssoc"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
+                     {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
+
 
 }
 } // extern "C"
