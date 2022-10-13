@@ -2,12 +2,12 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "ReconstructedChargedParticles_factory.h"
+#include "ReconstructedParticles_factory.h"
 
 #include <JANA/JEvent.h>
 
 namespace eicrecon {
-    void ReconstructedChargedParticles_factory::Init() {
+    void ReconstructedParticles_factory::Init() {
         // This prefix will be used for parameters
         std::string param_prefix = "Tracking:" + GetTag();
 
@@ -22,11 +22,11 @@ namespace eicrecon {
         SetFactoryFlag(JFactory::NOT_OBJECT_OWNER);
     }
 
-    void ReconstructedChargedParticles_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void ReconstructedParticles_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
 
     }
 
-    void ReconstructedChargedParticles_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void ReconstructedParticles_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto prt_with_assoc = event->GetSingle<eicrecon::ParticlesWithAssociation>(GetInputTags()[0]);
         std::vector<edm4eic::ReconstructedParticle *> result;
         for(auto part: prt_with_assoc->particles()) {

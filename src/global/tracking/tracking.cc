@@ -19,7 +19,8 @@
 #include "TrackerHitCollector_factory.h"
 #include "TrackParameters_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
-#include "ReconstructedChargedParticles_factory.h"
+#include <global/reco/ReconstructedParticles_factory.h>
+#include <global/reco/ReconstructedParticleAssociations_factory.h>
 
 //
 extern "C" {
@@ -37,7 +38,7 @@ void InitPlugin(JApplication *app) {
                       "BarrelVertexHit",
                       "EndcapTrackerHit",
                       "MPGDTrackerHit"},
-                     "trackerHits"));
+                      "trackerHits"));
 
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
@@ -60,9 +61,15 @@ void InitPlugin(JApplication *app) {
             "outputTrackParameters"},               // Tag for edm4eic::TrackParameters
             "ChargedParticlesWithAssociations"));   // eicrecon::ParticlesWithAssociation
 
-    app->Add(new JChainFactoryGeneratorT<ReconstructedChargedParticles_factory>(
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
             {"ChargedParticlesWithAssociations"},
-            "ReconstructedChargedParticles"));      // eicrecon::ParticlesWithAssociation
+            "ReconstructedChargedParticles"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
+            {"ChargedParticlesWithAssociations"},
+            "ReconstructedChargedParticlesAssociations"));
+
+
 }
 } // extern "C"
 
