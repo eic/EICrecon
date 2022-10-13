@@ -80,6 +80,8 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
     using namespace ROOT;
 
+    m_log->debug("----------- TrackingTest_processor {}-----------", event->GetEventNumber());
+
 
     auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
 
@@ -104,7 +106,7 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
     auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    auto track_params = event->GetSingle<edm4eic::TrackParameters>("TrackParameters");
+    auto track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
@@ -156,7 +158,13 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     }
 //auto hits = event->Get<edm4eic::TrackerHit>("trackerHits");
 
-    auto final_reco_particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+
+    m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
+    auto final_reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
+    for(auto part: final_reco_particles) {
+        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+    }
+
 
     auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 

@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"}, "GeneratedParticles", smearing_default_config));
 
     app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
-            {"EcalBarrelClusters"}, "ReconstructedParticles"));
+            {"EcalBarrelClusters"}, "ReconstructedParticlesWithAssoc"));
 
 }
 } // extern "C"

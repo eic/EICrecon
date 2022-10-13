@@ -56,13 +56,13 @@ void InitPlugin(JApplication *app) {
             {"CentralTrackingParticles"}, "outputTrackParameters"));
 
     app->Add(new JChainFactoryGeneratorT<ParticlesWithTruthPID_factory>(
-        {"MCParticles",         // Tag for edm4hep::MCParticle
-         "TrackParameters"},    // Tag for edm4eic::TrackParameters
-        "ChargedParticlesWithAssociations"));    // eicrecon::ParticlesWithAssociation
+            {"MCParticles",                         // Tag for edm4hep::MCParticle
+            "outputTrackParameters"},               // Tag for edm4eic::TrackParameters
+            "ChargedParticlesWithAssociations"));   // eicrecon::ParticlesWithAssociation
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedChargedParticles_factory>(
             {"ChargedParticlesWithAssociations"},
-            "ReconstructedChargedParticles"));    // eicrecon::ParticlesWithAssociation
+            "ReconstructedChargedParticles"));      // eicrecon::ParticlesWithAssociation
 }
 } // extern "C"
 
