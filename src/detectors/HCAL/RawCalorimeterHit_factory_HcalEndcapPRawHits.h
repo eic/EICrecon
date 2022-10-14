@@ -37,7 +37,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "HcalEndcapPHits";
-        m_tRes = 0.0 * ns;
+        u_eRes = {};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
         m_dyRangeADC = 100 * MeV;
@@ -45,24 +45,26 @@ public:
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
+        u_fields={"layer","slice"};
+        u_refs={1,0};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
-        app->SetDefaultParameter("HCAL:energyResolutions",u_eRes);
-        app->SetDefaultParameter("HCAL:timeResolution",   m_tRes);
-        app->SetDefaultParameter("HCAL:capacityADC",      m_capADC);
-        app->SetDefaultParameter("HCAL:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("HCAL:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("HCAL:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("HCAL:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("HCAL:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("HCAL:signalSumFields",  u_fields);
-        app->SetDefaultParameter("HCAL:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("HCAL:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("HCAL:readoutClass",     m_readout);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
