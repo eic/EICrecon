@@ -48,14 +48,20 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
-        app->SetDefaultParameter("HCAL:capacityADC",      m_capADC);
-        app->SetDefaultParameter("HCAL:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("HCAL:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("HCAL:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("HCAL:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("HCAL:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("HCAL:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("HCAL:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:readout",          m_readout);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("HCAL:HcalBarrelRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();

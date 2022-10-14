@@ -45,6 +45,15 @@ public:
 
 private:
 
+    //----------------------------
+    // Test imminent tracking output
+    void ProcessTrackingResults(const std::shared_ptr<const JEvent>& event);
+
+    void ProcessTrackingMatching(const std::shared_ptr<const JEvent>& event);
+
+    void ProcessGloablMatching(const std::shared_ptr<const JEvent>& event);
+
+
     std::shared_ptr<spdlog::logger> m_log;
     TDirectory *m_dir_main;
 };

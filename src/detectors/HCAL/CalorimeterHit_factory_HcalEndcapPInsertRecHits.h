@@ -48,14 +48,20 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRawHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:readout",          m_readout);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();

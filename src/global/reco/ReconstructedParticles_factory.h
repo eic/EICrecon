@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
-#define EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
+#ifndef EICRECON_RECONSTRUCTED_PARTICLES_FACTORY_H
+#define EICRECON_RECONSTRUCTED_PARTICLES_FACTORY_H
 
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainFactoryT.h"
@@ -14,12 +14,12 @@
 
 namespace eicrecon {
 
-    class ReconstructedChargedParticles_factory:
+    class ReconstructedParticles_factory:
             public JChainFactoryT<edm4eic::ReconstructedParticle>,
-            public SpdlogMixin<ReconstructedChargedParticles_factory> {
+            public SpdlogMixin<ReconstructedParticles_factory> {
 
     public:
-        explicit ReconstructedChargedParticles_factory( std::vector<std::string> default_input_tags):
+        explicit ReconstructedParticles_factory( std::vector<std::string> default_input_tags):
             JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
         }
 
@@ -36,4 +36,4 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_RECONSTRUCTEDCHARGEDPARTICLES_FACTORY_H
+#endif //EICRECON_RECONSTRUCTED_PARTICLES_FACTORY_H

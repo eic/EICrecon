@@ -51,17 +51,37 @@ void JDD4hep_service::Initialize() {
     m_dd4hepGeo = &(dd4hep::Detector::getInstance());
 
     // The current recommended way of getting the XML file is to use the environment variables
-    // DETECTOR_PATH and DETECTOR. Look for those first so we can use it for the default
+    // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
+    // Look for those first, so we can use it for the default
     // config parameter. (see https://github.com/eic/EICrecon/issues/22)
-    auto DETECTOR = std::getenv("DETECTOR");
-    auto DETECTOR_PATH = std::getenv("DETECTOR_PATH");
-    if( DETECTOR!=nullptr ) m_xmlFileNames.push_back( std::string(DETECTOR_PATH ? DETECTOR_PATH:".") + "/" + (DETECTOR ? DETECTOR:"") + ".xml");
+    auto detector_env = std::getenv("DETECTOR");
+    auto detector_config_env = std::getenv("DETECTOR_CONFIG");
+    auto detector_path_env = std::getenv("DETECTOR_PATH");
+
+    std::string detector_config;
+
+    // Check if deprecated DETECTOR env is set
+    if(detector_env != nullptr) {
+        // TODO remove deprecated DETECTOR environment variable at all in 2023
+        LOG_WARN(default_cout_logger) << "DETECTOR environment variable is deprecated. Use DETECTOR_CONFIG instead" << LOG_END;
+        detector_config = detector_env;
+    }
+
+    // Check if detector_config_env is set
+    if(detector_config_env != nullptr) {
+        detector_config = detector_config_env;
+    }
+
+    // do we have default file name
+    if(!detector_config.empty()) {
+        m_xml_files.push_back(std::string(detector_path_env ? detector_path_env : ".") + "/" + detector_config + ".xml");
+    }
 
     // User may specify multiple geometry files via the config. parameter. Normally, this
-    // will be a single file which itself has include for other files.
-    app->SetDefaultParameter("dd4hep:xml_files", m_xmlFileNames, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR}.xml using envars.)");
+    // will be a single file which itself has includes for other files.
+    app->SetDefaultParameter("dd4hep:xml_files", m_xml_files, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml using envars.)");
 
-    if( m_xmlFileNames.empty() ){
+    if( m_xml_files.empty() ){
         LOG_ERROR(default_cerr_logger) << "No dd4hep XML file specified for the geometry!" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "Please set the EIC_DD4HEP_XML configuration parameter or" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "Set your DETECTOR_PATH and DETECTOR environment variables" << LOG_END;
@@ -83,10 +103,20 @@ void JDD4hep_service::Initialize() {
     // load geometry
     try {
         dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
-        LOG << "Loading DD4hep geometry from " << m_xmlFileNames.size() << " files" << LOG_END;
-        for (auto &filename : m_xmlFileNames) {
+        LOG << "Loading DD4hep geometry from " << m_xml_files.size() << " files" << LOG_END;
+        for (auto &filename : m_xml_files) {
             LOG << "  - loading geometry file:  '" << filename << "' (patience ....)" << LOG_END;
-            m_dd4hepGeo->fromCompact(filename);
+
+            try {
+                m_dd4hepGeo->fromCompact(filename);
+            } catch(std::runtime_error &e) {        // dd4hep throws std::runtime_error, no way to detail further
+                if(detector_path_env) {
+                    LOG_DEBUG(default_cerr_logger)<< "Problem loading geometry: '" << e.what() <<"'. Trying with DETECTOR_PATH env" << LOG_END;
+                    m_dd4hepGeo->fromCompact(std::string(detector_path_env) + "/" + filename);
+                } else {
+                    throw;
+                }
+            }
         }
         m_dd4hepGeo->volumeManager();
         m_dd4hepGeo->apply("DD4hepVolumeManager", 0, nullptr);
