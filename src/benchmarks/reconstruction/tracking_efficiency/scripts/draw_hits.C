@@ -35,9 +35,9 @@ void draw_hits(Int_t nevent=-1)
    TTreeReaderArray<Int_t> status(myReader, "MCParticles.generatorStatus"); 
    TTreeReaderArray<Int_t> pdg(myReader, "MCParticles.PDG"); 
     
-   TTreeReaderArray<Float_t> px_rec(myReader, "ReconstructedParticles.momentum.x"); 
-   TTreeReaderArray<Float_t> py_rec(myReader, "ReconstructedParticles.momentum.y"); 
-   TTreeReaderArray<Float_t> pz_rec(myReader, "ReconstructedParticles.momentum.z");
+   TTreeReaderArray<Float_t> px_rec(myReader, "ReconstructedChargedParticles.momentum.x");
+   TTreeReaderArray<Float_t> py_rec(myReader, "ReconstructedChargedParticles.momentum.y");
+   TTreeReaderArray<Float_t> pz_rec(myReader, "ReconstructedChargedParticles.momentum.z");
  
   
  TCanvas * c[5]; 
