@@ -48,14 +48,20 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("ZDC:tag",              m_input_tag);
-        app->SetDefaultParameter("ZDC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("ZDC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("ZDC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("ZDC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("ZDC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("ZDC:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("ZDC:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("ZDC:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:readout",          m_readout);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("ZDC:ZDCEcalRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();
