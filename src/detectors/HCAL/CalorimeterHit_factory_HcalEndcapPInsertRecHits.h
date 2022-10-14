@@ -25,10 +25,10 @@ public:
         m_input_tag = "HcalEndcapPInsertRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_capADC=32768;//{this, "capacityADC", 8096};
+        m_dyRangeADC=200. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
         m_pedMeanADC=400;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
+        m_pedSigmaADC=10.;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
@@ -36,7 +36,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";

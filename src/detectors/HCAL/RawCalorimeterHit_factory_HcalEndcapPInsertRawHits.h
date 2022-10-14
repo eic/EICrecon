@@ -39,10 +39,10 @@ public:
         m_input_tag = "HcalEndcapPInsertHits";
         u_eRes = {};
         m_tRes = 0.0 * ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
+        m_capADC = 32768;
+        m_dyRangeADC = 200 * MeV;
         m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
+        m_pedSigmaADC = 10;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
