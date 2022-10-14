@@ -44,8 +44,8 @@ public:
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
-        u_fields={"layer","slice"};
-        u_refs={1,0};
+        u_fields={};
+        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         
