@@ -5,7 +5,7 @@
 #ifndef EICRECON_RECONSTRUCTED_PARTICLE_ASSOCIATIONS_FACTORY_H
 #define EICRECON_RECONSTRUCTED_PARTICLE_ASSOCIATIONS_FACTORY_H
 
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
 #include "extensions/jana/JChainFactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <algorithms/tracking/ParticlesWithTruthPID.h>
@@ -15,12 +15,12 @@
 namespace eicrecon {
 
     class ReconstructedParticleAssociations_factory:
-            public JChainFactoryT<edm4eic::ReconstructedParticle>,
+            public JChainFactoryT<edm4eic::MCRecoParticleAssociation>,
             public SpdlogMixin<ReconstructedParticleAssociations_factory> {
 
     public:
         explicit ReconstructedParticleAssociations_factory( std::vector<std::string> default_input_tags):
-            JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
+            JChainFactoryT<edm4eic::MCRecoParticleAssociation>(std::move(default_input_tags)) {
         }
 
         /** One time initialization **/

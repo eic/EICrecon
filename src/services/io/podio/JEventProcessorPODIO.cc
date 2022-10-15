@@ -61,6 +61,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCParticles",
             "GeneratedParticles",
             "ReconstructedParticles",
+            "ReconstructedChargedParticles",
+            "ReconstructedChargedParticlesAssociations",
             "TrackParameters",
             "trackerHits",
             "BarrelTrackerHit",
