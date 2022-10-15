@@ -7,7 +7,7 @@ else()
     message(STATUS "Catch2 is not found. Skipping algorithms_test...")
 endif()
 
-add_subdirectory(data_flow_test)
+add_subdirectory(default_flags)
 add_subdirectory(pyjano)
 add_subdirectory(BEMC_test)
 add_subdirectory(tracking_test)
