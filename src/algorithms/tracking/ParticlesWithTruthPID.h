@@ -8,20 +8,15 @@
 #include <algorithm>
 #include <cmath>
 
-#include <fmt/format.h>
-
 #include <spdlog/spdlog.h>
 
-// Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/TrackParameters.h>
+#include <edm4hep/MCParticle.h>
 
-#include "ParticlesWithTruthPIDConfig.h"
-#include "algorithms/reco/ParticlesWithAssociation.h"
+#include <algorithms/reco/ParticlesWithAssociation.h>
 #include <algorithms/interfaces/WithPodConfig.h>
+#include "ParticlesWithTruthPIDConfig.h"
+
 
 
 namespace eicrecon {
@@ -29,17 +24,17 @@ namespace eicrecon {
 
     public:
 
-        void init(std::shared_ptr<spdlog::logger> logger) {
-            m_log = logger;
-        }
+        void init(std::shared_ptr<spdlog::logger> logger);
 
-        ParticlesWithAssociation *execute(
+        ParticlesWithAssociation *process(
                 const std::vector<const edm4hep::MCParticle *> &mc_particles,
                 const std::vector<const edm4eic::TrackParameters*> &track_params);
 
     private:
 
         std::shared_ptr<spdlog::logger> m_log;
+
+        void tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance);
     };
 }
 
