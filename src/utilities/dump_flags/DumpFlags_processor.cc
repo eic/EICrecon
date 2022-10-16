@@ -1,4 +1,4 @@
-#include "DefaultFlags_processor.h"
+#include "DumpFlags_processor.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -15,8 +15,8 @@
 #include <TTree.h>
 #include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-#include <services/rootfile/RootFile_service.h>
-#include <extensions/string/StringHelpers.h>
+#include "services/rootfile/RootFile_service.h"
+#include "extensions/string/StringHelpers.h"
 
 
 using namespace fmt;
@@ -24,7 +24,7 @@ using namespace fmt;
 //------------------
 // DefaultFlags_processor (Constructor)
 //------------------
-DefaultFlags_processor::DefaultFlags_processor(JApplication *app) :
+DumpFlags_processor::DumpFlags_processor(JApplication *app) :
 	JEventProcessor(app)
 {
 }
@@ -32,21 +32,21 @@ DefaultFlags_processor::DefaultFlags_processor(JApplication *app) :
 //------------------
 // Init
 //------------------
-void DefaultFlags_processor::Init()
+void DumpFlags_processor::Init()
 {
 	// Ask service locator a file to write to
 
     auto app = GetApplication();
-    app->SetDefaultParameter("default_flags:python", m_python_file_name, "If not empty, a python file to generate");
-    app->SetDefaultParameter("default_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
-    app->SetDefaultParameter("default_flags:json", m_json_file_name, "If not empty, a json file to generate");
+    app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
+    app->SetDefaultParameter("dump_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
+    app->SetDefaultParameter("dump_flags:json", m_json_file_name, "If not empty, a json file to generate");
 }
 
 
 //------------------
 // Process
 //------------------
-void DefaultFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
+void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
 
 }
@@ -55,7 +55,7 @@ void DefaultFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 // Finish
 //------------------
-void DefaultFlags_processor::Finish()
+void DumpFlags_processor::Finish()
 {
     auto pm = GetApplication()->GetJParameterManager();
 
@@ -87,7 +87,7 @@ void DefaultFlags_processor::Finish()
 
     for(auto [name,param]: pm->GetAllParameters())
     {
-        std::string escaped_descr = eicrecon::str::ReplaceAllCopy(param->GetDescription(), "'", "`");
+        std::string escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "'", "`");
 
         all_python_content += fmt::format("    ({:{}} {:{}} '{}'),\n",
                                           fmt::format("'{}',", param->GetKey()),

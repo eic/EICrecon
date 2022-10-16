@@ -9,9 +9,13 @@ plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
 find_package(JANA REQUIRED)
+
+
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
+message(STATUS "DD4hep_FOUND = ${DD4hep_FOUND}")
 find_package(DD4hep REQUIRED)
+message(STATUS "DD4hep_FOUND = ${DD4hep_FOUND}")
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp

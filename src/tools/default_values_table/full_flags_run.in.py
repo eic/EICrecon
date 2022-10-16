@@ -1,4 +1,7 @@
 desc = """
+
+THIS IS A TEMPLATE
+
 This script is a simple demonstration of how to run eicrecon with available digitization/reconstruction flag
 Currently this script is created manually (TODO automatic generation) so if flags here is outdated, please file an issue
 

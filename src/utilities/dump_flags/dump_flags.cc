@@ -6,13 +6,13 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include "DefaultFlags_processor.h"
+#include "DumpFlags_processor.h"
 
     
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
-        app->Add(new DefaultFlags_processor(app));
+        app->Add(new DumpFlags_processor(app));
     }
 }
     

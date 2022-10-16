@@ -10,11 +10,11 @@
 class JEvent;
 class JApplication;
 
-class DefaultFlags_processor:public JEventProcessor
+class DumpFlags_processor: public JEventProcessor
 {
 public:
-    explicit DefaultFlags_processor(JApplication *);
-    ~DefaultFlags_processor() override = default;
+    explicit DumpFlags_processor(JApplication *);
+    ~DumpFlags_processor() override = default;
 
     //----------------------------
     // Init
