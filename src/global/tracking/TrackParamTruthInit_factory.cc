@@ -6,6 +6,7 @@
 
 #include "TrackParamTruthInit_factory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "extensions/string/StringHelpers.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>
 #include <JANA/JEvent.h>
@@ -15,7 +16,8 @@
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Create plugin level sub-log
     m_log = spdlog::stdout_color_mt("TrackParamTruthInit_factory");

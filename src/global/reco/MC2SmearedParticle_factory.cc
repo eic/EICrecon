@@ -11,7 +11,7 @@ namespace eicrecon {
         // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
         //    "BTRK:parameter" or "FarForward:parameter"
         // That has limitations but the convenient in the most of the cases
-        std::string param_prefix = "digi:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+        std::string param_prefix = "Reco:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
         // Set input tags
         InitDataTags(param_prefix);

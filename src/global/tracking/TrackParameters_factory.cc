@@ -4,6 +4,7 @@
 
 #include "ParticlesFromTrackFitResult.h"
 #include "TrackParameters_factory.h"
+#include "extensions/string/StringHelpers.h"
 
 #include <JANA/JEvent.h>
 
@@ -17,7 +18,8 @@ namespace eicrecon {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "Tracking:" + GetTag();
+        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);

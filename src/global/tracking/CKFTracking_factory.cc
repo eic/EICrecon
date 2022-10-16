@@ -9,11 +9,13 @@
 #include <JANA/JEvent.h>
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
+#include "extensions/string/StringHelpers.h"
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 void eicrecon::CKFTracking_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "CKFTracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
     auto app = GetApplication();
 
@@ -23,11 +25,11 @@ void eicrecon::CKFTracking_factory::Init() {
     // Ask service locator for parameter manager. We want to get this plugin parameters.
     auto pm = this->GetApplication()->GetJParameterManager();
     std::string log_level_str = "info";
-    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
     // Now we check that user provided an input names
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
+    pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
     if(m_input_tags.empty()) {
         m_input_tags = GetDefaultInputTags();
     }

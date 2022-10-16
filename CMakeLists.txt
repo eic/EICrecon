@@ -63,6 +63,8 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
+# DD4Hep is required for the most of the part
+find_package(DD4hep REQUIRED)
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
