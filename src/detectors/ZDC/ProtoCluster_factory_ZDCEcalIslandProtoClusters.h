@@ -42,18 +42,18 @@ public:
         u_dimScaledLocalDistXY={50.0*dd4hep::mm, 50.0*dd4hep::mm};// from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
 
-        app->SetDefaultParameter("ZDC:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("ZDC:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("ZDC:minClusterCenterEdep",     m_minClusterCenterEdep);
-        //app->SetDefaultParameter("ZDC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("ZDC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("ZDC:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("ZDC:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("ZDC:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("ZDC:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("ZDC:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("ZDC:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("ZDC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:inputHitCollection", m_inputHitCollection);
+        //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();

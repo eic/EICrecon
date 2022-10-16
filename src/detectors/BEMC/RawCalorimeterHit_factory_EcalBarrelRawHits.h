@@ -55,18 +55,18 @@ public:
         
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:readoutClass",     m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
