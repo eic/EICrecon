@@ -220,7 +220,7 @@ namespace eicrecon::str
      * @param from - substring to search
      * @param to - value to replace
      */
-    void ReplaceAllInPlace(std::string& str, const std::string& from, const std::string& to) {
+    inline void ReplaceAllInPlace(std::string& str, const std::string& from, const std::string& to) {
         if(from.empty())
             return;
         size_t start_pos = 0;
@@ -237,7 +237,7 @@ namespace eicrecon::str
      * @param to - value to replace
      * @return resulting string
      */
-    std::string ReplaceAllCopy(std::string str, const std::string& from, const std::string& to) {
+    inline std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
         ReplaceAllInPlace(str, from, to);
         return str;
     }
