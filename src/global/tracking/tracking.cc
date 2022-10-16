@@ -37,8 +37,10 @@ void InitPlugin(JApplication *app) {
                      {"BarrelTrackerHit",
                       "BarrelVertexHit",
                       "EndcapTrackerHit",
-                      "MPGDTrackerHit"},
-                      "trackerHits"));
+                      "MPGDTrackerHit",
+                      "TOFEndcapTrackerHit",
+                      "TOFBarrelTrackerHit"},
+                     "trackerHits"));
 
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
