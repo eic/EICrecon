@@ -153,3 +153,16 @@ macro(plugin_glob_all _name)
     print_file_names("  " ${HEADER_FILES})  # Prints header files
 
 endmacro()
+
+
+# dd4hep
+macro(plugin_add_dd4hep _name)
+
+if(NOT DD4hep_FOUND)
+    find_package(DD4hep REQUIRED)
+endif()
+
+plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
+plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
+
+endmacro()

@@ -23,6 +23,8 @@ find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+plugin_add_dd4hep(${PLUGIN_NAME})
+
 # ACTS
 find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
 set(Acts_VERSION_MIN "19.0.0")
@@ -31,6 +33,8 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
         AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
+
+
 
 set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
 
@@ -41,7 +45,6 @@ plugin_include_directories(${PLUGIN_NAME}
             SYSTEM PUBLIC
                 ${podio_INCLUDE_DIR}
                 ${EDM4HEP_INCLUDE_DIR}
-                ${DD4hep_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIRS}
                 ${EDM4EIC_INCLUDE_DIRS}
                 ${Acts_INCLUDE_DIRS})
@@ -51,8 +54,6 @@ plugin_link_libraries(${PLUGIN_NAME}
         ${ROOT_LIBRARIES}
         dd4hep_library
         EDM4HEP::edm4hep
-        DD4hep::DDCore
-        DD4hep::DDRec
         EDM4EIC::edm4eic
         ActsCore
         ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep
@@ -64,8 +65,6 @@ target_link_libraries(${PLUGIN_NAME}_plugin
         ${ROOT_LIBRARIES}
         dd4hep_library
         EDM4HEP::edm4hep
-        DD4hep::DDCore
-        DD4hep::DDRec
         EDM4EIC::edm4eic
         ActsCore
         ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep
