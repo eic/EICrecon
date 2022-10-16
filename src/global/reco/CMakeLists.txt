@@ -48,6 +48,7 @@ plugin_link_libraries(${PLUGIN_NAME}
         ${ROOT_LIBRARIES}
         dd4hep_library
         algorithms_tracking_library
+        algorithms_reco_library
         EDM4HEP::edm4hep
         DD4hep::DDCore
         DD4hep::DDRec

@@ -59,7 +59,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections={
             "MCParticles",
+            "GeneratedParticles",
             "ReconstructedParticles",
+            "ReconstructedChargedParticles",
+            "ReconstructedChargedParticlesAssociations",
             "TrackParameters",
             "trackerHits",
             "BarrelTrackerHit",

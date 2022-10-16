@@ -56,6 +56,12 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:thresholdFactor",  m_thresholdFactor);
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:thresholdValue",   m_thresholdValue);
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:readout",          m_readout);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();

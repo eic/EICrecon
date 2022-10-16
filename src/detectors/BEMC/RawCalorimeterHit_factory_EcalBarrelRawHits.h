@@ -37,7 +37,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelHits";
-        m_tRes = 0.0 * ns;
+        u_eRes =  {};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
         m_dyRangeADC = 100 * MeV;
@@ -45,10 +45,14 @@ public:
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
+        u_fields={};
+        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
+
+        
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
         app->SetDefaultParameter("BEMC:energyResolutions",u_eRes);
