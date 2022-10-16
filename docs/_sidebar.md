@@ -23,4 +23,4 @@
     * [References](misc/references.md)
     * [This website](misc/this_website.md)   
 * Table flags
-    * [Table flags](table_flags/example.html)
+    * [Table flags](table_flags/flags.md)
