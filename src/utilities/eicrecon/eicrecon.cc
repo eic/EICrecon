@@ -32,14 +32,9 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "EEMC",
         "MPGD",
         "RPOTS",
-<<<<<<< HEAD
         "BTOF",
         "ECTOF",
         "podio",
-        "tracking"
-=======
-
->>>>>>> main
 };
 
 int main( int narg, char **argv)
