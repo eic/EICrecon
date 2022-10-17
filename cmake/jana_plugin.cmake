@@ -18,8 +18,6 @@ macro(plugin_add _name)
 
     # include logging by default
     find_package(spdlog REQUIRED)
-    find_package(fmt REQUIRED)
-    set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
     # include ROOT by default
     find_package(ROOT REQUIRED)
@@ -29,7 +27,6 @@ macro(plugin_add _name)
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
-    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${fmt_INCLUDE_DIR} )
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
     target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
 
@@ -42,7 +39,6 @@ macro(plugin_add _name)
         add_library(${_name}_library STATIC "")
 	    target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        target_include_directories(${_name}_library SYSTEM PUBLIC ${fmt_INCLUDE_DIR} )
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
 
@@ -172,7 +168,7 @@ endmacro()
 macro(plugin_add_acts _name)
 
     if(NOT Acts_FOUND)
-        find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+        find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginJson PluginDD4hep)
         set(Acts_VERSION_MIN "19.0.0")
         set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
         if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
@@ -187,5 +183,48 @@ macro(plugin_add_acts _name)
     plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Acts_INCLUDE_DIRS})
 
     # Add libraries (works same as target_include_directories)
-    plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep)
+    plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
+endmacro()
+
+# podio, edm4hep, edm4eic
+macro(plugin_add_event_model _name)
+
+    if(NOT podio_FOUND)
+        find_package(podio REQUIRED)
+    endif()
+
+    if(NOT EDM4HEP_FOUND)
+        find_package(EDM4HEP REQUIRED)
+    endif()
+
+    if(NOT EDM4EIC_FOUND)
+        find_package(EDM4EIC REQUIRED)
+        set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
+    endif()
+
+    # Add include directories
+    # (same as target_include_directories but for both plugin and library)
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR})
+
+    # Add libraries
+    # (same as target_include_directories but for both plugin and library)
+    plugin_link_libraries(${PLUGIN_NAME}
+            EDM4EIC::edm4eic
+            EDM4HEP::edm4hep
+            )
+endmacro()
+
+macro(plugin_add_cern_root _name)
+
+    if(NOT ROOT_FOUND)
+        #find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
+        find_package(ROOT REQUIRED)
+    endif()
+
+    # Add include directories
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
+
+    # Add libraries
+    #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
+    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES})
 endmacro()

@@ -8,14 +8,11 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
+
 plugin_add_dd4hep(${PLUGIN_NAME})
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EDM4EIC)
 plugin_add_acts(${PLUGIN_NAME})
-
+plugin_add_event_model(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets

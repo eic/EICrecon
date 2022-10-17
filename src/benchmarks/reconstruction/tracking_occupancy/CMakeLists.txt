@@ -8,12 +8,8 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EDM4EIC)
-
+plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 
@@ -27,11 +23,7 @@ plugin_glob_all(${PLUGIN_NAME})
 # (same as target_include_directories but for both plugin and library)
 plugin_include_directories(${PLUGIN_NAME}
         SYSTEM PUBLIC
-            ${EDM4EIC_INCLUDE_DIR}
-            ${podio_INCLUDE_DIR}
-            ${EDM4HEP_INCLUDE_DIR}
-            ${ROOT_INCLUDE_DIRS}
-            ${Acts_INCLUDE_DIRS})
+            ${ROOT_INCLUDE_DIRS})
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
