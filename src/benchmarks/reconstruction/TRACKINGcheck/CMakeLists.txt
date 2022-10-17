@@ -21,13 +21,14 @@ plugin_glob_all(${PLUGIN_NAME})
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+plugin_add_acts(${PLUGIN_NAME})
+plugin_add_dd4hep(${PLUGIN_NAME})
+
 dump_cmake_variables(Eigen)
 
+
 set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
-set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
 set(Eigen3_INCLUDE_DIR ${Eigen3_DIR}/../../../include/eigen3)
 dump_cmake_variables(Eigen3)
 
@@ -35,4 +36,4 @@ dump_cmake_variables(Eigen3)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${Acts_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep)

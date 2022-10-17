@@ -17,20 +17,12 @@ plugin_glob_all(${PLUGIN_NAME})
 # Find dependencies
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
+plugin_add_dd4hep(${PLUGIN_NAME})
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(EDM4EIC REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Eigen3 REQUIRED)
-
-# ACTS
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep PluginJson)
-set(Acts_VERSION_MIN "19.0.0")
-set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
-        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
-    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
-endif()
+plugin_add_acts(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME}
@@ -41,27 +33,26 @@ plugin_include_directories(${PLUGIN_NAME}
         ${EDM4HEP_INCLUDE_DIR}
         ${DD4hep_INCLUDE_DIRS}
         ${ROOT_INCLUDE_DIRS}
-        ${EDM4EIC_INCLUDE_DIRS}
-        ${Acts_INCLUDE_DIRS})
+        ${EDM4EIC_INCLUDE_DIRS})
 
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} dd4hep_library EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} dd4hep_library EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
 
-target_link_libraries(${PLUGIN_NAME}_plugin dd4hep_library EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
+target_link_libraries(${PLUGIN_NAME}_plugin dd4hep_library EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
 
 get_target_property(ACTSPLUGINLIBS ${PLUGIN_NAME}_plugin LINK_LIBRARIES)
 message(STATUS "LINK_LIBRARIES = ${ACTSPLUGINLIBS}")
 
 
-#LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
-#LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
-#                                            dd4hep_library;EDM4HEP::edm4hep;DD4hep::DDCore;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
+#LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
+#LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
+#                                            dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
 target_link_libraries(${PLUGIN_NAME}_plugin
         Eigen3::Eigen
         dd4hep_library
         EDM4HEP::edm4hep
-        DD4hep::DDCore
+
         EDM4EIC::edm4eic
         ActsCore
         ActsPluginDD4hep

@@ -66,6 +66,17 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
 
+# ACTS
+find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+set(Acts_VERSION_MIN "19.0.0")
+set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
+        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
+    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
+endif()
+
+set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
+
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
 

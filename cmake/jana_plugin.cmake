@@ -155,14 +155,37 @@ macro(plugin_glob_all _name)
 endmacro()
 
 
-# dd4hep
+# dd4hep - plugin_add_dd4hep
 macro(plugin_add_dd4hep _name)
 
-if(NOT DD4hep_FOUND)
-    find_package(DD4hep REQUIRED)
-endif()
+    if(NOT DD4hep_FOUND)
+        find_package(DD4hep REQUIRED)
+    endif()
 
-plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
-plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
+    plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
+    plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
 
+endmacro()
+
+
+# ACTS - plugin_add_dd4hep
+macro(plugin_add_acts _name)
+
+    if(NOT Acts_FOUND)
+        find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+        set(Acts_VERSION_MIN "19.0.0")
+        set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
+        if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
+                AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
+            message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
+        endif()
+
+        set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
+    endif()
+
+    # Add include directories (works same as target_include_directories)
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Acts_INCLUDE_DIRS})
+
+    # Add libraries (works same as target_include_directories)
+    plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginDD4hep)
 endmacro()

@@ -14,7 +14,7 @@ find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
 message(STATUS "DD4hep_FOUND = ${DD4hep_FOUND}")
-find_package(DD4hep REQUIRED)
+plugin_add_dd4hep(${PLUGIN_NAME})
 message(STATUS "DD4hep_FOUND = ${DD4hep_FOUND}")
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO)
 
