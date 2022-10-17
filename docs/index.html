@@ -9,11 +9,35 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="table_flags/flags_style.css">
   <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>  
 </head>
 <body>
   <div id="app"></div>
   <script>
+    function filterTableRowsByInput(inputId, tableId) {
+
+      console.log("hahaha");
+
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("myTable");
+      tr = table.getElementsByTagName("tr");
+
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+
     var num = 0;
     mermaid.initialize({ startOnLoad: false });
 
@@ -22,6 +46,8 @@
       subMaxLevel: 2,
       name: 'EICrecon',
       repo: 'https://github.com/eic/EICrecon',
+      noEmoji: true,
+      executeScript: true,
       markdown: {
         renderer: {
           code: function(code, lang) {

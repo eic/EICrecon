@@ -21,4 +21,6 @@
     * [Contributing](tutorial/05-contributing.md)
 * Misc
     * [References](misc/references.md)
-    * [This website](misc/this_website.md)    
+    * [This website](misc/this_website.md)   
+* Table flags
+    * [Table flags](table_flags/flags.md)

@@ -1,14 +1,5 @@
 # format [ (flag_name, default_val, description), ...]
-eicrecon_reco_flags = [
-
-    ## ========================= C A L O R I M E T R Y ================================
-
-    # BEMC = Barrel EMC
-    # ----------------------------------
-    ('BEMC:capacityADC',                                         '8096',                           ''),
-    ('BEMC:dimScaledLocalDistXY',                                '1.8,1.8',                        ''),
-    ('BEMC:dynamicRangeADC',                                     '0.1',                            ''),
-
+eicrecon_reco_flags=[
     ('BEMC:EcalBarrelClusters:depthCorrection',                  '0',                              ''),
     ('BEMC:EcalBarrelClusters:enableEtaBounds',                  '0',                              ''),
     ('BEMC:EcalBarrelClusters:energyWeight',                     'log',                            ''),
@@ -17,7 +8,36 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelClusters:logWeightBase',                    '3.6',                            ''),
     ('BEMC:EcalBarrelClusters:moduleDimZName',                   '',                               ''),
     ('BEMC:EcalBarrelClusters:samplingFraction',                 '1',                              ''),
-
+    ('BEMC:EcalBarrelIslandProtoClusters:dimScaledLocalDistXY',  '1.8,1.8',                        ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:globalDistEtaPhi',      '',                               ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:globalDistRPhi',        '',                               ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:localDistXY',           '',                               ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:localDistXZ',           '',                               ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:localDistYZ',           '',                               ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:minClusterCenterEdep',  '0.03',                           ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:minClusterHitEdep',     '0.001',                          ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:sectorDist',            '5',                              ''),
+    ('BEMC:EcalBarrelIslandProtoClusters:splitCluster',          '0',                              ''),
+    ('BEMC:EcalBarrelRawHits:capacityADC',                       '8096',                           ''),
+    ('BEMC:EcalBarrelRawHits:dynamicRangeADC',                   '0.1',                            ''),
+    ('BEMC:EcalBarrelRawHits:energyResolutions',                 '',                               ''),
+    ('BEMC:EcalBarrelRawHits:fieldRefNumbers',                   '',                               ''),
+    ('BEMC:EcalBarrelRawHits:geoServiceName',                    'ActsGeometryProvider',           ''),
+    ('BEMC:EcalBarrelRawHits:pedestalMean',                      '400',                            ''),
+    ('BEMC:EcalBarrelRawHits:pedestalSigma',                     '3.2',                            ''),
+    ('BEMC:EcalBarrelRawHits:readoutClass',                      '',                               ''),
+    ('BEMC:EcalBarrelRawHits:resolutionTDC',                     '1e-11',                          ''),
+    ('BEMC:EcalBarrelRawHits:scaleResponse',                     '1',                              ''),
+    ('BEMC:EcalBarrelRawHits:signalSumFields',                   '',                               ''),
+    ('BEMC:EcalBarrelRawHits:timeResolution',                    '0',                              ''),
+    ('BEMC:EcalBarrelRecHits:capacityADC',                       '8096',                           ''),
+    ('BEMC:EcalBarrelRecHits:dynamicRangeADC',                   '0.1',                            ''),
+    ('BEMC:EcalBarrelRecHits:pedestalMean',                      '400',                            ''),
+    ('BEMC:EcalBarrelRecHits:pedestalSigma',                     '3.2',                            ''),
+    ('BEMC:EcalBarrelRecHits:resolutionTDC',                     '1e-11',                          ''),
+    ('BEMC:EcalBarrelRecHits:samplingFraction',                  '0.998',                          ''),
+    ('BEMC:EcalBarrelRecHits:thresholdFactor',                   '4',                              ''),
+    ('BEMC:EcalBarrelRecHits:thresholdValue',                    '0',                              ''),
     ('BEMC:EcalBarrelTruthClusters:depthCorrection',             '0',                              ''),
     ('BEMC:EcalBarrelTruthClusters:enableEtaBounds',             '0',                              ''),
     ('BEMC:EcalBarrelTruthClusters:energyWeight',                'log',                            ''),
@@ -26,33 +46,15 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelTruthClusters:logWeightBase',               '3.6',                            ''),
     ('BEMC:EcalBarrelTruthClusters:moduleDimZName',              '',                               ''),
     ('BEMC:EcalBarrelTruthClusters:samplingFraction',            '1',                              ''),
-
-    ('BEMC:energyResolutions',                                   '',                               ''),
-    ('BEMC:fieldRefNumbers',                                     '',                               ''),
-    ('BEMC:geoServiceName',                                      'ActsGeometryProvider',           ''),
-    ('BEMC:globalDistEtaPhi',                                    '',                               ''),
-    ('BEMC:globalDistRPhi',                                      '',                               ''),
-    ('BEMC:localDistXY',                                         '',                               ''),
-    ('BEMC:localDistXZ',                                         '',                               ''),
-    ('BEMC:localDistYZ',                                         '',                               ''),
-    ('BEMC:minClusterCenterEdep',                                '0.03',                           ''),
-    ('BEMC:minClusterHitEdep',                                   '0.001',                          ''),
-    ('BEMC:pedestalMean',                                        '400',                            ''),
-    ('BEMC:pedestalSigma',                                       '3.2',                            ''),
-    ('BEMC:readoutClass',                                        '',                               ''),
-    ('BEMC:resolutionTDC',                                       '1e-11',                          ''),
-    ('BEMC:samplingFraction',                                    '0.998',                          ''),
-    ('BEMC:scaleResponse',                                       '1',                              ''),
-    ('BEMC:sectorDist',                                          '5',                              ''),
-    ('BEMC:signalSumFields',                                     '',                               ''),
-    ('BEMC:splitCluster',                                        '0',                              ''),
-    ('BEMC:thresholdFactor',                                     '4',                              ''),
-    ('BEMC:thresholdValue',                                      '0',                              ''),
-    ('BEMC:timeResolution',                                      '0',                              ''),
-
-    # EEMC - Endcap EMC
-    # ----------------------------------
-    # EEMC Negative Endcap  part
+    ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             'threshold'),
+    ('BTRK:BarrelTrackerRawHit:Threshold',                       '0',                              'EDep threshold for hits to pass through, [GeV]'),
+    ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              'Time resolution gauss smearing [ns]'),
+    ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             'threshold'),
+    ('BVTX:BarrelVertexRawHit:Threshold',                        '0',                              'EDep threshold for hits to pass through, [GeV]'),
+    ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              'Time resolution gauss smearing [ns]'),
+    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             'threshold'),
+    ('ECTRK:EndcapTrackerRawHit:Threshold',                      '0',                              'EDep threshold for hits to pass through, [GeV]'),
+    ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              'Time resolution gauss smearing [ns]'),
     ('EEMC:EcalEndcapNClusters:depthCorrection',                 '0',                              ''),
     ('EEMC:EcalEndcapNClusters:dimScaledLocalDistXY',            '1.8,1.8',                        ''),
     ('EEMC:EcalEndcapNClusters:enableEtaBounds',                 '0',                              ''),
@@ -69,7 +71,6 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNClusters:samplingFraction',                '1',                              ''),
     ('EEMC:EcalEndcapNClusters:sectorDist',                      '5',                              ''),
     ('EEMC:EcalEndcapNClusters:splitCluster',                    '0',                              ''),
-
     ('EEMC:EcalEndcapNRawHits:capacityADC',                      '8096',                           ''),
     ('EEMC:EcalEndcapNRawHits:dynamicRangeADC',                  '0.1',                            ''),
     ('EEMC:EcalEndcapNRawHits:energyResolutions',                '',                               ''),
@@ -82,7 +83,6 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNRawHits:scaleResponse',                    '1',                              ''),
     ('EEMC:EcalEndcapNRawHits:signalSumFields',                  '',                               ''),
     ('EEMC:EcalEndcapNRawHits:timeResolution',                   '0',                              ''),
-
     ('EEMC:EcalEndcapNRecHits:capacityADC',                      '8096',                           ''),
     ('EEMC:EcalEndcapNRecHits:dynamicRangeADC',                  '0.1',                            ''),
     ('EEMC:EcalEndcapNRecHits:geoServiceName',                   'geoServiceName',                 ''),
@@ -97,8 +97,6 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNRecHits:sectorField',                      'sector',                         ''),
     ('EEMC:EcalEndcapNRecHits:thresholdFactor',                  '4',                              ''),
     ('EEMC:EcalEndcapNRecHits:thresholdValue',                   '0',                              ''),
-
-    # EEMC Positive Endcap
     ('EEMC:EcalEndcapPClusters:depthCorrection',                 '0',                              ''),
     ('EEMC:EcalEndcapPClusters:dimScaledLocalDistXY',            '1.8,1.8',                        ''),
     ('EEMC:EcalEndcapPClusters:enableEtaBounds',                 '0',                              ''),
@@ -141,9 +139,6 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPRecHits:sectorField',                      'sector',                         ''),
     ('EEMC:EcalEndcapPRecHits:thresholdFactor',                  '4',                              ''),
     ('EEMC:EcalEndcapPRecHits:thresholdValue',                   '0',                              ''),
-
-    # HCAL Barrel
-    # -----------------------------------
     ('HCAL:HcalBarrelClusters:depthCorrection',                  '0',                              ''),
     ('HCAL:HcalBarrelClusters:enableEtaBounds',                  '0',                              ''),
     ('HCAL:HcalBarrelClusters:energyWeight',                     'log',                            ''),
@@ -199,9 +194,6 @@ eicrecon_reco_flags = [
     ('HCAL:HcalBarrelTruthClusters:logWeightBase',               '3.6',                            ''),
     ('HCAL:HcalBarrelTruthClusters:moduleDimZName',              '',                               ''),
     ('HCAL:HcalBarrelTruthClusters:samplingFraction',            '1',                              ''),
-
-    # HCAL Negative ENDCAP
-    # -----------------------------------
     ('HCAL:HcalEndcapNClusters:depthCorrection',                 '0',                              ''),
     ('HCAL:HcalEndcapNClusters:enableEtaBounds',                 '0',                              ''),
     ('HCAL:HcalEndcapNClusters:energyWeight',                    'log',                            ''),
@@ -254,9 +246,6 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapNTruthClusters:logWeightBase',              '3.6',                            ''),
     ('HCAL:HcalEndcapNTruthClusters:moduleDimZName',             '',                               ''),
     ('HCAL:HcalEndcapNTruthClusters:samplingFraction',           '1',                              ''),
-
-    # HCAL Positive ENDCAP
-    # -----------------------------------
     ('HCAL:HcalEndcapPClusters:depthCorrection',                 '0',                              ''),
     ('HCAL:HcalEndcapPClusters:enableEtaBounds',                 '0',                              ''),
     ('HCAL:HcalEndcapPClusters:energyWeight',                    'log',                            ''),
@@ -275,18 +264,13 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPIslandProtoClusters:minClusterHitEdep',    '0',                              ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:sectorDist',           '5',                              ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:splitCluster',         '1',                              ''),
-
-    # ZDC - Zero Degree Calorimeter
-    ('ZDC:dimScaledLocalDistXY',                                 '5,5',                            ''),
-    ('ZDC:globalDistEtaPhi',                                     '',                               ''),
-    ('ZDC:globalDistRPhi',                                       '',                               ''),
-    ('ZDC:localDistXY',                                          '',                               ''),
-    ('ZDC:localDistXZ',                                          '',                               ''),
-    ('ZDC:localDistYZ',                                          '',                               ''),
-    ('ZDC:minClusterCenterEdep',                                 '0.003',                          ''),
-    ('ZDC:minClusterHitEdep',                                    '0.0001',                         ''),
-    ('ZDC:sectorDist',                                           '5',                              ''),
-    ('ZDC:splitCluster',                                         '1',                              ''),
+    ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             'threshold'),
+    ('MPGD:MPGDTrackerRawHit:Threshold',                         '0',                              'EDep threshold for hits to pass through, [GeV]'),
+    ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              'Time resolution gauss smearing [ns]'),
+    ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
+    ('RECORD_CALL_STACK',                                        '0',                              ''),
+    ('tracking:InitTrackParams:input_tags',                      '',                               'Input data tag name'),
+    ('tracking:InitTrackParams:verbose',                         '0',                              'verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace'),
     ('ZDC:ZDCEcalClusters:depthCorrection',                      '0',                              ''),
     ('ZDC:ZDCEcalClusters:enableEtaBounds',                      '0',                              ''),
     ('ZDC:ZDCEcalClusters:energyWeight',                         'log',                            ''),
@@ -295,6 +279,16 @@ eicrecon_reco_flags = [
     ('ZDC:ZDCEcalClusters:logWeightBase',                        '3.6',                            ''),
     ('ZDC:ZDCEcalClusters:moduleDimZName',                       '',                               ''),
     ('ZDC:ZDCEcalClusters:samplingFraction',                     '1',                              ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:dimScaledLocalDistXY',      '5,5',                            ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:globalDistEtaPhi',          '',                               ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:globalDistRPhi',            '',                               ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:localDistXY',               '',                               ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:localDistXZ',               '',                               ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:localDistYZ',               '',                               ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:minClusterCenterEdep',      '0.003',                          ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:minClusterHitEdep',         '0.0001',                         ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:sectorDist',                '5',                              ''),
+    ('ZDC:ZDCEcalIslandProtoClusters:splitCluster',              '1',                              ''),
     ('ZDC:ZDCEcalRawHits:capacityADC',                           '8096',                           ''),
     ('ZDC:ZDCEcalRawHits:dynamicRangeADC',                       '0.1',                            ''),
     ('ZDC:ZDCEcalRawHits:energyResolutions',                     '',                               ''),
@@ -329,26 +323,5 @@ eicrecon_reco_flags = [
     ('ZDC:ZDCEcalTruthClusters:logWeightBase',                   '3.6',                            ''),
     ('ZDC:ZDCEcalTruthClusters:moduleDimZName',                  '',                               ''),
     ('ZDC:ZDCEcalTruthClusters:samplingFraction',                '1',                              ''),
-
-    ## ========================= T R A C K I N G ================================
-    ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             'threshold'),
-    ('BTRK:BarrelTrackerRawHit:Threshold',                       '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              'Time resolution gauss smearing [ns]'),
-    ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             'threshold'),
-    ('BVTX:BarrelVertexRawHit:Threshold',                        '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              'Time resolution gauss smearing [ns]'),
-    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             'threshold'),
-    ('ECTRK:EndcapTrackerRawHit:Threshold',                      '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              'Time resolution gauss smearing [ns]'),
-
-    ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             'threshold'),
-    ('MPGD:MPGDTrackerRawHit:Threshold',                         '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              'Time resolution gauss smearing [ns]'),
-
-    ## ========================= R E C O N S T R U C T I O N ====================
-
-    ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
-
-
 ]
 

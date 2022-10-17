@@ -151,4 +151,8 @@ lib/
 /tests
 /build
 
-src/tools/default_values_table/__pycache__/
+src/tools/default_flags_table/__pycache__/
+
+src/tools/default_flags_table/calibrations/
+
+src/tools/default_flags_table/fieldmaps/

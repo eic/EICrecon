@@ -20,7 +20,6 @@ import subprocess
 from datetime import datetime
 import argparse
 
-start_time = datetime.now()
 
 parser = argparse.ArgumentParser(description=desc)
 parser.add_argument('input_file', help="Input file name")
@@ -30,11 +29,12 @@ args = parser.parse_args()
 
 run_command = [
     f"eicrecon",
-    f"-Pplugins=default_flags",
+    f"-Pplugins=dump_flags",
+    f"-Pdump_flags:python=all_flags_dump_from_run.py",
     f"-Pjana:debug_plugin_loading=1",
-    f"-Ppodio:output_file={args.output_base_name}.tree.edm4eic.root",
     f"-Pjana:nevents={args.nevents}",
     f"-Pacts:MaterialMap=calibrations/materials-map.cbor",
+    f"-Ppodio:output_file={args.output_base_name}.tree.edm4eic.root",
     f"-Phistsfile={args.output_base_name}.ana.root",
     f"{args.input_file}",
 ]
@@ -44,15 +44,14 @@ reco_parameters_flags = []
 
 run_command.extend(reco_parameters_flags)
 
+# RUN EICrecon
+start_time = datetime.now()
 subprocess.run(" ".join(run_command), shell=True, check=True)
+end_time = datetime.now()
 
-
-print("Start date and time: ")
-print(start_time.strftime('%Y-%m-%d %H:%M:%S'))
-
-end_time = datetime.datetime.now()
-print("End date and time: ")
-print(end_time.strftime('%Y-%m-%d %H:%M:%S'))
-print(end_time-start_time)
+# Print execution time
+print("Start date and time : {}".format(start_time.strftime('%Y-%m-%d %H:%M:%S')))
+print("End date and time   : {}".format(end_time.strftime('%Y-%m-%d %H:%M:%S')))
+print("Execution real time : {}".format(end_time - start_time))
 
 
