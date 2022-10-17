@@ -84,7 +84,7 @@ void JDD4hep_service::Initialize() {
     if( m_xml_files.empty() ){
         LOG_ERROR(default_cerr_logger) << "No dd4hep XML file specified for the geometry!" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "Please set the EIC_DD4HEP_XML configuration parameter or" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "Set your DETECTOR_PATH and DETECTOR environment variables" << LOG_END;
+        LOG_ERROR(default_cerr_logger) << "Set your DETECTOR_PATH and DETECTOR_CONFIG environment variables" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "(the latter is typically done by sourcing the setup.sh" << LOG_END;
         LOG_ERROR(default_cerr_logger) << "script the epic directory.)" << LOG_END;
         throw std::runtime_error("No dd4hep XML file specified.");
