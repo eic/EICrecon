@@ -145,7 +145,7 @@ void CalorimeterHitDigi::single_hits_digi(){
                                : 0;
 
         const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        const long long adc = std::llround(ped +  m_corrMeanScale * eDep * (1. + eResRel) / dyRangeADC * m_capADC);
+        const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / dyRangeADC * m_capADC);
 
         double time = std::numeric_limits<double>::max();
         for (const auto& c : ahit->getContributions()) {
