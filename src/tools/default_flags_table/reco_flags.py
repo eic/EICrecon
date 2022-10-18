@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # Created 2022 by Dmitry Romanov
 # format [ (flag_name, default_val, description), ... ]
 # '*' in the description means value is checked with reconstruction.py of Juggler
@@ -523,3 +524,164 @@ eicrecon_reco_flags = [
     # ========================= R E C O N S T R U C T I O N ================================
     ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
 ]
+
+#
+# ========================================================================================================================================================
+# System of units used here:
+# ========================================================================================================================================================
+# (Copied from system_of_units.py to remove dependency to copy)
+
+#
+# Energy [E]
+#
+megaelectronvolt = 1.
+electronvolt     = 1.e-6*megaelectronvolt
+kiloelectronvolt = 1.e-3*megaelectronvolt
+gigaelectronvolt = 1.e+3*megaelectronvolt
+teraelectronvolt = 1.e+6*megaelectronvolt
+petaelectronvolt = 1.e+9*megaelectronvolt
+# symbols
+MeV = megaelectronvolt
+eV  = electronvolt
+keV = kiloelectronvolt
+GeV = gigaelectronvolt
+TeV = teraelectronvolt
+PeV = petaelectronvolt
+# Length [L]
+#
+millimeter  = 1.
+millimeter2 = millimeter*millimeter
+millimeter3 = millimeter*millimeter*millimeter
+centimeter  = 10.*millimeter
+centimeter2 = centimeter*centimeter
+centimeter3 = centimeter*centimeter*centimeter
+meter  = 1000.*millimeter
+meter2 = meter*meter
+meter3 = meter*meter*meter
+kilometer = 1000.*meter
+kilometer2 = kilometer*kilometer
+kilometer3 = kilometer*kilometer*kilometer
+parsec = 3.0856775807e+16*meter
+micrometer = 1.e-6 *meter
+nanometer  = 1.e-9 *meter
+angstrom   = 1.e-10*meter
+fermi      = 1.e-15*meter
+barn       = 1.e-28*meter2
+millibarn  = 1.e-3 *barn
+microbarn  = 1.e-6 *barn
+nanobarn   = 1.e-9 *barn
+picobarn   = 1.e-12*barn
+# symbols
+mm  = millimeter
+mm2 = millimeter2
+mm3 = millimeter3
+cm  = centimeter
+cm2 = centimeter2
+cm3 = centimeter3
+m  = meter
+m2 = meter2
+m3 = meter3
+km  = kilometer
+km2 = kilometer2
+km3 = kilometer3
+pc = parsec
+
+
+# ========================================================================================================================================================
+# The next code allows to execute this file
+# ========================================================================================================================================================
+
+#! /usr/bin/env python3
+desc = """
+Run eicrecon with reco_flags.py
+
+    python3 reco_flags.py input_file.edm4hep.root output_name_no_ext
+    
+Script should successfully run and create files:
+
+    output_name_no_ext.edm4eic.root    # with output flat tree
+    output_name_no_ext.ana.root        # with histograms and other things filled by monitoring plugins
+    
+One can add -n/--nevents file with the number of events to process    
+"""
+
+import io
+from pprint import pprint
+import os
+import sys
+import subprocess
+from datetime import datetime
+import argparse
+
+# For some values we need to eval the result
+known_units_list = ['eV', 'MeV', 'GeV', 'mm', 'cm', 'mrad']
+
+def has_unit_conversion(value):
+    """Checks if string value use units like X*MeV or X/GeV"""
+    for unit_name in known_units_list:
+        if f'*{unit_name}' in value or \
+                f'* {unit_name}' in value or \
+                f'/{unit_name}' in value or \
+                f'/ {unit_name}' in value:
+            return True
+    return False
+
+
+def value_eval(value):
+    """Converts string value with units or capacityBitsADC to number"""
+
+    if has_unit_conversion(value):
+        # need evaluation of unit conversion
+        return str(eval(value))
+
+    if 'capacityBitsADC' in value:
+        # Value given in a form of 'capacityBitsADC=8'
+        capacity_bits = 2 ** int(value.split("=")[1])
+        return str(capacity_bits)
+
+    return value
+
+
+def make_flags_from_records():
+    flags_arguments = []
+    for record in eicrecon_reco_flags:
+        if record[1]:
+            value = value_eval(record[1])
+            flags_arguments.append(f'-P{record[0]}={value}')
+    return flags_arguments
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('input_file', help="Input file name")
+    parser.add_argument('output_base_name', help="Output files names (no file extensions here)")
+    parser.add_argument('-n', '--nevents', default="0", help="Number of events to process")
+    args = parser.parse_args()
+
+    run_command = [
+        f"eicrecon",
+        f"-Pplugins=dump_flags",
+        f"-Pdump_flags:python=all_flags_dump_from_run.py",
+        f"-Pjana:debug_plugin_loading=1",
+        f"-Pjana:nevents={args.nevents}",
+        f"-Pacts:MaterialMap=calibrations/materials-map.cbor",
+        f"-Ppodio:output_file={args.output_base_name}.tree.edm4eic.root",
+        f"-Phistsfile={args.output_base_name}.ana.root",
+        f"{args.input_file}",
+    ]
+
+    flags_arguments = make_flags_from_records()
+
+    # Add reco_flags
+    run_command.extend(flags_arguments)
+
+    # RUN EICrecon
+    start_time = datetime.now()
+    subprocess.run(" ".join(run_command), shell=True, check=True)
+    end_time = datetime.now()
+
+    # Print execution time
+    print("Start date and time : {}".format(start_time.strftime('%Y-%m-%d %H:%M:%S')))
+    print("End date and time   : {}".format(end_time.strftime('%Y-%m-%d %H:%M:%S')))
+    print("Execution real time : {}".format(end_time - start_time))
