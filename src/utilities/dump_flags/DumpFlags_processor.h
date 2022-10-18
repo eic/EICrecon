@@ -6,11 +6,12 @@
 #include <TH2F.h>
 
 #include <JANA/JEventProcessor.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
 class JEvent;
 class JApplication;
 
-class DumpFlags_processor: public JEventProcessor
+class DumpFlags_processor: public JEventProcessor, public eicrecon::SpdlogMixin<DumpFlags_processor>
 {
 public:
     explicit DumpFlags_processor(JApplication *);
