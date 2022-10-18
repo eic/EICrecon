@@ -510,19 +510,19 @@ eicrecon_reco_flags = [
 
     ('BTRK:BarrelTrackerRawHit:Threshold',                       '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              '* [ns] Time resolution gauss smearing'),
-    ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
+    ('BTRK:BarrelTrackerHit:TimeResolution',                     '8',                              '* [ns] Time resolution set to covariance matrix for CKF input'),
 
     ('BVTX:BarrelVertexRawHit:Threshold',                        '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              '* [ns] Time resolution gauss smearing [ns]'),
-    ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
+    ('BVTX:BarrelVertexHit:TimeResolution',                      '8',                              '* [ns] Time resolution set to covariance matrix for CKF input'),
 
     ('ECTRK:EndcapTrackerRawHit:Threshold',                      '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              '* [ns] Time resolution gauss smearing'),
-    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
+    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '8',                              '* [ns] Time resolution set to covariance matrix for CKF input'),
 
     ('MPGD:MPGDTrackerRawHit:Threshold',                         '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              '* [ns] Time resolution gauss smearing'),
-    ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
+    ('MPGD:MPGDTrackerHit:TimeResolution',                       '8',                              '* [ns] Time resolution set to covariance matrix for CKF input'),
 
     ('ECTOF:TOFEndcapRawHit:Threshold',                          '0',                              '* EDep threshold for hits to pass through, [GeV]'),
     ('ECTOF:TOFEndcapRawHit:TimeResolution',                     '0.025',                          '* [ns] Time resolution gauss smearing'),
