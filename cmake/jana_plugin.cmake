@@ -151,7 +151,7 @@ macro(plugin_glob_all _name)
 endmacro()
 
 
-# dd4hep - plugin_add_dd4hep
+# Adds dd4hep for a plugin
 macro(plugin_add_dd4hep _name)
 
     if(NOT DD4hep_FOUND)
@@ -164,7 +164,7 @@ macro(plugin_add_dd4hep _name)
 endmacro()
 
 
-# ACTS - plugin_add_dd4hep
+# Adds ACTS tracking package for a plugin
 macro(plugin_add_acts _name)
 
     if(NOT Acts_FOUND)
@@ -186,7 +186,7 @@ macro(plugin_add_acts _name)
     plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
 endmacro()
 
-# podio, edm4hep, edm4eic
+# Adds podio, edm4hep, edm4eic for a plugin
 macro(plugin_add_event_model _name)
 
     if(NOT podio_FOUND)
@@ -214,6 +214,8 @@ macro(plugin_add_event_model _name)
             )
 endmacro()
 
+
+# Adds cern ROOT for a plugin
 macro(plugin_add_cern_root _name)
 
     if(NOT ROOT_FOUND)
