@@ -20,10 +20,11 @@ namespace eicrecon {
         InitLogger(param_prefix, "info");
 
         // Setup digitization algorithm
-        auto &m_cfg = m_smearing_algo.applyConfig(GetDefaultConfig());
-        app->SetDefaultParameter(param_prefix + ":MomentumSmearing", m_cfg.momentum_smearing, "Gaussian momentum smearing value");
+        auto cfg = GetDefaultConfig();
+        app->SetDefaultParameter(param_prefix + ":MomentumSmearing", cfg.momentum_smearing, "Gaussian momentum smearing value");
 
         // Initialize digitization algorithm
+        m_smearing_algo.applyConfig(cfg);
         m_smearing_algo.init(m_log);
     }
 
