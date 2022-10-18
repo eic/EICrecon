@@ -18,16 +18,11 @@ plugin_add(${PLUGIN_NAME} )
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(EDM4HEP REQUIRED)
-find_package(EDM4EIC REQUIRED)
-find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
-dump_cmake_variables(Eigen)
-
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
+plugin_add_dd4hep(${PLUGIN_NAME})
+plugin_add_event_model(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR})
+# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
+# plugin_link_libraries(${PLUGIN_NAME} ... )

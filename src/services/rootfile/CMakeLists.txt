@@ -14,5 +14,6 @@ plugin_add(${PLUGIN_NAME} )
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-find_package(ROOT REQUIRED)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS})
+# Add cern root
+plugin_add_cern_root(${PLUGIN_NAME})
+

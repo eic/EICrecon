@@ -4,18 +4,23 @@
 
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/string/StringHelpers.h>
 #include "SiliconTrackerDigi_factory.h"
 
 
 void eicrecon::SiliconTrackerDigi_factory::Init() {
+    using namespace eicrecon::str;
+
     auto app = GetApplication();
     auto pm = app->GetJParameterManager();
+
+    std::string plugin_name = ReplaceAll(GetPluginName(), ".so", "");
 
     // We will use plugin name to get parameters for correct factory
     // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
     //    "BTRK:parameter" or "FarForward:parameter"
     // That has limitations but the convenient in the most of the cases
-    std::string param_prefix = "SiliconTrackerDigi:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string param_prefix = plugin_name + ":" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
     // Set input tags
     InitDataTags(param_prefix);
@@ -25,8 +30,8 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
 
     // Setup digitization algorithm
     auto &m_cfg = m_digi_algo.applyConfig(GetDefaultConfig());
-    pm->SetDefaultParameter(param_prefix + ":Threshold", m_cfg.threshold, "threshold");
-    pm->SetDefaultParameter(param_prefix + ":TimeResolution", m_cfg.timeResolution, "Time resolution. Probably ns. Fix my units!!!!");
+    pm->SetDefaultParameter(param_prefix + ":Threshold", m_cfg.threshold, "EDep threshold for hits to pass through, [GeV]");
+    pm->SetDefaultParameter(param_prefix + ":TimeResolution", m_cfg.timeResolution, "Time resolution gauss smearing [ns]");
 
     // Initialize digitization algorithm
     m_digi_algo.init(m_log);
@@ -55,5 +60,3 @@ void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const J
     m_log->trace("SiliconTrackerDigi_factoryT<>::Process(...) end\n");
 }
 
-eicrecon::SiliconTrackerDigi_factory::SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags, SiliconTrackerDigiConfig cfg)
-        : JChainFactoryT(default_input_tags, cfg) {}

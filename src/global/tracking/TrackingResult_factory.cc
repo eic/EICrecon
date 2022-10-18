@@ -5,28 +5,19 @@
 #include "TrackingResult_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 #include <JANA/JEvent.h>
 
 void TrackingResult_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "CKFTracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    auto app = GetApplication();
+    // Set input data tags properly
+    InitDataTags(param_prefix);
 
-    // Logger and log level from user parameter or default
-    m_log = app->GetService<Log_service>()->logger(param_prefix);
-
-    // Ask service locator for parameter manager. We want to get this plugin parameters.
-    auto pm = this->GetApplication()->GetJParameterManager();
-    std::string log_level_str = "info";
-    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
-    // Now we check that user provided an input names
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
-    if(m_input_tags.size() == 0) {
-        m_input_tags = GetDefaultInputTags();
-    }
+    // SpdlogMixin logger initialization, sets m_log
+    InitLogger(param_prefix, "info");
 
     m_particle_maker_algo.init(m_log);
 }
@@ -37,7 +28,7 @@ void TrackingResult_factory::ChangeRun(const std::shared_ptr<const JEvent> &even
 
 void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
-    std::string input_tag = m_input_tags[0];
+    std::string input_tag = GetInputTags()[0];
 
     // Collect all hits
     auto trajectories = event->Get<Jug::Trajectories>(input_tag);

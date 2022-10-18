@@ -6,20 +6,24 @@
 #include "TrackerReconstructedParticle_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "ParticlesFromTrackFitResult.h"
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
+#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
     void TrackerReconstructedParticle_factory::Init() {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "GlbReco:" + GetTag();
+        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(param_prefix, "info");
+        auto level = m_log->level();
+        m_log->info("Log level {} set to {}", param_prefix, level);
     }
 
     void TrackerReconstructedParticle_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
