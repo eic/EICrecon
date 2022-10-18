@@ -1,5 +1,9 @@
 # format [ (flag_name, default_val, description), ...]
 eicrecon_reco_flags=[
+    # B0TRK
+    # --------------
+    # BEMC
+    # --------------
     ('BEMC:EcalBarrelClusters:depthCorrection',                  '0',                              ''),
     ('BEMC:EcalBarrelClusters:enableEtaBounds',                  '0',                              ''),
     ('BEMC:EcalBarrelClusters:energyWeight',                     'log',                            ''),
@@ -46,15 +50,25 @@ eicrecon_reco_flags=[
     ('BEMC:EcalBarrelTruthClusters:logWeightBase',               '3.6',                            ''),
     ('BEMC:EcalBarrelTruthClusters:moduleDimZName',              '',                               ''),
     ('BEMC:EcalBarrelTruthClusters:samplingFraction',            '1',                              ''),
+    # BTRK
+    # --------------
     ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             'threshold'),
     ('BTRK:BarrelTrackerRawHit:Threshold',                       '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              'Time resolution gauss smearing [ns]'),
+    # BVTX
+    # --------------
     ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             'threshold'),
     ('BVTX:BarrelVertexRawHit:Threshold',                        '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              'Time resolution gauss smearing [ns]'),
+    # ECGEM
+    # --------------
+    # ECTRK
+    # --------------
     ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             'threshold'),
     ('ECTRK:EndcapTrackerRawHit:Threshold',                      '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              'Time resolution gauss smearing [ns]'),
+    # EEMC
+    # --------------
     ('EEMC:EcalEndcapNClusters:depthCorrection',                 '0',                              ''),
     ('EEMC:EcalEndcapNClusters:dimScaledLocalDistXY',            '1.8,1.8',                        ''),
     ('EEMC:EcalEndcapNClusters:enableEtaBounds',                 '0',                              ''),
@@ -139,6 +153,10 @@ eicrecon_reco_flags=[
     ('EEMC:EcalEndcapPRecHits:sectorField',                      'sector',                         ''),
     ('EEMC:EcalEndcapPRecHits:thresholdFactor',                  '4',                              ''),
     ('EEMC:EcalEndcapPRecHits:thresholdValue',                   '0',                              ''),
+    # FOFFMTRK
+    # --------------
+    # HCAL
+    # --------------
     ('HCAL:HcalBarrelClusters:depthCorrection',                  '0',                              ''),
     ('HCAL:HcalBarrelClusters:enableEtaBounds',                  '0',                              ''),
     ('HCAL:HcalBarrelClusters:energyWeight',                     'log',                            ''),
@@ -264,13 +282,15 @@ eicrecon_reco_flags=[
     ('HCAL:HcalEndcapPIslandProtoClusters:minClusterHitEdep',    '0',                              ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:sectorDist',           '5',                              ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:splitCluster',         '1',                              ''),
+    # MPGD
+    # --------------
     ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             'threshold'),
     ('MPGD:MPGDTrackerRawHit:Threshold',                         '0',                              'EDep threshold for hits to pass through, [GeV]'),
     ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              'Time resolution gauss smearing [ns]'),
-    ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
-    ('RECORD_CALL_STACK',                                        '0',                              ''),
-    ('tracking:InitTrackParams:input_tags',                      '',                               'Input data tag name'),
-    ('tracking:InitTrackParams:verbose',                         '0',                              'verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace'),
+    # RPOTS
+    # --------------
+    # ZDC
+    # --------------
     ('ZDC:ZDCEcalClusters:depthCorrection',                      '0',                              ''),
     ('ZDC:ZDCEcalClusters:enableEtaBounds',                      '0',                              ''),
     ('ZDC:ZDCEcalClusters:energyWeight',                         'log',                            ''),
@@ -323,5 +343,20 @@ eicrecon_reco_flags=[
     ('ZDC:ZDCEcalTruthClusters:logWeightBase',                   '3.6',                            ''),
     ('ZDC:ZDCEcalTruthClusters:moduleDimZName',                  '',                               ''),
     ('ZDC:ZDCEcalTruthClusters:samplingFraction',                '1',                              ''),
+    # Tracking
+    # --------------
+    ('tracking:CentralCKFTrajectories:Chi2CutOff',               '50',                             ''),
+    ('tracking:CentralCKFTrajectories:EtaBins',                  '',                               'Eta Bins for ACTS CKF tracking reco'),
+    ('tracking:CentralCKFTrajectories:NumMeasurementsCutOff',    '10',                             'Number of measurements Cut Off for ACTS CKF tracking'),
+    ('tracking:InitTrackParams:input_tags',                      '',                               'Input data tag name'),
+    ('tracking:InitTrackParams:verbose',                         '0',                              'verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace'),
+    # Reco
+    # --------------
+    ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
+    ('RECORD_CALL_STACK',                                        '0',                              ''),
+    # Digi
+    # --------------
+    # Calorimetry
+    # --------------
 ]
 

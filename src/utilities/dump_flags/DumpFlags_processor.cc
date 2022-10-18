@@ -40,6 +40,8 @@ void DumpFlags_processor::Init()
     app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
     app->SetDefaultParameter("dump_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
     app->SetDefaultParameter("dump_flags:json", m_json_file_name, "If not empty, a json file to generate");
+
+    InitLogger("dump_flags", "info");
 }
 
 
@@ -59,16 +61,6 @@ void DumpFlags_processor::Finish()
 {
     auto pm = GetApplication()->GetJParameterManager();
 
-    // Set to false all categories use flags before we go through flags
-    std::map<std::string, bool> category_is_used;
-    for(const auto &category: m_reco_prefixes) {
-        category_is_used[category] = false;
-    }
-
-    std::string python_content = "flags=[\n";
-
-    std::string all_python_content ="# format [ (flag_name, default_val, description), ...]\neicrecon_flags=[\n";
-
     // Find longest strings in names and values
     size_t max_name_len = 0;
     size_t max_default_val_len = 0;
@@ -82,56 +74,66 @@ void DumpFlags_processor::Finish()
         }
     }
 
+    // Found longest values?
     spdlog::info("max_name_len={} max_default_val_len={}", max_name_len, max_default_val_len);
 
+    // Start generating
+    std::string python_content ="# format [ (flag_name, default_val, description), ...]\neicrecon_flags=[\n";
+    std::string json_content = "[\n";
 
+    // iterate over parameters
+    size_t line_num = 0;
     for(auto [name,param]: pm->GetAllParameters())
     {
-        std::string escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "'", "`");
-
-        all_python_content += fmt::format("    ({:{}} {:{}} '{}'),\n",
-                                          fmt::format("'{}',", param->GetKey()),
+        // form python content string
+        std::string python_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "'", "`");
+        python_content += fmt::format("    ({:{}} {:{}} '{}'),\n",
+                                      fmt::format("'{}',", param->GetKey()),
                                           max_name_len + 3,
-                                          fmt::format("'{}',", param->GetDefault()),
+                                      fmt::format("'{}',", param->GetDefault()),
                                           max_default_val_len + 3,
-                                          escaped_descr
+                                      python_escaped_descr
                                           );
 
+        // form json content string
+        std::string json_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "\"", "'");
+        json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\"]\n",
+                                    line_num++==0?' ': ',',
+                                    param->GetKey(),
+                                    param->GetDefault(),
+                                    json_escaped_descr);
 
-        if (isReconstructionFlag(name)) { // pos=0 limits the search to the prefix
-
-            // Is it the first flag in the category?
-            std::string category = findCategory(name);
-            if(!category.empty() && !category_is_used[category]) {
-
-            }
-            // s starts with prefix
-            auto escaped_flag_name = fmt::format("'{}',", param->GetKey());
-
-
-//            python_content += fmt::format("    {:{}}   # {:{}} '{}' '{}'\n",
-//                                          escaped_flag_name, max_name_len+3,
-//                                          param->GetDefault(),  max_default_val_len,
-//                                          param->GetValue(),
-//                                          param->GetDescription());
-            fmt::print("{:<{}} - {} \n", name, max_name_len+1, param->GetDescription());
-        }
-//fmt::print("{:<40} {} {} {}\n", name, param->GetKey(), param->GetDefault(), param->GetDescription(), param->GetValue());
+        // Print on screen
+        fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());
     }
 
+    // Finalizing
     python_content+="]\n\n";
-    all_python_content+="]\n\n";
-    fmt::print(python_content);
+    json_content+="]\n\n";
 
+    // Save python file
     if(!m_python_file_name.empty()) {
         try{
             std::ofstream ofs(m_python_file_name);
-            ofs << all_python_content;
-            spdlog::info("Created python file with flags: '{}'", m_python_file_name);
+            ofs << python_content;
+            m_log->info("Created python file with flags: '{}'", m_python_file_name);
         }
         catch(std::exception ex) {
-            spdlog::error("Can't open file '{}' for write", m_python_file_name);    // TODO personal logger
-            throw;
+            m_log->error("Can't open file '{}' for write", m_python_file_name);    // TODO personal logger
+            throw JException(ex.what());
+        }
+    }
+
+    // Save json file
+    if(!m_json_file_name.empty()) {
+        try{
+            std::ofstream ofs(m_json_file_name);
+            ofs << json_content;
+            m_log->info("Created json file with flags: '{}'", m_json_file_name);
+        }
+        catch(std::exception ex) {
+            m_log->error("Can't open file '{}' for write", m_json_file_name);    // TODO personal logger
+            throw JException(ex.what());
         }
     }
 }
