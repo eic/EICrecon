@@ -1,6 +1,16 @@
 #! /usr/bin/env python3
 # Created 2022 by Dmitry Romanov
-# format [ (flag_name, default_val, description), ... ]
+#
+# One can run EICrecon with flags in this file:#
+#    python3 reco_flags.py --nevents 1000 input.edm4hep.root output_no_ext
+#
+# Also when EICrecon builds it copies reco_flags.py as run_eicrecon_reco_flags.py.
+# So if the output bin directory is in PATH one can do:#
+#    run_eicrecon_reco_flags.py -n 1000 input.edm4hep.root output_no_ext
+#
+# The format of the table is:
+#  [ (flag_name, default_val, description), ... ]
+#
 # '*' in the description means value is checked with reconstruction.py of Juggler
 
 eicrecon_reco_flags = [
@@ -497,29 +507,30 @@ eicrecon_reco_flags = [
     ('ZDC:ZDCEcalTruthClusters:samplingFraction',                '1',                              '*'),
 
     # ========================= T R A C K I N G ================================
-    ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             'threshold'),
+
     ('BTRK:BarrelTrackerRawHit:Threshold',                       '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              '* Time resolution gauss smearing [ns]'),
+    ('BTRK:BarrelTrackerRawHit:TimeResolution',                  '8',                              '* [ns] Time resolution gauss smearing'),
+    ('BTRK:BarrelTrackerHit:TimeResolution',                     '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
 
-    ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             'threshold'),
     ('BVTX:BarrelVertexRawHit:Threshold',                        '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              '* Time resolution gauss smearing [ns]'),
+    ('BVTX:BarrelVertexRawHit:TimeResolution',                   '8',                              '* [ns] Time resolution gauss smearing [ns]'),
+    ('BVTX:BarrelVertexHit:TimeResolution',                      '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
 
-    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             'threshold'),
     ('ECTRK:EndcapTrackerRawHit:Threshold',                      '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              '* Time resolution gauss smearing [ns]'),
+    ('ECTRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              '* [ns] Time resolution gauss smearing'),
+    ('ECTRK:EndcapTrackerHit:TimeResolution',                    '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
 
-    ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             'threshold'),
     ('MPGD:MPGDTrackerRawHit:Threshold',                         '0',                              'EDep threshold for hits to pass through, [GeV]'),
-    ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              '* Time resolution gauss smearing [ns]'),
+    ('MPGD:MPGDTrackerRawHit:TimeResolution',                    '8',                              '* [ns] Time resolution gauss smearing'),
+    ('MPGD:MPGDTrackerHit:TimeResolution',                       '10',                             '* [ns] Time resolution set to covariance matrix for CKF input'),
 
-    ('ECTOF:TOFEndcapTrackerHit:TimeResolution',                 '0.026',                          'threshold'),
     ('ECTOF:TOFEndcapRawHit:Threshold',                          '0',                              '* EDep threshold for hits to pass through, [GeV]'),
-    ('ECTOF:TOFEndcapRawHit:TimeResolution',                     '0.026',                          '* Time resolution gauss smearing [ns]'),
+    ('ECTOF:TOFEndcapRawHit:TimeResolution',                     '0.025',                          '* [ns] Time resolution gauss smearing'),
+    ('ECTOF:TOFEndcapTrackerHit:TimeResolution',                 '0.025',                          '* [ns] Time resolution set to covariance matrix for CKF input'),
 
-    ('BTOF:TOFBarrelTrackerHit:TimeResolution',                  '0.026',                          '* threshold'),
     ('BTOF:TOFBarrelRawHit:Threshold',                           '0',                              '* EDep threshold for hits to pass through, [GeV]'),
-    ('BTOF:TOFBarrelRawHit:TimeResolution',                      '0.026',                          '* Time resolution gauss smearing [ns]'),
+    ('BTOF:TOFBarrelRawHit:TimeResolution',                      '0.025',                          '* [ns] Time resolution gauss smearing'),
+    ('BTOF:TOFBarrelTrackerHit:TimeResolution',                  '0.025',                          '* [ns] Time resolution set to covariance matrix for CKF input'),
 
     # ========================= R E C O N S T R U C T I O N ================================
     ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
