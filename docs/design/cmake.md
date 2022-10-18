@@ -1,4 +1,4 @@
-## plugins CMake API
+# plugins CMake API
 
 There is a copy/paste CMake file that should automatically create plugin out of sources. 
 
@@ -15,45 +15,42 @@ E.g. if you want to create a plugin named `my_plugin`
 - Create `CMakeLists.txt` with the content below 
 - Add all others files (cmake GLOB is used)
 
-### Recommended cmake:
+## Recommended cmake:
 
 Recommended CMake for a plugin:
 
 ```cmake
 cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0074 NEW)  # use the policy to look for <package>_ROOT envar
 
-# Automatically set plugin name the same as the direcotry name
-# Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
-plugin_add(${PLUGIN_NAME})
-
-# Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
-find_package(ROOT REQUIRED)
+plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-# Add include directories
-# (same as target_include_directories but for both plugin and library)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
+# Find dependencies
+# Uncomment below as needed:
+# plugin_add_dd4hep(${PLUGIN_NAME})
+# plugin_add_acts(${PLUGIN_NAME})
+# plugin_add_cern_root(${PLUGIN_NAME})
+plugin_add_event_model(${PLUGIN_NAME})
 
-# Add libraries
-# (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
+# Add include directories (works same as target_include_directories)
+# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
+
+# Add libraries (works similar target_include_directories but for plugin targets)
+# plugin_link_libraries(${PLUGIN_NAME} ... )
+
+
 ```
 
-### CMake macros:
+## CMake macros:
 
 There are `plugin_...` macros that are slim wrappers trying to minimize an amount of boilerplate
 code of each plugin cmake scripts. Macros mimic CMake functions like `target_link_libraries` => `plugin_link_libraries`.
@@ -116,4 +113,31 @@ Runs target_link_libraries for both a plugin and a library (if enabled)
 ```cmake
 # example
 plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
+```
+
+### plugin_add_|PACKAGE| 
+
+The next snippets combine boiler code for common libraries. 
+They also try to use packages that are already found. 
+Consider using them instead of find_packge(...)+plugin_link_libraries+plugin_include_directories
+
+
+- plugin_add_event_model - podio, edm4hep, edm4eic
+- plugin_add_acts - ACTS with version check
+- plugin_add_cern_root - CERN ROOT
+- plugin_add_dd4hep - dd4hep + Geant4
+
+
+```cmake
+# podio, edm4hep, edm4eic
+plugin_add_event_model(${PLUGIN_NAME})
+
+# acts with common components
+plugin_add_acts(${PLUGIN_NAME})
+
+# common cern ROOT libraries & include dirs
+plugin_add_cern_root(${PLUGIN_NAME})
+
+# dd4hep
+plugin_add_dd4hep(${PLUGIN_NAME}) 
 ```
