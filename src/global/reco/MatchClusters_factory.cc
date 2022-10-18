@@ -15,7 +15,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "ParticlesFromTrackFitResult.h"
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include "algorithms/reco/ParticlesWithAssociation.h"
 
 namespace eicrecon {

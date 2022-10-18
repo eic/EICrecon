@@ -63,8 +63,27 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
+# PODIO, EDM4HEP, EDM4EIC event models
+find_package(podio REQUIRED)
+find_package(EDM4HEP REQUIRED)
+find_package(EDM4EIC REQUIRED)
+set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
+
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
+
+# ACTS
+find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+set(Acts_VERSION_MIN "19.0.0")
+set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
+        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
+    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
+endif()
+set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
+
+# CERN ROOT
+find_package(ROOT REQUIRED)
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
@@ -80,13 +99,13 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
+add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
 add_subdirectory( src/detectors )
 add_subdirectory( src/examples )
 add_subdirectory( src/global )
 add_subdirectory( src/scripts )
-add_subdirectory( src/services )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
 add_subdirectory( src/tools/default_flags_table )

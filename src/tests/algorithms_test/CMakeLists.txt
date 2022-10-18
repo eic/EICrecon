@@ -11,7 +11,6 @@ get_filename_component(DIRECOTRY_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 find_package(JANA REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO)
 
 ## The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
