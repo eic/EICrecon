@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
@@ -57,7 +57,7 @@ jobs:
   ddsim:
     runs-on: ubuntu-latest
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
@@ -82,7 +82,7 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: sim_e_1GeV_20GeV.edm4eic.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
@@ -108,7 +108,7 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: sim_e_1GeV_20GeV.edm4eic.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
