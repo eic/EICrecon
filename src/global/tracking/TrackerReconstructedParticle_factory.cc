@@ -7,13 +7,15 @@
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ParticlesFromTrackFitResult.h"
+#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
     void TrackerReconstructedParticle_factory::Init() {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "tracking:" + GetTag();
+        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Set input data tags properly
         InitDataTags(param_prefix);

@@ -2,6 +2,7 @@
 #include "TrackingTest_processor.h"
 #include "algorithms/tracking/JugTrack/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "algorithms/reco/ParticlesWithAssociation.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -79,28 +80,23 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
     using namespace ROOT;
 
+    m_log->debug("----------- TrackingTest_processor {}-----------", event->GetEventNumber());
 
-//
-//    fmt::print("OccupancyAnalysis::Process() event {}\n", event->GetEventNumber());
-//
-//    //auto simhits = event->Get<edm4hep::SimCalorimeterHit>("EcalBarrelHits");
-//    //auto raw_hits = event->Get<edm4eic::RawTrackerHit>("BarrelTrackerRawHit");
-//
-//    auto hits = event->Get<edm4eic::TrackerHit>("BarrelTrackerHit");
-//
-    //auto result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>("CentralTrackerSourceLinker");
-//    spdlog::info("Result counts sourceLinks.size()={} measurements.size()={}", result->sourceLinks->size(), result->measurements->size());
-//
-//    auto truth_init = event->Get<Jug::TrackParameters>("");
-//    spdlog::info("truth_init.size()={}", truth_init.size());
-//
-    //auto trajectories = event->Get<Jug::Trajectories>("Trajectories");
+    ProcessTrackingMatching(event);
+}
 
-//    fmt::print("BCAL {}\n", bcal[0]->getCellID());
 
+//------------------
+// Finish
+//------------------
+void TrackingTest_processor::Finish()
+{
+	fmt::print("OccupancyAnalysis::Finish() called\n");
+
+}
+
+void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const JEvent> &event) {
     auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
-
-
     m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
 
@@ -119,11 +115,9 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
     }
 
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-//    fmt::print("OccupancyAnalysis::Process() mc_particles N {}\n", mc_particles.size());
-//
 
     auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    auto track_params = event->GetSingle<edm4eic::TrackParameters>("TrackParameters");
+    auto track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
@@ -141,110 +135,50 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
         if(p.R()<1) continue;
 
         m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i, particle->getGeneratorStatus(), particle->getPDG(),  px, py, pz, p.R());
-
-//
-//        m_th1_prt_pz->Fill(pz);
-//        m_th2_prt_pxy->Fill(px, py);
-//
-//        m_th1_prt_theta->Fill(p.Theta());
-//        if(pz>0) {
-//            m_th1_prt_phi->Fill(p.Phi());
-//        } else {
-//            m_th1_prt_phi->Fill(-p.Phi());
-//        }
-//
-//        m_th1_prt_energy->Fill(p4v.E());
-//
-//
-//        /*
-//        fmt::print("OccupancyAnalysis::Process() theta  : {}\n", p.Theta());
-//        fmt::print("OccupancyAnalysis::Process() theta2 : {}\n", acos(pz/p.R()));
-//        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", p.Phi());
-//        fmt::print("OccupancyAnalysis::Process() phi    : {}\n", atan(py/px));
-//         */
     }
 
-//    for(auto& trajectory: trajectories) {
-//        m_log->debug("Trajectory empty {}", trajectory->empty());
-//        m_log->debug("Trajectory multiTrajectory size {}", trajectory->multiTrajectory().size());
-//        m_log->debug("Trajectory trajectory->trackParameters(0).momentum().x() {}", trajectory->trackParameters(0).momentum().x());
-//    }
-
-
-auto hits = event->Get<edm4eic::TrackerHit>("trackerHits");
-
-
-
-
-
-//	// Get hits
-//	auto hits = event->Get<minimodel::McFluxHit>();
-//
-// 	for(auto hit: hits) {
-//
-//		// Create local x,y,z,name as we will use them a lot to drag hit-> around
-//		double x = hit->x;
-//		double y = hit->y;
-//		double z = hit->z;
-//
-//		th1_hits_z->Fill(z);	// Hits over z axes
-//		total_occ->Fill(x, y);	// Total xy occupancy
-//		if(z > 0) h_part_occ->Fill(x, y);	// Hadron part xy occupancy (z > 0)
-//		if(z <= 0) e_part_occ->Fill(x, y); // electron part xy occupancy (Z < 0)
-//
-//		// Fill occupancy by layer/vol_name
-//		th2_by_layer->Get(hit->vol_name)->Fill(x, y);
-//
-//		// Fill occupancy per detector
-//		auto detector_name = VolNameToDetName(hit->vol_name);	// get detector name
-//		if(!detector_name.empty()) {
-//			th1_z_by_detector->Get(detector_name)->Fill(z);
-//			th2_by_detector->Get(detector_name)->Fill(x, y);
-//			th3_by_detector->Get(detector_name)->Fill(z, x, y);  // z, x, y is the right order here
-//			th3_hits3d->Fill(z, x, y);
-//		}
-//	}
 }
 
-
-//------------------
-// Finish
-//------------------
-void TrackingTest_processor::Finish()
-{
-	fmt::print("OccupancyAnalysis::Finish() called\n");
+void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const JEvent> &event) {
+    m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
+    auto prt_with_assoc = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
 
 
+    for(auto assoc: prt_with_assoc->associations()) {
 
-	// Next we want to create several pretty canvases (with histograms drawn on "same")
-	// But we don't want those canvases to pop up. So we set root to batch mode
-	// We will restore the mode afterwards
-	//bool save_is_batch = gROOT->IsBatch();
-	//gROOT->SetBatch(true);
+        auto sim = assoc->getSim();
+        auto rec = assoc->getRec();
 
-	// 3D hits distribution
-//	auto th3_by_det_canvas = new TCanvas("th3_by_det_cnv", "Occupancy of detectors");
-//	dir_main->Append(th3_by_det_canvas);
-//	for (auto& kv : th3_by_detector->GetMap()) {
-//		auto th3_hist = kv.second;
-//		th3_hist->Draw("same");
-//	}
-//	th3_by_det_canvas->GetPad(0)->BuildLegend();
-//
-//	// Hits Z by detector
-//
-//	// Create pretty canvases
-//	auto z_by_det_canvas = new TCanvas("z_by_det_cnv", "Hit Z distribution by detector");
-//	dir_main->Append(z_by_det_canvas);
-//	th1_hits_z->Draw("PLC PFC");
-//
-//	for (auto& kv : th1_z_by_detector->GetMap()) {
-//		auto hist = kv.second;
-//		hist->Draw("SAME PLC PFC");
-//		hist->SetFillStyle(3001);
-//	}
-//	z_by_det_canvas->GetPad(0)->BuildLegend();
-//
-//	gROOT->SetBatch(save_is_batch);
+        m_log->debug("  {:<6} {:<6} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", assoc->getSimID(), assoc->getRecID(), sim.getPDG(), rec.getPDG());
+    }
+
+    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
+    for(auto part: prt_with_assoc->particles()) {
+
+        // auto sim = assoc->getSim();
+        // auto rec = assoc->getRec();
+
+        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+
+    }
+
+
+    m_log->debug("ReconstructedChargedParticles [objID] [PDG] [charge] [energy]");
+    auto reco_charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+    for(auto part: reco_charged_particles) {
+        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+    }
+
+}
+
+void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const JEvent> &event) {
+
+    m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
+    auto final_reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
+    for(auto part: final_reco_particles) {
+        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+    }
+
+    auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 }
 

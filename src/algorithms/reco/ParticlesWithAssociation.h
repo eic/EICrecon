@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
 
 namespace eicrecon {
 
@@ -20,6 +20,9 @@ namespace eicrecon {
                 m_particles(std::move(particles)), m_associations(std::move(associations))
                 {}
 
+
+        [[nodiscard]] const std::vector<edm4eic::ReconstructedParticle*> & particles() const {return m_particles;}
+        [[nodiscard]] const std::vector<edm4eic::MCRecoParticleAssociation*> & associations() const {return m_associations;}
 
     private:
         /// Resulting reconstructed particles

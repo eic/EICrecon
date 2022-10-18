@@ -34,7 +34,8 @@ namespace eicrecon {
 
     public:
 
-        explicit SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags, SiliconTrackerDigiConfig cfg);
+        explicit SiliconTrackerDigi_factory(const std::vector<std::string> &default_input_tags, SiliconTrackerDigiConfig cfg)
+            : JChainFactoryT(default_input_tags, cfg) {}
 
         /** One time initialization **/
         void Init() override;

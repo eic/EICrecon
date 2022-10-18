@@ -53,7 +53,7 @@ private:
     JApplication *app = nullptr;
     dd4hep::Detector* m_dd4hepGeo = nullptr;
 	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
-    std::vector<std::string> m_xmlFileNames;
+    std::vector<std::string> m_xml_files;
 };
 
 #endif // __JDD4hep_service_h__

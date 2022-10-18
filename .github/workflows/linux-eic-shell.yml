@@ -14,24 +14,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-test:
+  build-gcc:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: cvmfs-contrib/github-action-cvmfs@v2
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
-        setup: /opt/detector/epic-nightly/setup.sh
         run: |
           # install this repo
-          cmake -B build -S . \
-            -DDETECTOR_LIBS_EPIC=/opt/detector/epic-nightly/lib/libepic.so \
-            -DDETECTOR_LIBS_IP6=/opt/detector/epic-nightly/lib/libip6.so
+          CC=gcc CXX=g++ cmake -B build -S .
           cmake --build build -- install
     - uses: actions/upload-artifact@v3
       with:
-        name: build-eic-shell-epic-nightly
+        name: build-gcc-eic-shell
+        path: |
+          .
+          !src/
+        if-no-files-found: error
+
+  build-clang:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cvmfs-contrib/github-action-cvmfs@v2
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        run: |
+          # install this repo
+          CC=clang CXX=clang++ cmake -B build -S .
+          cmake --build build -- install
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-clang-eic-shell
         path: |
           .
           !src/

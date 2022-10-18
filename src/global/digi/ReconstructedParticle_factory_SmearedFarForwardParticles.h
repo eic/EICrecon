@@ -25,7 +25,7 @@ public:
     /** One time initialization **/
     void Init() override{
 
-        InitLogger("digi:SmearedFarForwardParticles", "info");
+        InitLogger("Digi:SmearedFarForwardParticles", "info");
         // (this line seems quite awkward)
         this->SmearedFarForwardParticles::m_log = this->eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>::m_log;
 

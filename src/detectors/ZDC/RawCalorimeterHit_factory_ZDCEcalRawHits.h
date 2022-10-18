@@ -37,7 +37,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "ZDCEcalHits";
-        m_tRes = 0.0 * ns;
+        u_eRes = {};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
         m_dyRangeADC = 100 * MeV;
@@ -45,24 +45,26 @@ public:
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
+        u_fields={};
+        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("ZDC:tag",              m_input_tag);
-        app->SetDefaultParameter("ZDC:energyResolutions",u_eRes);
-        app->SetDefaultParameter("ZDC:timeResolution",   m_tRes);
-        app->SetDefaultParameter("ZDC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("ZDC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("ZDC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("ZDC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("ZDC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("ZDC:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("ZDC:signalSumFields",  u_fields);
-        app->SetDefaultParameter("ZDC:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("ZDC:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("ZDC:readoutClass",     m_readout);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();

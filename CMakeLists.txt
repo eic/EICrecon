@@ -27,7 +27,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.0.0)
+project(EICRecon VERSION 0.2.3)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
@@ -63,6 +63,8 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
+# DD4Hep is required for the most of the part
+find_package(DD4hep REQUIRED)
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
@@ -87,6 +89,7 @@ add_subdirectory( src/scripts )
 add_subdirectory( src/services )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
+add_subdirectory( src/tools/default_flags_table )
 
 
 

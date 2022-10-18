@@ -5,6 +5,7 @@
 #include "TrackerHitCollector_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 #include <JANA/JEvent.h>
 
 namespace eicrecon {
@@ -13,10 +14,11 @@ namespace eicrecon {
         auto app =  this->GetApplication();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Now we check that user provided an input names
-        app->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
+        app->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
         if(m_input_tags.empty()) {
             m_input_tags = GetDefaultInputTags();
         }
@@ -24,7 +26,7 @@ namespace eicrecon {
         // Logger and log level from user parameter or default
         m_log = app->GetService<Log_service>()->logger(param_prefix);
         std::string log_level_str = "info";
-        app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         // jana should not delete edm4eic::TrackerHit from this factory
