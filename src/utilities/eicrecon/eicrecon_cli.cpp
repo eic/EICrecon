@@ -67,7 +67,7 @@ namespace jana {
     }
 
     void PrintVersion() {
-        std::cout << "      EICrecon version: " << "0.2.2" << std::endl;
+        std::cout << "      EICrecon version: " << "0.2.3" << std::endl;
         std::cout << std::endl << std::endl;
     }
 
