@@ -13,34 +13,30 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 void eicrecon::CKFTracking_factory::Init() {
+    auto app = GetApplication();
+
     // This prefix will be used for parameters
     std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    auto app = GetApplication();
+    // Initialize input tags
+    InitDataTags(param_prefix);
 
-    // Logger and log level from user parameter or default
-    m_log = app->GetService<Log_service>()->logger(param_prefix);
-
-    // Ask service locator for parameter manager. We want to get this plugin parameters.
-    auto pm = this->GetApplication()->GetJParameterManager();
-    std::string log_level_str = "info";
-    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
-    // Now we check that user provided an input names
-    pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
-    if(m_input_tags.empty()) {
-        m_input_tags = GetDefaultInputTags();
-    }
+    // Initialize logger
+    InitLogger(param_prefix, "info");
 
     // Get ACTS context from ACTSGeo service
-    auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
-    auto dd4hp_service = GetApplication()->GetService<JDD4hep_service>();
+    auto acts_service = app->GetService<ACTSGeo_service>();
+    auto dd4hp_service = app->GetService<JDD4hep_service>();
+
+    // Algorithm configuration
+    auto cfg = GetDefaultConfig();
+    app->SetDefaultParameter(param_prefix + ":EtaBins", cfg.m_etaBins, "Eta Bins for ACTS CKF tracking reco");
+    app->SetDefaultParameter(param_prefix + ":Chi2CutOff", cfg.m_chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking");
+    app->SetDefaultParameter(param_prefix + ":NumMeasurementsCutOff", cfg.m_numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking");
 
     // Initialize algorithm
-    auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-
+    m_tracking_algo.applyConfig(cfg);
     m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
@@ -50,7 +46,7 @@ void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
-    std::string input_tag = m_input_tags[0];
+    std::string input_tag = GetInputTags()[0];
 
     // Collect all hits
     auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);

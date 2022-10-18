@@ -33,6 +33,8 @@
 #include "Acts/TrackFinding/MeasurementSelector.hpp"
 #include "CKFTrackingConfig.h"
 
+#include <algorithms/interfaces/WithPodConfig.h>
+
 class ActsGeometryProvider;
 
 namespace eicrecon {
@@ -42,7 +44,7 @@ namespace eicrecon {
  * \ingroup tracking
  */
 
-    class CKFTracking {
+    class CKFTracking: public WithPodConfig<eicrecon::CKFTrackingConfig> {
     public:
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
@@ -81,7 +83,7 @@ namespace eicrecon {
 //        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
         Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::FATAL; // FIXME: this is to suppress lots of errors about "No track is found with the initial parameters"
 
-        eicrecon::CKFTrackingConfig m_cfg;
+
 
         CKFTracking();
 

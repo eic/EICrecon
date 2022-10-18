@@ -29,11 +29,12 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
     InitLogger(param_prefix, "info");
 
     // Setup digitization algorithm
-    auto &m_cfg = m_digi_algo.applyConfig(GetDefaultConfig());
-    pm->SetDefaultParameter(param_prefix + ":Threshold", m_cfg.threshold, "EDep threshold for hits to pass through, [GeV]");
-    pm->SetDefaultParameter(param_prefix + ":TimeResolution", m_cfg.timeResolution, "Time resolution gauss smearing [ns]");
+    auto cfg = GetDefaultConfig();
+    pm->SetDefaultParameter(param_prefix + ":Threshold", cfg.threshold, "EDep threshold for hits to pass through, [GeV]");
+    pm->SetDefaultParameter(param_prefix + ":TimeResolution", cfg.timeResolution, "Time resolution gauss smearing [ns]");
 
     // Initialize digitization algorithm
+    m_digi_algo.applyConfig(cfg);
     m_digi_algo.init(m_log);
 }
 
