@@ -1,4 +1,4 @@
-import reco_flags_eicrecon
+import reco_flags
 
 flag_records = reco_flags.eicrecon_reco_flags
 

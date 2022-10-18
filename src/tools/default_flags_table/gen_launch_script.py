@@ -1,5 +1,5 @@
 import io
-import reco_flags_eicrecon
+import reco_flags
 from system_of_units import eV, MeV, GeV, mm, cm, mrad
 
 flag_records = reco_flags.eicrecon_reco_flags
