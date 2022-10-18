@@ -42,7 +42,8 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
         m_log->debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit->getMomentum().x, sim_hit->getMomentum().y, sim_hit->getMomentum().z);
         m_log->debug("   edep = {:.2f}", sim_hit->getEDep());
 
-        if (sim_hit->getEDep() * units::keV < m_cfg.threshold) {
+        double edep = sim_hit->getEDep();
+        if (edep * units::keV < m_cfg.threshold) {
             m_log->debug("  edep is below threshold of {:.2f} [keV]\n", m_cfg.threshold / units::keV);
             continue;
         }

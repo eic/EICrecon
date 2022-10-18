@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "ParticlesFromTrackFitResult.h"
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include "TrackParameters_factory.h"
 #include "extensions/string/StringHelpers.h"
 

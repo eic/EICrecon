@@ -9,25 +9,19 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(JANA REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED)
 plugin_add_dd4hep(${PLUGIN_NAME})
-find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
-find_package(EDM4EIC REQUIRED)
-find_package(spdlog REQUIRED)
 plugin_add_acts(${PLUGIN_NAME})
+plugin_add_cern_root(${PLUGIN_NAME})
+plugin_add_event_model(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-# Add include directories
-# (same as target_include_directories but for both plugin and library)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} )
-
+# Add include directories (works same as target_include_directories)
+# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB} ${ROOT_LIBRARIES}  EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library)
