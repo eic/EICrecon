@@ -29,7 +29,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapPClusters";
-        m_inputAssociations_tag="EcalEndcapPClustersAssoc";
+        m_inputAssociations_tag="EcalEndcapPClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
@@ -64,7 +64,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPMergedClustersAssoc");
+        event->Insert(m_outputAssociations, "EcalEndcapPMergedClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
