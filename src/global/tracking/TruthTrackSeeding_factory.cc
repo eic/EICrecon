@@ -6,13 +6,15 @@
 
 #include "TruthTrackSeeding_factory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "extensions/string/StringHelpers.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>
 #include <JANA/JEvent.h>
 
 void eicrecon::TruthTrackSeeding_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Create plugin level sub-log
     m_log = spdlog::stdout_color_mt("TruthTrackSeeding_factory");
@@ -21,7 +23,7 @@ void eicrecon::TruthTrackSeeding_factory::Init() {
     auto pm = this->GetApplication()->GetJParameterManager();
 
     pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
+    pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
 
     // This level will work for this plugin only
     switch (m_verbose) {

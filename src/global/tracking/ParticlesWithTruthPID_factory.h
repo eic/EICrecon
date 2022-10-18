@@ -8,17 +8,19 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainFactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+#include <algorithms/tracking/ParticlesWithTruthPID.h>
+#include <algorithms/tracking/ParticlesWithTruthPIDConfig.h>
 #include <spdlog/logger.h>
 
 namespace eicrecon {
 
     class ParticlesWithTruthPID_factory :
-            public JChainFactoryT<edm4eic::ReconstructedParticle>,
+            public JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>,
             public SpdlogMixin<ParticlesWithTruthPID_factory> {
 
     public:
-        explicit ParticlesWithTruthPID_factory( std::vector<std::string> default_input_tags):
-            JChainFactoryT<edm4eic::ReconstructedParticle>( std::move(default_input_tags)) {
+        explicit ParticlesWithTruthPID_factory( std::vector<std::string> default_input_tags, ParticlesWithTruthPIDConfig cfg):
+            JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>(std::move(default_input_tags), cfg) {
         }
 
         /** One time initialization **/
@@ -29,6 +31,10 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
+
+    private:
+        eicrecon::ParticlesWithTruthPID m_matching_algo;
+
     };
 
 } // eicrecon

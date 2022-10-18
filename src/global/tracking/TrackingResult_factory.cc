@@ -5,11 +5,13 @@
 #include "TrackingResult_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 #include <JANA/JEvent.h>
 
 void TrackingResult_factory::Init() {
     // This prefix will be used for parameters
-    std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Set input data tags properly
     InitDataTags(param_prefix);

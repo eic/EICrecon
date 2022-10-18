@@ -10,6 +10,7 @@
 #include "JANA/JEvent.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
 
@@ -20,10 +21,11 @@ namespace eicrecon {
         auto pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
-        std::string param_prefix = "Tracking:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Now we check that user provided an input names
-        pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
+        pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
         if(m_input_tags.empty()) {
             m_input_tags = GetDefaultInputTags();
         }
@@ -31,7 +33,7 @@ namespace eicrecon {
         // Logger and log level from user parameter or default
         m_log = app->GetService<Log_service>()->logger(param_prefix);
         std::string log_level_str = "info";
-        pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
+        pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         // Get ACTS context from ACTSGeo service

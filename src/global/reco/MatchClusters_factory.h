@@ -9,16 +9,19 @@
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
+#include <algorithms/reco/MatchClusters.h>
+#include <algorithms/reco/ParticlesWithAssociation.h>
+
 
 namespace eicrecon {
 
     class MatchClusters_factory :
-            public JChainFactoryT<edm4eic::ReconstructedParticle>,
+            public JChainFactoryT<ParticlesWithAssociation>,
             public SpdlogMixin<MatchClusters_factory> {
 
     public:
         explicit MatchClusters_factory(std::vector<std::string> default_input_tags):
-            JChainFactoryT<edm4eic::ReconstructedParticle>( std::move(default_input_tags)) {
+            JChainFactoryT<ParticlesWithAssociation>( std::move(default_input_tags)) {
         }
 
         /** One time initialization **/
@@ -29,6 +32,11 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
+    protected:
+
+        std::vector<std::string> m_input_assoc_tags = {"EcalBarrelClusterAssociations"};
+        MatchClusters m_match_algo;
+
     };
 
 } // eicrecon

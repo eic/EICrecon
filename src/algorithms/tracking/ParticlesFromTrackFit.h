@@ -8,7 +8,7 @@
 
 #include <spdlog/logger.h>
 #include "JugTrack/Trajectories.hpp"
-#include "ParticlesFromTrackFitResult.h"
+#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 
 namespace Jug::Reco {
