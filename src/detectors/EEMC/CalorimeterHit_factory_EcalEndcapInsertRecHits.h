@@ -7,12 +7,12 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalEndcapPRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalEndcapPInsertRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalEndcapPRecHits(){
+    CalorimeterHit_factory_EcalEndcapPInsertRecHits(){
         SetTag("EcalEndcapPInsertRecHits");
     }
 
