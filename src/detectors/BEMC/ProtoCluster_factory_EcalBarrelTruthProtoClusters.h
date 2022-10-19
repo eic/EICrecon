@@ -29,6 +29,8 @@ public:
         m_inputHit_tag="EcalBarrelRecHits";
         m_inputMCHit_tag="EcalBarrelHits";
 
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthProtoClusters:inputHit_tag", m_inputHit_tag, "Name of input collection to use");
+
         AlgorithmInit();
     }
 

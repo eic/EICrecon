@@ -55,6 +55,7 @@ public:
         
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("BEMC:EcalBarrelRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("BEMC:EcalBarrelRawHits:capacityADC",      m_capADC);

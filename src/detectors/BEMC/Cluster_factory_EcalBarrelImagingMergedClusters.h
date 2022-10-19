@@ -32,6 +32,12 @@ public:
         m_positionClusters_tag = "EcalBarrelImagingClusters";
         m_positionAssociations_tag = "EcalBarrelImagingClusterAssociations";
 
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:inputMCParticles_tag", m_inputMCParticles_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:energyClusters_tag", m_energyClusters_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:energyAssociation_tag", m_energyAssociation_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionClusters_tag", m_positionClusters_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionAssociations_tag", m_positionAssociations_tag);
+
         m_log = app->GetService<Log_service>()->logger(GetTag());
 
         initialize();

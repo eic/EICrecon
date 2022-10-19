@@ -36,6 +36,7 @@ public:
         m_input_simhit_tag="EcalBarrelHits";
         m_input_protoclust_tag="EcalBarrelImagingProtoClusters";
 
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingClusters:input_protoclust_tag",        m_input_protoclust_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingClusters:trackStopLayer",  m_trackStopLayer);
 
 

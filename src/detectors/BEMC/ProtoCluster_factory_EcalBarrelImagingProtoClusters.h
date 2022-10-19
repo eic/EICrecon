@@ -29,6 +29,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi",    u_layerDistEtaPhi);

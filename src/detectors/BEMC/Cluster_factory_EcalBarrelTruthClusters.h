@@ -40,7 +40,7 @@ public:
         // for endcaps.
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
-
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_protoclust_tag", m_input_protoclust_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:samplingFraction",             m_sampFrac);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:logWeightBase",  m_logWeightBase);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:depthCorrection",     m_depthCorrection);

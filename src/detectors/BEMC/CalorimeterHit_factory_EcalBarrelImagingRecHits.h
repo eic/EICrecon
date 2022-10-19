@@ -40,6 +40,7 @@ public:
         // Calibration!
         m_sampFrac=0.10262666247845109;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:layerField",       m_layerField);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:sectorField",      m_sectorField);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:capacityADC",      m_capADC);

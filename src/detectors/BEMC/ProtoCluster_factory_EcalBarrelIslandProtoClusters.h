@@ -41,7 +41,7 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
-
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:splitCluster",             m_splitCluster);
         app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);

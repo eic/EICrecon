@@ -48,6 +48,7 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("BEMC:EcalBarrelRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("BEMC:EcalBarrelRecHits:pedestalMean",     m_pedMeanADC);

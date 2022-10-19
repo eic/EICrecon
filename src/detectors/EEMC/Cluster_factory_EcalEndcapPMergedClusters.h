@@ -34,6 +34,9 @@ public:
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
+        app->SetDefaultParameter("EEMC:EcalEndcapPMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
+
         // Get log level from user parameter or default
         std::string log_level_str = "info";
         auto pm = app->GetJParameterManager();

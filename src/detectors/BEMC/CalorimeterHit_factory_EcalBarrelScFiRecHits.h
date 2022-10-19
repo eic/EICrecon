@@ -48,14 +48,15 @@ public:
         u_localDetFields={"system", "module"};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("BEMC:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("BEMC:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();

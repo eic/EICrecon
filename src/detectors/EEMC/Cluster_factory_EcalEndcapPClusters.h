@@ -42,6 +42,7 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
+        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapPClusters:samplingFraction",             m_sampFrac);
         app->SetDefaultParameter("EEMC:EcalEndcapPClusters:logWeightBase",  m_logWeightBase);
         app->SetDefaultParameter("EEMC:EcalEndcapPClusters:depthCorrection",     m_depthCorrection);

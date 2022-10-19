@@ -28,6 +28,8 @@ public:
         m_inputHit_tag="EcalEndcapNRecHits";
         m_inputMCHit_tag="EcalEndcapNHits";
 
+        app->SetDefaultParameter("EEMC:EcalEndcapNTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+
         AlgorithmInit();
     }
 
