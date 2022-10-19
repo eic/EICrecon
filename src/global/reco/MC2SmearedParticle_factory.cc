@@ -40,7 +40,9 @@ namespace eicrecon {
 
         for (const auto mc_particle : mc_particles) {
             auto reco_particle = m_smearing_algo.produce(mc_particle);
-            reco_particles.push_back(reco_particle);
+            if (reco_particle != nullptr) {
+                reco_particles.push_back(reco_particle);
+            }
         }
 
         // Set the result
