@@ -45,7 +45,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:logWeightBase",  m_logWeightBase);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:depthCorrection",     m_depthCorrection);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_protoclust_tag", m_input_protoclust_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:energyWeight",   m_energyWeight);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:moduleDimZName",   m_moduleDimZName);
         app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:enableEtaBounds",   m_enableEtaBounds);
