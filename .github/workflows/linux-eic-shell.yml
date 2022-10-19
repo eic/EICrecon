@@ -119,5 +119,5 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_e_1GeV_20GeV.edm4eic.root
-        path: rec_e_1GeV_20GeV.edm4eic.root
+        path: rec_e_1GeV_20GeV.tree.edm4eic.root
         if-no-files-found: error
