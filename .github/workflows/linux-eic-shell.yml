@@ -25,7 +25,7 @@ jobs:
         run: |
           # install this repo
           CC=gcc CXX=g++ cmake -B build -S .
-          cmake --build build -- -j install
+          cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
         name: build-gcc-eic-shell
@@ -47,7 +47,7 @@ jobs:
         run: |
           # install this repo
           CC=clang CXX=clang++ cmake -B build -S .
-          cmake --build build -- -j install
+          cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
         name: build-clang-eic-shell
