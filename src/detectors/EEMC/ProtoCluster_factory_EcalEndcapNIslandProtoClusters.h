@@ -41,6 +41,7 @@ public:
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
 
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapNClusters:splitCluster",             m_splitCluster);
         app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterHitEdep",  m_minClusterHitEdep);
         app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterCenterEdep",     m_minClusterCenterEdep);

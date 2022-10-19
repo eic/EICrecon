@@ -49,6 +49,7 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:capacityADC",      m_capADC);

@@ -47,6 +47,7 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapPRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("EEMC:EcalEndcapPRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("EEMC:EcalEndcapPRecHits:pedestalMean",     m_pedMeanADC);

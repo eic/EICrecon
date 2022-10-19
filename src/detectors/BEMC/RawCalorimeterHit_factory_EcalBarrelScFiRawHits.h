@@ -50,18 +50,19 @@ public:
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:readoutClass",     m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();

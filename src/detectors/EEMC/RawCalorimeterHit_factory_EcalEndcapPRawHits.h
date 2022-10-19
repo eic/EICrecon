@@ -52,6 +52,7 @@ public:
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
+        app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:capacityADC",      m_capADC);
