@@ -31,6 +31,12 @@ public:
 
         m_input_tag = "EcalBarrelImagingRecHits";
 
+        // from https://eicweb.phy.anl.gov/EIC/benchmarks/physics_benchmarks/-/blob/master/options/reconstruction.py#L593
+        u_localDistXY          = {2.0 * mm, 2 * mm};     //  # same layer
+        u_layerDistEtaPhi      = {10 * mrad, 10 * mrad}; //  # adjacent layer
+        m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
+        m_sectorDist           = 3.0 * cm;
+
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
