@@ -80,7 +80,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell
+        name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
         name: sim_e_1GeV_20GeV.edm4eic.root
@@ -106,7 +106,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell
+        name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
         name: sim_e_1GeV_20GeV.edm4eic.root
