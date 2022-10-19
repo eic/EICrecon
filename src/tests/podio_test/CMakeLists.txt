@@ -18,9 +18,12 @@ find_package(podio REQUIRED)
 file(GLOB mysourcefiles *.cpp *.cc *.c  *.hpp *.hh *.h)
 file(GLOB edm4nwbfiles edm4nwb/*.cc *.h)
 
-set( podio_test_SOURCES ${mysourcefiles} ${edm4nwbfiles} )
+root_generate_dictionary(G__edm4nwb_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
+
+set( podio_test_SOURCES ${mysourcefiles} ${edm4nwbfiles} datamodel_includes.h G__edm4nwb_vectors.cxx)
 
 add_executable(podio_test ${podio_test_SOURCES})
+
 
 target_include_directories(podio_test PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(podio_test SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} )
@@ -31,7 +34,11 @@ install(TARGETS podio_test DESTINATION bin)
 file(GLOB my_headers "*.h*")
 install(FILES ${my_headers} DESTINATION include/podio_test)
 
-# For root dictionaries
 # file(GLOB my_pcms "${CMAKE_CURRENT_BINARY_DIR}/*.pcm")
 # install(FILES ${my_pcms} DESTINATION bin)
 
+set(my_root_dict_files
+        ${CMAKE_CURRENT_BINARY_DIR}/libedm4nwb_vectors_rdict.pcm
+        ${CMAKE_CURRENT_BINARY_DIR}/libedm4nwb_vectors.rootmap
+        )
+install(FILES ${my_root_dict_files} DESTINATION bin)
