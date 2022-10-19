@@ -8,18 +8,14 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 project(podio_project)
 
 # Find dependencies (JANA and spdlog automatically added already)
-find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 find_package(fmt REQUIRED)
-if(NOT DD4hep_FOUND)
-    find_package(DD4hep REQUIRED)
-endif()
 
 set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
-set(INCLUDE_DIRS ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EDM4EIC_INCLUDE_DIR} ${fmt_INCLUDE_DIR})
+set(INCLUDE_DIRS ${fmt_INCLUDE_DIR})
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
@@ -44,17 +40,15 @@ include_directories( ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT
 root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
 target_sources(${PLUGIN_NAME}_plugin PRIVATE datamodel_includes.h G__datamodel_vectors.cxx)
 
-set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
+plugin_add_dd4hep(${PLUGIN_NAME})
+plugin_add_event_model(${PLUGIN_NAME})
+
+# Additional libraries
+plugin_link_libraries(${PLUGIN_NAME} podio::podioRootIO log_library)
 
 # Add include directories (works same as target_include_directories)
 message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src)
-
-# Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} ${LINK_LIBRARIES})
-
-# Additional libraries
-#plugin_link_libraries(${PLUGIN_NAME} dd4hep_library)
 
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
@@ -62,16 +56,3 @@ set(my_root_dict_files
         ${PROJECT_BINARY_DIR}/libdatamodel_vectors.rootmap
         )
 install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
-
-
-return()
-
-#================================================================================================================
-
-# The following was an earlier version of this file that is disabled by the above
-# return() call. It is left here only for reference until the rewrite above is
-# established as stable.  2022-09-03 DL
-# We have git for that
-# http://thecodelesscode.com/case/41
-# 2022-10-17 DR =)
-
