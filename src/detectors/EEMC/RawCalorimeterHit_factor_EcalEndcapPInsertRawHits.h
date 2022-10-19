@@ -19,13 +19,13 @@
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalEndcapPRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalEndcapPInsertRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalEndcapPRawHits() {
+    RawCalorimeterHit_factory_EcalEndcapPInsertRawHits() {
         SetTag("EcalEndcapPInsertRawHits");
     }
 
