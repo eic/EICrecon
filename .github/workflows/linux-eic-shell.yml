@@ -90,8 +90,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          source bin/eicrecon-this.sh
-          eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV.edm4eic.root sim_e_1GeV_20GeV.edm4hep.root
+          JANA_HOME=/usr/local/lib/EICrecon eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV.edm4eic.root sim_e_1GeV_20GeV.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_e_1GeV_20GeV.edm4eic.root
@@ -116,8 +115,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          source bin/eicrecon-this.sh
-          run_eicrecon_reco_flags.py sim_e_1GeV_20GeV.edm4hep.root rec_e_1GeV_20GeV
+          JANA_HOME=/usr/local/lib/EICrecon run_eicrecon_reco_flags.py sim_e_1GeV_20GeV.edm4hep.root rec_e_1GeV_20GeV
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_e_1GeV_20GeV.edm4eic.root
