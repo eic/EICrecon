@@ -40,7 +40,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelRecHits:pedestalMean',                      '100',                            '*'),
     ('BEMC:EcalBarrelRecHits:pedestalSigma',                     '1',                              '*'),
     ('BEMC:EcalBarrelRecHits:resolutionTDC',                     '1e-11',                          ''),
-    ('BEMC:EcalBarrelRecHits:samplingFraction',                  '0.99',                           '*'),
+    ('BEMC:EcalBarrelRecHits:samplingFraction',                  '0.98',                           '*'),
     ('BEMC:EcalBarrelRecHits:thresholdFactor',                   '3',                              '*'),
     ('BEMC:EcalBarrelRecHits:thresholdValue',                    '3',                              '*'),
 
@@ -63,7 +63,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelClusters:input_simhit_tag',                 'EcalBarrelHits',                 ''),
     ('BEMC:EcalBarrelClusters:logWeightBase',                    '6.2',                            '*'),
     ('BEMC:EcalBarrelClusters:moduleDimZName',                   '',                               ''),
-    ('BEMC:EcalBarrelClusters:samplingFraction',                 '0.10856976476514045',            '*'),
+    ('BEMC:EcalBarrelClusters:samplingFraction',                 '1',                              '*'),
 
     ('BEMC:EcalBarrelTruthClusters:depthCorrection',             '0',                              ''),
     ('BEMC:EcalBarrelTruthClusters:enableEtaBounds',             '1',                              '*'),
@@ -72,7 +72,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelTruthClusters:input_simhit_tag',            'EcalBarrelHits',                 ''),
     ('BEMC:EcalBarrelTruthClusters:logWeightBase',               '6.2',                            '*'),
     ('BEMC:EcalBarrelTruthClusters:moduleDimZName',              '',                               ''),
-    ('BEMC:EcalBarrelTruthClusters:samplingFraction',            '0.10856976476514045',            '*'),
+    ('BEMC:EcalBarrelTruthClusters:samplingFraction',            '1',                              '*'),
 
     # EEMC - Endcap EMC
     # -----------------
