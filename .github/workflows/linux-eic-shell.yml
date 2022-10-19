@@ -83,7 +83,7 @@ jobs:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV.edm4eic.root
+        name: sim_e_1GeV_20GeV.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -109,7 +109,7 @@ jobs:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV.edm4eic.root
+        name: sim_e_1GeV_20GeV.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
