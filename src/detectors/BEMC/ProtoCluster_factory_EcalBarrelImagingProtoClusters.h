@@ -29,6 +29,8 @@ public:
     void Init() override{
         auto app = GetApplication();
 
+        m_input_tag = "EcalBarrelImagingRecHits";
+
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
@@ -38,8 +40,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep",    m_minClusterCenterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterEdep",    m_minClusterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_minClusterNhits);
-
-        m_input_tag = "EcalBarrelImagingRecHits";
 
         std::string tag=this->GetTag();
         m_log = app->GetService<Log_service>()->logger(tag);
