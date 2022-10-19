@@ -35,9 +35,11 @@ void StorePodioData(std::vector<PodioT*> data, JFactoryT<PodioT>* factory, const
     store->put(collection_name, collection); // TODO: Maybe put() should except if collection is already present
 
     for (auto* datum: data) {
-        LOG << "Adding datum with object id (" << datum->getObjectID().collectionID << ", " << datum->getObjectID().index << ") and ptr " << datum << LOG_END;
+        if (datum->getObjectID().collectionID != -1 || datum->getObjectID().index != -1) {
+            LOG << "ERROR: Added datum with object id " << datum->getObjectID().collectionID << ", " << datum->getObjectID().index << " and ptr " << datum << LOG_END;
+            throw JException("PODIO object ID corruption!");
+        }
         collection->push_back(*datum);
-        LOG << "Added datum, object id is now (" << datum->getObjectID().collectionID << ", " << datum->getObjectID().index << ") and ptr " << datum << LOG_END;
         // TODO: Need to verify that the original datum pointers stay valid after the podio object is added to the collection.
         //       Knowing podio, they probably aren't. Maybe it makes more sense to put the podio data into a Collection first,
         //       and copy the pointers into the JFactory afterwards.

@@ -2,7 +2,6 @@
 // podio specific includes
 #include "MTEventStore.h"
 #include <podio/CollectionBase.h>
-#include <podio/IReader.h>
 
 namespace eic {
 
