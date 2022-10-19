@@ -40,7 +40,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelRecHits:pedestalMean',                      '100',                            '*'),
     ('BEMC:EcalBarrelRecHits:pedestalSigma',                     '1',                              '*'),
     ('BEMC:EcalBarrelRecHits:resolutionTDC',                     '1e-11',                          ''),
-    ('BEMC:EcalBarrelRecHits:samplingFraction',                  '0.10856976476514045',            '*'),
+    ('BEMC:EcalBarrelRecHits:samplingFraction',                  '0.99',                           '*'),
     ('BEMC:EcalBarrelRecHits:thresholdFactor',                   '3',                              '*'),
     ('BEMC:EcalBarrelRecHits:thresholdValue',                    '3',                              '*'),
 
