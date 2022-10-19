@@ -226,7 +226,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPInsertRecHits:localDetFields',                   '',                               ''),
     ('EEMC:EcalEndcapPInsertRecHits:pedestalMean',                     '100',                            '*'),
     ('EEMC:EcalEndcapPInsertRecHits:pedestalSigma',                    '0.7',                            '*'),
-    ('EEMC:EcalEndcapPInsertRecHits:readout',                          'EcalEndcapPInsertHits',                ''),
+    ('EEMC:EcalEndcapPInsertRecHits:readout',                          'EcalEndcapPInsertHits',          ''),
     ('EEMC:EcalEndcapPInsertRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('EEMC:EcalEndcapPInsertRecHits:samplingFraction',                 '0.03',                           '*'),
     ('EEMC:EcalEndcapPInsertRecHits:sectorField',                      'sector',                         ''),
