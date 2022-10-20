@@ -58,6 +58,9 @@ jobs:
 
   ddsim:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        detector_config: [arches, brycecanyon]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
@@ -65,11 +68,11 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ddsim --compactFile $DETECTOR_PATH/$DETECTOR_CONFIG.xml -G --gun.particle "e-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_e_1GeV_20GeV.edm4hep.root
+          ddsim --compactFile $DETECTOR_PATH/$DETECTOR_${{ matrix.detector_config }}.xml -G --gun.particle "e-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV.edm4hep.root
-        path: sim_e_1GeV_20GeV.edm4hep.root
+        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error  
 
   eicrecon-gcc:
@@ -77,24 +80,29 @@ jobs:
     needs:
     - build-gcc
     - ddsim
+    strategy:
+      matrix:
+        detector_config: [arches, brycecanyon]
     steps:
     - uses: actions/download-artifact@v3
       with:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV.edm4hep.root
+        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          JANA_HOME=/usr/local/lib/EICrecon eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV.edm4eic.root sim_e_1GeV_20GeV.edm4hep.root
+          export DETECTOR_CONFIG=$DETECTOR_${{ matrix.detector_config }}
+          export JANA_HOME=/usr/local/lib/EICrecon
+          eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_e_1GeV_20GeV.edm4eic.root
-        path: rec_e_1GeV_20GeV.edm4eic.root
+        name: eicrecon_rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
 
   run_eicrecon_reco_flags-gcc:
@@ -102,22 +110,27 @@ jobs:
     needs:
     - build-gcc
     - ddsim
+    strategy:
+      matrix:
+        detector_config: [arches, brycecanyon]
     steps:
     - uses: actions/download-artifact@v3
       with:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV.edm4hep.root
+        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          JANA_HOME=/usr/local/lib/EICrecon run_eicrecon_reco_flags.py sim_e_1GeV_20GeV.edm4hep.root rec_e_1GeV_20GeV
+          export DETECTOR_CONFIG=$DETECTOR_${{ matrix.detector_config }}
+          export JANA_HOME=/usr/local/lib/EICrecon
+          run_eicrecon_reco_flags.py sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_e_1GeV_20GeV_${{ matrix.detector_config }}          
     - uses: actions/upload-artifact@v3
       with:
-        name: run_eicrecon_reco_flags_rec_e_1GeV_20GeV.edm4eic.root
-        path: rec_e_1GeV_20GeV.tree.edm4eic.root
+        name: run_eicrecon_reco_flags_rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_e_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
         if-no-files-found: error
