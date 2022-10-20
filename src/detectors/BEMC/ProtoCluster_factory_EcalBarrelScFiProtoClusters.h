@@ -35,11 +35,11 @@ public:
         // neighbour checking distances
         m_sectorDist=5.0 * cm;             // ?
         u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={};     //{this, "localDistXZ", {}};
+        u_localDistXZ={30*mm, 30*mm};     //{this, "localDistXZ", {}};  n.b. 30*mm, 30*mm came from comment Maria Z. put into PR.
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={30 * dd4hep::mm, 30 * dd4hep::mm};// from ATHENA reconstruction.py
+        u_dimScaledLocalDistXY={};// from ATHENA reconstruction.py
 
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:splitCluster",             m_splitCluster);
