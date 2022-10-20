@@ -46,7 +46,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedestalMean",     m_pedMeanADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedestalSigmaADC", m_pedSigmaADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedSigmaADC",      m_pedSigmaADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:thresholdADC",     m_thresholdADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:samplingFraction", m_sampFrac);
