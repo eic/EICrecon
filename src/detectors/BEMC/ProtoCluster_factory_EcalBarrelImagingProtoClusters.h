@@ -38,7 +38,6 @@ public:
         m_sectorDist           = 3.0 * cm;
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi",    u_layerDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::sectorDist",    m_sectorDist);
