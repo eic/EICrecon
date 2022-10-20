@@ -7,6 +7,10 @@
 #include <JANA/JFactoryGenerator.h>
 
 
+#include "RawCalorimeterHit_factory_HcalBarrelGDMLRawHits.h"
+#include "CalorimeterHit_factory_HcalBarrelGDMLRecHits.h"
+#include "CalorimeterHit_factory_HcalBarrelGDMLMergedHits.h"
+
 #include "RawCalorimeterHit_factory_HcalBarrelRawHits.h"
 #include "CalorimeterHit_factory_HcalBarrelRecHits.h"
 #include "CalorimeterHit_factory_HcalBarrelMergedHits.h"
@@ -42,6 +46,11 @@
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
+
+        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelGDMLRawHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelGDMLRecHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelGDMLMergedHits>());
+
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelMergedHits>());
