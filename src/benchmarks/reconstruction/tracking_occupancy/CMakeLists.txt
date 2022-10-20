@@ -27,4 +27,4 @@ plugin_include_directories(${PLUGIN_NAME}
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore EDM4EIC::edm4eic)
+plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ActsCore log_library)
