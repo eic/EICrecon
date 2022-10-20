@@ -36,7 +36,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelHits";
-        m_tRes = 0.0 * ns;
+        u_eRes = {0.0 * MeV};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
         m_dyRangeADC = 100 * MeV;
@@ -49,19 +49,19 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:readoutClass",     m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
