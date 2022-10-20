@@ -25,5 +25,7 @@ plugin_link_libraries(${PLUGIN_NAME}
             algorithms_digi_library
             algorithms_tracking_library
             tracking_library
+            dd4hep_library
             digi_library
+            log_library
         )
