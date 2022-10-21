@@ -25,4 +25,4 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-#plugin_link_libraries(${PLUGIN_NAME} ... )
+plugin_link_libraries(${PLUGIN_NAME} digi_library tracking_library)
