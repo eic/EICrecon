@@ -115,7 +115,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingRecHits:capacityADC',               'capacityBitsADC=13',              ''),
     ('BEMC:EcalBarrelImagingRecHits:pedestalMean',              '100',                             ''),
     ('BEMC:EcalBarrelImagingRecHits:dynamicRangeADC',           '3*MeV',                           ''),
-    ('BEMC:EcalBarrelImagingRecHits:pedSigmaADC',               '3.2',                             ''),
+    ('BEMC:EcalBarrelImagingRecHits:pedSigmaADC',               '14',                              ''),
     ('BEMC:EcalBarrelImagingRecHits:thresholdFactor',           '3.0',                             ''),
     ('BEMC:EcalBarrelImagingRecHits:samplingFraction',          '0.005',                           ''),
 
@@ -131,7 +131,7 @@ eicrecon_reco_flags = [
 
     ('BEMC:EcalBarrelscFiMergedHits:input_tag',                 'EcalBarrelScFiRecHits',           ''),
     ('BEMC:EcalBarrelscFiMergedHits:fields',                    'fiber,z',                         ''),
-    ('BEMC:EcalBarrelscFiMergedHits:refs',                      '0,1',                             ''),
+    ('BEMC:EcalBarrelscFiMergedHits:refs',                      '1,1',                             ''),
 
     ('BEMC:EcalBarrelImagingProtoClusters:input_tag',           'EcalBarrelImagingRecHits',        'Name of input collection to use'),
     ('BEMC:EcalBarrelImagingProtoClusters::localDistXY',        '2.0*mm,2*mm',                     ''),
