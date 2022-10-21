@@ -21,6 +21,7 @@ eicrecon_reco_flags = [
     # ------------------
 
     # digitization
+    ('BEMC:EcalBarrelRawHits:input_tag',                         'EcalBarrelHits',                  'Name of input collection to use'),
     ('BEMC:EcalBarrelRawHits:capacityADC',                       'capacityBitsADC=14',             '*'),
     ('BEMC:EcalBarrelRawHits:dynamicRangeADC',                   '20*GeV',                         '*'),
     ('BEMC:EcalBarrelRawHits:energyResolutions',                 '0.0,0.02,0.0',                   '*'),
@@ -35,6 +36,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelRawHits:timeResolution',                    '0',                              ''),
 
     # Hits reco
+    ('BEMC:EcalBarrelRecHits:input_tag',                         'EcalBarrelRawHits',                  'Name of input collection to use'),
     ('BEMC:EcalBarrelRecHits:capacityADC',                       'capacityBitsADC=14',             '*'),
     ('BEMC:EcalBarrelRecHits:dynamicRangeADC',                   '20*GeV',                         '*'),
     ('BEMC:EcalBarrelRecHits:pedestalMean',                      '100',                            '*'),
@@ -45,6 +47,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelRecHits:thresholdValue',                    '3',                              '*'),
 
     # clustering
+    ('BEMC:EcalBarrelIslandProtoClusters:input_tag',             'EcalBarrelRecHits',                  'Name of input collection to use'),
     ('BEMC:EcalBarrelIslandProtoClusters:dimScaledLocalDistXY',  '1.8,1.8',                        ''),
     ('BEMC:EcalBarrelIslandProtoClusters:globalDistEtaPhi',      '',                               ''),
     ('BEMC:EcalBarrelIslandProtoClusters:globalDistRPhi',        '',                               ''),
@@ -56,6 +59,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelIslandProtoClusters:sectorDist',            '5.0*cm',                         '*'),
     ('BEMC:EcalBarrelIslandProtoClusters:splitCluster',          '0',                              '*'),
 
+    ('BEMC:EcalBarrelClusters:input_protoclust_tag',             'EcalBarrelIslandProtoClusters',  'Name of input collection to use'),
     ('BEMC:EcalBarrelClusters:depthCorrection',                  '0',                              ''),
     ('BEMC:EcalBarrelClusters:enableEtaBounds',                  '1',                              '*'),
     ('BEMC:EcalBarrelClusters:energyWeight',                     'log',                            ''),
@@ -65,6 +69,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelClusters:moduleDimZName',                   '',                               ''),
     ('BEMC:EcalBarrelClusters:samplingFraction',                 '1',                              '*'),
 
+    ('BEMC:EcalBarrelTruthClusters:input_protoclust_tag',        'EcalBarrelTruthProtoClusters',  'Name of input collection to use'),
     ('BEMC:EcalBarrelTruthClusters:depthCorrection',             '0',                              ''),
     ('BEMC:EcalBarrelTruthClusters:enableEtaBounds',             '1',                              '*'),
     ('BEMC:EcalBarrelTruthClusters:energyWeight',                'log',                            ''),
@@ -74,7 +79,101 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelTruthClusters:moduleDimZName',              '',                               ''),
     ('BEMC:EcalBarrelTruthClusters:samplingFraction',            '1',                              '*'),
 
-    # EEMC - Endcap EMC
+    # BEMC - Imaging Barrel
+    #------------------
+    ('BEMC:EcalBarrelImagingRawHits:input_tag',                 'EcalBarrelHits',                  'Name of input collection to use'),
+    ('BEMC:EcalBarrelImagingRawHits:energyResolutions',         '0.0,0.02,0.0',                    ''),
+    ('BEMC:EcalBarrelImagingRawHits:timeResolution',            '0.0*ns',                          ''),
+    ('BEMC:EcalBarrelImagingRawHits:capacityADC',               'capacityBitsADC=13',              ''),
+    ('BEMC:EcalBarrelImagingRawHits:dynamicRangeADC',           '3*MeV',                           ''),
+    ('BEMC:EcalBarrelImagingRawHits:pedestalMean',              '100',                             ''),
+    ('BEMC:EcalBarrelImagingRawHits:pedestalSigma',             '14',                              ''),
+    ('BEMC:EcalBarrelImagingRawHits:resolutionTDC',             '10*picosecond',                   ''),
+    ('BEMC:EcalBarrelImagingRawHits:scaleResponse',             '1.0',                             ''),
+    ('BEMC:EcalBarrelImagingRawHits:signalSumFields',           '',                                ''),
+    ('BEMC:EcalBarrelImagingRawHits:fieldRefNumbers',           '',                                ''),
+    ('BEMC:EcalBarrelImagingRawHits:geoServiceName',            'ActsGeometryProvider',            ''),
+    ('BEMC:EcalBarrelImagingRawHits:readoutClass',              'pixel',                           ''),
+
+    ('BEMC:EcalBarrelScFiRawHits:input_tag',                     'EcalBarrelScFiHits',             'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiRawHits:energyResolutions',             '',                               ''),
+    ('BEMC:EcalBarrelScFiRawHits:timeResolution',                '0*ns',                           ''),
+    ('BEMC:EcalBarrelScFiRawHits:capacityADC',                   'capacityBitsADC=14',             ''),
+    ('BEMC:EcalBarrelScFiRawHits:dynamicRangeADC',               '750*MeV',                        ''),
+    ('BEMC:EcalBarrelScFiRawHits:pedestalMean',                  '20',                             ''),
+    ('BEMC:EcalBarrelScFiRawHits:pedestalSigma',                 '0.3',                            ''),
+    ('BEMC:EcalBarrelScFiRawHits:resolutionTDC',                 '10*picosecond',                  ''),
+    ('BEMC:EcalBarrelScFiRawHits:scaleResponse',                 '1.0',                            ''),
+    ('BEMC:EcalBarrelScFiRawHits:signalSumFields',               '',                               ''),
+    ('BEMC:EcalBarrelScFiRawHits:fieldRefNumbers',               '',                               ''),
+    ('BEMC:EcalBarrelScFiRawHits:geoServiceName',                'ActsGeometryProvider',           ''),
+    ('BEMC:EcalBarrelScFiRawHits:readoutClass',                  'light_guide',                    ''),
+
+    ('BEMC:EcalBarrelImagingRecHits:input_tag',                 'EcalBarrelRawHits',               'Name of input collection to use'),
+    ('BEMC:EcalBarrelImagingRecHits:layerField',                'layer',                           ''),
+    ('BEMC:EcalBarrelImagingRecHits:sectorField',               'module',                          ''),
+    ('BEMC:EcalBarrelImagingRecHits:capacityADC',               'capacityBitsADC=13',              ''),
+    ('BEMC:EcalBarrelImagingRecHits:pedestalMean',              '100',                             ''),
+    ('BEMC:EcalBarrelImagingRecHits:dynamicRangeADC',           '3*MeV',                           ''),
+    ('BEMC:EcalBarrelImagingRecHits:pedSigmaADC',               '14',                              ''),
+    ('BEMC:EcalBarrelImagingRecHits:thresholdFactor',           '3.0',                             ''),
+    ('BEMC:EcalBarrelImagingRecHits:samplingFraction',          '0.005',                           ''),
+
+    ('BEMC:EcalBarrelScFiRecHits:input_tag',                    'EcalBarrelScFiRawHits',           'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiRecHits:capacityADC',                  'capacityBitsADC=14',              ''),
+    ('BEMC:EcalBarrelScFiRecHits:dynamicRangeADC',              '750*MeV',                         ''),
+    ('BEMC:EcalBarrelScFiRecHits:pedestalMean',                 '20',                              ''),
+    ('BEMC:EcalBarrelScFiRecHits:pedestalSigma',                '0.3',                             ''),
+    ('BEMC:EcalBarrelScFiRecHits:resolutionTDC',                '10*picosecond',                   ''),
+    ('BEMC:EcalBarrelScFiRecHits:thresholdFactor',              '5.0',                             ''),
+    ('BEMC:EcalBarrelScFiRecHits:thresholdValue',               '0.0',                             ''),
+    ('BEMC:EcalBarrelScFiRecHits:samplingFraction',             '0.125',                           ''),
+
+    ('BEMC:EcalBarrelscFiMergedHits:input_tag',                 'EcalBarrelScFiRecHits',           ''),
+    ('BEMC:EcalBarrelscFiMergedHits:fields',                    'fiber,z',                         ''),
+    ('BEMC:EcalBarrelscFiMergedHits:refs',                      '1,1',                             ''),
+
+    ('BEMC:EcalBarrelImagingProtoClusters:input_tag',           'EcalBarrelImagingRecHits',        'Name of input collection to use'),
+    ('BEMC:EcalBarrelImagingProtoClusters::localDistXY',        '2.0*mm,2*mm',                     ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi',    '10*mrad,10*mrad',                 ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange', '2.0',                           ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::sectorDist',         '3.0*cm',                          ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterHitEdep',  '0.',                              ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep', '0.',                            ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '0.5*MeV',                         ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterNhits',    '5',                               ''),
+
+    ('BEMC:EcalBarrelScFiProtoClusters:input_tag',              'EcalBarrelScFiMergedHits', 'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiProtoClusters:splitCluster',           'false',                           ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:minClusterHitEdep',      '1.0*MeV',                         ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:minClusterCenterEdep',   '10.0*MeV',                        ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:sectorDist',             '5.0*cm',                          ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:localDistXY',            '',                                ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:localDistXZ',            '30*mm, 30*mm',                    ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:localDistYZ',            '',                                ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:globalDistRPhi',         '',                                ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:globalDistEtaPhi',       '',                                ''),
+    ('BEMC:EcalBarrelScFiProtoClusters:dimScaledLocalDistXY',   '',                                ''),
+
+    ('BEMC:EcalBarrelImagingClusters:input_protoclust_tag',     'EcalBarrelImagingProtoClusters',  'Name of input collection to use'),
+    ('BEMC:EcalBarrelImagingClusters:trackStopLayer',           '6',                               ''),
+
+    ('BEMC:EcalBarrelScFiClusters:input_protoclust_tag',        'EcalBarrelScFiProtoClusters', 'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiClusters:samplingFraction',            '1.0',                             ''),
+    ('BEMC:EcalBarrelScFiClusters:logWeightBase',               '6.2',                             ''),
+    ('BEMC:EcalBarrelScFiClusters:depthCorrection',             '0.0',                             ''),
+    ('BEMC:EcalBarrelScFiClusters:input_simhit_tag',            'EcalBarrelScFiHits',              ''),
+    ('BEMC:EcalBarrelScFiClusters:energyWeight',                'log',                             ''),
+    ('BEMC:EcalBarrelScFiClusters:moduleDimZName',              '',                                ''),
+    ('BEMC:EcalBarrelScFiClusters:enableEtaBounds',             'false',                           ''),
+
+    ('BEMC:EcalBarrelImagingMergedClusters:inputMCParticles_tag',     'MCParticles',                          ''),
+    ('BEMC:EcalBarrelImagingMergedClusters:energyClusters_tag',       'EcalBarrelScFiClusters',               ''),
+    ('BEMC:EcalBarrelImagingMergedClusters:energyAssociation_tag',    'EcalBarrelScFiClusterAssociations',    ''),
+    ('BEMC:EcalBarrelImagingMergedClusters:positionClusters_tag',     'EcalBarrelImagingClusters',            ''),
+    ('BEMC:EcalBarrelImagingMergedClusters:positionAssociations_tag', 'EcalBarrelImagingClusterAssociations', ''),
+
+# EEMC - Endcap EMC
     # -----------------
     # Negative Endcap
     ('EEMC:EcalEndcapNRawHits:capacityADC',                      'capacityBitsADC=14',             '*'),

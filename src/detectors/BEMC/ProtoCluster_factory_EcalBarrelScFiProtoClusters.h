@@ -35,23 +35,23 @@ public:
         // neighbour checking distances
         m_sectorDist=5.0 * cm;             // ?
         u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={};     //{this, "localDistXZ", {}};
+        u_localDistXZ={30*mm, 30*mm};     //{this, "localDistXZ", {}};  n.b. 30*mm, 30*mm came from comment Maria Z. put into PR.
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={30 * dd4hep::mm, 30 * dd4hep::mm};// from ATHENA reconstruction.py
+        u_dimScaledLocalDistXY={};// from ATHENA reconstruction.py
 
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:minClusterCenterEdep",     m_minClusterCenterEdep);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();

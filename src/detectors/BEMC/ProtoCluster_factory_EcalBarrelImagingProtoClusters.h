@@ -36,16 +36,17 @@ public:
         u_layerDistEtaPhi      = {10 * mrad, 10 * mrad}; //  # adjacent layer
         m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
         m_sectorDist           = 3.0 * cm;
+        m_minClusterNhits      = 5; // From Maria Z. comment in PR
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi",    u_layerDistEtaPhi);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::sectorDist",    m_sectorDist);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterHitEdep",    m_minClusterHitEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep",    m_minClusterCenterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterEdep",    m_minClusterEdep);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_minClusterNhits);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterNhits",    m_minClusterNhits);
 
         std::string tag=this->GetTag();
         m_log = app->GetService<Log_service>()->logger(tag);
