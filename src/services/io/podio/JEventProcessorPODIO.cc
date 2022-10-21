@@ -84,6 +84,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelMergedTruthClusters",
             "HcalEndcapNClusters",
             "HcalEndcapPClusters",
+            "HcalBarrelRawHits",
+            "HcalBarrelRecHits",
             "HcalBarrelClusters",
             "ZDCEcalClusters",
             "EcalEndcapNTruthClusters",
