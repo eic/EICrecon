@@ -25,27 +25,27 @@ public:
         m_input_tag = "HcalBarrelRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
-        m_pedMeanADC=400;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
-        m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+        m_capADC=8096; // best guess
+        m_dyRangeADC=50. * GeV; // best guess
+        m_pedMeanADC=10; // best guess
+        m_pedSigmaADC=2; // best guess
+        m_resolutionTDC=1 * dd4hep::nanosecond; // best guess
 
         // zero suppression values
         m_thresholdFactor=5.0;// from ATHENA's reconstruction.py
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.038;// from ATHENA's reconstruction.py
+        m_sampFrac=0.033;  // average, from sPHENIX simulations
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="HcalBarrelHits";  // from ATHENA's reconstruction.py
-        m_layerField="layer";       // from ATHENA's reconstruction.py (i.e. not defined there)
-        m_sectorField="module";      // from ATHENA's reconstruction.py
+        m_readout="HcalBarrelHits";  
+        m_layerField="tower";      
+        m_sectorField="sector";      
 
-        m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
-        u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
+        m_localDetElement="";         
+        u_localDetFields={};          
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
         app->SetDefaultParameter("HCAL:HcalBarrelRecHits:capacityADC",      m_capADC);

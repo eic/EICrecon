@@ -40,10 +40,10 @@ public:
         u_eRes = {};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
-        m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
-        m_resolutionTDC = 10 * picosecond;
+        m_dyRangeADC = 50 * GeV;
+        m_pedMeanADC = 10;
+        m_pedSigmaADC = 2.0;
+        m_resolutionTDC = 1.0 * nanosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};

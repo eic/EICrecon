@@ -25,7 +25,7 @@ public:
         m_input_tag = "HcalBarrelRecHits";
 
         m_readout="HcalBarrelHits";
-        u_fields={"layer", "slice"};
+        u_fields={"tower", "tile"};
         u_refs={1, 0};
 
         m_geoSvc= app->GetService<JDD4hep_service>();
