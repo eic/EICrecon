@@ -131,7 +131,7 @@ eicrecon_reco_flags = [
 
     ('BEMC:EcalBarrelscFiMergedHits:input_tag',                 'EcalBarrelScFiRecHits',           ''),
     ('BEMC:EcalBarrelscFiMergedHits:fields',                    'fiber,z',                         ''),
-    ('BEMC:EcalBarrelscFiMergedHits:refs',                      '1',                               ''),
+    ('BEMC:EcalBarrelscFiMergedHits:refs',                      '0,1',                             ''),
 
     ('BEMC:EcalBarrelImagingProtoClusters:input_tag',           'EcalBarrelImagingRecHits',        'Name of input collection to use'),
     ('BEMC:EcalBarrelImagingProtoClusters::localDistXY',        '2.0*mm,2*mm',                     ''),
