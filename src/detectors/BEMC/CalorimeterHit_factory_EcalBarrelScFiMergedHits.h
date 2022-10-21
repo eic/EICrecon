@@ -25,7 +25,7 @@ public:
         m_input_tag = "EcalBarrelScFiRecHits";
 
         m_readout="EcalBarrelScFiHits";
-        u_fields={"fiber"};
+        u_fields={"fiber","z"};
         u_refs={1};
 
         m_geoSvc= app->GetService<JDD4hep_service>();

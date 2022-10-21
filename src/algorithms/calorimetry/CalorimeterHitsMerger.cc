@@ -18,24 +18,18 @@ void CalorimeterHitsMerger::initialize() {
     }
 
     try {
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         id_mask = 0;
         std::vector<std::pair<std::string, int>> ref_fields;
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         for (size_t i = 0; i < u_fields.size(); ++i) {
             id_mask |= id_desc.field(u_fields[i])->mask();
             // use the provided id number to find ref cell, or use 0
             int ref = i < u_refs.size() ? u_refs[i] : 0;
             ref_fields.emplace_back(u_fields[i], ref);
         }
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         ref_mask = id_desc.encode(ref_fields);
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
     } catch (...) {
-        std::cout << __FILE__<<":"<<__LINE__<<" " << std::endl;
         auto mess = fmt::format("Failed to load ID decoder for {}", m_readout);
         m_log->error(mess);
         throw std::runtime_error(mess);

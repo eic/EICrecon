@@ -40,7 +40,7 @@ protected:
     unsigned int m_pedMeanADC; // {this, "pedestalMean", 400};
     double m_dyRangeADC; // {this, "dynamicRangeADC", 100 * MeV};
     double m_pedSigmaADC; // {this, "pedestalSigma", 3.2};
-    double m_thresholdADC; // {this, "thresholdFactor", 3.0};
+    double m_thresholdFactor; // {this, "thresholdFactor", 3.0};
     // Calibration!
     double m_sampFrac; // {this, "samplingFraction", 1.0};
 
@@ -101,7 +101,7 @@ public:
 #pragma GCC diagnostic error "-Wsign-conversion"
 
             // did not pass the threshold
-            if (rh->getAmplitude() < m_pedMeanADC + m_thresholdADC * m_pedSigmaADC) {
+            if (rh->getAmplitude() < m_pedMeanADC + m_thresholdFactor * m_pedSigmaADC) {
                 continue;
             }
             const double energy =

@@ -25,10 +25,10 @@ public:
         m_input_tag = "EcalBarrelScFiRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
-        m_pedMeanADC=400;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
+        m_capADC=16384;//{this, "capacityADC", 8096};
+        m_dyRangeADC=750. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_pedMeanADC=20;//{this, "pedestalMean", 400};
+        m_pedSigmaADC=0.3;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
@@ -36,7 +36,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.10262666247845109;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.125;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
