@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
-#define _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -46,18 +45,17 @@ public:
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
 
-        app->SetDefaultParameter("EEMC:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
-        //app->SetDefaultParameter("EEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("EEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("EEMC:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();
@@ -92,4 +90,3 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_EcalEndcapNIslandProtoClusters_h_

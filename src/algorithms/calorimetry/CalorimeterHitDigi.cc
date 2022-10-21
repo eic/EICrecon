@@ -1,8 +1,15 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence
+
+// A general digitization for CalorimeterHit from simulation
+// 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
+// 2. Digitize the energy with dynamic ADC range and add pedestal (mean +- sigma)
+// 3. Time conversion with smearing resolution (absolute value)
+// 4. Signal is summed if the SumFields are provided
 //
-//  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
-//  under SPDX-License-Identifier: LGPL-3.0-or-later
+// Author: Chao Peng
+// Date: 06/02/2021
+
 
 #include "CalorimeterHitDigi.h"
 
@@ -117,6 +124,7 @@ void CalorimeterHitDigi::AlgorithmChangeRun() {
 void CalorimeterHitDigi::AlgorithmProcess()  {
 
     // Delete any output objects left from last event.
+    // (Should already have been done for us, but just to be bullet-proof.)
     for( auto h : rawhits ) delete h;
     rawhits.clear();
 
@@ -138,13 +146,20 @@ void CalorimeterHitDigi::single_hits_digi(){
         const double eDep    = ahit->getEnergy();
 
         // apply additional calorimeter noise to corrected energy deposit
-        const double eResRel = (eDep > 1e-6)
-                               ? m_normDist(generator) * std::sqrt(std::pow(eRes[0] / std::sqrt(eDep), 2) +
-                                                          std::pow(eRes[1], 2) + std::pow(eRes[2] / (eDep), 2))
+        const double eResRel = (eDep > m_threshold)
+                               ? m_normDist(generator) * std::sqrt(
+                                    std::pow(eRes[0] / std::sqrt(eDep), 2) +
+                                    std::pow(eRes[1], 2) +
+                                    std::pow(eRes[2] / (eDep), 2)
+                )
                                : 0;
+//       const double eResRel = (eDep > 1e-6)
+//                               ? m_normDist(generator) * std::sqrt(std::pow(eRes[0] / std::sqrt(eDep), 2) +
+//                                                          std::pow(eRes[1], 2) + std::pow(eRes[2] / (eDep), 2))
+//                               : 0;
 
         const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        const long long adc = std::llround(ped +  m_corrMeanScale * eDep * (1. + eResRel) / dyRangeADC * m_capADC);
+        const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / dyRangeADC * m_capADC);
 
         double time = std::numeric_limits<double>::max();
         for (const auto& c : ahit->getContributions()) {
@@ -199,13 +214,18 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
             }
         }
 
-        double eResRel = 0.;
+//        double eResRel = 0.;
         // safety check
-        if (edep > 1e-6) {
-            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep) +
-                      m_normDist(generator) * eRes[1] +
-                      m_normDist(generator) * eRes[2] / edep;
-        }
+        const double eResRel = (edep > m_threshold)
+                ? m_normDist(generator) * eRes[0] / std::sqrt(edep) +
+                  m_normDist(generator) * eRes[1] +
+                  m_normDist(generator) * eRes[2] / edep
+                  : 0;
+//        if (edep > 1e-6) {
+//            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep) +
+//                      m_normDist(generator) * eRes[1] +
+//                      m_normDist(generator) * eRes[2] / edep;
+//        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (1. + eResRel) / dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);

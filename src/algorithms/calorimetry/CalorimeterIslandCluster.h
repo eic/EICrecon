@@ -1,6 +1,8 @@
 // Copyright 2022, Thomas Britton
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+//  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
+//  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #ifndef _CalorimeterIslandCluster_h_
 #define _CalorimeterIslandCluster_h_
@@ -8,7 +10,7 @@
 #include <random>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <services/randomgenerator/randomGenerator.h>
+//#include <services/randomgenerator/randomGenerator.h>
 #include <Evaluator/DD4hepUnits.h>
 
 #include <edm4hep/Vector2f.h>

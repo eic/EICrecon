@@ -1,5 +1,13 @@
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
 
+/*
+ *  Reconstruct the cluster with Center of Gravity method
+ *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
+ *
+ *  Author: Chao Peng (ANL), 09/27/2020
+ */
 #include "CalorimeterClusterRecoCoG.h"
 
 #include <JANA/JEvent.h>
@@ -70,15 +78,16 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
       if (m_logger->level() <= spdlog::level::debug) {
         //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / GeV << " GeV, (" << cl.getPosition().x / mm << ", " << cl.getPosition().y / mm << ", " << cl.getPosition().z / mm << ")" << LOG_END;
-        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / GeV, cl.getPosition().x / mm, cl.getPosition().y / mm, cl.getPosition().z / mm);
+        m_logger->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / GeV, cl->getPosition().x / mm, cl->getPosition().y / mm, cl->getPosition().z / mm);
       }
-      clusters.push_back(&cl);
+      clusters.push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
       // 1. find proto-cluster hit with largest energy deposition
       // 2. find first mchit with same CellID
       // 3. assign mchit's MCParticle as cluster truth
-      if (!mchits.empty() && !m_outputAssociations.empty()) {
+//      if (!mchits.empty() && !m_outputAssociations.empty()) {  // ? having m_outputAssociations be not empty doesn't make sense ?
+      if (!mchits.empty() ) {
 
         // 1. find pclhit with largest energy deposition
         auto pclhits = pcl->getHits();
@@ -89,6 +98,14 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
             return pclhit1.getEnergy() < pclhit2.getEnergy();
           }
         );
+
+        // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
+        // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
+        // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
+        // FIXME: Thus, the cellID values passed on through to here no longer match those
+        // FIXME: in the low-level truth hits. It likely works for other detectors because
+        // FIXME: their u_fields and u_refs members are left empty which effectively results
+        // FIXME: in the cellID being unchanged.
 
         // 2. find mchit with same CellID
         // find_if not working, https://github.com/AIDASoft/podio/pull/273
@@ -111,16 +128,16 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
           //LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID() << ", but no mc hit with that CellID was found." << LOG_END;
           m_logger->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
           //LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
-          m_logger->info("Proto-cluster hits: ");
+          m_logger->debug("Proto-cluster hits: ");
           for (const auto& pclhit1: pclhits) {
             //LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
-            m_logger->info("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
+            m_logger->debug("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
           }
           //LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
-          m_logger->info("MC hits: ");
+          m_logger->debug("MC hits: ");
           for (const auto& mchit1: mchits) {
             //LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
-            m_logger->info("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
+            m_logger->debug("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
           }
           break;
         }
@@ -142,10 +159,11 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
-        clusterassoc->setRecID(cl.getObjectID().index);
+//        clusterassoc->setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc->setRecID((uint32_t)((uint64_t)cl&0xFFFFFFFF)); // mask lower 32 bits of cluster pointer as unique ID FIXME:
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
-        clusterassoc->setRec(cl);
+        clusterassoc->setRec(*cl);
         //clusterassoc.setSim(mcp);
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);

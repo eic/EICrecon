@@ -1,6 +1,6 @@
 
-#ifndef CalorimeterHit_factory_EcalEndcapNRecHits_h_
-#define CalorimeterHit_factory_EcalEndcapNRecHits_h_
+#pragma once
+
 
 #include <JANA/JFactoryT.h>
 
@@ -52,14 +52,21 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("EEMC:capacityADC",      m_capADC);
-        app->SetDefaultParameter("EEMC:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("EEMC:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("EEMC:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("EEMC:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("EEMC:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("EEMC:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("EEMC:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:readout",          m_readout);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();
@@ -98,4 +105,3 @@ public:
 
 };
 
-#endif // CalorimeterHit_factory_EcalEndcapNRecHits_h_

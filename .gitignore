@@ -7,6 +7,7 @@ src/services/io/podio/datamodel_glue.h
 include/*
 plugins/*
 build/*
+install/*
 
 ##### C++ basic gitignore #####
 
@@ -143,8 +144,15 @@ flycheck_*.el
 bin/
 
 src/tests/pyjano/eicrecon_path.py
+custom_environment.sh
 
 lib/
 
 /tests
 /build
+
+src/tools/default_flags_table/__pycache__/
+
+src/tools/default_flags_table/calibrations/
+
+src/tools/default_flags_table/fieldmaps/

@@ -1,4 +1,6 @@
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
 
 #ifndef _CalorimeterTruthClustering_h_
 #define _CalorimeterTruthClustering_h_
@@ -27,10 +29,6 @@ public:
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
-    // Name of input data type (collection)
-    std::string              m_inputHit_tag;
-    std::string              m_inputMCHit_tag;
-
 
   std::vector<const edm4eic::CalorimeterHit*> m_inputHits;//{"inputHits", Gaudi::DataHandle::Reader, this};
   std::vector<const edm4hep::SimCalorimeterHit*> m_mcHits;//{"mcHits", Gaudi::DataHandle::Reader, this};

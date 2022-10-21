@@ -13,6 +13,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <filesystem>
+#include <fmt/color.h>
 
 #include <JANA/JFactoryGenerator.h>
 
@@ -126,6 +127,18 @@ void JEventSourcePODIOsimple::Open() {
 
     // Open primary events file
     try {
+
+        // Verify file exists
+        if( ! std::filesystem::exists(GetResourceName()) ){
+            // Here we go against the standard practice of throwing an error and print
+            // the message and exit immediately. This is because we want the last message
+            // on the screen to be that the file doesn't exist.
+            auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
+            mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  GetResourceName());
+            std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
+            _exit(-1);
+        }
+
         // Have PODIO reader open file and get the number of events from it.
         reader.openFile( GetResourceName() );
         if( ! reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );

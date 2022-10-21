@@ -20,7 +20,6 @@
 #include <services/rootfile/RootFile_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-
 //--------------------------------
 // OccupancyAnalysis (Constructor)
 //--------------------------------

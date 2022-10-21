@@ -7,12 +7,14 @@
 
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFit.h>
-#include "extensions/jana/JChainFactoryT.h"
-#include <spdlog/logger.h>
+#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
-class TrackingResult_factory: public JChainFactoryT<ParticlesFromTrackFitResult> {
+class TrackingResult_factory:
+        public JChainFactoryT<ParticlesFromTrackFitResult>,
+        public eicrecon::SpdlogMixin<TrackingResult_factory> {
 public:
-    TrackingResult_factory(std::vector<std::string> default_input_tags ):
+    explicit TrackingResult_factory(std::vector<std::string> default_input_tags):
     JChainFactoryT<ParticlesFromTrackFitResult>(std::move(default_input_tags) ) {
     }
 
@@ -27,15 +29,7 @@ public:
 
 private:
 
-    std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-
-    int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-
-
     Jug::Reco::ParticlesFromTrackFit m_particle_maker_algo;      /// Track source linker algorithm
-
-    std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
-
 };
 
 

@@ -2,8 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalEndcapNClusters_h_
-#define _Cluster_factory_EcalEndcapNClusters_h_
+#pragma once
+
 
 #include <random>
 
@@ -30,7 +30,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalEndcapNHits";
-        m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
+        m_input_protoclust_tag="EcalEndcapNIslandProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -43,14 +43,13 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:depthCorrection",     m_depthCorrection);
-        //app->SetDefaultParameter("EEMC:inputHitCollection", m_inputHitCollection);
-        //app->SetDefaultParameter("EEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("EEMC:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("EEMC:EcalEndcapNClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -90,10 +89,9 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapMCRecoClusterParticleAssociation");
+        event->Insert(m_outputAssociations, "EcalEndcapNClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
 
-#endif // _Cluster_factory_EcalEndcapNClusters_h_

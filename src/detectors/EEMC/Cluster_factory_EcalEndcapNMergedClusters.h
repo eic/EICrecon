@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalEndcapNMergedClusters_h_
-#define _Cluster_factory_EcalEndcapNMergedClusters_h_
+#pragma once
 
 #include <random>
 
@@ -30,10 +29,13 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapNClusters";
-        m_inputAssociations_tag="EcalEndcapNClustersAssoc";
+        m_inputAssociations_tag="EcalEndcapNClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+
+        app->SetDefaultParameter("EEMC:EcalEndcapNMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapNMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
 
         // Get log level from user parameter or default
         std::string log_level_str = "info";
@@ -65,10 +67,14 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapNMergedClustersAssoc");
+        event->Insert(m_outputAssociations, "EcalEndcapNMergedClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
+
+private:
+    // Name of input data type (collection)
+    std::string              m_input_tag;
+    std::string              m_inputAssociations_tag;
 };
 
-#endif // _Cluster_factory_EcalEndcapNMergedClusters_h_

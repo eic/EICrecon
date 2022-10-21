@@ -12,7 +12,7 @@
 /// The default plugins
 /// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
-        "podio",
+
         "dd4hep",
         "acts",
         "log",
@@ -20,13 +20,21 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "algorithms_calorimetry",
         "algorithms_tracking",
         "algorithms_digi",
+        "digi",
+        "reco",
+        "tracking",
         "BEMC",
+        "HCAL",
+        "ZDC",
         "BTRK",
         "BVTX",
         "ECTRK",
         "EEMC",
         "MPGD",
-        "tracking"
+        "RPOTS",
+        "BTOF",
+        "ECTOF",
+        "podio",
 };
 
 int main( int narg, char **argv)

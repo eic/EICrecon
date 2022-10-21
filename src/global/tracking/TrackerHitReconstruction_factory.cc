@@ -6,6 +6,7 @@
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 #include <edm4eic/RawTrackerHit.h>
 #include <JANA/JEvent.h>
 
@@ -13,8 +14,8 @@ void TrackerHitReconstruction_factory::Init() {
 
     auto app = GetApplication();
 
-    // This prefix will be used for parameters
-    std::string param_prefix = "TrackerHitReconstruction:" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Ask service locator for parameter manager. We want to get this plugin parameters.
     auto pm = app->GetJParameterManager();

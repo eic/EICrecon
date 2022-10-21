@@ -24,11 +24,11 @@
 #include <extensions/jana/JChainFactoryT.h>
 
 
-class TrackerHitReconstruction_factory : public JChainFactoryT<edm4eic::TrackerHit> {
+class TrackerHitReconstruction_factory : public JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig> {
 
 public:
-    TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags ):
-            JChainFactoryT<edm4eic::TrackerHit>( std::move(default_input_tags) ) {
+    TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags, eicrecon::TrackerHitReconstructionConfig cfg):
+            JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig>( std::move(default_input_tags), cfg ) {
     }
 
     /** One time initialization **/

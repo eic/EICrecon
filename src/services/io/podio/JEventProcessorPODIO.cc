@@ -66,7 +66,45 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     );
 
     // Get the list of output collections to include/exclude
-    std::vector<std::string> output_include_collections;  // need to get as vector, then convert to set
+    std::vector<std::string> output_include_collections={
+            "MCParticles",
+            "GeneratedParticles",
+            "ReconstructedParticles",
+            "ReconstructedChargedParticles",
+            "ReconstructedChargedParticlesAssociations",
+            "TrackParameters",
+            "trackerHits",
+            "BarrelTrackerHit",
+            "EndcapTrackerHit",
+            "EcalEndcapNRawHits",
+            "EcalEndcapNRecHits",
+            "EcalEndcapPRawHits",
+            "EcalEndcapPRecHits",
+            "EcalEndcapNClusters",
+            "EcalEndcapPClusters",
+            "EcalEndcapNMergedClusters",
+            "EcalEndcapPMergedClusters",
+            "EcalEndcapNClusterAssociations",
+            "EcalEndcapPClusterAssociations",
+            "EcalBarrelRawHits",
+            "EcalBarrelRecHits",
+            "EcalBarrelClusters",
+            "EcalBarrelMergedClusters",
+            "EcalBarrelMergedTruthClusters",
+            "HcalEndcapNClusters",
+            "HcalEndcapPClusters",
+            "HcalBarrelClusters",
+            "ZDCEcalClusters",
+            "EcalEndcapNTruthClusters",
+            "EcalEndcapPTruthClusters",
+            "EcalBarrelTruthClusters",
+            "HcalEndcapNTruthClusters",
+//            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
+            "HcalBarrelTruthClusters",
+            "EcalBarrelTruthClusters",
+            "ZDCEcalTruthClusters",
+            "SmearedFarForwardParticles"
+    };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
             "podio:output_include_collections",
@@ -78,6 +116,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             output_exclude_collections,
             "Comma separated list of collection names to not write out."
     );
+
     m_output_include_collections = std::set<std::string>(output_include_collections.begin(),
                                                          output_include_collections.end());
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(),

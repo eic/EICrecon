@@ -26,8 +26,10 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        std::string              m_inputHit_tag="EcalBarrelRecHits";
-        std::string              m_inputMCHit_tag="EcalBarrelHits";
+        m_inputHit_tag="EcalBarrelRecHits";
+        m_inputMCHit_tag="EcalBarrelHits";
+
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthProtoClusters:inputHit_tag", m_inputHit_tag, "Name of input collection to use");
 
         AlgorithmInit();
     }
@@ -52,6 +54,11 @@ public:
         Set(m_outputProtoClusters);
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
+
+private:
+    // Name of input data type (collection)
+    std::string              m_inputHit_tag;
+    std::string              m_inputMCHit_tag;
 };
 
 #endif // _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_

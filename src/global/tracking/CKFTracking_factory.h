@@ -8,18 +8,22 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithms/tracking/CKFTracking.h>
+#include <algorithms/tracking/CKFTrackingConfig.h>
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 
-#include "extensions/jana/JChainFactoryT.h"
+#include <extensions/spdlog/SpdlogMixin.h>
+#include <extensions/jana/JChainFactoryT.h>
 
 
 namespace eicrecon {
 
-    class CKFTracking_factory : public JChainFactoryT<Jug::Trajectories> {
+    class CKFTracking_factory :
+            public JChainFactoryT<Jug::Trajectories, CKFTrackingConfig>,
+            public SpdlogMixin<CKFTracking_factory> {
 
     public:
-        CKFTracking_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<Jug::Trajectories>( std::move(default_input_tags) ) {
+        CKFTracking_factory( std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):
+                JChainFactoryT<Jug::Trajectories, CKFTrackingConfig>( std::move(default_input_tags), cfg ) {
         }
 
         /** One time initialization **/
@@ -32,10 +36,6 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-
-        std::shared_ptr<spdlog::logger> m_log;            /// Logger for this factory
-
-        std::vector<std::string> m_input_tags;            /// Tag for the input data
 
         CKFTracking m_tracking_algo;                      /// Proxy tracking algorithm
 

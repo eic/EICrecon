@@ -1,4 +1,13 @@
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
+
+/*
+ *  Reconstruct the cluster with Center of Gravity method
+ *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
+ *
+ *  Author: Chao Peng (ANL), 09/27/2020
+ */
 
 #ifndef _CalorimeterClusterRecoCoG_h_
 #define _CalorimeterClusterRecoCoG_h_
@@ -78,7 +87,7 @@ public:
 
 
 private:
-edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
+edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     edm4eic::MutableCluster cl;
     cl.setNhits(pcl->hits_size());
 
@@ -88,7 +97,7 @@ edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
       m_logger->debug("hit size = {}", pcl->hits_size());
     }
     if (pcl->hits_size() == 0) {
-      return cl;
+      return nullptr;
     }
 
     // calculate total energy, find the cell with the maximum energy deposit
@@ -177,8 +186,8 @@ edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster* pcl) const {
       cl.addToShapeParameters(radius);
       cl.addToShapeParameters(0 /* skewness */); // skewness not yet calculated
     }
-    edm4eic::Cluster c(cl);
-    return c;
+//    edm4eic::Cluster c(cl);
+    return new edm4eic::Cluster(cl);
   }
 
     

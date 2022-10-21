@@ -43,15 +43,6 @@
 #include <stdexcept>
 
 
-//static const std::map<int, Acts::Logging::Level> s_msgMap = {
-//    {MSG::DEBUG, Acts::Logging::DEBUG},
-//    {MSG::VERBOSE, Acts::Logging::VERBOSE},
-//    {MSG::INFO, Acts::Logging::INFO},
-//    {MSG::WARNING, Acts::Logging::WARNING},
-//    {MSG::FATAL, Acts::Logging::FATAL},
-//    {MSG::ERROR, Acts::Logging::ERROR},
-//};
-
 namespace eicrecon {
 
     using namespace Acts::UnitLiterals;

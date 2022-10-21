@@ -18,19 +18,17 @@ plugin_add(${PLUGIN_NAME} )
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(EDM4HEP REQUIRED)
-find_package(EDM4EIC REQUIRED)
-find_package(podio REQUIRED)
-find_package(DD4hep REQUIRED)
+find_package(Eigen3 REQUIRED)
+set(Eigen3_INCLUDE_DIR ${Eigen3_DIR}/../../../include/eigen3)
 
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
+plugin_add_dd4hep(${PLUGIN_NAME})
+plugin_add_event_model(${PLUGIN_NAME})
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIR})
 
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR})
+# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep DD4hep::DDCore)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library )
 
-# Additional libraries
-#plugin_link_libraries(${PLUGIN_NAME} dd4hep_library algorithms_calorimetry_library)
 

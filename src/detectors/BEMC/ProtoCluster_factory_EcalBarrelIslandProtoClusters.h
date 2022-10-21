@@ -41,19 +41,19 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
-
-        app->SetDefaultParameter("BEMC:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("BEMC:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("BEMC:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("BEMC:EcalBarrelIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         //app->SetDefaultParameter("BEMC:inputHitCollection", m_inputHitCollection);
         //app->SetDefaultParameter("BEMC:outputProtoClusterCollection",    m_outputProtoCollection);
-        app->SetDefaultParameter("BEMC:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("BEMC:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("BEMC:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("BEMC:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("BEMC:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("BEMC:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("BEMC:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();
