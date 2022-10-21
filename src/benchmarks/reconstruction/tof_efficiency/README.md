@@ -2,19 +2,27 @@ To run this plugin with tracking
 
 ```bash
 eicrecon
--Pplugins=tracking_occupancy,tracking_efficiency
+-Pplugins=tof_efficiency
 -Pnthreads=1
+-Ppodio:output_file=/home/romanov/work/data/eicrecon_test/eicrecon.ana.edm4hep.root
+-PTracking:CentralTrackSegments:LogLevel=trace
+-PDigi:SmearedFarForwardParticles:LogLevel=error
+-Ptof_efficiency:LogLevel=trace
 -Pjana:debug_plugin_loading=1
 -Pjana:nevents=100
+-Pjana:debug_mode=1
 -Pjana:timeout=0
 -Ptracking_efficiency:LogLevel=info
--PTracking:CentralTrackerSourceLinker:LogLevel=info
--PCKFTracking:Trajectories:LogLevel=info
--Ptracking_efficiency:LogLevel=debug
--Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
--Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
--Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
-/home/romanov/work/data/eicrecon_test/output.edm4hep.root
+-Ptracking_test:LogLevel=trace
+-Pacts:MaterialMap=/home/romanov/work/data/eicrecon_test/calibrations/materials-map.cbor
+-Pacts:LogLevel=info
+-PCKFTracking:CentralTrackerSourceLinker:LogLevel=info
+-PCKFTracking:CentralCKFTrajectories:LogLevel=info
+-PTracking:ParticlesFromTrackFit:LogLevel=info
+-PTracking:CentralTrackingParticles:LogLevel=info
+-Pdd4hep:xml_files=epic.xml
+-Phistsfile=/home/romanov/work/data/eicrecon_test/ccdis.ana.root
+/home/romanov/work/data/eicrecon_test/2022-10-06_pgun_TOF_1-pi+_en1-20GeV_alldir_2000evt.edm4hep.root
 ```
 
 Flags explained:
