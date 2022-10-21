@@ -333,8 +333,8 @@ eicrecon_reco_flags = [
 
     # HCAL Negative endcap
     # --------------------
-    ('HCAL:HcalEndcapNRawHits:capacityADC',                      'capacityBitsADC=8',              '*'),
-    ('HCAL:HcalEndcapNRawHits:dynamicRangeADC',                  '20*MeV',                            '*'),
+    ('HCAL:HcalEndcapNRawHits:capacityADC',                      'capacityBitsADC=10',             '*'),
+    ('HCAL:HcalEndcapNRawHits:dynamicRangeADC',                  '3.6*MeV',                            '*'),
     ('HCAL:HcalEndcapNRawHits:energyResolutions',                '',                               ''),
     ('HCAL:HcalEndcapNRawHits:fieldRefNumbers',                  '',                               ''),
     ('HCAL:HcalEndcapNRawHits:geoServiceName',                   'ActsGeometryProvider',           ''),
@@ -346,8 +346,8 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapNRawHits:signalSumFields',                  '',                               ''),
     ('HCAL:HcalEndcapNRawHits:timeResolution',                   '0',                              ''),
 
-    ('HCAL:HcalEndcapNRecHits:capacityADC',                      'capacityBitsADC=8',              '*'),
-    ('HCAL:HcalEndcapNRecHits:dynamicRangeADC',                  '20*MeV',                            '*'),
+    ('HCAL:HcalEndcapNRecHits:capacityADC',                      'capacityBitsADC=10',             '*'),
+    ('HCAL:HcalEndcapNRecHits:dynamicRangeADC',                  '3.6*MeV',                            '*'),
     ('HCAL:HcalEndcapNRecHits:geoServiceName',                   'geoServiceName',                 ''),
     ('HCAL:HcalEndcapNRecHits:layerField',                       '',                               ''),
     ('HCAL:HcalEndcapNRecHits:localDetElement',                  '',                               ''),

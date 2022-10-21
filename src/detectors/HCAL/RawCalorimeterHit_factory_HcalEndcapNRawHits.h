@@ -39,8 +39,8 @@ public:
         m_input_tag = "HcalEndcapNHits";
         u_eRes = {};
         m_tRes = 0.0 * ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
+        m_capADC = 1024;
+        m_dyRangeADC = 3.6 * MeV;
         m_pedMeanADC = 400;
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
