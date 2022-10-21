@@ -228,5 +228,5 @@ macro(plugin_add_cern_root _name)
 
     # Add libraries
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
-    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES})
+    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
 endmacro()
