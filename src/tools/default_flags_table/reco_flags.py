@@ -796,6 +796,12 @@ km2 = kilometer2
 km3 = kilometer3
 pc = parsec
 
+# Angle [A]
+#
+radian = 1.
+mrad = radian/1000.0
+degree = 0.017453292519943*radian
+
 
 # ========================================================================================================================================================
 # The next code allows to execute this file
