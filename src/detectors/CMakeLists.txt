@@ -2,6 +2,7 @@ add_subdirectory(BEMC)
 add_subdirectory(EEMC)
 add_subdirectory(HCAL)
 add_subdirectory(ZDC)
+add_subdirectory(B0ECAL)
 
 # Tracking detectors
 add_subdirectory(BTRK)      # Barrel tracker
