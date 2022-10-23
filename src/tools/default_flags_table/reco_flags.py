@@ -222,7 +222,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNTruthClusters:moduleDimZName',             '',                               ''),
     ('EEMC:EcalEndcapNTruthClusters:samplingFraction',           '0.03',                           '*'),
 
-    ('EEMC:EcalEndcapNClusters:input_protoclust_tag',            'EcalEndcapNHits',                ''),
+    ('EEMC:EcalEndcapNClusters:input_protoclust_tag',            'EcalEndcapNIslandProtoClusters', ''),
     ('EEMC:EcalEndcapNClusters:samplingFraction',                '1',                              ''),
     ('EEMC:EcalEndcapNClusters:logWeightBase',                   '3.6',                            ''),
     ('EEMC:EcalEndcapNClusters:depthCorrection',                 '0',                              ''),
