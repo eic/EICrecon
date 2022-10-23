@@ -40,17 +40,29 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         id_dec = id_spec.decoder();
         if (!m_sectorField.empty()) {
             sector_idx = id_dec->index(m_sectorField);
-            //LOG_INFO(default_cerr_logger) << "Find sector field " << m_sectorField << ", index = " << sector_idx  << LOG_END;
             m_logger->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
         }
         if (!m_layerField.empty()) {
             layer_idx = id_dec->index(m_layerField);
-            //LOG_INFO(default_cerr_logger) << "Find layer field " << m_layerField << ", index = " << sector_idx << LOG_END;
             m_logger->info("Find layer field {}, index = {}", m_layerField, sector_idx);
         }
     } catch (...) {
-        //LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
-        m_logger->error("Failed to load ID decoder for {}", m_readout);
+        if( !id_dec ) {
+            m_logger->error("Failed to load ID decoder for {}", m_readout);
+            std::stringstream readouts;
+            for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
+            m_logger->warn("Available readouts: {}", readouts.str() );
+        }else {
+            m_logger->warn("Failed to find field index for {}.", m_readout);
+            if (!m_sectorField.empty()) { m_logger->warn(" -- looking for sector field \"{}\".", m_sectorField); }
+            if (!m_layerField.empty()) { m_logger->warn(" -- looking for layer field  \"{}\".", m_layerField); }
+            std::stringstream fields;
+            for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
+            m_logger->warn("Available fields: {}", fields.str() );
+            m_logger->warn("n.b. The local position, sector id and layer id will not be correct for this.");
+            m_logger->warn("however, the position, energy, and time values should still be good.");
+        }
+
         return;
     }
 
@@ -59,10 +71,8 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     if (!m_localDetElement.empty()) {
         try {
             local = m_geoSvc->detector()->detector(m_localDetElement);
-            //LOG_INFO(default_cerr_logger) << "local coordinate system from DetElement " << m_localDetElement << LOG_END;
             m_logger->info("local coordinate system from DetElement {}", m_localDetElement);
         } catch (...) {
-            //LOG_ERROR(default_cerr_logger) << "failed to load local coordinate system from DetElement " << m_localDetElement << LOG_END;
             m_logger->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
             return;
         }
