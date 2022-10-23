@@ -12,24 +12,24 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_B0ECalIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalEndcapNIslandProtoClusters(){
-        SetTag("EcalEndcapNIslandProtoClusters");
+    ProtoCluster_factory_B0ECalIslandProtoClusters(){
+        SetTag("B0ECalIslandProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalEndcapNRecHits";
+        m_input_tag = "B0ECalRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=30.0 * MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=1.0 * MeV; // from ATHENA reconstruction.py
 
         // neighbour checking distances
         m_sectorDist=5.0 * cm;             // from ATHENA reconstruction.py
@@ -40,18 +40,17 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
-
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         std::string tag=this->GetTag();

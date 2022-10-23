@@ -95,6 +95,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 //            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
             "HcalBarrelTruthClusters",
             "EcalBarrelTruthClusters",
+            "B0ECalRecHits",
+            "B0ECalClusters",
             "ZDCEcalTruthClusters",
             "SmearedFarForwardParticles"
     };
