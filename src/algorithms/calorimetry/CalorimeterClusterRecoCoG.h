@@ -138,6 +138,7 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
       const auto& hit   = pcl->getHits()[i];
       const auto weight = pcl->getWeights()[i];
+//      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
       float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
       tw += w;
       v = v + (hit.getPosition() * w);

@@ -47,9 +47,23 @@ void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const J
     // Collect all hits from different tags
     std::vector<const edm4hep::SimTrackerHit*> total_sim_hits;
     for(const auto &input_tag: GetInputTags()) {
-        auto sim_hits = event->Get<edm4hep::SimTrackerHit>(input_tag);
-        for (const auto hit : sim_hits) {
-            total_sim_hits.push_back(hit);                     /// TODO a better way to concatenate arrays
+        try {
+            auto sim_hits = event->Get<edm4hep::SimTrackerHit>(input_tag);
+            for (const auto hit: sim_hits) {
+                total_sim_hits.push_back(hit);                     /// TODO a better way to concatenate arrays
+            }
+        }catch(std::exception &e){
+            // If we get here it is likely due to there being no factory for edm4hep::SimTrackerHit
+            // with the given input tag. This can happen if the input file simply does not have those.
+            // (I have seen this for the SiBarrelHits). Assume this is the case and print a single
+            // warning message the first time it happens and ignore all other times.
+            // FIXME: This tag should probably be removed from the list so we don't keep throwing
+            // FIXME: and catching exceptions that are not shown to the user.
+            static std::set<std::string> bad_tags;
+            if( bad_tags.count(input_tag) == 0 ){
+                bad_tags.insert( input_tag );
+                m_log->warn( e.what() );
+            }
         }
     }
 
