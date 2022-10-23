@@ -98,7 +98,6 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ls -al
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_HOME=$PWD/lib/EICrecon
           chmod a+x bin/*
