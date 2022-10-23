@@ -101,6 +101,7 @@ jobs:
           ls -al
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_HOME=$PWD/lib/EICrecon
+          chmod a+x bin/*
           $PWD/bin/eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
@@ -131,6 +132,7 @@ jobs:
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_HOME=$PWD/lib/EICrecon
+          chmod a+x bin/*
           $PWD/bin/run_eicrecon_reco_flags.py sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_e_1GeV_20GeV_${{ matrix.detector_config }}          
     - uses: actions/upload-artifact@v3
       with:
