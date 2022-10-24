@@ -352,7 +352,7 @@ eicrecon_reco_flags = [
     # B0ECAL - Far forward B0 Ecal
     # -----------------
     ('B0ECAL:B0ECalRawHits:capacityADC',                      'capacityBitsADC=14',                      '*'),
-    ('B0ECAL:B0ECalRawHits:dynamicRangeADC',                  '1*GeV',                                   '*'),
+    ('B0ECAL:B0ECalRawHits:dynamicRangeADC',                  '20*GeV',                                   '*'),
     ('B0ECAL:B0ECalRawHits:energyResolutions',                '0.0,0.02,0.0',                            '*'),
     ('B0ECAL:B0ECalRawHits:fieldRefNumbers',                  '',                                        ''),
     ('B0ECAL:B0ECalRawHits:geoServiceName',                   '',                                        ''),
