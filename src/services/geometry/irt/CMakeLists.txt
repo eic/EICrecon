@@ -26,12 +26,3 @@ plugin_sources(${PLUGIN_NAME}
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
-
-### DEBUGGING: dump all cmake vars (more than `cmake -LAH`)
-# message(STATUS "=============== DEBUG: DUMP ALL CMAKE VARS ===============")
-# get_cmake_property(_vars VARIABLES)
-# list(SORT _vars)
-# foreach(_var ${_vars})
-#   message(STATUS "  ${_var} = ${${_var}}")
-# endforeach()
-# message(STATUS "==========================================================")
