@@ -7,7 +7,7 @@
 #include <JANA/JFactoryGenerator.h>
 
 // #include "Photon_factory_PhotoElectrons"
-#include "CherenkovParticleID_factory_IrtParticleID.h"
+#include "ParticleID_factory_IrtHypothesis.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -20,8 +20,11 @@ extern "C" {
      */
     // app->Add(new JFactoryGeneratorT<PhotoElectron_factory_RICH>());
 
-    /* transform PhotoElectrons to Cherenonkov Particle Identification
+    /* transform PhotoElectrons to Cherenkov Particle Identification
+     * - Run the Indirect Ray Tracing (IRT) algorithm
+     * - Cherenkov angle measurement
+     * - PID hypotheses
      */
-    app->Add(new JFactoryGeneratorT<CherenkovParticleID_factory_IrtParticleID>());
+    app->Add(new JFactoryGeneratorT<ParticleID_factory_IrtHypothesis>());
   }
 }

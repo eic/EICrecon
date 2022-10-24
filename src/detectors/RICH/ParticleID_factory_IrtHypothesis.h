@@ -1,11 +1,10 @@
 // Copyright 2022, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
-// input is the photoelectrons, and tracking info
-// output is Cherenkov PID
-// - prepares for and calls the IRT (standalone) algorithm
+/* - input: photoelectrons, tracking info
+ * - output: Cherenkov PID hypothesis and emission angle
+ * - prepares for and calls the IRT (standalone) algorithm
+ */
 
 #pragma once
 
@@ -17,19 +16,19 @@
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/CherenkovParticleID.h>
+#include <edm4hep/ParticleID.h>
 
 // services
 #include <services/geometry/irt/IrtGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CherenkovParticleID_factory_IrtParticleID : public JFactoryT<edm4eic::CherenkovParticleID> {
+class ParticleID_factory_IrtHypothesis : public JFactoryT<edm4hep::ParticleID> {
   public:
 
     //------------------------------------------
-    CherenkovParticleID_factory_IrtParticleID() {
-      SetTag("IrtParticleID"); // FIXME: should be D/PFRICHIrtParticleID ?
+    ParticleID_factory_IrtHypothesis() {
+      SetTag("IrtHypothesis"); // FIXME: should be D/PFRICH-dependent name?
     }
 
     //------------------------------------------
@@ -65,9 +64,9 @@ class CherenkovParticleID_factory_IrtParticleID : public JFactoryT<edm4eic::Cher
 
       // loop over photoelectrons
       // FIXME: at the moment, we do nothing; the current version of this factory is only meant to test the `irt` service
-      std::vector<edm4eic::CherenkovParticleID*> output_pid;
+      std::vector<edm4hep::ParticleID*> output_pid;
       // for( const auto& photoelectron : photoelectrons ) {
-      //   auto pid = new edm4eic::CherenkovParticleID(
+      //   auto pid = new edm4hep::ParticleID(
       //       ...
       //       );
       //   output_pid.push_back(pid);
