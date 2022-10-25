@@ -39,7 +39,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
       );
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "cellMask = 0x%X", cellMask);
+  PrintLog("cellMask = {:#X}", cellMask);
 
   // aerogel + filter
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
@@ -73,10 +73,10 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       );
   aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
   filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "aerogelZpos = %f cm", aerogelZpos);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "filterZpos  = %f cm", filterZpos);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "aerogel thickness = %f cm", aerogelThickness);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "filter thickness  = %f cm", filterThickness);
+  PrintLog("aerogelZpos = {:f} cm", aerogelZpos);
+  PrintLog("filterZpos  = {:f} cm", filterZpos);
+  PrintLog("aerogel thickness = {:f} cm", aerogelThickness);
+  PrintLog("filter thickness  = {:f} cm", filterThickness);
 
   // sensor modules: search the detector tree for sensors
   auto sensorThickness  = det->constant<double>("PFRICH_RECON_sensorThickness");
@@ -108,8 +108,8 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is as expected
       if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-        dd4hep::printout(dd4hep::FATAL, "IRTGEO",
-            "sensor normal is wrong: normX.normY = %f   |sensorNorm x normZdir|^2 = %f",
+        PrintLog(stderr,
+            "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho,
             testRadial
             );
@@ -128,8 +128,8 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
           imod,              // copy number
           sensorFlatSurface  // surface
           );
-      dd4hep::printout(dd4hep::ALWAYS, "IRTGEO",
-          "sensor: id=0x%08X pos=(%5.2f, %5.2f, %5.2f) normX=(%5.2f, %5.2f, %5.2f) normY=(%5.2f, %5.2f, %5.2f)",
+      PrintLog(
+          "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
           imod,
           posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
           normXdir.x(),  normXdir.y(),  normXdir.z(),

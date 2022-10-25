@@ -11,8 +11,8 @@
 class IrtGeoPFRICH : public IrtGeo {
 
   public:
-    IrtGeoPFRICH(std::string compactFile_="") : IrtGeo("PFRICH",compactFile_) { DD4hep_to_IRT(); }
-    IrtGeoPFRICH(dd4hep::Detector *det_)      : IrtGeo("PFRICH",det_)         { DD4hep_to_IRT(); }
+    IrtGeoPFRICH(std::string compactFile_="", bool verbose_=false) : IrtGeo("PFRICH",compactFile_,verbose_) { DD4hep_to_IRT(); }
+    IrtGeoPFRICH(dd4hep::Detector *det_,      bool verbose_=false) : IrtGeo("PFRICH",det_,verbose_)         { DD4hep_to_IRT(); }
     ~IrtGeoPFRICH() {}
 
   protected:

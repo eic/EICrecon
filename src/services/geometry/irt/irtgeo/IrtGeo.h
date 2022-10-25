@@ -13,7 +13,6 @@
 #include "DD4hep/Detector.h"
 #include "DDRec/CellIDPositionConverter.h"
 #include "DD4hep/DD4hepUnits.h"
-#include "DD4hep/Printout.h"
 
 // IRT
 #include "CherenkovDetectorCollection.h"
@@ -26,8 +25,10 @@ class IrtGeo {
   public:
 
     // constructor
-    IrtGeo(std::string detName_, std::string compactFile_="");
-    IrtGeo(std::string detName_, dd4hep::Detector *det_) : detName(detName_), det(det_) { Bind(); }
+    IrtGeo(std::string detName_, std::string compactFile_="", bool verbose_=false);
+    IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false)
+      : detName(detName_), det(det_), verbose(verbose_)
+    { Bind(); }
     ~IrtGeo(); 
 
     // access the full IRT geometry
@@ -49,6 +50,21 @@ class IrtGeo {
     // IRT geometry handles
     CherenkovDetectorCollection *irtGeometry;
     CherenkovDetector *irtDetector;
+
+    // logging
+    /* NOTE: EICrecon uses `spdlog` with a logging service; since `IrtGeo` is meant
+     * to be usable independent of EICrecon, it uses a custom method `PrintLog`
+     * - for compatibility with the EICrecon log service, set `IrtGeo::verbose`
+     *   based on its log level to control whether `PrintLog` prints anything
+     */
+    bool verbose;
+    template <typename... VALS> void PrintLog(std::FILE *stream, std::string message, VALS... values) {
+      if(verbose or stream==stderr)
+        fmt::print(stream, "[IrtGeo]     {}\n", fmt::format(message, values...));
+    }
+    template <typename... VALS> void PrintLog(std::string message, VALS... values) {
+      PrintLog(stdout, message, values...);
+    }
 
   private:
 

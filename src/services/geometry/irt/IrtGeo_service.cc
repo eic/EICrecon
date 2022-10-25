@@ -29,11 +29,13 @@ CherenkovDetectorCollection *IrtGeo_service::IrtGeometry(std::string detector_na
     m_log->info("Call IrtGeo_service::Initialize");
     auto initialize = [this,&detector_name] () {
       if(!m_dd4hepGeo) throw JException("IrtGeo_service m_dd4hepGeo==null which should never be!");
+      // allow verbose IrtGeo output, if log level is `debug` or lower
+      bool verbose = m_log->level() <= spdlog::level::debug;
       // instantiate IrtGeo-derived object, depending on detector
       auto rich = detector_name;
       std::transform(rich.begin(), rich.end(), rich.begin(), ::toupper);
-      if     ( rich=="DRICH"  ) m_irtGeo = new IrtGeoDRICH(m_dd4hepGeo);
-      else if( rich=="PFRICH" ) m_irtGeo = new IrtGeoPFRICH(m_dd4hepGeo);
+      if     ( rich=="DRICH"  ) m_irtGeo = new IrtGeoDRICH(m_dd4hepGeo,  verbose);
+      else if( rich=="PFRICH" ) m_irtGeo = new IrtGeoPFRICH(m_dd4hepGeo, verbose);
       else throw JException(fmt::format("IrtGeo is not defined for detector '{}'",detector_name));
     };
     std::call_once(init_flag, initialize);

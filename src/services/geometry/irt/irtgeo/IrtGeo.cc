@@ -5,15 +5,15 @@
 
 #include "IrtGeo.h"
 
-IrtGeo::IrtGeo(std::string detName_, std::string compactFile_) : detName(detName_) {
+IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbose_) : detName(detName_), verbose(verbose_) {
 
-  // compact file name
+  // compact file name; if it's not been specified, try to find the default one
   std::string compactFile;
   if(compactFile_=="") {
     std::string DETECTOR_PATH(getenv("DETECTOR_PATH"));
     std::string DETECTOR_CONFIG(getenv("DETECTOR_CONFIG"));
     if(DETECTOR_PATH.empty() || DETECTOR_CONFIG.empty()) {
-      fmt::print(stderr,"ERROR: source environ.sh\n");
+      PrintLog(stderr,"ERROR: cannot find default compact file, since env vars DETECTOR_PATH and DETECTOR_CONFIG are not set");
       return;
     }
     compactFile = DETECTOR_PATH + "/" + DETECTOR_CONFIG + ".xml";

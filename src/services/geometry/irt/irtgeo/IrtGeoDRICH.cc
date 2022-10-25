@@ -42,7 +42,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
       );
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "cellMask = 0x%X", cellMask);
+  PrintLog("cellMask = {:#X}", cellMask);
 
   // aerogel + filter
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
@@ -79,10 +79,10 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
     aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
     filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
   }
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "aerogelZpos = %f cm", aerogelZpos);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "filterZpos  = %f cm", filterZpos);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "aerogel thickness = %f cm", aerogelThickness);
-  dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "filter thickness  = %f cm", filterThickness);
+  PrintLog("aerogelZpos = {:f} cm", aerogelZpos);
+  PrintLog("filterZpos  = {:f} cm", filterZpos);
+  PrintLog("aerogel thickness = {:f} cm", aerogelThickness);
+  PrintLog("filter thickness  = {:f} cm", filterThickness);
 
   // sector loop
   for (int isec = 0; isec < nSectors; isec++) {
@@ -103,12 +103,12 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
         false                              // bool refractive
         );
     irtDetector->AddOpticalBoundary(isec, mirrorOpticalBoundary);
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "");
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "  SECTOR %d MIRROR:", isec);
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    mirror x = %f cm", mirrorCenter.x());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    mirror y = %f cm", mirrorCenter.y());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    mirror z = %f cm", mirrorCenter.z());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    mirror R = %f cm", mirrorRadius);
+    PrintLog("");
+    PrintLog("  SECTOR {:d} MIRROR:", isec);
+    PrintLog("    mirror x = {:f} cm", mirrorCenter.x());
+    PrintLog("    mirror y = {:f} cm", mirrorCenter.y());
+    PrintLog("    mirror z = {:f} cm", mirrorCenter.z());
+    PrintLog("    mirror R = {:f} cm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
     irtDetector->GetRadiator("GasVolume")->m_Borders[isec].second = mirrorSphericalSurface;
@@ -121,11 +121,11 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
       det->constant<double>("DRICH_RECON_sensorSphCenterY_"+secName),
       det->constant<double>("DRICH_RECON_sensorSphCenterZ_"+secName)
       );
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "  SECTOR %d SENSOR SPHERE:", isec);
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    sphere x = %f cm", sensorSphCenter.x());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    sphere y = %f cm", sensorSphCenter.y());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    sphere z = %f cm", sensorSphCenter.z());
-    dd4hep::printout(dd4hep::ALWAYS, "IRTGEO", "    sphere R = %f cm", sensorSphRadius);
+    PrintLog("  SECTOR {:d} SENSOR SPHERE:", isec);
+    PrintLog("    sphere x = {:f} cm", sensorSphCenter.x());
+    PrintLog("    sphere y = {:f} cm", sensorSphCenter.y());
+    PrintLog("    sphere z = {:f} cm", sensorSphCenter.z());
+    PrintLog("    sphere R = {:f} cm", sensorSphRadius);
 
     // sensor modules: search the detector tree for sensors for this sector
     for(auto const& [de_name, detSensor] : detRich.children()) {
@@ -155,8 +155,8 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
         auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
         auto testRadial = radialDir.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is parallel to sensor sphere radius
         if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-          dd4hep::printout(dd4hep::FATAL, "IRTGEO",
-              "sensor normal is wrong: normX.normY = %f   |radialDir x normZdir|^2 = %f",
+          PrintLog(stderr,
+              "ERROR: sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
               testOrtho,
               testRadial
               );
@@ -166,8 +166,8 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
         auto distSensor2center = sqrt((posSensorSurface-sensorSphCenter).Mag2()); // distance between sensor sphere center and sensor surface position
         auto testDist          = abs(distSensor2center-sensorSphRadius);          // should be zero, if sensor position w.r.t. sensor sphere center is correct
         if(abs(testDist)>1e-6) {
-          dd4hep::printout(dd4hep::FATAL, "IRTGEO",
-              "sensor positioning is wrong: dist(sensor, sphere_center) = %f,  sphere_radius = %f,  sensor_thickness = %f,  |diff| = %g\n",
+          PrintLog(stderr,
+              "ERROR: sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
               distSensor2center,
               sensorSphRadius,
               sensorThickness,
@@ -189,13 +189,15 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
             imodsec,           // copy number
             sensorFlatSurface  // surface
             );
-        // dd4hep::printout(dd4hep::ALWAYS, "IRTGEO",
-        //     "sensor: id=0x%08X pos=(%5.2f, %5.2f, %5.2f) normX=(%5.2f, %5.2f, %5.2f) normY=(%5.2f, %5.2f, %5.2f)",
-        //     imodsec,
-        //     posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
-        //     normXdir.x(),  normXdir.y(),  normXdir.z(),
-        //     normYdir.x(),  normYdir.y(),  normYdir.z()
-        //     );
+        /*
+        PrintLog(
+            "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
+            imodsec,
+            posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
+            normXdir.x(),  normXdir.y(),  normXdir.z(),
+            normYdir.x(),  normYdir.y(),  normYdir.z()
+            );
+            */
       }
     } // search for sensors
 
