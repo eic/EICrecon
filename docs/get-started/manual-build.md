@@ -164,6 +164,16 @@ cmake --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
 
+### IRT
+~~~
+export IRT_HOME=${EICTOPDIR}/irt
+export IRT_ROOT=${IRT_HOME}/install 
+git clone https://github.com/eic/irt ${IRT_HOME}
+cmake -S ${IRT_HOME} -B ${IRT_HOME}/build -DCMAKE_INSTALL_PREFIX=${IRT_ROOT}
+cmake --build ${IRT_HOME}/build -j8
+cmake --install ${IRT_HOME}/build
+~~~
+
 ### Detector Geometry
 The detector geometry itself is contained in separate repositories.
 The _EPIC_ reference detector design is in a repository
