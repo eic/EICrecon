@@ -111,37 +111,41 @@ public:
 
 #pragma GCC diagnostic pop
 
-            const auto id = rh->getCellID();
-            // @TODO remove
-            const int lid = (int) id_dec->get(id, layer_idx);
-            const int sid = (int) id_dec->get(id, sector_idx);
+            try {
+                const auto id = rh->getCellID();
+                // @TODO remove
+                const int lid = (int) id_dec->get(id, layer_idx);
+                const int sid = (int) id_dec->get(id, sector_idx);
 
-            // global positions
-            const auto gpos = m_geoSvc->cellIDPositionConverter()->position(id);
-            // local positions
-            const auto volman = m_geoSvc->detector()->volumeManager();
-            // TODO remove
-            const auto alignment = volman.lookupDetElement(id).nominal();
-            const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
+                // global positions
+                const auto gpos = m_geoSvc->cellIDPositionConverter()->position(id);
+                // local positions
+                const auto volman = m_geoSvc->detector()->volumeManager();
+                // TODO remove
+                const auto alignment = volman.lookupDetElement(id).nominal();
+                const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
 
 
-            // create const vectors for passing to hit initializer list
-            const decltype(edm4eic::CalorimeterHitData::position) position(
-                    gpos.x() / m_lUnit, gpos.y() / m_lUnit, gpos.z() / m_lUnit
-            );
-            const decltype(edm4eic::CalorimeterHitData::local) local(
-                    pos.x() / m_lUnit, pos.y() / m_lUnit, pos.z() / m_lUnit
-            );
+                // create const vectors for passing to hit initializer list
+                const decltype(edm4eic::CalorimeterHitData::position) position(
+                        gpos.x() / m_lUnit, gpos.y() / m_lUnit, gpos.z() / m_lUnit
+                );
+                const decltype(edm4eic::CalorimeterHitData::local) local(
+                        pos.x() / m_lUnit, pos.y() / m_lUnit, pos.z() / m_lUnit
+                );
 
-            hits.push_back(new edm4eic::CalorimeterHit{id,                         // cellID
-                                                   static_cast<float>(energy), // energy
-                                                   0,                          // energyError
-                                                   static_cast<float>(time),   // time
-                                                   0,                          // timeError TODO
-                                                   position,                   // global pos
-                                                   {0, 0, 0}, // @TODO: add dimension
-                                                   sid, lid,
-                                                   local});                    // local pos
+                hits.push_back(new edm4eic::CalorimeterHit{id,                         // cellID
+                                                           static_cast<float>(energy), // energy
+                                                           0,                          // energyError
+                                                           static_cast<float>(time),   // time
+                                                           0,                          // timeError TODO
+                                                           position,                   // global pos
+                                                           {0, 0, 0}, // @TODO: add dimension
+                                                           sid, lid,
+                                                           local});                    // local pos
+            }catch(std::exception &e){
+                m_log->error("ImagingPixelReco::execute {}", e.what());
+            }
         }
     }
 };
