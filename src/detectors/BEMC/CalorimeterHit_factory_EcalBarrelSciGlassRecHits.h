@@ -8,13 +8,13 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalBarrelSciGlassRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalBarrelRecHits(){
-        SetTag("EcalBarrelRecHits");
+    CalorimeterHit_factory_EcalBarrelSciGlassRecHits(){
+        SetTag("EcalBarrelSciGlassRecHits");
     }
 
     //------------------------------------------
@@ -22,7 +22,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "EcalBarrelRawHits";
+        m_input_tag = "EcalBarrelSciGlassRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096;//{this, "capacityADC", 8096};
@@ -48,15 +48,15 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("BEMC:EcalBarrelRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();

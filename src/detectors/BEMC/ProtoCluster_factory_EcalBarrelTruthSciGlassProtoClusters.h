@@ -13,23 +13,23 @@
 
 
 
-class ProtoCluster_factory_EcalBarrelTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalBarrelTruthProtoClusters(){
-        SetTag("EcalBarrelTruthProtoClusters");
+    ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters(){
+        SetTag("EcalBarrelTruthSciGlassProtoClusters");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag="EcalBarrelRecHits";
-        m_inputMCHit_tag="EcalBarrelHits";
+        m_inputHit_tag="EcalBarrelSciGlassRecHits";
+        m_inputMCHit_tag="EcalBarrelSciGlassHits";
 
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthProtoClusters:inputHit_tag", m_inputHit_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelTruthSciGlassProtoClusters:inputHit_tag", m_inputHit_tag, "Name of input collection to use");
 
         AlgorithmInit();
     }
