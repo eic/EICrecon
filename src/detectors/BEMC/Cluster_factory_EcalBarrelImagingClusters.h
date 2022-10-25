@@ -33,7 +33,7 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelHits";
+        m_input_simhit_tag="EcalBarrelImagingHits";
         m_input_protoclust_tag="EcalBarrelImagingProtoClusters";
         m_trackStopLayer = 6;
 
