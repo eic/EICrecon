@@ -40,7 +40,7 @@ public:
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="EcalBarrelHits";  // from ATHENA's reconstruction.py
+        m_readout="EcalBarrelSciGlassHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
         m_sectorField="sector";       // from ATHENA's reconstruction.py
 
