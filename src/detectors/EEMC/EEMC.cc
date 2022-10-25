@@ -23,6 +23,14 @@
 #include "Cluster_factory_EcalEndcapPMergedClusters.h"
 #include "TruthCluster_factory_EcalEndcapPTruthProtoClusters.h"
 
+#include "RawCalorimeterHit_factory_EcalEndcapPInsertRawHits.h"
+#include "CalorimeterHit_factory_EcalEndcapPInsertRecHits.h"
+#include "ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters.h"
+#include "ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters.h"
+#include "Cluster_factory_EcalEndcapPInsertClusters.h"
+#include "Cluster_factory_EcalEndcapPInsertMergedClusters.h"
+#include "TruthCluster_factory_EcalEndcapPInsertTruthProtoClusters.h"
+
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
@@ -41,6 +49,14 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPMergedClusters>());
         app->Add(new JFactoryGeneratorT<TruthCluster_factory_EcalEndcapPTruthProtoClusters>());
+
+        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPInsertRawHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPInsertRecHits>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertMergedClusters>());
+        app->Add(new JFactoryGeneratorT<TruthCluster_factory_EcalEndcapPInsertTruthProtoClusters>());
     }
 }
     
