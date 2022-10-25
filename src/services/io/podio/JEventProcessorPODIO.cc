@@ -88,15 +88,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
-
             "HcalEndcapNRawHits",
             "HcalEndcapNRecHits",
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
-            "HcalEndcapPRawHits",
-            "HcalEndcapPRecHits",
-            "HcalEndcapPMergedHits",
-            "HcalEndcapPClusters",
+//            "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
+//            "HcalEndcapPRecHits",
+//            "HcalEndcapPMergedHits",
+//            "HcalEndcapPClusters",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -111,15 +110,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ZDCEcalRecHits",
             "ZDCEcalClusters",
             "ZDCEcalMergedClusters",
-            "EcalEndcapNTruthClusters",
-            "EcalEndcapPTruthClusters",
-            "EcalBarrelTruthClusters",
             "HcalEndcapNTruthClusters",
-            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
+//            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
             "HcalBarrelTruthClusters",
             "B0ECalRecHits",
             "B0ECalClusters",
             "ZDCEcalTruthClusters",
+            "ForwardRomanPotRawHits",
+            "ForwardRomanPotRecHits",
+            "ForwardRomanPotParticles",
             "SmearedFarForwardParticles"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
