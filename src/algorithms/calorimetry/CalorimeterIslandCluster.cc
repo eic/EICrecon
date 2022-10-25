@@ -53,9 +53,10 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 
     m_logger=logger;
     // unitless conversion, keep consistency with juggler internal units (GeV, mm, ns, rad)
-    minClusterHitEdep    = m_minClusterHitEdep / GeV;
-    minClusterCenterEdep = m_minClusterCenterEdep / GeV;
-    sectorDist           = m_sectorDist / mm;
+    // n.b. JANA reco_parms.py uses units of MeV and mm and so convert to this into internal units here
+    minClusterHitEdep    = m_minClusterHitEdep * MeV;
+    minClusterCenterEdep = m_minClusterCenterEdep * MeV;
+    sectorDist           = m_sectorDist * mm;
 
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>

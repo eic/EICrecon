@@ -61,7 +61,7 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     }
 
     // using juggler internal units (GeV, mm, radian, ns)
-    dyRangeADC = m_dyRangeADC / GeV;
+    dyRangeADC = m_dyRangeADC * MeV; // value of m_dyRangeADC is in MeV
     tRes       = m_tRes / ns;
     stepTDC    = ns / m_resolutionTDC;
 

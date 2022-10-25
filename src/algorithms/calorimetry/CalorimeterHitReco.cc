@@ -24,7 +24,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
     //unitless conversion
     m_logger=logger;
-    dyRangeADC = m_dyRangeADC / GeV;
+    dyRangeADC = m_dyRangeADC * MeV;
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
     // TDC channels to timing conversion
