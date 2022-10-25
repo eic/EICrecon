@@ -27,7 +27,7 @@
 
 #include "ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassTruthClusters.h"
-#include "Cluster_factory_EcalBarrelMergedTruthClusters.h"
+#include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -56,7 +56,7 @@ extern "C" {
 
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelMergedTruthClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>());
     }
 }
     
