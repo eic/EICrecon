@@ -13,13 +13,13 @@
 
 
 
-class Cluster_factory_EcalBarrelMergedTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelMergedTruthClusters(){
-        SetTag("EcalBarrelMergedTruthClusters");
+    Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(){
+        SetTag("EcalBarrelSciGlassMergedTruthClusters");
     }
 
     //------------------------------------------
@@ -27,14 +27,14 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_tag="EcalBarrelTruthClusters";
-        m_inputAssociations_tag="EcalBarrelTruthClusterAssociations";
+        m_input_tag="EcalBarrelSciGlassTruthClusters";
+        m_inputAssociations_tag="EcalBarrelSciGlassTruthClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedTruthClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedTruthClusters:inputAssociations_tag", m_inputAssociations_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:inputAssociations_tag", m_inputAssociations_tag);
 
         // Get log level from user parameter or default
         std::string log_level_str = "info";
