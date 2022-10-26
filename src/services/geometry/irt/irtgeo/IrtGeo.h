@@ -15,11 +15,11 @@
 #include "DD4hep/DD4hepUnits.h"
 
 // IRT
-#include "CherenkovDetectorCollection.h"
-#include "CherenkovPhotonDetector.h"
-#include "CherenkovRadiator.h"
-#include "OpticalBoundary.h"
-#include "ParametricSurface.h"
+#include "IRT/CherenkovDetectorCollection.h"
+#include "IRT/CherenkovPhotonDetector.h"
+#include "IRT/CherenkovRadiator.h"
+#include "IRT/OpticalBoundary.h"
+#include "IRT/ParametricSurface.h"
 
 class IrtGeo {
   public:
