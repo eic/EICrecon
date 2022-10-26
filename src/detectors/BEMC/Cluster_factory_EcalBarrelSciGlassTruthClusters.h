@@ -13,13 +13,13 @@
 
 
 
-class Cluster_factory_EcalBarrelTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelSciGlassTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelTruthClusters(){
-        SetTag("EcalBarrelTruthClusters");
+    Cluster_factory_EcalBarrelSciGlassTruthClusters(){
+        SetTag("EcalBarrelSciGlassTruthClusters");
     }
 
     //------------------------------------------
@@ -27,8 +27,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelHits";
-        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
+        m_input_simhit_tag="EcalBarrelSciGlassHits";
+        m_input_protoclust_tag="EcalBarrelSciGlassTruthProtoClusters";
 
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -40,14 +40,14 @@ public:
         // for endcaps.
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_protoclust_tag", m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:input_protoclust_tag", m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:input_simhit_tag", m_input_simhit_tag);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 

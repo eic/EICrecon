@@ -35,7 +35,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelHits";
+        m_input_tag = "EcalBarrelImagingHits";
         u_eRes = {0.0, 0.02, 0.0};
         m_tRes = 0.0 * ns;
         m_capADC = 8192;

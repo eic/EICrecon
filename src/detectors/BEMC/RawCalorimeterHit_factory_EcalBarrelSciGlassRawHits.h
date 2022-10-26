@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
-#define _RawCalorimeterHit_factory_EcalBarrelRawHits_h_
+#pragma once
 
 #include <random>
 
@@ -20,14 +19,14 @@
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalBarrelRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalBarrelRawHits() {
-        SetTag("EcalBarrelRawHits");
+    RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits() {
+        SetTag("EcalBarrelSciGlassRawHits");
     }
 
     //------------------------------------------
@@ -36,7 +35,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelHits";
+        m_input_tag = "EcalBarrelSciGlassHits";
         u_eRes =  {};
         m_tRes = 0.0 * ns;
         m_capADC = 8096;
@@ -55,19 +54,19 @@ public:
         
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:EcalBarrelRawHits:readoutClass",     m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
         std::string tag=this->GetTag();
@@ -103,4 +102,3 @@ public:
 
 };
 
-#endif // _RawCalorimeterHit_factory_EcalBarrelRawHits_h_

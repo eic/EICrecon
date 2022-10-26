@@ -241,8 +241,8 @@ namespace jana {
 
         // If the user hasn't specified a timeout (on cmd line or in config file), set the timeout to something reasonably high
         if (para_mgr->FindParameter("jana:timeout") == nullptr) {
-            para_mgr->SetParameter("jana:timeout", 60); // seconds
-            para_mgr->SetParameter("jana:warmup_timeout", 60); // seconds
+            para_mgr->SetParameter("jana:timeout", 180); // seconds
+            para_mgr->SetParameter("jana:warmup_timeout", 180); // seconds
         }
 
         auto app = new JApplication(para_mgr);

@@ -63,7 +63,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticles",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticlesAssociations",
-            "TrackParameters",
             "trackerHits",
             "BarrelTrackerHit",
             "EndcapTrackerHit",
@@ -75,21 +74,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPClusters",
             "EcalEndcapNMergedClusters",
             "EcalEndcapPMergedClusters",
-            "EcalEndcapNClusterAssociations",
-            "EcalEndcapPClusterAssociations",
-            "EcalBarrelRawHits",
-            "EcalBarrelRecHits",
-            "EcalBarrelClusters",
-            "EcalBarrelMergedClusters",
-            "EcalBarrelMergedTruthClusters",
+            "EcalBarrelSciGlassRawHits",
+            "EcalBarrelSciGlassRecHits",
+            "EcalBarrelSciGlassClusters",
+            "EcalBarrelSciGlassMergedClusters",
+            "EcalBarrelSciGlassTruthClusters",
+            "EcalBarrelSciGlassMergedTruthClusters",
+            "EcalBarrelImagingRawHits",
+            "EcalBarrelImagingRecHits",
+            "EcalBarrelImagingClusters",
+            "EcalBarrelImagingMergedClusters",
+            "EcalBarrelScFiRawHits",
+            "EcalBarrelScFiRecHits",
+            "EcalBarrelScFiMergedHits",
+            "EcalBarrelScFiClusters",
             "HcalEndcapNRawHits",
             "HcalEndcapNRecHits",
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
-            "HcalEndcapPRawHits",
-            "HcalEndcapPRecHits",
-            "HcalEndcapPMergedHits",
-            "HcalEndcapPClusters",
+//            "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
+//            "HcalEndcapPRecHits",
+//            "HcalEndcapPMergedHits",
+//            "HcalEndcapPClusters",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -104,14 +110,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ZDCEcalRecHits",
             "ZDCEcalClusters",
             "ZDCEcalMergedClusters",
-            "EcalEndcapNTruthClusters",
-            "EcalEndcapPTruthClusters",
-            "EcalBarrelTruthClusters",
             "HcalEndcapNTruthClusters",
-            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
+//            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
             "HcalBarrelTruthClusters",
-            "EcalBarrelTruthClusters",
+            "B0ECalRecHits",
+            "B0ECalClusters",
             "ZDCEcalTruthClusters",
+            "ForwardRomanPotRawHits",
+            "ForwardRomanPotRecHits",
+            "ForwardRomanPotParticles",
             "SmearedFarForwardParticles"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
@@ -209,7 +216,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::vector<JFactory*>& 
         else {
             // This IS a PODIO type, and should be included.
             m_collections_to_write[col] = coltype;
-            m_log->debug("Writing collection '{}'", pair.first);
+            m_log->info("Writing collection '{}'", pair.first);
         }
     }
 }
@@ -224,9 +231,22 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     m_log->trace("==================================");
     m_log->trace("Event #{}", event->GetEventNumber());
 
+    // If we get an exception below while trying to add a factory for any
+    // reason then mark that factory as bad and don't try running it again.
+    // This is motivated by trying to write EcalBarrelSciGlass objects for
+    // data simulated using the imaging calorimeter. In that case, it will
+    // always throw an exception, but DD4hep also prints its own error message.
+    // Thus, to prevent that error message every event, we must avoid calling
+    // it.
+    static std::set<std::string> failing_factories;
+
     // Loop over all collections/factories to write
     for( const auto& pair : (m_collections_to_write) ){
         JFactory* fac = event->GetFactory(pair.second, pair.first); // Object name, tag name=collection name
+
+        // See not above on flagging certain factories not to be run.
+        std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
+        if (failing_factories.count(fac_name)) continue;
 
         // Attempt to put data from all factories into the store.
         // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
@@ -258,7 +278,10 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
             }
         }
-        catch(std::exception &e){
+        catch(std::exception &e) {
+            // Limit printing warning to just once per factory
+            std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
+            failing_factories.insert(fac_name);
             m_log->error("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
         }
     }

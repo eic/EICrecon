@@ -26,7 +26,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_readout = "EcalBarrelRawHits";
+        m_readout = "EcalBarrelImagingHits";
         m_layerField = "layer"; // {this, "layerField", "layer"};
         m_sectorField = "module"; // {this, "sectorField", "sector"};
         // length unit (from dd4hep geometry service)
