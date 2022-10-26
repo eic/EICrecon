@@ -31,8 +31,8 @@ void CalorimeterHitsMerger::initialize() {
         // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
     } catch (...) {
         auto mess = fmt::format("Failed to load ID decoder for {}", m_readout);
-        m_log->error(mess);
-        throw std::runtime_error(mess);
+        m_log->warn(mess);
+//        throw std::runtime_error(mess);
     }
     id_mask = ~id_mask;
     m_log->info(fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask));
