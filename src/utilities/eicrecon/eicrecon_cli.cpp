@@ -16,6 +16,15 @@
 #include <string>
 #include <filesystem>
 
+#define QUOTE(name) #name
+#define STR(macro) QUOTE(macro)
+
+#ifndef EICRECON_APP_VERSION
+#  define EICRECON_APP_VERSION Error
+#endif
+
+#define EICRECON_APP_VERSION_STR STR(EICRECON_APP_VERSION)
+
 
 namespace jana {
 
@@ -67,7 +76,7 @@ namespace jana {
     }
 
     void PrintVersion() {
-        std::cout << "      EICrecon version: " << "0.2.3" << std::endl;
+        std::cout << "      EICrecon version: " << EICRECON_APP_VERSION_STR << std::endl;
         std::cout << std::endl << std::endl;
     }
 
