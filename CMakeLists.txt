@@ -20,7 +20,8 @@
 # podio               |   IO library
 # DD4hep              |   Geometry framework
 # ROOT                |   CERN ROOT
-# fmt                 |   Formatting library
+# spdlog              |   Formatting library
+# IRT library         |
 # ==============================================================
 
 
