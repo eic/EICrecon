@@ -7,6 +7,7 @@
 #include <services/log/Log_service.h>
 
 #include <TDirectory.h>
+#include <edm4eic/ReconstructedParticle.h>
 
 class JEvent;
 class JApplication;
@@ -45,17 +46,11 @@ public:
 
 private:
 
-    //----------------------------
-    // Test imminent tracking output
-    void ProcessTrackingResults(const std::shared_ptr<const JEvent>& event);
-
-    void ProcessTrackingMatching(const std::shared_ptr<const JEvent>& event);
-
-    void ProcessGloablMatching(const std::shared_ptr<const JEvent>& event);
-
 
     std::shared_ptr<spdlog::logger> m_log;
     TDirectory *m_dir_main;
+
+    void printRecoParticles(std::vector<const edm4eic::ReconstructedParticle*> reco_particles, const std::string &title);
 };
 
 #endif //EICRECON_GLOBAL_RECO_TEST_PROCESSOR_H

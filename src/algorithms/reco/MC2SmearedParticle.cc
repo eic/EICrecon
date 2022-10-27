@@ -26,21 +26,20 @@ edm4eic::ReconstructedParticle *eicrecon::MC2SmearedParticle::produce(const edm4
     // for now just use total momentum smearing as this is the largest effect,
     // ideally we should also smear the angles but this should be good enough
     // for now.
-    const auto pvec = mc_particle->getMomentum();
-    const auto pgen = std::hypot(pvec.x, pvec.y, pvec.z);
-    const auto momentum = pgen * m_gauss();
+    // TODO smearing was removed, should we add it again? And is it needed at all?
+    const auto energy_true = mc_particle->getEnergy();
     // make sure we keep energy consistent
     using MomType = decltype(edm4eic::ReconstructedParticle().getMomentum().x);
-    const MomType energy =
-            std::sqrt(mc_particle->getEnergy() * mc_particle->getEnergy() - pgen * pgen + momentum * momentum);
-    const MomType px = mc_particle->getMomentum().x * momentum / pgen;
-    const MomType py = mc_particle->getMomentum().y * momentum / pgen;
-    const MomType pz = mc_particle->getMomentum().z * momentum / pgen;
 
-    const MomType dpx = m_cfg.momentum_smearing * px;
-    const MomType dpy = m_cfg.momentum_smearing * py;
-    const MomType dpz = m_cfg.momentum_smearing * pz;
-    const MomType dE = m_cfg.momentum_smearing * energy;
+    const MomType px = mc_particle->getMomentum().x;
+    const MomType py = mc_particle->getMomentum().y;
+    const MomType pz = mc_particle->getMomentum().z;
+
+    const MomType dpx = 0;  // TODO it is 0 as smearing is removed
+    const MomType dpy = 0;  // TODO it is 0 as smearing is removed
+    const MomType dpz = 0;  // TODO it is 0 as smearing is removed
+    const MomType dE =  0;  // TODO it is 0 as smearing is removed
+
     // ignore covariance for now
     // @TODO: vertex smearing
     const MomType vx = mc_particle->getVertex().x;
@@ -49,13 +48,13 @@ edm4eic::ReconstructedParticle *eicrecon::MC2SmearedParticle::produce(const edm4
 
     edm4eic::MutableReconstructedParticle rec_part;
     rec_part.setType(-1); // @TODO: determine type codes
-    rec_part.setEnergy(energy);
+    rec_part.setEnergy(energy_true);
     rec_part.setMomentum({px, py, pz});
     rec_part.setReferencePoint({vx, vy, vz}); // @FIXME: probably not what we want?
     rec_part.setCharge(mc_particle->getCharge());
     rec_part.setMass(mc_particle->getMass());
     rec_part.setGoodnessOfPID(1); // Perfect PID
-    rec_part.setCovMatrix({dpx, dpy, dpz, dE});
+    rec_part.setCovMatrix({0, 0, 0, 0});
     rec_part.setPDG(mc_particle->getPDG());
 
     return new edm4eic::ReconstructedParticle(rec_part);

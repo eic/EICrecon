@@ -24,6 +24,7 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
 
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
@@ -45,7 +46,7 @@ GlobalReconstructionTest_processor::GlobalReconstructionTest_processor(JApplicat
 //------------------
 void GlobalReconstructionTest_processor::Init()
 {
-    std::string plugin_name=("tracking_test");
+    std::string plugin_name=("reco_test");
 
     // Get JANA application
     auto app = GetApplication();
@@ -82,43 +83,16 @@ void GlobalReconstructionTest_processor::Process(const std::shared_ptr<const JEv
 
     m_log->debug("----------- GlobalReconstructionTest_processor {}-----------", event->GetEventNumber());
 
-    ProcessTrackingMatching(event);
-}
+    /** RECONSTRUCTED PARTICLES **/
+    auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+    printRecoParticles(reco_particles, std::string("ReconstructedParticles"));
 
+    /** GENERATED PARTICLES **/
+    auto gen_particles = event->Get<edm4eic::ReconstructedParticle>("GeneratedParticles");
+    printRecoParticles(gen_particles, std::string("GeneratedParticles"));
 
-//------------------
-// Finish
-//------------------
-void GlobalReconstructionTest_processor::Finish()
-{
-	fmt::print("OccupancyAnalysis::Finish() called\n");
-
-}
-
-void GlobalReconstructionTest_processor::ProcessTrackingResults(const std::shared_ptr<const JEvent> &event) {
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
-    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
-    m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
-
-
-    auto reco_particles = trk_result->particles();
-
-    for(size_t i=0; i < reco_particles->size(); i++) {
-        auto particle = (*reco_particles)[i];
-
-        double px = particle.getMomentum().x;
-        double py = particle.getMomentum().y;
-        double pz = particle.getMomentum().z;
-        // ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
-        ROOT::Math::Cartesian3D p(px, py, pz);
-        m_log->debug("   {:<5} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,  px, py, pz, p.R(), p.R()*3);
-    }
-
+    /** MC PARTICLES **/
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-
-    auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    auto track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
-
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
@@ -136,49 +110,31 @@ void GlobalReconstructionTest_processor::ProcessTrackingResults(const std::share
 
         m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i, particle->getGeneratorStatus(), particle->getPDG(),  px, py, pz, p.R());
     }
+}
+
+
+//------------------
+// Finish
+//------------------
+void GlobalReconstructionTest_processor::Finish()
+{
+	fmt::print("GlobalReconstructionTest_processor::Finish() called\n");
 
 }
 
-void GlobalReconstructionTest_processor::ProcessTrackingMatching(const std::shared_ptr<const JEvent> &event) {
-    m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
-    auto prt_with_assoc = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
+void GlobalReconstructionTest_processor::printRecoParticles(std::vector<const edm4eic::ReconstructedParticle*> reco_particles, const std::string &title) {
+    m_log->debug("{} N={}: ", title, reco_particles.size());
+    m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
 
 
-    for(auto assoc: prt_with_assoc->associations()) {
+    for(size_t i=0; i < reco_particles.size(); i++) {
+        auto particle = reco_particles[i];
 
-        auto sim = assoc->getSim();
-        auto rec = assoc->getRec();
-
-        m_log->debug("  {:<6} {:<6} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", assoc->getSimID(), assoc->getRecID(), sim.getPDG(), rec.getPDG());
+        double px = particle->getMomentum().x;
+        double py = particle->getMomentum().y;
+        double pz = particle->getMomentum().z;
+        // ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
+        ROOT::Math::Cartesian3D p(px, py, pz);
+        m_log->debug("   {:<5} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,  px, py, pz, p.R(), p.R()*3);
     }
-
-    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
-    for(auto part: prt_with_assoc->particles()) {
-
-        // auto sim = assoc->getSim();
-        // auto rec = assoc->getRec();
-
-        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
-
-    }
-
-
-    m_log->debug("ReconstructedChargedParticles [objID] [PDG] [charge] [energy]");
-    auto reco_charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-    for(auto part: reco_charged_particles) {
-        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
-    }
-
 }
-
-void GlobalReconstructionTest_processor::ProcessGloablMatching(const std::shared_ptr<const JEvent> &event) {
-
-    m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
-    auto final_reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
-    for(auto part: final_reco_particles) {
-        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
-    }
-
-    auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
-}
-
