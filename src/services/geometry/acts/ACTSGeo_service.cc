@@ -34,7 +34,8 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             }
 
             // Get material map from user parameter
-            std::string material_map_file = "";
+            // By default DD4Hep downloads material map to <run-dir>
+            std::string material_map_file = "calibrations/materials-map.cbor";
             m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSon material map file path");
 
             // Initialize m_acts_provider
