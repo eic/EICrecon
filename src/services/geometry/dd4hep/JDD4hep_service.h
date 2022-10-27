@@ -54,6 +54,9 @@ private:
     dd4hep::Detector* m_dd4hepGeo = nullptr;
 	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xml_files;
+
+    /// Ensures there is a geometry file that should be opened
+    std::string  resolveFileName(const std::string &filename, char *detector_path_env);
 };
 
 #endif // __JDD4hep_service_h__

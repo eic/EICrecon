@@ -56,19 +56,10 @@ void JDD4hep_service::Initialize() {
     // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
     // Look for those first, so we can use it for the default
     // config parameter. (see https://github.com/eic/EICrecon/issues/22)
-    auto detector_env = std::getenv("DETECTOR");
     auto detector_config_env = std::getenv("DETECTOR_CONFIG");
     auto detector_path_env = std::getenv("DETECTOR_PATH");
 
     std::string detector_config;
-
-    // Check if deprecated DETECTOR env is set
-    if(detector_env != nullptr) {
-        // TODO remove deprecated DETECTOR environment variable at all in 2023
-        LOG_WARN(default_cout_logger) << "DETECTOR environment variable is deprecated. Use DETECTOR_CONFIG instead" << LOG_END;
-        detector_config = detector_env;
-    }
-
     // Check if detector_config_env is set
     if(detector_config_env != nullptr) {
         detector_config = detector_config_env;
@@ -108,29 +99,13 @@ void JDD4hep_service::Initialize() {
         LOG << "Loading DD4hep geometry from " << m_xml_files.size() << " files" << LOG_END;
         for (auto &filename : m_xml_files) {
 
-            // Check that this XML file actually exists.
-            if( ! std::filesystem::exists(filename) ){
-                // Here we go against the standard practice of throwing an error and print
-                // the message and exit immediately. This is because we want the last message
-                // on the screen to be that this file doesn't exist.
-                auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
-                mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  filename);
-                mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
-                std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
-                _exit(-1);
-            }
+            auto resolved_filename = resolveFileName(filename, detector_path_env);
 
-            LOG << "  - loading geometry file:  '" << filename << "' (patience ....)" << LOG_END;
-
+            LOG << "  - loading geometry file:  '" << resolved_filename << "' (patience ....)" << LOG_END;
             try {
-                m_dd4hepGeo->fromCompact(filename);
+                m_dd4hepGeo->fromCompact(resolved_filename);
             } catch(std::runtime_error &e) {        // dd4hep throws std::runtime_error, no way to detail further
-                if(detector_path_env) {
-                    LOG_DEBUG(default_cerr_logger)<< "Problem loading geometry: '" << e.what() <<"'. Trying with DETECTOR_PATH env" << LOG_END;
-                    m_dd4hepGeo->fromCompact(std::string(detector_path_env) + "/" + filename);
-                } else {
-                    throw;
-                }
+                throw JException(e.what());
             }
         }
         m_dd4hepGeo->volumeManager();
@@ -145,4 +120,32 @@ void JDD4hep_service::Initialize() {
 
     // Restore the ticker setting
     app->SetTicker( tickerEnabled );
+}
+
+std::string JDD4hep_service::resolveFileName(const std::string &filename, char *detector_path_env) {
+
+    std::string result(filename);
+
+    // Check that this XML file actually exists.
+    if( ! std::filesystem::exists(result) ){
+
+        // filename does not exist, maybe DETECTOR_PATH/filename is meant?
+        if(detector_path_env) {
+
+            // Try looking filename in DETECTOR_PATH
+            result = std::string(detector_path_env) + "/" + filename;
+
+            if( ! std::filesystem::exists(result) ) {
+                // Here we go against the standard practice of throwing an error and print
+                // the message and exit immediately. This is because we want the last message
+                // on the screen to be that this file doesn't exist.
+                auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red), "ERROR: ");
+                mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!", filename);
+                mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
+                std::cerr << std::endl << std::endl << mess << std::endl << std::endl; // TODO standard log here!
+                _exit(-1);  // TODO isn't unhandled JException is a better way to abort the application
+            }
+        }
+    }
+    return result;
 }
