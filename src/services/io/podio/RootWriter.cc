@@ -66,7 +66,7 @@ namespace eic {
                 // for each type.
                 collections.pop_back();
                 if( unwritable_collections.count(name) ==0 ){
-                    m_log->error( fmt::format("Unable to write collection {} to output file. Skipping.", name) );
+                    m_log->warn( fmt::format("Unable to write collection {} to output file. Skipping.", name) );
                     unwritable_collections.insert( name );
                 }
             }

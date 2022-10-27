@@ -8,6 +8,8 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
+#include <fmt/color.h>
 
 #include "JDD4hep_service.h"
     
@@ -105,6 +107,19 @@ void JDD4hep_service::Initialize() {
         dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
         LOG << "Loading DD4hep geometry from " << m_xml_files.size() << " files" << LOG_END;
         for (auto &filename : m_xml_files) {
+
+            // Check that this XML file actually exists.
+            if( ! std::filesystem::exists(filename) ){
+                // Here we go against the standard practice of throwing an error and print
+                // the message and exit immediately. This is because we want the last message
+                // on the screen to be that this file doesn't exist.
+                auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
+                mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  filename);
+                mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
+                std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
+                _exit(-1);
+            }
+
             LOG << "  - loading geometry file:  '" << filename << "' (patience ....)" << LOG_END;
 
             try {

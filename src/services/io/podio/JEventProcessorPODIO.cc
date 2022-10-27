@@ -68,12 +68,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EndcapTrackerHit",
             "EcalEndcapNRawHits",
             "EcalEndcapNRecHits",
+            "EcalEndcapNTruthClusters",
+            "EcalEndcapNClusters",
+            "EcalEndcapNMergedClusters",
+            "EcalEndcapNTruthClustersAssociations",
+            "EcalEndcapNClustersAssociations",
+            "EcalEndcapNMergedClustersAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
-            "EcalEndcapNClusters",
+            "EcalEndcapPTruthClusters",
             "EcalEndcapPClusters",
-            "EcalEndcapNMergedClusters",
             "EcalEndcapPMergedClusters",
+            "EcalEndcapPTruthClustersAssociations",
+            "EcalEndcapPClustersAssociations",
+            "EcalEndcapPMergedClustersAssociations",
+            "EcalEndcapPInsertRawHits",
+            "EcalEndcapPInsertRecHits",
+            "EcalEndcapPInsertTruthClusters",
+            "EcalEndcapPInsertClusters",
+            "EcalEndcapPInsertMergedClusters",
+            "EcalEndcapPInsertTruthClustersAssociations",
+            "EcalEndcapPInsertClustersAssociations",
+            "EcalEndcapPInsertMergedClustersAssociations",
             "EcalBarrelSciGlassRawHits",
             "EcalBarrelSciGlassRecHits",
             "EcalBarrelSciGlassClusters",
@@ -267,7 +283,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
             if (result == std::nullopt) { 
-                m_log->error("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
+                m_log->warn("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
             }
             else {
                 m_log->trace("Added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
@@ -282,7 +298,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             // Limit printing warning to just once per factory
             std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
             failing_factories.insert(fac_name);
-            m_log->error("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
+            m_log->warn("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
         }
     }
     m_writer->writeEvent();

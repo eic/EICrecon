@@ -48,7 +48,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         }
     } catch (...) {
         if( !id_dec ) {
-            m_logger->error("Failed to load ID decoder for {}", m_readout);
+            m_logger->warn("Failed to load ID decoder for {}", m_readout);
             std::stringstream readouts;
             for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
             m_logger->warn("Available readouts: {}", readouts.str() );

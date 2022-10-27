@@ -80,7 +80,7 @@ public:
             sector_idx = id_dec->index(m_sectorField);
             layer_idx = id_dec->index(m_layerField);
         } catch (...) {
-            m_log->error(fmt::format("Failed to load ID decoder for {}", m_readout));
+            m_log->warn(fmt::format("Failed to load ID decoder for {}", m_readout));
             return;
         }
 
