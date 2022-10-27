@@ -47,7 +47,7 @@ edm4eic::ReconstructedParticle *eicrecon::MC2SmearedParticle::produce(const edm4
     const MomType vz = mc_particle->getVertex().z;
 
     edm4eic::MutableReconstructedParticle rec_part;
-    rec_part.setType(-1); // @TODO: determine type codes
+    rec_part.setType(mc_particle->getGeneratorStatus()); // @TODO: determine type codes
     rec_part.setEnergy(energy_true);
     rec_part.setMomentum({px, py, pz});
     rec_part.setReferencePoint({vx, vy, vz}); // @FIXME: probably not what we want?
