@@ -14,19 +14,6 @@
 
 
 
-// Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapPInsertTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
-
-public:
-    //------------------------------------------
-    // Constructor
-    Association_factory_EcalEndcapPInsertTruthClustersAssociations(){
-        SetTag("EcalEndcapPInsertTruthClustersAssociations");
-    }
-};
-
-
-
 class Cluster_factory_EcalEndcapPInsertTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
