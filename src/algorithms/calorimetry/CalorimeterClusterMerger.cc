@@ -95,7 +95,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
           time += clus->getTime() * clus->getEnergy();
           nhits += clus->getNhits();
           position = position + energy * clus->getPosition();
-          new_clus.addToClusters(*clus);
+          //new_clus.addToClusters(*clus);  // FIXME: global issue with podio reference
           for (auto& hit : clus->getHits()) {
             new_clus.addToHits(hit);
           }

@@ -15,25 +15,25 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapPClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapPInsertTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapPClustersAssociations(){
-        SetTag("EcalEndcapPClustersAssociations");
+    Association_factory_EcalEndcapPInsertTruthClustersAssociations(){
+        SetTag("EcalEndcapPInsertTruthClustersAssociations");
     }
 };
 
 
 
-class Cluster_factory_EcalEndcapPClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalEndcapPInsertTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalEndcapPClusters(){
-        SetTag("EcalEndcapPClusters");
+    Cluster_factory_EcalEndcapPInsertTruthClusters(){
+        SetTag("EcalEndcapPInsertTruthClusters");
     }
 
     //------------------------------------------
@@ -41,8 +41,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalEndcapPHits";
-        m_input_protoclust_tag="EcalEndcapPIslandProtoClusters";
+        m_input_simhit_tag="EcalEndcapPInsertHits";
+        m_input_protoclust_tag="EcalEndcapPInsertTruthProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
@@ -55,13 +55,13 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -101,7 +101,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPInsertTruthClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
