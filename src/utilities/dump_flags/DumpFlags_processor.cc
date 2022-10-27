@@ -40,6 +40,8 @@ void DumpFlags_processor::Init()
     app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
     app->SetDefaultParameter("dump_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
     app->SetDefaultParameter("dump_flags:json", m_json_file_name, "If not empty, a json file to generate");
+    app->SetDefaultParameter("dump_flags:screen", m_print_to_screen, "If not empty, print summary to screen at end of job");
+
 
     InitLogger("dump_flags", "info");
 }
@@ -104,7 +106,7 @@ void DumpFlags_processor::Finish()
                                     json_escaped_descr);
 
         // Print on screen
-        fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());
+        if( m_print_to_screen ) fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());
     }
 
     // Finalizing

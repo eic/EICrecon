@@ -96,8 +96,7 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             ref_mask = id_desc.encode(ref_fields);
             // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
-            //LOG_ERROR(default_cerr_logger) << "Failed to load ID decoder for " << m_readout << LOG_END;
-            m_logger->error("Failed to load ID decoder for {}", m_readout);
+            m_logger->warn("Failed to load ID decoder for {}", m_readout);
             japp->Quit();
             return;
         }
