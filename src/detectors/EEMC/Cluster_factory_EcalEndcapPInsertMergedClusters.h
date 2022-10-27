@@ -14,6 +14,19 @@
 
 
 
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPInsertMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Association_factory_EcalEndcapPInsertMergedClustersAssociations(){
+        SetTag("EcalEndcapPInsertMergedClustersAssociations");
+    }
+};
+
+
+
 class Cluster_factory_EcalEndcapPInsertMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
@@ -29,7 +42,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapPInsertClusters";
-        m_inputAssociations_tag="EcalEndcapPInsertClusterAssociations";
+        m_inputAssociations_tag="EcalEndcapPInsertClustersAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);

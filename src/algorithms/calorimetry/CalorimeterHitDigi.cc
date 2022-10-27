@@ -226,7 +226,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
 //                      m_normDist(generator) * eRes[2] / edep;
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (1. + eResRel) / dyRangeADC * m_capADC);
+        unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         auto rawhit = new edm4hep::RawCalorimeterHit(

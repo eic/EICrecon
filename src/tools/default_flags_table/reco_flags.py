@@ -238,7 +238,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPRawHits:pedestalSigma',                    '0.7',                            '*'),
     ('EEMC:EcalEndcapPRawHits:readoutClass',                     '',                               ''),
     ('EEMC:EcalEndcapPRawHits:resolutionTDC',                    '1e-11',                          ''),
-    ('EEMC:EcalEndcapPRawHits:scaleResponse',                    '1',                              ''),
+    ('EEMC:EcalEndcapPRawHits:scaleResponse',                    '0.03',                           ''),
     ('EEMC:EcalEndcapPRawHits:signalSumFields',                  '',                               ''),
     ('EEMC:EcalEndcapPRawHits:timeResolution',                   '0',                              ''),
 
@@ -275,6 +275,14 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPTruthClusters:moduleDimZName',             '',                               ''),
     ('EEMC:EcalEndcapPTruthClusters:samplingFraction',           '1',                              ''),
 
+    ('EEMC:EcalEndcapPClusters:input_protoclust_tag',            'EcalEndcapPIslandProtoClusters', ''),
+    ('EEMC:EcalEndcapPClusters:samplingFraction',                '1',                              ''),
+    ('EEMC:EcalEndcapPClusters:logWeightBase',                   '3.6',                            ''),
+    ('EEMC:EcalEndcapPClusters:depthCorrection',                 '0',                              ''),
+    ('EEMC:EcalEndcapPClusters:energyWeight',                    'log',                            ''),
+    ('EEMC:EcalEndcapPClusters:moduleDimZName',                  '',                               ''),
+    ('EEMC:EcalEndcapPClusters:enableEtaBounds',                 '0',                              ''),
+
     # Positive Endcap insert
     ('EEMC:EcalEndcapPInsertRawHits:capacityADC',                      'capacityBitsADC=14',             '*'),
     ('EEMC:EcalEndcapPInsertRawHits:dynamicRangeADC',                  '3*GeV',                          '*'),
@@ -285,7 +293,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPInsertRawHits:pedestalSigma',                    '0.7',                            '*'),
     ('EEMC:EcalEndcapPInsertRawHits:readoutClass',                     '',                               ''),
     ('EEMC:EcalEndcapPInsertRawHits:resolutionTDC',                    '1e-11',                          ''),
-    ('EEMC:EcalEndcapPInsertRawHits:scaleResponse',                    '1',                              ''),
+    ('EEMC:EcalEndcapPInsertRawHits:scaleResponse',                    '0.03',                           ''),
     ('EEMC:EcalEndcapPInsertRawHits:signalSumFields',                  '',                               ''),
     ('EEMC:EcalEndcapPInsertRawHits:timeResolution',                   '0',                              ''),
 
@@ -315,37 +323,20 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPInsertIslandProtoClusters:sectorDist',           '5',                              ''),
     ('EEMC:EcalEndcapPInsertIslandProtoClusters:splitCluster',         '0',                              ''),
 
-    ('EEMC:EcalEndcapPTruthClusters:depthCorrection',                  '0',                              ''),
-    ('EEMC:EcalEndcapPTruthClusters:enableEtaBounds',                  '1',                              '*'),
-    ('EEMC:EcalEndcapPTruthClusters:energyWeight',                     'log',                            ''),
-    ('EEMC:EcalEndcapPTruthClusters:logWeightBase',                    '6.2',                            '*'),
-    ('EEMC:EcalEndcapPTruthClusters:moduleDimZName',                   '',                               ''),
-    ('EEMC:EcalEndcapPTruthClusters:samplingFraction',                 '1',                              ''),
+    ('EEMC:EcalEndcapPInsertTruthClusters:depthCorrection',            '0',                              ''),
+    ('EEMC:EcalEndcapPInsertTruthClusters:enableEtaBounds',            '1',                              '*'),
+    ('EEMC:EcalEndcapPInsertTruthClusters:energyWeight',               'log',                            ''),
+    ('EEMC:EcalEndcapPInsertTruthClusters:logWeightBase',              '6.2',                            '*'),
+    ('EEMC:EcalEndcapPInsertTruthClusters:moduleDimZName',             '',                               ''),
+    ('EEMC:EcalEndcapPInsertTruthClusters:samplingFraction',           '1',                              ''),
 
-    ('EEMC:EcalEndcapPInsertClusters:input_protoclust_tag',            'EcalEndcapPHits',                ''),
+    ('EEMC:EcalEndcapPInsertClusters:input_protoclust_tag',            'EcalEndcapPInsertIslandProtoClusters', ''),
     ('EEMC:EcalEndcapPInsertClusters:samplingFraction',                '1',                              ''),
     ('EEMC:EcalEndcapPInsertClusters:logWeightBase',                   '3.6',                            ''),
     ('EEMC:EcalEndcapPInsertClusters:depthCorrection',                 '0',                              ''),
     ('EEMC:EcalEndcapPInsertClusters:energyWeight',                    'log',                            ''),
     ('EEMC:EcalEndcapPInsertClusters:moduleDimZName',                  '',                               ''),
     ('EEMC:EcalEndcapPInsertClusters:enableEtaBounds',                 '0',                              ''),
-
-    ('EEMC:EcalEndcapPInsertClusters:depthCorrection',                 '0',                              ''),
-    ('EEMC:EcalEndcapPInsertClusters:dimScaledLocalDistXY',            '1.8,1.8',                        ''),
-    ('EEMC:EcalEndcapPInsertClusters:enableEtaBounds',                 '0',                              ''),
-    ('EEMC:EcalEndcapPInsertClusters:energyWeight',                    'log',                            ''),
-    ('EEMC:EcalEndcapPInsertClusters:globalDistEtaPhi',                '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:globalDistRPhi',                  '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:localDistXY',                     '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:localDistXZ',                     '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:localDistYZ',                     '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:logWeightBase',                   '3.6',                            ''),
-    ('EEMC:EcalEndcapPInsertClusters:minClusterCenterEdep',            '0.03',                           ''),
-    ('EEMC:EcalEndcapPInsertClusters:minClusterHitEdep',               '0.001',                          ''),
-    ('EEMC:EcalEndcapPInsertClusters:moduleDimZName',                  '',                               ''),
-    ('EEMC:EcalEndcapPInsertClusters:samplingFraction',                '1',                              ''),
-    ('EEMC:EcalEndcapPInsertClusters:sectorDist',                      '5',                              ''),
-    ('EEMC:EcalEndcapPInsertClusters:splitCluster',                    '0',                              '*'),
 
     # B0ECAL - Far forward B0 Ecal
     # -----------------
