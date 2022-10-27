@@ -13,9 +13,9 @@
 /// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
 
+        "log",
         "dd4hep",
         "acts",
-        "log",
         "rootfile",
         "algorithms_calorimetry",
         "algorithms_tracking",
