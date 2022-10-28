@@ -858,6 +858,13 @@ def make_flags_from_records():
 
 if __name__ == "__main__":
 
+    # Separate all parameters that starts with -P/-p from args
+    parameter_args = []
+    for arg in sys.argv:
+        if arg.startswith(("-P", "-p")):
+            parameter_args.append(arg)
+            sys.argv.remove(arg)
+
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('input_file', help="Input file name")
     parser.add_argument('output_base_name', help="Output files names (no file extensions here)")
@@ -877,6 +884,9 @@ if __name__ == "__main__":
     ]
 
     flags_arguments = make_flags_from_records()
+
+    # Add parameters from args
+    run_command.extend(parameter_args)
 
     # Add reco_flags
     run_command.extend(flags_arguments)
