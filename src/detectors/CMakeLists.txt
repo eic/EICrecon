@@ -1,4 +1,5 @@
 add_subdirectory(BEMC)
+add_subdirectory(BEMCSciGlass)
 add_subdirectory(EEMC)
 add_subdirectory(HCAL)
 add_subdirectory(ZDC)
