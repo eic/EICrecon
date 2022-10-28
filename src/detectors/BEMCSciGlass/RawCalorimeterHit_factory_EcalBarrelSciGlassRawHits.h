@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <global/calorimetry/RawCalorimeterHit_base_factory_CalorimeterHitDigi.h>
+#include <global/calorimetry/CalorimeterHitDigi_algorithm_factory.h>
 
 using namespace dd4hep;
 
 
-class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public RawCalorimeterHit_base_factory_CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public CalorimeterHitDigi_algorithm_factory {
 
 public:
 
