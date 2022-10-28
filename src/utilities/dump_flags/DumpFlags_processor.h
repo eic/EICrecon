@@ -54,7 +54,7 @@ private:
     std::string m_json_file_name = "";
 
     /// Print parameter summary to screen at end of job
-    bool m_print_to_screen = false;
+    bool m_print_to_screen = true;
 
     /// Print only reconstruction flags
     bool m_only_reco = true;
