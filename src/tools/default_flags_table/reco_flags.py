@@ -8,6 +8,9 @@
 # So if the output bin directory is in PATH one can do:#
 #    run_eicrecon_reco_flags.py -n 1000 input.edm4hep.root output_no_ext
 #
+# It is possible to pass additional jana parameters with -P flags:
+#    python3 reco_flags.py -Pjana:timeout=0 input.edm4hep.root output_no_ext
+#
 # The format of the table is:
 #  [ (flag_name, default_val, description), ... ]
 #
