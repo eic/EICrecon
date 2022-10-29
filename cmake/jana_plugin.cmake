@@ -19,6 +19,9 @@ macro(plugin_add _name)
     # include logging by default
     find_package(spdlog REQUIRED)
 
+    # include fmt by default
+    find_package(fmt REQUIRED)
+
     # include ROOT by default
     find_package(ROOT REQUIRED)
 
@@ -27,8 +30,10 @@ macro(plugin_add _name)
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
+    target_include_directories(${_name}_plugin PUBLIC ${fmt_DIR}/../../../include)
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
     target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
+    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
 
     # Install plugin
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -39,8 +44,10 @@ macro(plugin_add _name)
         add_library(${_name}_library STATIC "")
 	    target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
+        target_include_directories(${_name}_library PUBLIC ${fmt_DIR}/../../../include)
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
+        target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
