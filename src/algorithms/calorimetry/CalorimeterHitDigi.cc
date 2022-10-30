@@ -70,16 +70,12 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
         // sanity checks
         if (!m_geoSvc) {
-            //LOG_ERROR(default_cerr_logger) << "Unable to locate Geometry Service. " << LOG_END;
             m_logger->error("Unable to locate Geometry Service.");
-            japp->Quit();
-            return;
+            throw std::runtime_error("Unable to locate Geometry Service.");
         }
         if (m_readout.empty()) {
-            //LOG_ERROR(default_cerr_logger) << "readoutClass is not provided, it is needed to know the fields in readout ids" << LOG_END;
-            m_logger->error("readoutClass is not provided, it is needed to know the fields in readout ids");
-            japp->Quit();
-            return;
+            m_logger->error("readoutClass is not provided, it is needed to know the fields in readout ids.");
+            throw std::runtime_error("readoutClass is not provided.");
         }
 
         // get decoders
