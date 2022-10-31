@@ -74,20 +74,31 @@ cmake --build build --target install -- -j8
 source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use this
 ~~~
 
+### fmt
+export FMT_VERSION=8.1.1
+mkdir -p ${EICTOPDIR}/detectors/fmt
+cd ${EICTOPDIR}/detectors/fmt
+export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
+export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib:${LD_LIBRARY_PATH}
+git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
+cmake -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
+cmake --build build --target install -- -j8
+
+
 ### spdlog
 ~~~
-export SPDLOG_VERSION=v1.10.0
+export SPDLOG_VERSION=v1.9.2
 export SPDLOG_HOME=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}
 export spdlog_ROOT=${SPDLOG_HOME}/install
 git clone https://github.com/gabime/spdlog -b ${SPDLOG_VERSION} ${SPDLOG_HOME}
 cd ${SPDLOG_HOME}
-cmake -S . -B build -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DSPDLOG_BUILD_SHARED=ON
+cmake -S . -B build -DCMAKE_POLICY_DEFAULT_CMP0074=NEW -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=${spdlog_ROOT} -DSPDLOG_BUILD_SHARED=ON -DSPDLOG_FMT_EXTERNAL_HO=ON
 cmake --build build --target install -- -j8
 ~~~
 
 ### PODIO
 ~~~
-export PODIO_VERSION=v00-14-03
+export PODIO_VERSION=v00-15
 export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
 export PODIO=${PODIO_HOME}/install
 export podio_ROOT=${PODIO}
@@ -136,7 +147,7 @@ These instructions build DD4hep without Geant4 support. The reconstruction
 framework does not otherwise require Geant4 so we avoid including support
 for it for now.
 ~~~
-export DD4HEP_VERSION=v01-20-02
+export DD4HEP_VERSION=v01-23
 export DD4HEP_HOME=${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}
 git clone https://github.com/AIDASoft/DD4hep -b ${DD4HEP_VERSION} ${DD4HEP_HOME}
 cd ${DD4HEP_HOME}
@@ -155,7 +166,7 @@ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17
 cmake --build build --target install -- -j8
 export Eigen3_ROOT=${EIGEN_HOME}
 
-export ACTS_VERSION=v19.4.0
+export ACTS_VERSION=v19.9.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
 cd ${ACTS_HOME}
@@ -186,15 +197,6 @@ _ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
-
-export FMT_VERSION=8.1.1
-mkdir -p ${EICTOPDIR}/detectors/fmt
-cd ${EICTOPDIR}/detectors/fmt
-export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
-export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib:${LD_LIBRARY_PATH}
-git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
-cmake -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
-cmake --build build --target install -- -j8
 
 export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
 git clone https://github.com/eic/ip6.git ${IP6_DD4HEP_HOME}
@@ -227,14 +229,14 @@ source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
 
 export BOOST_VERSION=boost-1.79.0
 export JANA_VERSION=v2.0.7
-export SPDLOG_VERSION=v1.10.0
-export PODIO_VERSION=v00-14-03
+export SPDLOG_VERSION=v1.9.2
+export PODIO_VERSION=v00-15
 export EDM4HEP_VERSION=v00-06
-export EDM4EIC_VERSION=v2.0.0
+export EDM4EIC_VERSION=v1.0.1
 export LCIO_VERSION=v02-17-01
-export DD4HEP_VERSION=v01-20-02
+export DD4HEP_VERSION=v01-23
 export EIGEN_VERSION=3.4.0
-export ACTS_VERSION=v19.4.0
+export ACTS_VERSION=v19.9.0
 export FMT_VERSION=8.1.1
 
 export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
@@ -249,9 +251,10 @@ export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 export EDM4EIC_ROOT=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}/install
-export LD_LIBRARY_PATH=${edm4eic_ROOT}/lib:{edm4eic_ROOT}/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${EDM4EIC_ROOT}/lib:${EDM4EIC_ROOT}/lib64:${LD_LIBRARY_PATH}
 export LCIO_ROOT=${EICTOPDIR}/LCIO/${LCIO_VERSION}/install 
 export LD_LIBRARY_PATH=${LCIO_ROOT}/lib64:${LD_LIBRARY_PATH}
+export IRT_ROOT=${EICTOPDIR}/irt/install
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
 export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
