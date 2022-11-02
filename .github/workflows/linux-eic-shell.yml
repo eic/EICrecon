@@ -70,11 +70,11 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --gun.particle "e-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --gun.particle "pi-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-        path: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        name: sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error  
 
   eicrecon-gcc:
@@ -91,7 +91,7 @@ jobs:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        name: sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -101,11 +101,11 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        name: eicrecon_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
 
   run_eicrecon_reco_flags-gcc:
@@ -122,7 +122,7 @@ jobs:
         name: build-gcc-eic-shell
     - uses: actions/download-artifact@v3
       with:
-        name: sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        name: sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -132,9 +132,9 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_e_1GeV_20GeV_${{ matrix.detector_config }}          
+          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }}          
     - uses: actions/upload-artifact@v3
       with:
-        name: run_eicrecon_reco_flags_rec_e_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_e_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
+        name: run_eicrecon_reco_flags_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
         if-no-files-found: error
