@@ -10,7 +10,8 @@
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
-
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
 
 
 class ProtoCluster_factory_HcalBarrelTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
@@ -28,6 +29,8 @@ public:
         auto app = GetApplication();
         m_inputHit_tag="HcalBarrelRecHits";
         m_inputMCHit_tag="HcalBarrelHits";
+
+        m_log = app->GetService<Log_service>()->logger("HcalBarrelTruthProtoClusters");
 
         AlgorithmInit();
     }
@@ -56,6 +59,8 @@ private:
     // Name of input data type (collection)
     std::string              m_inputHit_tag;
     std::string              m_inputMCHit_tag;
+
+    std::shared_ptr<spdlog::logger> m_log;
 };
 
 #endif // _ProtoCLuster_factory_HcalBarrelIslandProtoClusters_h_
