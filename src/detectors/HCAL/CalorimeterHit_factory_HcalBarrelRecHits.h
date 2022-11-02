@@ -45,7 +45,7 @@ public:
         m_sectorField="sector";      
 
         m_localDetElement="";         
-        u_localDetFields={};          
+        u_localDetFields={};
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
         app->SetDefaultParameter("HCAL:HcalBarrelRecHits:capacityADC",      m_capADC);
@@ -65,7 +65,7 @@ public:
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+        m_log = app->GetService<Log_service>()->logger(tag);
 
         // Get log level from user parameter or default
         std::string log_level_str = "info";
@@ -95,6 +95,7 @@ public:
         hits.clear(); // not really needed, but better to not leave dangling pointers around
     }
 
+    std::shared_ptr<spdlog::logger> m_log;
 };
 
 #endif // CalorimeterHit_factory_HcalBarrelRecHits_h_
