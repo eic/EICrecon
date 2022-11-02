@@ -1,6 +1,7 @@
 import json
 import argparse
 import os
+import re
 
 import numpy as np
 # from deepdiff import DeepDiff
@@ -108,7 +109,7 @@ dump_name_values = {}
 for r in dump_reco_flags:
     dump_name_values[r[0]] = r[1]
 
-comparison_table = "<table>\n"
+comparison_table = "" #"<table>\n"
 
 for user_reco_flag in user_reco_flags:
     to_compare_user_flag_name = user_reco_flag[0]
@@ -118,9 +119,14 @@ for user_reco_flag in user_reco_flags:
         if to_compare_dump_flag_value != to_compare_user_flag_value:
             print(f"{to_compare_user_flag_name}: '{to_compare_user_flag_value}' |  '{to_compare_dump_flag_value}'")
             comparison_table += f"<tr><td>{to_compare_user_flag_name}</td><td>{to_compare_user_flag_value}</td><td>{to_compare_dump_flag_value}</td></tr>\n"
-comparison_table += "</tabel>\n"
-with open("../../../docs/table_flags/flags.md", "a", encoding='utf-8') as f:
-    f.write(comparison_table)
+#comparison_table += "</tabel>"
 
-cur_dir = os.path.basename("../../../docs/table_flags/flags.md")
-print(cur_dir)
+in_file_name = "../../../docs/table_flags/flags.in.md"
+out_file_name = "../../../docs/table_flags/flags.md"
+
+with open(in_file_name, "r", encoding='utf-8') as in_file:
+    template_text = in_file.read()
+    output_text = re.sub("<!--TABLE3 BEGIN-->.*<!--TABLE3 END-->", comparison_table, template_text, flags=re.DOTALL|re.MULTILINE)
+
+    with open(out_file_name, "w", encoding='utf-8') as out_file:
+        out_file.write(output_text)
