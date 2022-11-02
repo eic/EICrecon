@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.3.2)
+project(EICRecon VERSION 0.3.3)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
