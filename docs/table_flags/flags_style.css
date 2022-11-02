@@ -7,7 +7,7 @@
     margin: 25px 0;
     font-size: 0.9em;
     min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     
 }
 #myTable thead th {
@@ -15,6 +15,7 @@
     color: #ffffff;
     text-align: left;
     text-align: center;
+    width: 33.3%
 }
 #myTable tbody th {
     text-align: left;
@@ -30,4 +31,39 @@
     padding: 12px 20px 12px 40px; 
     border: 1px solid #ddd; 
     margin-bottom: 12px; 
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    direction: row;
+    margin-top: 15px;
+    position: relative; /* Относительное позиционирование */
+}
+.tab input[type="radio"] { display: none; }
+.tab-title {
+    background: #009879;
+    color: #ffffff;
+    padding: 5px 10px; /* Поля вокруг текста */
+    border: 1px solid gray;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-right: 2px;
+    font-size: 17px;    
+}
+.tab-content {
+    position: absolute; /* Абсолютное позиционирование */
+    left: 0; /* Размещаем у левого края */
+    width: calc(100% - 0px); /* Ширина содержимого */
+    display: none; /* Прячем вкладку */
+}
+.tab :checked + .tab-title {
+    position: relative; /* Относительное позиционирование */
+    color: black;
+    background: #ffffff; 
+    z-index: 1; /* Отображаем поверх содержимого */
+    box-shadow: inset 0px -1px 0px #009879;
+}
+.tab :checked ~ .tab-content {
+    display: block; /* Показываем активную вкладку */
 }
