@@ -484,6 +484,11 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapNRecHits:thresholdFactor',                  '4',                              ''),
     ('HCAL:HcalEndcapNRecHits:thresholdValue',                   '1',                              '*'),
 
+    ('HCAL:HcalEndcapNMergedHits:input_tag',                     'HcalEndcapNRecHits',             '*'),
+    ('HCAL:HcalEndcapNMergedHits:readout',                       'HcalEndcapNHits',                '*'),
+    ('HCAL:HcalEndcapNMergedHits:fields',                        'layer,slice',                    '*'),
+    ('HCAL:HcalEndcapNMergedHits:refs',                          '1,0',                            '*'),
+
     ('HCAL:HcalEndcapNIslandProtoClusters:dimScaledLocalDistXY', '1.5,1.5',                        ''),
     ('HCAL:HcalEndcapNIslandProtoClusters:globalDistEtaPhi',     '',                               ''),
     ('HCAL:HcalEndcapNIslandProtoClusters:globalDistRPhi',       '',                               ''),
@@ -542,6 +547,11 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPRecHits:sectorField',                      'sector',                         ''),
     ('HCAL:HcalEndcapPRecHits:thresholdFactor',                  '5',                              '*'),
     ('HCAL:HcalEndcapPRecHits:thresholdValue',                   '3',                              '*'),
+
+    ('HCAL:HcalEndcapPMergedHits:input_tag',                     'HcalEndcapPRecHits',             '*'),
+    ('HCAL:HcalEndcapPMergedHits:readout',                       'HcalEndcapPHits',                '*'),
+    ('HCAL:HcalEndcapPMergedHits:fields',                        'layer,slice',                    '*'),
+    ('HCAL:HcalEndcapPMergedHits:refs',                          '1,0',                            '*'),
 
     ('HCAL:HcalEndcapPIslandProtoClusters:dimScaledLocalDistXY', '1.5,1.5',                        ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:globalDistEtaPhi',     '',                               ''),

@@ -30,9 +30,10 @@ public:
 
         m_geoSvc= app->GetService<JDD4hep_service>();
 
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:input_tag", m_input_tag);
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:fields", u_fields);
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:refs",  u_refs);
+        app->SetDefaultParameter("HCAL:HcalEndcapPMergedHits:input_tag", m_input_tag);
+        app->SetDefaultParameter("HCAL:HcalEndcapPMergedHits:readout", m_readout);
+        app->SetDefaultParameter("HCAL:HcalEndcapPMergedHits:fields", u_fields);
+        app->SetDefaultParameter("HCAL:HcalEndcapPMergedHits:refs",  u_refs);
 
         initialize();
     }
