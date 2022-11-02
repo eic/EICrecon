@@ -35,6 +35,16 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         return;
     }
 
+    // First, try and get the IDDescriptor. This will throw an exception if it fails.
+    try{
+        auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
+    }catch(...){
+        m_logger->warn("Failed to get idSpec for {}", m_readout);
+        return;
+    }
+
+    // Get id_spec again, but here it should always succeed.
+    // TODO: This is a bit of a hack so should be cleaned up.
     auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
     try {
         id_dec = id_spec.decoder();
@@ -106,6 +116,16 @@ void CalorimeterHitReco::AlgorithmChangeRun() {
 //------------------------
 void CalorimeterHitReco::AlgorithmProcess() {
 
+    // For some detectors, the cellID in the raw hits may be broken
+    // (currently this is the HcalBarrel). In this case, dd4hep
+    // prints an error message and throws an exception. We catch
+    // the exception and handle it, but the screen gets flooded
+    // with these messages. Keep a count of these and if a max
+    // number is encountered disable this algorithm. A useful message
+    // indicating what is going on is printed below where the
+    // error is detector.
+    if( NcellIDerrors >= MaxCellIDerrors) return;
+
     auto converter = m_geoSvc->cellIDPositionConverter();
     for (const auto rh: rawhits) {
 //        #pragma GCC diagnostic push
@@ -129,7 +149,6 @@ void CalorimeterHitReco::AlgorithmProcess() {
                 id_dec != nullptr && !m_layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
         const int sid =
                 id_dec != nullptr && !m_sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
-
         dd4hep::Position gpos;
         try {
             // global positions
@@ -141,8 +160,15 @@ void CalorimeterHitReco::AlgorithmProcess() {
                 local = volman.lookupDetElement(cellID & local_mask);
             }
         } catch (...) {
-            // Error looking up cellID. Messages should already have been printed
-            // so just skip this hit. User will decide what to do with error messages
+            // Error looking up cellID. Messages should already have been printed.
+            // Also, see comment at top of this method.
+            if( ++NcellIDerrors >= MaxCellIDerrors ){
+                m_logger->error("Maximum number of errors reached: {}", MaxCellIDerrors);
+                m_logger->error("This is likely an issue with the cellID being unknown.");
+                m_logger->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
+                m_logger->error("Disabling this algorithm since it requires a valid cellID.");
+                m_logger->error("(See {}:{})", __FILE__,__LINE__);
+            }
             continue;
         }
 
