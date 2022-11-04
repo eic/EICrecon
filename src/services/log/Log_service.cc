@@ -42,7 +42,7 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
             // Set log level for this named logger allowing user to specify as config. parameter
             // e.g. EcalEndcapPRecHits:LogLevel
             std::string log_level_str = m_log_level_str;
-            m_application->SetDefaultParameter(name+":LogLevel", log_level_str, "log_level for "+name+": trace, debug, info, warn, error, critical, off (def. inherits from eicreconLogLevel)");
+            m_application->SetDefaultParameter(name+":LogLevel", log_level_str, "log_level for "+name+": trace, debug, info, warn, error, critical, off");
             logger->set_level(eicrecon::ParseLogLevel(log_level_str));
         }
         return logger;
