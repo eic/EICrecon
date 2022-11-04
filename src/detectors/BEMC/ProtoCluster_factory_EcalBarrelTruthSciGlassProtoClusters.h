@@ -20,6 +20,7 @@ public:
     // Constructor
     ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters(){
         SetTag("EcalBarrelTruthSciGlassProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -31,7 +32,7 @@ public:
 
         app->SetDefaultParameter("BEMC:EcalBarrelTruthSciGlassProtoClusters:inputHit_tag", m_inputHit_tag, "Name of input collection to use");
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

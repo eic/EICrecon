@@ -15,10 +15,13 @@ class ReconstructedParticle_factory_ForwardRomanPotParticles : public JFactoryT<
 
 public:
 
+    std::shared_ptr<spdlog::logger> m_logger;
+
     //------------------------------------------
     // Constructor
     ReconstructedParticle_factory_ForwardRomanPotParticles() {
         SetTag("ForwardRomanPotParticles");
+        m_logger = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -59,9 +62,7 @@ public:
         m_cellid_converter = geomSrvc->cellIDPositionConverter();
 
         // Call init for generic algorithm
-        auto logSrvc = app->GetService<Log_service>();
-        auto logger = logSrvc->logger("RPOTS");
-        initialize(logger);
+        initialize(m_logger);
     }
 
     //------------------------------------------

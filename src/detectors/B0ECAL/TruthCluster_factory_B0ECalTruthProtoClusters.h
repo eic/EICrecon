@@ -17,6 +17,7 @@ public:
     // Constructor
     TruthCluster_factory_B0ECalTruthProtoClusters(){
         SetTag("B0ECalTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -28,7 +29,7 @@ public:
 
         app->SetDefaultParameter("EEMC:B0ECalTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

@@ -46,10 +46,7 @@ class ParticleID_factory_IrtHypothesis : public JFactoryT<edm4hep::ParticleID> {
       m_log = app->GetService<Log_service>()->logger(GetTag());
 
       // set log level
-      std::string log_level_str = "info";
-      auto pm = app->GetJParameterManager();
-      pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-      m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+      m_log = japp->GetService<Log_service>()->logger(GetTag());
 
       m_log->info("\n\nUSING RICH: {}\n\n",m_detector_name);
 

@@ -20,6 +20,7 @@ public:
     // Constructor
     ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters(){
         SetTag("HcalEndcapPInsertTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -29,7 +30,7 @@ public:
         m_inputHit_tag="HcalEndcapPInsertRecHits";
         m_inputMCHit_tag="HcalEndcapPInsertHits";
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

@@ -19,6 +19,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalBarrelImagingRecHits(){
         SetTag("EcalBarrelImagingRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -51,14 +52,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         initialize();
     }

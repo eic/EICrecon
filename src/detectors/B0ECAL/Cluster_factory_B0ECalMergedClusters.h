@@ -21,6 +21,7 @@ public:
     // Constructor
     Cluster_factory_B0ECalMergedClusters(){
         SetTag("B0ECalMergedClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -36,12 +37,6 @@ public:
 
         app->SetDefaultParameter("EEMC:B0ECalMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:B0ECalMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         AlgorithmInit(m_log);
     }

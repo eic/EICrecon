@@ -22,6 +22,7 @@ public:
     // Constructor
     ProtoCluster_factory_EcalBarrelImagingProtoClusters(){
         SetTag("EcalBarrelImagingProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -47,9 +48,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep",    m_minClusterCenterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterEdep",    m_minClusterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterNhits",    m_minClusterNhits);
-
-        std::string tag=this->GetTag();
-        m_log = app->GetService<Log_service>()->logger(tag);
 
         initialize();
     }

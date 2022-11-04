@@ -225,8 +225,16 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     }
 
     // The podio supplied RootReader and EventStore are not multi-thread capable so limit to a single event in flight
-    if( m_inflight ) throw RETURN_STATUS ::kBUSY;
-    m_inflight = true;
+    // Since the JANA skip events mechanism does not seem to call FinishEvent when skipping, any flag for
+    // in-flight events will not be cleared. Thus, use the JEvent pointer so that
+    std::thread::id no_thread; // default value is no thread
+    if( processing_thread_id == no_thread ){
+        // No thread is processing event
+        processing_thread_id = std::this_thread::get_id();
+    }else if( processing_thread_id != std::this_thread::get_id() ){
+        // Another thread is already processing the event
+        throw RETURN_STATUS ::kBUSY;
+    }
 
     // Read the specified event into the EventStore and make the EventStore pointer available via JANA
     store.clear();
@@ -282,7 +290,7 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
 //------------------------------------------------------------------------------
 void JEventSourcePODIOsimple::FinishEvent(JEvent &event){
 
-    m_inflight = false;
+    processing_thread_id = std::thread::id(); // reset to no thread value
 }
 
 //------------------------------------------------------------------------------

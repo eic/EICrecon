@@ -35,7 +35,7 @@ public:
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_log;
 
     // Name of input data type (collection)
     std::string              m_input_tag;

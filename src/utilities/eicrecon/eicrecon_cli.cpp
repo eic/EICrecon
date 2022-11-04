@@ -296,6 +296,48 @@ namespace jana {
         }
     }
 
+    void PrintConfigParameters(JApplication* app){
+        /// Print a table of the currently defined configuration parameters.
+        /// n.b. this mostly duplicates a call to app->GetJParameterManager()->PrintParameters()
+        /// but avoids the issue it has of setting the values column to same
+        /// width for all parameters. (That leads to lots of whitespace being
+        /// printed due to the very long podio:output_include_collections param.
+
+        // Determine column widths
+        auto params = app->GetJParameterManager()->GetAllParameters();
+        size_t max_key_length = 0;
+        size_t max_val_length = 0;
+        size_t max_max_val_length = 32; // maximum width allowed for column.
+        for( auto &[key, p] : params ){
+            if( key.length() > max_key_length ) max_key_length = key.length();
+            if( p->GetValue().length() > max_val_length ){
+                if( p->GetValue().length() <= max_max_val_length ) max_val_length = p->GetValue().length();
+            }
+        }
+
+        std::cout << "\nConfiguration Parameters:" << std::endl;
+        std::cout << "Name" + std::string(max_key_length-4, ' ') << " : ";
+        std::cout << "Value" + std::string(max_val_length-5, ' ') << " : ";
+        std::cout << "Description" << std::endl;
+        std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
+        for( auto &[key, p] : params ){
+            std::stringstream ss;
+            int key_length_diff = max_key_length - key.length();
+            if( key_length_diff>0 ) ss << std::string(key_length_diff, ' ');
+            ss << key;
+            ss << " | ";
+
+            int val_length_diff = max_val_length - p->GetValue().length();
+            if( val_length_diff>0 ) ss << std::string(val_length_diff, ' ');
+            ss << p->GetValue();
+            ss << " | ";
+            ss << p->GetDescription();
+
+            std::cout << ss.str() << std::endl;
+        }
+        std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
+    }
+
     int Execute(JApplication* app, UserOptions &options) {
 
         std::cout << std::endl;
@@ -308,7 +350,8 @@ namespace jana {
             if (options.flags[Benchmark]) {
                 JBenchmarker benchmarker(app);  // Show benchmarking configs only if benchmarking mode specified
             }
-            app->GetJParameterManager()->PrintParameters(true);
+//            app->GetJParameterManager()->PrintParameters(true);
+            PrintConfigParameters(app);
         }
         else if (options.flags[DumpConfigs]) {
             // Load all plugins, dump parameters to file, exit without running anything

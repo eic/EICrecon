@@ -18,10 +18,13 @@ class RawTrackerHit_factory_ForwardRomanPotRawHits : public JFactoryT<edm4eic::R
 
 public:
 
+    std::shared_ptr<spdlog::logger> m_logger;
+
     //------------------------------------------
     // Constructor
     RawTrackerHit_factory_ForwardRomanPotRawHits() {
         SetTag("ForwardRomanPotRawHits");
+        m_logger = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -38,9 +41,7 @@ public:
         app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:timeResolution",config.timeResolution );
 
         // Call init for generic algorithm
-        auto logSrvc = app->GetService<Log_service>();
-        auto logger = logSrvc->logger("RPOTS");
-        init(logger);
+        init(m_logger);
     }
 
     //------------------------------------------
