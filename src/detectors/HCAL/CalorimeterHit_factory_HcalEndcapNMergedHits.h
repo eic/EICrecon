@@ -14,6 +14,7 @@ public:
     // Constructor
     CalorimeterHit_factory_HcalEndcapNMergedHits(){
         SetTag("HcalEndcapNMergedHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------

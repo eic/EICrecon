@@ -21,6 +21,7 @@ public:
     // Constructor
     ProtoCluster_factory_HcalBarrelTruthProtoClusters(){
         SetTag("HcalBarrelTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -30,9 +31,7 @@ public:
         m_inputHit_tag="HcalBarrelRecHits";
         m_inputMCHit_tag="HcalBarrelHits";
 
-        m_log = app->GetService<Log_service>()->logger("HcalBarrelTruthProtoClusters");
-
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

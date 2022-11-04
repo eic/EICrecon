@@ -23,7 +23,7 @@ using namespace dd4hep;
 void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     //unitless conversion
-    m_logger=logger;
+    m_log=logger;
     dyRangeADC = m_dyRangeADC * MeV;
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
@@ -39,7 +39,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     try{
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
     }catch(...){
-        m_logger->warn("Failed to get idSpec for {}", m_readout);
+        m_log->warn("Failed to get idSpec for {}", m_readout);
         return;
     }
 
@@ -50,27 +50,27 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         id_dec = id_spec.decoder();
         if (!m_sectorField.empty()) {
             sector_idx = id_dec->index(m_sectorField);
-            m_logger->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
+            m_log->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
         }
         if (!m_layerField.empty()) {
             layer_idx = id_dec->index(m_layerField);
-            m_logger->info("Find layer field {}, index = {}", m_layerField, sector_idx);
+            m_log->info("Find layer field {}, index = {}", m_layerField, sector_idx);
         }
     } catch (...) {
         if( !id_dec ) {
-            m_logger->warn("Failed to load ID decoder for {}", m_readout);
+            m_log->warn("Failed to load ID decoder for {}", m_readout);
             std::stringstream readouts;
             for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
-            m_logger->warn("Available readouts: {}", readouts.str() );
+            m_log->warn("Available readouts: {}", readouts.str() );
         }else {
-            m_logger->warn("Failed to find field index for {}.", m_readout);
-            if (!m_sectorField.empty()) { m_logger->warn(" -- looking for sector field \"{}\".", m_sectorField); }
-            if (!m_layerField.empty()) { m_logger->warn(" -- looking for layer field  \"{}\".", m_layerField); }
+            m_log->warn("Failed to find field index for {}.", m_readout);
+            if (!m_sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_sectorField); }
+            if (!m_layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_layerField); }
             std::stringstream fields;
             for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
-            m_logger->warn("Available fields: {}", fields.str() );
-            m_logger->warn("n.b. The local position, sector id and layer id will not be correct for this.");
-            m_logger->warn("however, the position, energy, and time values should still be good.");
+            m_log->warn("Available fields: {}", fields.str() );
+            m_log->warn("n.b. The local position, sector id and layer id will not be correct for this.");
+            m_log->warn("however, the position, energy, and time values should still be good.");
         }
 
         return;
@@ -81,9 +81,9 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     if (!m_localDetElement.empty()) {
         try {
             local = m_geoSvc->detector()->detector(m_localDetElement);
-            m_logger->info("local coordinate system from DetElement {}", m_localDetElement);
+            m_log->info("local coordinate system from DetElement {}", m_localDetElement);
         } catch (...) {
-            m_logger->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
+            m_log->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
             return;
         }
     } else {
@@ -163,11 +163,11 @@ void CalorimeterHitReco::AlgorithmProcess() {
             // Error looking up cellID. Messages should already have been printed.
             // Also, see comment at top of this method.
             if( ++NcellIDerrors >= MaxCellIDerrors ){
-                m_logger->error("Maximum number of errors reached: {}", MaxCellIDerrors);
-                m_logger->error("This is likely an issue with the cellID being unknown.");
-                m_logger->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
-                m_logger->error("Disabling this algorithm since it requires a valid cellID.");
-                m_logger->error("(See {}:{})", __FILE__,__LINE__);
+                m_log->error("Maximum number of errors reached: {}", MaxCellIDerrors);
+                m_log->error("This is likely an issue with the cellID being unknown.");
+                m_log->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
+                m_log->error("Disabling this algorithm since it requires a valid cellID.");
+                m_log->error("(See {}:{})", __FILE__,__LINE__);
             }
             continue;
         }

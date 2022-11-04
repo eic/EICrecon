@@ -13,18 +13,21 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4eic/ProtoCluster.h>
 #include <edm4eic/MutableProtoCluster.h>
+#include <spdlog/spdlog.h>
 
 
 using namespace dd4hep;
 
 class CalorimeterTruthClustering {
 
+protected:
     // Insert any member variables here
+    std::shared_ptr<spdlog::logger> m_log;
 
 public:
     CalorimeterTruthClustering() = default;
     ~CalorimeterTruthClustering(){} // better to use smart pointer?
-    virtual void AlgorithmInit() ;
+    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger> &logger) ;
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
 

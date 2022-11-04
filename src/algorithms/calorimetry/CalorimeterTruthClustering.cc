@@ -17,7 +17,9 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterTruthClustering::AlgorithmInit() {
+void CalorimeterTruthClustering::AlgorithmInit(std::shared_ptr<spdlog::logger> &logger) {
+
+    m_log = logger;
 
     return;
 }

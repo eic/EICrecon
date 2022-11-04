@@ -96,7 +96,7 @@ public:
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_log;
 
     std::string m_input_tag;
     bool m_splitCluster;//{this, "splitCluster", true};
@@ -230,9 +230,9 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (m_logger->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
+      if (m_log->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
         //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-        m_logger->trace("No maxima found, not building any clusters");
+        m_log->trace("No maxima found, not building any clusters");
       }
       return;
     } else if (maxima.size() == 1) {
@@ -243,7 +243,7 @@ private:
       }
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
 
-      m_logger->debug("A single maximum found, added one ProtoCluster");
+      m_log->debug("A single maximum found, added one ProtoCluster");
 
       return;
     }

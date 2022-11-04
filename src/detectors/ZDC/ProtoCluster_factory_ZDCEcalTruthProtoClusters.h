@@ -20,6 +20,7 @@ public:
     // Constructor
     ProtoCluster_factory_ZDCEcalTruthProtoClusters(){
         SetTag("ZDCEcalTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -29,7 +30,7 @@ public:
         m_inputHit_tag="ZDCEcalRecHits";
         m_inputMCHit_tag="ZDCEcalHits";
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

@@ -14,13 +14,13 @@ public:
     // Constructor
     CalorimeterHit_factory_HcalBarrelMergedHits(){
         SetTag("HcalBarrelMergedHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_log = app->GetService<Log_service>()->logger(GetTag());
 
         m_input_tag = "HcalBarrelRecHits";
 
