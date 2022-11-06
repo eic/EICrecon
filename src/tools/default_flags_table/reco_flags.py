@@ -256,7 +256,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPRecHits:readout',                          'EcalEndcapPHits',                ''),
     ('EEMC:EcalEndcapPRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('EEMC:EcalEndcapPRecHits:samplingFraction',                 '0.03',                           '*'),
-    ('EEMC:EcalEndcapPRecHits:sectorField',                      'sector',                         ''),
+    ('EEMC:EcalEndcapPRecHits:sectorField',                      '',                               ''),
     ('EEMC:EcalEndcapPRecHits:thresholdFactor',                  '5.0',                            '*'),
     ('EEMC:EcalEndcapPRecHits:thresholdValue',                   '2',                              '*'),
 
@@ -311,7 +311,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPInsertRecHits:readout',                          'EcalEndcapPInsertHits',          ''),
     ('EEMC:EcalEndcapPInsertRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('EEMC:EcalEndcapPInsertRecHits:samplingFraction',                 '0.03',                           '*'),
-    ('EEMC:EcalEndcapPInsertRecHits:sectorField',                      'sector',                         ''),
+    ('EEMC:EcalEndcapPInsertRecHits:sectorField',                      '',                               ''),
     ('EEMC:EcalEndcapPInsertRecHits:thresholdFactor',                  '5.0',                            '*'),
     ('EEMC:EcalEndcapPInsertRecHits:thresholdValue',                   '2',                              '*'),
 
@@ -480,7 +480,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapNRecHits:readout',                          'HcalEndcapNHits',                ''),
     ('HCAL:HcalEndcapNRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('HCAL:HcalEndcapNRecHits:samplingFraction',                 '0.998',                          ''),
-    ('HCAL:HcalEndcapNRecHits:sectorField',                      'sector',                         ''),
+    ('HCAL:HcalEndcapNRecHits:sectorField',                      '',                               ''),
     ('HCAL:HcalEndcapNRecHits:thresholdFactor',                  '4',                              ''),
     ('HCAL:HcalEndcapNRecHits:thresholdValue',                   '1',                              '*'),
 
@@ -544,7 +544,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPRecHits:readout',                          'HcalEndcapPHits',                ''),
     ('HCAL:HcalEndcapPRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('HCAL:HcalEndcapPRecHits:samplingFraction',                 '0.025',                          ''),
-    ('HCAL:HcalEndcapPRecHits:sectorField',                      'sector',                         ''),
+    ('HCAL:HcalEndcapPRecHits:sectorField',                      '',                               ''),
     ('HCAL:HcalEndcapPRecHits:thresholdFactor',                  '5',                              '*'),
     ('HCAL:HcalEndcapPRecHits:thresholdValue',                   '3',                              '*'),
 
@@ -609,7 +609,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPInsertRecHits:readout',                          'HcalEndcapPInsertHits',                 ''),
     ('HCAL:HcalEndcapPInsertRecHits:resolutionTDC',                    '1e-11',                                 ''),
     ('HCAL:HcalEndcapPInsertRecHits:samplingFraction',                 '0.998',                                 ''),
-    ('HCAL:HcalEndcapPInsertRecHits:sectorField',                      'sector',                                ''),
+    ('HCAL:HcalEndcapPInsertRecHits:sectorField',                      '',                                      ''),
     ('HCAL:HcalEndcapPInsertRecHits:thresholdFactor',                  '4',                                     ''),
     ('HCAL:HcalEndcapPInsertRecHits:thresholdValue',                   '0',                                     '*'),
 
@@ -669,7 +669,7 @@ eicrecon_reco_flags = [
     ('ZDC:ZDCEcalRecHits:readout',                               'ZDCEcalHits',                    ''),
     ('ZDC:ZDCEcalRecHits:resolutionTDC',                         '1e-11',                          ''),
     ('ZDC:ZDCEcalRecHits:samplingFraction',                      '1',                              '*'),
-    ('ZDC:ZDCEcalRecHits:sectorField',                           'sector',                         ''),
+    ('ZDC:ZDCEcalRecHits:sectorField',                           '',                               ''),
     ('ZDC:ZDCEcalRecHits:thresholdFactor',                       '4',                              ''),
     ('ZDC:ZDCEcalRecHits:thresholdValue',                        '0',                              ''),
 
