@@ -875,7 +875,8 @@ if __name__ == "__main__":
 
     # Separate all parameters that starts with -P/-p from args
     parameter_args = []
-    for arg in sys.argv:
+    sys_argv = sys.argv.copy()
+    for arg in sys_argv:
         if arg.startswith(("-P", "-p")):
             parameter_args.append(arg)
             sys.argv.remove(arg)
