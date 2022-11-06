@@ -866,6 +866,8 @@ def make_flags_from_records():
         if record[1]:
             value = value_eval(record[1])
             flags_arguments.append(f'-P{record[0]}={value}')
+        else:
+            flags_arguments.append(f'-P{record[0]}=""')
     return flags_arguments
 
 
