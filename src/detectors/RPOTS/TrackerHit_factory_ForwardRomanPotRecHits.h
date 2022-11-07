@@ -36,7 +36,7 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         auto &config = getConfig();
         config.time_resolution = 0.0;
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:time_resolution",config.time_resolution );
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotRecHits:time_resolution",config.time_resolution );
 
         // Call init for generic algorithm
         auto geoSvc = app->GetService<JDD4hep_service>();

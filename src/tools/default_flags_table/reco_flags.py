@@ -732,6 +732,28 @@ eicrecon_reco_flags = [
     ('tracking:CentralCKFTrajectories:EtaBins',                  '',                               'Eta Bins for ACTS CKF tracking reco'),
     ('tracking:CentralCKFTrajectories:NumMeasurementsCutOff',    '10',                             'Number of measurements Cut Off for ACTS CKF tracking'),
 
+    # ============================ F A R   F O R W A R D ===================================
+    
+    # RPOTS
+    # -----------------------------
+    ('RPOTS:ForwardRomanPotRawHits:threshold',                   '0.0',                            ''),
+    ('RPOTS:ForwardRomanPotRawHits:timeResolution',              '8.0',                            'ns'),
+    
+    ('RPOTS:ForwardRomanPotRecHits:time_resolution',             '0.0',                            ''),
+
+    ('RPOTS:ForwardRomanPotParticles:local_x_offset_station_1',  '-833.3878326',                   ''),
+    ('RPOTS:ForwardRomanPotParticles:local_x_offset_station_2',  '-924.342804',                    ''),
+    ('RPOTS:ForwardRomanPotParticles:local_x_slope_offset',      '-0.00622147',                    ''),
+    ('RPOTS:ForwardRomanPotParticles:local_y_slope_offset',      '-0.0451035',                     ''),
+    ('RPOTS:ForwardRomanPotParticles:crossingAngle',             '-0.025',                         ''),
+    ('RPOTS:ForwardRomanPotParticles:nomMomentum',               '275.0',                          ''),
+    ('RPOTS:ForwardRomanPotParticles:m_readout',                 '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_layerField',              '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_sectorField',             '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_localDetElement',         '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:u_localDetFields',          '',                               ''),
+
+
     # ========================= R E C O N S T R U C T I O N ================================
     ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
 
