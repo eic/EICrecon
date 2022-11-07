@@ -10,6 +10,9 @@ ACTS has two loggers controlled by two flags:
   it explicitly to only look extended printout of DD4Hep->Acts geometry conversion and other
   initialization steps
 
+The reason for such level split is: it might be important to have a verbose log during initialization
+to view geometry conversion printout; while there is no need for full printout of each track reconstruction. 
+And wise versa. 
 
 Examples:
 

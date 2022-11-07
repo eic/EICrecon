@@ -60,7 +60,7 @@ void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
 
     // ACTS general log level:
     m_log = log_service->logger("acts");
-    string log_level_str = "info";
+    string log_level_str = log_service->getDefaultLevelStr();
     m_app->SetDefaultParameter("acts:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
     m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str, m_log->level());

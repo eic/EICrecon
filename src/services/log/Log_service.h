@@ -21,6 +21,13 @@ public:
 
     std::shared_ptr<spdlog::logger> logger(const std::string &name);
 
+    /** Gets the default level for all loggers
+     * The log level is set from user parameters or is 'info'**/
+    spdlog::level getDefaultLevel();
+
+    /** Gets std::string version of the default log level **/
+    std::string getDefaultLevelStr();
+
 
 private:
 
