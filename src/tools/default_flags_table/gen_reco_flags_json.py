@@ -4,6 +4,7 @@ import os
 import re
 
 import numpy as np
+
 # from deepdiff import DeepDiff
 
 parser = argparse.ArgumentParser()
@@ -69,37 +70,22 @@ print(user_reco_flags)
 # 2. All flags that appear only in user_reco_flags
 # 3. All flags that appear in dump_reco_flags
 
+
 print("---------------------------\n DUMP FLAGS\n---------------------------")
-for i in range(10):
-    record = dump_reco_flags[i]
-    print("{:<60} {:<30}".format(record[0], record[1]))
+dump_flags = dump_reco_flags
+dump_table = ""
+for dump_flag in dump_flags:
+    print(f"{dump_flag[0]}: '{dump_flag[1]}' |  '{dump_flag[2]}'")
+    dump_table += f"<tr><td>{dump_flag[0]}</td><td>{dump_flag[1]}</td><td>{dump_flag[2]}</td></tr>"
 
 print("---------------------------\n USER FLAGS\n---------------------------")
-for i in range(10):
-    record = user_reco_flags[i]
-    print("{:<60} {:<30}".format(record[0], record[1]))
+user_flags = user_reco_flags
+user_table = ""
+for user_flag in user_flags:
+    print(f"{user_flag[0]}: '{user_flag[1]}' |  '{user_flag[2]}'")
+    user_table += f"<tr><td>{user_flag[0]}</td><td>{user_flag[1]}</td><td>{user_flag[2]}</td></tr>"
 
 print("---------------------------\n Difference\n---------------------------")
-
-# for value in dump_reco_flags:
-#     dump_flag_names.append(value[0])
-# print(dump_flag_names)
-#
-# for value in user_reco_flags:
-#     user_flag_names.append(value[0])
-# print(user_flag_names)
-#
-# for name in dump_flag_names:
-#     if name not in user_flag_names:
-#         dump_names_only.append(name)
-# print(dump_names_only)
-#
-# for name in user_flag_names:
-#     if name not in dump_flag_names:
-#         user_names_only.append(name)
-# print(user_names_only)
-
-
 dump_flag_names = [value[0] for value in dump_reco_flags]
 user_flag_names = [value[0] for value in user_reco_flags]
 dump_names_only = [name for name in dump_flag_names if name not in user_flag_names]
@@ -109,7 +95,7 @@ dump_name_values = {}
 for r in dump_reco_flags:
     dump_name_values[r[0]] = r[1]
 
-comparison_table = "" #"<table>\n"
+comparison_table = ""
 
 for user_reco_flag in user_reco_flags:
     to_compare_user_flag_name = user_reco_flag[0]
@@ -118,15 +104,46 @@ for user_reco_flag in user_reco_flags:
         to_compare_dump_flag_value = dump_name_values[to_compare_user_flag_name]
         if to_compare_dump_flag_value != to_compare_user_flag_value:
             print(f"{to_compare_user_flag_name}: '{to_compare_user_flag_value}' |  '{to_compare_dump_flag_value}'")
-            comparison_table += f"<tr><td>{to_compare_user_flag_name}</td><td>{to_compare_user_flag_value}</td><td>{to_compare_dump_flag_value}</td></tr>\n"
-#comparison_table += "</tabel>"
+            comparison_table += f"<tr><td>{to_compare_user_flag_name}</td><td>{to_compare_user_flag_value}</td><td>{to_compare_dump_flag_value}</td></tr>"
+
+print("---------------------------\n All flags\n---------------------------")
+all_flags_table = ""
+for all_record in all_records:
+    print(f"{all_record[0]}: '{all_record[1]}' |  '{all_record[2]}'")
+    all_flags_table += f"<tr><td>{all_record[0]}</td><td>{all_record[1]}</td><td>{all_record[2]}</td></tr>"
 
 in_file_name = "../../../docs/table_flags/flags.in.md"
 out_file_name = "../../../docs/table_flags/flags.md"
 
 with open(in_file_name, "r", encoding='utf-8') as in_file:
-    template_text = in_file.read()
-    output_text = re.sub("<!--TABLE3 BEGIN-->.*<!--TABLE3 END-->", comparison_table, template_text, flags=re.DOTALL|re.MULTILINE)
+    # template_text = in_file.read()
+    input_data = in_file.read()
 
-    with open(out_file_name, "w", encoding='utf-8') as out_file:
-        out_file.write(output_text)
+# output_text = ""
+# output_text = re.sub("<!--TABLE1 BEGIN-->.*<!--TABLE1 END-->", dump_table, template_text,
+#                          flags=re.DOTALL | re.MULTILINE)
+# output_text = re.sub("<!--TABLE2 BEGIN-->.*<!--TABLE2 END-->", user_table, template_text,
+#                          flags=re.DOTALL | re.MULTILINE)
+# # output_text = re.sub("<!--TABLE3 BEGIN-->.*<!--TABLE3 END-->", comparison_table, template_text,
+# #                      flags=re.DOTALL | re.MULTILINE)
+# # output_text = re.sub("<!--TABLE4 BEGIN-->.*<!--TABLE4 END-->", all_flags_table, template_text,
+# #                      flags=re.DOTALL | re.MULTILINE)
+
+templates_to_datasources = {
+    "TABLE1": dump_table,
+    "TABLE2": user_table,
+    "TABLE3": comparison_table,
+    "TABLE4": all_flags_table,
+}
+
+
+def build_re_for_key(key):
+    return f"<!--{key} BEGIN-->.*<!--{key} END-->"
+
+
+result = input_data
+for template_name, data in templates_to_datasources.items():
+    result = re.sub(build_re_for_key(template_name), data, result, flags=(re.DOTALL | re.MULTILINE))
+
+with open(out_file_name, "w", encoding='utf-8') as out_file:
+    out_file.write(result)

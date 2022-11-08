@@ -15,33 +15,35 @@
 <body>
   <div id="app"></div>
   <script>
-    function filterTableRowsByInput(inputId, tableId) {
+    function filterTableRowsByInput(inputId, tableClass) {
 
-      console.log("hahaha");
+      
 
-      var input, filter, table, tr, td, i, txtValue;
+      var input, filter, table, tr, td, i, txtValue, n;
       input = document.getElementById(inputId);
       filter = input.value.toUpperCase();
-      table = document.getElementById(tableId[0]);
-      tr = table.getElementsByTagName("tr");
-      th = table.getElementsByTagName("th");
+      table = document.getElementsByClassName(tableClass);
 
-      for (i = 1; i < tr.length; i++) {
-                  tr[i].style.display = "none";
-                  for(var j=0; j<th.length; j++){
-              td = tr[i].getElementsByTagName("td")[j];      
-              if (td) {
-                  if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1)                               {
-                      tr[i].style.display = "";
-                      break;
+      for(var r = 0; r < table.length; r++){
+        tr = table[r].getElementsByTagName("tr");
+        th = table[r].getElementsByTagName("th");
+
+        for (i = 1; i < tr.length; i++) {
+          tr[i].style.display = "none";
+          for(var j=0; j<th.length; j++){
+            td = tr[i].getElementsByTagName("td")[j];      
+            if (td) {
+              if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1)                               {
+                tr[i].style.display = "";
+                  break;
                   }
-              }
+                }
           }
+        }
       }
     }
-    filterTableRowsByInput("myInput", "myTable2");
 
-    var num = 0;
+    let num = 0;
     mermaid.initialize({ startOnLoad: false });
 
     window.$docsify = {

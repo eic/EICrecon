@@ -1,26 +1,28 @@
 .markdown-section table{
     display: inline-table;
 }
-#myTable{
+.table_flags{
     width: 100%;
     border-collapse: collapse;
     margin: 25px 0;
-    font-size: 0.9em;
-    min-width: 400px;
+    min-width: 400px; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     
 }
-#myTable thead th {
+.table_flags thead th{
     background-color: #009879;
     color: #ffffff;
     text-align: left;
     text-align: center;
-    width: 33.3%
+    width: 33.3%;
 }
-#myTable tbody th {
+.table_flags tbody td{
     text-align: left;
     padding: 12px 15px;
+    width: 33.3%;
 }
+
+
 #myInput {
     background-image: url('search.png'); 
     background-position: 5px 6px; 
@@ -38,13 +40,13 @@
     flex-wrap: nowrap;
     direction: row;
     margin-top: 15px;
-    position: relative; /* Относительное позиционирование */
+    position: relative;
 }
 .tab input[type="radio"] { display: none; }
 .tab-title {
     background: #009879;
     color: #ffffff;
-    padding: 5px 10px; /* Поля вокруг текста */
+    padding: 5px 10px; 
     border: 1px solid gray;
     border-radius: 5px;
     box-sizing: border-box;
@@ -52,18 +54,18 @@
     font-size: 17px;    
 }
 .tab-content {
-    position: absolute; /* Абсолютное позиционирование */
-    left: 0; /* Размещаем у левого края */
-    width: calc(100% - 0px); /* Ширина содержимого */
-    display: none; /* Прячем вкладку */
+    position: absolute; 
+    left: 0; 
+    width: calc(100% - 0px); 
+    display: none; 
 }
 .tab :checked + .tab-title {
-    position: relative; /* Относительное позиционирование */
+    position: relative; 
     color: black;
     background: #ffffff; 
-    z-index: 1; /* Отображаем поверх содержимого */
+    z-index: 1; 
     box-shadow: inset 0px -1px 0px #009879;
 }
 .tab :checked ~ .tab-content {
-    display: block; /* Показываем активную вкладку */
+    display: block; 
 }
