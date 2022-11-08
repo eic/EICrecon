@@ -14,6 +14,19 @@
 
 
 
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Association_factory_EcalEndcapPClustersAssociations(){
+        SetTag("EcalEndcapPClustersAssociations");
+    }
+};
+
+
+
 class Cluster_factory_EcalEndcapPClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
@@ -21,6 +34,7 @@ public:
     // Constructor
     Cluster_factory_EcalEndcapPClusters(){
         SetTag("EcalEndcapPClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -52,16 +66,6 @@ public:
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
-
         AlgorithmInit(m_log);
     }
 
@@ -88,7 +92,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPClusterAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

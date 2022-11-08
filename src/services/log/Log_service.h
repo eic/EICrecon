@@ -28,6 +28,7 @@ private:
 
     std::recursive_mutex m_lock;
     JApplication* m_application;
+    std::string m_log_level_str;
 };
 
 #endif // __Spdlog_service_h__

@@ -19,6 +19,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalBarrelImagingRecHits(){
         SetTag("EcalBarrelImagingRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -26,7 +27,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_readout = "EcalBarrelHits";
+        m_readout = "EcalBarrelImagingHits";
         m_layerField = "layer"; // {this, "layerField", "layer"};
         m_sectorField = "module"; // {this, "sectorField", "sector"};
         // length unit (from dd4hep geometry service)
@@ -35,10 +36,10 @@ public:
         m_capADC=8096; // {this, "capacityADC", 8096};
         m_pedMeanADC=400; // {this, "pedestalMean", 400};
         m_dyRangeADC=100 * MeV; // {this, "dynamicRangeADC", 100 * MeV};
-        m_pedSigmaADC=3.2; // {this, "pedestalSigma", 3.2};
-        m_thresholdADC=3.0; // {this, "thresholdFactor", 3.0};
+        m_pedSigmaADC=14; // {this, "pedestalSigma", 3.2};
+        m_thresholdFactor=3.0; // {this, "thresholdFactor", 3.0};
         // Calibration!
-        m_sampFrac=0.10262666247845109;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.005;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:layerField",       m_layerField);
@@ -46,20 +47,11 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedestalMean",     m_pedMeanADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedestalSigmaADC", m_pedSigmaADC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:pedSigmaADC",      m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:thresholdADC",     m_thresholdADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:thresholdFactor",  m_thresholdFactor);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         initialize();
     }

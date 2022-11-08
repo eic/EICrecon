@@ -78,7 +78,10 @@ public:
 
     std::map<int64_t, dd4hep::rec::Surface *> getDD4hepSurfaceMap() const { return m_surfaceMap; }
 
+    const Acts::GeometryContext& getActsGeometryContext() const {return m_trackingGeoCtx;}
+
 private:
+
 
     /** DD4hep detector interface class.
      * This is the main dd4hep detector handle.

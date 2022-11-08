@@ -22,7 +22,9 @@ using namespace dd4hep;
 
 class CalorimeterClusterMerger {
 
+protected:
     // Insert any member variables here
+    std::shared_ptr<spdlog::logger> m_log;
 
 public:
     CalorimeterClusterMerger() = default;
@@ -32,8 +34,6 @@ public:
     virtual void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
-    //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
 
     //inputs
     std::vector<const edm4eic::Cluster*> m_inputClusters;//{"InputClusters", Gaudi::DataHandle::Reader, this};
@@ -68,14 +68,14 @@ private:
       }
 
       //TODO:spdlog verbosity
-      if ( m_logger->level() <= spdlog::level::debug) {
-        m_logger->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
+      if ( m_log->level() <= spdlog::level::debug) {
+        m_log->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
         //LOG_INFO(default_cout_logger) << " --> Found cluster with mcID " << mcID << " and energy " << cluster->getEnergy() << LOG_END;
       }
 
       if (mcID < 0) {
-        if (m_logger->level() <= spdlog::level::debug) {
-          m_logger->debug("   --> WARNING: no valid MC truth link found, skipping cluster...");
+        if (m_log->level() <= spdlog::level::debug) {
+          m_log->debug("   --> WARNING: no valid MC truth link found, skipping cluster...");
           //LOG_INFO(default_cout_logger) << "   --> WARNING: no valid MC truth link found, skipping cluster..." << LOG_END;
         }
         continue;

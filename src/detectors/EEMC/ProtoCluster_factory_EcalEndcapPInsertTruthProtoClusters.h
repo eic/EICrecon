@@ -10,25 +10,28 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-class TruthCluster_factory_EcalEndcapNTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+
+
+class ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    TruthCluster_factory_EcalEndcapNTruthProtoClusters(){
-        SetTag("EcalEndcapNTruthProtoClusters");
+    ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters(){
+        SetTag("EcalEndcapPInsertTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag = "EcalEndcapNTruthProtoClusters";
-        m_inputMCHit_tag = "EcalEndcapNHits";
+        m_inputHit_tag="EcalEndcapPInsertRecHits";
+        m_inputMCHit_tag="EcalEndcapPInsertHits";
 
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------
@@ -51,11 +54,9 @@ public:
         Set(m_outputProtoClusters);
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
-
 private:
     // Name of input data type (collection)
     std::string              m_inputHit_tag;
     std::string              m_inputMCHit_tag;
-
 };
 

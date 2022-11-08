@@ -14,6 +14,19 @@
 
 
 
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Association_factory_EcalEndcapPMergedClustersAssociations(){
+        SetTag("EcalEndcapPMergedClustersAssociations");
+    }
+};
+
+
+
 class Cluster_factory_EcalEndcapPMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
@@ -21,6 +34,7 @@ public:
     // Constructor
     Cluster_factory_EcalEndcapPMergedClusters(){
         SetTag("EcalEndcapPMergedClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -29,19 +43,10 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapPClusters";
-        m_inputAssociations_tag="EcalEndcapPClusterAssociations";
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
+        m_inputAssociations_tag="EcalEndcapPClustersAssociations";
 
         app->SetDefaultParameter("EEMC:EcalEndcapPMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapPMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         AlgorithmInit(m_log);
     }

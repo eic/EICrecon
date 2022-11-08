@@ -53,6 +53,9 @@ private:
     /// If not null, such json file is created
     std::string m_json_file_name = "";
 
+    /// Print parameter summary to screen at end of job
+    bool m_print_to_screen = true;
+
     /// Print only reconstruction flags
     bool m_only_reco = true;
 
@@ -80,12 +83,12 @@ private:
     bool isReconstructionFlag(std::string flag_name) { // (!) copy value is important here! don't do const& NOLINT(performance-unnecessary-value-param)
 
         // convert flag_name to lower
-        std::transform(flag_name.begin(), flag_name.end(), flag_name.begin(), std::ptr_fun<int, int>(std::tolower));
+        std::transform(flag_name.begin(), flag_name.end(), flag_name.begin(), static_cast<int (*)(int)>(&std::tolower));
 
         for(auto subsystem: m_reco_prefixes) {     // (!) copy value is important here! don't do auto&
 
             // Convert subsystem to lower
-            std::transform(subsystem.begin(), subsystem.end(), subsystem.begin(), std::ptr_fun<int, int>(std::tolower));
+            std::transform(subsystem.begin(), subsystem.end(), subsystem.begin(), static_cast<int (*)(int)>(&std::tolower));
 
             // if not sure, read this
             // https://stackoverflow.com/questions/1878001/how-do-i-check-if-a-c-stdstring-starts-with-a-certain-string-and-convert-a

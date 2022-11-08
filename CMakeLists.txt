@@ -20,14 +20,15 @@
 # podio               |   IO library
 # DD4hep              |   Geometry framework
 # ROOT                |   CERN ROOT
-# fmt                 |   Formatting library
+# spdlog              |   Formatting library
+# IRT library         |
 # ==============================================================
 
 
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.2.3)
+project(EICRecon VERSION 0.3.4)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")

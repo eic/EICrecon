@@ -1,6 +1,7 @@
 // Copyright 2022, Thomas Britton
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+
 #pragma once
 
 #include <random>
@@ -13,13 +14,27 @@
 
 
 
-class Cluster_factory_EcalBarrelTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPInsertTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelTruthClusters(){
-        SetTag("EcalBarrelTruthClusters");
+    Association_factory_EcalEndcapPInsertTruthClustersAssociations(){
+        SetTag("EcalEndcapPInsertTruthClustersAssociations");
+    }
+};
+
+
+
+class Cluster_factory_EcalEndcapPInsertTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Cluster_factory_EcalEndcapPInsertTruthClusters(){
+        SetTag("EcalEndcapPInsertTruthClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -27,9 +42,9 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelHits";
-        m_input_protoclust_tag="EcalBarrelTruthProtoClusters";
-
+        m_input_simhit_tag="EcalEndcapPInsertHits";
+        m_input_protoclust_tag="EcalEndcapPInsertTruthProtoClusters";
+    
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
@@ -40,26 +55,16 @@ public:
         // for endcaps.
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_protoclust_tag", m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("BEMC:EcalBarrelTruthClusters:enableEtaBounds",   m_enableEtaBounds);
+
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
 
         AlgorithmInit(m_log);
     }
@@ -87,7 +92,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelTruthClusterAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPInsertTruthClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

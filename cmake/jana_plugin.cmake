@@ -19,6 +19,9 @@ macro(plugin_add _name)
     # include logging by default
     find_package(spdlog REQUIRED)
 
+    # include fmt by default
+    find_package(fmt REQUIRED)
+
     # include ROOT by default
     find_package(ROOT REQUIRED)
 
@@ -27,8 +30,10 @@ macro(plugin_add _name)
     target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
+    target_include_directories(${_name}_plugin PUBLIC ${fmt_DIR}/../../../include)
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
     target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
+    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
 
     # Install plugin
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -39,8 +44,10 @@ macro(plugin_add _name)
         add_library(${_name}_library STATIC "")
 	    target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
+        target_include_directories(${_name}_library PUBLIC ${fmt_DIR}/../../../include)
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
+        target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
@@ -186,6 +193,17 @@ macro(plugin_add_acts _name)
     plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
 endmacro()
 
+
+# Adds IRT PID reconstruction package for a plugin
+macro(plugin_add_irt _name)
+    if(NOT IRT_FOUND)
+        find_package(IRT REQUIRED)
+        set(IRT_INCLUDE_DIR ${IRT_DIR}/../../include)
+    endif()
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
+    plugin_link_libraries(${PLUGIN_NAME} IRT)
+endmacro()
+
 # Adds podio, edm4hep, edm4eic for a plugin
 macro(plugin_add_event_model _name)
 
@@ -228,5 +246,5 @@ macro(plugin_add_cern_root _name)
 
     # Add libraries
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
-    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES})
+    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
 endmacro()

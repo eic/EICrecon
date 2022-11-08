@@ -27,6 +27,7 @@ public:
     // Constructor
     RawCalorimeterHit_factory_EcalBarrelImagingRawHits() {
         SetTag("EcalBarrelImagingRawHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -35,12 +36,12 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelHits";
+        m_input_tag = "EcalBarrelImagingHits";
+        u_eRes = {0.0, 0.02, 0.0};
         m_tRes = 0.0 * ns;
-        m_tRes = 0.0 * ns;
-        m_capADC = 8096;
+        m_capADC = 8192;
         m_dyRangeADC = 100 * MeV;
-        m_pedMeanADC = 400;
+        m_pedMeanADC = 100;
         m_pedSigmaADC = 3.2;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
@@ -49,30 +50,22 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingHits:readoutClass",     m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:input_tag", m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> logger = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        logger->set_level(eicrecon::ParseLogLevel(log_level_str));
-        AlgorithmInit(logger);
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

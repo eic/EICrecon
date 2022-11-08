@@ -158,7 +158,11 @@ namespace {
                     }
                 }
                 if (ionBeamEnergy == 0) {
-                    m_log->warn("No incoming ion beam; using 100 GeV ion beam energy.");
+                    static bool warned = false;
+                    if( ! warned ){
+                        warned = true;
+                        m_log->warn("No incoming ion beam; using 100 GeV ion beam energy.");
+                    }
                     ionBeamEnergy = 100;
                 }
             }

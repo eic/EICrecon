@@ -26,6 +26,7 @@ public:
     // Constructor
     Cluster_factory_EcalBarrelImagingClusters(){
         SetTag("EcalBarrelImagingClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -33,15 +34,12 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelHits";
+        m_input_simhit_tag="EcalBarrelImagingHits";
         m_input_protoclust_tag="EcalBarrelImagingProtoClusters";
+        m_trackStopLayer = 6;
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingClusters:input_protoclust_tag",        m_input_protoclust_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingClusters:trackStopLayer",  m_trackStopLayer);
-
-
-        std::string tag=this->GetTag();
-        m_log = app->GetService<Log_service>()->logger(tag);
 
         initialize();
     }

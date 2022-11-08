@@ -6,6 +6,31 @@ EICrecon uses [spdlog](https://github.com/gabime/spdlog) library as a logging ba
 (in many cases [is faster than printf and std streams](https://github.com/fmtlib/fmt#speed-tests))
 
 
+## Log levels
+
+**What log levels mean**
+
+- **trace**    - something very verbose like each hit parameter
+- **debug**    - all information that is relevant for an expert to debug but should not be present in production
+- **info**     - something that will always (almost) get into the global production log
+- **warning**  - something that needs attention but the overall results are likely usable
+- **error**    - something bad making results are probably UNUSABLE
+- **critical** - imminent software failure, crash and termination
+
+Global log can be controlled through:
+
+```bash
+-Peicrecon:LogLevel=info   # trace, debug, info, warning, error, critical, off
+```
+
+Each plugin or even factory can create its own logger, which clones default logger parameters
+but then could be set separately. But convention `<prefix>:LogLevel=<level>`. E.g.:
+
+```bash
+-Pacts:LogLevel=debug
+-PTracking:CentralTrackingParticles:LogLevel=trace
+```
+
 
 ## Basic use
 
@@ -123,16 +148,9 @@ void Init() override {
 }
 ```
 
-## Log levels
+## If log level <=
 
-**How log levels should be used?**
 
-- **trace**    - something very verbose like each hit parameter
-- **debug**    - all information that is relevant for an expert to debug but should not be present in production
-- **info**     - something that will always (almost) get into the global log
-- **warning**  - something that needs attention but results are likely usable
-- **error**    - something bad making results probably unusable
-- **critical** - imminent software failure and termination
 
 Sometimes one needs to know current log level to calculate debugging values. Use **<=** operator to check level.
 It works because enum values are: trace=0, debug=1, ... critical= 5. So:

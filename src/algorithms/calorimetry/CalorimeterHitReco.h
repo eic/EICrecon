@@ -34,7 +34,7 @@ public:
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_log;
     // Name of input data type (collection)
     std::string              m_input_tag;
 
@@ -70,6 +70,8 @@ public:
   std::string m_sectorField="sectorField";
 
   dd4hep::BitFieldCoder* id_dec = nullptr;
+  uint32_t NcellIDerrors = 0;
+  uint32_t MaxCellIDerrors = 100;
   
   size_t sector_idx{0}, layer_idx{0};
 

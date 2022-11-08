@@ -15,6 +15,7 @@ public:
     // Constructor
     CalorimeterHit_factory_HcalEndcapNRecHits(){
         SetTag("HcalEndcapNRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -25,8 +26,8 @@ public:
         m_input_tag = "HcalEndcapNRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_capADC=1024;//{this, "capacityADC", 8096};
+        m_dyRangeADC=3.6 * MeV;//{this, "dynamicRangeADC", 100. * MeV};
         m_pedMeanADC=400;//{this, "pedestalMean", 400};
         m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
@@ -64,14 +65,6 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapNRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

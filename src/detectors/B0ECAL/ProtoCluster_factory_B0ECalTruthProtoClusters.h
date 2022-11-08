@@ -10,25 +10,28 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-class TruthCluster_factory_EcalEndcapPTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+
+
+class ProtoCluster_factory_B0ECalTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    TruthCluster_factory_EcalEndcapPTruthProtoClusters(){
-        SetTag("EcalEndcapPTruthProtoClusters");
+    ProtoCluster_factory_B0ECalTruthProtoClusters(){
+        SetTag("B0ECalTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag = "EcalEndcapPTruthProtoClusters";
-        m_inputMCHit_tag = "EcalEndcapPHits";
+        m_inputHit_tag="B0ECalRecHits";
+        m_inputMCHit_tag="B0ECalHits";
 
-        app->SetDefaultParameter("EEMC:EcalEndcapPTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:B0ECalTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

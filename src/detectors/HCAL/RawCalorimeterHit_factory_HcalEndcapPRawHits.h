@@ -28,6 +28,7 @@ public:
     // Constructor
     RawCalorimeterHit_factory_HcalEndcapPRawHits() {
         SetTag("HcalEndcapPRawHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -39,13 +40,13 @@ public:
         m_input_tag = "HcalEndcapPHits";
         u_eRes = {};
         m_tRes = 0.0 * ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
-        m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
+        m_capADC = 1024;
+        m_dyRangeADC = 3.6 * GeV;
+        m_pedMeanADC = 20;
+        m_pedSigmaADC = 0.8;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
-        u_fields={"layer","slice"};
+        u_fields={};
         u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
@@ -67,14 +68,6 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapPRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

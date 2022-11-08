@@ -1,5 +1,5 @@
-#ifndef EICRECON_OCCUPANCY_ANALYSIS_H
-#define EICRECON_OCCUPANCY_ANALYSIS_H
+#ifndef EICRECON_TRACKING_TEST_PROCESSOR_H
+#define EICRECON_TRACKING_TEST_PROCESSOR_H
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
@@ -58,4 +58,4 @@ private:
     TDirectory *m_dir_main;
 };
 
-#endif //EICRECON_OCCUPANCY_ANALYSIS_H
+#endif //EICRECON_TRACKING_TEST_PROCESSOR_H

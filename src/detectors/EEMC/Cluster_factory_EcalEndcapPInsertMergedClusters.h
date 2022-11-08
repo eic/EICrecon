@@ -1,6 +1,7 @@
 // Copyright 2022, Thomas Britton
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+
 #pragma once
 
 #include <random>
@@ -13,13 +14,27 @@
 
 
 
-class Cluster_factory_EcalBarrelMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPInsertMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelMergedClusters(){
-        SetTag("EcalBarrelMergedClusters");
+    Association_factory_EcalEndcapPInsertMergedClustersAssociations(){
+        SetTag("EcalEndcapPInsertMergedClustersAssociations");
+    }
+};
+
+
+
+class Cluster_factory_EcalEndcapPInsertMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Cluster_factory_EcalEndcapPInsertMergedClusters(){
+        SetTag("EcalEndcapPInsertMergedClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -27,20 +42,11 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_tag="EcalBarrelClusters";
-        m_inputAssociations_tag="EcalBarrelClusterAssociations";
+        m_input_tag="EcalEndcapPInsertClusters";
+        m_inputAssociations_tag="EcalEndcapPInsertClustersAssociations";
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedClusters:inputAssociations_tag", m_inputAssociations_tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
 
         AlgorithmInit(m_log);
     }
@@ -66,7 +72,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPInsertMergedClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

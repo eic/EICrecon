@@ -67,12 +67,22 @@ if [[ -d @fmt_DIR@/../../.. ]] ; then
     fi
 fi
 
-#----------------- ip6,epic detector geometry
-if [[ -f @BEAMLINE_PATH@/../../setup.sh ]]; then
-    source @BEAMLINE_PATH@/../../setup.sh
-fi
-if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
-    source @DETECTOR_PATH@/../../setup.sh
+#----------------- ip6,epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
+# if [[ -f @BEAMLINE_PATH@/../../setup.sh ]]; then
+#     source @BEAMLINE_PATH@/../../setup.sh
+# fi
+# if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
+#     source @DETECTOR_PATH@/../../setup.sh
+# fi
+
+#----------------- IRT
+IRT=$( readlink -f @IRT_DIR@/../.. )
+if [[ -d ${IRT} ]] ; then
+    export IRT_ROOT=${IRT}
+    IRT_LIBDIR=$( readlink -f @IRT_DIR@/.. )
+    if [[ ! ":$LD_LIBRARY_PATH:" == *":IRT_LIBDIR:"* ]]; then
+        export LD_LIBRARY_PATH="${IRT_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    fi
 fi
 
 #----------------- EICrecon
