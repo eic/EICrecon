@@ -101,11 +101,15 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        path: ${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
 
   run_eicrecon_reco_flags-gcc:
@@ -132,9 +136,13 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }}          
+          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }} -Pdump_flags:json=${{ matrix.detector_config }}_reco_flags_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        path: ${{ matrix.detector_config }}_reco_flags_flags.json
         if-no-files-found: error
