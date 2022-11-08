@@ -109,6 +109,7 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
+        name: ${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
 
@@ -144,6 +145,7 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
+        name: ${{ matrix.detector_config }}_all_good_flags.json
         path: ${{ matrix.detector_config }}_all_good_flags.json
         if-no-files-found: error
 
@@ -163,3 +165,4 @@ jobs:
           setup: /opt/detector/setup.sh
           run: |
             ls -ll
+            ls src/tools/default_flags_table/gen_markdown_tables.py
