@@ -173,7 +173,7 @@ jobs:
   # to embed into docs
   build-docs-advanced:
     needs:
-      - generate-docs-from-output
+      - generate-report
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
