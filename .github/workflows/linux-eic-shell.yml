@@ -149,20 +149,70 @@ jobs:
         path: ${{ matrix.detector_config }}_all_good_flags.json
         if-no-files-found: error
 
-#  generate-docs:
-#    runs-on: ubuntu-latest
-#    needs:
-#      - run_eicrecon_reco_flags-gcc
-#      - eicrecon-gcc
-#    steps:
-#      - uses: actions/download-artifact@v3
-#        with:
-#          name: arches_all_good_flags.json
-#      - uses: cvmfs-contrib/github-action-cvmfs@v3
-#      - uses: eic/run-cvmfs-osg-eic-shell@main
-#        with:
-#          platform-release: "jug_xl:nightly"
-#          setup: /opt/detector/setup.sh
-#          run: |
-#            ls -ll
-#            ls src/tools/default_flags_table/gen_markdown_tables.py
+  # This job is to build postprocessing of artifacts from EICrecon runs
+  generate-report:
+    runs-on: ubuntu-latest
+    needs:
+      - run_eicrecon_reco_flags-gcc
+      - eicrecon-gcc
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: arches_all_good_flags.json
+      - uses: cvmfs-contrib/github-action-cvmfs@v3
+      - uses: eic/run-cvmfs-osg-eic-shell@main
+        with:
+          platform-release: "jug_xl:nightly"
+          setup: /opt/detector/setup.sh
+          run: |
+            ls -ll
+            ls src/tools/default_flags_table/gen_markdown_tables.py
+
+  # build-docs and deploy-docs copy doxygen.yml functionality
+  # the difference is that these jobs use resulting artifacts from EICrecon runs
+  # to embed into docs
+  build-docs-advanced:
+    needs:
+      - generate-docs-from-output
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+      volumes:
+        - /home/runner/work/_temp:/home/runner/work/_temp
+      # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          apk add doxygen graphviz
+          doxygen Doxyfile        
+          cp -r docs publishing_docs
+          mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: error
+      - run:
+
+          apk add tar bash
+        # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
+      - uses: actions/upload-pages-artifact@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: publishing_docs/
+          retention-days: 7
+
+  deploy-docs-advanced:
+    needs: build-docs-advanced
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
