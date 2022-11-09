@@ -44,17 +44,17 @@ public:
         m_localDetElement="";
         u_localDetFields={};
 
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:local_x_offset_station_1",local_x_offset_station_1);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:local_x_offset_station_2",local_x_offset_station_2);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:local_x_slope_offset",local_x_slope_offset);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:local_y_slope_offset",local_y_slope_offset);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:crossingAngle",crossingAngle);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:nomMomentum",nomMomentum);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:m_readout",m_readout);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:m_layerField",m_layerField);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:m_sectorField",m_sectorField);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:m_localDetElement",m_localDetElement);
-        app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:u_localDetFields",u_localDetFields);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:local_x_offset_station_1",local_x_offset_station_1);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:local_x_offset_station_2",local_x_offset_station_2);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:local_x_slope_offset",local_x_slope_offset);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:local_y_slope_offset",local_y_slope_offset);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:crossingAngle",crossingAngle);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:nomMomentum",nomMomentum);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:m_readout",m_readout);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:m_layerField",m_layerField);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:m_sectorField",m_sectorField);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:m_localDetElement",m_localDetElement);
+        app->SetDefaultParameter("RPOTS:ForwardRomanPotParticles:u_localDetFields",u_localDetFields);
 
         // Connect generic algorithm to dd4hep
         auto geomSrvc = app->GetService<JDD4hep_service>();
