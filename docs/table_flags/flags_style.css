@@ -1,25 +1,28 @@
 .markdown-section table{
     display: inline-table;
 }
-#myTable{
+.table_flags{
     width: 100%;
     border-collapse: collapse;
     margin: 25px 0;
-    font-size: 0.9em;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    min-width: 400px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     
 }
-#myTable thead th {
+.table_flags thead th{
     background-color: #009879;
     color: #ffffff;
     text-align: left;
     text-align: center;
+    width: 33.3%;
 }
-#myTable tbody th {
+.table_flags tbody td{
     text-align: left;
     padding: 12px 15px;
+    width: 33.3%;
 }
+
+
 #myInput {
     background-image: url('search.png'); 
     background-position: 5px 6px; 
@@ -30,4 +33,39 @@
     padding: 12px 20px 12px 40px; 
     border: 1px solid #ddd; 
     margin-bottom: 12px; 
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    direction: row;
+    margin-top: 15px;
+    position: relative;
+}
+.tab input[type="radio"] { display: none; }
+.tab-title {
+    background: #009879;
+    color: #ffffff;
+    padding: 5px 10px; 
+    border: 1px solid gray;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-right: 2px;
+    font-size: 17px;    
+}
+.tab-content {
+    position: absolute; 
+    left: 0; 
+    width: calc(100% - 0px); 
+    display: none; 
+}
+.tab :checked + .tab-title {
+    position: relative; 
+    color: black;
+    background: #ffffff; 
+    z-index: 1; 
+    box-shadow: inset 0px -1px 0px #009879;
+}
+.tab :checked ~ .tab-content {
+    display: block; 
 }
