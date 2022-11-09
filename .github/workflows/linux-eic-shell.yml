@@ -155,21 +155,29 @@ jobs:
     needs:
       - run_eicrecon_reco_flags-gcc
       - eicrecon-gcc
-
     container:
       image: alpine:latest
       volumes:
         - /home/runner/work/_temp:/home/runner/work/_temp
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
-
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: arches_all_good_flags.json
       - uses: actions/checkout@v3
-      - run: |
+
+      - name: Download flags json files
+        uses: actions/download-artifact@v3
+        with:
+          id: all_good_flags_download
+          name: arches_all_good_flags.json
+
+      - name: Build flags table
+        run: |
+          pwd
           ls -ll
           ls src/tools/default_flags_table/gen_markdown_tables.py
+          echo "---------------------"
+          ls -R
+          echo "---------------------"
+          echo ${{steps.all_good_flags_download.outputs.download-path}}
           
 
   # build-docs and deploy-docs copy doxygen.yml functionality
@@ -197,7 +205,6 @@ jobs:
           path: publishing_docs/
           if-no-files-found: error
       - run:
-
           apk add tar bash
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
       - uses: actions/upload-pages-artifact@v1
