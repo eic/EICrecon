@@ -14,6 +14,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # This job is to build postprocessing of artifacts from EICrecon runs
+  test-python3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test python3 xists
+        run: |
+          python3 --version
+
   build-gcc:
     runs-on: ubuntu-latest
     steps:
