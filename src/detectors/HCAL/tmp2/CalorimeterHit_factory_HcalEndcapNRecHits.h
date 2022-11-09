@@ -42,7 +42,7 @@ public:
         m_geoSvcName="geoServiceName";
         m_readout="HcalEndcapNHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
-        m_sectorField="sector";       // from ATHENA's reconstruction.py
+        m_sectorField="";             // from ATHENA's reconstruction.py
 
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
