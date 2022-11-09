@@ -155,18 +155,22 @@ jobs:
     needs:
       - run_eicrecon_reco_flags-gcc
       - eicrecon-gcc
+
+    container:
+      image: alpine:latest
+      volumes:
+        - /home/runner/work/_temp:/home/runner/work/_temp
+      # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
+
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: arches_all_good_flags.json
-      - uses: cvmfs-contrib/github-action-cvmfs@v3
-      - uses: eic/run-cvmfs-osg-eic-shell@main
-        with:
-          platform-release: "jug_xl:nightly"
-          setup: /opt/detector/setup.sh
-          run: |
-            ls -ll
-            ls src/tools/default_flags_table/gen_markdown_tables.py
+      - uses: actions/checkout@v3
+      - run: |
+          ls -ll
+          ls src/tools/default_flags_table/gen_markdown_tables.py
+          
 
   # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
