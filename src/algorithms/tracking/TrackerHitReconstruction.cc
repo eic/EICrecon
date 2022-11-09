@@ -55,7 +55,7 @@ edm4eic::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const edm4eic::
          {static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm), static_cast<float>(pos.z() / mm)}, // mm
          {get_variance(dim[0] / mm), get_variance(dim[1] / mm), // variance (see note above)
           std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.},
-            static_cast<float>(raw_hit->getTimeStamp() / 1000), // ns
+            static_cast<float>((double)(raw_hit->getTimeStamp()) / 1000.0), // ns
          m_cfg.time_resolution,                            // in ns
          static_cast<float>(raw_hit->getCharge() / 1.0e6),   // Collected energy (GeV)
          0.0F);                                       // Error on the energy
