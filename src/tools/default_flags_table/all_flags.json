@@ -2,7 +2,7 @@
      ["acts:InitLogLevel", "info", "log_level: trace, debug, info, warn, error, critical, off"]
     ,["acts:LogLevel", "info", "log_level: trace, debug, info, warn, error, critical, off"]
     ,["acts:MaterialMap", "", ""]
-    ,["BEMC:EcalBarrelClusters:depthCorrection", "0", ""]
+    ,["BEMC:EcalBarrelClusters:depthCorrection", "1", ""]
     ,["BEMC:EcalBarrelClusters:enableEtaBounds", "0", ""]
     ,["BEMC:EcalBarrelClusters:energyWeight", "log", ""]
     ,["BEMC:EcalBarrelClusters:input_protoclust_tag", "EcalBarrelIslandProtoClusters", ""]

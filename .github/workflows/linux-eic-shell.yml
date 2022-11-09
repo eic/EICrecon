@@ -101,11 +101,16 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.detector_config }}_flags.json
+        path: ${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
 
   run_eicrecon_reco_flags-gcc:
@@ -132,9 +137,93 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }}          
+          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }} -Pdump_flags:json=${{ matrix.detector_config }}_right_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
         if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.detector_config }}_right_flags.json
+        path: ${{ matrix.detector_config }}_right_flags.json
+        if-no-files-found: error
+
+  # This job is to build postprocessing of artifacts from EICrecon runs
+  generate-report:
+    runs-on: ubuntu-latest
+    needs:
+      - run_eicrecon_reco_flags-gcc
+      - eicrecon-gcc
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: arches_flags.json
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: arches_right_flags.json
+
+      - name: Build flags table
+        run: |
+          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=arches_flags.json --good-flags=arches_right_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flags.md
+          path: flags.md
+          if-no-files-found: error
+
+  # build-docs and deploy-docs copy doxygen.yml functionality
+  # the difference is that these jobs use resulting artifacts from EICrecon runs
+  # to embed into docs
+  build-docs-advanced:
+    needs:
+      - generate-report
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+      volumes:
+        - /home/runner/work/_temp:/home/runner/work/_temp
+      # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: flags.md
+      - run: |
+          apk add doxygen graphviz
+          doxygen Doxyfile
+          cp flags.md docs/table_flags/flags.md
+          cp -r docs publishing_docs
+          mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: error
+      - run:
+          apk add tar bash
+        # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
+      - uses: actions/upload-pages-artifact@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: publishing_docs/
+          retention-days: 7
+
+  deploy-docs-advanced:
+    needs: build-docs-advanced
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
