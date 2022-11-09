@@ -10,8 +10,7 @@
 
 void TrackingResult_factory::Init() {
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-    std::string param_prefix = plugin_name+ ":" + GetTag();
+    std::string param_prefix = GetDefaultParameterPrefix();
 
     // Set input data tags properly
     InitDataTags(param_prefix);
@@ -30,8 +29,13 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
     // Now we check that user provided an input names
     std::string input_tag = GetInputTags()[0];
 
-    // Collect all hits
-    auto trajectories = event->Get<Jug::Trajectories>(input_tag);
-    auto result = m_particle_maker_algo.execute(trajectories);
-    Insert(result);
+    try {
+        // Collect all hits
+        auto trajectories = event->Get<Jug::Trajectories>(input_tag);
+        auto result = m_particle_maker_algo.execute(trajectories);
+        Insert(result);
+    }
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event will be skipped", e.what());
+    }
 }

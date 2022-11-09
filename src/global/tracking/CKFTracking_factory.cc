@@ -56,12 +56,6 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         acts_track_params.push_back(*track_params_item);
     }
 
-    // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
-    // while no other output is coming which makes it look like something is wrong. Disable the ticker
-    // while parsing and loading the geometry
-    auto tickerEnabled = GetApplication()->IsTickerEnabled();
-    GetApplication()->SetTicker( false );
-
 
     // Convert vector of source links to a sorted in geometry order container used in tracking
     Jug::IndexSourceLinkContainer source_links;
@@ -83,15 +77,19 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     m_log->debug("Measurements count: {}", source_linker_result->measurements->size());
     m_log->debug("Diving into tracking...");
 
-    // RUN TRACKING ALGORITHM
-    auto trajectories = m_tracking_algo.process(
-            source_links,
-            *source_linker_result->measurements,
-            acts_track_params);
+    try {
 
-    // Save the result
-    Set(trajectories);
+        // RUN TRACKING ALGORITHM
+        auto trajectories = m_tracking_algo.process(
+                source_links,
+                *source_linker_result->measurements,
+                acts_track_params);
 
-    // Enable ticker back
-    GetApplication()->SetTicker(tickerEnabled);
+        // Save the result
+        Set(trajectories);
+    }
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event will be skipped", e.what());
+    }
+
 }

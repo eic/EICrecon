@@ -63,12 +63,17 @@ namespace eicrecon {
         }
         m_log->debug("TrackerSourceLinker_factory::Process");
 
-        auto result = m_source_linker.produce(total_hits);
+        try {
+            auto result = m_source_linker.produce(total_hits);
 
-        for(auto sourceLink: result->sourceLinks) {
-            m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(), sourceLink->geometryId().value());
+            for (auto sourceLink: result->sourceLinks) {
+                m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(),
+                             sourceLink->geometryId().value());
+            }
+            Insert(result);
         }
-
-        Insert(result);
+        catch(std::exception &e) {
+            m_log->warn("Exception in underlying algorithm: {}. Event will be skipped", e.what());
+        }
     }
 } // eicrecon

@@ -6,7 +6,8 @@
 #define EICRECON_TrackParamTruthInit_factory_H
 
 #include <spdlog/spdlog.h>
-#include "extensions/jana/JChainFactoryT.h"
+#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
 #include <algorithms/tracking/TrackParamTruthInit.h>
 
@@ -14,7 +15,8 @@
 
 namespace eicrecon {
 
-class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters> {
+class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters>,
+        public SpdlogMixin<TrackParamTruthInit_factory>  {
 
     public:
         TrackParamTruthInit_factory( std::vector<std::string> default_input_tags):
@@ -32,13 +34,7 @@ class TrackParamTruthInit_factory : public JChainFactoryT<Jug::TrackParameters> 
 
     private:
 
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-
-        int m_verbose;                                      /// verbosity 0-none, 1-default, 2-debug, 3-trace
-        std::vector<std::string> m_input_tags;              /// Tag for the input data
-
         eicrecon::TrackParamTruthInit m_truth_track_seeding_algo;  /// Truth track seeding algorithm
-
     };
 
 } // eicrecon

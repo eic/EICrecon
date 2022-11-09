@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <JANA/JFactoryT.h>
+#include "extensions/string/StringHelpers.h"
 
 
 /// This struct might be used for factories that has no underlying config class
@@ -63,6 +64,14 @@ public:
 
     /// Gets config
     ConfigT& GetDefaultConfig() { return m_default_cfg; }
+
+    /// Get default prefix name
+    std::string GetDefaultParameterPrefix() {
+        std::string plugin_name = eicrecon::str::ReplaceAll(this->GetPluginName(), ".so", "");
+        std::string param_prefix = plugin_name+ ":" + this->GetTag();
+        return std::move(param_prefix);
+    }
+
 
 protected:
 
