@@ -99,9 +99,10 @@ void DumpFlags_processor::Finish()
 
         // form json content string
         std::string json_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "\"", "'");
-        json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\"]\n",
+        json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n",
                                     line_num++==0?' ': ',',
                                     param->GetKey(),
+                                    param->GetValue(),
                                     param->GetDefault(),
                                     json_escaped_descr);
 
