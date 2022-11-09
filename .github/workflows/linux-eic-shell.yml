@@ -163,22 +163,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download flags json files
-        uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v3
         with:
-          id: all_good_flags_download
+          name: arches_all_flags.json
+
+      - uses: actions/download-artifact@v3
+        with:
           name: arches_all_good_flags.json
 
       - name: Build flags table
         run: |
-          pwd
-          ls -ll
-          ls src/tools/default_flags_table/gen_markdown_tables.py
-          echo "---------------------"
-          ls -R
-          echo "---------------------"
-          echo ${{steps.all_good_flags_download.outputs.download-path}}
-          
+          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=src/tools/default_flags_table/arches_all_flags.json --good-flags=src/tools/default_flags_table/arches_all_good_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flags.md
+          path: flags.md
+          if-no-files-found: error
 
   # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
