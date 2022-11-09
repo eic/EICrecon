@@ -173,7 +173,7 @@ jobs:
 
       - name: Build flags table
         run: |
-          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=src/tools/default_flags_table/arches_flags.json --good-flags=src/tools/default_flags_table/arches_right_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
+          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=arches_flags.json --good-flags=arches_right_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
 
       - uses: actions/upload-artifact@v3
         with:
