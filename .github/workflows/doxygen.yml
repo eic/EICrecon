@@ -7,9 +7,6 @@ on:
 
 jobs:
   build-docs:
-    needs:
-      - run_eicrecon_reco_flags-gcc
-      - eicrecon-gcc
     runs-on: ubuntu-latest
     container:
       image: alpine:latest

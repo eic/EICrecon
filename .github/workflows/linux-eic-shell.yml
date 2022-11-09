@@ -137,7 +137,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }} -Pdump_flags:json=${{ matrix.detector_config }}_all_good_flags.json
+          $PWD/bin/run_eicrecon_reco_flags.py sim_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_pi_1GeV_20GeV_${{ matrix.detector_config }} -Pdump_flags:json=${{ matrix.detector_config }}_right_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_pi_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -145,8 +145,8 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.detector_config }}_all_good_flags.json
-        path: ${{ matrix.detector_config }}_all_good_flags.json
+        name: ${{ matrix.detector_config }}_right_flags.json
+        path: ${{ matrix.detector_config }}_right_flags.json
         if-no-files-found: error
 
   # This job is to build postprocessing of artifacts from EICrecon runs
@@ -165,15 +165,15 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: arches_all_flags.json
+          name: arches_flags.json
 
       - uses: actions/download-artifact@v3
         with:
-          name: arches_all_good_flags.json
+          name: arches_right_flags.json
 
       - name: Build flags table
         run: |
-          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=src/tools/default_flags_table/arches_all_flags.json --good-flags=src/tools/default_flags_table/arches_all_good_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
+          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=src/tools/default_flags_table/arches_flags.json --good-flags=src/tools/default_flags_table/arches_right_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
 
       - uses: actions/upload-artifact@v3
         with:
@@ -195,9 +195,13 @@ jobs:
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: flags.md
       - run: |
           apk add doxygen graphviz
-          doxygen Doxyfile        
+          doxygen Doxyfile
+          cp flags.md docs/table_flags/flags.md
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/upload-artifact@v3
