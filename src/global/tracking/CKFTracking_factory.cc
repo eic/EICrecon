@@ -83,14 +83,19 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     m_log->debug("Measurements count: {}", source_linker_result->measurements->size());
     m_log->debug("Diving into tracking...");
 
-    // RUN TRACKING ALGORITHM
-    auto trajectories = m_tracking_algo.process(
-            source_links,
-            *source_linker_result->measurements,
-            acts_track_params);
+    try {
+        // RUN TRACKING ALGORITHM
+        auto trajectories = m_tracking_algo.process(
+                source_links,
+                *source_linker_result->measurements,
+                acts_track_params);
 
-    // Save the result
-    Set(trajectories);
+        // Save the result
+        Set(trajectories);
+    }
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
 
     // Enable ticker back
     GetApplication()->SetTicker(tickerEnabled);

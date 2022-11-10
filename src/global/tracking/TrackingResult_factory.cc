@@ -36,6 +36,6 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
         Insert(result);
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event will be skipped", e.what());
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
     }
 }
