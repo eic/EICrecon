@@ -160,9 +160,6 @@ public:
 };
 
 
-
-
-
 // The following just makes this a JANA plugin
 extern "C" {
     void InitPlugin(JApplication *app) {
