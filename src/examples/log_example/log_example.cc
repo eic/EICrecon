@@ -8,6 +8,7 @@
 
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
 // This header is important if you want to print objects with custom overloaded ostr stream operator
 // i.e. objects that knows how to print self when used with cout<<object
@@ -15,8 +16,35 @@
 // You don't need this header most of the time (until you see a compilation error)
 // #include <spdlog/fmt/ostr.h>
 
+// SpdLog mixin example
+// This is the recommended way to deal with logger in your classes
+//
+class MyLoggingProcessor:
+        public JEventProcessor,
+        public eicrecon::SpdlogMixin<MyLoggingProcessor> {
+
+public:
+    MyLoggingProcessor() { SetTypeName(NAME_OF_THIS); }
+
+    void Init() override {
+        // Initialize logger
+        InitLogger("log_example");
+        m_log->info("Hello world!");
+    }
+
+
+
+    void Process(const std::shared_ptr<const JEvent>& event) override {
+        /// The function is executed every event
+
+    }
+
+    void Finish() override {}
+};
+
 
 /// This class is used to demonstrate different logging aspects
+/// Extended example
 class LogServiceProcessor: public JEventProcessor {
 private:
     std::shared_ptr<spdlog::logger> m_log;
@@ -48,7 +76,7 @@ public:
         // critical - imminent software failure and termination
 
         // connect log level with plugin parameter
-        std::string log_level_str = "info";
+        std::string log_level_str = log_service->getDefaultLevelStr();
 
         // Ask service locator for parameter manager. We want to get this plugin parameters.
         auto pm = app->GetJParameterManager();
@@ -58,6 +86,9 @@ public:
 
         // convert input std::string to spdlog::level::level_enum and set logger level
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+        // convert log level back to string
+        m_log->info("Hello world! My log level is: '{}'", eicrecon::LogLevelToString(m_log->level()));
 
         // Log formatting examples:
         PrintFormatExamples();
@@ -128,11 +159,16 @@ public:
     void Finish() override {}
 };
 
+
+
+
+
 // The following just makes this a JANA plugin
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
         app->Add(new LogServiceProcessor);
+        app->Add(new MyLoggingProcessor);
     }
 }
     
