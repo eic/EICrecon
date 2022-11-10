@@ -24,9 +24,9 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 {
-    m_logger=logger;
+    m_log=logger;
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
     };
@@ -38,7 +38,7 @@ void PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logg
     auto sc2 = m_rngNorm;//m_rngNorm.initialize(randSvc, Rndm::Gauss(0., 1.));
     //if (!sc1.isSuccess() || !sc2.isSuccess()) {
     if (!sc1 || !sc2) {
-        m_logger->error("Cannot initialize random generator!");
+        m_log->error("Cannot initialize random generator!");
         japp->Quit();
     }
 
@@ -50,7 +50,7 @@ void PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logg
 //------------------------
 // AlgorithmChangeRun
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmChangeRun() {
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
     /// This is automatically run before Process, when a new run number is seen
     /// Usually we update our calibration constants by asking a JService
     /// to give us the latest data for this run number
@@ -59,18 +59,17 @@ void PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmProcess()  {
+std::vector<edm4eic::RawPMTHit*>
+eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
 
-        // input collection
-        //const auto &sim = *m_inputHitCollection.get();
-        // Create output collections
-        //auto &raw = *m_outputHitCollection.createAndPut();
-
-        struct HitData { int npe; double signal; double time; };
+        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
+        struct HitData { uint32_t npe; double signal; double time; };
         std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        for(const auto& ahit : simhits) {
+        for(const auto& ahit : sim_hits) {
+            // m_log->trace("{:-<60}","Simulation Hit");
+            // m_log->trace("  {:>20}: {}\n", "EDep", ahit->getEDep()/eV);
             // quantum efficiency
             if (!qe_pass(ahit->getEDep(), m_rngUni())) {
                 continue;
@@ -78,14 +77,14 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
             // cell id, time, signal amplitude
             uint64_t id = ahit->getCellID();
             double time = ahit->getTime();//ahit->getMCParticle().getTime();
-            double amp = m_speMean + m_rngNorm()*m_speError;
+            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
 
             // group hits
             auto it = hit_groups.find(id);
             if (it != hit_groups.end()) {
                 size_t i = 0;
                 for (auto git = it->second.begin(); git != it->second.end(); ++git, ++i) {
-                    if (std::abs(time - git->time) <= (m_hitTimeWindow/ns)) {
+                    if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow/ns)) {
                         git->npe += 1;
                         git->signal += amp;
                         break;
@@ -93,30 +92,41 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_pedMean + m_pedError*m_rngNorm(), time});
+                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time});
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_pedMean + m_pedError*m_rngNorm(), time}};
+                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time}};
             }
         }
 
-        // build hit
+        // print `hit_groups`
+        if(m_log->level()<=spdlog::level::trace)
+          for(auto &[id,hitVec] : hit_groups)
+            for(auto &hit : hitVec)
+              m_log->trace("pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
+
+        // build raw hits
+        std::vector<edm4eic::RawPMTHit*> raw_hits;
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
                 edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
                   it.first,
                   static_cast<uint32_t>(data.signal), 
-                  static_cast<uint32_t>(data.time/(m_timeStep/ns))};
-                rawhits.push_back(hit);
+                  static_cast<uint32_t>(data.time/(m_cfg.timeStep/ns))
+                };
+                raw_hits.push_back(hit);
             }
         }
-
+        return raw_hits;
         
 }
 
-void  PhotoMultiplierHitDigi::qe_init()
+void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 {
-        auto &qeff = u_quantumEfficiency;
+        // get quantum efficiency table
+        qeff.clear();
+        for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
+          qeff.push_back({ 1239.84*eV*nm / wl, qe }); // convert wavelength -> energy
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),
@@ -124,21 +134,27 @@ void  PhotoMultiplierHitDigi::qe_init()
                 return v1.first < v2.first;
             });
 
+        // print the table
+        m_log->trace("{:=^60}"," Quantum Efficiency ");
+        for(auto& [en,qe] : qeff)
+          m_log->trace("  {:>10} {:<}",en/eV,qe);
+        m_log->trace("{:=^60}","");
+
         // sanity checks
         if (qeff.empty()) {
             qeff = {{2.6*eV, 0.3}, {7.0*eV, 0.3}};
-            m_logger->warn("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
+            m_log->warn("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
         }
         if (qeff.front().first > 3.0*eV) {
-            m_logger->warn("Quantum efficiency data start from {:.2f} {}", qeff.front().first/eV , " eV, maybe you are using wrong units?");
+            m_log->warn("Quantum efficiency data start from {:.2f} {}", qeff.front().first/eV , " eV, maybe you are using wrong units?");
         }
-        if (qeff.back().first < 6.0*eV) {
-            m_logger->warn("Quantum efficiency data end at {:.2f} {}" , qeff.back().first/eV , " eV, maybe you are using wrong units?");
+        if (qeff.back().first < 3.0*eV) {
+            m_log->warn("Quantum efficiency data end at {:.2f} {}" , qeff.back().first/eV , " eV, maybe you are using wrong units?");
         }
 }
 
 
-template<class RndmIter, typename T, class Compare> RndmIter  PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
+template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
 {
         // special cases
         auto dist = std::distance(beg, end);
@@ -164,16 +180,15 @@ template<class RndmIter, typename T, class Compare> RndmIter  PhotoMultiplierHit
         return mid;
 }
 
-bool  PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
+bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 {
-        const auto &qeff = u_quantumEfficiency;
         auto it = interval_search(qeff.begin(), qeff.end(), ev,
                     [] (const std::pair<double, double> &vals, double val) {
                         return vals.first - val;
                     });
 
         if (it == qeff.end()) {
-            // info() << ev/eV << " eV is out of QE data range, assuming 0% efficiency" << endmsg;
+            // m_log->warn("{} eV is out of QE data range, assuming 0\% efficiency",ev/eV);
             return false;
         }
 
@@ -183,6 +198,6 @@ bool  PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
             prob = (it->second*(itn->first - ev) + itn->second*(ev - it->first)) / (itn->first - it->first);
         }
 
-        // info() << ev/eV << " eV, QE: "  << prob*100. << "%" << endmsg;
+        // m_log->trace("{} eV, QE: {}\%",ev/eV,prob*100.);
         return rand <= prob;
 }
