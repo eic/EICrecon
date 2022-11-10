@@ -24,7 +24,7 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 {
     m_logger=logger;
     m_rngNorm = [&](){
@@ -50,7 +50,7 @@ void PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logg
 //------------------------
 // AlgorithmChangeRun
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmChangeRun() {
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
     /// This is automatically run before Process, when a new run number is seen
     /// Usually we update our calibration constants by asking a JService
     /// to give us the latest data for this run number
@@ -59,7 +59,7 @@ void PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-void PhotoMultiplierHitDigi::AlgorithmProcess()  {
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess()  {
 
         // input collection
         //const auto &sim = *m_inputHitCollection.get();
@@ -78,14 +78,14 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
             // cell id, time, signal amplitude
             uint64_t id = ahit->getCellID();
             double time = ahit->getTime();//ahit->getMCParticle().getTime();
-            double amp = m_speMean + m_rngNorm()*m_speError;
+            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
 
             // group hits
             auto it = hit_groups.find(id);
             if (it != hit_groups.end()) {
                 size_t i = 0;
                 for (auto git = it->second.begin(); git != it->second.end(); ++git, ++i) {
-                    if (std::abs(time - git->time) <= (m_hitTimeWindow/ns)) {
+                    if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow/ns)) {
                         git->npe += 1;
                         git->signal += amp;
                         break;
@@ -93,10 +93,10 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_pedMean + m_pedError*m_rngNorm(), time});
+                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time});
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_pedMean + m_pedError*m_rngNorm(), time}};
+                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time}};
             }
         }
 
@@ -106,7 +106,7 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
                 edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
                   it.first,
                   static_cast<uint32_t>(data.signal), 
-                  static_cast<uint32_t>(data.time/(m_timeStep/ns))};
+                  static_cast<uint32_t>(data.time/(m_cfg.timeStep/ns))};
                 rawhits.push_back(hit);
             }
         }
@@ -114,9 +114,9 @@ void PhotoMultiplierHitDigi::AlgorithmProcess()  {
         
 }
 
-void  PhotoMultiplierHitDigi::qe_init()
+void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 {
-        auto &qeff = u_quantumEfficiency;
+        auto &qeff = m_cfg.quantumEfficiency;
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),
@@ -138,7 +138,7 @@ void  PhotoMultiplierHitDigi::qe_init()
 }
 
 
-template<class RndmIter, typename T, class Compare> RndmIter  PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
+template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
 {
         // special cases
         auto dist = std::distance(beg, end);
@@ -164,9 +164,9 @@ template<class RndmIter, typename T, class Compare> RndmIter  PhotoMultiplierHit
         return mid;
 }
 
-bool  PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
+bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 {
-        const auto &qeff = u_quantumEfficiency;
+        const auto &qeff = m_cfg.quantumEfficiency;
         auto it = interval_search(qeff.begin(), qeff.end(), ev,
                     [] (const std::pair<double, double> &vals, double val) {
                         return vals.first - val;
