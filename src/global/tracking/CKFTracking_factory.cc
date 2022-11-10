@@ -50,6 +50,9 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     // Collect all hits
     auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+
+
+
     auto track_parameters = event->Get<Jug::TrackParameters>("InitTrackParams");
     Jug::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {

@@ -75,16 +75,25 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         auto& hit_pos = hit->getPosition();
 
-        // transform global position into local coordinates
-        // geometry context contains nothing here
-        Acts::Vector2 pos = surface->globalToLocal(
-                Acts::GeometryContext(),
-                {hit_pos.x, hit_pos.y, hit_pos.z},
-                {0, 0, 0}).value();
+        Acts::Vector2 loc = Acts::Vector2::Zero();
+        Acts::Vector2 pos;
+        try {
+            // transform global position into local coordinates
+            // geometry context contains nothing here
+            pos = surface->globalToLocal(
+                    Acts::GeometryContext(),
+                    {hit_pos.x, hit_pos.y, hit_pos.z},
+                    {0, 0, 0}).value();
 
-        Acts::Vector2 loc     = Acts::Vector2::Zero();
-        loc[Acts::eBoundLoc0] = pos[0];
-        loc[Acts::eBoundLoc1] = pos[1];
+
+            loc[Acts::eBoundLoc0] = pos[0];
+            loc[Acts::eBoundLoc1] = pos[1];
+        }
+        catch(std::exception &ex) {
+            m_log->warn("Cant convert globalToLocal for hit: vol_id={} CellID={} x={} y={} z={}",
+                        vol_id, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+            continue;
+        }
 
         if (m_log->level() <= spdlog::level::trace) {
             auto volman         = m_acts_context->dd4hepDetector()->volumeManager();
