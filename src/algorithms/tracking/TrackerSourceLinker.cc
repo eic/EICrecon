@@ -58,6 +58,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         const auto* vol_ctx = m_cellid_converter->findContext(hit->getCellID());
         auto vol_id = vol_ctx->identifier;
 
+
         auto surfaceMap = m_acts_context->surfaceMap();
 
         m_log->trace("Hit preparation information: {}", hit_index);
@@ -85,13 +86,13 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
                     {hit_pos.x, hit_pos.y, hit_pos.z},
                     {0, 0, 0}).value();
 
-
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
         }
         catch(std::exception &ex) {
-            m_log->warn("Cant convert globalToLocal for hit: vol_id={} CellID={} x={} y={} z={}",
-                        vol_id, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+
+            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
+                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
             continue;
         }
 
