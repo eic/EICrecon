@@ -12,14 +12,13 @@
 namespace eicrecon {
     void TrackProjector_factory::Init() {
         // This prefix will be used for parameters
-        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-        std::string param_prefix = plugin_name+ ":" + GetTag();
+        std::string param_prefix = GetDefaultParameterPrefix();
 
         // Set input data tags properly
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
+        InitLogger(param_prefix);
 
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
@@ -33,11 +32,15 @@ namespace eicrecon {
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Now we check that user provided an input names
         std::string input_tag = GetInputTags()[0];
-
-        // Collect all hits
         auto trajectories = event->Get<Jug::Trajectories>(input_tag);
-        auto result = m_track_projector_algo.execute(trajectories);
-        Set(result);
+
+        try {
+            auto result = m_track_projector_algo.execute(trajectories);
+            Set(result);
+        }
+        catch(std::exception &e) {
+            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        }
     }
 
 } // eicrecon

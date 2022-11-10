@@ -4,7 +4,7 @@
     <div class="tabs">
         <div class="tab">
             <input type="radio" id="tab1" name="tab-group" checked>
-            <label for="tab1" class="tab-title">Dump flags</label> 
+            <label for="tab1" class="tab-title">EICrecon flags</label> 
             <section class="tab-content">
                 <table id="myTable" class="table_flags">
                     <thead>
@@ -27,7 +27,7 @@
         </div> 
         <div class="tab">
             <input type="radio" id="tab2" name="tab-group">
-            <label for="tab2" class="tab-title">User flags</label> 
+            <label for="tab2" class="tab-title">reco_flags.py</label> 
             <section class="tab-content">
                 <table id="myTable2" class="table_flags">
                     <thead>

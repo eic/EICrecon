@@ -50,6 +50,12 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     // Collect all hits
     auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+
+    if(!source_linker_result) {
+        m_log->warn("TrackerSourceLinkerResult is null (hasn't been produced?). Skipping tracking for the whole event!");
+        return;
+    }
+
     auto track_parameters = event->Get<Jug::TrackParameters>("InitTrackParams");
     Jug::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {
@@ -83,14 +89,19 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     m_log->debug("Measurements count: {}", source_linker_result->measurements->size());
     m_log->debug("Diving into tracking...");
 
-    // RUN TRACKING ALGORITHM
-    auto trajectories = m_tracking_algo.process(
-            source_links,
-            *source_linker_result->measurements,
-            acts_track_params);
+    try {
+        // RUN TRACKING ALGORITHM
+        auto trajectories = m_tracking_algo.process(
+                source_links,
+                *source_linker_result->measurements,
+                acts_track_params);
 
-    // Save the result
-    Set(trajectories);
+        // Save the result
+        Set(trajectories);
+    }
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
 
     // Enable ticker back
     GetApplication()->SetTicker(tickerEnabled);

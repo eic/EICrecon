@@ -1,14 +1,7 @@
 # Usage
 # python3 gen_markdown_tables.py
-#   --all-flags=flags.json
-#   --reco-flags=reco_flags.json
-#   --good-reco-flags=good_reco_flags.json
-#   --template=../../docs/tables/table.in.md
-#   --output=tables.md
-# For CLion debug example from default_flags_table
-# gen_markdown_tables.py
-#    --flags=$ContentRoot$/src/tools/default_flags_table/all_flags.json
-#    --good-flags=$ContentRoot$/src/tools/default_flags_table/all_flags.json
+#    --flags=$ContentRoot$/src/tools/default_flags_table/brycecanyon_flags.json
+#    --good-flags=$ContentRoot$/src/tools/default_flags_table/brycecanyon_right_flags.json
 #    --template=$ContentRoot$/docs/table_flags/flags.in.md
 #    --output=$ContentRoot$/docs/table_flags/flags.md
 
@@ -17,18 +10,21 @@ import argparse
 import re
 
 
-
 reco_prefixes = [
+    "B0ECAL",
     "B0TRK",
     "BEMC",
+    "BTOF",
     "BTRK",
     "BVTX",
     "ECGEM",
+    "ECTOF",
     "ECTRK",
     "EEMC",
     "FOFFMTRK",
     "HCAL",
     "MPGD",
+    "RICH",
     "RPOTS",
     "ZDC",
     "Tracking",
@@ -72,40 +68,34 @@ def gen_html_table(records):
     return table_html
 
 
-def gen_diff_table_html(dump_reco_flags, user_reco_flags):
+def gen_diff_table_html(left_flags, right_flags):
     print("---------------------------\n Difference\n---------------------------")
-    dump_flag_names = [value[0] for value in dump_reco_flags]
-    user_flag_names = [value[0] for value in user_reco_flags]
-    dump_names_only = [name for name in dump_flag_names if name not in user_flag_names]
-    user_names_only = [name for name in user_flag_names if name not in dump_flag_names]
-
-    dump_name_values = {}
-    for r in dump_reco_flags:
-        dump_name_values[r[0]] = r[1]
-
     comparison_table = ""
 
-    for user_reco_flag in user_reco_flags:
-        to_compare_user_flag_name = user_reco_flag[0]
-        to_compare_user_flag_value = user_reco_flag[1]
-        if to_compare_user_flag_name in dump_name_values:
-            to_compare_dump_flag_value = dump_name_values[to_compare_user_flag_name]
-            if to_compare_dump_flag_value != to_compare_user_flag_value:
-                print(f"{to_compare_user_flag_name}: '{to_compare_user_flag_value}' |  '{to_compare_dump_flag_value}'")
-                comparison_table += f"<tr><td>{to_compare_user_flag_name}</td><td>{to_compare_user_flag_value}</td><td>{to_compare_dump_flag_value}</td></tr>"
+    for right_flag in right_flags:
+        right_flag_name = right_flag[0]
+        right_flag_value = right_flag[1]
+        for left_flag in left_flags:
+            left_flag_name = left_flag[0]
+            left_flag_value = left_flag[1]
+            if left_flag_name == right_flag_name:
+                if right_flag_value != left_flag_value:
+                    print(f"{right_flag_name}: '{left_flag_value}' |  '{right_flag_value}'")
+                    comparison_table += f"<tr><td>{right_flag_name}</td><td>{left_flag_value}</td><td>{right_flag_value}</td></tr>"
+                continue
 
     return comparison_table
 
 
-def gen_mardown_page(template_file_name, out_file_name, reco_flags, good_reco_flags, all_flags):
+def gen_mardown_page(template_file_name, out_file_name, current_flags, reference_flags, all_flags):
 
     with open(template_file_name, "r", encoding='utf-8') as in_file:
         input_data = in_file.read()
 
-    reco_flags_table = gen_html_table(reco_flags)
-    good_reco_flags_table = gen_html_table(good_reco_flags)
+    reco_flags_table = gen_html_table(current_flags)
+    good_reco_flags_table = gen_html_table(reference_flags)
     all_flags_table = gen_html_table(all_flags)
-    comparison_table = gen_diff_table_html(reco_flags, good_reco_flags)
+    comparison_table = gen_diff_table_html(current_flags, reference_flags)
 
     templates_to_datasources = {
         "TABLE1": reco_flags_table,
@@ -135,19 +125,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Open all flags
-    all_flags = []
+    eicrecon_all_flags = []
     with open(args.flags) as f:
-        all_flags = json.load(f)
+        eicrecon_all_flags = json.load(f)
 
     # Open file with all good flags
-    good_all_flags = []
+    # rf stands for reco_flags.py
+    reference_all_flags = []
     with open(args.good_flags) as f:
-        good_all_flags = json.load(f)
+        reference_all_flags = json.load(f)
 
     # Filter to have only reco flags
-    reco_flags = filter_only_reco_flags(all_flags)
-    good_reco_flags = filter_only_reco_flags(good_all_flags)
+    eicrecon_reco_flags = filter_only_reco_flags(eicrecon_all_flags)
+    reference_reco_flags = filter_only_reco_flags(reference_all_flags)
 
     # generate markdown page
-    gen_mardown_page(args.template, args.output, reco_flags, good_reco_flags, all_flags)
+    gen_mardown_page(args.template, args.output, eicrecon_reco_flags, reference_reco_flags, eicrecon_all_flags)
 

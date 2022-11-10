@@ -13,27 +13,16 @@
 void TrackerHitReconstruction_factory::Init() {
 
     auto app = GetApplication();
+    auto param_prefix = GetDefaultParameterPrefix();
 
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-    std::string param_prefix = plugin_name+ ":" + GetTag();
+    // Set time resolution
+    app->SetDefaultParameter(param_prefix + ":TimeResolution", m_reco_algo.getConfig().time_resolution, "threshold");
 
-    // Ask service locator for parameter manager. We want to get this plugin parameters.
-    auto pm = app->GetJParameterManager();
-    pm->SetDefaultParameter(param_prefix + ":TimeResolution", m_reco_algo.getConfig().time_resolution, "threshold");
+    // Init logger from default or user parameters
+    InitLogger(param_prefix);
 
-    // Get input data tags
-    pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
-    if(m_input_tags.empty()) {
-        m_input_tags = GetDefaultInputTags();
-    }
-
-    // Logger. Get plugin level sub-log
-    m_log = app->GetService<Log_service>()->logger(param_prefix);
-
-    // Get log level from user parameter or default
-    std::string log_level_str = "info";
-    pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+    // Init input collections tags and read from user parameters
+    InitDataTags(param_prefix);
 
     // get geometry service
     auto geo_service = app->GetService<JDD4hep_service>();
@@ -49,17 +38,20 @@ void TrackerHitReconstruction_factory::ChangeRun(const std::shared_ptr<const JEv
 void TrackerHitReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     // Get RawTrackerHit-s with the proper tag
-    auto raw_hits = event->Get<edm4eic::RawTrackerHit>(m_input_tags[0]);
+    auto raw_hits = event->Get<edm4eic::RawTrackerHit>(GetInputTags()[0]);
 
     // Output array
     std::vector<edm4eic::TrackerHit*> hits;
 
-    // Create output hits using TrackerHitReconstruction algorithm
-    for(auto raw_hit: raw_hits){
-        hits.push_back(m_reco_algo.produce(raw_hit));
+    try {
+        // Create output hits using TrackerHitReconstruction algorithm
+        for(auto raw_hit: raw_hits){
+            hits.push_back(m_reco_algo.produce(raw_hit));
+        }
+        Set(hits);
+        m_log->debug("End of process. Hits count: {}", hits.size());
     }
-
-    Set(hits);
-
-    m_log->debug("End of process. Hits count: {}", hits.size());
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
 }

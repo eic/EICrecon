@@ -73,11 +73,14 @@ namespace eicrecon {
 //            }
         }
 
-        auto result = m_match_algo.execute(mc_particles,
-                                           charged_prt_with_assoc->particles(),
-                                           charged_prt_with_assoc->associations(),
-                                           input_cluster_vectors,
-                                           input_cluster_assoc);
+
+
+
+//        auto result = m_match_algo.execute(mc_particles,
+//                                           charged_prt_with_assoc->particles(),
+//                                           charged_prt_with_assoc->associations(),
+//                                           input_cluster_vectors,
+//                                           input_cluster_assoc);
 
         //std::vector<edm4eic::ReconstructedParticle*> result;
 //        for(size_t i=0; i < tracking_data->particles()->size(); i++) {

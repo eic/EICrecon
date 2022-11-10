@@ -16,32 +16,12 @@
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-    std::string param_prefix = plugin_name+ ":" + GetTag();
+    std::string param_prefix = GetDefaultParameterPrefix();
 
-    // Create plugin level sub-log
-    m_log = spdlog::stdout_color_mt("TrackParamTruthInit_factory");
+    InitLogger(param_prefix);
+    InitDataTags(param_prefix);
 
-    // Ask service locator for parameter manager. We want to get this plugin parameters.
-    auto pm = this->GetApplication()->GetJParameterManager();
-
-    pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-    pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag name");
-
-
-
-    // This level will work for this plugin only
-    switch (m_verbose) {
-        case 0:
-            m_log->set_level(spdlog::level::warn); break;
-        case 2:
-            m_log->set_level(spdlog::level::debug); break;
-        case 3:
-            m_log->set_level(spdlog::level::trace); break;
-        default:
-            m_log->set_level(spdlog::level::info); break;
-    }
-
+    // Initialize underlying algorithm
     m_truth_track_seeding_algo.init(m_log);
 }
 
@@ -50,39 +30,39 @@ void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<cons
 }
 
 void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    // Now we check that user provided an input names
-    std::vector<std::string> &input_tags = m_input_tags;
-    if(input_tags.empty()) {
-        input_tags = GetDefaultInputTags();
-    }
 
     // Get MCParticles
-    auto mc_particles = event->Get<edm4hep::MCParticle>(input_tags[0]);
+    auto mc_particles = event->Get<edm4hep::MCParticle>(GetInputTags()[0]);
 
-    // Produce track parameters out of MCParticles
-    std::vector<Jug::TrackParameters*> results;
-    for(auto mc_particle: mc_particles) {
+    try {
+        // Produce track parameters out of MCParticles
+        std::vector<Jug::TrackParameters *> results;
+        for (auto mc_particle: mc_particles) {
 
-        // Only stable particles from MC
-        if(mc_particle->getGeneratorStatus() != 1 ) continue;
+            // Only stable particles from MC
+            if (mc_particle->getGeneratorStatus() != 1) continue;
 
-        // Do conversion
-        auto result = m_truth_track_seeding_algo.produce(mc_particle);
+            // Do conversion
+            auto result = m_truth_track_seeding_algo.produce(mc_particle);
 
-        if(!result) continue;   // result might be null
+            if (!result) continue;   // result might be null
 
-        results.push_back(result);
+            results.push_back(result);
 
-        // >oO debug output
-        if(m_log->level() <= spdlog::level::debug) {
-            const auto p = std::hypot(mc_particle->getMomentum().x, mc_particle->getMomentum().y, mc_particle->getMomentum().z);
-            const auto charge = result->charge();
-            m_log->debug("Invoke track finding seeded by truth particle with:");
-            m_log->debug("   p =  {} GeV\"", p);
-            m_log->debug("   charge = {}", charge);
-            m_log->debug("   q/p =  {}", charge / p);
+            // >oO debug output
+            if (m_log->level() <= spdlog::level::debug) {
+                const auto p = std::hypot(mc_particle->getMomentum().x, mc_particle->getMomentum().y,
+                                          mc_particle->getMomentum().z);
+                const auto charge = result->charge();
+                m_log->debug("Invoke track finding seeded by truth particle with:");
+                m_log->debug("   p =  {} GeV\"", p);
+                m_log->debug("   charge = {}", charge);
+                m_log->debug("   q/p =  {}", charge / p);
+            }
         }
+        Set(results);
     }
-
-    Set(results);
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
 }
