@@ -35,6 +35,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "RPOTS",
         "BTOF",
         "ECTOF",
+        "LOWQ2",
         "podio",
 };
 
