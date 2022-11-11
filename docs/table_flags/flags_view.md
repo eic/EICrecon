@@ -22,9 +22,9 @@
     <button @click="count -= 1">-</button>
     {{ count }}
     <button @click="count += 1">+</button>
-    <ul>
-        <li v-for="flag in flags">
-            {{ flag[0] }}
-        </li>
-    </ul>
+    <table>
+        <tr v-for="flag in flags">
+            <td>{{ flag[0] }}</td><td v-if="count>0">{{ flag[1] }}</td>
+        </tr>
+    </table>
 </div>
