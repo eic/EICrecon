@@ -131,7 +131,11 @@ void JEventSourcePODIOsimple::Open() {
             auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
             mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  GetResourceName());
             std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
-            std::exit(EXIT_FAILURE);
+#ifdef __APPLE__
+            std::exit(EXIT_FAILURE);  // macos does notsupport _exit()
+#else
+           _exit(-1);  // exit while bypassing exit handlers
+#endif
         }
 
         // Have PODIO reader open file and get the number of events from it.
