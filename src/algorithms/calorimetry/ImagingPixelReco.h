@@ -85,7 +85,7 @@ public:
         }
 
         // unitless conversion
-        dyRangeADC = m_dyRangeADC / dd4hep::GeV;
+        dyRangeADC = m_dyRangeADC;
     }
 
     void execute() {

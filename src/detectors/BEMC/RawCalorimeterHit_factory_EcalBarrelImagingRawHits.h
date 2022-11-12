@@ -40,9 +40,9 @@ public:
         u_eRes = {0.0, 0.02, 0.0};
         m_tRes = 0.0 * ns;
         m_capADC = 8192;
-        m_dyRangeADC = 100 * MeV;
+        m_dyRangeADC = 3 * MeV;
         m_pedMeanADC = 100;
-        m_pedSigmaADC = 3.2;
+        m_pedSigmaADC = 14;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
