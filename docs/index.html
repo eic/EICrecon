@@ -16,6 +16,7 @@
           rel="stylesheet"
           href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
           title="vue"
+          rel="stylesheet" href="table_flags/flags_style.css"
   />
 
 </head>
@@ -38,7 +39,7 @@
         for (i = 1; i < tr.length; i++) {
           tr[i].style.display = "none";
           for(var j=0; j<th.length; j++){
-            td = tr[i].getElementsByTagName("td")[j];      
+            td = tr[i].getElementsByTagName("td")[j];
             if (td) {
               if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1)                               {
                 tr[i].style.display = "";
