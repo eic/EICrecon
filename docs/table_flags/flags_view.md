@@ -20,22 +20,70 @@
               // flag_name: true,
               // flag_value: false,
               flags: {},
-              isHidden: false
-
+              isHidden: false,
           };
       },
-
       created() {
           fetch('arches_flags.json')
               .then(response => response.json())
-              .then(data => (this.flags = data))
+              .then(data => {
+                  const recoPrefixes = [
+                      "B0ECAL",
+                      "B0TRK",
+                      "BEMC",
+                      "BTOF",
+                      "BTRK",
+                      "BVTX",
+                      "ECGEM",
+                      "ECTOF",
+                      "ECTRK",
+                      "EEMC",
+                      "FOFFMTRK",
+                      "HCAL",
+                      "MPGD",
+                      "RICH",
+                      "RPOTS",
+                      "ZDC",
+                      "Tracking",
+                      "Reco",
+                      "Digi",
+                      "Calorimetry"
+                  ];
+
+                  let filtredData = data.filter(el => {
+                      /*
+                                                   for r in all_records
+                             if r[0].casefold().startswith(reco_prefix.lower())
+                             and 'LogLevel' not in r[0]
+                             and 'InputTags' not in r[0]
+                             and 'input_tags' not in r[0]
+                             and 'verbose' not in r[0]]
+                       */
+
+                      for(let i=0; i<recoPrefixes.length; i++) {
+                          let prefix = recoPrefixes[i];
+                          console.log(prefix.toUpperCase());
+                          if(el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
+                              return true;
+                          }
+                      }
+                      return false;
+                  });
+
+                  this.flags = filtredData;
+              })
               .catch(err => console.log(err));
-      }
+      },
+      computed: {
+          filteredMovies() {
+              return this.movies.filter((movie) => movie.director.id === 18);
+          },
+      },
   });
 </script>
 
 <div id="example_vue">
-    <button type="button" v-on:click="isHidden = true" v-on:click="isHidden = !isHidden">Flag name</button>
+    <button type="button" v-on:click="isHidden = !isHidden">Flag name</button>
 <!--    <button type="button" v-on:click="multiple">Flag name</button>-->
     <button @click=true>Flag value</button>
     <table>
