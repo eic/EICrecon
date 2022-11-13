@@ -24,28 +24,30 @@
   <div id="app"></div>
   <script>
     function filterTableRowsByInput(inputId, tableClass) {
+      const input = document.getElementById(inputId);
+      const filter = input.value;
+      const tables = document.getElementsByClassName(tableClass);
 
-      
+      // We may have multiple tables, iterate through them
+      for(let table_idx=0; table_idx < tables.length; table_idx++){
+        const table = tables[table_idx];
+        const tableRows = table.getElementsByTagName("tr");
+        const tableHeaders = table.getElementsByTagName("th");
 
-      var input, filter, table, tr, td, i, txtValue, n;
-      input = document.getElementById(inputId);
-      filter = input.value.toUpperCase();
-      table = document.getElementsByClassName(tableClass);
+        // Iterate rows
+        for (let row_idx=1; row_idx < tableRows.length; row_idx++) {
+          const row = tableRows[row_idx];
+          row.style.display = "none";
 
-      for(var r = 0; r < table.length; r++){
-        tr = table[r].getElementsByTagName("tr");
-        th = table[r].getElementsByTagName("th");
-
-        for (i = 1; i < tr.length; i++) {
-          tr[i].style.display = "none";
-          for(var j=0; j<th.length; j++){
-            td = tr[i].getElementsByTagName("td")[j];
+          // Check column values to decide to switch rows
+          for(let col_idx=0; col_idx < tableHeaders.length; col_idx++){
+            const td = row.getElementsByTagName("td")[col_idx];
             if (td) {
-              if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1)                               {
-                tr[i].style.display = "";
-                  break;
-                  }
-                }
+              if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                row.style.display = "";
+                break;
+              }
+            }
           }
         }
       }
