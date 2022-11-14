@@ -49,9 +49,12 @@
                       "Digi",
                       "Calorimetry"
                   ];
-
-                  let filtredData = data.filter(el => {
-                      /*
+              }).catch(err => console.log(err));
+      },
+      computed: {
+          filteredFlags() {
+              let filtredData = data.filter(el => {
+                  /*
                                                    for r in all_records
                              if r[0].casefold().startswith(reco_prefix.lower())
                              and 'LogLevel' not in r[0]
@@ -60,48 +63,43 @@
                              and 'verbose' not in r[0]]
                        */
 
-                      for(let i=0; i<recoPrefixes.length; i++) {
-                          let prefix = recoPrefixes[i];
-                          console.log(prefix.toUpperCase());
-                          if(el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
-                              return true;
-                          }
+                  for (let i = 0; i < recoPrefixes.length; i++) {
+                      let prefix = recoPrefixes[i];
+                      console.log(prefix.toUpperCase());
+                      if (el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
+                          return true;
                       }
-                      return false;
-                  });
-
-                  this.flags = filtredData;
+                  }
+                  return false;
               })
-              .catch(err => console.log(err));
-      },
-      computed: {
-          filteredMovies() {
-              return this.movies.filter((movie) => movie.director.id === 18);
+              this.flags = filtredData;
           },
+
       },
   });
 </script>
 
 <div id="example_vue">
     <button type="button" v-on:click="isHidden = !isHidden">Flag name</button>
-<!--    <button type="button" v-on:click="multiple">Flag name</button>-->
-    <button @click=true>Flag value</button>
+    <button type="button" v-on:click="isHidden = !isHidden">Default value</button>
+    <button type="button" v-on:click="isHidden = !isHidden">User value</button>
+    <button type="button" v-on:click="isHidden = !isHidden">Description</button>
+    <input type="text" id="myInput" onkeyup="filterTableRowsByInput('myInput', ['table_flags'])" placeholder="Search for names..">
     <table>
         <thead>
             <tr>
-                <th v-if="!isHidden">Flag name</th>
-                <th ref="th">Default value</th>
-<!--                <th>Description</th>-->
-<!--                <th>Description</th>-->
+                <th v-show="!isHidden">Flag name</th>
+                <th v-if="!isHidden">Default value</th>
+                <th v-if="!isHidden">User value</th>
+                <th v-if="!isHidden">Description</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="flag in flags">
                 <td v-if="!isHidden">{{ flag[0] }}</td>
-                <td ref="td">{{ flag[1] }}</td>
-<!--                <td>{{ flag[2] }}</td>-->
-<!--                <td>{{ flag[3] }}</td>-->
-<!--                <td v-if="flag_value">{{ flag[1] }}</td>-->
+                <td v-if="!isHidden">{{ flag[1] }}</td>
+                <td v-if="!isHidden">{{ flag[2] }}</td>
+                <td v-if="!isHidden">{{ flag[3] }}</td>
             </tr>
         </tbody>
     </table>
