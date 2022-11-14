@@ -1,80 +1,78 @@
 <!-- Vue 2.x  -->
 <script>
   new Vue({
-    el: '#example_vue',
+      el: '#example_vue',
     // Options...
       methods: {
-        multiple: function (event) {
-          this.hide()
-          this.show()
-        },
-        hide:  function (event) {
-
-        },
-        show: function (event) {
-
-        }
+            multiple: function (event) {
+              this.hide()
+              this.show()
+            },
+            hide:  function (event) { },
+            show: function (event) { }
       },
       data() {
           return {
               // flag_name: true,
               // flag_value: false,
               flags: {},
+              recoPrefixes: [],
               isHidden: false,
           };
       },
       created() {
+          // Read json flags
           fetch('arches_flags.json')
               .then(response => response.json())
-              .then(data => {
-                  const recoPrefixes = [
-                      "B0ECAL",
-                      "B0TRK",
-                      "BEMC",
-                      "BTOF",
-                      "BTRK",
-                      "BVTX",
-                      "ECGEM",
-                      "ECTOF",
-                      "ECTRK",
-                      "EEMC",
-                      "FOFFMTRK",
-                      "HCAL",
-                      "MPGD",
-                      "RICH",
-                      "RPOTS",
-                      "ZDC",
-                      "Tracking",
-                      "Reco",
-                      "Digi",
-                      "Calorimetry"
-                  ];
-              }).catch(err => console.log(err));
+              .then(data => self.flags = data)
+              .catch(err => console.log(err));
+
+          // Define reconstruction flags prefixes
+          this.recoPrefixes = [
+              "B0ECAL",
+              "B0TRK",
+              "BEMC",
+              "BTOF",
+              "BTRK",
+              "BVTX",
+              "ECGEM",
+              "ECTOF",
+              "ECTRK",
+              "EEMC",
+              "FOFFMTRK",
+              "HCAL",
+              "MPGD",
+              "RICH",
+              "RPOTS",
+              "ZDC",
+              "Tracking",
+              "Reco",
+              "Digi",
+              "Calorimetry"
+          ];
       },
       computed: {
           filteredFlags() {
-              let filtredData = data.filter(el => {
-                  /*
-                                                   for r in all_records
-                             if r[0].casefold().startswith(reco_prefix.lower())
-                             and 'LogLevel' not in r[0]
-                             and 'InputTags' not in r[0]
-                             and 'input_tags' not in r[0]
-                             and 'verbose' not in r[0]]
-                       */
+              let prefixes = this.recoPrefixes;
+               return this.flags.filter(el => {
+                   /*
+                                                    for r in all_records
+                              if r[0].casefold().startswith(reco_prefix.lower())
+                              and 'LogLevel' not in r[0]
+                              and 'InputTags' not in r[0]
+                              and 'input_tags' not in r[0]
+                              and 'verbose' not in r[0]]
+                        */
 
-                  for (let i = 0; i < recoPrefixes.length; i++) {
-                      let prefix = recoPrefixes[i];
-                      console.log(prefix.toUpperCase());
-                      if (el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
-                          return true;
-                      }
-                  }
-                  return false;
-              })
-              this.flags = filtredData;
+                   for (let prefix of prefixes) {
+                       console.log(prefix.toUpperCase());
+                       if (el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
+                           return true;
+                       }
+                   }
+                   return false;
+               });
           },
-
       },
   });
 </script>
