@@ -15,18 +15,19 @@
           return {
               // flag_name: true,
               // flag_value: false,
-              flags: {},
+              flags: [],
               recoPrefixes: [],
-              isHidden: false,
+              isHidden:false,
+              isHiddenDefaultValue: false,
+              showRecoOnly: false
           };
       },
       created() {
           // Read json flags
           fetch('arches_flags.json')
               .then(response => response.json())
-              .then(data => self.flags = data)
+              .then(data => (this.flags = data))
               .catch(err => console.log(err));
-
           // Define reconstruction flags prefixes
           this.recoPrefixes = [
               "B0ECAL",
@@ -55,6 +56,13 @@
           filteredFlags() {
               let prefixes = this.recoPrefixes;
                return this.flags.filter(el => {
+                   if(el[0] === "podio:output_include_collections") {
+                       return false; // Zhudko krivoy kostil
+                   }
+
+                   if(!this.showRecoOnly) {
+                       return true;   // We are not filtering and return everything
+                   }
                    /*
                                                     for r in all_records
                               if r[0].casefold().startswith(reco_prefix.lower())
@@ -64,8 +72,8 @@
                               and 'verbose' not in r[0]]
                         */
 
+
                    for (let prefix of prefixes) {
-                       console.log(prefix.toUpperCase());
                        if (el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
                            return true;
                        }
@@ -78,7 +86,17 @@
 </script>
 
 <div id="example_vue">
-    <button type="button" v-on:click="isHidden = !isHidden">Flag name</button>
+    <div>
+        <div class="toggleWrapper">
+            <input type="checkbox" name="toggle1" class="mobileToggle" id="toggle1" v-model="showRecoOnly">
+            <label for="toggle1"></label>
+        </div>
+        <div class="toggleWrapper">
+            <input type="checkbox" name="toggle2" class="mobileToggle" id="toggle2" v-model="isHiddenDefaultValue">
+            <label for="toggle2"></label>
+        </div>
+    </div>
+    <button type="button" v-on:click="showRecoOnly = !showRecoOnly">Flag name</button>
     <button type="button" v-on:click="isHidden = !isHidden">Default value</button>
     <button type="button" v-on:click="isHidden = !isHidden">User value</button>
     <button type="button" v-on:click="isHidden = !isHidden">Description</button>
@@ -87,17 +105,17 @@
         <thead>
             <tr>
                 <th v-show="!isHidden">Flag name</th>
-                <th v-if="!isHidden">Default value</th>
+                <th v-if="!isHiddenDefaultValue">Default value</th>
                 <th v-if="!isHidden">User value</th>
                 <th v-if="!isHidden">Description</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="flag in flags">
-                <td v-if="!isHidden">{{ flag[0] }}</td>
-                <td v-if="!isHidden">{{ flag[1] }}</td>
+            <tr v-for="flag in filteredFlags">
+                <td >{{ flag[0] }}</td>
+                <td v-if="!isHiddenDefaultValue">{{ flag[1] }}</td>
                 <td v-if="!isHidden">{{ flag[2] }}</td>
-                <td v-if="!isHidden">{{ flag[3] }}</td>
+                <td >{{ flag[3] }}</td>
             </tr>
         </tbody>
     </table>
