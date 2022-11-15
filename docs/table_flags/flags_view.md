@@ -19,6 +19,8 @@
               recoPrefixes: [],
               isHidden:false,
               isHiddenDefaultValue: false,
+              isHiddenValue: false,
+              isHiddenDescription: false,
               showRecoOnly: false
           };
       },
@@ -86,7 +88,13 @@
 </script>
 
 <div id="example_vue">
-    <div>
+    <div class="radio_btn_name">
+        <div>Filtered flags</div>
+        <div>Default value</div>
+        <div>User value</div>
+        <div>Description</div>
+    </div>
+    <div class="radio_btn">
         <div class="toggleWrapper">
             <input type="checkbox" name="toggle1" class="mobileToggle" id="toggle1" v-model="showRecoOnly">
             <label for="toggle1"></label>
@@ -95,54 +103,35 @@
             <input type="checkbox" name="toggle2" class="mobileToggle" id="toggle2" v-model="isHiddenDefaultValue">
             <label for="toggle2"></label>
         </div>
+        <div class="toggleWrapper">
+            <input type="checkbox" name="toggle3" class="mobileToggle" id="toggle3" v-model="isHiddenValue">
+            <label for="toggle3"></label>
+        </div>
+        <div class="toggleWrapper">
+            <input type="checkbox" name="toggle4" class="mobileToggle" id="toggle4" v-model="isHiddenDescription">
+            <label for="toggle4"></label>
+        </div>
     </div>
-    <button type="button" v-on:click="showRecoOnly = !showRecoOnly">Flag name</button>
-    <button type="button" v-on:click="isHidden = !isHidden">Default value</button>
-    <button type="button" v-on:click="isHidden = !isHidden">User value</button>
-    <button type="button" v-on:click="isHidden = !isHidden">Description</button>
-    <input type="text" id="myInput" onkeyup="filterTableRowsByInput('myInput', ['table_flags'])" placeholder="Search for names..">
-    <table>
+    <input type="text" id="myInput" onkeyup="filterTableRowsByInput('myInput', ['table_flags'])" placeholder="Search for flags..">
+    <table class="table_flags">
         <thead>
             <tr>
-                <th v-show="!isHidden">Flag name</th>
-                <th v-if="!isHiddenDefaultValue">Default value</th>
-                <th v-if="!isHidden">User value</th>
-                <th v-if="!isHidden">Description</th>
+                <th v-if="!isHidden">Flag name</th>
+                <th v-if="isHiddenDefaultValue">Default value</th>
+                <th v-if="isHiddenValue">User value</th>
+                <th v-if="isHiddenDescription">Description</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="flag in filteredFlags">
                 <td >{{ flag[0] }}</td>
-                <td v-if="!isHiddenDefaultValue">{{ flag[1] }}</td>
-                <td v-if="!isHidden">{{ flag[2] }}</td>
-                <td >{{ flag[3] }}</td>
+                <td v-if="isHiddenDefaultValue">{{ flag[1] }}</td>
+                <td v-if="isHiddenValue">{{ flag[2] }}</td>
+                <td v-if="isHiddenDescription">{{ flag[3] }}</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>-->
-
-<!--<main id="vue-app">-->
-<!--  <div ref="div">Hello world</div>-->
-<!--  <button type="button" v-on:click="hideElements()">Hide!</button>-->
-<!--  <button type="button" v-on:click="showElements()">Show!</button>-->
-<!--</main>-->
-
-<!--<script>-->
-<!--    var app = new Vue({-->
-<!--        el: "#vue-app",-->
-<!--        methods: {-->
-
-<!--            hideElements: function () {-->
-<!--                this.$refs.div.style.display = "none";-->
-<!--            },-->
-<!--            showElements: function () {-->
-<!--                this.$refs.div.style.display = "inherit";-->
-
-<!--            }-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
 

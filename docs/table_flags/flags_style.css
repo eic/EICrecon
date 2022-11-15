@@ -3,6 +3,7 @@
 }
 .table_flags{
     width: 100%;
+    box-sizing: border-box;
     border-collapse: collapse;
     margin: 25px 0;
     min-width: 400px; 
@@ -12,7 +13,6 @@
 .table_flags thead th{
     background-color: #009879;
     color: #ffffff;
-    text-align: left;
     text-align: center;
     width: 33.3%;
 }
@@ -31,15 +31,27 @@
     width: 100%;
     font-size: 16px; 
     padding: 12px 20px 12px 40px; 
-    border: 1px solid #ddd; 
-    margin-bottom: 12px; 
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
-
+.radio_btn, .radio_btn_name{
+    display: flex;
+    flex-wrap: wrap;
+    /*margin-bottom: 20px;*/
+}
+.radio_btn_name div{
+    width: 90px;
+    height: 30px;
+    padding-top: 5px;
+    text-align: center;
+    margin-right: 10px;
+    background-color: #009879;
+    border-radius: 5px;
+    color: white;
+}
 .tabs {
     display: flex;
     flex-wrap: nowrap;
-    direction: row;
-    margin-top: 15px;
     position: relative;
 }
 .tab input[type="radio"] { display: none; }
@@ -88,13 +100,12 @@
     transition: 0.35s cubic-bezier(0.54, 1.6, 0.5, 1);
 }
 .toggleWrapper {
-    margin: auto;
     padding: 20px;
-    width: 55px;
-    border: 1px solid lightgray;
-    margin-top: 20px;
+    width: 90px;
+    margin-right: 10px;
     border-radius: 5px;
     background: white;
+    /*border: 1px solid lightgray;*/
 }
 .toggleWrapper input.mobileToggle {
     opacity: 0;
