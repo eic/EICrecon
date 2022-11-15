@@ -211,8 +211,8 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistXY',          '',                               ''),
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistXZ',          '',                               ''),
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistYZ',          '',                               ''),
-    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep', '1.0*MeV',                        '*'),
-    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep',    '30*MeV',                         '*'),
+    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep', '30.0*MeV',                        '*'),
+    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep',    '1.0*MeV',                         '*'),
     ('EEMC:EcalEndcapNIslandProtoClusters:sectorDist',           '5.0*cm',                         '*'),
     ('EEMC:EcalEndcapNIslandProtoClusters:splitCluster',         '0',                              '*'),
 
@@ -373,8 +373,8 @@ eicrecon_reco_flags = [
 
     ('B0ECAL:B0ECalIslandProtoClusters:input_tag',            'B0ECalRecHits',                           ''),
     ('B0ECAL:B0ECalIslandProtoClusters:splitCluster',         '0',                              '*'),
-    ('B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep',    '30*MeV',                         '*'),
-    ('B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep', '1.0*MeV',                        '*'),
+    ('B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep',    '1.0*MeV',                        '*'),
+    ('B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep', '30.0*MeV',                       '*'),
     ('B0ECAL:B0ECalIslandProtoClusters:sectorDist',           '5.0*cm',                         '*'),
     ('B0ECAL:B0ECalIslandProtoClusters:localDistXY',          '',                               ''),
     ('B0ECAL:B0ECalIslandProtoClusters:localDistXZ',          '',                               ''),
@@ -436,8 +436,8 @@ eicrecon_reco_flags = [
     ('HCAL:HcalBarrelIslandProtoClusters:localDistXY',           '150,150',                        '* [mm]'),
     ('HCAL:HcalBarrelIslandProtoClusters:localDistXZ',           '',                               ''),
     ('HCAL:HcalBarrelIslandProtoClusters:localDistYZ',           '',                               ''),
-    ('HCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep',  '0.003',                          ''),
-    ('HCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep',     '30.0*MeV',                       '*'),
+    ('HCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep',  '30.0*MeV',                       ''),
+    ('HCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep',     '3.0*MeV',                       '*'),
     ('HCAL:HcalBarrelIslandProtoClusters:sectorDist',            '5',                              ''),
     ('HCAL:HcalBarrelIslandProtoClusters:splitCluster',          '0',                              '*'),
 
