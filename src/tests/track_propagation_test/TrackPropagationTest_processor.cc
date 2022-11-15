@@ -87,7 +87,6 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 
     try {
         auto result = m_propagation_algo.execute(trajectories);
-        Set(result);
     }
     catch(std::exception &e) {
         m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
