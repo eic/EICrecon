@@ -8,7 +8,7 @@
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
-#include <global/pid/ParticleID_factory.h>
+#include <global/pid/IrtParticleID_factory.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -29,6 +29,6 @@ extern "C" {
      * - Cherenkov angle measurement
      * - PID hypotheses
      */
-    // app->Add(new JFactoryGeneratorT<ParticleID_factory>());
+    // app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
   }
 }

@@ -8,7 +8,7 @@
 
 #include <JANA/JFactoryGenerator.h>
 
-#include "ParticleID_factory.h"
+#include "IrtParticleID_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -16,6 +16,6 @@ extern "C" {
 
     using namespace eicrecon;
 
-    app->Add(new JFactoryGeneratorT<ParticleID_factory>());
+    app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
   }
 }

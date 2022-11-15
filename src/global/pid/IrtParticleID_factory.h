@@ -24,10 +24,10 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 namespace eicrecon {
-  class ParticleID_factory : public JFactoryT<edm4hep::ParticleID> {
+  class IrtParticleID_factory : public JFactoryT<edm4hep::ParticleID> {
     public:
 
-      ParticleID_factory() {
+      IrtParticleID_factory() {
         SetTag("IrtHypothesis"); // FIXME: should be D/PFRICH-dependent name?
       }
 

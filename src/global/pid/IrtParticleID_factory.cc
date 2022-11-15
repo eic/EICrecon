@@ -6,10 +6,10 @@
  * - prepares for and calls the IRT (standalone) algorithm
  */
 
-#include "ParticleID_factory.h"
+#include "IrtParticleID_factory.h"
 
 //-----------------------------------------------------------------------------
-void eicrecon::ParticleID_factory::Init() {
+void eicrecon::IrtParticleID_factory::Init() {
   auto app = GetApplication();
 
   // default params
@@ -30,7 +30,7 @@ void eicrecon::ParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::ParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // inputs
   // FIXME: will be changed to photoelectrons; until then, just use all the photon hits
