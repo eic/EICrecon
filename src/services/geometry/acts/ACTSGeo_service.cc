@@ -41,6 +41,7 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             // Initialize m_acts_provider
             m_acts_provider = std::make_shared<ActsGeometryProvider>();
             m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
+
         });
     }
     catch (std::exception &ex) {

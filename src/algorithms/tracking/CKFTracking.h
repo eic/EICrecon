@@ -69,22 +69,6 @@ namespace eicrecon {
                 std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
                 std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
 
-    public:
-
-        std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-
-        std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
-        Acts::GeometryContext m_geoctx;
-        Acts::CalibrationContext m_calibctx;
-        Acts::MagneticFieldContext m_fieldctx;
-
-        Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
-//        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
-        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::FATAL; // FIXME: this is to suppress lots of errors about "No track is found with the initial parameters"
-
-
-
         CKFTracking();
 
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
@@ -95,6 +79,15 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
+        std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
+        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+
+        std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
+        Acts::GeometryContext m_geoctx;
+        Acts::CalibrationContext m_calibctx;
+        Acts::MagneticFieldContext m_fieldctx;
+
+        Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
     };
 
 } // namespace Jug::Reco
