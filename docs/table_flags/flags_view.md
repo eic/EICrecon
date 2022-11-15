@@ -21,9 +21,20 @@
               isHiddenDefaultValue: false,
               isHiddenValue: false,
               isHiddenDescription: false,
+              showDiff: false,
               showRecoOnly: false
           };
       },
+      watch: {
+          showDiff(value) {
+              console.log(value);
+              if(value) {
+                  this.isHiddenDefaultValue = true;
+                  this.isHiddenValue = true;
+              }
+          }
+      },
+
       created() {
           // Read json flags
           fetch('arches_flags.json')
@@ -62,6 +73,12 @@
                        return false; // Zhudko krivoy kostil
                    }
 
+                   if(this.showDiff) {
+                       if(el[1].toUpperCase() === el[2].toUpperCase()) {
+                           return false;
+                       }
+                   }
+
                    if(!this.showRecoOnly) {
                        return true;   // We are not filtering and return everything
                    }
@@ -89,10 +106,11 @@
 
 <div id="example_vue">
     <div class="radio_btn_name">
-        <div>Filtered flags</div>
-        <div>Default value</div>
+        <div>Reconstruction only</div>
+        <div>Show default value</div>
         <div>User value</div>
-        <div>Description</div>
+        <div>Show description</div>
+        <div>Show diff only</div>
     </div>
     <div class="radio_btn">
         <div class="toggleWrapper">
@@ -111,6 +129,10 @@
             <input type="checkbox" name="toggle4" class="mobileToggle" id="toggle4" v-model="isHiddenDescription">
             <label for="toggle4"></label>
         </div>
+        <div class="toggleWrapper">
+            <input type="checkbox" name="toggle5" class="mobileToggle" id="toggle5" v-model="showDiff">
+            <label for="toggle5"></label>
+        </div>
     </div>
     <input type="text" id="myInput" onkeyup="filterTableRowsByInput('myInput', ['table_flags'])" placeholder="Search for flags..">
     <table class="table_flags">
@@ -123,9 +145,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="flag in filteredFlags">
+            <tr v-for="flag in filteredFlags" v-bind:title="flag[3]">
                 <td >{{ flag[0] }}</td>
-                <td v-if="isHiddenDefaultValue">{{ flag[1] }}</td>
+                <td v-if="isHiddenDefaultValue" v-bind:title="flag[1]">{{ flag[1] }}</td>
                 <td v-if="isHiddenValue">{{ flag[2] }}</td>
                 <td v-if="isHiddenDescription">{{ flag[3] }}</td>
             </tr>
