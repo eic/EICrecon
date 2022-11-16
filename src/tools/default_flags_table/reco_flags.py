@@ -144,7 +144,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingProtoClusters::sectorDist',         '3.0*cm',                          ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterHitEdep',  '0.',                              ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep', '0.',                            ''),
-    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '0.5*MeV',                         ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '80*MeV',                          ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterNhits',    '5',                               ''),
 
     ('BEMC:EcalBarrelScFiProtoClusters:input_tag',              'EcalBarrelScFiMergedHits', 'Name of input collection to use'),
