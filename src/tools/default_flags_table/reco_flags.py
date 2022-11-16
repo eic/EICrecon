@@ -121,6 +121,9 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingRecHits:samplingFraction',          '0.005',                           ''),
 
     ('BEMC:EcalBarrelScFiRecHits:input_tag',                    'EcalBarrelScFiRawHits',           'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiRecHits:readout',                      'EcalBarrelScFiHits',              ''),
+    ('BEMC:EcalBarrelScFiRecHits:layerField',                   'layer',                           ''),
+    ('BEMC:EcalBarrelScFiRecHits:sectorField',                  'module',                          ''),
     ('BEMC:EcalBarrelScFiRecHits:capacityADC',                  'capacityBitsADC=14',              ''),
     ('BEMC:EcalBarrelScFiRecHits:dynamicRangeADC',              '750*MeV',                         ''),
     ('BEMC:EcalBarrelScFiRecHits:pedestalMean',                 '20',                              ''),

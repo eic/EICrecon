@@ -50,6 +50,9 @@ public:
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:readout",          m_readout );
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:layerField",       m_layerField );
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:sectorField",      m_sectorField );
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:pedestalMean",     m_pedMeanADC);
