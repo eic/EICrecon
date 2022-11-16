@@ -15,4 +15,4 @@ add_subdirectory(ECTOF)     # Endcap TOF
 add_subdirectory(BTOF)      # Barrel TOF
 
 # PID detectors
-add_subdirectory(RICH)
+add_subdirectory(DRICH)

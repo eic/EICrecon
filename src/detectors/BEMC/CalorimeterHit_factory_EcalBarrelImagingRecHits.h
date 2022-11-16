@@ -33,9 +33,9 @@ public:
         // length unit (from dd4hep geometry service)
         m_lUnit = dd4hep::mm; // {this, "lengthUnit", dd4hep::mm};
         // digitization parameters
-        m_capADC=8096; // {this, "capacityADC", 8096};
-        m_pedMeanADC=400; // {this, "pedestalMean", 400};
-        m_dyRangeADC=100 * MeV; // {this, "dynamicRangeADC", 100 * MeV};
+        m_capADC=8192; // {this, "capacityADC", 8096};
+        m_pedMeanADC=100; // {this, "pedestalMean", 400};
+        m_dyRangeADC=3;   // units should be MeV    {this, "dynamicRangeADC", 100 * MeV};
         m_pedSigmaADC=14; // {this, "pedestalSigma", 3.2};
         m_thresholdFactor=3.0; // {this, "thresholdFactor", 3.0};
         // Calibration!
@@ -52,6 +52,7 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
+        m_dyRangeADC *= MeV;
 
         initialize();
     }

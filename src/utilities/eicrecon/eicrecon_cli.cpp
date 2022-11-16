@@ -32,6 +32,7 @@ namespace jana {
         std::cout << "Options:" << std::endl;
         std::cout << "   -h   --help                  Display this message" << std::endl;
         std::cout << "   -v   --version               Display version information" << std::endl;
+        std::cout << "   -j   --janaversion           Display JANA version information" << std::endl;
         std::cout << "   -c   --configs               Display configuration parameters" << std::endl;
         std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
         std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
@@ -76,8 +77,11 @@ namespace jana {
     }
 
     void PrintVersion() {
-        std::cout << "      EICrecon version: " << EICRECON_APP_VERSION_STR << std::endl;
-        std::cout << std::endl << std::endl;
+        std::cout << "EICrecon version: " << EICRECON_APP_VERSION_STR << std::endl;
+    }
+
+    void PrintJANAVersion() {
+        std::cout << "JANA version: " << JVersion::GetVersion() << std::endl;
     }
 
     void PrintDefaultPlugins(std::vector<std::string> const& default_plugins) {
@@ -153,6 +157,10 @@ namespace jana {
         }
         if (options.flags[jana::ShowVersion]) {
             jana::PrintVersion();
+            return true;
+        }
+        if (options.flags[jana::ShowJANAVersion]) {
+            jana::PrintJANAVersion();
             return true;
         }
         if (options.flags[jana::ShowDefaultPlugins]) {
@@ -402,6 +410,8 @@ namespace jana {
         tokenizer["--help"] = ShowUsage;
         tokenizer["-v"] = ShowVersion;
         tokenizer["--version"] = ShowVersion;
+        tokenizer["-j"] = ShowJANAVersion;
+        tokenizer["--janaversion"] = ShowJANAVersion;
         tokenizer["-c"] = ShowConfigs;
         tokenizer["--configs"] = ShowConfigs;
         tokenizer["-l"] = LoadConfigs;
@@ -442,6 +452,10 @@ namespace jana {
 
                 case ShowVersion:
                     options.flags[ShowVersion] = true;
+                    break;
+
+                case ShowJANAVersion:
+                    options.flags[ShowJANAVersion] = true;
                     break;
 
                 case ShowConfigs:

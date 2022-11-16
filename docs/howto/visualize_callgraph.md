@@ -1,0 +1,110 @@
+# Visualizing Calllgraphs
+
+## Overview
+JANA2 has a built-in feature to help visualize the callgraph of a job.
+This is most easily activated by adding the `janadot` plugin to the 
+job. It will automatically turn on JANA's call stack recording which
+keeps track of the call depencies between factories, processors, and
+sources in the event. It also times how long it takes each factory
+to run, integrating it over all calls so that one can see the relative
+time spent in each factory.
+
+*Note that this requires JANA2 v2.0.8 or later and EICrecon v0.3.6 or
+later.*
+
+## How to run
+To make an image of the call graph of a job ones just needs to add
+the `janadot` plugin like this:
+~~~bash
+eicrecon -Pplugins=janadot sim_file.edm4hep.root
+~~~
+
+This will create a file at the end of the job called "jana.dot"
+which contains the relavant information in a form that the 
+*dot* program can read. (*dot comes in the graphviz package
+on most Linux distributions*). At the end of the job, a
+meesage like the following is printed:
+
+~~~bash
+Opening output file "jana.dot"
+
+Factory calling information written to "jana.dot". To create a graphic
+from this, use the dot program. For example, to make a PDF file do the following:
+
+   dot -Tpdf jana.dot -o jana.pdf
+
+This should give you a file named "jana.pdf".
+~~~
+
+You can use dot to make either a PDF or PNG formatted file.
+
+### Running for a single detector
+By default `eicrecon` activates the full reconstruction. This will
+result in a very busy callgraph that can be hard to read if you
+are only interested in one detector. (See [here](callgraphs/all.png).)
+To activate for a specific factory, you can specify the relevamt output
+collection using the `podio:output_include_collections` parameter.
+Here is an example for the *EcalEndcapN*:
+
+~~~bash 
+eicrecon -Pplugins=janadot \
+   -Ppodio:output_include_collections=EcalEndcapNMergedClusters \
+   sim_file.edm4hep.root
+~~~
+
+The above will produce something like the following:
+![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)
+
+In the plot, the oval at the top is the JEventProcessor making the
+initial request for objects. (This is where the *podio:output_include_collections*
+parameter is used). The rectangles in the middle represent factories (i.e. algorithms).
+The green trapezoid at the bottom is the object read from the input file.
+This is representative of the flow JANA implements. Namely, the requests for
+data objects flow from top to bottom and the data objects themselves are
+actually created in the order going from bottom to top.
+
+The arrows point in the direction of the request and the numbers next to
+them indicate how many the request was made, the total amount of time
+spent satisfying the request, and the fraction of the overall job time
+that represents. In this example, 100 events were processed and so the request
+was made 100 time at each stage. Similarly, the numbers in the boxes indicate
+the total time spent in that factory, integrated overall calls, and the total
+job fraction it represents.
+
+Note that the only factory specified in the above example was for the
+`EcalEndcapNMergedClusters` collection. All other factories were activated
+in order to satisfy the request for those objects. If instead we would
+have specified only the `EcalEndcapNRecHits`, then none of the other
+factories would have shown up in the box.
+
+
+## Examples
+Below are some example images produced for 100 DIS events. The events were
+simulated using the following on the JLab ifarm:
+
+~~~bash
+cp /work/eic2/EPIC/MC_input/SIDIS/Lambda_ABCONV/hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz .
+tar xzf hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz
+ddsim --compactFile $DETECTOR_PATH/epic_arches.xml --numberOfEvents 100 --inputFiles hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc --outputFile sim_hepmc3_Lambda1_ab_hiAcc_18x275_00.edm4hep.root
+~~~
+
+Note that in these examples a relatively small number of events was processed
+and the startup time which included reading in the geometry from DD4Hep is
+included. Thus, it is often the case that the factory indicating the largest
+time is just the first place where the geometry was read in.
+
+![All Factories](callgraphs/all.png)
+![B0ECalClusters](callgraphs/B0ECalClusters.png)
+![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png)
+![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)
+![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)
+![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)
+![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)
+![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)
+![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)
+![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)
+![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)
+![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)
+![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)
+![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)
+![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)
