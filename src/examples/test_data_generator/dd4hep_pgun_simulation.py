@@ -26,7 +26,7 @@ class SimConfig:
             f'-N={self.events_num}',
             f'--random.seed=1',
             f'--enableGun',
-            f'--gun.particle="e-"',
+            f'--gun.particle="{self.particle}"',
             f'--gun.momentumMin={self.e_min}*GeV',
             f'--gun.momentumMax={self.e_max}*GeV',
             # f'--gun.thetaMin=0*deg',
