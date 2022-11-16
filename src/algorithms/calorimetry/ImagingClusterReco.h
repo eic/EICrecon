@@ -96,7 +96,7 @@ public:
             for (const auto &layer: cl_layers) {
                 auto layer_ptr = new edm4eic::Cluster( layer );
                 layers.push_back(layer_ptr);
-                cl.addToClusters(*layer_ptr);
+//                cl.addToClusters(*layer_ptr);
             }
             clusters.push_back(new edm4eic::Cluster( cl ));
 
@@ -246,7 +246,7 @@ private:
             meta += edm4eic::eta(hit.getPosition()) * energyWeight;
             mphi += edm4eic::angleAzimuthal(hit.getPosition()) * energyWeight;
             r = std::min(edm4eic::magnitude(hit.getPosition()), r);
-            cluster.addToHits(hit);
+//            cluster.addToHits(hit);
         }
         cluster.setEnergy(energy);
         cluster.setEnergyError(std::sqrt(energyError));
