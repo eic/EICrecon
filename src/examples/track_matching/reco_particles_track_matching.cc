@@ -24,7 +24,7 @@ void reco_particles_track_matching(char *file_name) {
     TTreeReaderArray<float> reco_pz_array = {tree_reader, "ReconstructedChargedParticles.momentum.z"};
 
     // MC particle pz array for each MC particle
-    TTreeReaderArray<float> mc_pz_array = {tree_reader, "ReconstructedChargedParticles.momentum.z"};
+    TTreeReaderArray<float> mc_pz_array = {tree_reader, "MCParticles.momentum.z"};
 
     // Next arrays correspond to particle associations
     // Each association has 2 ids - indexes in corresponding reco and MC arrays
