@@ -1,6 +1,6 @@
 // Very minimal and verbose example of how to use association IDs for MCParticles and ReconstructedParticles
 // In general there are two ways associations may work: through PODIO references and IDs
-// This example illustrates the latest one
+// This example illustrates how to use IDs
 //
 // Created by Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
