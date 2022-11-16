@@ -21,6 +21,8 @@
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Definitions/Units.hpp"
 
+#include <extensions/spdlog/SpdlogToActs.h>
+
 //#include "JugBase/DataHandle.h"
 #include "JugBase/BField/DD4hepBField.h"
 
@@ -47,6 +49,8 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
+
+
     CKFTracking::CKFTracking() {
     }
 
@@ -67,13 +71,6 @@ namespace eicrecon {
                 },
         };
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
-//    auto im = s_msgMap.find(msgLevel());
-//    if (im != s_msgMap.end()) {
-//        m_actsLoggingLevel = im->second;
-//    }
-//    return StatusCode::SUCCESS;
-//
-//
     }
 
     std::vector<Jug::Trajectories*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
@@ -89,7 +86,9 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", m_actsLoggingLevel));
+        auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+
+        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;

@@ -29,6 +29,7 @@ void eicrecon::CKFTracking_factory::Init() {
     auto acts_service = app->GetService<ACTSGeo_service>();
     auto dd4hp_service = app->GetService<JDD4hep_service>();
 
+
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
     app->SetDefaultParameter(param_prefix + ":EtaBins", cfg.m_etaBins, "Eta Bins for ACTS CKF tracking reco");

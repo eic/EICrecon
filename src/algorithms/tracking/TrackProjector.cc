@@ -84,6 +84,7 @@ namespace eicrecon {
                 auto geoID = trackstate.referenceSurface().geometryId();
                 auto volume = geoID.volume();
                 auto layer = geoID.layer();
+
                 if (trackstate.hasCalibrated()) {
                     m_nCalibrated++;
                 }
@@ -91,6 +92,7 @@ namespace eicrecon {
                 // get track state parameters and their covariances
                 const auto &parameter = trackstate.predicted();
                 const auto &covariance = trackstate.predictedCovariance();
+
 
                 // convert local to global
                 auto global = trackstate.referenceSurface().localToGlobal(
