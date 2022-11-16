@@ -4,7 +4,7 @@
 JANA2 has a built-in feature to help visualize the callgraph of a job.
 This is most easily activated by adding the `janadot` plugin to the 
 job. It will automatically turn on JANA's call stack recording which
-keeps track of the call depencies between factories, processors, and
+keeps track of the call dependencies between factories, processors, and
 sources in the event. It also times how long it takes each factory
 to run, integrating it over all calls so that one can see the relative
 time spent in each factory.
@@ -13,17 +13,17 @@ time spent in each factory.
 later.*
 
 ## How to run
-To make an image of the call graph of a job ones just needs to add
+To make an image of the call graph of a job, one just needs to add
 the `janadot` plugin like this:
 ~~~bash
 eicrecon -Pplugins=janadot sim_file.edm4hep.root
 ~~~
 
 This will create a file at the end of the job called "jana.dot"
-which contains the relavant information in a form that the 
+which contains the relevant information in a form that the 
 *dot* program can read. (*dot comes in the graphviz package
 on most Linux distributions*). At the end of the job, a
-meesage like the following is printed:
+message like the following is printed:
 
 ~~~bash
 Opening output file "jana.dot"
@@ -36,13 +36,18 @@ from this, use the dot program. For example, to make a PDF file do the following
 This should give you a file named "jana.pdf".
 ~~~
 
-You can use dot to make either a PDF or PNG formatted file.
+You can use dot to make either a PDF or PNG formatted file. To make a PNG file 
+you would run:
+
+~~~bash
+dot -Tpng jana.dot -o jana.png
+~~~
 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
 result in a very busy callgraph that can be hard to read if you
-are only interested in one detector. (See [here](callgraphs/all.png).)
-To activate for a specific factory, you can specify the relevamt output
+are only interested in one detector. (See [here](https://eic.github.io/EICrecon/howto/callgraphs/all.png).)
+To activate for a specific factory, you can specify the relevant output
 collection using the `podio:output_include_collections` parameter.
 Here is an example for the *EcalEndcapN*:
 
@@ -64,18 +69,19 @@ data objects flow from top to bottom and the data objects themselves are
 actually created in the order going from bottom to top.
 
 The arrows point in the direction of the request and the numbers next to
-them indicate how many the request was made, the total amount of time
-spent satisfying the request, and the fraction of the overall job time
+them indicate 1.) how many times that request was made, 2.) the total amount of time
+spent satisfying the request, and 3.) the fraction of the overall job time
 that represents. In this example, 100 events were processed and so the request
-was made 100 time at each stage. Similarly, the numbers in the boxes indicate
-the total time spent in that factory, integrated overall calls, and the total
+was made 100 times at each stage. Similarly, the numbers in the boxes indicate
+the total time spent in that factory, integrated over all calls, and the total
 job fraction it represents.
 
 Note that the only factory specified in the above example was for the
-`EcalEndcapNMergedClusters` collection. All other factories were activated
-in order to satisfy the request for those objects. If instead we would
-have specified only the `EcalEndcapNRecHits`, then none of the other
-factories would have shown up in the box.
+`EcalEndcapNMergedClusters` collection. All of the other factories shown
+were activated  in order to satisfy the request for the `EcalEndcapNMergedClusters`
+objects. If instead we would have specified only the `EcalEndcapNRecHits`, then
+only the `EcalEndcapNRecHits` and `EcalEndcapNRawHits` factories would have shown
+up in the plot.
 
 
 ## Examples
@@ -91,20 +97,22 @@ ddsim --compactFile $DETECTOR_PATH/epic_arches.xml --numberOfEvents 100 --inputF
 Note that in these examples a relatively small number of events was processed
 and the startup time which included reading in the geometry from DD4Hep is
 included. Thus, it is often the case that the factory indicating the largest
-time is just the first place where the geometry was read in.
+time is just the first place where the geometry was read in. 
 
-![All Factories](callgraphs/all.png)
-![B0ECalClusters](callgraphs/B0ECalClusters.png)
-![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png)
-![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)
-![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)
-![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)
-![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)
-![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)
-![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)
-![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)
-![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)
-![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)
-![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)
-![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)
-![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)
+| Example images                                                                                 |
+|------------------------------------------------------------------------------------------------|
+| ![All Factories](callgraphs/all.png)                                                           |                                                          
+| ![B0ECalClusters](callgraphs/B0ECalClusters.png)                                               |                                               
+| ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) | 
+| ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |             
+| ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |                         
+| ![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)             |             
+| ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |                         
+| ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |                           
+| ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |                                       
+| ![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)                                     |                                     
+| ![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)                         |                         
+| ![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)                                     |                                     
+| ![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)                 |                 
+| ![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)                       |                       
+| ![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)                                 |                                 
