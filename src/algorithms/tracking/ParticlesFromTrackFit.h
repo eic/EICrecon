@@ -7,7 +7,7 @@
 
 
 #include <spdlog/logger.h>
-#include "JugTrack/Trajectories.hpp"
+#include "JugTrack/TrackingResultTrajectory.hpp"
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 
@@ -25,7 +25,7 @@ namespace Jug::Reco {
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        ParticlesFromTrackFitResult *execute(const std::vector<const Jug::Trajectories *> &trajectories);
+        ParticlesFromTrackFitResult *execute(const std::vector<const Jug::TrackingResultTrajectory *> &trajectories);
 
     };
 } // namespace Jug::Reco

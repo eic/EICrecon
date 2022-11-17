@@ -73,14 +73,14 @@ namespace eicrecon {
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
     }
 
-    std::vector<Jug::Trajectories*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
-                                                         const Jug::MeasurementContainer &measurements,
-                                                         const Jug::TrackParametersContainer &init_trk_params) {
+    std::vector<Jug::TrackingResultTrajectory*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
+                                                                     const Jug::MeasurementContainer &measurements,
+                                                                     const Jug::TrackParametersContainer &init_trk_params) {
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
 
-        std::vector<Jug::Trajectories *>trajectories;
+        std::vector<Jug::TrackingResultTrajectory *>trajectories;
         trajectories.reserve(init_trk_params.size());
 
         //// Construct a perigee surface as the target surface
@@ -135,9 +135,9 @@ namespace eicrecon {
                 // Get the track finding output object
                 const auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
-                trajectories.push_back(new Jug::Trajectories(std::move(trackFindingOutput.fittedStates),
-                                                           std::move(trackFindingOutput.lastMeasurementIndices),
-                                                           std::move(trackFindingOutput.fittedParameters)));
+                trajectories.push_back(new Jug::TrackingResultTrajectory(std::move(trackFindingOutput.fittedStates),
+                                                                         std::move(trackFindingOutput.lastMeasurementIndices),
+                                                                         std::move(trackFindingOutput.fittedParameters)));
             } else {
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
             }

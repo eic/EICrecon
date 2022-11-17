@@ -8,7 +8,7 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 #include <algorithms/tracking/TrackProjector.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <edm4hep//MCParticle.h>

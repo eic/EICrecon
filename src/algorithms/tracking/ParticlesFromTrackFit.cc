@@ -29,7 +29,7 @@ void Jug::Reco::ParticlesFromTrackFit::init(std::shared_ptr<spdlog::logger> log)
     m_log = log;
 }
 
-ParticlesFromTrackFitResult* Jug::Reco::ParticlesFromTrackFit::execute(const std::vector<const Jug::Trajectories *> &trajectories) {
+ParticlesFromTrackFitResult* Jug::Reco::ParticlesFromTrackFit::execute(const std::vector<const Jug::TrackingResultTrajectory *> &trajectories) {
 
     // create output collections
     auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();

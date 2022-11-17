@@ -20,7 +20,7 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Measurement.hpp"
 #include "JugTrack/Track.hpp"
-#include "JugTrack/Trajectories.hpp"
+#include "JugTrack/TrackingResultTrajectory.hpp"
 
 #include "edm4eic/TrackerHitCollection.h"
 #include <edm4eic/TrackParameters.h>
@@ -73,9 +73,9 @@ namespace eicrecon {
 
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
 
-        std::vector<Jug::Trajectories*> process(const Jug::IndexSourceLinkContainer &src_links,
-                                                const Jug::MeasurementContainer &measurements,
-                                                const Jug::TrackParametersContainer &init_trk_params);
+        std::vector<Jug::TrackingResultTrajectory*> process(const Jug::IndexSourceLinkContainer &src_links,
+                                                            const Jug::MeasurementContainer &measurements,
+                                                            const Jug::TrackParametersContainer &init_trk_params);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

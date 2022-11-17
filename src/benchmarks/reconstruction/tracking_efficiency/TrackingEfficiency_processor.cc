@@ -16,7 +16,7 @@
 
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 #include <services/rootfile/RootFile_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
@@ -87,7 +87,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE II
     // This gets access to more direct ACTS results from CFKTracking
-    auto acts_results = event->Get<Jug::Trajectories>("CentralCKFTrajectories");
+    auto acts_results = event->Get<Jug::TrackingResultTrajectory>("CentralCKFTrajectories");
     m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
     m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}",
                  "[loc 0]","[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]", "[chi2]" );

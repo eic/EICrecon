@@ -5,7 +5,7 @@
 #include <JANA/JEvent.h>
 #include "TrackProjector_factory.h"
 #include "extensions/string/StringHelpers.h"
-#include "algorithms/tracking/JugTrack/Trajectories.hpp"
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 
@@ -32,7 +32,7 @@ namespace eicrecon {
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Now we check that user provided an input names
         std::string input_tag = GetInputTags()[0];
-        auto trajectories = event->Get<Jug::Trajectories>(input_tag);
+        auto trajectories = event->Get<Jug::TrackingResultTrajectory>(input_tag);
 
         try {
             auto result = m_track_projector_algo.execute(trajectories);
