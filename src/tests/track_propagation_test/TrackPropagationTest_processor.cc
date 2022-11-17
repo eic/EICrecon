@@ -1,36 +1,22 @@
 
-#include "TrackPropagationTest_processor.h"
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
 
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "TrackPropagationTest_processor.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <fmt/core.h>
-
-#include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
 
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/ReconstructedParticle.h>
-
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
 #include <services/rootfile/RootFile_service.h>
 #include <services/geometry/acts/ACTSGeo_service.h>
 
-using namespace fmt;
+
+
 
 //------------------
 // OccupancyAnalysis (Constructor)
@@ -68,6 +54,17 @@ void TrackPropagationTest_processor::Init()
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
     m_propagation_algo.init(acts_service->actsGeoProvider(), logger());
+
+    // Create HCal surface that will be used for propagation
+    auto transform = Acts::Transform3::Identity();
+
+    // make a reference disk to mimic electron-endcap HCal
+    const auto hcalEndcapNZ = -3322.;
+    const auto hcalEndcapNMinR = 83.01;
+    const auto hcalEndcapNMaxR = 950;
+    auto hcalEndcapNBounds = std::make_shared<Acts::RadialBounds>(hcalEndcapNMinR, hcalEndcapNMaxR);
+    auto hcalEndcapNTrf = transform * Acts::Translation3(Acts::Vector3(0, 0, hcalEndcapNZ));
+    m_hcal_surface = Acts::Surface::makeShared<Acts::DiscSurface>(hcalEndcapNTrf, hcalEndcapNBounds);
 }
 
 
@@ -79,29 +76,34 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 {
     m_log->trace("TrackPropagationTest_processor event");
 
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
-
     // Get trajectories from tracking
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
 
-    std::vector<edm4eic::TrackSegment*> tracks;
-    try {
-        tracks = m_propagation_algo.execute(trajectories);
-    }
-    catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
-    }
+    // Iterate over trajectories
+    m_log->debug("Propagating through {} trajectories", trajectories.size());
+    for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
+        auto &trajectory = trajectories[traj_index];
+        m_log->trace(" -- trajectory {} --", traj_index);
 
-    // Now go through reconstructed tracks points
-    logger()->trace("Going over tracks:");
-    m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-    for( auto track_segment : tracks ){
-        logger()->trace(" Track trajectory");
-
-        for(auto point: track_segment->getPoints()) {
-            auto &pos = point.position;
-            m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, point.pathlength);
+        edm4eic::TrackPoint* projection_point;
+        try {
+            // >>> try to propagate to surface <<<
+            projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
+        catch(std::exception &e) {
+            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+        }
+
+        if(!projection_point) {
+            m_log->trace("   could not propagate!", traj_index);
+            continue;
+        }
+
+        // Now go through reconstructed tracks points
+
+        auto pos = projection_point->position;
+        auto length =  projection_point->pathlength;
+        m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length);
     }
 }
 

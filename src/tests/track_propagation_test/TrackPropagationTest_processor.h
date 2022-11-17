@@ -4,6 +4,8 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
+#include <Acts/Surfaces/DiscSurface.hpp>
+
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <algorithms/tracking/TrackPropagation.h>
@@ -54,6 +56,9 @@ private:
 
     /// Tracking propagation algorithm
     eicrecon::TrackPropagation m_propagation_algo;
+
+    /// A surface to propagate to
+    std::shared_ptr<Acts::DiscSurface> m_hcal_surface;
 };
 
 #endif //EICRECON_TRACK_PROPAGATION_TEST_PROCESSOR_H
