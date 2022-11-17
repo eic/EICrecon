@@ -13,7 +13,7 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
-namespace Jug {
+namespace eicrecon {
 
   /// Variable measurement type that can contain all possible combinations.
   using Measurement = ::Acts::BoundVariantMeasurement;

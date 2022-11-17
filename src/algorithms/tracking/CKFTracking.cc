@@ -59,8 +59,8 @@ namespace eicrecon {
 
         m_geoSvc = geo_svc;
 
-        m_BField = std::dynamic_pointer_cast<const Jug::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-        m_fieldctx = Jug::BField::BFieldVariant(m_BField);
+        m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
+        m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
@@ -73,14 +73,14 @@ namespace eicrecon {
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
     }
 
-    std::vector<Jug::Trajectories*> CKFTracking::process(const Jug::IndexSourceLinkContainer &src_links,
-                                                         const Jug::MeasurementContainer &measurements,
-                                                         const Jug::TrackParametersContainer &init_trk_params) {
+    std::vector<eicrecon::TrackingResultTrajectory*> CKFTracking::process(const eicrecon::IndexSourceLinkContainer &src_links,
+                                                                          const eicrecon::MeasurementContainer &measurements,
+                                                                          const eicrecon::TrackParametersContainer &init_trk_params) {
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
 
-        std::vector<Jug::Trajectories *>trajectories;
+        std::vector<eicrecon::TrackingResultTrajectory *>trajectories;
         trajectories.reserve(init_trk_params.size());
 
         //// Construct a perigee surface as the target surface
@@ -93,23 +93,23 @@ namespace eicrecon {
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
 
-        Jug::MeasurementCalibrator calibrator{measurements};
+        eicrecon::MeasurementCalibrator calibrator{measurements};
         Acts::GainMatrixUpdater kfUpdater;
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
         //Acts::MeasurementSelector measSel;
 
         Acts::CombinatorialKalmanFilterExtensions extensions;
-        extensions.calibrator.connect<&Jug::MeasurementCalibrator::calibrate>(&calibrator);
+        extensions.calibrator.connect<&eicrecon::MeasurementCalibrator::calibrate>(&calibrator);
         extensions.updater.connect<&Acts::GainMatrixUpdater::operator()>(&kfUpdater);
         extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()>(&kfSmoother);
         extensions.measurementSelector.connect<&Acts::MeasurementSelector::select>(&measSel);
 
-        Jug::IndexSourceLinkAccessor slAccessor;
+        eicrecon::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;
-        Acts::SourceLinkAccessorDelegate<Jug::IndexSourceLinkAccessor::Iterator>
+        Acts::SourceLinkAccessorDelegate<eicrecon::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
-        slAccessorDelegate.connect<&Jug::IndexSourceLinkAccessor::range>(&slAccessor);
+        slAccessorDelegate.connect<&eicrecon::IndexSourceLinkAccessor::range>(&slAccessor);
 
         // Set the CombinatorialKalmanFilter options
         CKFTracking::TrackFinderOptions options(
@@ -135,9 +135,9 @@ namespace eicrecon {
                 // Get the track finding output object
                 const auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
-                trajectories.push_back(new Jug::Trajectories(std::move(trackFindingOutput.fittedStates),
-                                                           std::move(trackFindingOutput.lastMeasurementIndices),
-                                                           std::move(trackFindingOutput.fittedParameters)));
+                trajectories.push_back(new eicrecon::TrackingResultTrajectory(std::move(trackFindingOutput.fittedStates),
+                                                                              std::move(trackFindingOutput.lastMeasurementIndices),
+                                                                              std::move(trackFindingOutput.fittedParameters)));
             } else {
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
             }

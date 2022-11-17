@@ -1,6 +1,6 @@
 
 #include "GlobalReconstructionTest_processor.h"
-#include "algorithms/tracking/JugTrack/Trajectories.hpp"
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "algorithms/reco/ParticlesWithAssociation.h"
 

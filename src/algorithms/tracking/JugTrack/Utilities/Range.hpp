@@ -11,7 +11,7 @@
 #include <iterator>
 #include <utility>
 
-namespace Jug {
+namespace eicrecon {
 
 /// A wrapper around a pair of iterators to simplify range-based loops.
 ///

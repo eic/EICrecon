@@ -29,7 +29,7 @@ public:
 
 private:
 
-    Jug::Reco::ParticlesFromTrackFit m_particle_maker_algo;      /// Track source linker algorithm
+    eicrecon::Reco::ParticlesFromTrackFit m_particle_maker_algo;      /// Track source linker algorithm
 };
 
 

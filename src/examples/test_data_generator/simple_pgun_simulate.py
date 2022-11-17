@@ -5,7 +5,7 @@ from dd4hep_pgun_simulation import SimConfig, run_simulation
 
 if __name__ == "__main__":
 
-    should_upload = True
+    should_upload = False
 
     # 1 electron
     cfg = SimConfig()

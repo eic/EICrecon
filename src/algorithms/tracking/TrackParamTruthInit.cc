@@ -23,7 +23,7 @@ void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &
     m_pdg_db = std::make_shared<TDatabasePDG>();
 }
 
-Jug::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticle *part) {
+eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticle *part) {
     using Acts::UnitConstants::GeV;
     using Acts::UnitConstants::MeV;
     using Acts::UnitConstants::mm;
@@ -94,7 +94,7 @@ Jug::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCPa
             Acts::Vector3{part->getVertex().x * mm, part->getVertex().y * mm, part->getVertex().z * mm});
 
     //params(Acts::eBoundQOverP) = charge/p;
-    auto result = new Jug::TrackParameters({pSurface, params, charge,cov});
+    auto result = new eicrecon::TrackParameters({pSurface, params, charge, cov});
     return result;
 
 }

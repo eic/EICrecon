@@ -15,7 +15,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 
 #include <edm4eic/TrackSegment.h>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -42,7 +42,9 @@ namespace eicrecon {
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
         /** Execute track propagation */
-        std::vector<edm4eic::TrackSegment *> execute(std::vector<const Jug::Trajectories *> trajectories);
+        std::vector<edm4eic::TrackSegment *> execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories);
+
+        edm4eic::TrackPoint * propagate(const eicrecon::TrackingResultTrajectory *);
 
     private:
 
@@ -56,6 +58,8 @@ namespace eicrecon {
 
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
+
+
     };
 } // namespace eicrecon
 

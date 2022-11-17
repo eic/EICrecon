@@ -17,7 +17,7 @@
 #include "edm4eic/TrackSegmentCollection.h"
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
-#include "JugTrack/Trajectories.hpp"
+#include "JugTrack/TrackingResultTrajectory.hpp"
 
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Geometry/GeometryIdentifier.hpp"
@@ -46,7 +46,7 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const Jug::Trajectories *> trajectories) {
+    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
 
         // create output collections
         std::vector<edm4eic::TrackSegment *> track_segments;

@@ -7,7 +7,7 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 #include <edm4hep//MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -20,7 +20,7 @@ private:
 
     // Data objects we will need from JANA
     PrefetchT<edm4hep::MCParticle>  MCParticles   = {this, "MCParticles" };
-    PrefetchT<Jug::Trajectories>    Trajectories  = {this, "CentralCKFTrajectories"};
+    PrefetchT<eicrecon::TrackingResultTrajectory>    Trajectories  = {this, "CentralCKFTrajectories"};
 
     // Containers for histograms
     std::map<std::string, TH1*> hist1D;
