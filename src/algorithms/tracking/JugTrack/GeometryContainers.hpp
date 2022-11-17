@@ -22,7 +22,7 @@
 #include <utility>
 
 
-namespace Jug {
+namespace eicrecon {
 namespace detail {
 // extract the geometry identifier from a variety of types
 struct GeometryIdGetter {

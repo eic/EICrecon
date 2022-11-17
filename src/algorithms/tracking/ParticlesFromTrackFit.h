@@ -11,7 +11,7 @@
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 
-namespace Jug::Reco {
+namespace eicrecon::Reco {
 
     /** Extract the particles form fit trajectories.
      *
@@ -25,7 +25,7 @@ namespace Jug::Reco {
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        ParticlesFromTrackFitResult *execute(const std::vector<const Jug::TrackingResultTrajectory *> &trajectories);
+        ParticlesFromTrackFitResult *execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
 
     };
 } // namespace Jug::Reco

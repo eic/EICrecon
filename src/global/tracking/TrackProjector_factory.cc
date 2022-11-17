@@ -32,7 +32,7 @@ namespace eicrecon {
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Now we check that user provided an input names
         std::string input_tag = GetInputTags()[0];
-        auto trajectories = event->Get<Jug::TrackingResultTrajectory>(input_tag);
+        auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
 
         try {
             auto result = m_track_projector_algo.execute(trajectories);

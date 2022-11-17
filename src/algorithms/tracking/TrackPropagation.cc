@@ -89,7 +89,7 @@ namespace eicrecon {
 
 
     std::vector<edm4eic::TrackSegment *>
-    TrackPropagation::execute(std::vector<const Jug::TrackingResultTrajectory *> trajectories) {
+    TrackPropagation::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
         // output collection
         std::vector<edm4eic::TrackSegment *> track_segments;
         m_log->debug("Track propagation evnet process. Num of input trajectories: {}", std::size(trajectories));

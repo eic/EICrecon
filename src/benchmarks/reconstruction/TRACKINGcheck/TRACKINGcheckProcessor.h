@@ -20,7 +20,7 @@ private:
 
     // Data objects we will need from JANA
     PrefetchT<edm4hep::MCParticle>  MCParticles   = {this, "MCParticles" };
-    PrefetchT<Jug::TrackingResultTrajectory>    Trajectories  = {this, "CentralCKFTrajectories"};
+    PrefetchT<eicrecon::TrackingResultTrajectory>    Trajectories  = {this, "CentralCKFTrajectories"};
 
     // Containers for histograms
     std::map<std::string, TH1*> hist1D;

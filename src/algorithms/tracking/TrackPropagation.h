@@ -42,9 +42,9 @@ namespace eicrecon {
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
         /** Execute track propagation */
-        std::vector<edm4eic::TrackSegment *> execute(std::vector<const Jug::TrackingResultTrajectory *> trajectories);
+        std::vector<edm4eic::TrackSegment *> execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories);
 
-        edm4eic::TrackPoint * propagate(const Jug::TrackingResultTrajectory *)
+        edm4eic::TrackPoint * propagate(const eicrecon::TrackingResultTrajectory *);
 
     private:
 

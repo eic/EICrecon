@@ -28,7 +28,7 @@ namespace eicrecon {
 
             void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
-            std::vector<edm4eic::TrackSegment*> execute(std::vector<const Jug::TrackingResultTrajectory*> trajectories);
+            std::vector<edm4eic::TrackSegment*> execute(std::vector<const eicrecon::TrackingResultTrajectory*> trajectories);
 
         private:
             std::shared_ptr<const ActsGeometryProvider> m_geo_provider;

@@ -48,8 +48,6 @@ public:
     void Finish() override;
 
 private:
-    /// Logger
-    std::shared_ptr<spdlog::logger> m_log;
 
     /// Directory to store histograms to
     TDirectory *m_dir_main{};

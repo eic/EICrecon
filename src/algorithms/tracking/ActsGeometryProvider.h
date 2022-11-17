@@ -122,7 +122,7 @@ private:
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
     /// Acts magnetic field
-    std::shared_ptr<const Jug::BField::DD4hepBField> m_magneticField = nullptr;
+    std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
 
     ///  ACTS general logger that is used for running ACTS
     std::shared_ptr<spdlog::logger> m_log;

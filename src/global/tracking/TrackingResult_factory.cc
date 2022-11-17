@@ -31,7 +31,7 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
 
     try {
         // Collect all hits
-        auto trajectories = event->Get<Jug::TrackingResultTrajectory>(input_tag);
+        auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
         auto result = m_particle_maker_algo.execute(trajectories);
         Insert(result);
     }

@@ -65,7 +65,6 @@ void TrackPropagationTest_processor::Init()
     // Get log level from user parameter or default
     InitLogger(plugin_name);
 
-
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
     m_propagation_algo.init(acts_service->actsGeoProvider(), logger());
@@ -78,18 +77,31 @@ void TrackPropagationTest_processor::Init()
 // This function is called every event
 void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
-    m_log->trace("TrackPropagationTest_processor event {}", event->GetEventNumber());
+    m_log->trace("TrackPropagationTest_processor event");
 
     auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
 
     // Get trajectories from tracking
-    auto trajectories = event->Get<Jug::Trajectories>("CentralCKFTrajectories");
+    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
 
+    std::vector<edm4eic::TrackSegment*> tracks;
     try {
-        auto result = m_propagation_algo.execute(trajectories);
+        tracks = m_propagation_algo.execute(trajectories);
     }
     catch(std::exception &e) {
         m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
+
+    // Now go through reconstructed tracks points
+    logger()->trace("Going over tracks:");
+    m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
+    for( auto track_segment : tracks ){
+        logger()->trace(" Track trajectory");
+
+        for(auto point: track_segment->getPoints()) {
+            auto &pos = point.position;
+            m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, point.pathlength);
+        }
     }
 }
 
@@ -99,7 +111,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 //------------------
 void TrackPropagationTest_processor::Finish()
 {
-    m_log->trace("TrackPropagationTest_processor finished\n");
+//    m_log->trace("TrackPropagationTest_processor finished\n");
 
 }
 

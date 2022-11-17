@@ -41,9 +41,9 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     auto hits = trk_hits;
 
     // Create output collections
-    std::list<Jug::IndexSourceLink> linkStorage;
-    auto sourceLinks = std::vector<std::shared_ptr<Jug::IndexSourceLink>>();
-    auto measurements = std::make_shared<Jug::MeasurementContainer>();
+    std::list<eicrecon::IndexSourceLink> linkStorage;
+    auto sourceLinks = std::vector<std::shared_ptr<eicrecon::IndexSourceLink>>();
+    auto measurements = std::make_shared<eicrecon::MeasurementContainer>();
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
@@ -114,7 +114,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
 
         // Create source links
-        auto sourceLink = std::make_shared<Jug::IndexSourceLink>(surface->geometryId(), hit_index);
+        auto sourceLink = std::make_shared<eicrecon::IndexSourceLink>(surface->geometryId(), hit_index);
         sourceLinks.emplace_back(sourceLink);
 
         auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);

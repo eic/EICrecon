@@ -13,7 +13,7 @@
 #include <vector>
 
 
-namespace Jug {
+namespace eicrecon {
 
 /// Store reconstructed trajectories from track finding/fitting.
 ///
