@@ -14,11 +14,10 @@
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
-
 #include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 
 #include <edm4eic/TrackSegment.h>
-#include <Acts/Surfaces/DiscSurface.hpp>
+
 
 #include "ActsGeometryProvider.h"
 #include "TrackProjector.h"
@@ -41,25 +40,20 @@ namespace eicrecon {
         /** Initialize algorithm */
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
-        /** Execute track propagation */
-        std::vector<edm4eic::TrackSegment *> execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories);
+        /** Propagates a single trajectory to a given surface */
+        edm4eic::TrackPoint * propagate(const eicrecon::TrackingResultTrajectory *, const std::shared_ptr<const Acts::Surface>& targetSurf);
 
-        edm4eic::TrackPoint * propagate(const eicrecon::TrackingResultTrajectory *);
+        /** Propagates a collection of trajectories to a given surface
+         * @remark: being a simple wrapper of propagate(...) this method is more sutable for factories */
+        std::vector<edm4eic::TrackPoint *> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
+                                                         const std::shared_ptr<const Acts::Surface> &targetSurf);
 
     private:
 
-        /** Does ACTS track propagation **/
-        ActsTrackPropagationResult propagateTrack(const Acts::BoundTrackParameters& params, const std::shared_ptr<const Acts::Surface>& targetSurf);
-
         Acts::GeometryContext m_geoContext;
         Acts::MagneticFieldContext m_fieldContext;
-
-        std::shared_ptr<Acts::DiscSurface> hcalEndcapNSurf;
-
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
-
-
     };
 } // namespace eicrecon
 
