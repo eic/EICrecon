@@ -18,22 +18,28 @@
             }
         },
         mounted() {
-            let val = localStorage.getItem("showRecoOnly") ?? false;
-            console.log(val);
-            this.showRecoOnly = val;
+            this.showRecoOnly = (localStorage.getItem("showRecoOnly") ?? "false")  === "true";
+            this.showFlags = (localStorage.getItem("showFlags") ?? "false") === "true";
+            this.showDefaultValue = (localStorage.getItem("showDefaultValue") ?? "false") === "true";
+            this.showUserValue = (localStorage.getItem("showUserValue") ?? "true") === "true";
+            this.showDescription = (localStorage.getItem("showDescription") ?? "true") === "true";
+            this.showDiff = (localStorage.getItem("showDiff") ?? "false") === "true";
         },
         watch: {
-            // showDiff(value) {
-            //     console.log(value);
-            //     if(value) {
-            //         this.showDefaultValue = true;
-            //         this.showUserValue = true;
-            //         this.showDescription = false;
-            //     }
-            // },
-            showRecoOnly(newValue, oldValue) {
-                localStorage.setItem("showRecoOnly", newValue);
-            }
+            showDiff(value) {
+                localStorage.setItem("showDiff", value);
+                if(value) {
+                    this.showDefaultValue = true;
+                    this.showUserValue = true;
+                    this.showDescription = false;
+                }
+            },
+            showRecoOnly(newValue, oldValue) { localStorage.setItem("showRecoOnly", newValue); },
+            showFlags(newValue, oldValue) { localStorage.setItem("showFlags", newValue); },
+            showDefaultValue(newValue, oldValue) { localStorage.setItem("showDefaultValue", newValue); },
+            showUserValue(newValue, oldValue) { localStorage.setItem("showUserValue", newValue); },
+            showDescription(newValue, oldValue) { localStorage.setItem("showDescription", newValue); },
+
         },
 
         created() {
@@ -68,18 +74,16 @@
         },
         computed: {
             filteredFlags() {
-                String.prototype.ellipsis = function(n){
-                    return this.slice(0,n)+'...';
-                };
                 let prefixes = this.recoPrefixes;
                 return this.flags.filter(el => {
-                    if(el[2].length > 50 || el[1].length > 50) {
-                        el[2] = el[2].ellipsis(20); 
-                        el[1] = el[1].ellipsis(20); 
-                        return el[2], el[1];
-                    }
-
                     if(this.showDiff) {
+
+                        if(el[0] === "B0ECAL:B0ECalClusters:depthCorrection") {
+                            console.log(el[0]);
+                            console.log(el[1]);
+                            console.log(el[2]);
+                        }
+
                         if(el[1].toUpperCase() === el[2].toUpperCase()) {
                             return false;
                         }
@@ -88,15 +92,6 @@
                     if(!this.showRecoOnly) {
                         return true;   // We are not filtering and return everything
                     }
-                    /*
-                                                        for r in all_records
-                                if r[0].casefold().startswith(reco_prefix.lower())
-                                and 'LogLevel' not in r[0]
-                                and 'InputTags' not in r[0]
-                                and 'input_tags' not in r[0]
-                                and 'verbose' not in r[0]]
-                            */
-
 
                     for (let prefix of prefixes) {
                         if (el[0].toUpperCase().startsWith(prefix.toUpperCase())) {
@@ -107,6 +102,14 @@
                 });
             },
         },
+        filters: {
+            cutLongLines: function (value) {
+                if(value.length > 50) {
+                    return value.slice(0,50) + "...";
+                }
+                return value;
+            }
+        }
     });
 </script>
 
@@ -153,8 +156,8 @@
         <tbody>
             <tr v-for="flag in filteredFlags" v-bind:title="flag[3]">
                 <td >{{ flag[0] }}</td>
-                <td v-if="showDefaultValue" v-bind:title="flag[1]">{{ flag[1] }}</td>
-                <td v-if="showUserValue" v-bind:title="flag[2]">{{ flag[2] }}</td>
+                <td v-if="showDefaultValue" v-bind:title="flag[1]">{{ flag[1] | cutLongLines }}</td>
+                <td v-if="showUserValue" v-bind:title="flag[2]">{{ flag[2] | cutLongLines }}</td>
                 <td v-if="showDescription" v-bind:title="flag[3]">{{ flag[3] }}</td>
             </tr>
         </tbody>
