@@ -7,6 +7,7 @@ reco_prefixes = [
     "BEMC",
     "BTRK",
     "BVTX",
+    "DRICH",
     "ECGEM",
     "ECTRK",
     "EEMC",

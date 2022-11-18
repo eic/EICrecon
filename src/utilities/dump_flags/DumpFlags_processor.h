@@ -63,6 +63,7 @@ private:
     std::vector<std::string> m_reco_prefixes = {
             "B0TRK",
             "BEMC",
+            "DRICH",
             "BTRK",
             "BVTX",
             "ECGEM",

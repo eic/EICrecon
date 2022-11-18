@@ -735,6 +735,22 @@ eicrecon_reco_flags = [
     ('tracking:CentralCKFTrajectories:EtaBins',                  '',                               'Eta Bins for ACTS CKF tracking reco'),
     ('tracking:CentralCKFTrajectories:NumMeasurementsCutOff',    '10',                             'Number of measurements Cut Off for ACTS CKF tracking'),
 
+    # ============================ P I D ===================================================
+
+    # DRICH
+    # -----------------------------
+    ('DRICH:DRICHRawHits:seed',            '0',         'random number generator seed'                          ),
+    ('DRICH:DRICHRawHits:hitTimeWindow',   '20.0*ns',   ''                                                      ),
+    ('DRICH:DRICHRawHits:timeStep',        '0.0625*ns', ''                                                      ),
+    ('DRICH:DRICHRawHits:speMean',         '80.0',      ''                                                      ),
+    ('DRICH:DRICHRawHits:speError',        '16.0',      ''                                                      ),
+    ('DRICH:DRICHRawHits:pedMean',         '200.0',     ''                                                      ),
+    ('DRICH:DRICHRawHits:pedError',        '3.0',       ''                                                      ),
+    ('DRICH:DRICHRawHits:enablePixelGaps', 'true',      'enable/disable removal of hits in gaps between pixels' ),
+    ('DRICH:DRICHRawHits:pixelSize',       '3.0*mm',    'pixel (active) size'                                   ),
+    ('DRICH:DRICHRawHits:safetyFactor',    '0.7',       'overall safety factor'                                 ),
+    # ('DRICH:DRICHRawHits:quantumEfficiency', '...', 'quantum efficiency' ), # FIXME cannot define here; instead it is hard coded in src/algorithms/digi/PhotoMultiplierHitDigiConfig.h
+
     # ============================ F A R   F O R W A R D ===================================
     
     # RPOTS
