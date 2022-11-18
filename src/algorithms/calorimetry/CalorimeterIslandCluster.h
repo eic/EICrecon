@@ -114,13 +114,12 @@ public:
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
   // unitless counterparts of the input parameters
-    double minClusterHitEdep, minClusterCenterEdep, sectorDist;
     std::array<double, 2> neighbourDist;
 
     //-----------------------------------------------
 
     // unitless counterparts of inputs
-    double           dyRangeADC, stepTDC, tRes, eRes[3];
+    double           stepTDC, tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
     std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask, ref_mask;
@@ -142,7 +141,7 @@ private:
           // different sector, local coordinates do not work, using global coordinates
         } else {
           // sector may have rotation (barrel), so z is included
-          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= sectorDist);
+          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist);
         }
    }
 
@@ -151,7 +150,7 @@ private:
     void dfs_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, int idx,
                  std::vector<const CaloHit*> hits, std::vector<bool>& visits) const {
         // not a qualified hit to particpate clustering, stop here
-        if (hits[idx]->getEnergy() < minClusterHitEdep) {
+        if (hits[idx]->getEnergy() < m_minClusterHitEdep) {
             visits[idx] = true;
             return;
         }
@@ -180,7 +179,7 @@ private:
           mpos = i;
         }
       }
-      if (group[mpos].second->getEnergy() >= minClusterCenterEdep) {
+      if (group[mpos].second->getEnergy() >= m_minClusterCenterEdep) {
         maxima.push_back(group[mpos].second);
       }
       return maxima;
@@ -188,7 +187,7 @@ private:
 
     for (const auto& [idx, hit] : group) {
       // not a qualified center
-      if (hit->getEnergy() < minClusterCenterEdep) {
+      if (hit->getEnergy() < m_minClusterCenterEdep) {
         continue;
       }
 
