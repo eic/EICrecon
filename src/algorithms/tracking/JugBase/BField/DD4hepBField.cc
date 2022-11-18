@@ -14,7 +14,7 @@
 //using Vec        = Jug::Helpers::VectorToActs<ROOT::Math::XYZVector>;
 //using Vec2DD4hep = Jug::Helpers::ArrayToRoot<Acts::Vector3>;
 
-namespace Jug::BField {
+namespace eicrecon::BField {
 
   Acts::Result<Acts::Vector3> DD4hepBField::getField(const Acts::Vector3& position,
                                                      Acts::MagneticFieldProvider::Cache& /*cache*/) const

@@ -25,7 +25,7 @@
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
-#include "ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters.h"
+#include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassTruthClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
 
@@ -54,7 +54,7 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
 
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelTruthSciGlassProtoClusters>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>());
     }

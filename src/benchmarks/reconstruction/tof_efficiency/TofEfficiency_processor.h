@@ -4,10 +4,11 @@
 //
 
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <TNtuple.h>
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/Trajectories.hpp>
+#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 #include <algorithms/tracking/TrackProjector.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <edm4hep//MCParticle.h>
@@ -41,6 +42,12 @@ public:
     void InitWithGlobalRootLock() override;
     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
     void FinishWithGlobalRootLock() override;
+    
+    int IsTOFHit(float x, float y, float z);
 
     TDirectory *m_dir_main;
+    
+    TH2F * m_th2_btof_phiz;
+    TH2F * m_th2_ftof_rphi;                 
+    TNtuple * m_tntuple_track;
 };

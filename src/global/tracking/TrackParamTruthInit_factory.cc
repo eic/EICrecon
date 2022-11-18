@@ -36,7 +36,7 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
 
     try {
         // Produce track parameters out of MCParticles
-        std::vector<Jug::TrackParameters *> results;
+        std::vector<eicrecon::TrackParameters *> results;
         for (auto mc_particle: mc_particles) {
 
             // Only stable particles from MC

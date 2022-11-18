@@ -16,7 +16,7 @@
 
 #include <cassert>
 
-namespace Jug {
+namespace eicrecon {
 
   /// A source link that stores just an index.
   ///

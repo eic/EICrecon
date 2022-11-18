@@ -13,7 +13,7 @@
 #include <vector>
 
 
-namespace Jug {
+namespace eicrecon {
 
 /// Store reconstructed trajectories from track finding/fitting.
 ///
@@ -22,7 +22,7 @@ namespace Jug {
 /// entry index. In case of track fitting, there is at most one trajectory
 /// in the MultiTrajectory; In case of track finding, there could be
 /// multiple trajectories in the MultiTrajectory.
-struct Trajectories final {
+struct TrackingResultTrajectory final {
  public:
   /// (Reconstructed) trajectory with multiple states.
   using MultiTrajectory = Acts::MultiTrajectory;
@@ -31,15 +31,15 @@ struct Trajectories final {
 
   /// Default construct an empty object. Required for container compatibility
   /// and to signal an error.
-  Trajectories() = default;
+  TrackingResultTrajectory() = default;
   /// Construct from fitted multi trajectory and parameters.
   ///
   /// @param multiTraj The multi trajectory
   /// @param tTips Tip indices that identify valid trajectories
   /// @param parameters Fitted track parameters indexed by trajectory index
-  Trajectories(MultiTrajectory multiTraj,
-               const std::vector<size_t>& tTips,
-               const IndexedParameters& parameters)
+  TrackingResultTrajectory(MultiTrajectory multiTraj,
+                           const std::vector<size_t>& tTips,
+                           const IndexedParameters& parameters)
       : m_multiTrajectory(multiTraj),
         m_trackTips(tTips),
         m_trackParameters(parameters) {}
@@ -95,7 +95,7 @@ struct Trajectories final {
 };
 
 /// Container for multiple trajectories.
-using TrajectoriesContainer = std::vector<Trajectories>;
+using TrajectoriesContainer = std::vector<TrackingResultTrajectory>;
 
 } // namespace Jug
 #endif

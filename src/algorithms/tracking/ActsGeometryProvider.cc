@@ -188,8 +188,8 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
 
     // Load ACTS magnetic field
     m_init_log->info("Loading magnetic field...");
-    m_magneticField = std::make_shared<const Jug::BField::DD4hepBField>(m_dd4hepDetector);
-    Acts::MagneticFieldContext m_fieldctx{Jug::BField::BFieldVariant(m_magneticField)};
+    m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(m_dd4hepDetector);
+    Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_magneticField)};
     auto bCache = m_magneticField->makeCache(m_fieldctx);
     for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
         auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();

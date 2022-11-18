@@ -143,7 +143,7 @@ std::string JDD4hep_service::resolveFileName(const std::string &filename, char *
                 mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!", filename);
                 mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
                 std::cerr << std::endl << std::endl << mess << std::endl << std::endl; // TODO standard log here!
-                _exit(-1);  // TODO isn't unhandled JException is a better way to abort the application
+                std::_Exit(EXIT_FAILURE);
             }
         }
     }

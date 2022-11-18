@@ -21,7 +21,7 @@
 # DD4hep              |   Geometry framework
 # ROOT                |   CERN ROOT
 # spdlog              |   Formatting library
-# IRT library         |
+# IRT                 |   Indirect Ray Tracing library
 # ==============================================================
 
 

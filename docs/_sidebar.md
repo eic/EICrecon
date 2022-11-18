@@ -9,6 +9,7 @@
     * [Use singularity](howto/use_singularity.md)
     * [Make Plugin](howto/make_plugin.md)
     * [Add Factory](howto/add_factory.md)
+    * [Visualize Callgraph](howto/visualize_callgraph.md)
 * Design
     * [Flags&Env](design/common_flags_env.md)
     * [Cmake](design/cmake.md)

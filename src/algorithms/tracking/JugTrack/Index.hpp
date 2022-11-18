@@ -12,7 +12,7 @@
 
 #include <boost/container/flat_map.hpp>
 
-namespace Jug {
+namespace eicrecon {
 
 /// Index type to reference elements in a container.
 ///

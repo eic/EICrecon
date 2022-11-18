@@ -29,6 +29,7 @@ void eicrecon::CKFTracking_factory::Init() {
     auto acts_service = app->GetService<ACTSGeo_service>();
     auto dd4hp_service = app->GetService<JDD4hep_service>();
 
+
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
     app->SetDefaultParameter(param_prefix + ":EtaBins", cfg.m_etaBins, "Eta Bins for ACTS CKF tracking reco");
@@ -56,8 +57,8 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         return;
     }
 
-    auto track_parameters = event->Get<Jug::TrackParameters>("InitTrackParams");
-    Jug::TrackParametersContainer acts_track_params;
+    auto track_parameters = event->Get<eicrecon::TrackParameters>("InitTrackParams");
+    eicrecon::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {
         acts_track_params.push_back(*track_params_item);
     }
@@ -70,7 +71,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
 
     // Convert vector of source links to a sorted in geometry order container used in tracking
-    Jug::IndexSourceLinkContainer source_links;
+    eicrecon::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
     for(auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,

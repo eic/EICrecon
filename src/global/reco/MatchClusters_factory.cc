@@ -20,8 +20,6 @@
 
 namespace eicrecon {
 
-
-
     void MatchClusters_factory::Init() {
 
         // This prefix will be used for parameters

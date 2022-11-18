@@ -14,7 +14,7 @@
 #include <iterator>
 #include <utility>
 
-namespace Jug {
+namespace eicrecon {
 
 /// Proxy for iterating over groups of elements within a container.
 ///
