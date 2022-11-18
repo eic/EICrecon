@@ -35,17 +35,17 @@ void InitPlugin(JApplication *app) {
 
     // Tracker hits collector
     app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
-                     {"BarrelTrackerHit",
-                      "BarrelVertexHit",
-                      "EndcapTrackerHit",
+                     {"SiBarrelRecHits",
+                      "SiBarrelVertexRecHits",
+                     "SiEndcapTrackerRecHits",
                       "MPGDTrackerHit",
-                      "TOFEndcapTrackerHit",
+                      "TOFEndcapRecHits",
                       "TOFBarrelTrackerHit"},
-                     "trackerHits"));
+                     "CentralTrackingRecHits"));
 
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-            {"trackerHits"}, "CentralTrackerSourceLinker"));
+            {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
 
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));

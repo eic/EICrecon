@@ -71,20 +71,37 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections={
             "MCParticles",
+
+            "CentralTrackingRecHits",
+            "SiBarrelRecHits",
+            "SiBarrelVertexRecHits",
+            "SiEndcapTrackerRecHits",
+
+            // TOF
+            "TOFBarrelTrackerHit",
+            "TOFEndcapRecHits",
+
+            // MPGD
+            "MPGDBarrelRecHits",
+            "MPGDDIRCRecHits",
+
+            // Forward & Far forward hits
+            "ForwardOffMTrackerRecHits",
+            "ForwardRomanPotRecHits",
+            "B0TrackerRecHits",
+
+            //
+            "ForwardRomanPotParticles",
+            "SmearedFarForwardParticles",
+
+            // Reconstructed data
             "GeneratedParticles",
             "ReconstructedParticles",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticlesAssociations",
-            "trackerHits",
-            "BarrelTrackerHit",
-            "EndcapTrackerHit",
-            "TOFBarrelTrackerHit",
-            "BarrelVertexHit",
-            "TOFEndcapTrackerHit",
-            "ForwardOffMTrackerRecHits",
-            "MPGDTrackerHit",
-            "ForwardRomanPotRecHits",
             "CentralTrackSegments",
+
+            // Ecal stuff
             "EcalEndcapNRawHits",
             "EcalEndcapNRecHits",
             "EcalEndcapNTruthClusters",
@@ -150,11 +167,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalBarrelTruthClusters",
             "B0ECalRecHits",
             "B0ECalClusters",
-            "ZDCEcalTruthClusters",
-            "ForwardRomanPotRawHits",
-            "ForwardRomanPotRecHits",
-            "ForwardRomanPotParticles",
-            "SmearedFarForwardParticles"
+            "ZDCEcalTruthClusters"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
