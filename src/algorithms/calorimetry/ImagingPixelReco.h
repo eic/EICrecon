@@ -44,9 +44,6 @@ protected:
     // Calibration!
     double m_sampFrac; // {this, "samplingFraction", 1.0};
 
-    // unitless counterparts for the input parameters
-    double dyRangeADC{0};
-
     // hits containers
     std::vector<const edm4hep::RawCalorimeterHit*> m_inputHits;
     std::vector<edm4eic::CalorimeterHit *> m_outputHits;
@@ -83,9 +80,6 @@ public:
             m_log->warn(fmt::format("Failed to load ID decoder for {}", m_readout));
             return;
         }
-
-        // unitless conversion
-        dyRangeADC = m_dyRangeADC;
     }
 
     void execute() {
@@ -105,7 +99,7 @@ public:
                 continue;
             }
             const double energy =
-                    (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * dyRangeADC /
+                    (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * m_dyRangeADC /
                     m_sampFrac; // convert ADC -> energy
             const double time = rh->getTimeStamp() * 1.e-6;                                       // dd4hep::ns
 
