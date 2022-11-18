@@ -44,13 +44,13 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:B0ECalClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:B0ECalClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
