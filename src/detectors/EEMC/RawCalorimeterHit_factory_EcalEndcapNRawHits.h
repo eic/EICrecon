@@ -39,10 +39,10 @@ public:
         m_input_tag = "EcalEndcapNHits";
         u_eRes = {};
         m_tRes = 0.0 * ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
-        m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
+        m_capADC = 16384;
+        m_dyRangeADC = 20 * GeV;
+        m_pedMeanADC = 100;
+        m_pedSigmaADC = 1;
         m_resolutionTDC = 10 * picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
