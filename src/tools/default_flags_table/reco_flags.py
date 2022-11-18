@@ -844,10 +844,12 @@ second = 1.
 millisecond = 1.e-3*second
 microsecond = 1.e-6*second
 nanosecond = 1.e-9*second
+picosecond = 1.e-12*second
 # symbols
 ms = millisecond
 us = microsecond
 ns = nanosecond
+ps = picosecond
 # Angle [A]
 #
 radian = 1.
