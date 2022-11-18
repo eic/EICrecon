@@ -622,7 +622,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistXY',          '',                                      ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistXZ',          '',                                      ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistYZ',          '',                                      ''),
-    ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep', '0.03',                                  ''),
+    ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep', '0.03*GeV',                              ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterHitEdep',    '0',                                     ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:sectorDist',           '5',                                     ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:splitCluster',         '1',                                     ''),
