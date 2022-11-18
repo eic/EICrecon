@@ -787,7 +787,7 @@ eicrecon_reco_flags = [
 #
 # Energy [E]
 #
-megaelectronvolt = 1.
+megaelectronvolt = 1.e-3
 electronvolt     = 1.e-6*megaelectronvolt
 kiloelectronvolt = 1.e-3*megaelectronvolt
 gigaelectronvolt = 1.e+3*megaelectronvolt
@@ -802,7 +802,7 @@ TeV = teraelectronvolt
 PeV = petaelectronvolt
 # Length [L]
 #
-millimeter  = 1.
+millimeter  = 0.1
 millimeter2 = millimeter*millimeter
 millimeter3 = millimeter*millimeter*millimeter
 centimeter  = 10.*millimeter
