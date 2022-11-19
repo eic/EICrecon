@@ -28,7 +28,7 @@ void InitPlugin(JApplication *app) {
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
-    hit_reco_cfg.time_resolution = 10;
+    hit_reco_cfg.time_resolution = 8;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"MPGDTrackerRawHit"},     // Input data collection tags
             "MPGDTrackerHit",          // Output data tag
