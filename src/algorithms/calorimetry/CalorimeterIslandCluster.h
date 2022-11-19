@@ -22,7 +22,6 @@
 #include <edm4eic/MutableProtoCluster.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 using CaloHit = edm4eic::CalorimeterHit;
 
 //TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
@@ -101,10 +100,10 @@ public:
     std::string m_input_tag;
     bool m_splitCluster;//{this, "splitCluster", true};
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
-    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * MeV};
+    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
     // neighbour checking distances
-    double m_sectorDist;//{this, "sectorDist", 5.0 * cm};
+    double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
     std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
     std::vector<double> u_localDistXZ;//{this, "localDistXZ", {}};
     std::vector<double> u_localDistYZ;//{this, "localDistYZ", {}};

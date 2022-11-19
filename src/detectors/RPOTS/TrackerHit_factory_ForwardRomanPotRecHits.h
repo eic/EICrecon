@@ -12,7 +12,6 @@
 #include <edm4hep/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <Evaluator/DD4hepUnits.h>
-using namespace dd4hep;
 
 
 class TrackerHit_factory_ForwardRomanPotRecHits : public JFactoryT<edm4eic::TrackerHit>, eicrecon::TrackerHitReconstruction {

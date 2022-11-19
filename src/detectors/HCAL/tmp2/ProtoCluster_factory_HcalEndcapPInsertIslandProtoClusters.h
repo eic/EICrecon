@@ -29,11 +29,11 @@ public:
         m_input_tag = "HcalEndcapPInsertRecHits";
 
         m_splitCluster=true;              // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterHitEdep=0.1 * MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterCenterEdep=3.0 * MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
+        m_minClusterHitEdep=0.1 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
+        m_minClusterCenterEdep=3.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
         // neighbour checking distances
-        m_sectorDist=5.0 * cm;             // from ATHENA reconstruction.py
+        m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
         u_localDistXY={};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};

@@ -19,7 +19,6 @@
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 
 class CalorimeterHitReco {
 
@@ -42,7 +41,7 @@ public:
 
   // digitization settings, must be consistent with digi class
   unsigned int m_capADC;//{this, "capacityADC", 8096};
-  double m_dyRangeADC;//{this, "dynamicRangeADC", 100. * MeV};
+  double m_dyRangeADC;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
   unsigned int m_pedMeanADC;//{this, "pedestalMean", 400};
   double m_pedSigmaADC;//{this, "pedestalSigma", 3.2};
   double m_resolutionTDC;//{this, "resolutionTDC", 10 * ps};

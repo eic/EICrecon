@@ -17,7 +17,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-using namespace dd4hep;
 
 
 class RawCalorimeterHit_factory_HcalBarrelRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
@@ -39,12 +38,12 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "HcalBarrelHits";
         u_eRes = {};
-        m_tRes = 0.0 * ns;
+        m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 8096;
-        m_dyRangeADC = 50 * GeV;
+        m_dyRangeADC = 50 * dd4hep::GeV;
         m_pedMeanADC = 10;
         m_pedSigmaADC = 2.0;
-        m_resolutionTDC = 1.0 * nanosecond;
+        m_resolutionTDC = 1.0 * dd4hep::ns;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};

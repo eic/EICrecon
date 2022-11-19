@@ -60,10 +60,10 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         eRes[i] = u_eRes[i];
     }
 
-    // using juggler internal units (GeV, mm, radian, ns)
-    dyRangeADC = m_dyRangeADC * MeV; // value of m_dyRangeADC is in MeV
-    tRes       = m_tRes / ns;
-    stepTDC    = ns / m_resolutionTDC;
+    // using juggler internal units (GeV, dd4hep::mm, dd4hep::radian, dd4hep::ns)
+    dyRangeADC = m_dyRangeADC * dd4hep::MeV; // value of m_dyRangeADC is in dd4hep::MeV
+    tRes       = m_tRes / dd4hep::ns;
+    stepTDC    = dd4hep::ns / m_resolutionTDC;
 
     // need signal sum
     if (!u_fields.empty()) {
@@ -137,7 +137,7 @@ void CalorimeterHitDigi::single_hits_digi(){
 
      // Create output collections
     for ( auto ahit : simhits ) {
-        // Note: juggler internal unit of energy is GeV
+        // Note: juggler internal unit of energy is dd4hep::GeV
         const double eDep    = ahit->getEnergy();
 
         // apply additional calorimeter noise to corrected energy deposit

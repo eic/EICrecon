@@ -233,7 +233,7 @@ private:
         double timeError = 0.;
         double meta = 0.;
         double mphi = 0.;
-        double r = 9999 * cm;
+        double r = 9999 * dd4hep::cm;
         for (unsigned i = 0; i < hits.size(); ++i) {
             const auto &hit = hits[i];
             const auto &weight = weights[i];
