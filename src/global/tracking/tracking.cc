@@ -39,7 +39,7 @@ void InitPlugin(JApplication *app) {
                          "SiBarrelRecHits",          // Si tracker hits
                          "SiBarrelVertexRecHits",
                          "SiEndcapTrackerRecHits",
-                         "TOFBarrelTrackerHit",      // TOF hits
+                         "TOFBarrelRecHit",      // TOF hits
                          "TOFEndcapRecHits",
                          "MPGDBarrelRecHits",        // MPGD
                          "MPGDDIRCRecHits"},

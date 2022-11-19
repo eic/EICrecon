@@ -31,7 +31,7 @@ void InitPlugin(JApplication *app) {
     hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"TOFBarrelDigiHit"},     // Input data collection tags
-            "TOFBarrelTrackerHit",   // Output data tag
+            "TOFBarrelRecHit",,   // Output data tag
              hit_reco_cfg));         // Hit reco default config for factories
 
 }

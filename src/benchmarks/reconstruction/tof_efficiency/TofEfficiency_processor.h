@@ -28,7 +28,7 @@ private:
     PrefetchT<edm4hep::MCParticle>  mcParticles   = {this, "MCParticles" };
     // PrefetchT<Jug::Trajectories>    Trajectories  = {this, "CentralCKFTrajectories"};
     PrefetchT<edm4eic::TrackSegment> trackSegments = {this, "CentralTrackSegments"};
-    PrefetchT<edm4eic::TrackerHit> barrelHits = {this, "TOFBarrelTrackerHit"};
+    PrefetchT<edm4eic::TrackerHit> barrelHits = {this, "TOFBarrelRecHit"};
     PrefetchT<edm4eic::TrackerHit> endcapHits = {this, "TOFEndcapRecHits"};
 
 
