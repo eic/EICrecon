@@ -913,7 +913,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_command = [
-        f"eicrecon",
+        f"eicrecon"
+    ]
+
+    default_parameters = [
         f"-Pplugins=dump_flags",
         f"-Pdump_flags:python=all_flags_dump_from_run.py",
         f"-Pjana:debug_plugin_loading=1",
@@ -928,6 +931,9 @@ if __name__ == "__main__":
 
     # Add parameters from args
     run_command.extend(parameter_args)
+
+    # Add default parameters
+    run_command.extend(default_parameters)
 
     # Add reco_flags
     run_command.extend(flags_arguments)
