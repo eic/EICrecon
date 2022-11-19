@@ -10,34 +10,44 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <link rel="stylesheet" href="table_flags/flags_style.css">
-  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>  
+  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <!-- Production -->
+  <link
+          rel="stylesheet"
+          href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
+          title="vue"
+          rel="stylesheet" href="table_flags/flags_style.css"
+  />
+
 </head>
 <body>
   <div id="app"></div>
   <script>
     function filterTableRowsByInput(inputId, tableClass) {
+      const input = document.getElementById(inputId);
+      const filter = input.value;
+      const tables = document.getElementsByClassName(tableClass);
 
-      
+      // We may have multiple tables, iterate through them
+      for(let table_idx=0; table_idx < tables.length; table_idx++){
+        const table = tables[table_idx];
+        const tableRows = table.getElementsByTagName("tr");
+        const tableHeaders = table.getElementsByTagName("th");
 
-      var input, filter, table, tr, td, i, txtValue, n;
-      input = document.getElementById(inputId);
-      filter = input.value.toUpperCase();
-      table = document.getElementsByClassName(tableClass);
+        // Iterate rows
+        for (let row_idx=1; row_idx < tableRows.length; row_idx++) {
+          const row = tableRows[row_idx];
+          row.style.display = "none";
 
-      for(var r = 0; r < table.length; r++){
-        tr = table[r].getElementsByTagName("tr");
-        th = table[r].getElementsByTagName("th");
-
-        for (i = 1; i < tr.length; i++) {
-          tr[i].style.display = "none";
-          for(var j=0; j<th.length; j++){
-            td = tr[i].getElementsByTagName("td")[j];      
+          // Check column values to decide to switch rows
+          for(let col_idx=0; col_idx < tableHeaders.length; col_idx++){
+            const td = row.getElementsByTagName("td")[col_idx];
             if (td) {
-              if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1)                               {
-                tr[i].style.display = "";
-                  break;
-                  }
-                }
+              if (td.innerHTML.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                row.style.display = "";
+                break;
+              }
+            }
           }
         }
       }
@@ -64,6 +74,45 @@
             return this.origin.code.apply(this, arguments);
           }
         }
+      },
+      vueComponents: {
+        'button-counter': {
+          template:
+                  '<button @click="count += 1">You clicked me {{ count }} times</button>',
+          data: function () {
+            return {
+              count: 0,
+            };
+          },
+        },
+      },
+      vueGlobalOptions: {
+        data: function () {
+          return {
+            count: 0,
+            message: 'Hello, World!',
+            // Fake API response
+            images: [
+              {title: 'Image 1', url: 'https://picsum.photos/150?random=1'},
+              {title: 'Image 2', url: 'https://picsum.photos/150?random=2'},
+              {title: 'Image 3', url: 'https://picsum.photos/150?random=3'},
+            ],
+          };
+        },
+        computed: {
+          timeOfDay: function () {
+            const date = new Date();
+            const hours = date.getHours();
+
+            if (hours < 12) {
+              return 'morning';
+            } else if (hours < 18) {
+              return 'afternoon';
+            } else {
+              return 'evening';
+            }
+          },
+        }
       }
     }
   </script>
@@ -75,5 +124,6 @@
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cmake.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
 </body>
 </html>

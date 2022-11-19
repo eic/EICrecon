@@ -29,11 +29,11 @@ public:
         m_input_tag = "B0ECalRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=30.0 * MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=1.0 * MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=30.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=1.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
         // neighbour checking distances
-        m_sectorDist=5.0 * cm;             // from ATHENA reconstruction.py
+        m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
         u_localDistXY={};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};

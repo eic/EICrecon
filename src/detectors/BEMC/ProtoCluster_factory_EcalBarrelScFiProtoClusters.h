@@ -30,13 +30,13 @@ public:
         m_input_tag = "EcalBarrelScFiMergedHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=10.0 * MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
         // neighbour checking distances
-        m_sectorDist=5.0 * cm;             // ?
+        m_sectorDist=5.0 * dd4hep::cm;             // ?
         u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={30*mm, 30*mm};     //{this, "localDistXZ", {}};  n.b. 30*mm, 30*mm came from comment Maria Z. put into PR.
+        u_localDistXZ={30 * dd4hep::mm, 30 * dd4hep::mm};     //{this, "localDistXZ", {}};  n.b. 30 * dd4hep::mm, 30 * dd4hep::mm came from comment Maria Z. put into PR.
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};

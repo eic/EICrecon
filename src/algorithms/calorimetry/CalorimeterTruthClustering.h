@@ -16,7 +16,6 @@
 #include <spdlog/spdlog.h>
 
 
-using namespace dd4hep;
 
 class CalorimeterTruthClustering {
 

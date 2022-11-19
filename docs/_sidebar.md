@@ -17,6 +17,8 @@
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
+* All flags
+    * [Flags view](table_flags/flags_view.md) 
 * Tutorials 
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
@@ -26,5 +28,4 @@
 * Misc
     * [References](misc/references.md)
     * [This website](misc/this_website.md)   
-* Table flags
-    * [Table flags](table_flags/flags.md)
+

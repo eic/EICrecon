@@ -22,7 +22,6 @@
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 
 class CalorimeterHitsMerger  {
 public:

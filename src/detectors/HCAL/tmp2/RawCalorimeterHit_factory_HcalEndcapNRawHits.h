@@ -17,7 +17,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-using namespace dd4hep;
 
 
 class RawCalorimeterHit_factory_HcalEndcapNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
@@ -37,13 +36,13 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "HcalEndcapNHits";
-        m_tRes = 0.0 * ns;
-        m_tRes = 0.0 * ns;
+        m_tRes = 0.0 * dd4hep::ns;
+        m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 8096;
-        m_dyRangeADC = 100 * MeV;
+        m_dyRangeADC = 100 * dd4hep::MeV;
         m_pedMeanADC = 400;
         m_pedSigmaADC = 3.2;
-        m_resolutionTDC = 10 * picosecond;
+        m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";

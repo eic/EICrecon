@@ -35,8 +35,8 @@ public:
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
-        app->SetDefaultParameter("EEMC:B0ECalMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:B0ECalMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
+        app->SetDefaultParameter("B0ECAL:B0ECalMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("B0ECAL:B0ECalMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
 
         AlgorithmInit(m_log);
     }
