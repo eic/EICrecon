@@ -502,7 +502,11 @@ namespace jana {
                         if ((pos != std::string::npos) && (pos > 2)) {
                             std::string key = arg.substr(2, pos - 2);
                             std::string val = arg.substr(pos + 1);
-                            options.params.insert({key, val});
+                            if (options.params.find(key) != options.params.end()) {
+                                std::cout << "Duplicate parameter '" << arg << "' ignored" << std::endl;
+                            } else {
+                                options.params.insert({key, val});
+                            }
                         } else {
                             std::cout << "Invalid JANA parameter '" << arg
                                       << "': Expected format -Pkey=value" << std::endl;
