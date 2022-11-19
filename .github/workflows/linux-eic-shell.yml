@@ -152,6 +152,24 @@ jobs:
         path: ${{ matrix.detector_config }}_right_flags.json
         if-no-files-found: error
 
+  diff-flags:
+    runs-on: ubuntu-latest
+    needs:
+      - run_eicrecon_reco_flags-gcc
+      - eicrecon-gcc
+    strategy:
+      matrix:
+        detector_config: [arches, brycecanyon]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.detector_config }}_flags.json
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.detector_config }}_right_flags.json
+      - run: |
+          diff ${{ matrix.detector_config }}_right_flags.json ${{ matrix.detector_config }}_flags.json
+
   # This job is to build postprocessing of artifacts from EICrecon runs
   generate-report:
     runs-on: ubuntu-latest
