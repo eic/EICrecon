@@ -27,7 +27,6 @@
 #include <spdlog/spdlog.h>
 
 
-using namespace dd4hep;
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
     static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }

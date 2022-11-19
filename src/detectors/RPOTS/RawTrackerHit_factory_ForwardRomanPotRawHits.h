@@ -11,7 +11,6 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <Evaluator/DD4hepUnits.h>
-using namespace dd4hep;
 
 
 class RawTrackerHit_factory_ForwardRomanPotRawHits : public JFactoryT<edm4eic::RawTrackerHit>, eicrecon::SiliconTrackerDigi {

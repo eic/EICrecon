@@ -16,7 +16,6 @@
 
 
 
-using namespace dd4hep;
 
 
 

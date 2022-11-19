@@ -22,7 +22,6 @@
 #include <edm4eic/MutableProtoCluster.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 using CaloHit = edm4eic::CalorimeterHit;
 
 //TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention

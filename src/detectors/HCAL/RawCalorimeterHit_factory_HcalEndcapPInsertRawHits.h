@@ -17,7 +17,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-using namespace dd4hep;
 
 
 class RawCalorimeterHit_factory_HcalEndcapPInsertRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
