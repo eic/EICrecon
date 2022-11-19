@@ -107,7 +107,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -117,6 +117,11 @@ jobs:
       with:
         name: ${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.detector_config }}_flags.json
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
+        path: jana.dot
         if-no-files-found: error
 
   run_eicrecon_reco_flags-gcc:
@@ -144,7 +149,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pdump_flags:json=${{ matrix.detector_config }}_right_flags.json
+          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.detector_config }}_right_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -154,6 +159,11 @@ jobs:
       with:
         name: ${{ matrix.detector_config }}_right_flags.json
         path: ${{ matrix.detector_config }}_right_flags.json
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
+        path: jana.dot
         if-no-files-found: error
 
   diff-flags:
