@@ -24,11 +24,11 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
     //unitless conversion
     m_log=logger;
-    dyRangeADC = m_dyRangeADC * MeV;
+    dyRangeADC = m_dyRangeADC * dd4hep::MeV;
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
     // TDC channels to timing conversion
-    stepTDC = ns / m_resolutionTDC;
+    stepTDC = dd4hep::ns / m_resolutionTDC;
 
     // do not get the layer/sector ID if no readout class provided
     if (m_readout.empty()) {

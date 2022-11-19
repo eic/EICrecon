@@ -43,18 +43,18 @@ protected:
     // maximum difference in layer numbers that can be considered as neighbours
     int m_neighbourLayersRange = 1; // {this, "neighbourLayersRange", 1};
     // maximum distance of local (x, y) to be considered as neighbors at the same layer
-    std::vector<double> u_localDistXY = {1.0 * mm, 1.0 * mm}; //{this, "localDistXY", {1.0 * mm, 1.0 * mm}};
+    std::vector<double> u_localDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //{this, "localDistXY", {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}};
     // maximum distance of global (eta, phi) to be considered as neighbors at different layers
     std::vector<double> u_layerDistEtaPhi = {0.01, 0.01}; //{this, "layerDistEtaPhi", {0.01, 0.01}};
     // maximum global distance to be considered as neighbors in different sectors
-    double m_sectorDist = 1.0 * cm; // {this, "sectorDist", 1.0 * cm};
+    double m_sectorDist = 1.0 * dd4hep::cm; // {this, "sectorDist", 1.0 * dd4hep::cm};
 
     // minimum hit energy to participate clustering
     double m_minClusterHitEdep = 0.; // {this, "minClusterHitEdep", 0.};
     // minimum cluster center energy (to be considered as a seed for cluster)
     double m_minClusterCenterEdep = 0.; // {this, "minClusterCenterEdep", 0.};
     // minimum cluster energy (to save this cluster)
-    double m_minClusterEdep = 0.5 * MeV; // {this, "minClusterEdep", 0.5 * MeV};
+    double m_minClusterEdep = 0.5 * dd4hep::MeV; // {this, "minClusterEdep", 0.5 * dd4hep::MeV};
     // minimum number of hits (to save this cluster)
     int m_minClusterNhits = 10; // {this, "minClusterNhits", 10};
     // input hits collection
@@ -83,27 +83,27 @@ public:
             return;
         }
 
-        // using juggler internal units (GeV, mm, ns, rad)
-        localDistXY[0] = u_localDistXY[0] / mm;
-        localDistXY[1] = u_localDistXY[1] / mm;
+        // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
+        localDistXY[0] = u_localDistXY[0] / dd4hep::mm;
+        localDistXY[1] = u_localDistXY[1] / dd4hep::mm;
         layerDistEtaPhi[0] = u_layerDistEtaPhi[0];
-        layerDistEtaPhi[1] = u_layerDistEtaPhi[1] / rad;
-        sectorDist = m_sectorDist / mm;
-        minClusterHitEdep = m_minClusterHitEdep / GeV;
-        minClusterCenterEdep = m_minClusterCenterEdep / GeV;
-        minClusterEdep = m_minClusterEdep / GeV;
+        layerDistEtaPhi[1] = u_layerDistEtaPhi[1] / dd4hep::rad;
+        sectorDist = m_sectorDist / dd4hep::mm;
+        minClusterHitEdep = m_minClusterHitEdep / dd4hep::GeV;
+        minClusterCenterEdep = m_minClusterCenterEdep / dd4hep::GeV;
+        minClusterEdep = m_minClusterEdep / dd4hep::GeV;
 
         // summarize the clustering parameters
         m_log->info( fmt::format("Local clustering (same sector and same layer): "
-                              "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+                              "Local [x, y] distance between hits <= [{:.4f} dd4hep::mm, {:.4f} dd4hep::mm].",
                               localDistXY[0], localDistXY[1])
         );
         m_log->info( fmt::format("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                              "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+                              "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} dd4hep::rad].",
                               m_neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1])
         );
         m_log->info( fmt::format("Neighbour sectors clustering (different sector): "
-                              "Global distance between hits <= {:.4f} mm.",
+                              "Global distance between hits <= {:.4f} dd4hep::mm.",
                               sectorDist)
         );
 

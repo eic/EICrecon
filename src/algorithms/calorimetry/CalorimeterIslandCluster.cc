@@ -52,18 +52,18 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 
 
     m_log=logger;
-    // unitless conversion, keep consistency with juggler internal units (GeV, mm, ns, rad)
-    // n.b. JANA reco_parms.py uses units of MeV and mm and so convert to this into internal units here
-    minClusterHitEdep    = m_minClusterHitEdep * MeV;
-    minClusterCenterEdep = m_minClusterCenterEdep * MeV;
-    sectorDist           = m_sectorDist * mm;
+    // unitless conversion, keep consistency with juggler internal units (dd4hep::GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
+    // n.b. JANA reco_parms.py uses units of dd4hep::MeV and dd4hep::mm and so convert to this into internal units here
+    minClusterHitEdep    = m_minClusterHitEdep * dd4hep::MeV;
+    minClusterCenterEdep = m_minClusterCenterEdep * dd4hep::MeV;
+    sectorDist           = m_sectorDist * dd4hep::mm;
 
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>
     distMethods{
-        {"localDistXY", {localDistXY, {mm, mm}}},        {"localDistXZ", {localDistXZ, {mm, mm}}},
-        {"localDistYZ", {localDistYZ, {mm, mm}}},        {"dimScaledLocalDistXY", {dimScaledLocalDistXY, {1., 1.}}},
-        {"globalDistRPhi", {globalDistRPhi, {mm, rad}}}, {"globalDistEtaPhi", {globalDistEtaPhi, {1., rad}}}
+        {"localDistXY", {localDistXY, {dd4hep::mm, dd4hep::mm}}},        {"localDistXZ", {localDistXZ, {dd4hep::mm, dd4hep::mm}}},
+        {"localDistYZ", {localDistYZ, {dd4hep::mm, dd4hep::mm}}},        {"dimScaledLocalDistXY", {dimScaledLocalDistXY, {1., 1.}}},
+        {"globalDistRPhi", {globalDistRPhi, {dd4hep::mm, dd4hep::rad}}}, {"globalDistEtaPhi", {globalDistEtaPhi, {1., dd4hep::rad}}}
     };
 
 
@@ -158,8 +158,8 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
 
       if (m_log->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
         const auto& hit = hits[i];
-        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
-        m_log->info("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
+        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} dd4hep::MeV, local = ({:.4f}, {:.4f}) dd4hep::mm, global=({:.4f}, {:.4f}, {:.4f}) dd4hep::mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
+        m_log->info("hit {:d}: energy = {:.4f} dd4hep::MeV, local = ({:.4f}, {:.4f}) dd4hep::mm, global=({:.4f}, {:.4f}, {:.4f}) dd4hep::mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
       }
       // already in a group
       if (visits[i]) {

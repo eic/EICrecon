@@ -153,8 +153,8 @@ public:
             new_clus.setEnergyError(eclus.getEnergyError());
             new_clus.setTime(eclus.getTime());
             new_clus.setNhits(eclus.getNhits());
-            // use nominal radius of 110cm, and use start vertex theta and phi
-            new_clus.setPosition(edm4eic::sphericalToVector(110. * cm, theta, phi));
+            // use nominal dd4hep::radius of 110cm, and use start vertex theta and phi
+            new_clus.setPosition(edm4eic::sphericalToVector(110. * dd4hep::cm, theta, phi));
 //            new_clus.addToClusters(eclus);
             if (m_log->level() == SPDLOG_LEVEL_DEBUG) {
                 m_log->debug( fmt::format(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.id() ,mcID ,eclus.getEnergy() ));

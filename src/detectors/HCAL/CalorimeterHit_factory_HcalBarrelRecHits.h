@@ -27,7 +27,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096; // best guess
-        m_dyRangeADC=50. * GeV; // best guess
+        m_dyRangeADC=50. * dd4hep::GeV; // best guess
         m_pedMeanADC=10; // best guess
         m_pedSigmaADC=2; // best guess
         m_resolutionTDC=1 * dd4hep::nanosecond; // best guess

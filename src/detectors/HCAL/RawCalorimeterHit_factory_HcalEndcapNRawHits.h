@@ -38,12 +38,12 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "HcalEndcapNHits";
         u_eRes = {};
-        m_tRes = 0.0 * ns;
+        m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 1024;
-        m_dyRangeADC = 3.6 * MeV;
+        m_dyRangeADC = 3.6 * dd4hep::MeV;
         m_pedMeanADC = 400;
         m_pedSigmaADC = 3.2;
-        m_resolutionTDC = 10 * picosecond;
+        m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};

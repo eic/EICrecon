@@ -34,7 +34,7 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         auto &config = getConfig();
         config.threshold = 0.0;
-        config.timeResolution = 8.0; // units are ns
+        config.timeResolution = 8.0; // units are dd4hep::ns
 
         app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:threshold",     config.threshold );
         app->SetDefaultParameter("RPOTS:ForwardRomanPotRawHits:timeResolution",config.timeResolution );
