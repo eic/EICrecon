@@ -77,8 +77,8 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
       auto cl = reconstruct(pcl);
 
       if (m_log->level() <= spdlog::level::debug) {
-        //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / dd4hep::GeV << " dd4hep::GeV, (" << cl.getPosition().x / dd4hep::mm << ", " << cl.getPosition().y / dd4hep::mm << ", " << cl.getPosition().z / dd4hep::mm << ")" << LOG_END;
-        m_log->debug("{} hits: {} dd4hep::GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
+        //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / dd4hep::GeV << " GeV, (" << cl.getPosition().x / dd4hep::mm << ", " << cl.getPosition().y / dd4hep::mm << ", " << cl.getPosition().z / dd4hep::mm << ")" << LOG_END;
+        m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
       }
       clusters.push_back(cl);
 

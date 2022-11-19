@@ -95,15 +95,15 @@ public:
 
         // summarize the clustering parameters
         m_log->info( fmt::format("Local clustering (same sector and same layer): "
-                              "Local [x, y] distance between hits <= [{:.4f} dd4hep::mm, {:.4f} dd4hep::mm].",
+                              "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                               localDistXY[0], localDistXY[1])
         );
         m_log->info( fmt::format("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                              "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} dd4hep::rad].",
+                              "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
                               m_neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1])
         );
         m_log->info( fmt::format("Neighbour sectors clustering (different sector): "
-                              "Global distance between hits <= {:.4f} dd4hep::mm.",
+                              "Global distance between hits <= {:.4f} mm.",
                               sectorDist)
         );
 

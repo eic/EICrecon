@@ -145,7 +145,7 @@ public:
         // debug output
         if (m_log->level() == SPDLOG_LEVEL_DEBUG) {
             for (const auto &cl: clusters) {
-                m_log->debug( fmt::format("Cluster {:d}: Edep = {:.3f} dd4hep::MeV, Dir = ({:.3f}, {:.3f}) deg", cl->id(),
+                m_log->debug( fmt::format("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl->id(),
                                        cl->getEnergy() * 1000., cl->getIntrinsicTheta() / M_PI * 180.,
                                        cl->getIntrinsicPhi() / M_PI * 180.)
                 );

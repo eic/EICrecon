@@ -158,8 +158,8 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
 
       if (m_log->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
         const auto& hit = hits[i];
-        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} dd4hep::MeV, local = ({:.4f}, {:.4f}) dd4hep::mm, global=({:.4f}, {:.4f}, {:.4f}) dd4hep::mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
-        m_log->info("hit {:d}: energy = {:.4f} dd4hep::MeV, local = ({:.4f}, {:.4f}) dd4hep::mm, global=({:.4f}, {:.4f}, {:.4f}) dd4hep::mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
+        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
+        m_log->info("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
       }
       // already in a group
       if (visits[i]) {
