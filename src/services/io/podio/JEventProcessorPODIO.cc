@@ -72,7 +72,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     std::vector<std::string> output_include_collections={
             "MCParticles",
 
+            // All tracking hits combined
             "CentralTrackingRecHits",
+
+            // Si tracker hits
             "SiBarrelRecHits",
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
