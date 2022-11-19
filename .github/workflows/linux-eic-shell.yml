@@ -58,6 +58,7 @@ jobs:
         path: |
           .
           !src/
+          !build/
           !apt_cache/
         if-no-files-found: error
 
