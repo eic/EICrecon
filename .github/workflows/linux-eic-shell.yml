@@ -186,7 +186,6 @@ jobs:
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
-          cp flags.md docs/table_flags/flags.md
           cp arches_right_flags.json docs/arches_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
