@@ -166,25 +166,7 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  diff-flags:
-    runs-on: ubuntu-latest
-    needs:
-      - run_eicrecon_reco_flags-gcc
-      - eicrecon-gcc
-    strategy:
-      matrix:
-        detector_config: [arches, brycecanyon]
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.detector_config }}_flags.json
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.detector_config }}_right_flags.json
-      - run: |
-          diff ${{ matrix.detector_config }}_right_flags.json ${{ matrix.detector_config }}_flags.json
-
-   # build-docs and deploy-docs copy doxygen.yml functionality
+  # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
   # to embed into docs
   build-docs-advanced:
