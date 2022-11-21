@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
 
     TrackerHitReconstructionConfig hit_reco_cfg;
     // change default parameters like hit_reco_cfg.time_resolution = 10;
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"SiBarrelDigiHits"}, "SiBarrelRecHits", hit_reco_cfg));
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"SiBarrelDigiHits"}, "SiBarrelTrackerRecHits", hit_reco_cfg));
 
 }
 } // extern "C"

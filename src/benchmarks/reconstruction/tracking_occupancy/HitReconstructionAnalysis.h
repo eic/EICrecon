@@ -21,7 +21,7 @@ private:
 
     /// This is edm4hep::SimTrackerHits names of different detector readouts
     std::vector<std::string> m_data_names = {
-            "SiBarrelRecHits",      // Barrel Tracker
+            "SiBarrelTrackerRecHits",      // Barrel Tracker
             "SiBarrelVertexRecHits",       // Vertex
            "SiEndcapTrackerRecHits",      // End Cap tracker
             "MPGDTrackerHit",        // MPGD

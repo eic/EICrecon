@@ -75,7 +75,7 @@ std::vector<std::string> m_default_input_tags;
       m_app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerBarrelHits1", "TrackerBarrelHits2"},"BarrelTrackerRawHit"));
 
       // Convert raw digitized hits into hits with geometry info (ready for tracking)
-      m_app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "SiBarrelRecHits"));
+      m_app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelTrackerRawHit"}, "SiBarrelTrackerRecHits"));
 
       // ...
 ```

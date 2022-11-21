@@ -76,7 +76,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralTrackingRecHits",
 
             // Si tracker hits
-            "SiBarrelRecHits",
+            "SiBarrelTrackerRecHits",
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
 
