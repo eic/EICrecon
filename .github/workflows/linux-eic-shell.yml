@@ -166,57 +166,12 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  diff-flags:
-    runs-on: ubuntu-latest
-    needs:
-      - run_eicrecon_reco_flags-gcc
-      - eicrecon-gcc
-    strategy:
-      matrix:
-        detector_config: [arches, brycecanyon]
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.detector_config }}_flags.json
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.detector_config }}_right_flags.json
-      - run: |
-          diff ${{ matrix.detector_config }}_right_flags.json ${{ matrix.detector_config }}_flags.json
-
-  # This job is to build postprocessing of artifacts from EICrecon runs
-  generate-report:
-    runs-on: ubuntu-latest
-    needs:
-      - run_eicrecon_reco_flags-gcc
-      - eicrecon-gcc
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: arches_flags.json
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: arches_right_flags.json
-
-      - name: Build flags table
-        run: |
-          python3 src/tools/default_flags_table/gen_markdown_tables.py --flags=arches_right_flags.json --template=docs/table_flags/flags.in.md --output=flags.md
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: flags.md
-          path: flags.md
-          if-no-files-found: error
-
   # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
   # to embed into docs
   build-docs-advanced:
     needs:
-      - generate-report
+      - run_eicrecon_reco_flags-gcc
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -227,14 +182,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: flags.md
-      - uses: actions/download-artifact@v3
-        with:
           name: arches_right_flags.json
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
-          cp flags.md docs/table_flags/flags.md
           cp arches_right_flags.json docs/arches_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
