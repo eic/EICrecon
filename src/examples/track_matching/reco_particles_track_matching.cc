@@ -14,7 +14,8 @@
 
 using std::string;
 
-void reco_particles_track_matching(char *file_name) {
+
+void reco_particles_track_matching(const char *file_name) {
     auto file = new TFile(file_name);
     auto tree = (TTree *) file->Get("events");
     TTreeReader tree_reader(tree);       // !the tree reader
@@ -56,6 +57,7 @@ void reco_particles_track_matching(char *file_name) {
 
 
 int main() {
-    reco_particles_track_matching("/home/romanov/eic/soft/eicrecon/main/src/examples/test_data_generator/2022-11-15_pgun_pi-_epic_arches_e0.01-30GeV_alldir_4prt_1000evt_reco.tree.edm4eic.root");
+    std::string input_file("reco.tree.edm4eic.root");
+    reco_particles_track_matching(input_file.c_str());
     return 0;
 }
