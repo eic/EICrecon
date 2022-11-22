@@ -20,7 +20,7 @@ namespace eicrecon {
 
       // SiPM pixels
       bool   enablePixelGaps = false;          // enable/disable removal of hits in gaps between pixels
-      double pixelSize       = 4.0*dd4hep::mm; // pixel (active) size
+      double pixelSize       = 3.0*dd4hep::mm; // pixel (active) size
 
       // overall safety factor 
       /* simulations assume the detector is ideal and perfect, but reality is
