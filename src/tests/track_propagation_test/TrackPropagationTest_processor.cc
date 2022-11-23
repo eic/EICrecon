@@ -78,6 +78,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 
     // Get trajectories from tracking
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+    auto clusters = event->Get<edm4eic::Cluster>("HcalEndcapNClusters");
 
     // Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());
@@ -100,11 +101,20 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
         }
 
         // Now go through reconstructed tracks points
-
         auto pos = projection_point->position;
         auto length =  projection_point->pathlength;
         m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length);
     }
+
+    m_log->trace("Now points created in a factory");
+    auto proj_from_factory = event->Get<edm4eic::TrackPoint>("HcalEndcapNProjections");
+    for(auto point: proj_from_factory) {
+        // Now go through reconstructed tracks points
+        auto pos = point->position;
+        auto length =  point->pathlength;
+        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, length);
+    }
+
 }
 
 
