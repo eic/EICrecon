@@ -2,7 +2,6 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 
 
-
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
@@ -26,7 +25,6 @@ void TrackPoint_factory_HcalEndcapNProjections::Init() {
     // Get JANA application
     auto app = GetApplication();
 
-
     // Get log level from user parameter or default
     InitLogger(plugin_name);
 
@@ -38,12 +36,15 @@ void TrackPoint_factory_HcalEndcapNProjections::Init() {
     auto transform = Acts::Transform3::Identity();
 
     // make a reference disk to mimic electron-endcap HCal
-    double hcalEndcapNZ = -3322.;
-    double hcalEndcapNMinR = 83.01;
-    double hcalEndcapNMaxR = 950;
+    // Since the surface is created directly in ACTS geometry, we use ACTS units here
+    double hcalEndcapNZ = -3322. * Acts::UnitConstants::mm;
+    double hcalEndcapNMinR = 83.01 * Acts::UnitConstants::mm;
+    double hcalEndcapNMaxR = 950 * Acts::UnitConstants::mm;
 
     // Check if users ha
-    app->SetDefaultParameter(param_prefix + ":plainZ", hcalEndcapNZ, "Projection plane Z");
+    app->SetDefaultParameter(param_prefix + ":surfaceZ", hcalEndcapNZ, "Projection surface Z [mm]");
+    app->SetDefaultParameter(param_prefix + ":surfaceRMin", hcalEndcapNMinR, "Projection surface RMin [mm]");
+    app->SetDefaultParameter(param_prefix + ":surfaceRMax", hcalEndcapNMaxR, "Projection surface RMax [mm]");
 
     auto hcalEndcapNBounds = std::make_shared<Acts::RadialBounds>(hcalEndcapNMinR, hcalEndcapNMaxR);
     auto hcalEndcapNTrf = transform * Acts::Translation3(Acts::Vector3(0, 0, hcalEndcapNZ));
@@ -60,34 +61,18 @@ void TrackPoint_factory_HcalEndcapNProjections::Process(const std::shared_ptr<co
     std::vector<edm4eic::TrackPoint *> result_poins;
 
 // Iterate over trajectories
-    m_log->debug("Propagating through {} trajectories", trajectories.
-
-            size()
-
-    );
-    for (
-            size_t traj_index = 0;
-            traj_index < trajectories.
-
-                    size();
-
-            traj_index++) {
+    m_log->debug("Propagating through {} trajectories", trajectories.size());
+    for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
         auto &trajectory = trajectories[traj_index];
         m_log->trace(" -- trajectory {} --", traj_index);
 
         edm4eic::TrackPoint *projection_point;
         try {
-// >>> try to propagate to surface <<<
+            // >>> try to propagate to surface <<<
             projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
-        catch (
-                std::exception &e
-        ) {
-            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.
-
-                    what()
-
-            );
+        catch (std::exception &e) {
+            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
 
         if (!projection_point) {
@@ -95,13 +80,12 @@ void TrackPoint_factory_HcalEndcapNProjections::Process(const std::shared_ptr<co
             continue;
         }
 
-// Now go through reconstructed tracks points
+        // Now go through reconstructed tracks points
         auto pos = projection_point->position;
         auto length = projection_point->pathlength;
         m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length);
 
-        result_poins.
-                push_back(projection_point);
+        result_poins.push_back(projection_point);
     }
 
 // Put data as a factory running result
