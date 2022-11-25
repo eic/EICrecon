@@ -15,6 +15,10 @@ class IrtGeoPFRICH : public IrtGeo {
     IrtGeoPFRICH(dd4hep::Detector *det_,      bool verbose_=false) : IrtGeo("PFRICH",det_,verbose_)         { DD4hep_to_IRT(); }
     ~IrtGeoPFRICH() {}
 
+#ifdef WITH_IRTGEO_ACTS
+    std::vector<std::shared_ptr<Acts::DiscSurface>> TrackingPlanes(int radiator, int numPlanes) override;
+#endif
+
   protected:
     void DD4hep_to_IRT() override;
 };

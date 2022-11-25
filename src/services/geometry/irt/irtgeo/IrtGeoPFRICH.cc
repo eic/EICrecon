@@ -21,7 +21,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
   auto cv = irtGeometry->SetContainerVolume(
       irtDetector,             // Cherenkov detector
-      "GasVolume",             // name
+      RadiatorName(kGas),      // name
       0,                       // path
       (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial (inaccessible?)
@@ -55,7 +55,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
   auto aerogelFlatRadiator = irtGeometry->AddFlatRadiator(
       irtDetector,             // Cherenkov detector
-      "Aerogel",               // name
+      RadiatorName(kAerogel),  // name
       0,                       // path
       (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
@@ -140,7 +140,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once), 
       // assuming that all the sensors will be sitting at roughly the same location along the beam line anyway;
       if(firstSensor) {
-        irtDetector->GetRadiator("GasVolume")->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
+        irtDetector->GetRadiator(RadiatorName(kGas))->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
         firstSensor = false;
       }
 
@@ -149,13 +149,25 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this? We should avoid hard-coded numbers here!
-  std::map<std::string, double> rIndices;
-  rIndices.insert({"GasVolume", 1.0013});
-  rIndices.insert({"Aerogel", 1.0190});
-  rIndices.insert({"Filter", 1.5017});
+  std::map<const char*, double> rIndices;
+  rIndices.insert({RadiatorName(kGas),     1.0013});
+  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = irtDetector->GetRadiator(rName.c_str());
+    auto rad = irtDetector->GetRadiator(rName);
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }
 }
+
+#ifdef WITH_IRTGEO_ACTS
+std::vector<std::shared_ptr<Acts::DiscSurface>> IrtGeoPFRICH::TrackingPlanes(int radiator, int numPlanes) {
+
+  std::vector<std::shared_ptr<Acts::DiscSurface>> discs;
+
+  // TODO
+
+  return discs;
+
+}
+#endif

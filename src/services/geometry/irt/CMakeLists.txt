@@ -16,6 +16,7 @@ plugin_add(${PLUGIN_NAME})
 plugin_glob_all(${PLUGIN_NAME})
 
 # include irtgeo/
+add_compile_definitions(WITH_IRTGEO_ACTS)
 plugin_sources(${PLUGIN_NAME}
   irtgeo/IrtGeo.cc
   irtgeo/IrtGeoDRICH.cc
@@ -26,3 +27,4 @@ plugin_sources(${PLUGIN_NAME}
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
+plugin_add_acts(${PLUGIN_NAME})

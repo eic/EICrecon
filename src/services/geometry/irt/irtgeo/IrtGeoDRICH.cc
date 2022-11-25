@@ -23,7 +23,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   for (int isec=0; isec<nSectors; isec++) {
     auto cv = irtGeometry->SetContainerVolume(
         irtDetector,             // Cherenkov detector
-        "GasVolume",             // name
+        RadiatorName(kGas),      // name
         isec,                    // path
         (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial (inaccessible?)
@@ -60,7 +60,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   for (int isec = 0; isec < nSectors; isec++) {
     auto aerogelFlatRadiator = irtGeometry->AddFlatRadiator(
         irtDetector,             // Cherenkov detector
-        "Aerogel",               // name
+        RadiatorName(kAerogel),  // name
         isec,                    // path
         (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial
@@ -111,7 +111,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
     PrintLog("    mirror R = {:f} cm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    irtDetector->GetRadiator("GasVolume")->m_Borders[isec].second = mirrorSphericalSurface;
+    irtDetector->GetRadiator(RadiatorName(kGas))->m_Borders[isec].second = mirrorSphericalSurface;
 
     // sensor sphere (only used for validation of sensor normals)
     auto sensorSphRadius  = det->constant<double>("DRICH_RECON_sensorSphRadius");
@@ -205,13 +205,68 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
 
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this?
-  std::map<std::string, double> rIndices;
-  rIndices.insert({"GasVolume", 1.00076});
-  rIndices.insert({"Aerogel", 1.0190});
-  rIndices.insert({"Filter", 1.5017});
+  std::map<const char*, double> rIndices;
+  rIndices.insert({RadiatorName(kGas),     1.00076});
+  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = irtDetector->GetRadiator(rName.c_str());
+    auto rad = irtDetector->GetRadiator(rName);
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }
 }
+
+#ifdef WITH_IRTGEO_ACTS
+std::vector<std::shared_ptr<Acts::DiscSurface>> IrtGeoDRICH::TrackingPlanes(int radiator, int numPlanes) {
+
+  std::vector<std::shared_ptr<Acts::DiscSurface>> discs;
+
+  // vessel constants
+  auto zmin  = det->constant<double>("DRICH_RECON_zmin");
+  auto zmax  = det->constant<double>("DRICH_RECON_zmax");
+  auto rmin0 = det->constant<double>("DRICH_RECON_rmin0");
+  auto rmin1 = det->constant<double>("DRICH_RECON_rmin1");
+  auto rmax0 = det->constant<double>("DRICH_RECON_rmax0");
+  auto rmax1 = det->constant<double>("DRICH_RECON_rmax1");
+  auto rmax2 = det->constant<double>("DRICH_RECON_rmax2");
+
+  // aerogel constants
+  auto snoutLength      = det->constant<double>("DRICH_RECON_snoutLength");
+  auto aerogelZpos      = det->constant<double>("DRICH_RECON_aerogelZpos");
+  auto aerogelThickness = det->constant<double>("DRICH_RECON_aerogelThickness");
+
+  // radial wall slopes
+  auto boreSlope  = (rmin1 - rmin0) / (zmax - zmin);
+  auto snoutSlope = (rmax1 - rmax0) / snoutLength;
+
+  // get z and radial limits where we will expect charged particles in the RICH
+  double trackZmin, trackZmax;
+  std::function<double(double)> trackRmin, trackRmax;
+  switch(radiator) {
+    case kAerogel:
+      trackZmin = aerogelZpos - aerogelThickness/2;
+      trackZmax = aerogelZpos + aerogelThickness/2;
+      trackRmax = [&] (auto z) { return rmax0 + snoutLength * (z - zmin); };
+      break;
+    case kGas:
+      trackZmin = aerogelZpos + aerogelThickness/2;
+      trackZmax = det->constant<double>("DRICH_RECON_zmax");
+      trackRmax = [&] (auto z) {
+        auto z0 = z - zmin;
+        if(z0 < snoutLength) return rmax0 + snoutLength * z0;
+        else return rmax2;
+      };
+      break;
+    default:
+      PrintLog(stderr,"ERROR: unknown radiator number {}",numPlanes);
+      return discs;
+  }
+  trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
+
+
+
+
+  return discs;
+
+}
+#endif

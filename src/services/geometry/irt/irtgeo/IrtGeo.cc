@@ -37,6 +37,40 @@ void IrtGeo::Bind() {
   irtDetector = irtGeometry->AddNewDetector(detName.c_str());
 }
 
+// radiators
+const char * IrtGeo::RadiatorName(int num) {
+  if(num==kAerogel)  return "Aerogel";
+  else if(num==kGas) return "Gas";
+  else {
+    PrintLog(stderr,"ERROR: unknown radiator number {}",num);
+    return "UNKNOWN_RADIATOR";
+  }
+}
+int IrtGeo::RadiatorNum(std::string name) {
+  if(name=="Aerogel")  return kAerogel;
+  else if(name=="Gas") return kGas;
+  else {
+    PrintLog(stderr,"ERROR: unknown radiator name {}",name);
+    return -1;
+  }
+}
+int IrtGeo::RadiatorNum(const char * name) {
+  return RadiatorNum(std::string(name));
+}
+// dd4hep::DetElement *IrtGeo::RadiatorDetElement(int num) {
+//   auto name = RadiatorName(num) + "_de";
+//   std::transform(
+//       name.begin(), name.end(), name.begin(),
+//       [] (auto c) {return std::tolower(c); }
+//       );
+//   for(auto const& [de_name, det_elem] : detRich.children())
+//     if(de_name.find(name)!=std::string::npos)
+//       return &det_elem;
+//   PrintLog(stderr,"ERROR: cannot find DetElement {}",name);
+//   return nullptr;
+// }
+
+
 IrtGeo::~IrtGeo() {
   if(irtDetector) delete irtDetector;
   if(irtGeometry) delete irtGeometry;

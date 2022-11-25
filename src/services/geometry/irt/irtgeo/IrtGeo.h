@@ -21,6 +21,12 @@
 #include "IRT/OpticalBoundary.h"
 #include "IRT/ParametricSurface.h"
 
+// ACTS
+#ifdef WITH_IRTGEO_ACTS
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
+#endif
+
 class IrtGeo {
   public:
 
@@ -31,8 +37,19 @@ class IrtGeo {
     { Bind(); }
     ~IrtGeo(); 
 
+    // radiators
+    enum radiator_enum { kAerogel, kGas };
+    const char * RadiatorName(int num);
+    int RadiatorNum(std::string name);
+    int RadiatorNum(const char * name);
+
     // access the full IRT geometry
     CherenkovDetectorCollection *GetIrtGeometry() { return irtGeometry; }
+
+#ifdef WITH_IRTGEO_ACTS
+    // generate list ACTS disc surfaces, for a given radiator
+    virtual std::vector<std::shared_ptr<Acts::DiscSurface>> TrackingPlanes(int radiator, int numPlanes) = 0;
+#endif
 
   protected:
 
@@ -45,6 +62,7 @@ class IrtGeo {
     // DD4hep geometry handles
     dd4hep::Detector   *det;
     dd4hep::DetElement detRich;
+    // dd4hep::DetElement *RadiatorDetElement(int num);
     dd4hep::Position   posRich;
 
     // IRT geometry handles
