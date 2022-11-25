@@ -8,7 +8,8 @@
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
-#include <global/pid/IrtParticleID_factory.h>
+// #include <global/pid/RichTrack_factory.h>
+// #include <global/pid/IrtCherenkovParticleID_factory.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -19,16 +20,14 @@ extern "C" {
     // Digitization
     app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DRICHHits"}, "DRICHRawHits"));
 
-    /* TODO: transform raw RICH hits -> PhotoElectrons
-     * - safety factor
-     * - pixel gap cuts
-     */
+    // // Track Propagation to each radiator
+    // app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHAerogelTracks"));
+    // app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
 
-    /* TODO: transform PhotoElectrons to Cherenkov Particle Identification
-     * - Run the Indirect Ray Tracing (IRT) algorithm
-     * - Cherenkov angle measurement
-     * - PID hypotheses
-     */
-    // app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
+    // // PID
+    // app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
+    //       {"DRICHRawHits","DRICHAerogelTracks","DRICHGasTracks"},
+    //       "DRICHIrtCherenkovParticleID"
+    //       ));
   }
 }

@@ -25,7 +25,7 @@ namespace eicrecon {
     private:
         std::shared_ptr<spdlog::logger> m_log;
         TrackParamTruthInitConfig m_cfg;
-        std::shared_ptr<TDatabasePDG> m_pdg_db;
+        TDatabasePDG * m_pdg_db;
     };
 }   // namespace eicrecon
 

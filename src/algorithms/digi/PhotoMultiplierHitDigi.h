@@ -27,8 +27,6 @@ namespace eicrecon {
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
-    // Insert any member variables here
-
 public:
     PhotoMultiplierHitDigi() = default;
     ~PhotoMultiplierHitDigi(){}
@@ -39,9 +37,6 @@ public:
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
     dd4hep::Position get_sensor_local_position(uint64_t id, dd4hep::Position pos);
-
-    //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_log;
 
     // random number generators
     TRandomMixMax m_random;
@@ -60,6 +55,7 @@ public:
 
 private:
 
+    std::shared_ptr<spdlog::logger> m_log;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here

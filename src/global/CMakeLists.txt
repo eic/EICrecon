@@ -6,4 +6,3 @@ print_header(">>>>   D I R E C T O R Y :   global    <<<<")       # Fancy printi
 add_subdirectory( tracking )
 add_subdirectory( digi )
 add_subdirectory( reco )
-add_subdirectory( pid )

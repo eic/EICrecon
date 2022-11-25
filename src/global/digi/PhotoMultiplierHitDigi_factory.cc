@@ -4,7 +4,6 @@
 //
 
 #include "PhotoMultiplierHitDigi_factory.h"
-#include <fmt/format.h>
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   using namespace eicrecon::str;

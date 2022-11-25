@@ -751,6 +751,24 @@ eicrecon_reco_flags = [
     ('DRICH:DRICHRawHits:safetyFactor',    '0.7',       'overall safety factor'                                 ),
     # ('DRICH:DRICHRawHits:quantumEfficiency', '...', 'quantum efficiency' ), # FIXME cannot define here; instead it is hard coded in src/algorithms/digi/PhotoMultiplierHitDigiConfig.h
 
+    ('DRICH:DRICHAerogelTracks:numPlanes', '5',  'number of aerogel radiator track-projection planes' ),
+    ('DRICH:DRICHGasTracks:numPlanes',     '10', 'number of gas radiator track-projection planes'     ),
+    ('DRICH:DRICHIrtCherenkovParticleID:Aerogel:zbins', '5',  'must == DRICH:DRICHAerogelTracks:numPlanes' ), # FIXME: use full DD4hep evaluator for symbol lookup
+    ('DRICH:DRICHIrtCherenkovParticleID:Gas:zbins',     '10', 'must == DRICH:DRICHGasTracks:numPlanes'     ), # FIXME: use full DD4hep evaluator for symbol lookup
+
+    ('DRICH:DRICHIrtCherenkovParticleID:Aerogel:smearingMode',    'gaussian', 'smearing type (gausian, uniform)'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Aerogel:smearing',        '2*mrad',   'smearing amount'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Aerogel:referenceRIndex', '1.0190',   'radiator reference refractive index'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Aerogel:attenuation',     '48.0*mm',  'radiator reference attenuation length (set to 0 to disable)'),
+
+    ('DRICH:DRICHIrtCherenkovParticleID:Gas:smearingMode',        'gaussian', 'smearing type (gausian, uniform)'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Gas:smearing',            '5*mrad',   'smearing amount'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Gas:referenceRIndex',     '1.00076',  'radiator reference refractive index'),
+    ('DRICH:DRICHIrtCherenkovParticleID:Gas:attenuation',         '0.0*mm',   'radiator reference attenuation length (set to 0 to disable)'),
+
+    ('DRICH:DRICHIrtCherenkovParticleID:numRIndexBins', '100',              'number of bins to interpolate the refractive index'),
+    ('DRICH:DRICHIrtCherenkovParticleID:pdgList',       '-11,211,321,2212', 'list of PDG codes to identify with IRT'),
+
     # ============================ F A R   F O R W A R D ===================================
     
     # RPOTS
@@ -944,8 +962,8 @@ if __name__ == "__main__":
     ]
 
     default_parameters = [
-        f"-Pplugins=dump_flags",
-        f"-Pdump_flags:python=all_flags_dump_from_run.py",
+        # f"-Pplugins=dump_flags",
+        # f"-Pdump_flags:python=all_flags_dump_from_run.py",
         f"-Pjana:debug_plugin_loading=1",
         f"-Pjana:nevents={args.nevents}",
         f"-Pacts:MaterialMap=calibrations/materials-map.cbor",
