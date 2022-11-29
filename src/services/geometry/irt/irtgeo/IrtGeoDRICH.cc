@@ -21,9 +21,9 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   TVector3 normY(0, -1, 0);
   auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
   for (int isec=0; isec<nSectors; isec++) {
-    auto cv = irtGeometry->SetContainerVolume(
+    auto cv = irtDetectorCollection->SetContainerVolume(
         irtDetector,             // Cherenkov detector
-        RadiatorName(kGas),      // name
+        RadiatorCStr(kGas),      // name
         isec,                    // path
         (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial (inaccessible?)
@@ -37,7 +37,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   auto cellMask = uint64_t(std::stoull(det->constant<std::string>("DRICH_RECON_cellMask")));
   CherenkovPhotonDetector* irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   irtDetector->SetReadoutCellMask(cellMask);
-  irtGeometry->AddPhotonDetector(
+  irtDetectorCollection->AddPhotonDetector(
       irtDetector,      // Cherenkov detector
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
@@ -58,16 +58,16 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   auto aerogelFlatSurface = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, aerogelZpos), normX, normY);
   auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
   for (int isec = 0; isec < nSectors; isec++) {
-    auto aerogelFlatRadiator = irtGeometry->AddFlatRadiator(
+    auto aerogelFlatRadiator = irtDetectorCollection->AddFlatRadiator(
         irtDetector,             // Cherenkov detector
-        RadiatorName(kAerogel),  // name
+        RadiatorCStr(kAerogel),  // name
         isec,                    // path
         (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial
         aerogelFlatSurface,      // surface
         aerogelThickness / dd4hep::mm // surface thickness
         );
-    auto filterFlatRadiator = irtGeometry->AddFlatRadiator(
+    auto filterFlatRadiator = irtDetectorCollection->AddFlatRadiator(
         irtDetector,             // Cherenkov detector
         "Filter",                // name
         isec,                    // path
@@ -111,7 +111,7 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
     PrintLog("    mirror R = {:f} cm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    irtDetector->GetRadiator(RadiatorName(kGas))->m_Borders[isec].second = mirrorSphericalSurface;
+    irtDetector->GetRadiator(RadiatorCStr(kGas))->m_Borders[isec].second = mirrorSphericalSurface;
 
     // sensor sphere (only used for validation of sensor normals)
     auto sensorSphRadius  = det->constant<double>("DRICH_RECON_sensorSphRadius");
@@ -155,8 +155,8 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
         auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
         auto testRadial = radialDir.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is parallel to sensor sphere radius
         if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-          PrintLog(stderr,
-              "ERROR: sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
+          PrintError(
+              "sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
               testOrtho,
               testRadial
               );
@@ -166,8 +166,8 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
         auto distSensor2center = sqrt((posSensorSurface-sensorSphCenter).Mag2()); // distance between sensor sphere center and sensor surface position
         auto testDist          = abs(distSensor2center-sensorSphRadius);          // should be zero, if sensor position w.r.t. sensor sphere center is correct
         if(abs(testDist)>1e-6) {
-          PrintLog(stderr,
-              "ERROR: sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
+          PrintError(
+              "sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
               distSensor2center,
               sensorSphRadius,
               sensorThickness,
@@ -206,8 +206,8 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this?
   std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorName(kGas),     1.00076});
-  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({RadiatorCStr(kGas),     1.00076});
+  rIndices.insert({RadiatorCStr(kAerogel), 1.0190});
   rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
     auto rad = irtDetector->GetRadiator(rName);
@@ -258,13 +258,24 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> IrtGeoDRICH::TrackingPlanes(int 
       };
       break;
     default:
-      PrintLog(stderr,"ERROR: unknown radiator number {}",numPlanes);
+      PrintError("unknown radiator number {}",numPlanes);
       return discs;
   }
   trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
-
-
+  // define discs
+  PrintLog("Define ACTS disks for radiator {}: {} disks in z=[ {}, {} ]",
+      RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
+  double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
+  for(int i=0; i<numPlanes; i++) {
+    auto z         = trackZmin + i*trackZstep;
+    auto rmin      = trackRmin(z);
+    auto rmax      = trackRmax(z);
+    auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
+    auto transform = Acts::Transform3(Acts::Translation3(Acts::Vector3(0, 0, z)));
+    discs.push_back(Acts::Surface::makeShared<Acts::DiscSurface>(transform, rbounds));
+    PrintLog("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
+  }
 
   return discs;
 

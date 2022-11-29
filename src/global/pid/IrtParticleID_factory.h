@@ -44,7 +44,7 @@ namespace eicrecon {
       std::string m_detector_name;
       std::shared_ptr<IrtGeo_service> m_irtGeoSvc;
       std::shared_ptr<spdlog::logger> m_log;
-      CherenkovDetectorCollection *m_irtGeo;
+      CherenkovDetectorCollection *m_irtDetectorCollection;
 
   };
 }

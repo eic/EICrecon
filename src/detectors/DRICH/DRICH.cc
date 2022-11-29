@@ -8,6 +8,7 @@
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
+#include <global/pid/RichTrack_factory.h>
 #include <global/pid/IrtParticleID_factory.h>
 
 extern "C" {
@@ -19,10 +20,8 @@ extern "C" {
     // Digitization
     app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DRICHHits"}, "DRICHRawHits"));
 
-    /* TODO: transform raw RICH hits -> PhotoElectrons
-     * - safety factor
-     * - pixel gap cuts
-     */
+    // Tracks
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHTracks"));
 
     /* TODO: transform PhotoElectrons to Cherenkov Particle Identification
      * - Run the Indirect Ray Tracing (IRT) algorithm

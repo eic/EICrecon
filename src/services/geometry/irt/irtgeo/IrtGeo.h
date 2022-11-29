@@ -38,13 +38,14 @@ class IrtGeo {
     ~IrtGeo(); 
 
     // radiators
-    enum radiator_enum { kAerogel, kGas };
-    const char * RadiatorName(int num);
-    int RadiatorNum(std::string name);
-    int RadiatorNum(const char * name);
+    enum radiator_enum { kAerogel, kGas, nRadiators };
+    static std::string RadiatorName(int num);
+    static const char * RadiatorCStr(int num);
+    static int RadiatorNum(std::string name);
+    static int RadiatorNum(const char * name);
 
     // access the full IRT geometry
-    CherenkovDetectorCollection *GetIrtGeometry() { return irtGeometry; }
+    CherenkovDetectorCollection *GetIrtDetectorCollection() { return irtDetectorCollection; }
 
 #ifdef WITH_IRTGEO_ACTS
     // generate list ACTS disc surfaces, for a given radiator
@@ -66,7 +67,7 @@ class IrtGeo {
     dd4hep::Position   posRich;
 
     // IRT geometry handles
-    CherenkovDetectorCollection *irtGeometry;
+    CherenkovDetectorCollection *irtDetectorCollection;
     CherenkovDetector *irtDetector;
 
     // logging
@@ -76,12 +77,11 @@ class IrtGeo {
      *   based on its log level to control whether `PrintLog` prints anything
      */
     bool verbose;
-    template <typename... VALS> void PrintLog(std::FILE *stream, std::string message, VALS... values) {
-      if(verbose or stream==stderr)
-        fmt::print(stream, "[IrtGeo]     {}\n", fmt::format(message, values...));
-    }
     template <typename... VALS> void PrintLog(std::string message, VALS... values) {
-      PrintLog(stdout, message, values...);
+      if(verbose) fmt::print("[IrtGeo]     {}\n", fmt::format(message, values...));
+    }
+    template <typename... VALS> static void PrintError(std::string message, VALS... values) {
+      fmt::print(stderr,"[IrtGeo]     ERROR: {}\n", fmt::format(message, values...));
     }
 
   private:

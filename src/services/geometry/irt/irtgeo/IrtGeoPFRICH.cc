@@ -19,9 +19,9 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, 1, 0);
   auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
-  auto cv = irtGeometry->SetContainerVolume(
+  auto cv = irtDetectorCollection->SetContainerVolume(
       irtDetector,             // Cherenkov detector
-      RadiatorName(kGas),      // name
+      RadiatorCStr(kGas),      // name
       0,                       // path
       (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial (inaccessible?)
@@ -34,7 +34,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   auto cellMask = uint64_t(std::stoull(det->constant<std::string>("PFRICH_RECON_cellMask")));
   CherenkovPhotonDetector* irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   irtDetector->SetReadoutCellMask(cellMask);
-  irtGeometry->AddPhotonDetector(
+  irtDetectorCollection->AddPhotonDetector(
       irtDetector,      // Cherenkov detector
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
@@ -53,16 +53,16 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   auto filterMaterial     = det->constant<std::string>("PFRICH_RECON_filterMaterial");
   auto aerogelFlatSurface = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, aerogelZpos), normX, normY);
   auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
-  auto aerogelFlatRadiator = irtGeometry->AddFlatRadiator(
+  auto aerogelFlatRadiator = irtDetectorCollection->AddFlatRadiator(
       irtDetector,             // Cherenkov detector
-      RadiatorName(kAerogel),  // name
+      RadiatorCStr(kAerogel),  // name
       0,                       // path
       (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
       aerogelFlatSurface,      // surface
       aerogelThickness / dd4hep::mm // surface thickness
       );
-  auto filterFlatRadiator = irtGeometry->AddFlatRadiator(
+  auto filterFlatRadiator = irtDetectorCollection->AddFlatRadiator(
       irtDetector,             // Cherenkov detector
       "Filter",                // name
       0,                       // path
@@ -108,7 +108,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is as expected
       if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-        PrintLog(stderr,
+        PrintError(
             "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho,
             testRadial
@@ -140,7 +140,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once), 
       // assuming that all the sensors will be sitting at roughly the same location along the beam line anyway;
       if(firstSensor) {
-        irtDetector->GetRadiator(RadiatorName(kGas))->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
+        irtDetector->GetRadiator(RadiatorCStr(kGas))->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
         firstSensor = false;
       }
 
@@ -150,8 +150,8 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this? We should avoid hard-coded numbers here!
   std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorName(kGas),     1.0013});
-  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({RadiatorCStr(kGas),     1.0013});
+  rIndices.insert({RadiatorCStr(kAerogel), 1.0190});
   rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
     auto rad = irtDetector->GetRadiator(rName);

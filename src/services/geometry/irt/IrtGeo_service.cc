@@ -22,7 +22,7 @@ void IrtGeo_service::acquire_services(JServiceLocator *srv_locator) {
 }
 
 // IrtGeometry -----------------------------------------------------
-CherenkovDetectorCollection *IrtGeo_service::IrtGeometry(std::string detector_name) {
+IrtGeo *IrtGeo_service::GetIrtGeo(std::string detector_name) {
 
   // initialize, if not yet initialized
   try {
@@ -44,8 +44,7 @@ CherenkovDetectorCollection *IrtGeo_service::IrtGeometry(std::string detector_na
     throw JException(ex.what());
   }
 
-  // return pointer to the CherenkovDetectorCollection
-  return m_irtGeo->GetIrtGeometry();
+  return m_irtGeo;
 }
 
 // Destructor --------------------------------------------------------

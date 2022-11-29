@@ -13,7 +13,7 @@ IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbose_) : 
     std::string DETECTOR_PATH(getenv("DETECTOR_PATH"));
     std::string DETECTOR_CONFIG(getenv("DETECTOR_CONFIG"));
     if(DETECTOR_PATH.empty() || DETECTOR_CONFIG.empty()) {
-      PrintLog(stderr,"ERROR: cannot find default compact file, since env vars DETECTOR_PATH and DETECTOR_CONFIG are not set");
+      PrintError("cannot find default compact file, since env vars DETECTOR_PATH and DETECTOR_CONFIG are not set");
       return;
     }
     compactFile = DETECTOR_PATH + "/" + DETECTOR_CONFIG + ".xml";
@@ -33,24 +33,27 @@ void IrtGeo::Bind() {
   detRich = det->detector(detName);
   posRich = detRich.placement().position();
   // IRT geometry handles
-  irtGeometry = new CherenkovDetectorCollection();
-  irtDetector = irtGeometry->AddNewDetector(detName.c_str());
+  irtDetectorCollection = new CherenkovDetectorCollection();
+  irtDetector = irtDetectorCollection->AddNewDetector(detName.c_str());
 }
 
 // radiators
-const char * IrtGeo::RadiatorName(int num) {
+std::string IrtGeo::RadiatorName(int num) {
   if(num==kAerogel)  return "Aerogel";
   else if(num==kGas) return "Gas";
   else {
-    PrintLog(stderr,"ERROR: unknown radiator number {}",num);
+    PrintError("unknown radiator number {}",num);
     return "UNKNOWN_RADIATOR";
   }
+}
+const char * IrtGeo::RadiatorCStr(int num) {
+  return RadiatorName(num).c_str();
 }
 int IrtGeo::RadiatorNum(std::string name) {
   if(name=="Aerogel")  return kAerogel;
   else if(name=="Gas") return kGas;
   else {
-    PrintLog(stderr,"ERROR: unknown radiator name {}",name);
+    PrintError("unknown radiator name {}",name);
     return -1;
   }
 }
@@ -66,12 +69,12 @@ int IrtGeo::RadiatorNum(const char * name) {
 //   for(auto const& [de_name, det_elem] : detRich.children())
 //     if(de_name.find(name)!=std::string::npos)
 //       return &det_elem;
-//   PrintLog(stderr,"ERROR: cannot find DetElement {}",name);
+//   PrintError("cannot find DetElement {}",name);
 //   return nullptr;
 // }
 
 
 IrtGeo::~IrtGeo() {
   if(irtDetector) delete irtDetector;
-  if(irtGeometry) delete irtGeometry;
+  if(irtDetectorCollection) delete irtDetectorCollection;
 }

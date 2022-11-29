@@ -19,7 +19,7 @@ void eicrecon::IrtParticleID_factory::Init() {
 
   // services
   m_irtGeoSvc = app->template GetService<IrtGeo_service>();
-  m_irtGeo = m_irtGeoSvc->IrtGeometry(m_detector_name);
+  m_irtDetectorCollection = m_irtGeoSvc->GetIrtGeo(m_detector_name)->GetIrtDetectorCollection();
   m_log = app->GetService<Log_service>()->logger(GetTag()); // FIXME: use SpdlogMixin
 
   // set log level

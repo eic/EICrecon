@@ -13,6 +13,8 @@ plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
+add_compile_definitions(WITH_IRTGEO_ACTS)
 plugin_add_irt(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
+plugin_add_acts(${PLUGIN_NAME})

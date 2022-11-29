@@ -28,8 +28,8 @@ class IrtGeo_service : public JService {
     IrtGeo_service(JApplication *app) : m_app(app) {}
     ~IrtGeo_service();
 
-    // return pointer to the CherenkovDetectorCollection, given a detector
-    CherenkovDetectorCollection *IrtGeometry(std::string detector_name);
+    // return pointer to the IrtGeo, given a detector
+    IrtGeo *GetIrtGeo(std::string detector_name);
 
   private:
     IrtGeo_service() = default;
