@@ -20,6 +20,10 @@ void eicrecon::RichTrack_factory::Init() {
   m_actsSvc   = app->GetService<ACTSGeo_service>();
   InitLogger(param_prefix, "info");
 
+  // default configuration parameters
+  m_numPlanes[IrtGeo::kAerogel] = 5;
+  m_numPlanes[IrtGeo::kGas]     = 10;
+
   // configuration parameters
   auto set_param = [&param_prefix, &app, this] (std::string name, auto &val, std::string description) {
     name = param_prefix + ":" + name;
