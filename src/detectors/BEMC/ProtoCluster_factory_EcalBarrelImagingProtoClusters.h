@@ -22,6 +22,7 @@ public:
     // Constructor
     ProtoCluster_factory_EcalBarrelImagingProtoClusters(){
         SetTag("EcalBarrelImagingProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -32,10 +33,10 @@ public:
         m_input_tag = "EcalBarrelImagingRecHits";
 
         // from https://eicweb.phy.anl.gov/EIC/benchmarks/physics_benchmarks/-/blob/master/options/reconstruction.py#L593
-        u_localDistXY          = {2.0 * mm, 2 * mm};     //  # same layer
-        u_layerDistEtaPhi      = {10 * mrad, 10 * mrad}; //  # adjacent layer
+        u_localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm};     //  # same layer
+        u_layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}; //  # adjacent layer
         m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
-        m_sectorDist           = 3.0 * cm;
+        m_sectorDist           = 3.0 * dd4hep::cm;
         m_minClusterNhits      = 5; // From Maria Z. comment in PR
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
@@ -47,9 +48,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep",    m_minClusterCenterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterEdep",    m_minClusterEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::minClusterNhits",    m_minClusterNhits);
-
-        std::string tag=this->GetTag();
-        m_log = app->GetService<Log_service>()->logger(tag);
 
         initialize();
     }

@@ -14,6 +14,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalBarrelScFiMergedHits(){
         SetTag("EcalBarrelScFiMergedHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------

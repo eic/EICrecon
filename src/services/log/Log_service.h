@@ -21,6 +21,13 @@ public:
 
     std::shared_ptr<spdlog::logger> logger(const std::string &name);
 
+    /** Gets the default level for all loggers
+     * The log level is set from user parameters or is 'info'**/
+    spdlog::level::level_enum getDefaultLevel();
+
+    /** Gets std::string version of the default log level **/
+    std::string getDefaultLevelStr();
+
 
 private:
 
@@ -28,6 +35,7 @@ private:
 
     std::recursive_mutex m_lock;
     JApplication* m_application;
+    std::string m_log_level_str;
 };
 
 #endif // __Spdlog_service_h__

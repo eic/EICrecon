@@ -15,6 +15,7 @@ public:
     // Constructor
     CalorimeterHit_factory_B0ECalRecHits(){
         SetTag("B0ECalRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -26,7 +27,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
-        m_dyRangeADC=20. * GeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_dyRangeADC=20. * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
         m_pedMeanADC=100;//{this, "pedestalMean", 400};
         m_pedSigmaADC=1;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=1e-11;//{this, "resolutionTDC", 10 * ps};
@@ -64,14 +65,6 @@ public:
         app->SetDefaultParameter("B0ECAL:B0ECalRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

@@ -22,9 +22,12 @@
 #include <algorithms/tracking/TrackerHitReconstruction.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
 
-class TrackerHitReconstruction_factory : public JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig> {
+class TrackerHitReconstruction_factory :
+        public JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig>,
+        public eicrecon::SpdlogMixin<TrackerHitReconstruction_factory> {
 
 public:
     TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags, eicrecon::TrackerHitReconstructionConfig cfg):
@@ -42,9 +45,7 @@ public:
 
 private:
 
-    std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
     eicrecon::TrackerHitReconstruction m_reco_algo;     /// The reconstruction algorithm
-    std::vector<std::string> m_input_tags;              /// Tag for the input data
 };
 
 

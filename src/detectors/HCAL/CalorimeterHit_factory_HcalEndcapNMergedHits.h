@@ -14,6 +14,7 @@ public:
     // Constructor
     CalorimeterHit_factory_HcalEndcapNMergedHits(){
         SetTag("HcalEndcapNMergedHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -30,9 +31,11 @@ public:
 
         m_geoSvc= app->GetService<JDD4hep_service>();
 
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:input_tag", m_input_tag);
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:fields", u_fields);
-        app->SetDefaultParameter("HCAL:HcalBarrelMergedHits:refs",  u_refs);
+        app->SetDefaultParameter("HCAL:HcalEndcapNMergedHits:input_tag", m_input_tag);
+        app->SetDefaultParameter("HCAL:HcalEndcapNMergedHits:readout", m_readout);
+        app->SetDefaultParameter("HCAL:HcalEndcapNMergedHits:fields", u_fields);
+        app->SetDefaultParameter("HCAL:HcalEndcapNMergedHits:refs",  u_refs);
+
 
         initialize();
     }

@@ -21,7 +21,7 @@
 
 
 
-namespace Jug::BField {
+namespace eicrecon::BField {
 
   ///// The Context to be handed around
   //struct ScalableBFieldContext {

@@ -19,7 +19,6 @@
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 
 class CalorimeterHitReco {
 
@@ -34,7 +33,7 @@ public:
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_log;
     // Name of input data type (collection)
     std::string              m_input_tag;
 
@@ -42,7 +41,7 @@ public:
 
   // digitization settings, must be consistent with digi class
   unsigned int m_capADC;//{this, "capacityADC", 8096};
-  double m_dyRangeADC;//{this, "dynamicRangeADC", 100. * MeV};
+  double m_dyRangeADC;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
   unsigned int m_pedMeanADC;//{this, "pedestalMean", 400};
   double m_pedSigmaADC;//{this, "pedestalSigma", 3.2};
   double m_resolutionTDC;//{this, "resolutionTDC", 10 * ps};
@@ -70,6 +69,8 @@ public:
   std::string m_sectorField="sectorField";
 
   dd4hep::BitFieldCoder* id_dec = nullptr;
+  uint32_t NcellIDerrors = 0;
+  uint32_t MaxCellIDerrors = 100;
   
   size_t sector_idx{0}, layer_idx{0};
 

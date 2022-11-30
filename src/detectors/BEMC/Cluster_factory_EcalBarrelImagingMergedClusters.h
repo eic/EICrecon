@@ -19,6 +19,7 @@ public:
     // Constructor
     Cluster_factory_EcalBarrelImagingMergedClusters(){
         SetTag("EcalBarrelImagingMergedClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -37,8 +38,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:energyAssociation_tag", m_energyAssociation_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionClusters_tag", m_positionClusters_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionAssociations_tag", m_positionAssociations_tag);
-
-        m_log = app->GetService<Log_service>()->logger(GetTag());
 
         initialize();
     }

@@ -19,6 +19,7 @@ public:
     // Constructor
     ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters(){
         SetTag("EcalEndcapPInsertTruthProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -30,7 +31,7 @@ public:
 
         app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 
-        AlgorithmInit();
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

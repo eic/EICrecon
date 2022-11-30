@@ -21,14 +21,14 @@
 # DD4hep              |   Geometry framework
 # ROOT                |   CERN ROOT
 # spdlog              |   Formatting library
-# IRT library         |
+# IRT                 |   Indirect Ray Tracing library
 # ==============================================================
 
 
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.3.2)
+project(EICRecon VERSION 0.3.6)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")

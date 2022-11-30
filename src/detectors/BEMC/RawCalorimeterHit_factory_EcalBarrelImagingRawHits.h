@@ -16,7 +16,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-using namespace dd4hep;
 
 
 class RawCalorimeterHit_factory_EcalBarrelImagingRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
@@ -27,6 +26,7 @@ public:
     // Constructor
     RawCalorimeterHit_factory_EcalBarrelImagingRawHits() {
         SetTag("EcalBarrelImagingRawHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -37,12 +37,12 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelImagingHits";
         u_eRes = {0.0, 0.02, 0.0};
-        m_tRes = 0.0 * ns;
+        m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 8192;
-        m_dyRangeADC = 100 * MeV;
+        m_dyRangeADC = 3; // value should be in dd4hep::MeV
         m_pedMeanADC = 100;
-        m_pedSigmaADC = 3.2;
-        m_resolutionTDC = 10 * picosecond;
+        m_pedSigmaADC = 14;
+        m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
@@ -64,15 +64,7 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> logger = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        logger->set_level(eicrecon::ParseLogLevel(log_level_str));
-        AlgorithmInit(logger);
+        AlgorithmInit(m_log);
     }
 
     //------------------------------------------

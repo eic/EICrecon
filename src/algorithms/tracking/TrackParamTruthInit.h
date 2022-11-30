@@ -14,13 +14,13 @@
 #include <TDatabasePDG.h>
 
 namespace eicrecon {
-    class TrackParamTruthInit: eicrecon::IObjectProducer<edm4hep::MCParticle, Jug::TrackParameters> {
+    class TrackParamTruthInit: eicrecon::IObjectProducer<edm4hep::MCParticle, eicrecon::TrackParameters> {
 
     public:
 
         void init(const std::shared_ptr<spdlog::logger> &logger);
 
-        Jug::TrackParameters * produce(const edm4hep::MCParticle *) override;
+        eicrecon::TrackParameters * produce(const edm4hep::MCParticle *) override;
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

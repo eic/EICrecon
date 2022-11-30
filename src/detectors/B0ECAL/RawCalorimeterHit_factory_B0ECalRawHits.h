@@ -16,7 +16,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-using namespace dd4hep;
 
 
 class RawCalorimeterHit_factory_B0ECalRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
@@ -27,6 +26,7 @@ public:
     // Constructor
     RawCalorimeterHit_factory_B0ECalRawHits() {
         SetTag("B0ECalRawHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -37,9 +37,9 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "B0ECalHits";
         u_eRes = {0.0,0.02,0.0};
-        m_tRes = 0.0 * ns;
+        m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
-        m_dyRangeADC = 1 * GeV;
+        m_dyRangeADC = 1 * dd4hep::GeV;
         m_pedMeanADC = 100;
         m_pedSigmaADC = 1;
         m_resolutionTDC = 1e-11;
@@ -68,14 +68,6 @@ public:
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:readoutClass",     m_readout);
 
         // Call Init for generic algorithm
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

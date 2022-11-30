@@ -80,6 +80,14 @@ public:
 
     const Acts::GeometryContext& getActsGeometryContext() const {return m_trackingGeoCtx;}
 
+    ///  ACTS general logger that is used for running ACTS
+    std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
+
+    /// Logger that is used for geometry initialization
+    /// By default its level the same as ACTS general logger (m_log)
+    /// But it might be customized to solely printout geometry information
+    std::shared_ptr<spdlog::logger> getActsInitRelatedLogger()  const { return m_init_log; }
+
 private:
 
 
@@ -114,7 +122,7 @@ private:
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
     /// Acts magnetic field
-    std::shared_ptr<const Jug::BField::DD4hepBField> m_magneticField = nullptr;
+    std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
 
     ///  ACTS general logger that is used for running ACTS
     std::shared_ptr<spdlog::logger> m_log;

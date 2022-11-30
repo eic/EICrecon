@@ -28,11 +28,11 @@ void InitPlugin(JApplication *app) {
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
-    hit_reco_cfg.time_resolution = 10;
+    hit_reco_cfg.time_resolution = 8;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"B0TrackerHitRawHit"},     // Input data collection tags
-            "B0TrackerHit",          // Output data tag
-             hit_reco_cfg));           // Hit reco default config for factories
+            "B0TrackerRecHits",         // Output data tag
+             hit_reco_cfg));            // Hit reco default config for factories
 
 }
 } // extern "C"

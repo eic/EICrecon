@@ -4,25 +4,15 @@ To run this plugin with tracking
 eicrecon
 -Pplugins=tof_efficiency
 -Pnthreads=1
--Ppodio:output_file=/home/romanov/work/data/eicrecon_test/eicrecon.ana.edm4hep.root
--PTracking:CentralTrackSegments:LogLevel=trace
--PDigi:SmearedFarForwardParticles:LogLevel=error
+-PBTOF:TOFBarrelRawHit:LogLevel=trace
 -Ptof_efficiency:LogLevel=trace
 -Pjana:debug_plugin_loading=1
 -Pjana:nevents=100
--Pjana:debug_mode=1
 -Pjana:timeout=0
--Ptracking_efficiency:LogLevel=info
--Ptracking_test:LogLevel=trace
--Pacts:MaterialMap=/home/romanov/work/data/eicrecon_test/calibrations/materials-map.cbor
--Pacts:LogLevel=info
--PCKFTracking:CentralTrackerSourceLinker:LogLevel=info
--PCKFTracking:CentralCKFTrajectories:LogLevel=info
--PTracking:ParticlesFromTrackFit:LogLevel=info
--PTracking:CentralTrackingParticles:LogLevel=info
 -Pdd4hep:xml_files=epic.xml
--Phistsfile=/home/romanov/work/data/eicrecon_test/ccdis.ana.root
-/home/romanov/work/data/eicrecon_test/2022-10-06_pgun_TOF_1-pi+_en1-20GeV_alldir_2000evt.edm4hep.root
+-Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tof_test.ana.edm4hep.root
+-Phistsfile=/home/romanov/work/data/eicrecon_test/tof_test.ana.root
+/home/romanov/eic/combined_benchmarks/test_data_generator/2022-11-07_pgun_e-_epic_arches_e0.01-30GeV_alldir_1prt_1000evt.edm4hep.root
 ```
 
 Flags explained:

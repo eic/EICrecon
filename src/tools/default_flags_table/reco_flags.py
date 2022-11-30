@@ -121,6 +121,9 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingRecHits:samplingFraction',          '0.005',                           ''),
 
     ('BEMC:EcalBarrelScFiRecHits:input_tag',                    'EcalBarrelScFiRawHits',           'Name of input collection to use'),
+    ('BEMC:EcalBarrelScFiRecHits:readout',                      'EcalBarrelScFiHits',              ''),
+    ('BEMC:EcalBarrelScFiRecHits:layerField',                   'layer',                           ''),
+    ('BEMC:EcalBarrelScFiRecHits:sectorField',                  'module',                          ''),
     ('BEMC:EcalBarrelScFiRecHits:capacityADC',                  'capacityBitsADC=14',              ''),
     ('BEMC:EcalBarrelScFiRecHits:dynamicRangeADC',              '750*MeV',                         ''),
     ('BEMC:EcalBarrelScFiRecHits:pedestalMean',                 '20',                              ''),
@@ -141,7 +144,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingProtoClusters::sectorDist',         '3.0*cm',                          ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterHitEdep',  '0.',                              ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep', '0.',                            ''),
-    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '0.5*MeV',                         ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '80*MeV',                          ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterNhits',    '5',                               ''),
 
     ('BEMC:EcalBarrelScFiProtoClusters:input_tag',              'EcalBarrelScFiMergedHits', 'Name of input collection to use'),
@@ -211,8 +214,8 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistXY',          '',                               ''),
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistXZ',          '',                               ''),
     ('EEMC:EcalEndcapNIslandProtoClusters:localDistYZ',          '',                               ''),
-    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep', '1.0*MeV',                        '*'),
-    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep',    '30*MeV',                         '*'),
+    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep', '30.0*MeV',                        '*'),
+    ('EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep',    '1.0*MeV',                         '*'),
     ('EEMC:EcalEndcapNIslandProtoClusters:sectorDist',           '5.0*cm',                         '*'),
     ('EEMC:EcalEndcapNIslandProtoClusters:splitCluster',         '0',                              '*'),
 
@@ -256,7 +259,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPRecHits:readout',                          'EcalEndcapPHits',                ''),
     ('EEMC:EcalEndcapPRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('EEMC:EcalEndcapPRecHits:samplingFraction',                 '0.03',                           '*'),
-    ('EEMC:EcalEndcapPRecHits:sectorField',                      'sector',                         ''),
+    ('EEMC:EcalEndcapPRecHits:sectorField',                      '',                               ''),
     ('EEMC:EcalEndcapPRecHits:thresholdFactor',                  '5.0',                            '*'),
     ('EEMC:EcalEndcapPRecHits:thresholdValue',                   '2',                              '*'),
 
@@ -311,7 +314,7 @@ eicrecon_reco_flags = [
     ('EEMC:EcalEndcapPInsertRecHits:readout',                          'EcalEndcapPInsertHits',          ''),
     ('EEMC:EcalEndcapPInsertRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('EEMC:EcalEndcapPInsertRecHits:samplingFraction',                 '0.03',                           '*'),
-    ('EEMC:EcalEndcapPInsertRecHits:sectorField',                      'sector',                         ''),
+    ('EEMC:EcalEndcapPInsertRecHits:sectorField',                      '',                               ''),
     ('EEMC:EcalEndcapPInsertRecHits:thresholdFactor',                  '5.0',                            '*'),
     ('EEMC:EcalEndcapPInsertRecHits:thresholdValue',                   '2',                              '*'),
 
@@ -373,8 +376,8 @@ eicrecon_reco_flags = [
 
     ('B0ECAL:B0ECalIslandProtoClusters:input_tag',            'B0ECalRecHits',                           ''),
     ('B0ECAL:B0ECalIslandProtoClusters:splitCluster',         '0',                              '*'),
-    ('B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep',    '30*MeV',                         '*'),
-    ('B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep', '1.0*MeV',                        '*'),
+    ('B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep',    '1.0*MeV',                        '*'),
+    ('B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep', '30.0*MeV',                       '*'),
     ('B0ECAL:B0ECalIslandProtoClusters:sectorDist',           '5.0*cm',                         '*'),
     ('B0ECAL:B0ECalIslandProtoClusters:localDistXY',          '',                               ''),
     ('B0ECAL:B0ECalIslandProtoClusters:localDistXZ',          '',                               ''),
@@ -394,14 +397,14 @@ eicrecon_reco_flags = [
     # HCAL Barrel
     # -----------
     ('HCAL:HcalBarrelRawHits:capacityADC',                       'capacityBitsADC=8',              '*'),
-    ('HCAL:HcalBarrelRawHits:dynamicRangeADC',                   '20*MeV',                         '*'),
+    ('HCAL:HcalBarrelRawHits:dynamicRangeADC',                   '50*MeV',                         '*'),
     ('HCAL:HcalBarrelRawHits:energyResolutions',                 '',                               ''),
     ('HCAL:HcalBarrelRawHits:fieldRefNumbers',                   '1,0',                            '*'),
     ('HCAL:HcalBarrelRawHits:geoServiceName',                    'ActsGeometryProvider',           ''),
-    ('HCAL:HcalBarrelRawHits:pedestalMean',                      '20',                             '*'),
-    ('HCAL:HcalBarrelRawHits:pedestalSigma',                     '0.3',                            '*'),
+    ('HCAL:HcalBarrelRawHits:pedestalMean',                      '10',                             '*'),
+    ('HCAL:HcalBarrelRawHits:pedestalSigma',                     '2',                              '*'),
     ('HCAL:HcalBarrelRawHits:readoutClass',                      '',                               ''),
-    ('HCAL:HcalBarrelRawHits:resolutionTDC',                     '1e-11',                          ''),
+    ('HCAL:HcalBarrelRawHits:resolutionTDC',                     '1e-9',                           ''),
     ('HCAL:HcalBarrelRawHits:scaleResponse',                     '1',                              ''),
     ('HCAL:HcalBarrelRawHits:signalSumFields',                   '',                               ''),
     ('HCAL:HcalBarrelRawHits:timeResolution',                    '0',                              ''),
@@ -409,15 +412,15 @@ eicrecon_reco_flags = [
     ('HCAL:HcalBarrelRecHits:capacityADC',                       'capacityBitsADC=8',              '*'),
     ('HCAL:HcalBarrelRecHits:dynamicRangeADC',                   '20*MeV',                         '*'),
     ('HCAL:HcalBarrelRecHits:geoServiceName',                    'geoServiceName',                 ''),
-    ('HCAL:HcalBarrelRecHits:layerField',                        'layer',                          ''),
+    ('HCAL:HcalBarrelRecHits:layerField',                        'tower',                          ''),
     ('HCAL:HcalBarrelRecHits:localDetElement',                   '',                               ''),
     ('HCAL:HcalBarrelRecHits:localDetFields',                    '',                               ''),
     ('HCAL:HcalBarrelRecHits:pedestalMean',                      '20',                            '*'),
     ('HCAL:HcalBarrelRecHits:pedestalSigma',                     '0.3',                            '*'),
     ('HCAL:HcalBarrelRecHits:readout',                           'HcalBarrelHits',                 ''),
     ('HCAL:HcalBarrelRecHits:resolutionTDC',                     '1e-11',                          ''),
-    ('HCAL:HcalBarrelRecHits:samplingFraction',                  '0.038',                          ''),
-    ('HCAL:HcalBarrelRecHits:sectorField',                       'module',                         ''),
+    ('HCAL:HcalBarrelRecHits:samplingFraction',                  '0.033',                          ''),
+    ('HCAL:HcalBarrelRecHits:sectorField',                       'sector',                         ''),
     ('HCAL:HcalBarrelRecHits:thresholdFactor',                   '5',                              '*'),
     ('HCAL:HcalBarrelRecHits:thresholdValue',                    '1',                              '*'),
 
@@ -436,12 +439,12 @@ eicrecon_reco_flags = [
     ('HCAL:HcalBarrelIslandProtoClusters:localDistXY',           '150,150',                        '* [mm]'),
     ('HCAL:HcalBarrelIslandProtoClusters:localDistXZ',           '',                               ''),
     ('HCAL:HcalBarrelIslandProtoClusters:localDistYZ',           '',                               ''),
-    ('HCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep',  '0.003',                          ''),
-    ('HCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep',     '30.0*MeV',                       '*'),
+    ('HCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep',  '30.0*MeV',                       ''),
+    ('HCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep',     '3.0*MeV',                       '*'),
     ('HCAL:HcalBarrelIslandProtoClusters:sectorDist',            '5',                              ''),
     ('HCAL:HcalBarrelIslandProtoClusters:splitCluster',          '0',                              '*'),
 
-    ('HCAL:HcalBarrelMergedHits:fields',                         'layer,slice',                    ''),
+    ('HCAL:HcalBarrelMergedHits:fields',                         'tower,tile',                     ''),
     ('HCAL:HcalBarrelMergedHits:input_tag',                      'HcalBarrelRecHits',              ''),
     ('HCAL:HcalBarrelMergedHits:refs',                           '1,0',                            ''),
 
@@ -480,9 +483,14 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapNRecHits:readout',                          'HcalEndcapNHits',                ''),
     ('HCAL:HcalEndcapNRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('HCAL:HcalEndcapNRecHits:samplingFraction',                 '0.998',                          ''),
-    ('HCAL:HcalEndcapNRecHits:sectorField',                      'sector',                         ''),
+    ('HCAL:HcalEndcapNRecHits:sectorField',                      '',                               ''),
     ('HCAL:HcalEndcapNRecHits:thresholdFactor',                  '4',                              ''),
     ('HCAL:HcalEndcapNRecHits:thresholdValue',                   '1',                              '*'),
+
+    ('HCAL:HcalEndcapNMergedHits:input_tag',                     'HcalEndcapNRecHits',             '*'),
+    ('HCAL:HcalEndcapNMergedHits:readout',                       'HcalEndcapNHits',                '*'),
+    ('HCAL:HcalEndcapNMergedHits:fields',                        'layer,slice',                    '*'),
+    ('HCAL:HcalEndcapNMergedHits:refs',                          '1,0',                            '*'),
 
     ('HCAL:HcalEndcapNIslandProtoClusters:dimScaledLocalDistXY', '1.5,1.5',                        ''),
     ('HCAL:HcalEndcapNIslandProtoClusters:globalDistEtaPhi',     '',                               ''),
@@ -539,9 +547,14 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPRecHits:readout',                          'HcalEndcapPHits',                ''),
     ('HCAL:HcalEndcapPRecHits:resolutionTDC',                    '1e-11',                          ''),
     ('HCAL:HcalEndcapPRecHits:samplingFraction',                 '0.025',                          ''),
-    ('HCAL:HcalEndcapPRecHits:sectorField',                      'sector',                         ''),
+    ('HCAL:HcalEndcapPRecHits:sectorField',                      '',                               ''),
     ('HCAL:HcalEndcapPRecHits:thresholdFactor',                  '5',                              '*'),
     ('HCAL:HcalEndcapPRecHits:thresholdValue',                   '3',                              '*'),
+
+    ('HCAL:HcalEndcapPMergedHits:input_tag',                     'HcalEndcapPRecHits',             '*'),
+    ('HCAL:HcalEndcapPMergedHits:readout',                       'HcalEndcapPHits',                '*'),
+    ('HCAL:HcalEndcapPMergedHits:fields',                        'layer,slice',                    '*'),
+    ('HCAL:HcalEndcapPMergedHits:refs',                          '1,0',                            '*'),
 
     ('HCAL:HcalEndcapPIslandProtoClusters:dimScaledLocalDistXY', '1.5,1.5',                        ''),
     ('HCAL:HcalEndcapPIslandProtoClusters:globalDistEtaPhi',     '',                               ''),
@@ -599,7 +612,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPInsertRecHits:readout',                          'HcalEndcapPInsertHits',                 ''),
     ('HCAL:HcalEndcapPInsertRecHits:resolutionTDC',                    '1e-11',                                 ''),
     ('HCAL:HcalEndcapPInsertRecHits:samplingFraction',                 '0.998',                                 ''),
-    ('HCAL:HcalEndcapPInsertRecHits:sectorField',                      'sector',                                ''),
+    ('HCAL:HcalEndcapPInsertRecHits:sectorField',                      '',                                      ''),
     ('HCAL:HcalEndcapPInsertRecHits:thresholdFactor',                  '4',                                     ''),
     ('HCAL:HcalEndcapPInsertRecHits:thresholdValue',                   '0',                                     '*'),
 
@@ -659,7 +672,7 @@ eicrecon_reco_flags = [
     ('ZDC:ZDCEcalRecHits:readout',                               'ZDCEcalHits',                    ''),
     ('ZDC:ZDCEcalRecHits:resolutionTDC',                         '1e-11',                          ''),
     ('ZDC:ZDCEcalRecHits:samplingFraction',                      '1',                              '*'),
-    ('ZDC:ZDCEcalRecHits:sectorField',                           'sector',                         ''),
+    ('ZDC:ZDCEcalRecHits:sectorField',                           '',                               ''),
     ('ZDC:ZDCEcalRecHits:thresholdFactor',                       '4',                              ''),
     ('ZDC:ZDCEcalRecHits:thresholdValue',                        '0',                              ''),
 
@@ -721,6 +734,28 @@ eicrecon_reco_flags = [
     ('tracking:CentralCKFTrajectories:Chi2CutOff',               '15',                             'Chi2 Cut Off for ACTS CKF tracking'),
     ('tracking:CentralCKFTrajectories:EtaBins',                  '',                               'Eta Bins for ACTS CKF tracking reco'),
     ('tracking:CentralCKFTrajectories:NumMeasurementsCutOff',    '10',                             'Number of measurements Cut Off for ACTS CKF tracking'),
+
+    # ============================ F A R   F O R W A R D ===================================
+    
+    # RPOTS
+    # -----------------------------
+    ('RPOTS:ForwardRomanPotRawHits:threshold',                   '0.0',                            ''),
+    ('RPOTS:ForwardRomanPotRawHits:timeResolution',              '8.0',                            'ns'),
+    
+    ('RPOTS:ForwardRomanPotRecHits:time_resolution',             '0.0',                            ''),
+
+    ('RPOTS:ForwardRomanPotParticles:local_x_offset_station_1',  '-833.3878326',                   ''),
+    ('RPOTS:ForwardRomanPotParticles:local_x_offset_station_2',  '-924.342804',                    ''),
+    ('RPOTS:ForwardRomanPotParticles:local_x_slope_offset',      '-0.00622147',                    ''),
+    ('RPOTS:ForwardRomanPotParticles:local_y_slope_offset',      '-0.0451035',                     ''),
+    ('RPOTS:ForwardRomanPotParticles:crossingAngle',             '-0.025',                         ''),
+    ('RPOTS:ForwardRomanPotParticles:nomMomentum',               '275.0',                          ''),
+    ('RPOTS:ForwardRomanPotParticles:m_readout',                 '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_layerField',              '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_sectorField',             '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:m_localDetElement',         '',                               ''),
+    ('RPOTS:ForwardRomanPotParticles:u_localDetFields',          '',                               ''),
+
 
     # ========================= R E C O N S T R U C T I O N ================================
     ('Reco:GeneratedParticles:MomentumSmearing',                 '0',                              'Gaussian momentum smearing value'),
@@ -856,6 +891,8 @@ def make_flags_from_records():
         if record[1]:
             value = value_eval(record[1])
             flags_arguments.append(f'-P{record[0]}={value}')
+        else:
+            flags_arguments.append(f'-P{record[0]}=""')
     return flags_arguments
 
 
@@ -863,7 +900,8 @@ if __name__ == "__main__":
 
     # Separate all parameters that starts with -P/-p from args
     parameter_args = []
-    for arg in sys.argv:
+    sys_argv = sys.argv.copy()
+    for arg in sys_argv:
         if arg.startswith(("-P", "-p")):
             parameter_args.append(arg)
             sys.argv.remove(arg)
@@ -875,7 +913,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_command = [
-        f"eicrecon",
+        f"eicrecon"
+    ]
+
+    default_parameters = [
         f"-Pplugins=dump_flags",
         f"-Pdump_flags:python=all_flags_dump_from_run.py",
         f"-Pjana:debug_plugin_loading=1",
@@ -890,6 +931,9 @@ if __name__ == "__main__":
 
     # Add parameters from args
     run_command.extend(parameter_args)
+
+    # Add default parameters
+    run_command.extend(default_parameters)
 
     # Add reco_flags
     run_command.extend(flags_arguments)

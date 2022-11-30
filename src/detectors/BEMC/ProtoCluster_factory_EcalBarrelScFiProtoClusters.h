@@ -20,6 +20,7 @@ public:
     // Constructor
     ProtoCluster_factory_EcalBarrelScFiProtoClusters(){
         SetTag("EcalBarrelScFiProtoClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -29,13 +30,13 @@ public:
         m_input_tag = "EcalBarrelScFiMergedHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=10.0 * MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
         // neighbour checking distances
-        m_sectorDist=5.0 * cm;             // ?
+        m_sectorDist=5.0 * dd4hep::cm;             // ?
         u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={30*mm, 30*mm};     //{this, "localDistXZ", {}};  n.b. 30*mm, 30*mm came from comment Maria Z. put into PR.
+        u_localDistXZ={30 * dd4hep::mm, 30 * dd4hep::mm};     //{this, "localDistXZ", {}};  n.b. 30 * dd4hep::mm, 30 * dd4hep::mm came from comment Maria Z. put into PR.
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
@@ -54,14 +55,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

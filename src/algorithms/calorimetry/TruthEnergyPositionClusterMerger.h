@@ -88,11 +88,11 @@ public:
                 new_clus.setNhits(pclus.getNhits() + eclus.getNhits());
                 new_clus.setPosition(pclus.getPosition());
                 new_clus.setPositionError(pclus.getPositionError());
-                new_clus.addToClusters(pclus);
-                new_clus.addToClusters(eclus);
+//                new_clus.addToClusters(pclus);
+//                new_clus.addToClusters(eclus);
                 for (const auto &cl: {pclus, eclus}) {
                     for (const auto &hit: cl.getHits()) {
-                        new_clus.addToHits(hit);
+//                        new_clus.addToHits(hit);
                     }
                     new_clus.addToSubdetectorEnergies(cl.getEnergy());
                 }
@@ -123,7 +123,7 @@ public:
                     m_log->debug("   --> No matching energy cluster found, copying over position cluster" );
                 }
                 auto new_clus = pclus.clone();
-                new_clus.addToClusters(pclus);
+//                new_clus.addToClusters(pclus);
                 auto cl = new edm4eic::Cluster(new_clus);
                 merged_clus.push_back(cl);
 
@@ -153,9 +153,9 @@ public:
             new_clus.setEnergyError(eclus.getEnergyError());
             new_clus.setTime(eclus.getTime());
             new_clus.setNhits(eclus.getNhits());
-            // use nominal radius of 110cm, and use start vertex theta and phi
-            new_clus.setPosition(edm4eic::sphericalToVector(110. * cm, theta, phi));
-            new_clus.addToClusters(eclus);
+            // use nominal dd4hep::radius of 110cm, and use start vertex theta and phi
+            new_clus.setPosition(edm4eic::sphericalToVector(110. * dd4hep::cm, theta, phi));
+//            new_clus.addToClusters(eclus);
             if (m_log->level() == SPDLOG_LEVEL_DEBUG) {
                 m_log->debug( fmt::format(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.id() ,mcID ,eclus.getEnergy() ));
                 m_log->debug( fmt::format("   --> Created new 'combined' cluster {}, energy: {}", new_clus.id(),new_clus.getEnergy() ));

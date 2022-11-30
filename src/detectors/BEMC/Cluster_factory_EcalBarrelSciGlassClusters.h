@@ -22,6 +22,7 @@ public:
     // Constructor
     Cluster_factory_EcalBarrelSciGlassClusters(){
         SetTag("EcalBarrelSciGlassClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -33,14 +34,14 @@ public:
         m_input_protoclust_tag="EcalBarrelSciGlassProtoClusters";
     
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
-        m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
+        m_logWeightBase=6.2;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
         m_moduleDimZName="";//{this, "moduleDimZName", ""};
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
         // for endcaps.
-        m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
+        m_enableEtaBounds=true;//{this, "enableEtaBounds", false};
 
 
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:input_protoclust_tag",        m_input_protoclust_tag, "Name of input collection to use");
@@ -54,16 +55,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
 
         AlgorithmInit(m_log);
     }

@@ -17,7 +17,7 @@
 #include "edm4eic/TrackSegmentCollection.h"
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
-#include "JugTrack/Trajectories.hpp"
+#include "JugTrack/TrackingResultTrajectory.hpp"
 
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Geometry/GeometryIdentifier.hpp"
@@ -46,7 +46,7 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const Jug::Trajectories *> trajectories) {
+    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
 
         // create output collections
         std::vector<edm4eic::TrackSegment *> track_segments;
@@ -84,6 +84,7 @@ namespace eicrecon {
                 auto geoID = trackstate.referenceSurface().geometryId();
                 auto volume = geoID.volume();
                 auto layer = geoID.layer();
+
                 if (trackstate.hasCalibrated()) {
                     m_nCalibrated++;
                 }
@@ -91,6 +92,7 @@ namespace eicrecon {
                 // get track state parameters and their covariances
                 const auto &parameter = trackstate.predicted();
                 const auto &covariance = trackstate.predictedCovariance();
+
 
                 // convert local to global
                 auto global = trackstate.referenceSurface().localToGlobal(

@@ -30,6 +30,18 @@ struct InsertFacIntoStore {
     }
 };
 
+/// This is used to activate the factory using the standard JEvent::Get
+/// call. It is done this way so that the factory call stack recording
+/// mechanism can work properly.
+template <typename PodioT, typename PodioCollectionT>
+struct GetFactoryObjects {
+    size_t operator() (const std::shared_ptr<const JEvent> &event, JFactory* fac) {
+        auto objs = event->Get<PodioT>( fac->GetTag() );
+        return objs.size();
+    }
+};
+
+
 JEventProcessorPODIO::JEventProcessorPODIO() {
     SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
 
@@ -59,13 +71,40 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections={
             "MCParticles",
+
+            // All tracking hits combined
+            "CentralTrackingRecHits",
+
+            // Si tracker hits
+            "SiBarrelTrackerRecHits",
+            "SiBarrelVertexRecHits",
+            "SiEndcapTrackerRecHits",
+
+            // TOF
+            "TOFBarrelRecHit",
+            "TOFEndcapRecHits",
+
+            // MPGD
+            "MPGDBarrelRecHits",
+            "MPGDDIRCRecHits",
+
+            // Forward & Far forward hits
+            "ForwardOffMTrackerRecHits",
+            "ForwardRomanPotRecHits",
+            "B0TrackerRecHits",
+
+            //
+            "ForwardRomanPotParticles",
+            "SmearedFarForwardParticles",
+
+            // Reconstructed data
             "GeneratedParticles",
             "ReconstructedParticles",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticlesAssociations",
-            "trackerHits",
-            "BarrelTrackerHit",
-            "EndcapTrackerHit",
+            "CentralTrackSegments",
+
+            // Ecal stuff
             "EcalEndcapNRawHits",
             "EcalEndcapNRecHits",
             "EcalEndcapNTruthClusters",
@@ -131,11 +170,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalBarrelTruthClusters",
             "B0ECalRecHits",
             "B0ECalClusters",
-            "ZDCEcalTruthClusters",
-            "ForwardRomanPotRawHits",
-            "ForwardRomanPotRecHits",
-            "ForwardRomanPotParticles",
-            "SmearedFarForwardParticles"
+            "ZDCEcalTruthClusters"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
@@ -278,7 +313,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 // actually ran. If the user didn't specify any collections in the include list, we don't: For factories
                 // that had not already been triggered by an EventProcessor, we simply write out zero objects.
                 m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
-                fac->Create(event, mApplication, event->GetRunNumber());
+                auto result = CallWithPODIOType<GetFactoryObjects, size_t, decltype(event), decltype(fac)>(fac->GetObjectName(), event, fac);
             }
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 

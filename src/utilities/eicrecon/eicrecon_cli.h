@@ -13,6 +13,7 @@ namespace jana {
         Unknown,
         ShowUsage,
         ShowVersion,
+        ShowJANAVersion,
         ShowDefaultPlugins,
         ShowAvailablePlugins,
         ShowConfigs,

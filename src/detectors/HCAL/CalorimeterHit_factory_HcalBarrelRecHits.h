@@ -15,6 +15,7 @@ public:
     // Constructor
     CalorimeterHit_factory_HcalBarrelRecHits(){
         SetTag("HcalBarrelRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -26,7 +27,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096; // best guess
-        m_dyRangeADC=50. * GeV; // best guess
+        m_dyRangeADC=50. * dd4hep::GeV; // best guess
         m_pedMeanADC=10; // best guess
         m_pedSigmaADC=2; // best guess
         m_resolutionTDC=1 * dd4hep::nanosecond; // best guess
@@ -45,7 +46,7 @@ public:
         m_sectorField="sector";      
 
         m_localDetElement="";         
-        u_localDetFields={};          
+        u_localDetFields={};
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
         app->SetDefaultParameter("HCAL:HcalBarrelRecHits:capacityADC",      m_capADC);
@@ -64,14 +65,6 @@ public:
         app->SetDefaultParameter("HCAL:HcalBarrelRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 
@@ -95,6 +88,7 @@ public:
         hits.clear(); // not really needed, but better to not leave dangling pointers around
     }
 
+    std::shared_ptr<spdlog::logger> m_log;
 };
 
 #endif // CalorimeterHit_factory_HcalBarrelRecHits_h_

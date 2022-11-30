@@ -15,6 +15,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalBarrelScFiRecHits(){
         SetTag("EcalBarrelScFiRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -26,7 +27,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
-        m_dyRangeADC=750. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_dyRangeADC=750. * dd4hep::MeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
         m_pedMeanADC=20;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.3;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
@@ -49,6 +50,9 @@ public:
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:readout",          m_readout );
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:layerField",       m_layerField );
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:sectorField",      m_sectorField );
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:pedestalMean",     m_pedMeanADC);
@@ -59,14 +63,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:samplingFraction", m_sampFrac);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

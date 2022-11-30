@@ -99,9 +99,10 @@ void DumpFlags_processor::Finish()
 
         // form json content string
         std::string json_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "\"", "'");
-        json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\"]\n",
+        json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n",
                                     line_num++==0?' ': ',',
                                     param->GetKey(),
+                                    param->GetValue(),
                                     param->GetDefault(),
                                     json_escaped_descr);
 
@@ -132,6 +133,7 @@ void DumpFlags_processor::Finish()
             std::ofstream ofs(m_json_file_name);
             ofs << json_content;
             m_log->info("Created json file with flags: '{}'", m_json_file_name);
+            m_log->info("Json records format is: [name, value, default-value, comment]", m_json_file_name);
         }
         catch(std::exception ex) {
             m_log->error("Can't open file '{}' for write", m_json_file_name);    // TODO personal logger

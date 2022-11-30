@@ -20,7 +20,7 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Measurement.hpp"
 #include "JugTrack/Track.hpp"
-#include "JugTrack/Trajectories.hpp"
+#include "JugTrack/TrackingResultTrajectory.hpp"
 
 #include "edm4eic/TrackerHitCollection.h"
 #include <edm4eic/TrackParameters.h>
@@ -48,7 +48,7 @@ namespace eicrecon {
     public:
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
-        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<Jug::IndexSourceLinkAccessor::Iterator>;
+        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<eicrecon::IndexSourceLinkAccessor::Iterator>;
         using TrackFinderResult = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult>>;
 
         /// Find function that takes the above parameters
@@ -58,7 +58,7 @@ namespace eicrecon {
         public:
             virtual ~CKFTrackingFunction() = default;
 
-            virtual TrackFinderResult operator()(const Jug::TrackParametersContainer &,
+            virtual TrackFinderResult operator()(const eicrecon::TrackParametersContainer &,
                                                  const TrackFinderOptions &) const = 0;
         };
 
@@ -69,32 +69,25 @@ namespace eicrecon {
                 std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
                 std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
 
-    public:
+        CKFTracking();
 
+        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
+
+        std::vector<eicrecon::TrackingResultTrajectory*> process(const eicrecon::IndexSourceLinkContainer &src_links,
+                                                                 const eicrecon::MeasurementContainer &measurements,
+                                                                 const eicrecon::TrackParametersContainer &init_trk_params);
+
+    private:
+        std::shared_ptr<spdlog::logger> m_log;
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-        std::shared_ptr<const Jug::BField::DD4hepBField> m_BField = nullptr;
+        std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
         Acts::GeometryContext m_geoctx;
         Acts::CalibrationContext m_calibctx;
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
-//        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::INFO;
-        Acts::Logging::Level m_actsLoggingLevel = Acts::Logging::FATAL; // FIXME: this is to suppress lots of errors about "No track is found with the initial parameters"
-
-
-
-        CKFTracking();
-
-        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
-
-        std::vector<Jug::Trajectories*> process(const Jug::IndexSourceLinkContainer &src_links,
-                                                const Jug::MeasurementContainer &measurements,
-                                                const Jug::TrackParametersContainer &init_trk_params);
-
-    private:
-        std::shared_ptr<spdlog::logger> m_log;
     };
 
 } // namespace Jug::Reco

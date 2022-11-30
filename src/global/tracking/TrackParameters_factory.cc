@@ -34,11 +34,17 @@ namespace eicrecon {
 
     void TrackParameters_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto tracking_data = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
-        std::vector<edm4eic::TrackParameters*> result;
-        for(size_t i=0; i < tracking_data->trackParameters()->size(); i++) {
-            auto track_params = (*tracking_data->trackParameters())[i];
-            result.push_back(new edm4eic::TrackParameters(track_params));
+
+        try {
+            std::vector<edm4eic::TrackParameters *> result;
+            for (size_t i = 0; i < tracking_data->trackParameters()->size(); i++) {
+                auto track_params = (*tracking_data->trackParameters())[i];
+                result.push_back(new edm4eic::TrackParameters(track_params));
+            }
+            Set(result);
         }
-        Set(result);
+        catch(std::exception &e) {
+            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        }
     }
 } // eicrecon

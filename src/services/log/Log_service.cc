@@ -2,10 +2,10 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include "Log_service.h"
-#include <JANA/JException.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <JANA/JException.h>
 
 
 Log_service::Log_service(JApplication *app) {
@@ -13,30 +13,28 @@ Log_service::Log_service(JApplication *app) {
     // All subsequent loggers are cloned from the spdlog::default_logger()
     m_application = app;
 
+    m_log_level_str = "info";
+    m_application->SetDefaultParameter("eicrecon:LogLevel", m_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
+    spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
 }
 
 
 std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
 
-    // Get default loggers
-    static std::once_flag on_first_execution;
-
-
     try {
         std::lock_guard<std::recursive_mutex> locker(m_lock);
-
-        std::call_once(on_first_execution, [this](){
-            std::string log_level_str = "info";
-            m_application->SetDefaultParameter("eicrecon:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
-            spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(log_level_str));
-        });
-
 
         // Try to get existing logger
         auto logger = spdlog::get(name);
         if(!logger) {
             // or create a new one with current configuration
             logger = spdlog::default_logger()->clone(name);
+
+            // Set log level for this named logger allowing user to specify as config. parameter
+            // e.g. EcalEndcapPRecHits:LogLevel
+            std::string log_level_str = m_log_level_str;
+            m_application->SetDefaultParameter(name+":LogLevel", log_level_str, "log_level for "+name+": trace, debug, info, warn, error, critical, off");
+            logger->set_level(eicrecon::ParseLogLevel(log_level_str));
         }
         return logger;
     }
@@ -44,6 +42,12 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
         throw JException(exception.what());
     }
 }
+
+spdlog::level::level_enum Log_service::getDefaultLevel() {return spdlog::default_logger()->level();}
+
+std::string Log_service::getDefaultLevelStr() {return eicrecon::LogLevelToString(getDefaultLevel());}
+
+
 
 
 

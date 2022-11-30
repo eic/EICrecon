@@ -32,6 +32,7 @@ namespace jana {
         std::cout << "Options:" << std::endl;
         std::cout << "   -h   --help                  Display this message" << std::endl;
         std::cout << "   -v   --version               Display version information" << std::endl;
+        std::cout << "   -j   --janaversion           Display JANA version information" << std::endl;
         std::cout << "   -c   --configs               Display configuration parameters" << std::endl;
         std::cout << "   -l   --loadconfigs <file>    Load configuration parameters from file" << std::endl;
         std::cout << "   -d   --dumpconfigs <file>    Dump configuration parameters to file" << std::endl;
@@ -76,8 +77,11 @@ namespace jana {
     }
 
     void PrintVersion() {
-        std::cout << "      EICrecon version: " << EICRECON_APP_VERSION_STR << std::endl;
-        std::cout << std::endl << std::endl;
+        std::cout << "EICrecon version: " << EICRECON_APP_VERSION_STR << std::endl;
+    }
+
+    void PrintJANAVersion() {
+        std::cout << "JANA version: " << JVersion::GetVersion() << std::endl;
     }
 
     void PrintDefaultPlugins(std::vector<std::string> const& default_plugins) {
@@ -153,6 +157,10 @@ namespace jana {
         }
         if (options.flags[jana::ShowVersion]) {
             jana::PrintVersion();
+            return true;
+        }
+        if (options.flags[jana::ShowJANAVersion]) {
+            jana::PrintJANAVersion();
             return true;
         }
         if (options.flags[jana::ShowDefaultPlugins]) {
@@ -296,6 +304,48 @@ namespace jana {
         }
     }
 
+    void PrintConfigParameters(JApplication* app){
+        /// Print a table of the currently defined configuration parameters.
+        /// n.b. this mostly duplicates a call to app->GetJParameterManager()->PrintParameters()
+        /// but avoids the issue it has of setting the values column to same
+        /// width for all parameters. (That leads to lots of whitespace being
+        /// printed due to the very long podio:output_include_collections param.
+
+        // Determine column widths
+        auto params = app->GetJParameterManager()->GetAllParameters();
+        size_t max_key_length = 0;
+        size_t max_val_length = 0;
+        size_t max_max_val_length = 32; // maximum width allowed for column.
+        for( auto &[key, p] : params ){
+            if( key.length() > max_key_length ) max_key_length = key.length();
+            if( p->GetValue().length() > max_val_length ){
+                if( p->GetValue().length() <= max_max_val_length ) max_val_length = p->GetValue().length();
+            }
+        }
+
+        std::cout << "\nConfiguration Parameters:" << std::endl;
+        std::cout << "Name" + std::string(max_key_length-4, ' ') << " : ";
+        std::cout << "Value" + std::string(max_val_length-5, ' ') << " : ";
+        std::cout << "Description" << std::endl;
+        std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
+        for( auto &[key, p] : params ){
+            std::stringstream ss;
+            int key_length_diff = max_key_length - key.length();
+            if( key_length_diff>0 ) ss << std::string(key_length_diff, ' ');
+            ss << key;
+            ss << " | ";
+
+            int val_length_diff = max_val_length - p->GetValue().length();
+            if( val_length_diff>0 ) ss << std::string(val_length_diff, ' ');
+            ss << p->GetValue();
+            ss << " | ";
+            ss << p->GetDescription();
+
+            std::cout << ss.str() << std::endl;
+        }
+        std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
+    }
+
     int Execute(JApplication* app, UserOptions &options) {
 
         std::cout << std::endl;
@@ -308,7 +358,8 @@ namespace jana {
             if (options.flags[Benchmark]) {
                 JBenchmarker benchmarker(app);  // Show benchmarking configs only if benchmarking mode specified
             }
-            app->GetJParameterManager()->PrintParameters(true);
+//            app->GetJParameterManager()->PrintParameters(true);
+            PrintConfigParameters(app);
         }
         else if (options.flags[DumpConfigs]) {
             // Load all plugins, dump parameters to file, exit without running anything
@@ -359,6 +410,8 @@ namespace jana {
         tokenizer["--help"] = ShowUsage;
         tokenizer["-v"] = ShowVersion;
         tokenizer["--version"] = ShowVersion;
+        tokenizer["-j"] = ShowJANAVersion;
+        tokenizer["--janaversion"] = ShowJANAVersion;
         tokenizer["-c"] = ShowConfigs;
         tokenizer["--configs"] = ShowConfigs;
         tokenizer["-l"] = LoadConfigs;
@@ -399,6 +452,10 @@ namespace jana {
 
                 case ShowVersion:
                     options.flags[ShowVersion] = true;
+                    break;
+
+                case ShowJANAVersion:
+                    options.flags[ShowJANAVersion] = true;
                     break;
 
                 case ShowConfigs:
@@ -445,7 +502,11 @@ namespace jana {
                         if ((pos != std::string::npos) && (pos > 2)) {
                             std::string key = arg.substr(2, pos - 2);
                             std::string val = arg.substr(pos + 1);
-                            options.params.insert({key, val});
+                            if (options.params.find(key) != options.params.end()) {
+                                std::cout << "Duplicate parameter '" << arg << "' ignored" << std::endl;
+                            } else {
+                                options.params.insert({key, val});
+                            }
                         } else {
                             std::cout << "Invalid JANA parameter '" << arg
                                       << "': Expected format -Pkey=value" << std::endl;

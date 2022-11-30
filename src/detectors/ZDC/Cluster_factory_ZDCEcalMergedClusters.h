@@ -20,6 +20,7 @@ public:
     // Constructor
     Cluster_factory_ZDCEcalMergedClusters(){
         SetTag("ZDCEcalMergedClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -29,15 +30,6 @@ public:
         //-------- Configuration Parameters ------------
         m_input_tag="ZDCEcalClusters";
         m_inputAssociations_tag="ZDCEcalClusterAssociations";
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         AlgorithmInit(m_log);
     }

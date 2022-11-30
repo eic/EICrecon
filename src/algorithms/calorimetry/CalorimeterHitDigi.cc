@@ -55,26 +55,26 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // now, just use default values defined in header file.
 
     // set energy resolution numbers
-    m_logger=logger;
+    m_log=logger;
     for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
         eRes[i] = u_eRes[i];
     }
 
-    // using juggler internal units (GeV, mm, radian, ns)
-    dyRangeADC = m_dyRangeADC * MeV; // value of m_dyRangeADC is in MeV
-    tRes       = m_tRes / ns;
-    stepTDC    = ns / m_resolutionTDC;
+    // using juggler internal units (GeV, dd4hep::mm, dd4hep::radian, dd4hep::ns)
+    dyRangeADC = m_dyRangeADC * dd4hep::MeV; // value of m_dyRangeADC is in dd4hep::MeV
+    tRes       = m_tRes / dd4hep::ns;
+    stepTDC    = dd4hep::ns / m_resolutionTDC;
 
     // need signal sum
     if (!u_fields.empty()) {
 
         // sanity checks
         if (!m_geoSvc) {
-            m_logger->error("Unable to locate Geometry Service.");
+            m_log->error("Unable to locate Geometry Service.");
             throw std::runtime_error("Unable to locate Geometry Service.");
         }
         if (m_readout.empty()) {
-            m_logger->error("readoutClass is not provided, it is needed to know the fields in readout ids.");
+            m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids.");
             throw std::runtime_error("readoutClass is not provided.");
         }
 
@@ -92,13 +92,13 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             ref_mask = id_desc.encode(ref_fields);
             // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
-            m_logger->warn("Failed to load ID decoder for {}", m_readout);
+            m_log->warn("Failed to load ID decoder for {}", m_readout);
             japp->Quit();
             return;
         }
         id_mask = ~id_mask;
         //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
-        m_logger->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
+        m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
     }
 }
 
@@ -137,7 +137,7 @@ void CalorimeterHitDigi::single_hits_digi(){
 
      // Create output collections
     for ( auto ahit : simhits ) {
-        // Note: juggler internal unit of energy is GeV
+        // Note: juggler internal unit of energy is dd4hep::GeV
         const double eDep    = ahit->getEnergy();
 
         // apply additional calorimeter noise to corrected energy deposit

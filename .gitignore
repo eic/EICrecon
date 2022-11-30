@@ -156,3 +156,5 @@ src/tools/default_flags_table/__pycache__/
 src/tools/default_flags_table/calibrations/
 
 src/tools/default_flags_table/fieldmaps/
+
+src/examples/test_data_generator/__pycache__/

@@ -22,6 +22,7 @@ public:
     // Constructor
     Cluster_factory_B0ECalClusters(){
         SetTag("B0ECalClusters");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -43,25 +44,15 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("EEMC:B0ECalClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:B0ECalClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:B0ECalClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("B0ECAL:B0ECalClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-
 
         AlgorithmInit(m_log);
     }

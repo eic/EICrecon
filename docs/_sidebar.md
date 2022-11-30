@@ -4,8 +4,12 @@
     * [Manual build](get-started/manual-build.md)
     * [EDPM](get-started/edpm.md)
 * HowTo
+    * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md) 
+    * [Use docker](howto/use_docker.md)
+    * [Use singularity](howto/use_singularity.md)
     * [Make Plugin](howto/make_plugin.md)
     * [Add Factory](howto/add_factory.md)
+    * [Visualize Callgraph](howto/visualize_callgraph.md)
 * Design
     * [Flags&Env](design/common_flags_env.md)
     * [Cmake](design/cmake.md)
@@ -13,6 +17,8 @@
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
+* All flags
+    * [Flags view](table_flags/flags_view.md) 
 * Tutorials 
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
@@ -22,5 +28,4 @@
 * Misc
     * [References](misc/references.md)
     * [This website](misc/this_website.md)   
-* Table flags
-    * [Table flags](table_flags/flags.md)
+

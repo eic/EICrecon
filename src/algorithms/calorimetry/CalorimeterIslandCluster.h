@@ -22,7 +22,6 @@
 #include <edm4eic/MutableProtoCluster.h>
 #include <spdlog/spdlog.h>
 
-using namespace dd4hep;
 using CaloHit = edm4eic::CalorimeterHit;
 
 //TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
@@ -96,15 +95,15 @@ public:
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_log;
 
     std::string m_input_tag;
     bool m_splitCluster;//{this, "splitCluster", true};
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
-    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * MeV};
+    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
     // neighbour checking distances
-    double m_sectorDist;//{this, "sectorDist", 5.0 * cm};
+    double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
     std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
     std::vector<double> u_localDistXZ;//{this, "localDistXZ", {}};
     std::vector<double> u_localDistYZ;//{this, "localDistYZ", {}};
@@ -230,9 +229,9 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (m_logger->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
+      if (m_log->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
         //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-        m_logger->trace("No maxima found, not building any clusters");
+        m_log->trace("No maxima found, not building any clusters");
       }
       return;
     } else if (maxima.size() == 1) {
@@ -243,7 +242,7 @@ private:
       }
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
 
-      m_logger->debug("A single maximum found, added one ProtoCluster");
+      m_log->debug("A single maximum found, added one ProtoCluster");
 
       return;
     }

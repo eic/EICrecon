@@ -14,6 +14,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalEndcapPInsertRecHits(){
         SetTag("EcalEndcapPInsertRecHits");
+        m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
@@ -25,7 +26,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * MeV;//{this, "dynamicRangeADC", 100. * MeV};
+        m_dyRangeADC=100. * dd4hep::MeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
         m_pedMeanADC=400;//{this, "pedestalMean", 400};
         m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
@@ -41,7 +42,7 @@ public:
         m_geoSvcName="geoServiceName";
         m_readout="EcalEndcapPInsertHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
-        m_sectorField="sector";       // from ATHENA's reconstruction.py
+        m_sectorField="";             // from ATHENA's reconstruction.py
 
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
@@ -64,14 +65,6 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapPInsertRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        // Get log level from user parameter or default
-        std::string log_level_str = "info";
-        auto pm = app->GetJParameterManager();
-        pm->SetDefaultParameter(tag + ":LogLevel", log_level_str, "verbosity: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         AlgorithmInit(m_log);
     }
 

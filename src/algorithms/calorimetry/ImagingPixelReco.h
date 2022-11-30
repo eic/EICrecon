@@ -38,7 +38,7 @@ protected:
     // digitization parameters
     unsigned int m_capADC; // {this, "capacityADC", 8096};
     unsigned int m_pedMeanADC; // {this, "pedestalMean", 400};
-    double m_dyRangeADC; // {this, "dynamicRangeADC", 100 * MeV};
+    double m_dyRangeADC; // {this, "dynamicRangeADC", 100 * dd4hep::MeV};
     double m_pedSigmaADC; // {this, "pedestalSigma", 3.2};
     double m_thresholdFactor; // {this, "thresholdFactor", 3.0};
     // Calibration!
@@ -85,7 +85,7 @@ public:
         }
 
         // unitless conversion
-        dyRangeADC = m_dyRangeADC / dd4hep::GeV;
+        dyRangeADC = m_dyRangeADC;
     }
 
     void execute() {
@@ -107,7 +107,7 @@ public:
             const double energy =
                     (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * dyRangeADC /
                     m_sampFrac; // convert ADC -> energy
-            const double time = rh->getTimeStamp() * 1.e-6;                                       // ns
+            const double time = rh->getTimeStamp() * 1.e-6;                                       // dd4hep::ns
 
 #pragma GCC diagnostic pop
 

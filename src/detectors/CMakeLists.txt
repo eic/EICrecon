@@ -16,4 +16,4 @@ add_subdirectory(BTOF)      # Barrel TOF
 add_subdirectory(LOWQ2)     # LOWQ2 Tagger
 
 # PID detectors
-add_subdirectory(RICH)
+add_subdirectory(DRICH)
