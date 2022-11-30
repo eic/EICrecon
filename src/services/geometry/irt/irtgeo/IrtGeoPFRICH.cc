@@ -64,7 +64,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       );
   auto filterFlatRadiator = irtDetectorCollection->AddFlatRadiator(
       irtDetector,             // Cherenkov detector
-      "Filter",                // name
+      "filter",                // name
       0,                       // path
       (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
