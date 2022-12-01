@@ -23,6 +23,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "digi",
         "reco",
         "tracking",
+        "pid",
         "BEMC",
         "HCAL",
         "B0ECAL",

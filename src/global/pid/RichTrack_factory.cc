@@ -19,6 +19,7 @@ void eicrecon::RichTrack_factory::Init() {
   m_irtGeoSvc = app->GetService<IrtGeo_service>();
   m_actsSvc   = app->GetService<ACTSGeo_service>();
   InitLogger(param_prefix, "info");
+  m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
 
   // default configuration parameters
   m_numPlanes[IrtGeo::kAerogel] = 5;
@@ -47,12 +48,52 @@ void eicrecon::RichTrack_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
+void eicrecon::RichTrack_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+}
+
+//-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // Get trajectories from tracking
-  auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
-  std::vector<edm4eic::TrackPoint*> track_points;
+  // collect all trajectories all input tags
+  std::vector<const eicrecon::TrackingResultTrajectory*> trajectories;
+  for(const auto& input_tag : GetInputTags()) {
+    try {
+      for(const auto traj : event->Get<eicrecon::TrackingResultTrajectory>(input_tag))
+        trajectories.push_back(traj);
+    } catch(std::exception &e) {
+      m_log->critical(e.what());
+      throw JException(e.what());
+    }
+  }
 
-  // outputs
-  Set(track_points);
+  // result will be `TrackPoint`s for each trajectory, RICH tracking plane, and radiator
+  std::vector<edm4eic::TrackPoint*> result;
+
+  // loop over trajectories
+  m_log->trace("Propagate trajectories:");
+  for(const auto& traj : trajectories) { 
+    // loop over radiators
+    for(const auto& [rad,planes] : m_trackingPlanes) {
+      m_log->trace("- radiator = {}", IrtGeo::RadiatorName(rad));
+      // loop over track-projection planes for this radiator
+      for(const auto& plane : planes) {
+        edm4eic::TrackPoint *point;
+        try {
+          // project to this plane
+          point = m_propagation_algo.propagate(traj, plane);
+        } catch(std::exception &e) {
+          m_log->warn("    Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+        }
+        if(point) {
+          result.push_back(point);
+          m_log->trace("    trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+              point->position.x, point->position.y, point->position.z);
+          m_log->trace("                p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+              point->momentum.x, point->momentum.y, point->momentum.z);
+        }
+        else m_log->trace("    Failed to propagate trajectory");
+      }
+    }
+  }
+  Set(std::move(result));
 }
