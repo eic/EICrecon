@@ -50,7 +50,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
 
-    app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
+    app->Add(new JChainFactoryGeneratorT<TrackSeeding_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(

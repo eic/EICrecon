@@ -2,28 +2,29 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_CKFTracking_factory_H
-#define EICRECON_CKFTracking_factory_H
+#ifndef EICRECON_TrackSeeding_factory_H
+#define EICRECON_TrackSeeding_factory_H
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/CKFTracking.h>
-#include <algorithms/tracking/CKFTrackingConfig.h>
+#include <algorithms/tracking/TrackSeeding.h>
+#include <algorithms/tracking/TrackSeedingConfig.h>
 #include <algorithms/tracking/TrackerSourceLinkerResult.h>
 
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <extensions/jana/JChainFactoryT.h>
+#include <edm4eic/TrackParameters.h>
 
 
 namespace eicrecon {
 
     class TrackSeeding_factory :
-            public JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig>,
+            public JChainFactoryT<edm4eic::TrackParameters, TrackSeedingConfig>,
             public SpdlogMixin<TrackSeeding_factory> {
 
     public:
-        TrackSeeding_factory(std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):
-                JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig>(std::move(default_input_tags), cfg ) {
+        TrackSeeding_factory( std::vector<std::string> default_input_tags, TrackSeedingConfig cfg):
+                JChainFactoryT<edm4eic::TrackParameters, TrackSeedingConfig>(std::move(default_input_tags), cfg ) {
         }
 
         /** One time initialization **/
@@ -37,10 +38,10 @@ namespace eicrecon {
 
     private:
 
-        CKFTracking m_tracking_algo;                      /// Proxy tracking algorithm
+        eicrecon::TrackSeeding m_seeding_algo;                      /// Proxy tracking algorithm
 
     };
 
 } // eicrecon
 
-#endif //EICRECON_CKFTracking_factory_H
+#endif //EICRECON_TrackSeeding_factory_H
