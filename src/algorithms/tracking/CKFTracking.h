@@ -12,8 +12,6 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
-//#include "JugBase/DataHandle.h"
-
 #include "JugBase/BField/DD4hepBField.h"
 #include "JugTrack/GeometryContainers.hpp"
 #include "JugTrack/Index.hpp"
