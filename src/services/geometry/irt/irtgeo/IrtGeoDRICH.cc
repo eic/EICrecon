@@ -14,27 +14,27 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
    * for all radiators will be assigned at the end by hand; FIXME: should assign it on
    * per-photon basis, at birth, like standalone GEANT code does;
    */
-  auto nSectors       = det->constant<int>("DRICH_RECON_nSectors");
-  auto vesselZmin     = det->constant<double>("DRICH_RECON_zmin");
-  auto gasvolMaterial = det->constant<std::string>("DRICH_RECON_gasvolMaterial");
+  auto nSectors       = det->constant<int>("DRICH_num_sectors");
+  auto vesselZmin     = det->constant<double>("DRICH_zmin");
+  auto gasvolMaterial = det->constant<std::string>("DRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, -1, 0);
   auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
   for (int isec=0; isec<nSectors; isec++) {
     auto cv = irtDetectorCollection->SetContainerVolume(
-        irtDetector,             // Cherenkov detector
-        RadiatorCStr(kGas),      // name
-        isec,                    // path
-        (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
-        nullptr,                 // G4RadiatorMaterial (inaccessible?)
-        surfEntrance             // surface
+        irtDetector,                // Cherenkov detector
+        RadiatorName(kGas).c_str(), // name
+        isec,                       // path
+        (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
+        nullptr,                    // G4RadiatorMaterial (inaccessible?)
+        surfEntrance                // surface
         );
     cv->SetAlternativeMaterialName(gasvolMaterial.c_str());
   }
 
   // photon detector
   // - FIXME: args (G4Solid,G4Material) inaccessible?
-  auto cellMask = uint64_t(std::stoull(det->constant<std::string>("DRICH_RECON_cellMask")));
+  auto cellMask = uint64_t(std::stoull(det->constant<std::string>("DRICH_cell_mask")));
   CherenkovPhotonDetector* irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   irtDetector->SetReadoutCellMask(cellMask);
   irtDetectorCollection->AddPhotonDetector(
@@ -48,28 +48,29 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
    * FIXME: should make a small gas gap at the upstream end of the gas volume;
    * FIXME: do we need a sector loop?
+   * FIXME: airgap radiator?
    */
-  auto aerogelZpos        = det->constant<double>("DRICH_RECON_aerogelZpos");
-  auto aerogelThickness   = det->constant<double>("DRICH_RECON_aerogelThickness");
-  auto aerogelMaterial    = det->constant<std::string>("DRICH_RECON_aerogelMaterial");
-  auto filterZpos         = det->constant<double>("DRICH_RECON_filterZpos");
-  auto filterThickness    = det->constant<double>("DRICH_RECON_filterThickness");
-  auto filterMaterial     = det->constant<std::string>("DRICH_RECON_filterMaterial");
+  auto aerogelZpos        = det->constant<double>("DRICH_aerogel_zpos");
+  auto aerogelThickness   = det->constant<double>("DRICH_aerogel_thickness");
+  auto aerogelMaterial    = det->constant<std::string>("DRICH_aerogel_material");
+  auto filterZpos         = det->constant<double>("DRICH_filter_zpos");
+  auto filterThickness    = det->constant<double>("DRICH_filter_thickness");
+  auto filterMaterial     = det->constant<std::string>("DRICH_filter_material");
   auto aerogelFlatSurface = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, aerogelZpos), normX, normY);
   auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
   for (int isec = 0; isec < nSectors; isec++) {
     auto aerogelFlatRadiator = irtDetectorCollection->AddFlatRadiator(
-        irtDetector,             // Cherenkov detector
-        RadiatorCStr(kAerogel),  // name
-        isec,                    // path
-        (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
-        nullptr,                 // G4RadiatorMaterial
-        aerogelFlatSurface,      // surface
-        aerogelThickness / dd4hep::mm // surface thickness
+        irtDetector,                    // Cherenkov detector
+        RadiatorName(kAerogel).c_str(), // name
+        isec,                           // path
+        (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
+        nullptr,                        // G4RadiatorMaterial
+        aerogelFlatSurface,             // surface
+        aerogelThickness / dd4hep::mm   // surface thickness
         );
     auto filterFlatRadiator = irtDetectorCollection->AddFlatRadiator(
         irtDetector,             // Cherenkov detector
-        "filter",                // name
+        "Filter",                // name
         isec,                    // path
         (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial
@@ -89,11 +90,11 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
     std::string secName = "sec" + std::to_string(isec);
 
     // mirrors
-    auto mirrorRadius = det->constant<double>("DRICH_RECON_mirrorRadius");
+    auto mirrorRadius = det->constant<double>("DRICH_mirror_radius");
     dd4hep::Position mirrorCenter(
-      det->constant<double>("DRICH_RECON_mirrorCenterX_"+secName),
-      det->constant<double>("DRICH_RECON_mirrorCenterY_"+secName),
-      det->constant<double>("DRICH_RECON_mirrorCenterZ_"+secName)
+      det->constant<double>("DRICH_mirror_center_x_"+secName),
+      det->constant<double>("DRICH_mirror_center_y_"+secName),
+      det->constant<double>("DRICH_mirror_center_z_"+secName)
       );
     auto mirrorSphericalSurface  = new SphericalSurface(
         (1 / dd4hep::mm) * TVector3(mirrorCenter.x(), mirrorCenter.y(), mirrorCenter.z()), mirrorRadius / dd4hep::mm);
@@ -111,15 +112,15 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
     PrintLog("    mirror R = {:f} cm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    irtDetector->GetRadiator(RadiatorCStr(kGas))->m_Borders[isec].second = mirrorSphericalSurface;
+    irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = mirrorSphericalSurface;
 
     // sensor sphere (only used for validation of sensor normals)
-    auto sensorSphRadius  = det->constant<double>("DRICH_RECON_sensorSphRadius");
-    auto sensorThickness  = det->constant<double>("DRICH_RECON_sensorThickness");
+    auto sensorSphRadius  = det->constant<double>("DRICH_sensor_sph_radius");
+    auto sensorThickness  = det->constant<double>("DRICH_sensor_thickness");
     dd4hep::Position sensorSphCenter(
-      det->constant<double>("DRICH_RECON_sensorSphCenterX_"+secName),
-      det->constant<double>("DRICH_RECON_sensorSphCenterY_"+secName),
-      det->constant<double>("DRICH_RECON_sensorSphCenterZ_"+secName)
+      det->constant<double>("DRICH_sensor_sph_center_x_"+secName),
+      det->constant<double>("DRICH_sensor_sph_center_y_"+secName),
+      det->constant<double>("DRICH_sensor_sph_center_z_"+secName)
       );
     PrintLog("  SECTOR {:d} SENSOR SPHERE:", isec);
     PrintLog("    sphere x = {:f} cm", sensorSphCenter.x());
@@ -206,9 +207,9 @@ void IrtGeoDRICH::DD4hep_to_IRT() {
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this?
   std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorCStr(kGas),     1.00076});
-  rIndices.insert({RadiatorCStr(kAerogel), 1.0190});
-  rIndices.insert({"Filter",               1.5017});
+  rIndices.insert({RadiatorName(kGas).c_str(),     1.00076});
+  rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
+  rIndices.insert({"Filter",                       1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
     auto rad = irtDetector->GetRadiator(rName);
     if (rad)
@@ -222,18 +223,18 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> IrtGeoDRICH::TrackingPlanes(int 
   std::vector<std::shared_ptr<Acts::DiscSurface>> discs;
 
   // vessel constants
-  auto zmin  = det->constant<double>("DRICH_RECON_zmin");
-  auto zmax  = det->constant<double>("DRICH_RECON_zmax");
-  auto rmin0 = det->constant<double>("DRICH_RECON_rmin0");
-  auto rmin1 = det->constant<double>("DRICH_RECON_rmin1");
-  auto rmax0 = det->constant<double>("DRICH_RECON_rmax0");
-  auto rmax1 = det->constant<double>("DRICH_RECON_rmax1");
-  auto rmax2 = det->constant<double>("DRICH_RECON_rmax2");
+  auto zmin  = det->constant<double>("DRICH_zmin");
+  auto zmax  = det->constant<double>("DRICH_zmax");
+  auto rmin0 = det->constant<double>("DRICH_rmin0");
+  auto rmin1 = det->constant<double>("DRICH_rmin1");
+  auto rmax0 = det->constant<double>("DRICH_rmax0");
+  auto rmax1 = det->constant<double>("DRICH_rmax1");
+  auto rmax2 = det->constant<double>("DRICH_rmax2");
 
   // aerogel constants
-  auto snoutLength      = det->constant<double>("DRICH_RECON_snoutLength");
-  auto aerogelZpos      = det->constant<double>("DRICH_RECON_aerogelZpos");
-  auto aerogelThickness = det->constant<double>("DRICH_RECON_aerogelThickness");
+  auto snoutLength      = det->constant<double>("DRICH_snout_length");
+  auto aerogelZpos      = det->constant<double>("DRICH_aerogel_zpos");
+  auto aerogelThickness = det->constant<double>("DRICH_aerogel_thickness");
 
   // radial wall slopes
   auto boreSlope  = (rmin1 - rmin0) / (zmax - zmin);
@@ -250,7 +251,7 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> IrtGeoDRICH::TrackingPlanes(int 
       break;
     case kGas:
       trackZmin = aerogelZpos + aerogelThickness/2;
-      trackZmax = det->constant<double>("DRICH_RECON_zmax");
+      trackZmax = zmax;
       trackRmax = [&] (auto z) {
         auto z0 = z - zmin;
         if(z0 < snoutLength) return rmax0 + snoutLength * z0;

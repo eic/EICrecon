@@ -40,7 +40,6 @@ class IrtGeo {
     // radiators
     enum radiator_enum { kAerogel, kGas, nRadiators };
     static std::string RadiatorName(int num);
-    static const char * RadiatorCStr(int num);
     static int RadiatorNum(std::string name);
     static int RadiatorNum(const char * name);
 

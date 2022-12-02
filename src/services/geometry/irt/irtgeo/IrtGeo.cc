@@ -39,19 +39,16 @@ void IrtGeo::Bind() {
 
 // radiators
 std::string IrtGeo::RadiatorName(int num) {
-  if(num==kAerogel)  return "aerogel";
-  else if(num==kGas) return "gas";
+  if(num==kAerogel)  return "Aerogel";
+  else if(num==kGas) return "Gas";
   else {
     PrintError("unknown radiator number {}",num);
     return "UNKNOWN_RADIATOR";
   }
 }
-const char * IrtGeo::RadiatorCStr(int num) {
-  return RadiatorName(num).c_str();
-}
 int IrtGeo::RadiatorNum(std::string name) {
-  if(name=="aerogel")  return kAerogel;
-  else if(name=="gas") return kGas;
+  if(name=="Aerogel")  return kAerogel;
+  else if(name=="Gas") return kGas;
   else {
     PrintError("unknown radiator name {}",name);
     return -1;

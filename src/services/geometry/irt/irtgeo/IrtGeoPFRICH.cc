@@ -14,24 +14,24 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
    * for all radiators will be assigned at the end by hand; FIXME: should assign it on
    * per-photon basis, at birth, like standalone GEANT code does;
    */
-  auto vesselZmin     = det->constant<double>("PFRICH_RECON_zmin");
-  auto gasvolMaterial = det->constant<std::string>("PFRICH_RECON_gasvolMaterial");
+  auto vesselZmin     = det->constant<double>("PFRICH_zmin");
+  auto gasvolMaterial = det->constant<std::string>("PFRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, 1, 0);
   auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
   auto cv = irtDetectorCollection->SetContainerVolume(
-      irtDetector,             // Cherenkov detector
-      RadiatorCStr(kGas),      // name
-      0,                       // path
-      (G4LogicalVolume*)(0x0), // G4LogicalVolume (inaccessible? use an integer instead)
-      nullptr,                 // G4RadiatorMaterial (inaccessible?)
-      surfEntrance             // surface
+      irtDetector,                // Cherenkov detector
+      RadiatorName(kGas).c_str(), // name
+      0,                          // path
+      (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
+      nullptr,                    // G4RadiatorMaterial (inaccessible?)
+      surfEntrance                // surface
       );
   cv->SetAlternativeMaterialName(gasvolMaterial.c_str());
 
   // photon detector
   // - FIXME: args (G4Solid,G4Material) inaccessible?
-  auto cellMask = uint64_t(std::stoull(det->constant<std::string>("PFRICH_RECON_cellMask")));
+  auto cellMask = uint64_t(std::stoull(det->constant<std::string>("PFRICH_cell_mask")));
   CherenkovPhotonDetector* irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   irtDetector->SetReadoutCellMask(cellMask);
   irtDetectorCollection->AddPhotonDetector(
@@ -45,26 +45,26 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
    * FIXME: should make a small gas gap at the upstream end of the gas volume;
    */
-  auto aerogelZpos        = det->constant<double>("PFRICH_RECON_aerogelZpos");
-  auto aerogelThickness   = det->constant<double>("PFRICH_RECON_aerogelThickness");
-  auto aerogelMaterial    = det->constant<std::string>("PFRICH_RECON_aerogelMaterial");
-  auto filterZpos         = det->constant<double>("PFRICH_RECON_filterZpos");
-  auto filterThickness    = det->constant<double>("PFRICH_RECON_filterThickness");
-  auto filterMaterial     = det->constant<std::string>("PFRICH_RECON_filterMaterial");
+  auto aerogelZpos        = det->constant<double>("PFRICH_aerogel_zpos");
+  auto aerogelThickness   = det->constant<double>("PFRICH_aerogel_thickness");
+  auto aerogelMaterial    = det->constant<std::string>("PFRICH_aerogel_material");
+  auto filterZpos         = det->constant<double>("PFRICH_filter_zpos");
+  auto filterThickness    = det->constant<double>("PFRICH_filter_thickness");
+  auto filterMaterial     = det->constant<std::string>("PFRICH_filter_material");
   auto aerogelFlatSurface = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, aerogelZpos), normX, normY);
   auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
   auto aerogelFlatRadiator = irtDetectorCollection->AddFlatRadiator(
-      irtDetector,             // Cherenkov detector
-      RadiatorCStr(kAerogel),  // name
-      0,                       // path
-      (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
-      nullptr,                 // G4RadiatorMaterial
-      aerogelFlatSurface,      // surface
-      aerogelThickness / dd4hep::mm // surface thickness
+      irtDetector,                    // Cherenkov detector
+      RadiatorName(kAerogel).c_str(), // name
+      0,                              // path
+      (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
+      nullptr,                        // G4RadiatorMaterial
+      aerogelFlatSurface,             // surface
+      aerogelThickness / dd4hep::mm   // surface thickness
       );
   auto filterFlatRadiator = irtDetectorCollection->AddFlatRadiator(
       irtDetector,             // Cherenkov detector
-      "filter",                // name
+      "Filter",                // name
       0,                       // path
       (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
@@ -79,7 +79,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   PrintLog("filter thickness  = {:f} cm", filterThickness);
 
   // sensor modules: search the detector tree for sensors
-  auto sensorThickness  = det->constant<double>("PFRICH_RECON_sensorThickness");
+  auto sensorThickness  = det->constant<double>("PFRICH_sensor_thickness");
   bool firstSensor = true;
   for(auto const& [de_name, detSensor] : detRich.children()) {
     if(de_name.find("sensor_de")!=std::string::npos) {
@@ -140,7 +140,7 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
       // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once), 
       // assuming that all the sensors will be sitting at roughly the same location along the beam line anyway;
       if(firstSensor) {
-        irtDetector->GetRadiator(RadiatorCStr(kGas))->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
+        irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
         firstSensor = false;
       }
 
@@ -150,9 +150,9 @@ void IrtGeoPFRICH::DD4hep_to_IRT() {
   // set refractive indices
   // FIXME: are these (weighted) averages? can we automate this? We should avoid hard-coded numbers here!
   std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorCStr(kGas),     1.0013});
-  rIndices.insert({RadiatorCStr(kAerogel), 1.0190});
-  rIndices.insert({"Filter",               1.5017});
+  rIndices.insert({RadiatorName(kGas).c_str(),     1.0013});
+  rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
+  rIndices.insert({"Filter",                       1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
     auto rad = irtDetector->GetRadiator(rName);
     if (rad)
