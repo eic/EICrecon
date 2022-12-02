@@ -9,7 +9,7 @@
 
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
-#include <global/pid/IrtParticleID_factory.h>
+// #include <global/pid/IrtParticleID_factory.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {

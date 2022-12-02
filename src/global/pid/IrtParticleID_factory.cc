@@ -30,6 +30,10 @@ void eicrecon::IrtParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
+void eicrecon::IrtParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+}
+
+//-----------------------------------------------------------------------------
 void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // inputs
