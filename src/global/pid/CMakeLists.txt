@@ -21,4 +21,4 @@ plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library irtgeo_library)
