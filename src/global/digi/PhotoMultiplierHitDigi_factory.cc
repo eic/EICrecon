@@ -22,22 +22,27 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   // Set input tags
   InitDataTags(param_prefix);
 
-  // Logger. Get plugin level sub-log
+  // Services
+  auto geo_service = app->GetService<JDD4hep_service>();
   InitLogger(param_prefix, "info");
 
   // Setup digitization algorithm
   auto cfg = GetDefaultConfig();
+  pm->SetDefaultParameter(param_prefix + ":seed",            cfg.seed,            "random number generator seed");
+  pm->SetDefaultParameter(param_prefix + ":hitTimeWindow",   cfg.hitTimeWindow,   "");
+  pm->SetDefaultParameter(param_prefix + ":timeStep",        cfg.timeStep,        "");
+  pm->SetDefaultParameter(param_prefix + ":speMean",         cfg.speMean,         "");
+  pm->SetDefaultParameter(param_prefix + ":speError",        cfg.speError,        "");
+  pm->SetDefaultParameter(param_prefix + ":pedMean",         cfg.pedMean,         "");
+  pm->SetDefaultParameter(param_prefix + ":pedError",        cfg.pedError,        "");
+  pm->SetDefaultParameter(param_prefix + ":enablePixelGaps", cfg.enablePixelGaps, "enable/disable removal of hits in gaps between pixels");
+  pm->SetDefaultParameter(param_prefix + ":pixelSize",       cfg.pixelSize,       "pixel (active) size");
+  pm->SetDefaultParameter(param_prefix + ":safetyFactor",    cfg.safetyFactor,    "overall safety factor");
   // pm->SetDefaultParameter(param_prefix + ":quantumEfficiency", cfg.quantumEfficiency, ""); // FIXME cannot use vector<pair>
-  pm->SetDefaultParameter(param_prefix + ":hitTimeWindow",     cfg.hitTimeWindow,     "");
-  pm->SetDefaultParameter(param_prefix + ":timeStep",          cfg.timeStep,          "");
-  pm->SetDefaultParameter(param_prefix + ":speMean",           cfg.speMean,           "");
-  pm->SetDefaultParameter(param_prefix + ":speError",          cfg.speError,          "");
-  pm->SetDefaultParameter(param_prefix + ":pedMean",           cfg.pedMean,           "");
-  pm->SetDefaultParameter(param_prefix + ":pedError",          cfg.pedError,          "");
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
-  m_digi_algo.AlgorithmInit(m_log);
+  m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
 }
 
 void eicrecon::PhotoMultiplierHitDigi_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -54,6 +59,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
         sim_hits.push_back(hit);
     } catch(std::exception &e) {
       m_log->critical(e.what());
+      throw JException(e.what());
     }
   }
 
