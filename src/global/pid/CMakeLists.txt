@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
+# Automatically set plugin name the same as the directory name
+# Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
@@ -13,7 +15,6 @@ plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-add_compile_definitions(WITH_IRTGEO_ACTS)
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
@@ -21,4 +22,4 @@ plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library irtgeo_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library richgeo_library)

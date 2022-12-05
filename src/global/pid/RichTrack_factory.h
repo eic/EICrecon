@@ -13,11 +13,8 @@
 // algorithms
 #include <algorithms/tracking/TrackPropagation.h>
 
-// ACTS
-#include <Acts/Surfaces/DiscSurface.hpp>
-
 // services
-#include <services/geometry/irt/IrtGeo_service.h>
+#include <services/geometry/rich/RichGeo_service.h>
 #include <services/geometry/acts/ACTSGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
@@ -45,11 +42,11 @@ namespace eicrecon {
 
     private:
       std::string m_detector_name;
-      std::shared_ptr<IrtGeo_service> m_irtGeoSvc;
+      std::shared_ptr<RichGeo_service> m_richGeoSvc;
       std::shared_ptr<ACTSGeo_service> m_actsSvc;
-      IrtGeo *m_irtGeo;
+      rich::ActsGeo *m_actsGeo;
       std::map< int, std::vector<std::shared_ptr<Acts::DiscSurface>> > m_trackingPlanes; // radiator -> list of DiscSurfaces
-      int m_numPlanes[IrtGeo::nRadiators];
+      int m_numPlanes[rich::nRadiators];
       eicrecon::TrackPropagation m_propagation_algo;
   };
 }
