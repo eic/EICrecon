@@ -30,6 +30,9 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
     m_log=logger;
 
+    // print the configuration parameters
+    m_cfg.Print(m_log, spdlog::level::debug);
+
     // random number generators
     m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
@@ -161,9 +164,9 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
             });
 
         // print the table
-        m_log->trace("{:=^60}"," Quantum Efficiency ");
+        m_log->debug("{:-^60}"," Quantum Efficiency vs. Energy ");
         for(auto& [en,qe] : qeff)
-          m_log->trace("  {:>10} {:<}",en/eV,qe);
+          m_log->debug("  {:>10.4} {:<}",en/eV,qe);
         m_log->trace("{:=^60}","");
 
         // sanity checks
