@@ -84,9 +84,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
 
-            // PID
-            "DRICHRawHits",
-
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
