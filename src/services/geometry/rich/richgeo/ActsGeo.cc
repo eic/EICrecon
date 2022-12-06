@@ -22,10 +22,13 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> rich::ActsGeo::TrackingPlanes(in
     auto rmax1 = m_det->constant<double>("DRICH_rmax1");
     auto rmax2 = m_det->constant<double>("DRICH_rmax2");
 
-    // aerogel constants
+    // radiator constants
     auto snoutLength      = m_det->constant<double>("DRICH_snout_length");
     auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos");
     auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness");
+    auto filterZpos       = m_det->constant<double>("DRICH_filter_zpos");
+    auto filterThickness  = m_det->constant<double>("DRICH_filter_thickness");
+    auto window_thickness = m_det->constant<double>("DRICH_window_thickness");
 
     // radial wall slopes
     auto boreSlope  = (rmin1 - rmin0) / (zmax - zmin);
@@ -38,14 +41,14 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> rich::ActsGeo::TrackingPlanes(in
       case kAerogel:
         trackZmin = aerogelZpos - aerogelThickness/2;
         trackZmax = aerogelZpos + aerogelThickness/2;
-        trackRmax = [&] (auto z) { return rmax0 + snoutLength * (z - zmin); };
+        trackRmax = [&] (auto z) { return rmax0 + snoutSlope * (z - zmin); };
         break;
       case kGas:
-        trackZmin = aerogelZpos + aerogelThickness/2;
-        trackZmax = zmax;
+        trackZmin = filterZpos + filterThickness/2;
+        trackZmax = zmax - window_thickness;
         trackRmax = [&] (auto z) {
           auto z0 = z - zmin;
-          if(z0 < snoutLength) return rmax0 + snoutLength * z0;
+          if(z0 < snoutLength) return rmax0 + snoutSlope * z0;
           else return rmax2;
         };
         break;
@@ -56,7 +59,7 @@ std::vector<std::shared_ptr<Acts::DiscSurface>> rich::ActsGeo::TrackingPlanes(in
     trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
     // define discs
-    m_log.PrintLog("Define ACTS disks for radiator {}: {} disks in z=[ {}, {} ]",
+    m_log.PrintLog("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
         RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
     double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
     for(int i=0; i<numPlanes; i++) {

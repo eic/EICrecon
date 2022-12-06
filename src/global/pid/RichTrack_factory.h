@@ -8,8 +8,7 @@
 #include <JANA/JEvent.h>
 
 // data model
-#include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackSegmentCollection.h>
 
 // algorithms
 #include <algorithms/tracking/TrackPropagation.h>

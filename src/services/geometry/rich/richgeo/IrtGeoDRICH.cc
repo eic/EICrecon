@@ -70,7 +70,7 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
         );
     auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,           // Cherenkov detector
-        "Filter",                // name
+        "filter",                // name
         isec,                    // path
         (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial
@@ -209,7 +209,7 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
   std::map<const char*, double> rIndices;
   rIndices.insert({RadiatorName(kGas).c_str(),     1.00076});
   rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
-  rIndices.insert({"Filter",                       1.5017});
+  rIndices.insert({"filter",                       1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
     auto rad = m_irtDetector->GetRadiator(rName);
     if (rad)

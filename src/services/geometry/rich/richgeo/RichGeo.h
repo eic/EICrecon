@@ -47,16 +47,16 @@ namespace rich {
     nRadiators
   };
   static std::string RadiatorName(int num) {
-    if(num==kAerogel)  return "Aerogel";
-    else if(num==kGas) return "Gas";
+    if(num==kAerogel)  return "aerogel";
+    else if(num==kGas) return "gas";
     else {
       Logger::PrintError("unknown radiator number {}",num);
       return "UNKNOWN_RADIATOR";
     }
   }
   static int RadiatorNum(std::string name) {
-    if(name=="Aerogel")  return kAerogel;
-    else if(name=="Gas") return kGas;
+    if(name=="aerogel")  return kAerogel;
+    else if(name=="gas") return kGas;
     else {
       Logger::PrintError("unknown radiator name {}",name);
       return -1;

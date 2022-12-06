@@ -14,7 +14,7 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
   std::string log_level_str = "info";
   m_app->SetDefaultParameter("rich:LogLevel", log_level_str, "Log level for RichGeo_service");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-  m_log->info("RichGeo IRT log level is set to {} ({})", log_level_str, m_log->level());
+  m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
 
   // allow verbose RichGeo output, if log level is `debug` or lower
   m_verbose = m_log->level() <= spdlog::level::debug;
@@ -29,7 +29,7 @@ rich::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
 
   // initialize, if not yet initialized
   try {
-    m_log->info("Call RichGeo_service::GetIrtGeo initializer");
+    m_log->debug("Call RichGeo_service::GetIrtGeo initializer");
     auto initialize = [this,&detector_name] () {
       if(!m_dd4hepGeo) throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
       // instantiate IrtGeo-derived object, depending on detector
@@ -52,7 +52,7 @@ rich::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
 rich::ActsGeo *RichGeo_service::GetActsGeo(std::string detector_name) {
   // initialize, if not yet initialized
   try {
-    m_log->info("Call RichGeo_service::GetActsGeo initializer");
+    m_log->debug("Call RichGeo_service::GetActsGeo initializer");
     auto initialize = [this,&detector_name] () {
       if(!m_dd4hepGeo) throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
       m_actsGeo = new rich::ActsGeo(detector_name, m_dd4hepGeo, m_verbose);
