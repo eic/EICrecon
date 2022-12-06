@@ -18,7 +18,7 @@ set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${CMAKE_DL_LIBS} Threads::Thre
 # Define executable
 add_executable( eicrecon ${SOURCES} )
 target_include_directories( eicrecon PUBLIC ${INCLUDE_DIRS})
-target_link_libraries(eicrecon ${LINK_LIBRARIES} )
+target_link_libraries(eicrecon ${LINK_LIBRARIES} DD4hep::DDParsers fmt::fmt)
 target_compile_definitions(eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT_VERSION})
 
 

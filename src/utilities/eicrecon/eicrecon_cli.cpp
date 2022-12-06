@@ -4,6 +4,7 @@
 
 #include "eicrecon_cli.h"
 #include "print_info.h"
+#include "parser.h"
 
 #include <JANA/CLI/JVersion.h>
 #include <JANA/CLI/JBenchmarker.h>
@@ -404,6 +405,7 @@ namespace jana {
     UserOptions GetCliOptions(int nargs, char *argv[], bool expect_extra) {
 
         UserOptions options;
+        parser::Parser val_parser;
 
         std::map<std::string, Flag> tokenizer;
         tokenizer["-h"] = ShowUsage;
@@ -505,7 +507,10 @@ namespace jana {
                             if (options.params.find(key) != options.params.end()) {
                                 std::cout << "Duplicate parameter '" << arg << "' ignored" << std::endl;
                             } else {
-                                options.params.insert({key, val});
+                                auto val_parsed = val_parser.dd4hep_to_string(val,key);
+                                options.params.insert({ key, val_parsed.result });
+                                if (!val_parsed.success)
+                                    std::cerr << "ERROR: failed to parse '" << arg << "'" << std::endl;
                             }
                         } else {
                             std::cout << "Invalid JANA parameter '" << arg
