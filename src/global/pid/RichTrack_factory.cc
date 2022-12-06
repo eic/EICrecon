@@ -67,7 +67,8 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   }
 
   // result will be `TrackPoint`s for each trajectory, RICH tracking plane, and radiator
-  std::vector<edm4eic::TrackPoint*> result;
+  std::vector<edm4eic::TrackPoint*> result_points;
+  std::vector<edm4eic::TrackSegment*> result_segments; // FIXME: use this for output instead
 
   // loop over trajectories
   m_log->trace("Propagate trajectories:");
@@ -85,7 +86,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
           m_log->warn("    Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
         if(point) {
-          result.push_back(point);
+          result_points.push_back(point);
           m_log->trace("    trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
               point->position.x, point->position.y, point->position.z);
           m_log->trace("                p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
@@ -95,5 +96,5 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
       }
     }
   }
-  Set(std::move(result));
+  Set(std::move(result_segments));
 }

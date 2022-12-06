@@ -9,6 +9,7 @@
 
 // data model
 #include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegment.h>
 
 // algorithms
 #include <algorithms/tracking/TrackPropagation.h>
@@ -23,13 +24,13 @@
 
 namespace eicrecon {
   class RichTrack_factory :
-    public JChainFactoryT<edm4eic::TrackPoint>,
+    public JChainFactoryT<edm4eic::TrackSegment>,
     public SpdlogMixin<RichTrack_factory>
   {
     public:
 
       explicit RichTrack_factory(std::vector<std::string> default_input_tags) :
-          JChainFactoryT<edm4eic::TrackPoint>(std::move(default_input_tags)) {}
+          JChainFactoryT<edm4eic::TrackSegment>(std::move(default_input_tags)) {}
 
       /** One time initialization **/
       void Init() override;
