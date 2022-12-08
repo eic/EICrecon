@@ -24,9 +24,17 @@ using namespace dd4hep;
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger) 
 {
+    // services
+    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
     m_log=logger;
+
+    // print the configuration parameters
+    m_cfg.Print(m_log, spdlog::level::debug);
+
+    // random number generators
+    m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
     };
@@ -42,6 +50,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(std::shared_ptr<spdlog::log
         japp->Quit();
     }
 
+    // initialize quantum efficiency table
     qe_init();
 }
 
@@ -63,19 +72,38 @@ std::vector<edm4eic::RawPMTHit*>
 eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
-        struct HitData { uint32_t npe; double signal; double time; };
+        struct HitData {
+          uint32_t npe;
+          double signal;
+          double time;
+          Position pos;
+        };
         std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
             // m_log->trace("{:-<60}","Simulation Hit");
             // m_log->trace("  {:>20}: {}\n", "EDep", ahit->getEDep()/eV);
+
+            // overall safety factor
+            if (m_rngUni() > m_cfg.safetyFactor) continue;
+
             // quantum efficiency
-            if (!qe_pass(ahit->getEDep(), m_rngUni())) {
-                continue;
+            if (!qe_pass(ahit->getEDep(), m_rngUni())) continue;
+
+            // pixel gap cuts
+            // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
+            auto id = ahit->getCellID();
+            Position pos_pixel, pos_hit;
+            if(m_cfg.enablePixelGaps) {
+              pos_pixel = get_sensor_local_position( id, m_cellid_converter->position(id) );
+              pos_hit   = get_sensor_local_position( id, vec2pos(ahit->getPosition())     );
+              if( std::abs( pos_hit.x()/mm - pos_pixel.x()/mm ) > m_cfg.pixelSize/mm/2 ||
+                  std::abs( pos_hit.y()/mm - pos_pixel.y()/mm ) > m_cfg.pixelSize/mm/2
+                ) continue;
             }
-            // cell id, time, signal amplitude
-            uint64_t id = ahit->getCellID();
+
+            // cell time, signal amplitude
             double time = ahit->getTime();//ahit->getMCParticle().getTime();
             double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
 
@@ -92,18 +120,18 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time});
+                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit});
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time}};
+                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit}};
             }
         }
 
         // print `hit_groups`
-        if(m_log->level()<=spdlog::level::trace)
+        if(m_log->level() <= spdlog::level::trace)
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec)
-              m_log->trace("pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
+              m_log->trace("hit_group: pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
 
         // build raw hits
         std::vector<edm4eic::RawPMTHit*> raw_hits;
@@ -113,6 +141,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                   it.first,
                   static_cast<uint32_t>(data.signal), 
                   static_cast<uint32_t>(data.time/(m_cfg.timeStep/ns))
+                  //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
             }
@@ -135,9 +164,9 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
             });
 
         // print the table
-        m_log->trace("{:=^60}"," Quantum Efficiency ");
+        m_log->debug("{:-^60}"," Quantum Efficiency vs. Energy ");
         for(auto& [en,qe] : qeff)
-          m_log->trace("  {:>10} {:<}",en/eV,qe);
+          m_log->debug("  {:>10.4} {:<}",en/eV,qe);
         m_log->trace("{:=^60}","");
 
         // sanity checks
@@ -200,4 +229,55 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 
         // m_log->trace("{} eV, QE: {}\%",ev/eV,prob*100.);
         return rand <= prob;
+}
+
+
+// transform global position `pos` to sensor `id` frame position
+// IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
+// FIXME: here be dragons... 
+Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, Position pos) {
+
+  // get the VolumeManagerContext for this sensitive detector
+  auto context = m_cellid_converter->findContext(id);
+
+  // transformation vector buffers
+  double xyz_l[3], xyz_e[3], xyz_g[2];
+  double pv_g[3], pv_l[3];
+
+  // get sensor position w.r.t. its parent
+  auto sensor_elem = context->element;
+  sensor_elem.placement().position().GetCoordinates(xyz_l);
+
+  // convert sensor position to global position (cf. `CellIDPositionConverter::positionNominal()`)
+  const auto& volToElement = context->toElement();
+  volToElement.LocalToMaster(xyz_l, xyz_e);
+  const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
+  elementToGlobal.LocalToMaster(xyz_e, xyz_g);
+  Position pos_sensor;
+  pos_sensor.SetCoordinates(xyz_g);
+
+  // get the position vector of `pos` w.r.t. the sensor position `pos_sensor`
+  Direction pos_pv = pos - pos_sensor;
+
+  // then transform it to the sensor's local frame
+  pos_pv.GetCoordinates(pv_g);
+  volToElement.MasterToLocalVect(pv_g, pv_l);
+  Position pos_transformed;
+  pos_transformed.SetCoordinates(pv_l);
+
+  // trace log
+  if(m_log->level() <= spdlog::level::trace) {
+    m_log->trace("pixel hit on cellID={:#018x}",id);
+    auto print_pos = [&] (std::string name, Position p) {
+      m_log->trace("  {:>30} x={:.2f} y={:.2f} z={:.2f} [mm]: ", name, p.x()/mm,  p.y()/mm,  p.z()/mm);
+    };
+    print_pos("input position",  pos);
+    print_pos("sensor position", pos_sensor);
+    print_pos("output position", pos_transformed);
+    // auto dim = m_cellid_converter->cellDimensions(id);
+    // for (size_t j = 0; j < std::size(dim); ++j)
+    //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
+  }
+
+  return pos_transformed;
 }

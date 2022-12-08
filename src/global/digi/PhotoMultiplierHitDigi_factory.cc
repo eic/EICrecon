@@ -4,12 +4,12 @@
 //
 
 #include "PhotoMultiplierHitDigi_factory.h"
+#include <fmt/format.h>
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   using namespace eicrecon::str;
 
   auto app = GetApplication();
-  auto pm  = app->GetJParameterManager();
 
   std::string plugin_name = ReplaceAll(GetPluginName(), ".so", "");
 
@@ -22,22 +22,31 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   // Set input tags
   InitDataTags(param_prefix);
 
-  // Logger. Get plugin level sub-log
+  // Services
+  auto geo_service = app->GetService<JDD4hep_service>();
   InitLogger(param_prefix, "info");
 
-  // Setup digitization algorithm
+  // Configuration parameters
   auto cfg = GetDefaultConfig();
-  // pm->SetDefaultParameter(param_prefix + ":quantumEfficiency", cfg.quantumEfficiency, ""); // FIXME cannot use vector<pair>
-  pm->SetDefaultParameter(param_prefix + ":hitTimeWindow",     cfg.hitTimeWindow,     "");
-  pm->SetDefaultParameter(param_prefix + ":timeStep",          cfg.timeStep,          "");
-  pm->SetDefaultParameter(param_prefix + ":speMean",           cfg.speMean,           "");
-  pm->SetDefaultParameter(param_prefix + ":speError",          cfg.speError,          "");
-  pm->SetDefaultParameter(param_prefix + ":pedMean",           cfg.pedMean,           "");
-  pm->SetDefaultParameter(param_prefix + ":pedError",          cfg.pedError,          "");
+  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
+    name = param_prefix + ":" + name;
+    app->SetDefaultParameter(name, val, description);
+  };
+  set_param("seed",            cfg.seed,            "random number generator seed");
+  set_param("hitTimeWindow",   cfg.hitTimeWindow,   "");
+  set_param("timeStep",        cfg.timeStep,        "");
+  set_param("speMean",         cfg.speMean,         "");
+  set_param("speError",        cfg.speError,        "");
+  set_param("pedMean",         cfg.pedMean,         "");
+  set_param("pedError",        cfg.pedError,        "");
+  set_param("enablePixelGaps", cfg.enablePixelGaps, "enable/disable removal of hits in gaps between pixels");
+  set_param("pixelSize",       cfg.pixelSize,       "pixel (active) size");
+  set_param("safetyFactor",    cfg.safetyFactor,    "overall safety factor");
+  // set_param("quantumEfficiency", cfg.quantumEfficiency, ""); // FIXME JParameterManager cannot use vector<pair>
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
-  m_digi_algo.AlgorithmInit(m_log);
+  m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
 }
 
 void eicrecon::PhotoMultiplierHitDigi_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -54,6 +63,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
         sim_hits.push_back(hit);
     } catch(std::exception &e) {
       m_log->critical(e.what());
+      throw JException(e.what());
     }
   }
 
