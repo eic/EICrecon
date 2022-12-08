@@ -17,12 +17,12 @@
 
 namespace eicrecon {
 
-    class TrackSeeding_factory :
+    class CKFTracking_factory :
             public JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig>,
-            public SpdlogMixin<TrackSeeding_factory> {
+            public SpdlogMixin<CKFTracking_factory> {
 
     public:
-        TrackSeeding_factory(std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):
+        CKFTracking_factory( std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):
                 JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig>(std::move(default_input_tags), cfg ) {
         }
 
