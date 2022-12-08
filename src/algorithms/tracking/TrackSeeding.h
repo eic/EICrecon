@@ -43,7 +43,7 @@ namespace eicrecon {
             public eicrecon::WithPodConfig<eicrecon::TrackSeedingConfig> {
     public:
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
-        std::vector<edm4eic::TrackParameters*> produce(std::vector<const edm4eic::TrackerHit*> trk_hits) override;
+        std::vector<edm4eic::TrackParameters*> produce(std::vector<const edm4eic::TrackerHit*> trk_hits);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
