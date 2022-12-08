@@ -78,6 +78,8 @@ void TrackSeedingTest_processor::Process(const std::shared_ptr<const JEvent>& ev
 
     // Get trajectories from tracking
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+
+
     auto clusters = event->Get<edm4eic::Cluster>("HcalEndcapNClusters");
 
     // Iterate over trajectories
