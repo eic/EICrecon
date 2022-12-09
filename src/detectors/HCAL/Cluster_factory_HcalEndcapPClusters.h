@@ -13,6 +13,17 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_HcalEndcapPClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Association_factory_HcalEndcapPClustersAssociations(){
+        SetTag("HcalEndcapPClustersAssociations");
+    }
+};
+
 
 class Cluster_factory_HcalEndcapPClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 

@@ -26,9 +26,9 @@ public:
         m_input_tag = "HcalEndcapPRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=100. * dd4hep::MeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
-        m_pedMeanADC=400;//{this, "pedestalMean", 400};
+        m_capADC=4096;//{this, "capacityADC", 8096};
+        m_dyRangeADC=200.;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
+        m_pedMeanADC=200;//{this, "pedestalMean", 400};
         m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
@@ -37,7 +37,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
+        m_sampFrac=0.033;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
