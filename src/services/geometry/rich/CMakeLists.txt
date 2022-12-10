@@ -22,6 +22,3 @@ plugin_glob_all(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
-
-# link binding libraries
-plugin_link_libraries(${PLUGIN_NAME} richgeo_library)

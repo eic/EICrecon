@@ -7,7 +7,7 @@ print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy prin
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
-plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
+plugin_add(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
@@ -20,6 +20,7 @@ plugin_add_acts(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
+
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library richgeo_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library)
