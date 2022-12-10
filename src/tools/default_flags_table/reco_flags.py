@@ -89,7 +89,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelImagingRawHits:dynamicRangeADC',           '3*MeV',                           ''),
     ('BEMC:EcalBarrelImagingRawHits:pedestalMean',              '100',                             ''),
     ('BEMC:EcalBarrelImagingRawHits:pedestalSigma',             '14',                              ''),
-    ('BEMC:EcalBarrelImagingRawHits:resolutionTDC',             '10*picosecond',                   ''),
+    ('BEMC:EcalBarrelImagingRawHits:resolutionTDC',             '10*ps',                           ''),
     ('BEMC:EcalBarrelImagingRawHits:scaleResponse',             '1.0',                             ''),
     ('BEMC:EcalBarrelImagingRawHits:signalSumFields',           '',                                ''),
     ('BEMC:EcalBarrelImagingRawHits:fieldRefNumbers',           '',                                ''),
@@ -103,7 +103,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelScFiRawHits:dynamicRangeADC',               '750*MeV',                        ''),
     ('BEMC:EcalBarrelScFiRawHits:pedestalMean',                  '20',                             ''),
     ('BEMC:EcalBarrelScFiRawHits:pedestalSigma',                 '0.3',                            ''),
-    ('BEMC:EcalBarrelScFiRawHits:resolutionTDC',                 '10*picosecond',                  ''),
+    ('BEMC:EcalBarrelScFiRawHits:resolutionTDC',                 '10*ps',                          ''),
     ('BEMC:EcalBarrelScFiRawHits:scaleResponse',                 '1.0',                            ''),
     ('BEMC:EcalBarrelScFiRawHits:signalSumFields',               '',                               ''),
     ('BEMC:EcalBarrelScFiRawHits:fieldRefNumbers',               '',                               ''),
@@ -128,7 +128,7 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelScFiRecHits:dynamicRangeADC',              '750*MeV',                         ''),
     ('BEMC:EcalBarrelScFiRecHits:pedestalMean',                 '20',                              ''),
     ('BEMC:EcalBarrelScFiRecHits:pedestalSigma',                '0.3',                             ''),
-    ('BEMC:EcalBarrelScFiRecHits:resolutionTDC',                '10*picosecond',                   ''),
+    ('BEMC:EcalBarrelScFiRecHits:resolutionTDC',                '10*ps',                           ''),
     ('BEMC:EcalBarrelScFiRecHits:thresholdFactor',              '5.0',                             ''),
     ('BEMC:EcalBarrelScFiRecHits:thresholdValue',               '0.0',                             ''),
     ('BEMC:EcalBarrelScFiRecHits:samplingFraction',             '0.125',                           ''),
@@ -622,7 +622,7 @@ eicrecon_reco_flags = [
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistXY',          '',                                      ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistXZ',          '',                                      ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:localDistYZ',          '',                                      ''),
-    ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep', '0.03',                                  ''),
+    ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep', '0.03*GeV',                              ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:minClusterHitEdep',    '0',                                     ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:sectorDist',           '5',                                     ''),
     ('HCAL:HcalEndcapPInsertIslandProtoClusters:splitCluster',         '1',                                     ''),
@@ -787,7 +787,7 @@ eicrecon_reco_flags = [
 #
 # Energy [E]
 #
-megaelectronvolt = 1.
+megaelectronvolt = 1.e-3
 electronvolt     = 1.e-6*megaelectronvolt
 kiloelectronvolt = 1.e-3*megaelectronvolt
 gigaelectronvolt = 1.e+3*megaelectronvolt
@@ -802,7 +802,7 @@ TeV = teraelectronvolt
 PeV = petaelectronvolt
 # Length [L]
 #
-millimeter  = 1.
+millimeter  = 0.1
 millimeter2 = millimeter*millimeter
 millimeter3 = millimeter*millimeter*millimeter
 centimeter  = 10.*millimeter
@@ -838,7 +838,18 @@ km  = kilometer
 km2 = kilometer2
 km3 = kilometer3
 pc = parsec
-
+# Time [T]
+#
+second = 1.
+millisecond = 1.e-3*second
+microsecond = 1.e-6*second
+nanosecond = 1.e-9*second
+picosecond = 1.e-12*second
+# symbols
+ms = millisecond
+us = microsecond
+ns = nanosecond
+ps = picosecond
 # Angle [A]
 #
 radian = 1.
@@ -873,7 +884,7 @@ from datetime import datetime
 import argparse
 
 # For some values we need to eval the result
-known_units_list = ['eV', 'MeV', 'GeV', 'mm', 'cm', 'mrad']
+known_units_list = ['eV', 'MeV', 'GeV', 'mm', 'cm', 'mrad', 'ns', 'ps']
 
 def has_unit_conversion(value):
     """Checks if string value use units like X*MeV or X/GeV"""

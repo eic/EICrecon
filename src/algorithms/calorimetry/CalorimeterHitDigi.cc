@@ -60,8 +60,7 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         eRes[i] = u_eRes[i];
     }
 
-    // using juggler internal units (GeV, dd4hep::mm, dd4hep::radian, dd4hep::ns)
-    dyRangeADC = m_dyRangeADC * dd4hep::MeV; // value of m_dyRangeADC is in dd4hep::MeV
+    // using juggler internal units (GeV, mm, radian, ns)
     tRes       = m_tRes / dd4hep::ns;
     stepTDC    = dd4hep::ns / m_resolutionTDC;
 
@@ -154,7 +153,7 @@ void CalorimeterHitDigi::single_hits_digi(){
 //                               : 0;
 
         const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / dyRangeADC * m_capADC);
+        const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
 
         double time = std::numeric_limits<double>::max();
         for (const auto& c : ahit->getContributions()) {
@@ -222,7 +221,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
 //                      m_normDist(generator) * eRes[2] / edep;
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / dyRangeADC * m_capADC);
+        unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         auto rawhit = new edm4hep::RawCalorimeterHit(

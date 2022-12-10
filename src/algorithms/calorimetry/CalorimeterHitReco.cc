@@ -22,9 +22,8 @@ using namespace dd4hep;
 //------------------------
 void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
-    //unitless conversion
     m_log=logger;
-    dyRangeADC = m_dyRangeADC * dd4hep::MeV;
+    
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
     // TDC channels to timing conversion
@@ -138,7 +137,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
 
         // convert ADC to energy
         const float energy =
-                (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * dyRangeADC /
+                (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
                 m_sampFrac;
         const float time = rh->getTimeStamp() / stepTDC;
 

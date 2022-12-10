@@ -54,7 +54,6 @@ public:
   double m_sampFrac;//{this, "samplingFraction", 1.0};
 
   // unitless counterparts of the input parameters
-  double dyRangeADC{0};
   double thresholdADC{0};
   double stepTDC{0};
 
