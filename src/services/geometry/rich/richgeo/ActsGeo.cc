@@ -5,10 +5,10 @@
 
 #include "ActsGeo.h"
 
-std::vector<std::shared_ptr<Acts::DiscSurface>> rich::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
+std::vector<std::shared_ptr<Acts::Surface>> rich::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
 
   // output list of surfaces
-  std::vector<std::shared_ptr<Acts::DiscSurface>> discs;
+  std::vector<std::shared_ptr<Acts::Surface>> discs;
 
   // dRICH DD4hep-ACTS bindings --------------------------------------------------------------------
   if(m_detName=="DRICH") {

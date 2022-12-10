@@ -14,6 +14,7 @@
 #include "DD4hep/DD4hepUnits.h"
 
 // ACTS
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 
@@ -31,10 +32,10 @@ namespace rich {
         // capitalize m_detName
         std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
       }
-      ~ActsGeo(); 
+      ~ActsGeo() {}
 
       // generate list ACTS disc surfaces, for a given radiator
-      std::vector<std::shared_ptr<Acts::DiscSurface>> TrackingPlanes(int radiator, int numPlanes);
+      std::vector<std::shared_ptr<Acts::Surface>> TrackingPlanes(int radiator, int numPlanes);
 
     protected:
 

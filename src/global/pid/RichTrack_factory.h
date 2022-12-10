@@ -45,7 +45,8 @@ namespace eicrecon {
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
       std::shared_ptr<ACTSGeo_service> m_actsSvc;
       rich::ActsGeo *m_actsGeo;
-      std::map< int, std::vector<std::shared_ptr<Acts::DiscSurface>> > m_trackingPlanes; // radiator -> list of DiscSurfaces
+      std::map< int, std::vector<std::shared_ptr<Acts::Surface>> > m_trackingPlanes; // radiator -> list of DiscSurfaces
+      std::vector<std::shared_ptr<Acts::Surface>> m_trackingPlanes_all; // concatenated list of DiskSurfaces for all radiators
       int m_numPlanes[rich::nRadiators];
       eicrecon::TrackPropagation m_propagation_algo;
   };

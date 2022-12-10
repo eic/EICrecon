@@ -42,8 +42,12 @@ void eicrecon::RichTrack_factory::Init() {
   
   // get RICH geometry for track projection
   m_actsGeo = m_richGeoSvc->GetActsGeo(m_detector_name);
-  for(int rad=0; rad<rich::nRadiators; rad++)
+  for(int rad=0; rad<rich::nRadiators; rad++) {
     m_trackingPlanes.insert({ rad, m_actsGeo->TrackingPlanes(rad, m_numPlanes[rad]) });
+    for(auto plane : m_trackingPlanes.at(rad))
+      m_trackingPlanes_all.push_back(plane);
+  }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -72,56 +76,14 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   m_log->trace("Propagate trajectories: --------------------");
   for(const auto& traj : trajectories) { 
 
-    // start a new `TrackSegment`, which will be composed of `TrackPoints` that have been
-    // projected from `traj` onto the Discs
-    edm4eic::MutableTrackSegment track_segment;
-    decltype(edm4eic::TrackSegmentData::length)      length       = 0;
-    decltype(edm4eic::TrackSegmentData::lengthError) length_error = 0;
+    // decide how to build track segments:
 
-    // loop over radiators
-    m_log->trace("<><><> Trajectory:");
-    for(const auto& [rad,planes] : m_trackingPlanes) {
-      m_log->trace("<> radiator = {}", rich::RadiatorName(rad));
+    // -- make 1 track segment for all radiators combined
+    result.push_back(m_propagation_algo.propagateToSurfaceList( traj, m_trackingPlanes_all ));
 
-      // loop over track-projection planes for this radiator
-      for(const auto& plane : planes) {
-
-        // get the `TrackPoint` by projecting `traj` to this `plane`
-        edm4eic::TrackPoint *point;
-        try {
-          point = m_propagation_algo.propagate(traj, plane);
-        } catch(std::exception &e) {
-          m_log->warn("<> Exception in underlying algorithm: {}; skip this TrackPoint", e.what());
-        }
-        if(point) {
-
-          // logging
-          m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
-              point->position.x, point->position.y, point->position.z);
-          m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
-              point->momentum.x, point->momentum.y, point->momentum.z);
-
-          // update the `TrackSegment` length
-          if(track_segment.points_size()>0) {
-            auto pos0 = point->position;
-            auto pos1 = std::prev(track_segment.points_end())->position;
-            auto dist = edm4eic::magnitude(pos0-pos1);
-            length += dist;
-            m_log->trace("               dist to previous point: {}", dist);
-          }
-
-          // add the `TrackPoint` to the `TrackSegment`
-          track_segment.addToPoints(*point);
-        }
-        else m_log->trace("<> Failed to propagate trajectory to this plane");
-
-      } // end plane loop
-    } // end radiator loop
-
-    // add this `TrackSegment` to the output
-    track_segment.setLength(length);
-    track_segment.setLengthError(length_error);
-    result.push_back(new edm4eic::TrackSegment(track_segment));
+    // -- make 1 track segment per radiator
+    // for(const auto& [rad,planes] : m_trackingPlanes)
+    //   result.push_back(m_propagation_algo.propagateToSurfaceList( traj, planes ));
 
   } // end trajectory loop
 
