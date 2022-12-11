@@ -39,8 +39,9 @@ namespace rich {
 
     protected:
 
-      // given DD4hep geometry, produce IRT geometry
-      virtual void DD4hep_to_IRT() = 0;
+      // protected methods
+      virtual void DD4hep_to_IRT() = 0; // given DD4hep geometry, produce IRT geometry
+      void SetRefractiveIndexTable();   // fill table of refractive indices
 
       // inputs
       std::string m_detName;
@@ -52,7 +53,7 @@ namespace rich {
 
       // IRT geometry handles
       CherenkovDetectorCollection *m_irtDetectorCollection;
-      CherenkovDetector *m_irtDetector;
+      CherenkovDetector           *m_irtDetector;
 
       // logger
       Logger& m_log;

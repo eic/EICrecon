@@ -147,8 +147,7 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
     } // if sensor found
   } // search for sensors
 
-  // set refractive indices
-  // FIXME: are these (weighted) averages? can we automate this? We should avoid hard-coded numbers here!
+  // set reference refractive indices // NOTE: numbers may be overridden externally
   std::map<const char*, double> rIndices;
   rIndices.insert({RadiatorName(kGas).c_str(),     1.0013});
   rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
@@ -158,4 +157,7 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }
+
+  // set refractive index table
+  SetRefractiveIndexTable();
 }

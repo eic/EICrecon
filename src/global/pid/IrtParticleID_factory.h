@@ -1,35 +1,38 @@
 // Copyright 2022, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-/* - input: photoelectrons, tracking info
- * - output: Cherenkov PID hypothesis and emission angle
- * - prepares for and calls the IRT (standalone) algorithm
- */
-
 #pragma once
 
-#include <cmath>
-
 // JANA
+#include <extensions/jana/JChainFactoryT.h>
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
 
 // data model
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4hep/ParticleID.h>
+#include <edm4eic/RawPMTHitCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
+
+// algorithms
+#include <algorithms/pid/IrtParticleID.h>
 
 // services
 #include <services/geometry/rich/RichGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/spdlog/SpdlogMixin.h>
+#include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
-  class IrtParticleID_factory : public JFactoryT<edm4hep::ParticleID> {
+  class IrtParticleID;
+  class IrtParticleID_factory :
+    public JChainFactoryT<edm4hep::ParticleID, IrtParticleIDConfig>,
+    public SpdlogMixin<IrtParticleID_factory>
+  {
+
     public:
 
-      IrtParticleID_factory() {
-        SetTag("IrtHypothesis"); // FIXME: should be D/PFRICH-dependent name?
-      }
+      explicit IrtParticleID_factory(std::vector<std::string> default_input_tags, IrtParticleIDConfig cfg) :
+        JChainFactoryT<edm4hep::ParticleID, IrtParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/
       void Init() override;
@@ -41,10 +44,11 @@ namespace eicrecon {
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-      std::string m_detector_name;
+      eicrecon::IrtParticleID          m_irt_algo;
+      std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
-      std::shared_ptr<spdlog::logger> m_log;
-      CherenkovDetectorCollection *m_irtDetectorCollection;
+      dd4hep::Detector                 *m_dd4hep_det;
+      CherenkovDetectorCollection      *m_irt_det_coll;
 
   };
 }

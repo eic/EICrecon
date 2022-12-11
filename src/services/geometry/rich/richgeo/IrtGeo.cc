@@ -46,6 +46,23 @@ void rich::IrtGeo::Bind() {
   m_irtDetector = m_irtDetectorCollection->AddNewDetector(m_detName.c_str());
 }
 
+// fill table of refractive indices
+void rich::IrtGeo::SetRefractiveIndexTable() {
+  m_log.PrintLog("{:-^60}"," Refractive Index Tables ");
+  for(auto rad_obj : m_irtDetector->Radiators()) {
+    m_log.PrintLog("{}:", rad_obj.first);
+    const auto rad = rad_obj.second;
+    auto rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX"); 
+    for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
+      auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
+      auto rindex = rindex_matrix->Get(row,1);
+      m_log.PrintLog("  {:>5} eV   {:<}", energy, rindex);
+      rad->m_ri_lookup_table.push_back({energy,rindex});
+    }
+  }
+}
+
+// destructor
 rich::IrtGeo::~IrtGeo() {
   if(m_irtDetector) delete m_irtDetector;
   if(m_irtDetectorCollection) delete m_irtDetectorCollection;

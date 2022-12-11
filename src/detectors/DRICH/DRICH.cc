@@ -10,7 +10,7 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
-// #include <global/pid/IrtParticleID_factory.h>
+#include <global/pid/IrtParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
@@ -57,11 +57,10 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHAerogelTracks"));
     app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
 
-    /* TODO: transform PhotoElectrons to Cherenkov Particle Identification
-     * - Run the Indirect Ray Tracing (IRT) algorithm
-     * - Cherenkov angle measurement
-     * - PID hypotheses
-     */
-    // app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
+    // PID
+    app->Add(new JChainFactoryGeneratorT<IrtParticleID_factory>(
+          {"DRICHRawHits","DRICHAerogelTracks","DRICHGasTracks"},
+          "DRICHIrtParticleID"
+          ));
   }
 }
