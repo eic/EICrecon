@@ -16,6 +16,9 @@ void eicrecon::SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger)
     m_gauss = [&](){
         return m_random.Gaus(0, m_cfg.timeResolution);
     };
+
+    m_log->critical("  -> threshold = {} = {} GeV",      m_cfg.threshold,      m_cfg.threshold      / TGeoUnit::GeV );
+    m_log->critical("  -> timeResolution = {} = {} ns",  m_cfg.timeResolution, m_cfg.timeResolution / TGeoUnit::ns  );
 }
 
 

@@ -35,6 +35,7 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
 
     // Initialize digitization algorithm
     m_digi_algo.applyConfig(cfg);
+    m_log->critical("INITIALIZE SiliconTrackerDigi_factory for plugin:tag = {}", param_prefix);
     m_digi_algo.init(m_log);
 }
 

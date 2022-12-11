@@ -21,6 +21,7 @@ void eicrecon::TrackerHitReconstruction::init(dd4hep::Detector* detector, std::s
 
     // Create CellID convertor
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
+    m_log->critical("  -> time_resolution = {} = {} ns", m_cfg.time_resolution, m_cfg.time_resolution / dd4hep::ns );
 }
 
 edm4eic::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const edm4eic::RawTrackerHit *raw_hit) {

@@ -28,6 +28,7 @@ void TrackerHitReconstruction_factory::Init() {
     auto geo_service = app->GetService<JDD4hep_service>();
 
     // Initialize reconstruction algorithm
+    m_log->critical("INITIALIZE TrackerHitReconstruction_factory for plugin:tag = {}", param_prefix);
     m_reco_algo.init(geo_service->detector(), m_log);
 }
 
