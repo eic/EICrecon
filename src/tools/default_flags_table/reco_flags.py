@@ -138,13 +138,13 @@ eicrecon_reco_flags = [
     ('BEMC:EcalBarrelscFiMergedHits:refs',                      '1,1',                             ''),
 
     ('BEMC:EcalBarrelImagingProtoClusters:input_tag',           'EcalBarrelImagingRecHits',        'Name of input collection to use'),
-    ('BEMC:EcalBarrelImagingProtoClusters::localDistXY',        '2.0,2.0',                         '* [mm]'),
+    ('BEMC:EcalBarrelImagingProtoClusters::localDistXY',        '0.2,0.2',                         '* [mm]'), # should be 2.0*mm
     ('BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi',    '0.01,0.01',                       '* [radian]'),
     ('BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange', '2.0',                           ''),
-    ('BEMC:EcalBarrelImagingProtoClusters::sectorDist',         '30.0*mm',                          ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::sectorDist',         '3.0*mm',                          ''), # should be 3.0*cm
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterHitEdep',  '0.',                              ''),
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterCenterEdep', '0.',                            ''),
-    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '80*MeV',                          ''),
+    ('BEMC:EcalBarrelImagingProtoClusters::minClusterEdep',     '80*keV',                          ''), # should be 80*MeV
     ('BEMC:EcalBarrelImagingProtoClusters::minClusterNhits',    '5',                               ''),
 
     ('BEMC:EcalBarrelScFiProtoClusters:input_tag',              'EcalBarrelScFiMergedHits', 'Name of input collection to use'),
