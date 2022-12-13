@@ -857,7 +857,7 @@ from datetime import datetime
 import argparse
 
 # For some values we need to eval the result
-known_units_list = ['eV', 'MeV', 'GeV', 'mm', 'cm', 'mrad']
+known_units_list = ['eV', 'keV', 'MeV', 'GeV', 'mm', 'cm', 'mrad']
 
 def has_unit_conversion(value):
     """Checks if string value use units like X*MeV or X/GeV"""
