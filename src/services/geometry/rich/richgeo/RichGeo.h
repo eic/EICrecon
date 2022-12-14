@@ -46,17 +46,19 @@ namespace rich {
     kGas,
     nRadiators
   };
+  // return radiator name associated with index
   static std::string RadiatorName(int num) {
-    if(num==kAerogel)  return "aerogel";
-    else if(num==kGas) return "gas";
+    if(num==kAerogel)  return "Aerogel";
+    else if(num==kGas) return "Gas";
     else {
       Logger::PrintError("unknown radiator number {}",num);
       return "UNKNOWN_RADIATOR";
     }
   }
+  // return radiator index associated with name
   static int RadiatorNum(std::string name) {
-    if(name=="aerogel")  return kAerogel;
-    else if(name=="gas") return kGas;
+    if(name=="Aerogel")  return kAerogel;
+    else if(name=="Gas") return kGas;
     else {
       Logger::PrintError("unknown radiator name {}",name);
       return -1;
@@ -64,6 +66,17 @@ namespace rich {
   }
   static int RadiatorNum(const char * name) {
     return RadiatorNum(std::string(name));
+  }
+  // search string `input` for a radiator name; return corresponding index
+  static int ParseRadiatorName(std::string input) {
+    if      (input.find("aerogel")!=std::string::npos) return kAerogel;
+    else if (input.find("Aerogel")!=std::string::npos) return kAerogel;
+    else if (input.find("gas")!=std::string::npos)     return kGas;
+    else if (input.find("Gas")!=std::string::npos)     return kGas;
+    else {
+      Logger::PrintError("failed to parse '{}' for radiator name",input);
+      return -1;
+    }
   }
 
   // static dd4hep::DetElement *RadiatorDetElement(int num) {

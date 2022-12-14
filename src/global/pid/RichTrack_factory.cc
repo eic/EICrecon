@@ -13,41 +13,28 @@ void eicrecon::RichTrack_factory::Init() {
   auto m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
   auto param_prefix = m_detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
+  m_radiatorID = rich::ParseRadiatorName(GetTag());
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
   InitLogger(param_prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
-  m_log->debug("m_detector_name='{}'  param_prefix='{}'", m_detector_name, param_prefix);
+  m_log->debug("m_detector_name='{}'  param_prefix='{}'  m_radiatorID={}", m_detector_name, param_prefix, m_radiatorID);
 
   // default configuration parameters
-  m_numPlanes[rich::kAerogel] = 5;
-  m_numPlanes[rich::kGas]     = 10;
+  m_numPlanes = 5;
 
   // configuration parameters
   auto set_param = [&param_prefix, &app, this] (std::string name, auto &val, std::string description) {
     app->SetDefaultParameter(param_prefix+":"+name, val, description);
   };
-  m_log->debug("m_numPlanes:");
-  for(int rad=0; rad<rich::nRadiators; rad++) {
-    auto radName = rich::RadiatorName(rad);
-    set_param(
-        "numPlanes:"+radName,
-        m_numPlanes[rad],
-        "number of "+radName+" radiator track-projection planes"
-        );
-    m_log->debug("  {:>10}: {}", rich::RadiatorName(rad), m_numPlanes[rad]);
-  }
+  set_param("numPlanes", m_numPlanes, "number of track-projection planes");
+  m_log->debug("numPlanes = {}",m_numPlanes);
   
   // get RICH geometry for track projection
   m_actsGeo = m_richGeoSvc->GetActsGeo(m_detector_name);
-  for(int rad=0; rad<rich::nRadiators; rad++) {
-    m_trackingPlanes.insert({ rad, m_actsGeo->TrackingPlanes(rad, m_numPlanes[rad]) });
-    for(auto plane : m_trackingPlanes.at(rad))
-      m_trackingPlanes_all.push_back(plane);
-  }
-
+  m_trackingPlanes = m_actsGeo->TrackingPlanes(m_radiatorID, m_numPlanes);
 }
 
 //-----------------------------------------------------------------------------
@@ -73,19 +60,11 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   std::vector<edm4eic::TrackSegment*> result;
 
   // loop over trajectories
-  m_log->trace("Propagate trajectories: --------------------");
-  for(const auto& traj : trajectories) { 
+  m_log->debug("Propagate trajectories: --------------------");
+  m_log->debug("number of trajectories: {}",trajectories.size());
+  for(const auto& traj : trajectories)
+    result.push_back(m_propagation_algo.propagateToSurfaceList( traj, m_trackingPlanes ));
 
-    // decide how to build track segments:
-
-    // -- make 1 track segment for all radiators combined
-    result.push_back(m_propagation_algo.propagateToSurfaceList( traj, m_trackingPlanes_all ));
-
-    // -- make 1 track segment per radiator
-    // for(const auto& [rad,planes] : m_trackingPlanes)
-    //   result.push_back(m_propagation_algo.propagateToSurfaceList( traj, planes ));
-
-  } // end trajectory loop
-
+  // output
   Set(std::move(result));
 }

@@ -20,8 +20,9 @@ extern "C" {
     // Digitization
     app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DRICHHits"}, "DRICHRawHits"));
 
-    // Tracks
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHTracks"));
+    // Track Propagation to each radiator
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHAerogelTracks"));
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
 
     /* TODO: transform PhotoElectrons to Cherenkov Particle Identification
      * - Run the Indirect Ray Tracing (IRT) algorithm
