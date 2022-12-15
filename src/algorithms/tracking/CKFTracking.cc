@@ -99,11 +99,18 @@ namespace eicrecon {
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
         //Acts::MeasurementSelector measSel;
 
-        Acts::CombinatorialKalmanFilterExtensions extensions;
+        Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
+                extensions;
         extensions.calibrator.connect<&eicrecon::MeasurementCalibrator::calibrate>(&calibrator);
-        extensions.updater.connect<&Acts::GainMatrixUpdater::operator()>(&kfUpdater);
-        extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()>(&kfSmoother);
-        extensions.measurementSelector.connect<&Acts::MeasurementSelector::select>(&measSel);
+        extensions.updater.connect<
+                &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
+                &kfUpdater);
+        extensions.smoother.connect<
+                &Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
+                &kfSmoother);
+        extensions.measurementSelector.connect<
+                &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
+                &measSel);
 
         eicrecon::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;
@@ -133,7 +140,7 @@ namespace eicrecon {
 
             if (result.ok()) {
                 // Get the track finding output object
-                const auto &trackFindingOutput = result.value();
+                auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
                 trajectories.push_back(new eicrecon::TrackingResultTrajectory(std::move(trackFindingOutput.fittedStates),
                                                                               std::move(trackFindingOutput.lastMeasurementIndices),
