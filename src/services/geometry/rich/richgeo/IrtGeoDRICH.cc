@@ -137,9 +137,11 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
         // - get sensor centroid position
         auto pvSensor  = detSensor.placement();
         auto posSensor = m_posRich + pvSensor.position();
-        // - get sensor surface position
+        // - get sensor surface position; add the offset vector to `m_sensor_surface_offset`
         dd4hep::Direction radialDir   = posSensor - sensorSphCenter; // sensor sphere radius direction
-        auto posSensorSurface = posSensor + (radialDir.Unit() * (0.5*sensorThickness));
+        auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
+        auto posSensorSurface = posSensor + surfaceOffset;
+        m_sensor_surface_offset.insert({imodsec,surfaceOffset});
         // - get surface normal and in-plane vectors
         double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
         double sensorLocalNormY[3] = {0.0, 1.0, 0.0};

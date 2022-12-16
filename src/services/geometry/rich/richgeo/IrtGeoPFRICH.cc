@@ -89,9 +89,11 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
       // - get sensor centroid position
       auto pvSensor  = detSensor.placement();
       auto posSensor = m_posRich + pvSensor.position();
-      // - get sensor surface position
+      // - get sensor surface position; add the offset vector to `m_sensor_surface_offset`
       dd4hep::Direction sensorNorm(0,0,1); // FIXME: generalize; this assumes planar layout, with norm along +z axis (toward IP)
-      auto posSensorSurface = posSensor + (sensorNorm.Unit() * (0.5*sensorThickness));
+      auto surfaceOffset = sensorNorm.Unit() * (0.5*sensorThickness);
+      auto posSensorSurface = posSensor + surfaceOffset;
+      m_sensor_surface_offset.insert({imod,surfaceOffset});
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};

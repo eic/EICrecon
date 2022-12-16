@@ -47,7 +47,6 @@ namespace eicrecon {
       eicrecon::IrtParticleID          m_irt_algo;
       std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
-      dd4hep::Detector                 *m_dd4hep_det;
       CherenkovDetectorCollection      *m_irt_det_coll;
 
   };

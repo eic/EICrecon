@@ -16,7 +16,6 @@ void eicrecon::IrtParticleID_factory::Init() {
   InitLogger(param_prefix, "info");
   m_richGeoSvc   = app->GetService<RichGeo_service>();
   m_irt_det_coll = m_richGeoSvc->GetIrtGeo(m_detector_name)->GetIrtDetectorCollection();
-  m_dd4hep_det   = m_richGeoSvc->GetDD4hepGeo();
   m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
 
   // config
@@ -37,7 +36,7 @@ void eicrecon::IrtParticleID_factory::Init() {
 
   // initialize underlying algorithm
   m_irt_algo.applyConfig(cfg);
-  m_irt_algo.AlgorithmInit(m_dd4hep_det, m_irt_det_coll, m_log);
+  m_irt_algo.AlgorithmInit(m_irt_det_coll, m_log);
 }
 
 //-----------------------------------------------------------------------------

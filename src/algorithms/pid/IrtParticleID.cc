@@ -6,13 +6,11 @@
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::IrtParticleID::AlgorithmInit(
-    dd4hep::Detector                *dd4hep_det,
     CherenkovDetectorCollection     *irt_det_coll,
     std::shared_ptr<spdlog::logger> &logger
     )
 {
   // members
-  m_dd4hep_det   = dd4hep_det;
   m_irt_det_coll = irt_det_coll;
   m_log          = logger;
   m_init_failed  = false;
@@ -34,8 +32,7 @@ void eicrecon::IrtParticleID::AlgorithmInit(
   m_log->debug("Initializing IrtParticleID algorithm for CherenkovDetector '{}'", m_det_name);
 
   // readout decoding
-  m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_dd4hep_det);
-  m_cell_mask        = m_irt_det->GetReadoutCellMask();
+  m_cell_mask = m_irt_det->GetReadoutCellMask();
   m_log->debug("readout cellMask = {:#X}", m_cell_mask);
 
   // rebin refractive index tables to have `m_cfg.numRIndexBins` bins
@@ -117,30 +114,25 @@ std::vector<edm4hep::ParticleID*> eicrecon::IrtParticleID::AlgorithmProcess(
   std::vector<std::unique_ptr<OpticalPhoton>> irt_photons;
   m_log->trace("{:#<70}","### SENSOR HITS ");
   for(const auto& raw_hit : in_raw_hits) {
+    m_log->trace("{:-<70}","--- pixel hit ");
 
-    // get raw hit data
-    auto cell_id = raw_hit->getCellID();
-    m_log->trace("{:-<70}",fmt::format("--- pixel hit on cellID {:#X}",cell_id));
-
-    // set raw hit information for IRT
-    auto irt_sensor    = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
-    uint64_t vcopy     = cell_id & m_cell_mask;
-    TVector3 pixel_pos = (1/dd4hep::mm) * Tools::MathVector3_to_TVector3(m_cellid_converter->position(cell_id));
-    m_log->trace("copy number: {}", vcopy);
-    m_log->trace("pixel position: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", pixel_pos.x(), pixel_pos.y(), pixel_pos.z());
-
-    // FIXME FIXME FIXME FIXME FIXME FIXME
-    // crosscheck `vcopy` and `pixel_pos` (compare to juggler output, unit QE, unit safetyfactor)
-    std::cout << "TODO TODO TODO TODO TODO TODO TODO TODO TODO LXYPIXEL:" << std::endl; pixel_pos.Print();
+    // get sensor and pixel info
+    auto cell_id       = raw_hit->getCellID();
+    uint64_t sensor_id = cell_id & m_cell_mask;
+    TVector3 pixel_pos = (1/dd4hep::mm) * m_irt_det->m_ReadoutIDToPosition(cell_id);
+    m_log->trace("cell_id={:#X}  copy={}  pixel_pos=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+        cell_id, sensor_id, pixel_pos.x(), pixel_pos.y(), pixel_pos.z());
+    // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
 
     // start new IRT photon
+    auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
     auto irt_photon = std::make_unique<OpticalPhoton>();
-    irt_photon->SetVolumeCopy(vcopy);
+    irt_photon->SetVolumeCopy(sensor_id);
     irt_photon->SetDetectionPosition(pixel_pos);
     irt_photon->SetPhotonDetector(irt_sensor);
     irt_photon->SetDetected(true);
 
-    // FIXME FIXME FIXME FIXME FIXME FIXME - these require knowlege of the truth!
+    // FIXME these require knowlege of the truth! do we need anything here?
     /*
     irt_photon->SetVertexPosition(vtx);
     irt_photon->SetVertexMomentum(TVector3(p.x, p.y, p.z));
@@ -157,6 +149,7 @@ std::vector<edm4hep::ParticleID*> eicrecon::IrtParticleID::AlgorithmProcess(
     irt_photons.push_back(std::move(irt_photon));
   }
 
+  /*
 
   // loop over charged particles ********************************************
   // - make `irt_particles`: a list of `ChargedParticle`s for the IRT algorithm
@@ -218,6 +211,7 @@ std::vector<edm4hep::ParticleID*> eicrecon::IrtParticleID::AlgorithmProcess(
     // fill `irt_particles`
     irt_particles.push_back(std::move(irt_particle));
   }
+  */
 
   return particle_id;
 }

@@ -8,10 +8,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-// DD4hep
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-
 // IRT
 #include <IRT/CherenkovRadiator.h>
 #include <IRT/CherenkovEvent.h>
@@ -33,7 +29,6 @@ namespace eicrecon {
       ~IrtParticleID() {}
 
       void AlgorithmInit(
-          dd4hep::Detector                *dd4hep_det,
           CherenkovDetectorCollection     *irt_det_coll,
           std::shared_ptr<spdlog::logger> &logger
           );
@@ -54,9 +49,6 @@ namespace eicrecon {
       std::shared_ptr<spdlog::logger> m_log;
       CherenkovDetectorCollection     *m_irt_det_coll;
       CherenkovDetector               *m_irt_det;
-      dd4hep::Detector                *m_dd4hep_det;
-
-      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
       bool        m_init_failed;
       uint64_t    m_cell_mask;
