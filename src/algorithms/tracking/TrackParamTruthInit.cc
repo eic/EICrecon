@@ -72,6 +72,10 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
         return nullptr;
     }
 
+    // modify initial momentum to avoid bleeding truth to results when fit fails
+    // this picks uniformly between 0.9, 1.0, 1.1 times true moomentum
+    pmag *= (1.0 + 0.1 * m_uniformIntDist(generator));
+
     // build some track cov matrix
     Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
     cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = 1000*um*1000*um;
