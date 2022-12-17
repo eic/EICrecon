@@ -1,10 +1,10 @@
 // Copyright 2022, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-#include "IrtParticleID_factory.h"
+#include "IrtCherenkovParticleID_factory.h"
 
 //-----------------------------------------------------------------------------
-void eicrecon::IrtParticleID_factory::Init() {
+void eicrecon::IrtCherenkovParticleID_factory::Init() {
 
   // get plugin name and tag
   auto app = GetApplication();
@@ -25,6 +25,7 @@ void eicrecon::IrtParticleID_factory::Init() {
     app->SetDefaultParameter(name, val, description);
   };
   set_param("numRIndexBins", cfg.numRIndexBins, "");
+  set_param("pdgList",       cfg.pdgList,       "");
   for(auto& [name,rad] : cfg.radiators) {
     set_param(name+":id",              rad.id,              "");
     set_param(name+":smearingMode",    rad.smearingMode,    "");
@@ -40,12 +41,12 @@ void eicrecon::IrtParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::IrtParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::IrtCherenkovParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
   m_irt_algo.AlgorithmChangeRun();
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // accumulate input collections
   // - if `input_tag` contains `Hits`, add to `raw_hits`
@@ -73,6 +74,6 @@ void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent
     }
   }
 
-  // call the IrtParticleID algorithm
+  // call the IrtCherenkovParticleID algorithm
   Set(m_irt_algo.AlgorithmProcess( raw_hits, charged_particles ));
 }

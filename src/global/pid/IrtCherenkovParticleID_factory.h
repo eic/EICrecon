@@ -10,10 +10,10 @@
 // data model
 #include <edm4eic/RawPMTHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
 
 // algorithms
-#include <algorithms/pid/IrtParticleID.h>
+#include <algorithms/pid/IrtCherenkovParticleID.h>
 
 // services
 #include <services/geometry/rich/RichGeo_service.h>
@@ -23,16 +23,16 @@
 #include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
-  class IrtParticleID;
-  class IrtParticleID_factory :
-    public JChainFactoryT<edm4hep::ParticleID, IrtParticleIDConfig>,
-    public SpdlogMixin<IrtParticleID_factory>
+  class IrtCherenkovParticleID;
+  class IrtCherenkovParticleID_factory :
+    public JChainFactoryT<edm4eic::CherenkovParticleID, IrtCherenkovParticleIDConfig>,
+    public SpdlogMixin<IrtCherenkovParticleID_factory>
   {
 
     public:
 
-      explicit IrtParticleID_factory(std::vector<std::string> default_input_tags, IrtParticleIDConfig cfg) :
-        JChainFactoryT<edm4hep::ParticleID, IrtParticleIDConfig>(std::move(default_input_tags), cfg) {}
+      explicit IrtCherenkovParticleID_factory(std::vector<std::string> default_input_tags, IrtCherenkovParticleIDConfig cfg) :
+        JChainFactoryT<edm4eic::CherenkovParticleID, IrtCherenkovParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/
       void Init() override;
@@ -44,7 +44,7 @@ namespace eicrecon {
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-      eicrecon::IrtParticleID          m_irt_algo;
+      eicrecon::IrtCherenkovParticleID          m_irt_algo;
       std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
       CherenkovDetectorCollection      *m_irt_det_coll;

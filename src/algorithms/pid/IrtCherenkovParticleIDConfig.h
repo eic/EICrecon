@@ -19,12 +19,16 @@ namespace eicrecon {
   };
 
   // IRT algorithm config
-  class IrtParticleIDConfig {
+  class IrtCherenkovParticleIDConfig {
     public:
 
       // NOTE: the values hard-coded here are defaults, may be out-of-date, and
       //       should be overridden externally
-      unsigned numRIndexBins = 100;
+
+      unsigned algorithmID   = 0;   // unique ID for `edm4hep::ParticleID::algorithmType`
+      unsigned numRIndexBins = 100; // number of bins for refractive index vs. energy
+
+      // radiator-specific settings
       std::map <std::string,RadiatorConfig> radiators = {
         { "Aerogel", RadiatorConfig{
                                      0,              // id
@@ -44,16 +48,25 @@ namespace eicrecon {
                                    }}
       };
 
+      // list of PDG codes for PID
+      std::vector<int> pdgList = {
+        -11,
+        211,
+        321,
+        2212
+      };
 
-      // ------------------------------------------------
+      /////////////////////////////////////////////////////
 
       // print all parameters
       void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
-        m_log->log(lvl, "{:=^60}"," IrtParticleIDConfig Settings ");
+        m_log->log(lvl, "{:=^60}"," IrtCherenkovParticleIDConfig Settings ");
         auto puts = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
         puts("numRIndexBins",numRIndexBins);
+        m_log->log(lvl, "pdgList:");
+        for(const auto& pdg : pdgList) m_log->log(lvl, "  {}", pdg);
         for(const auto& [name,rad] : radiators) {
           m_log->log(lvl, "{:-<60}", fmt::format("--- {} config ",name));
           puts("id",              rad.id);

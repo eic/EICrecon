@@ -10,7 +10,7 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
-#include <global/pid/IrtParticleID_factory.h>
+#include <global/pid/IrtCherenkovParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
@@ -58,9 +58,9 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
 
     // PID
-    app->Add(new JChainFactoryGeneratorT<IrtParticleID_factory>(
+    app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
           {"DRICHRawHits","DRICHAerogelTracks","DRICHGasTracks"},
-          "DRICHIrtParticleID"
+          "DRICHIrtCherenkovParticleID"
           ));
   }
 }
