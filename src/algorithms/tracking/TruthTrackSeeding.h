@@ -20,7 +20,7 @@ namespace eicrecon {
         edm4eic::TrackParameters * produce(const edm4hep::MCParticle *) override;
 
     private:
-        std::shared_ptr<TDatabasePDG> m_pdg_db;
+        TDatabasePDG * m_pdg_db;
     };
 }
 

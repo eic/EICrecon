@@ -10,7 +10,7 @@
 void eicrecon::TruthTrackSeeding::init() {
 
     // TODO make a service?
-    m_pdg_db = std::make_shared<TDatabasePDG>();
+    m_pdg_db = TDatabasePDG::Instance();
 
 }
 

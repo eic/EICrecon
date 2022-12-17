@@ -20,7 +20,7 @@ void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &
     m_log = logger;
 
     // TODO make a service?
-    m_pdg_db = std::make_shared<TDatabasePDG>();
+    m_pdg_db = TDatabasePDG::Instance();
 }
 
 eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticle *part) {
