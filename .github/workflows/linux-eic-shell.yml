@@ -21,8 +21,13 @@ jobs:
         include:
           - CC: gcc
             CXX: g++
+            CMAKE_BUILD_TYPE: Release
           - CC: clang
             CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+          - CC: gcc
+            CXX: g++
+            CMAKE_BUILD_TYPE: Debug
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -50,11 +55,11 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # install this repo
-          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }}
           cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
-        name: build-${{ matrix.CC }}-eic-shell
+        name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: |
           .
           !src/
@@ -94,7 +99,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-gcc-eic-shell
+        name: build-gcc-eic-shell-Debug
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -126,7 +131,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-gcc-eic-shell
+        name: build-gcc-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -168,7 +173,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-gcc-eic-shell
+        name: build-gcc-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
