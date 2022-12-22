@@ -34,13 +34,13 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/TrackParameters.h>
 #include <algorithms/interfaces/WithPodConfig.h>
-#include "TrackSeedingConfig.h"
-#include "ActsGeometryProvider.h"
+#include "OrthogonalTrackSeedingConfig.h"
+
 
 
 namespace eicrecon {
     class TrackSeeding:
-            public eicrecon::WithPodConfig<eicrecon::TrackSeedingConfig> {
+            public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
     public:
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
         std::vector<edm4eic::TrackParameters*> produce(std::vector<const edm4eic::TrackerHit*> trk_hits);
@@ -54,7 +54,12 @@ namespace eicrecon {
         Acts::CalibrationContext m_calibctx;
         Acts::MagneticFieldContext m_fieldctx;
 
-        Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+	eicrecon::OrthogonalTrackSeedingConfig m_seederConfig;
+
+	eicrecon::OrthogonalTrackSeedingConfig configureSeeder();
+	SeedContainer runSeeder(std::vector<const edm4eic::TrackerHit*>& trk_hits);
+	std::vector<const eicrecon::SpacePoint*> getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits);
+	std::vector<edm4eic::TrackParameters*> makeTrackParams(SeedContainer& seeds);
 
     };
 }
