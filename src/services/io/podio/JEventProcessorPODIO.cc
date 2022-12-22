@@ -161,6 +161,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",
+            "HcalEndcapNProjections",   // Track projections to HCal
             "B0ECalRawHits",
             "B0ECalRecHits",
             "B0ECalClusters",

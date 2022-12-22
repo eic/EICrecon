@@ -39,6 +39,8 @@
 #include "Cluster_factory_HcalEndcapPInsertClusters.h"
 #include "Cluster_factory_HcalEndcapPInsertTruthClusters.h"
 
+#include "TrackPoint_factory_HcalEndcapNProjections.h"
+
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
@@ -78,6 +80,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPInsertClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPInsertTruthClusters>());
+
+        // Track propagation on HCAL
+        app->Add(new JFactoryGeneratorT<TrackPoint_factory_HcalEndcapNProjections>());
     }
 }
     

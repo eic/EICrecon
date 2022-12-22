@@ -2,7 +2,7 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 
-#include "TrackPropagationTest_processor.h"
+#include "TrackSeedingTest_processor.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -21,7 +21,7 @@
 //------------------
 // OccupancyAnalysis (Constructor)
 //------------------
-TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication *app) :
+TrackSeedingTest_processor::TrackSeedingTest_processor(JApplication *app) :
 	JEventProcessor(app)
 {
 }
@@ -29,7 +29,7 @@ TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication *app
 //------------------
 // Init
 //------------------
-void TrackPropagationTest_processor::Init()
+void TrackSeedingTest_processor::Init()
 {
     std::string plugin_name=("track_propagation_test");
 
@@ -72,12 +72,14 @@ void TrackPropagationTest_processor::Init()
 // Process
 //------------------
 // This function is called every event
-void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>& event)
+void TrackSeedingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
-    m_log->trace("TrackPropagationTest_processor event");
+    m_log->trace("TrackSeedingTest_processor event");
 
     // Get trajectories from tracking
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+
+
     auto clusters = event->Get<edm4eic::Cluster>("HcalEndcapNClusters");
 
     // Iterate over trajectories
@@ -114,16 +116,15 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
         auto length =  point->pathlength;
         m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, length);
     }
-
 }
 
 
 //------------------
 // Finish
 //------------------
-void TrackPropagationTest_processor::Finish()
+void TrackSeedingTest_processor::Finish()
 {
-//    m_log->trace("TrackPropagationTest_processor finished\n");
+//    m_log->trace("TrackSeedingTest_processor finished\n");
 
 }
 

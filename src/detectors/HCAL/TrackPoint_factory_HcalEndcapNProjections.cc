@@ -1,8 +1,6 @@
-
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 
-#include "TrackPropagationTest_processor.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -14,39 +12,18 @@
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <services/rootfile/RootFile_service.h>
 #include <services/geometry/acts/ACTSGeo_service.h>
+#include "TrackPoint_factory_HcalEndcapNProjections.h"
+#include "extensions/string/StringHelpers.h"
 
 
-
-
-//------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication *app) :
-	JEventProcessor(app)
-{
-}
-
-//------------------
+//------------------------------------------
 // Init
-//------------------
-void TrackPropagationTest_processor::Init()
-{
-    std::string plugin_name=("track_propagation_test");
+void TrackPoint_factory_HcalEndcapNProjections::Init() {
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name + ":" + GetTag();
 
     // Get JANA application
     auto app = GetApplication();
-
-    // Ask service locator a file to write histograms to
-    auto root_file_service = app->GetService<RootFile_service>();
-
-    // Get TDirectory for histograms root file
-    auto globalRootLock = app->GetService<JGlobalRootLock>();
-    globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
-    globalRootLock->release_lock();
-
-    // Create a directory for this plugin. And subdirectories for series of histograms
-    m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
     InitLogger(plugin_name);
@@ -59,71 +36,62 @@ void TrackPropagationTest_processor::Init()
     auto transform = Acts::Transform3::Identity();
 
     // make a reference disk to mimic electron-endcap HCal
-    const auto hcalEndcapNZ = -3322.;
-    const auto hcalEndcapNMinR = 83.01;
-    const auto hcalEndcapNMaxR = 950;
+    // Since the surface is created directly in ACTS geometry, we use ACTS units here
+    double hcalEndcapNZ = -3322. * Acts::UnitConstants::mm;
+    double hcalEndcapNMinR = 83.01 * Acts::UnitConstants::mm;
+    double hcalEndcapNMaxR = 950 * Acts::UnitConstants::mm;
+
+    // Check if users ha
+    app->SetDefaultParameter(param_prefix + ":surfaceZ", hcalEndcapNZ, "Projection surface Z [mm]");
+    app->SetDefaultParameter(param_prefix + ":surfaceRMin", hcalEndcapNMinR, "Projection surface RMin [mm]");
+    app->SetDefaultParameter(param_prefix + ":surfaceRMax", hcalEndcapNMaxR, "Projection surface RMax [mm]");
+
     auto hcalEndcapNBounds = std::make_shared<Acts::RadialBounds>(hcalEndcapNMinR, hcalEndcapNMaxR);
     auto hcalEndcapNTrf = transform * Acts::Translation3(Acts::Vector3(0, 0, hcalEndcapNZ));
     m_hcal_surface = Acts::Surface::makeShared<Acts::DiscSurface>(hcalEndcapNTrf, hcalEndcapNBounds);
 }
 
-
-//------------------
+//------------------------------------------
 // Process
-//------------------
-// This function is called every event
-void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>& event)
-{
-    m_log->trace("TrackPropagationTest_processor event");
+void TrackPoint_factory_HcalEndcapNProjections::Process(const std::shared_ptr<const JEvent> &event) {
+    m_log->trace("TrackPoint_factory_HcalEndcapNProjections event");
 
-    // Get trajectories from tracking
+// Get trajectories from tracking
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
-    auto clusters = event->Get<edm4eic::Cluster>("HcalEndcapNClusters");
+    std::vector<edm4eic::TrackPoint *> result_poins;
 
-    // Iterate over trajectories
+// Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());
     for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
         auto &trajectory = trajectories[traj_index];
         m_log->trace(" -- trajectory {} --", traj_index);
 
-        edm4eic::TrackPoint* projection_point;
+        edm4eic::TrackPoint *projection_point;
         try {
             // >>> try to propagate to surface <<<
             projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
-        catch(std::exception &e) {
+        catch (std::exception &e) {
             m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
 
-        if(!projection_point) {
+        if (!projection_point) {
             m_log->trace("   could not propagate!", traj_index);
             continue;
         }
 
         // Now go through reconstructed tracks points
         auto pos = projection_point->position;
-        auto length =  projection_point->pathlength;
+        auto length = projection_point->pathlength;
         m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length);
+
+        result_poins.push_back(projection_point);
     }
 
-    m_log->trace("Now points created in a factory");
-    auto proj_from_factory = event->Get<edm4eic::TrackPoint>("HcalEndcapNProjections");
-    for(auto point: proj_from_factory) {
-        // Now go through reconstructed tracks points
-        auto pos = point->position;
-        auto length =  point->pathlength;
-        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, length);
-    }
-
+// Put data as a factory running result
+    Set(result_poins);
 }
 
 
-//------------------
-// Finish
-//------------------
-void TrackPropagationTest_processor::Finish()
-{
-//    m_log->trace("TrackPropagationTest_processor finished\n");
 
-}
 
