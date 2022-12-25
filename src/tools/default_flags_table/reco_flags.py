@@ -731,6 +731,10 @@ eicrecon_reco_flags = [
     ('BTOF:TOFBarrelRawHit:TimeResolution',                      '0.025',                          '* [ns] Time resolution gauss smearing'),
     ('BTOF:TOFBarrelTrackerHit:TimeResolution',                  '0.025',                          '* [ns] Time resolution set to covariance matrix for CKF input'),
 
+    ('B0TRK:EndcapTrackerRawHit:Threshold',                      '0',                              '* [GeV] EDep threshold for hits to pass through'),
+    ('B0TRK:EndcapTrackerRawHit:TimeResolution',                 '8',                              '* [ns] Time resolution gauss smearing'),
+    ('B0TRK:EndcapTrackerHit:TimeResolution',                    '8',                              '* [ns] Time resolution set to covariance matrix for CKF input'),
+    
     ('tracking:CentralCKFTrajectories:Chi2CutOff',               '15',                             'Chi2 Cut Off for ACTS CKF tracking'),
     ('tracking:CentralCKFTrajectories:EtaBins',                  '',                               'Eta Bins for ACTS CKF tracking reco'),
     ('tracking:CentralCKFTrajectories:NumMeasurementsCutOff',    '10',                             'Number of measurements Cut Off for ACTS CKF tracking'),
