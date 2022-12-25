@@ -33,6 +33,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "ECTRK",
         "EEMC",
         "MPGD",
+        "B0TRK",
         "RPOTS",
         "BTOF",
         "ECTOF",
