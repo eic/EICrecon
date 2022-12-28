@@ -34,7 +34,7 @@ public:
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
-        u_localDistXY={150*dd4hep::mm, 150*dd4hep::mm};     //{this, "localDistXY", {}};
+        u_localDistXY={15*dd4hep::mm, 15*dd4hep::mm};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
