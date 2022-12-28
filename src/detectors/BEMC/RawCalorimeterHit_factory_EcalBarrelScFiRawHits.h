@@ -38,10 +38,10 @@ public:
         m_input_tag = "EcalBarrelScFiHits";
         u_eRes = {0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * dd4hep::MeV;
-        m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
+        m_capADC = 16384;
+        m_dyRangeADC = 75 * dd4hep::MeV;
+        m_pedMeanADC = 20;
+        m_pedSigmaADC = 0.3;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
