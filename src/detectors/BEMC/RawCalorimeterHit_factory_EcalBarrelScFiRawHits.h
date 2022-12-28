@@ -39,7 +39,7 @@ public:
         u_eRes = {0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
-        m_dyRangeADC = 75 * dd4hep::MeV;
+        m_dyRangeADC = 750 * dd4hep::MeV;
         m_pedMeanADC = 20;
         m_pedSigmaADC = 0.3;
         m_resolutionTDC = 10 * dd4hep::picosecond;
