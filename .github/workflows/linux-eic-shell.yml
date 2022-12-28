@@ -256,10 +256,14 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: arches_right_flags.json
+      - uses: actions/download-artifact@v3
+        with:
+          name: brycecanyon_right_flags.json
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
           cp arches_right_flags.json docs/arches_flags.json
+          cp brycecanyon_right_flags.json docs/brycecanyon_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/upload-artifact@v3
