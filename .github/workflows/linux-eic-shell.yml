@@ -180,7 +180,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -188,8 +188,8 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.detector_config }}_flags.json
-        path: ${{ matrix.detector_config }}_flags.json
+        name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+        path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
@@ -222,7 +222,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.detector_config }}_right_flags.json
+          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -230,8 +230,8 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.detector_config }}_right_flags.json
-        path: ${{ matrix.detector_config }}_right_flags.json
+        name: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
+        path: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
@@ -255,15 +255,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: arches_right_flags.json
+          name: pi_arches_right_flags.json
       - uses: actions/download-artifact@v3
         with:
-          name: brycecanyon_right_flags.json
+          name: pi_brycecanyon_right_flags.json
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
-          cp arches_right_flags.json docs/arches_flags.json
-          cp brycecanyon_right_flags.json docs/brycecanyon_flags.json
+          cp pi_arches_right_flags.json docs/arches_flags.json
+          cp pi_brycecanyon_right_flags.json docs/brycecanyon_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/upload-artifact@v3
