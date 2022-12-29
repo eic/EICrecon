@@ -87,7 +87,7 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          run-clang-tidy -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17'    
+          git diff ${{github.event.pull_request.base.sha}} | tee | clang-tidy-diff -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17'
     - uses: actions/upload-artifact@v3
       with:
         name: clang-tidy-fixes.yml
