@@ -81,7 +81,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-clang-eic-shell-Release
         path: build/
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
