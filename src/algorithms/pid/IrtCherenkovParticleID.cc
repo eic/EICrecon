@@ -76,15 +76,22 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   }
 
   // get PDG info for the particles we want to identify in PID
-  auto pdg_db = TDatabasePDG::Instance();
+  // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
+  // have a proper PDG database service, we hard-code the masses we need
+  std::unordered_map<int,double> pdg_db = {
+    { -11,  0.000510999 },
+    { 211,  0.13957     },
+    { 321,  0.493677    },
+    { 2212, 0.938272    }
+  };
   m_log->debug("List of particles for PID:");
   for(auto pdg : m_cfg.pdgList) {
-    auto particle = pdg_db->GetParticle(pdg);
-    if(!particle) {
+    auto pdg_db_it = pdg_db.find(pdg);
+    if(pdg_db_it == pdg_db.end()) {
       m_log->error("Unknown PDG {} in IrtCherenkovParticleIDConfig pdgList",pdg);
       continue;
     }
-    double mass = particle->Mass();
+    auto mass = pdg_db_it->second;
     m_pdg_mass.insert({ pdg, mass });
     m_log->debug("  {:>8}  M={} GeV", pdg, mass);
   }

@@ -14,9 +14,6 @@
 #include <IRT/CherenkovEvent.h>
 #include <IRT/CherenkovDetectorCollection.h>
 
-// ROOT
-#include <TDatabasePDG.h>
-
 // DD4hep
 #include <Evaluator/DD4hepUnits.h>
 
