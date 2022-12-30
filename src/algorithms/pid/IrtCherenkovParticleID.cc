@@ -117,8 +117,9 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
   m_log->trace("number of raw sensor hits: {}", in_raw_hits.size());
 
   // start output collections
-  std::vector<edm4eic::CherenkovParticleID*> out_particle_ids;
-  if(m_init_failed) return out_particle_ids;
+  std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids; // FIXME: should eventually be a collection
+  auto out_pids = std::make_unique<edm4hep::ParticleIDCollection>();
+  if(m_init_failed) return out_cherenkov_pids;
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   long num_charged_particles = -1;
@@ -129,7 +130,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
     }
     else if(num_charged_particles != charged_particle_list.size()) {
       m_log->error("radiators have differing numbers of TrackSegments");
-      return out_particle_ids;
+      return out_cherenkov_pids;
     }
   }
 
@@ -277,17 +278,17 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
 
       // fill output collections -----------------------------------------------
-      edm4eic::MutableCherenkovParticleID out_particle_id;
+      edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
 
       // fill Cherenkov angle estimate
-      out_particle_id.setRadiator(irt_rad->m_ID);
-      out_particle_id.setNpe(npe);
-      out_particle_id.setTheta(theta_ave);
-      out_particle_id.setRindex(rindex_ave);
-      out_particle_id.setWavelength(wavelength_ave);
+      out_cherenkov_pid.setRadiator(irt_rad->m_ID);
+      out_cherenkov_pid.setNpe(npe);
+      out_cherenkov_pid.setTheta(theta_ave);
+      out_cherenkov_pid.setRindex(rindex_ave);
+      out_cherenkov_pid.setWavelength(wavelength_ave);
       for(auto [phot_theta,phot_phi] : phot_theta_phi) {
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
-        out_particle_id.addToThetaPhiPhotons(theta_phi);
+        out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
       }
       m_log->trace("-> {} Radiator (ID={}):", rad_name, irt_rad->m_ID);
       m_log->trace("  Cherenkov Angle Estimate:");
@@ -307,33 +308,33 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         auto hyp_weight     = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe        = irt_hypothesis->GetNpe(irt_rad);
 
-        // fill `out_hypothesis` output collection
-        edm4hep::MutableParticleID out_hypothesis;
-        out_hypothesis.setType(irt_rad->m_ID);
-        out_hypothesis.setPDG(pdg);
-        out_hypothesis.setAlgorithmType(m_algorithm_id);
-        out_hypothesis.setLikelihood(hyp_weight);
-        out_hypothesis.addToParameters(hyp_npe);
-        m_log->trace("    {:>6}:  {:>10.3}  {:>10.3}", pdg, hyp_weight, hyp_npe);
+        // fill `out_pids` output collection
+        auto out_pid = out_pids->create();
+        out_pid.setType(irt_rad->m_ID);
+        out_pid.setPDG(pdg);
+        out_pid.setAlgorithmType(m_algorithm_id);
+        out_pid.setLikelihood(hyp_weight);
+        out_pid.addToParameters(hyp_npe);
+        m_log->trace("    {:>6}:  {:>10.5}  {:>10.5}", pdg, hyp_weight, hyp_npe);
 
         // relate
-        out_particle_id.addToHypotheses(edm4hep::ParticleID(out_hypothesis));
+        out_cherenkov_pid.addToHypotheses(std::move(out_pid));
 
       } // end hypothesis loop
 
       // relate photons
-      // out_particle_id.addToPhotons(TODO);
+      // out_cherenkov_pid.addToPhotons(TODO);
 
       // relate charged particle
       auto out_charged_particle = *out_charged_particles.at(irt_rad);
-      out_particle_id.setChargedParticle(out_charged_particle);
+      out_cherenkov_pid.setChargedParticle(out_charged_particle);
 
       // append
-      out_particle_ids.push_back(new edm4eic::CherenkovParticleID(out_particle_id));
+      out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid));
 
     } // end radiator loop
 
   } // end `in_charged_particles` loop
 
-  return out_particle_ids;
+  return out_cherenkov_pids;
 }

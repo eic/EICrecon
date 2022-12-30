@@ -75,5 +75,16 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   }
 
   // call the IrtCherenkovParticleID algorithm
-  Set(m_irt_algo.AlgorithmProcess( raw_hits, charged_particles ));
+  auto cherenkov_pids = m_irt_algo.AlgorithmProcess( raw_hits, charged_particles );
+
+  // validation
+  for(const auto& cherenkov_pid : cherenkov_pids) {
+    fmt::print("------> validate hypotheses are persistified\n");
+    for(const auto& pid : cherenkov_pid->getHypotheses()) {
+      fmt::print("{} {}\n",pid.getPDG(),pid.getLikelihood());
+    }
+  }
+
+  // output
+  Set(std::move(cherenkov_pids));
 }
