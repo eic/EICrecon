@@ -22,6 +22,7 @@
 #include "Acts/Definitions/Units.hpp"
 
 #include <extensions/spdlog/SpdlogToActs.h>
+#include <extensions/spdlog/SpdlogFormatters.h>
 
 //#include "JugBase/DataHandle.h"
 #include "JugBase/BField/DD4hepBField.h"
