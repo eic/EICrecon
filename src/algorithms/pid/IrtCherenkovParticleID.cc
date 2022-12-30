@@ -183,7 +183,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       irt_rad->ResetLocations();
       m_log->trace("TrackPoints in '{}' radiator:",rad_name);
       for(const auto& point : charged_particle->getPoints()) {
-        TVector3 position = /*FIXME*/10*Tools::PodioVector3_to_TVector3(point.position); m_log->critical("TODO WRONG POSITION UNITS, a factor of 10 is hardcoded here!");
+        TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
         // irt_rad_history->AddStep( new ChargedParticleStep(position,momentum) ); // FIXME: not needed, if we can just use AddLocation?
         irt_rad->AddLocation(position,momentum);
@@ -279,7 +279,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       out_particle_id.setRindex(rindex_ave);
       out_particle_id.setWavelength(wavelength_ave);
       for(auto [phot_theta,phot_phi] : phot_theta_phi) {
-        edm4hep::Vector2f theta_phi( float(phot_theta), float(phot_phi) );
+        edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_particle_id.addToThetaPhiPhotons(theta_phi);
       }
       m_log->trace("-> {} Radiator (ID={}):", rad_name, irt_rad->m_ID);

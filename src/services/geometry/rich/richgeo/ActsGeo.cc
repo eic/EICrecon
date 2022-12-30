@@ -14,21 +14,21 @@ std::vector<std::shared_ptr<Acts::Surface>> rich::ActsGeo::TrackingPlanes(int ra
   if(m_detName=="DRICH") {
 
     // vessel constants
-    auto zmin  = m_det->constant<double>("DRICH_zmin");
-    auto zmax  = m_det->constant<double>("DRICH_zmax");
-    auto rmin0 = m_det->constant<double>("DRICH_rmin0");
-    auto rmin1 = m_det->constant<double>("DRICH_rmin1");
-    auto rmax0 = m_det->constant<double>("DRICH_rmax0");
-    auto rmax1 = m_det->constant<double>("DRICH_rmax1");
-    auto rmax2 = m_det->constant<double>("DRICH_rmax2");
+    auto zmin  = m_det->constant<double>("DRICH_zmin")  / dd4hep::mm;
+    auto zmax  = m_det->constant<double>("DRICH_zmax")  / dd4hep::mm;
+    auto rmin0 = m_det->constant<double>("DRICH_rmin0") / dd4hep::mm;
+    auto rmin1 = m_det->constant<double>("DRICH_rmin1") / dd4hep::mm;
+    auto rmax0 = m_det->constant<double>("DRICH_rmax0") / dd4hep::mm;
+    auto rmax1 = m_det->constant<double>("DRICH_rmax1") / dd4hep::mm;
+    auto rmax2 = m_det->constant<double>("DRICH_rmax2") / dd4hep::mm;
 
     // radiator constants
-    auto snoutLength      = m_det->constant<double>("DRICH_snout_length");
-    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos");
-    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness");
-    auto filterZpos       = m_det->constant<double>("DRICH_filter_zpos");
-    auto filterThickness  = m_det->constant<double>("DRICH_filter_thickness");
-    auto window_thickness = m_det->constant<double>("DRICH_window_thickness");
+    auto snoutLength      = m_det->constant<double>("DRICH_snout_length")      / dd4hep::mm;
+    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos")      / dd4hep::mm;
+    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness") / dd4hep::mm;
+    auto filterZpos       = m_det->constant<double>("DRICH_filter_zpos")       / dd4hep::mm;
+    auto filterThickness  = m_det->constant<double>("DRICH_filter_thickness")  / dd4hep::mm;
+    auto window_thickness = m_det->constant<double>("DRICH_window_thickness")  / dd4hep::mm;
 
     // radial wall slopes
     auto boreSlope  = (rmin1 - rmin0) / (zmax - zmin);
