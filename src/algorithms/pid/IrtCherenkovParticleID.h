@@ -52,7 +52,6 @@ namespace eicrecon {
       std::shared_ptr<spdlog::logger> m_log;
       CherenkovDetectorCollection*    m_irt_det_coll;
       CherenkovDetector*              m_irt_det;
-      unsigned                        m_algorithm_id;
 
       bool        m_init_failed;
       uint64_t    m_cell_mask;

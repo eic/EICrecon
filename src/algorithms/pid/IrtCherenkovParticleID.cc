@@ -14,7 +14,6 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   m_irt_det_coll = irt_det_coll;
   m_log          = logger;
   m_init_failed  = false;
-  m_algorithm_id = m_cfg.algorithmID;
 
   // print the configuration parameters
   m_cfg.Print(m_log, spdlog::level::debug);
@@ -58,7 +57,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
     if(cfg_rad_it != m_cfg.radiators.end()) {
       auto cfg_rad = cfg_rad_it->second;
       // pass `cfg_rad` params to `irt_rad`, the IRT radiator
-      irt_rad->m_ID = cfg_rad.id;
+      irt_rad->m_ID = Tools::GetRadiatorID(std::string(rad_name));
       irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
       irt_rad->SetReferenceRefractiveIndex(cfg_rad.referenceRIndex);
       if(cfg_rad.attenuation>0)
@@ -77,21 +76,10 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
 
   // get PDG info for the particles we want to identify in PID
   // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
-  // have a proper PDG database service, we hard-code the masses we need
-  std::unordered_map<int,double> pdg_db = {
-    { -11,  0.000510999 },
-    { 211,  0.13957     },
-    { 321,  0.493677    },
-    { 2212, 0.938272    }
-  };
+  // have a proper PDG database service, we hard-code the masses in Tools.h
   m_log->debug("List of particles for PID:");
   for(auto pdg : m_cfg.pdgList) {
-    auto pdg_db_it = pdg_db.find(pdg);
-    if(pdg_db_it == pdg_db.end()) {
-      m_log->error("Unknown PDG {} in IrtCherenkovParticleIDConfig pdgList",pdg);
-      continue;
-    }
-    auto mass = pdg_db_it->second;
+    auto mass = Tools::GetPDGMass(pdg);
     m_pdg_mass.insert({ pdg, mass });
     m_log->debug("  {:>8}  M={} GeV", pdg, mass);
   }
@@ -117,8 +105,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
   m_log->trace("number of raw sensor hits: {}", in_raw_hits.size());
 
   // start output collections
-  std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids; // FIXME: should eventually be a collection
-  auto out_pids = std::make_unique<edm4hep::ParticleIDCollection>();
+  std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids;
   if(m_init_failed) return out_cherenkov_pids;
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
@@ -278,14 +265,14 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
 
       // fill output collections -----------------------------------------------
-      edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
 
       // fill Cherenkov angle estimate
-      out_cherenkov_pid.setRadiator(irt_rad->m_ID);
-      out_cherenkov_pid.setNpe(npe);
-      out_cherenkov_pid.setTheta(theta_ave);
-      out_cherenkov_pid.setRindex(rindex_ave);
-      out_cherenkov_pid.setWavelength(wavelength_ave);
+      edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
+      out_cherenkov_pid.setRadiator(   decltype(edm4eic::CherenkovParticleIDData::radiator)   (irt_rad->m_ID)  );
+      out_cherenkov_pid.setNpe(        decltype(edm4eic::CherenkovParticleIDData::npe)        (npe)            );
+      out_cherenkov_pid.setTheta(      decltype(edm4eic::CherenkovParticleIDData::theta)      (theta_ave)      );
+      out_cherenkov_pid.setRindex(     decltype(edm4eic::CherenkovParticleIDData::rindex)     (rindex_ave)     );
+      out_cherenkov_pid.setWavelength( decltype(edm4eic::CherenkovParticleIDData::wavelength) (wavelength_ave) );
       for(auto [phot_theta,phot_phi] : phot_theta_phi) {
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
@@ -300,25 +287,23 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
       // relate mass hypotheses
       m_log->trace("  Mass Hypotheses:");
-      m_log->trace("    {:>6}   {:>10}  {:>10}", "PDG", "Weight", "NPE");
+      m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
       for(auto [pdg,mass] : m_pdg_mass) {
         
         // get hypothesis results
         auto irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight     = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe        = irt_hypothesis->GetNpe(irt_rad);
+        m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", pdg, hyp_weight, hyp_npe);
 
-        // fill `out_pids` output collection
-        auto out_pid = out_pids->create();
-        out_pid.setType(irt_rad->m_ID);
-        out_pid.setPDG(pdg);
-        out_pid.setAlgorithmType(m_algorithm_id);
-        out_pid.setLikelihood(hyp_weight);
-        out_pid.addToParameters(hyp_npe);
-        m_log->trace("    {:>6}:  {:>10.5}  {:>10.5}", pdg, hyp_weight, hyp_npe);
+        // fill `ParticleID` output collection
+        edm4eic::CherenkovPdgHypothesis out_hypothesis;
+        out_hypothesis.pdg    = decltype(edm4eic::CherenkovPdgHypothesis::pdg)    (pdg);
+        out_hypothesis.weight = decltype(edm4eic::CherenkovPdgHypothesis::weight) (hyp_weight);
+        out_hypothesis.npe    = decltype(edm4eic::CherenkovPdgHypothesis::npe)    (hyp_npe);
 
         // relate
-        out_cherenkov_pid.addToHypotheses(std::move(out_pid));
+        out_cherenkov_pid.addToHypotheses(out_hypothesis);
 
       } // end hypothesis loop
 
@@ -330,7 +315,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       out_cherenkov_pid.setChargedParticle(out_charged_particle);
 
       // append
-      out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid));
+      out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid)); // force immutable
 
     } // end radiator loop
 

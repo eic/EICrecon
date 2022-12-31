@@ -10,7 +10,6 @@ namespace eicrecon {
 
   // radiator config parameters
   struct RadiatorConfig {
-    int         id;
     std::string smearingMode;
     double      smearing;
     double      referenceRIndex;
@@ -25,13 +24,11 @@ namespace eicrecon {
       // NOTE: the values hard-coded here are defaults, may be out-of-date, and
       //       should be overridden externally
 
-      unsigned algorithmID   = 0;   // unique ID for `edm4hep::ParticleID::algorithmType`
       unsigned numRIndexBins = 100; // number of bins for refractive index vs. energy
 
       // radiator-specific settings
       std::map <std::string,RadiatorConfig> radiators = {
         { "Aerogel", RadiatorConfig{
-                                     0,              // id
                                      "gaussian",     // smearingMode
                                      2*dd4hep::mrad, // smearing
                                      1.0190,         // referenceRIndex
@@ -39,7 +36,6 @@ namespace eicrecon {
                                      5,              // zbins
                                    }},
         { "Gas",     RadiatorConfig{
-                                     1,              // id
                                      "gaussian",     // smearingMode
                                      5*dd4hep::mrad, // smearing
                                      1.00076,        // referenceRIndex
@@ -69,7 +65,6 @@ namespace eicrecon {
         for(const auto& pdg : pdgList) m_log->log(lvl, "  {}", pdg);
         for(const auto& [name,rad] : radiators) {
           m_log->log(lvl, "{:-<60}", fmt::format("--- {} config ",name));
-          puts("id",              rad.id);
           puts("smearingMode",    rad.smearingMode);
           puts("smearing",        rad.smearing);
           puts("referenceRIndex", rad.referenceRIndex);

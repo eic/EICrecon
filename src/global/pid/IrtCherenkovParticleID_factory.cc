@@ -27,7 +27,6 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
   set_param("numRIndexBins", cfg.numRIndexBins, "");
   set_param("pdgList",       cfg.pdgList,       "");
   for(auto& [name,rad] : cfg.radiators) {
-    set_param(name+":id",              rad.id,              "");
     set_param(name+":smearingMode",    rad.smearingMode,    "");
     set_param(name+":smearing",        rad.smearing,        "");
     set_param(name+":referenceRIndex", rad.referenceRIndex, "");
@@ -76,14 +75,6 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
 
   // call the IrtCherenkovParticleID algorithm
   auto cherenkov_pids = m_irt_algo.AlgorithmProcess( raw_hits, charged_particles );
-
-  // validation
-  for(const auto& cherenkov_pid : cherenkov_pids) {
-    fmt::print("------> validate hypotheses are persistified\n");
-    for(const auto& pid : cherenkov_pid->getHypotheses()) {
-      fmt::print("{} {}\n",pid.getPDG(),pid.getLikelihood());
-    }
-  }
 
   // output
   Set(std::move(cherenkov_pids));

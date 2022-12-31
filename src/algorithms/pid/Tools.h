@@ -18,8 +18,60 @@
 
 
 namespace eicrecon {
+
+
+  // local PDG mass database
+  // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
+  // have a proper PDG database service, we hard-code the masses we need;
+  // use Tools::GetPDGMass for access
+  const std::unordered_map<int,double> g_pdg_db_for_pid {
+    { -11,  0.000510999 },
+    { 211,  0.13957     },
+    { 321,  0.493677    },
+    { 2212, 0.938272    }
+  };
+
+  const std::unordered_map<int,std::string> g_radiator_ids {
+    { 0, "Aerogel" },
+    { 1, "Gas" }
+  };
+
+
+  // Tools class, filled with miscellanous helper functions
   class Tools {
     public:
+
+      // -------------------------------------------------------------------------------------
+      // Radiator IDs
+      static std::string GetRadiatorName(int id) {
+        std::string name;
+        try { name = g_radiator_ids.at(id); }
+        catch(const std::out_of_range& e) {
+          throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown radiator ID={} in algorithms/pid/Tools::GetRadiatorName",id));
+        }
+        return name;
+      }
+      static int GetRadiatorID(std::string name) {
+        for(auto& [id,name_tmp] : g_radiator_ids)
+          if(name==name_tmp) return id;
+        throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown radiator '{}' in algorithms/pid/Tools::GetRadiatorID",name));
+        return -1;
+      }
+      static std::unordered_map<int,std::string> GetRadiatorIDs() { return g_radiator_ids; };
+
+
+      // -------------------------------------------------------------------------------------
+      // PDG mass lookup
+      static double GetPDGMass(int pdg) {
+        double mass;
+        try { mass = g_pdg_db_for_pid.at(pdg); }
+        catch(const std::out_of_range& e) {
+          throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown PDG={} in algorithms/pid/Tools::GetPDGMass",pdg));
+        }
+        return mass;
+      }
+      static int GetNumPDGs() { return g_pdg_db_for_pid.size(); };
+
 
       // -------------------------------------------------------------------------------------
       static std::vector<std::pair<double, double>> ApplyFineBinning(
@@ -94,7 +146,6 @@ namespace eicrecon {
         *entry = table[ibin].second;
         return true;
       }
-
 
       // -------------------------------------------------------------------------------------
       // convert PODIO vector datatype to ROOT TVector3

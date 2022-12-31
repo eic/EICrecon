@@ -44,7 +44,7 @@ namespace eicrecon {
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-      eicrecon::IrtCherenkovParticleID          m_irt_algo;
+      eicrecon::IrtCherenkovParticleID m_irt_algo;
       std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
       CherenkovDetectorCollection      *m_irt_det_coll;
