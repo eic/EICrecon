@@ -26,6 +26,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "BEMC",
         "HCAL",
         "B0ECAL",
+        "B0TRK",
         "ZDC",
         "BTRK",
         "BVTX",
