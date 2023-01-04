@@ -14,6 +14,7 @@ export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
 
 #----------------- JANA2
 if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
+    unset ROOTSYS # Dodge faulty design feature in thisroot.sh which will be called by jana-this.sh
     export JANA_ROOT=$( readlink -f @JANA_DIR@/../../.. )
     source @JANA_DIR@/../../../bin/jana-this.sh
 fi
