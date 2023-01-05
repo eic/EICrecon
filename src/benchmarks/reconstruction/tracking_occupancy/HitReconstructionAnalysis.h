@@ -26,7 +26,7 @@ private:
            "SiEndcapTrackerRecHits",      // End Cap tracker
             "MPGDTrackerHit",        // MPGD
             "TOFEndcapRecHits",   // End Cap TOF
-            "TOFBarrelRecHit",   // Barrel TOF
+            "TOFBarrelRecHits",   // Barrel TOF
     };
 
     /// Hits count histogram for each hits readout name
