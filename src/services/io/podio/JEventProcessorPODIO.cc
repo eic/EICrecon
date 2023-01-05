@@ -81,8 +81,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "SiEndcapTrackerRecHits",
 
             // TOF
-            "TOFBarrelRecHit",
+            "TOFBarrelRecHits",
             "TOFEndcapRecHits",
+            "TOFBarrelHits",
+            "TOFEndcapHits",
 
             // MPGD
             "MPGDBarrelRecHits",
