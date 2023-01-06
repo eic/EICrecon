@@ -95,5 +95,8 @@ void CalorimeterTruthClustering::AlgorithmProcess() {
       m_outputProtoClusters.push_back(to_add);
     }
 
-    return;
+    // free allocated memory
+    for (auto& p : proto) {
+        delete p;
+    }
 }
