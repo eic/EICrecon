@@ -21,8 +21,13 @@ jobs:
         include:
           - CC: gcc
             CXX: g++
+            CMAKE_BUILD_TYPE: Release
           - CC: clang
             CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+          - CC: gcc
+            CXX: g++
+            CMAKE_BUILD_TYPE: Debug
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -50,11 +55,11 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # install this repo
-          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }}
           cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
-        name: build-${{ matrix.CC }}-eic-shell
+        name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: |
           .
           !src/
@@ -82,6 +87,38 @@ jobs:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error  
 
+  valgrind-memcheck-eicrecon-gcc:
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    - ddsim
+    strategy:
+      matrix:
+        particle: [pi]
+        detector_config: [arches, brycecanyon]
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: build-gcc-eic-shell-Debug
+    - uses: actions/download-artifact@v3
+      with:
+        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          chmod a+x bin/*
+          valgrind --tool=memcheck --track-origins=yes --leak-check=full --log-file=valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log --suppressions=/usr/local/etc/root/valgrind-root.supp $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pjana:timeout=0 -Pjana:warmup_timeout=0 -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
+    - uses: actions/upload-artifact@v3
+      with:
+        name: valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log
+        path: valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log
+        if-no-files-found: error
+
   eicrecon-gcc:
     runs-on: ubuntu-latest
     needs:
@@ -94,7 +131,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-gcc-eic-shell
+        name: build-gcc-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -136,7 +173,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: build-gcc-eic-shell
+        name: build-gcc-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
