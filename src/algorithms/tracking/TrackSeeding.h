@@ -56,11 +56,15 @@ namespace eicrecon {
 
 	eicrecon::OrthogonalTrackSeedingConfig m_seederConfig;
 
+	int determineCharge(std::vector<std::pair<float,float>>& positions) const;
 	eicrecon::OrthogonalTrackSeedingConfig configureSeeder();
 	SeedContainer runSeeder(std::vector<const edm4eic::TrackerHit*>& trk_hits);
+	std::pair<float,float> findRoot(std::tuple<float,float,float>& circleParams) const;
 	std::vector<const eicrecon::SpacePoint*> getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits);
 	std::vector<edm4eic::TrackParameters*> makeTrackParams(SeedContainer& seeds);
 
+	std::tuple<float,float,float> circleFit(std::vector<std::pair<float,float>>& positions) const;
+	std::tuple<float,float> lineFit(std::vector<std::pair<float,float>>& positions) const;
     };
 }
 

@@ -32,10 +32,7 @@ void eicrecon::TrackSeeding_factory::Init() {
 
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
-    app->SetDefaultParameter(param_prefix + ":EtaBins", cfg.m_etaBins, "Eta Bins for ACTS CKF tracking reco");
-    app->SetDefaultParameter(param_prefix + ":Chi2CutOff", cfg.m_chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking");
-    app->SetDefaultParameter(param_prefix + ":NumMeasurementsCutOff", cfg.m_numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking");
-
+       
     // Initialize algorithm
     m_seeding_algo.applyConfig(cfg);
     m_seeding_algo.init(acts_service->actsGeoProvider(), m_log);
