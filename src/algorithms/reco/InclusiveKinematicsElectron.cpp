@@ -1,17 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include "Gaudi/Algorithm.h"
-#include "GaudiAlg/GaudiTool.h"
-#include "GaudiAlg/Producer.h"
-#include "GaudiAlg/Transformer.h"
-#include "GaudiKernel/RndmGenerators.h"
-#include "GaudiKernel/PhysicalConstants.h"
 #include <algorithm>
 #include <cmath>
-
-#include "JugBase/IParticleSvc.h"
-#include "JugBase/DataHandle.h"
+#include <vector>
 
 #include "JugBase/Utilities/Beam.h"
 #include "JugBase/Utilities/Boost.h"
@@ -25,40 +17,17 @@ using ROOT::Math::PxPyPzEVector;
 #include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/InclusiveKinematicsCollection.h"
 
-namespace Jug::Reco {
+namespace eicrecon {
 
-class InclusiveKinematicsElectron : public GaudiAlgorithm {
-private:
-  DataHandle<edm4hep::MCParticleCollection> m_inputMCParticleCollection{
-    "inputMCParticles",
-    Gaudi::DataHandle::Reader,
-    this};
-  DataHandle<edm4eic::ReconstructedParticleCollection> m_inputParticleCollection{
-    "inputReconstructedParticles",
-    Gaudi::DataHandle::Reader,
-    this};
-  DataHandle<edm4eic::MCRecoParticleAssociationCollection> m_inputParticleAssociation{
-    "inputParticleAssociations",
-    Gaudi::DataHandle::Reader,
-    this};
-  DataHandle<edm4eic::InclusiveKinematicsCollection> m_outputInclusiveKinematicsCollection{
-    "outputInclusiveKinematics",
-    Gaudi::DataHandle::Writer,
-    this};
+  void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger) {
+    m_log = logger;
+}
 
-  Gaudi::Property<double> m_crossingAngle{this, "crossingAngle", -0.025 * Gaudi::Units::radian};
-
-  SmartIF<IParticleSvc> m_pidSvc;
-  double m_proton{0}, m_neutron{0}, m_electron{0};
-
-public:
-  InclusiveKinematicsElectron(const std::string& name, ISvcLocator* svcLoc)
-      : GaudiAlgorithm(name, svcLoc) {
-    declareProperty("inputMCParticles", m_inputMCParticleCollection, "MCParticles");
-    declareProperty("inputReconstructedParticles", m_inputParticleCollection, "ReconstructedParticles");
-    declareProperty("inputParticleAssociations", m_inputParticleAssociation, "MCRecoParticleAssociation");
-    declareProperty("outputInclusiveKinematics", m_outputInclusiveKinematicsCollection, "InclusiveKinematicsElectron");
-  }
+ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
+    std::vector<const edm4hep::MCParticle *> mcparticles,
+    std::vector<edm4eic::ReconstructedParticle *> inparts,
+    std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
+    std::vector<edm4eic::InclusiveKinematicsCollection *> outputInclusiveKinematics )
 
   StatusCode initialize() override {
     if (GaudiAlgorithm::initialize().isFailure())
