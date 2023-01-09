@@ -7,6 +7,7 @@
 
 #include "JugBase/Utilities/Beam.h"
 #include "JugBase/Utilities/Boost.h"
+#include "InclusiveKinematicsElectron.h"
 
 #include "Math/Vector4D.h"
 using ROOT::Math::PxPyPzEVector;

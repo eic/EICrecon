@@ -5,8 +5,8 @@
 // 1. Match clusters to their tracks using the mcID field
 // 2. For unmatched clusters create neutrals and add to the particle list
 
-#ifndef EICRECON_MATCHCLUSTERS_H
-#define EICRECON_MATCHCLUSTERS_H
+#ifndef EICRECON_INCLUSIVEKINEMATICELECTRON_H
+#define EICRECON_INCLUSIVEKINEMATICELECTRON_H
 
 #include <algorithm>
 #include <cmath>
@@ -17,20 +17,16 @@
 
 
 // Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/vector_utils.h>
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4eic/MCRecoParticleAssociationCollection.h"
+#include "edm4eic/ReconstructedParticleCollection.h"
+#include "edm4eic/InclusiveKinematicsCollection.h"
 
 #include "ParticlesWithAssociation.h"
 
 namespace eicrecon {
 
-    class MatchClusters {
-    private:
+    class InclusiveKinematicsElectron {
 
     public:
 
@@ -38,29 +34,13 @@ namespace eicrecon {
 
         ParticlesWithAssociation *execute(
                 std::vector<const edm4hep::MCParticle *> mcparticles,
-                std::vector<edm4eic::ReconstructedParticle *> inparts,            // TODO fix const
-                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,   // TODO fix const
-                const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-                const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections);
+                std::vector<edm4eic::ReconstructedParticle *> inparts,
+                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
+                std::vector<edm4eic::InclusiveKinematicsCollection *> outputInclusiveKinematics);
 
     private:
-
-        std::shared_ptr<spdlog::logger> m_log;
-
-
-        // get a map of mcID --> cluster
-        // input: cluster_collections --> list of handles to all cluster collections
-        std::map<int, const edm4eic::Cluster*> indexedClusters(
-                const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-                const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &associations_collections);
-
-
-        // reconstruct a neutral cluster
-        // (for now assuming the vertex is at (0,0,0))
-        edm4eic::ReconstructedParticle
-        reconstruct_neutral(const edm4eic::Cluster *cluster, const double mass, const int32_t pdg) const;
     };
 
 } // namespace eicrecon
 
-#endif //EICRECON_MATCHCLUSTERS_H
+#endif //EICRECON_INCLUSIVEKINEMATICELECTRON_H
