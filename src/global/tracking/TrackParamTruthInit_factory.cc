@@ -15,11 +15,19 @@
 #include <algorithms/tracking/TrackParamTruthInitConfig.h>
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
+    auto app = GetApplication();
+
     // This prefix will be used for parameters
     std::string param_prefix = GetDefaultParameterPrefix();
 
     InitLogger(param_prefix);
     InitDataTags(param_prefix);
+
+    // Algorithm configuration
+    m_truth_track_seeding_algo.m_momentum_split = 0.0;
+    m_truth_track_seeding_algo.m_momentum_smear = 0.0;
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSplit", m_truth_track_seeding_algo.m_momentum_split, "Momentum magnitude fraction to use as width for random trifurcation");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSmear", m_truth_track_seeding_algo.m_momentum_smear, "Momentum magnitude fraction to use as width of gaussian smearing");
 
     // Initialize underlying algorithm
     m_truth_track_seeding_algo.init(m_log);
