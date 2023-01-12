@@ -47,6 +47,10 @@ namespace eicrecon {
                 return "critical";
             case spdlog::level::off:
                 return "off";
+            case spdlog::level::n_levels:
+                [[fallthrough]];
+            default:
+                break;
         }
 
         auto err_msg = fmt::format("ParseLogLevel don't know this log level: '{}'", input);
