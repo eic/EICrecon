@@ -9,7 +9,7 @@ namespace eicrecon {
 class SpacePoint : public edm4eic::TrackerHit
 {
  public:
-  const Acts::Surface *_surface = nullptr;
+  const Acts::Surface *m_surface = nullptr;
 
  SpacePoint(const TrackerHit& hit) : TrackerHit(hit) {}
 
@@ -17,10 +17,10 @@ class SpacePoint : public edm4eic::TrackerHit
     {
       const auto its = m_geoSvc->surfaceMap().find(getCellID());
       if (its == m_geoSvc->surfaceMap().end()) {
-	_surface = nullptr;
+	m_surface = nullptr;
       }
       else {
-	_surface = its->second;
+	m_surface = its->second;
       }
     }
 
@@ -37,10 +37,10 @@ class SpacePoint : public edm4eic::TrackerHit
   float varianceZ() const { return getPositionError().zz; }
   
   bool isOnSurface() const {
-    if (_surface == nullptr) {
+    if (m_surface == nullptr) {
       return false;
     }
-    return _surface->isOnSurface(Acts::GeometryContext(), {x(), y(), z()},
+    return m_surface->isOnSurface(Acts::GeometryContext(), {x(), y(), z()},
 				 {0, 0, 0});
   }
 };
