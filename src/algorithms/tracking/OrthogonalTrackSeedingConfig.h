@@ -16,15 +16,15 @@
 namespace eicrecon {
  
   struct OrthogonalTrackSeedingConfig {
-    float m_rMax = 200. * Acts::UnitConstants::mm;
+    float m_rMax = 500. * Acts::UnitConstants::mm;
     float m_deltaRMinTopSP = 1. * Acts::UnitConstants::mm;
-    float m_deltaRMaxTopSP = 20. * Acts::UnitConstants::mm;
+    float m_deltaRMaxTopSP = 400. * Acts::UnitConstants::mm;
     float m_deltaRMinBottomSP = 1. * Acts::UnitConstants::mm;
-    float m_deltaRMaxBottomSP = 20. * Acts::UnitConstants::mm;
+    float m_deltaRMaxBottomSP = 400. * Acts::UnitConstants::mm;
     float m_collisionRegionMin = -300 * Acts::UnitConstants::mm;
     float m_collisionRegionMax = 300 * Acts::UnitConstants::mm;
-    float m_zMin = -600. * Acts::UnitConstants::mm;
-    float m_zMax = 600. * Acts::UnitConstants::mm;
+    float m_zMin = -800. * Acts::UnitConstants::mm;
+    float m_zMax = 800. * Acts::UnitConstants::mm;
     
     /// max number of seeds a single middle sp can belong to
     float m_maxSeedsPerSpM = 1;
@@ -41,7 +41,7 @@ namespace eicrecon {
     
     /// Middle spacepoint must fall between these two radii
     float m_rMinMiddle = 20. * Acts::UnitConstants::mm;
-    float m_rMaxMiddle = 100. * Acts::UnitConstants::mm;
+    float m_rMaxMiddle = 400. * Acts::UnitConstants::mm;
     
     Acts::SeedFilterConfig m_seedFilterConfig;
     Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
