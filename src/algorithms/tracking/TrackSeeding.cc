@@ -41,7 +41,6 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::produce(std::vect
 
   eicrecon::SeedContainer seeds = runSeeder(trk_hits);
 
-  // getGeneratorStatus = 1 means thrown G4Primary
   std::vector<edm4eic::TrackParameters*> result = makeTrackParams(seeds);
 
   return result;
@@ -53,6 +52,7 @@ eicrecon::SeedContainer eicrecon::TrackSeeding::runSeeder(std::vector<const edm4
 
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seederConfig.m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
+ 
   return seeds;
 }
 
@@ -80,7 +80,6 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 {
   std::vector<edm4eic::TrackParameters*> trackparams;
 
-
   for(auto& seed : seeds)
     {
       std::vector<std::pair<float,float>> xyHitPositions;
@@ -99,15 +98,19 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
   
       int charge = determineCharge(xyHitPositions);
       float theta = atan(1./std::get<0>(slopeZ0));
+      // normalize to 0<theta<pi
+      if(theta < 0)
+	{ theta += M_PI; }
       float eta = -log(tan(theta/2.));
-      float pt = 0.3 * (m_seederConfig.m_bFieldInZ * 1000) / 100. * (1./R);
+      float pt = 0.3 * R * (m_seederConfig.m_bFieldInZ * 1000) / 100.;
       float p = pt * cosh(eta);
       float qOverP = charge / p;
       
       const auto xypos = findRoot(RX0Y0);
-      const float z0 = std::get<1>(slopeZ0);
+      const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
       Acts::Vector3 global(xypos.first, xypos.second, z0);
+
       auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
 					  global, Acts::Vector3(1,1,1));
 
@@ -128,8 +131,10 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 	10, // time in ns
 	0.1, // error on time
 	(float)charge // charge
+	
       };
 
+      trackparams.push_back(params);
     }
 
   return trackparams;
@@ -168,7 +173,7 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>&
   auto dphi = secondphi - firstphi;
   if(dphi > M_PI) dphi = 2.*M_PI - dphi;
   if(dphi < -M_PI) dphi = 2*M_PI + dphi;
-  if(dphi > 0) charge = -1;
+  if(dphi < 0) charge = -1;
   
   return charge;
 }
