@@ -17,7 +17,7 @@
 #include <TDatabasePDG.h>
 
 namespace eicrecon {
-    class TrackParamTruthInit: public WithPodConfig<eicrecon::CKFTrackingConfig> {
+    class TrackParamTruthInit: public WithPodConfig<eicrecon::TrackParamTruthInitConfig> {
 
     public:
 
