@@ -176,7 +176,7 @@ macro(plugin_add_acts _name)
 
     if(NOT Acts_FOUND)
         find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginJson PluginDD4hep)
-        set(Acts_VERSION_MIN "19.0.0")
+        set(Acts_VERSION_MIN "20.2.0")
         set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
         if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
                 AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
