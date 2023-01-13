@@ -17,7 +17,7 @@ namespace eicrecon {
  
   struct OrthogonalTrackSeedingConfig {
     float m_rMax = 500. * Acts::UnitConstants::mm;
-    float m_rMin = 33 * Acts::UnitConstants::mm;
+    float m_rMin = 33. * Acts::UnitConstants::mm;
     float m_deltaRMinTopSP = 1. * Acts::UnitConstants::mm;
     float m_deltaRMaxTopSP = 400. * Acts::UnitConstants::mm;
     float m_deltaRMinBottomSP = 1. * Acts::UnitConstants::mm;
