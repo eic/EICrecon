@@ -33,6 +33,7 @@ namespace eicrecon {
 
         std::default_random_engine generator; // TODO: need something more appropriate here
         std::uniform_int_distribution<int> m_uniformIntDist{-1, 1}; // defaults to min=-1, max=1
+        std::normal_distribution<double> m_normDist;
 
     };
 }   // namespace eicrecon
