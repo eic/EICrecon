@@ -15,7 +15,8 @@
 
 namespace eicrecon {
 
-class TrackParamTruthInit_factory : public JChainFactoryT<eicrecon::TrackParameters>,
+class TrackParamTruthInit_factory :
+        public JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig>,
         public SpdlogMixin<TrackParamTruthInit_factory>  {
 
     public:
