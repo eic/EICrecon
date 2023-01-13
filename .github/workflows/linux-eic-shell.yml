@@ -79,7 +79,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: ${{github.event.pull_request.commits}}
+        fetch-depth: $(( ${{github.event.pull_request.commits}} + 1 ))
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: actions/download-artifact@v3
       with:
