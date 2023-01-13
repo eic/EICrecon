@@ -27,9 +27,6 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     // Initialize logger
     InitLogger(param_prefix, "info");
 
-    // Get ACTS context from ACTSGeo service
-    auto acts_service = app->GetService<ACTSGeo_service>();
-
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
     app->SetDefaultParameter(param_prefix + ":MaxVertexX", cfg.m_maxVertexX , "Maximum abs(vertex x) for truth tracks turned into seed");
@@ -43,7 +40,7 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
 
     // Initialize algorithm
     m_truth_track_seeding_algo.applyConfig(cfg);
-    m_truth_track_seeding_algo.init(acts_service->actsGeoProvider(), m_log);
+    m_truth_track_seeding_algo.init(m_log);
 }
 
 void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
