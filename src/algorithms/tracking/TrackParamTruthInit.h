@@ -23,7 +23,7 @@ namespace eicrecon {
 
         void init(const std::shared_ptr<spdlog::logger> &logger);
 
-        eicrecon::TrackParameters * produce(const edm4hep::MCParticle *) override;
+        eicrecon::TrackParameters * produce(const edm4hep::MCParticle *);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
