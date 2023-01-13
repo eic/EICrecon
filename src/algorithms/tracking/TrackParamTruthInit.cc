@@ -75,8 +75,8 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
     // modify initial momentum to avoid bleeding truth to results when fit fails
     // this picks uniformly between [1-eps,1,1+eps] times true momentum, then smeared
     const auto pinit = pmag 
-                     * (1.0 + m_momentum_split * m_uniformIntDist(generator))
-                     * (1.0 + m_momentum_smear * m_normDist(generator));
+                     * (1.0 + m_cfg.m_momentumSplit * m_uniformIntDist(generator))
+                     * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
 
     // build some track cov matrix
     Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();

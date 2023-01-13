@@ -24,13 +24,19 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     InitDataTags(param_prefix);
 
     // Algorithm configuration
-    m_truth_track_seeding_algo.m_momentum_split = 0.0;
-    m_truth_track_seeding_algo.m_momentum_smear = 0.0;
-    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSplit", m_truth_track_seeding_algo.m_momentum_split, "Momentum magnitude fraction to use as width for random trifurcation");
-    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSmear", m_truth_track_seeding_algo.m_momentum_smear, "Momentum magnitude fraction to use as width of gaussian smearing");
+    auto cfg = GetDefaultConfig();
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MaxVertexX", cfg.m_maxVertexX , "Maximum abs(vertex x) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MaxVertexY", cfg.m_maxVertexY , "Maximum abs(vertex y) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MaxVertexZ", cfg.m_maxVertexZ , "Maximum abs(vertex z) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MinMomentum", cfg.m_minMomentum , "Minimum momentum for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MaxEtaForward", cfg.m_maxEtaForward , "Maximum forward abs(eta) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MaxEtaBackward", cfg.m_maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSplit", cfg.m_momentumSplit, "Momentum magnitude fraction to use as width for random trifurcation");
+    app->SetDefaultParameter(param_prefix + ":TruthSeeding:MomentumSmear", cfg.m_momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing");
 
-    // Initialize underlying algorithm
-    m_truth_track_seeding_algo.init(m_log);
+    // Initialize algorithm
+    m_tracking_algo.applyConfig(cfg);
+    m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
 void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
