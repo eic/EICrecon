@@ -9,13 +9,15 @@
 #include <algorithms/tracking/JugTrack/Track.hpp>
 #include <edm4hep/MCParticle.h>
 #include <spdlog/logger.h>
+
 #include "TrackParamTruthInitConfig.h"
+#include <algorithms/interfaces/WithPodConfig.h>
 
 #include <random>
 #include <TDatabasePDG.h>
 
 namespace eicrecon {
-    class TrackParamTruthInit: eicrecon::IObjectProducer<edm4hep::MCParticle, eicrecon::TrackParameters> {
+    class TrackParamTruthInit: public WithPodConfig<eicrecon::CKFTrackingConfig> {
 
     public:
 
