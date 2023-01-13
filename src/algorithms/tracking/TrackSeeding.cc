@@ -33,8 +33,7 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
     m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
     m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
     
-    m_seederConfig = configureSeeder();
-
+    m_cfg.configure();
 }
 
 std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
@@ -50,7 +49,7 @@ eicrecon::SeedContainer eicrecon::TrackSeeding::runSeeder(std::vector<const edm4
 {
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
-  Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seederConfig.m_seedFinderConfig);
+  Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_cfg.m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
  
   return seeds;
@@ -67,13 +66,6 @@ std::vector<const eicrecon::SpacePoint*> eicrecon::TrackSeeding::getSpacePoints(
     }
 
   return spacepoints;
-}
-
-eicrecon::OrthogonalTrackSeedingConfig eicrecon::TrackSeeding::configureSeeder()
-{
-  eicrecon::OrthogonalTrackSeedingConfig cfg;
-  cfg.configure();
-  return cfg;
 }
 
 std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds)
@@ -102,7 +94,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       if(theta < 0)
 	{ theta += M_PI; }
       float eta = -log(tan(theta/2.));
-      float pt = 0.3 * R * (m_seederConfig.m_bFieldInZ * 1000) / 100.;
+      float pt = 0.3 * R * (m_cfg.m_bFieldInZ * 1000) / 100.;
       float p = pt * cosh(eta);
       float qOverP = charge / p;
       
