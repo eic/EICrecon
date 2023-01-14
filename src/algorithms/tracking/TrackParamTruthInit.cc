@@ -72,6 +72,12 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
         return nullptr;
     }
 
+    // modify initial momentum to avoid bleeding truth to results when fit fails
+    // this picks uniformly between [1-eps,1,1+eps] times true momentum, then smeared
+    const auto pinit = pmag 
+                     * (1.0 + m_cfg.m_momentumSplit * m_uniformIntDist(generator))
+                     * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
+
     // build some track cov matrix
     Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
     cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = 1000*um*1000*um;
@@ -86,7 +92,7 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
     params(Acts::eBoundLoc1)   = 0.0 * mm ;  // cylinder length
     params(Acts::eBoundPhi)    = phi;
     params(Acts::eBoundTheta)  = theta;
-    params(Acts::eBoundQOverP) = charge / (pmag * GeV);
+    params(Acts::eBoundQOverP) = charge / (pinit * GeV);
     params(Acts::eBoundTime)   = part->getTime() * ns;
 
     //// Construct a perigee surface as the target surface
