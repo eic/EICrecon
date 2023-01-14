@@ -42,17 +42,17 @@ public:
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
 
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapPInsertClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPInsertIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

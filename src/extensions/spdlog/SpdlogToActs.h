@@ -30,6 +30,10 @@ namespace eicrecon {
                 return Acts::Logging::FATAL;
             case spdlog::level::off:
                 return Acts::Logging::FATAL;
+            case spdlog::level::n_levels:
+                [[fallthrough]];
+            default:
+                break;
         }
 
         auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
