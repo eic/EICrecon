@@ -2,9 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPROPAGATION_H
-#define EICRECON_TRACKPROPAGATION_H
-
+#pragma once
 
 #include <memory>
 #include <spdlog/logger.h>
@@ -16,7 +14,7 @@
 
 #include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
 
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackSegmentCollection.h>
 
 
 #include "ActsGeometryProvider.h"
@@ -48,6 +46,11 @@ namespace eicrecon {
         std::vector<edm4eic::TrackPoint *> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
                                                          const std::shared_ptr<const Acts::Surface> &targetSurf);
 
+        /** Propagates a trajectory to a list of surfaces, and returns the full `TrackSegment`
+         * @remark: being a simple wrapper of propagate(...) this method is more sutable for factories */
+        edm4eic::TrackSegment* propagateToSurfaceList(const eicrecon::TrackingResultTrajectory *traj,
+                                                      std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces);
+
     private:
 
         Acts::GeometryContext m_geoContext;
@@ -56,6 +59,3 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;
     };
 } // namespace eicrecon
-
-
-#endif //EICRECON_TRACKPROPAGATION_H

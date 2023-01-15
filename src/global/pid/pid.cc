@@ -6,16 +6,12 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <JANA/JFactoryGenerator.h>
-
-#include "IrtParticleID_factory.h"
-
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
     using namespace eicrecon;
 
-    app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
   }
 }

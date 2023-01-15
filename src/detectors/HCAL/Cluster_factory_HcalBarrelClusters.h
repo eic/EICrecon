@@ -32,9 +32,9 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="HcalBarrelHits";
         m_input_protoclust_tag="HcalBarrelIslandProtoClusters";
-    
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
-        m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
+        m_logWeightBase=6.2;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
         m_moduleDimZName="";//{this, "moduleDimZName", ""};

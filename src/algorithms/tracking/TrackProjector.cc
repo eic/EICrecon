@@ -33,6 +33,7 @@
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
 #include "TrackProjector.h"
+#include "extensions/spdlog/SpdlogFormatters.h"
 
 #include <cmath>
 
