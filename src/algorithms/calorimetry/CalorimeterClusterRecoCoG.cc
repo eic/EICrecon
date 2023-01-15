@@ -167,6 +167,7 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         //clusterassoc.setSim(mcp);
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);
+        delete clusterassoc;
       } else {
         if (m_log->level() <= spdlog::level::debug) {
           //LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;

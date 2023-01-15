@@ -22,7 +22,7 @@
 
 
 #include <extensions/spdlog/SpdlogToActs.h>
-
+#include <extensions/spdlog/SpdlogFormatters.h>
 
 void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
                    const std::string &fname) {

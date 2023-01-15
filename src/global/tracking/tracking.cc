@@ -16,6 +16,7 @@
 #include "TrackerReconstructedParticle_factory.h"
 #include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
+#include "TrackSeeding_factory.h"
 #include "TrackerHitCollector_factory.h"
 #include "TrackParameters_factory.h"
 #include "TrackProjector_factory.h"
@@ -39,7 +40,7 @@ void InitPlugin(JApplication *app) {
                          "SiBarrelTrackerRecHits",          // Si tracker hits
                          "SiBarrelVertexRecHits",
                          "SiEndcapTrackerRecHits",
-                         "TOFBarrelRecHit",      // TOF hits
+                         "TOFBarrelRecHit",             // TOF hits
                          "TOFEndcapRecHits",
                          "MPGDBarrelRecHits",        // MPGD
                          "MPGDDIRCRecHits",
@@ -54,6 +55,9 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
             {"CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
+
+    app->Add(new JChainFactoryGeneratorT<TrackSeeding_factory>(
+            {"CentralTrackingRecHits"}, "CentralTrackSeedingResults"));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackSegments"));
