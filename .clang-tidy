@@ -1,0 +1,15 @@
+HeaderFilterRegex: ''
+Checks: '
+  bugprone-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  -modernize-use-nodiscard,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers
+'
+FormatStyle: file
