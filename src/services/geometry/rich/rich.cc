@@ -3,11 +3,11 @@
 //
 //
 
-#include "IrtGeo_service.h"
+#include "RichGeo_service.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<IrtGeo_service>(app) );
+    app->ProvideService(std::make_shared<RichGeo_service>(app) );
   }
 }

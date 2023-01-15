@@ -17,7 +17,6 @@
 #include "edm4eic/TrackerHitCollection.h"
 #include "edm4eic/TrackParametersCollection.h"
 #include "edm4eic/TrajectoryCollection.h"
-#include "edm4eic/TrackSegmentCollection.h"
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 #include "JugTrack/TrackingResultTrajectory.hpp"
@@ -73,6 +72,59 @@ namespace eicrecon {
 
         return track_points;
     }
+
+
+
+    edm4eic::TrackSegment* TrackPropagation::propagateToSurfaceList(const eicrecon::TrackingResultTrajectory *traj,
+                                                                    std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces) {
+      // start a mutable TrackSegment
+      edm4eic::MutableTrackSegment track_segment;
+      decltype(edm4eic::TrackSegmentData::length)      length       = 0;
+      decltype(edm4eic::TrackSegmentData::lengthError) length_error = 0;
+
+      // loop over projection-target surfaces
+      for(const auto& targetSurf : targetSurfaces) {
+
+        // project the trajectory `traj` to this surface
+        edm4eic::TrackPoint *point;
+        try {
+          point = propagate(traj, targetSurf);
+        } catch(std::exception &e) {
+          m_log->warn("<> Exception in TrackPropagation::propagateToSurfaceList: {}; skip this TrackPoint and surface", e.what());
+        }
+        if(!point) {
+          m_log->trace("<> Failed to propagate trajectory to this plane");
+          continue;
+        }
+
+        // logging
+        m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+            point->position.x, point->position.y, point->position.z);
+        m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+            point->momentum.x, point->momentum.y, point->momentum.z);
+
+        // update the `TrackSegment` length
+        // FIXME: `length` and `length_error` are currently not used by any callers, and may not be correctly calculated here
+        if(track_segment.points_size()>0) {
+          auto pos0 = point->position;
+          auto pos1 = std::prev(track_segment.points_end())->position;
+          auto dist = edm4eic::magnitude(pos0-pos1);
+          length += dist;
+          m_log->trace("               dist to previous point: {}", dist);
+        }
+
+        // add the `TrackPoint` to the `TrackSegment`
+        track_segment.addToPoints(*point);
+
+      } // end `targetSurfaces` loop
+
+      // output
+      track_segment.setLength(length);
+      track_segment.setLengthError(length_error);
+      return new edm4eic::TrackSegment(track_segment);
+    }
+
+
 
     edm4eic::TrackPoint *TrackPropagation::propagate(const eicrecon::TrackingResultTrajectory *traj,
                                                      const std::shared_ptr<const Acts::Surface> &targetSurf) {
@@ -227,4 +279,3 @@ namespace eicrecon {
     }
 
 } // namespace eicrecon
-

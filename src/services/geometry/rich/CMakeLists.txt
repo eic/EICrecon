@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
+# include geometry binding plugins
+add_subdirectory(richgeo)
+
 # Automatically set plugin name the same as the directory name
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -15,14 +18,7 @@ plugin_add(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-# include irtgeo/
-plugin_sources(${PLUGIN_NAME}
-  irtgeo/IrtGeo.cc
-  irtgeo/IrtGeoDRICH.cc
-  irtgeo/IrtGeoPFRICH.cc
-  )
-# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC irtgeo)
-
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_irt(${PLUGIN_NAME})
+plugin_add_acts(${PLUGIN_NAME})
