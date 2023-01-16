@@ -35,7 +35,7 @@ namespace eicrecon {
     m_electron = m_pidSvc->particle(11).mass;
   }
 
-ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
+  ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     std::vector<const edm4hep::MCParticle *> mcparticles,
     std::vector<edm4eic::ReconstructedParticle *> inparts,
     std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
