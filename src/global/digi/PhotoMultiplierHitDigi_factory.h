@@ -34,8 +34,8 @@ namespace eicrecon {
 
     public:
 
-        explicit PhotoMultiplierHitDigi_factory(const std::vector<std::string> &default_input_tags, PhotoMultiplierHitDigiConfig cfg)
-            : JChainFactoryT(default_input_tags, cfg) {}
+        explicit PhotoMultiplierHitDigi_factory(std::vector<std::string> default_input_tags, PhotoMultiplierHitDigiConfig cfg) :
+            JChainFactoryT<edm4eic::RawPMTHit, PhotoMultiplierHitDigiConfig>(std::move(default_input_tags), cfg) {}
 
         /** One time initialization **/
         void Init() override;
