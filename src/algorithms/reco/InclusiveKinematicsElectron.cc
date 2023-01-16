@@ -23,14 +23,23 @@ namespace eicrecon {
 
   void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
-}
+    m_pidSvc = service("ParticleSvc");
+    if (!m_pidSvc) {
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("Unable to locate Particle Service. "
+          "Make sure you have ParticleSvc in the configuration.");
+      }
+    }
+    m_proton = m_pidSvc->particle(2212).mass;
+    m_neutron = m_pidSvc->particle(2112).mass;
+    m_electron = m_pidSvc->particle(11).mass;
+  }
 
 ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     std::vector<const edm4hep::MCParticle *> mcparticles,
     std::vector<edm4eic::ReconstructedParticle *> inparts,
     std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
     const::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics ) {
-
 
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
@@ -177,21 +186,5 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     }
   }
 
-    StatusCode initialize() override {
-    if (GaudiAlgorithm::initialize().isFailure())
-      return StatusCode::FAILURE;
 
-    m_pidSvc = service("ParticleSvc");
-    if (!m_pidSvc) {
-      error() << "Unable to locate Particle Service. "
-              << "Make sure you have ParticleSvc in the configuration."
-              << endmsg;
-      return StatusCode::FAILURE;
-    }
-    m_proton = m_pidSvc->particle(2212).mass;
-    m_neutron = m_pidSvc->particle(2112).mass;
-    m_electron = m_pidSvc->particle(11).mass;
-
-    return StatusCode::SUCCESS;
-  }
 } // namespace Jug::Reco
