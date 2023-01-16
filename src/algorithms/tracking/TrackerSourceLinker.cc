@@ -94,11 +94,11 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         catch(std::exception &ex) {
             auto inverse = ((surface->transform(Acts::GeometryContext())).inverse()) ;
             auto surf_center = surface->center(Acts::GeometryContext());
-            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={} \n \
-                        inverse00={} inverse01={} inverse02={} \n \
-                        inverse10={} inverse11={} inverse12={} \n \
-                        inverse20={} inverse21={} inverse22={} \n \
-                        surf_center_x={} surf_center_y={} surf_center_z={} \n \
+            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={} \n\
+                        inverse00={} inverse01={} inverse02={} \n\
+                        inverse10={} inverse11={} inverse12={} \n\
+                        inverse20={} inverse21={} inverse22={} \n\
+                        surf_center_x={} surf_center_y={} surf_center_z={} \n\
                         local_x={} local_y={} local_z={}",
                         vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z, 
                         inverse(0,0), inverse(0,1), inverse(0,2), 
