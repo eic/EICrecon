@@ -39,6 +39,8 @@ namespace eicrecon {
                 std::vector<edm4eic::InclusiveKinematicsCollection *> outputInclusiveKinematics);
 
     private:
+        std::shared_ptr<spdlog::logger> m_log;
+        
     };
 
 } // namespace eicrecon

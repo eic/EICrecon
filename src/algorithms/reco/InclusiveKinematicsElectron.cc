@@ -29,33 +29,8 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     std::vector<const edm4hep::MCParticle *> mcparticles,
     std::vector<edm4eic::ReconstructedParticle *> inparts,
     std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
-    std::vector<edm4eic::InclusiveKinematicsCollection *> outputInclusiveKinematics )
+    const::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics ) {
 
-  StatusCode initialize() override {
-    if (GaudiAlgorithm::initialize().isFailure())
-      return StatusCode::FAILURE;
-
-    m_pidSvc = service("ParticleSvc");
-    if (!m_pidSvc) {
-      error() << "Unable to locate Particle Service. "
-              << "Make sure you have ParticleSvc in the configuration."
-              << endmsg;
-      return StatusCode::FAILURE;
-    }
-    m_proton = m_pidSvc->particle(2212).mass;
-    m_neutron = m_pidSvc->particle(2112).mass;
-    m_electron = m_pidSvc->particle(11).mass;
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode execute() override {
-    // input collections
-    const auto& mcparts = *(m_inputMCParticleCollection.get());
-    const auto& rcparts = *(m_inputParticleCollection.get());
-    const auto& rcassoc = *(m_inputParticleAssociation.get());
-    // output collection
-    auto& out_kinematics = *(m_outputInclusiveKinematicsCollection.createAndPut());
 
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
@@ -107,15 +82,14 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
 
     // Get incoming electron beam
     const auto ei_coll = Jug::Base::Beam::find_first_beam_electron(mcparts);
-    if (ei_coll.size() == 0) {
-      if (msgLevel(MSG::DEBUG)) {
-        debug() << "No beam electron found" << endmsg;
+    if (ei_coll->size() == 0) {
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("No beam electron found");
       }
-      return StatusCode::SUCCESS;
     }
     const PxPyPzEVector ei(
       Jug::Base::Beam::round_beam_four_momentum(
-        ei_coll[0].getMomentum(),
+        ei_coll[0]->getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
         0.0)
@@ -123,27 +97,25 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
 
     // Get incoming hadron beam
     const auto pi_coll = Jug::Base::Beam::find_first_beam_hadron(mcparts);
-    if (pi_coll.size() == 0) {
-      if (msgLevel(MSG::DEBUG)) {
-        debug() << "No beam hadron found" << endmsg;
+    if (pi_coll->size() == 0) {
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("No beam hadron found");
       }
-      return StatusCode::SUCCESS;
     }
     const PxPyPzEVector pi(
       Jug::Base::Beam::round_beam_four_momentum(
-        pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        pi_coll[0]->getMomentum(),
+        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
 
     // Get first scattered electron
     const auto ef_coll = Jug::Base::Beam::find_first_scattered_electron(mcparts);
-    if (ef_coll.size() == 0) {
-      if (msgLevel(MSG::DEBUG)) {
-        debug() << "No truth scattered electron found" << endmsg;
+    if (ef_coll->size() == 0) {
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("No truth scattered electron found");
       }
-      return StatusCode::SUCCESS;
     }
     // Associate first scattered electron with reconstructed electrons
     //const auto ef_assoc = std::find_if(
@@ -152,15 +124,14 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+      if (ef_assoc->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
         break;
       }
     }
     if (!(ef_assoc != rcassoc.end())) {
-      if (msgLevel(MSG::DEBUG)) {
-        debug() << "Truth scattered electron not in reconstructed particles" << endmsg;
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("Truth scattered electron not in reconstructed particles");
       }
-      return StatusCode::SUCCESS;
     }
     const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
@@ -176,11 +147,10 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     }
 
     // If no scattered electron was found
-    if (electrons.size() == 0) {
-      if (msgLevel(MSG::DEBUG)) {
-        debug() << "No scattered electron found" << endmsg;
+    if (electrons->size() == 0) {
+      if (m_log->level() <= spdlog::level::debug) {
+        m_log->debug("No scattered electron found");
       }
-      return StatusCode::SUCCESS;
     }
 
     // DIS kinematics calculations
@@ -196,25 +166,32 @@ ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     kin.setScat(ef_rc);
 
     // Debugging output
-    if (msgLevel(MSG::DEBUG)) {
-      debug() << "pi = " << pi << endmsg;
-      debug() << "ei = " << ei << endmsg;
-      debug() << "ef = " << ef << endmsg;
-      debug() << "q = " << q << endmsg;
-      debug() << "x,Q2,W,y,nu = "
-              << kin.getX() << ","
-              << kin.getQ2() << ","
-              << kin.getW() << ","
-              << kin.getY() << ","
-              << kin.getNu()
-              << endmsg;
+    if (m_log->level() <= spdlog::level::debug) {
+      m_log->debug("pi = ", pi << endmsg;
+      m_log->debug("ei = ", ei << endmsg;
+      m_log->debug("ef = ", ef << endmsg;
+      m_log->debug("q = ", q << endmsg;
+      m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu()
+      );
     }
+  }
+
+    StatusCode initialize() override {
+    if (GaudiAlgorithm::initialize().isFailure())
+      return StatusCode::FAILURE;
+
+    m_pidSvc = service("ParticleSvc");
+    if (!m_pidSvc) {
+      error() << "Unable to locate Particle Service. "
+              << "Make sure you have ParticleSvc in the configuration."
+              << endmsg;
+      return StatusCode::FAILURE;
+    }
+    m_proton = m_pidSvc->particle(2212).mass;
+    m_neutron = m_pidSvc->particle(2112).mass;
+    m_electron = m_pidSvc->particle(11).mass;
 
     return StatusCode::SUCCESS;
   }
-};
-
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-DECLARE_COMPONENT(InclusiveKinematicsElectron)
-
 } // namespace Jug::Reco
