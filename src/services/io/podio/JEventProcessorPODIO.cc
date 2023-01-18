@@ -146,6 +146,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNRawHits",
             "HcalEndcapNRecHits",
             "HcalEndcapNMergedHits",
+            "LumiSpecCalClusters",
+            "LumiSpecCalRawHits",
+            "LumiSpecCalRecHits",
+            "LumiSpecCalMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
             "HcalEndcapPRecHits",
