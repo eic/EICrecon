@@ -93,18 +93,21 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         }
         catch(std::exception &ex) {
             auto inverse = ((surface->transform(Acts::GeometryContext())).inverse()) ;
-            auto surf_center = surface->center(Acts::GeometryContext());
-            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={} \n\
-                        inverse00={} inverse01={} inverse02={} \n\
-                        inverse10={} inverse11={} inverse12={} \n\
-                        inverse20={} inverse21={} inverse22={} \n\
-                        surf_center_x={} surf_center_y={} surf_center_z={} \n\
-                        local_x={} local_y={} local_z={}",
+            m_log->warn("Can't convert globalToLocal for hit:    \n\
+                        vol_id,\t det_id,\t CellID               \n\
+                        {},\t {},\t {}                           \n\
+                        global_x, global_y, global_z             \n\
+                        {},\t {},\t {}                           \n\
+                        Inverse transform of context             \n\
+                        {},\t {},\t {}                           \n\
+                        {},\t {},\t {}                           \n\
+                        {},\t {},\t {}                           \n\
+                        local_x,\t local_y,\t local_z            \n\
+                        {},\t {},\t {}",
                         vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z, 
                         inverse(0,0), inverse(0,1), inverse(0,2), 
                         inverse(1,0), inverse(1,1), inverse(1,2), 
                         inverse(2,0), inverse(2,1), inverse(2,2), 
-                        surf_center[0], surf_center[1], surf_center[2],
                         hit_pos.x*inverse(0,0)+hit_pos.y*inverse(0,1)+hit_pos.z*inverse(0,2),
                         hit_pos.x*inverse(1,0)+hit_pos.y*inverse(1,1)+hit_pos.z*inverse(1,2), 
                         hit_pos.x*inverse(2,0)+hit_pos.y*inverse(2,1)+hit_pos.z*inverse(2,2));
