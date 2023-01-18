@@ -9,7 +9,7 @@ using ROOT::Math::PxPyPzEVector;
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/ReconstructedParticleCollection.h"
 
-namespace Jug::Base::Beam {
+namespace eicrecon {
 
   template<class collection>
   auto find_first_with_pdg(
@@ -77,4 +77,4 @@ namespace Jug::Base::Beam {
     return p_out;
   }
 
-} // namespace Jug::Base::Beam
+} // namespace eicrecon

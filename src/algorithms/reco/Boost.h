@@ -12,7 +12,7 @@ using ROOT::Math::PxPyPzEVector;
 #include "Math/RotationY.h"
 #include "Math/Boost.h"
 
-namespace Jug::Base::Boost {
+namespace eicrecon {
 
   using ROOT::Math::LorentzRotation;
 
@@ -60,4 +60,4 @@ namespace Jug::Base::Boost {
     return part;
   }
 
-} // namespace Jug::Base::Boost
+} // namespace eicrecon
