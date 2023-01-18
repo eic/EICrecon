@@ -40,7 +40,7 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        
+         double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928};
     };
 
 } // namespace eicrecon

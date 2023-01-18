@@ -23,24 +23,23 @@ namespace eicrecon {
 
   void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
-    m_pidSvc = service("ParticleSvc");
-    if (!m_pidSvc) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("Unable to locate Particle Service. "
-          "Make sure you have ParticleSvc in the configuration.");
-      }
-    }
-    m_proton = m_pidSvc->particle(2212).mass;
-    m_neutron = m_pidSvc->particle(2112).mass;
-    m_electron = m_pidSvc->particle(11).mass;
+    // m_pidSvc = service("ParticleSvc");
+    // if (!m_pidSvc) {
+    //   if (m_log->level() <= spdlog::level::debug) {
+    //     m_log->debug("Unable to locate Particle Service. "
+    //       "Make sure you have ParticleSvc in the configuration.");
+    //   }
+    // }
   }
 
   ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
     std::vector<const edm4hep::MCParticle *> mcparticles,
     std::vector<edm4eic::ReconstructedParticle *> inparts,
-    std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
-    const::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics ) {
-
+    std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc) {
+    
+    // Resulting inclusive kinematics
+    std::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics;
+    
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
     //  mcparts.begin(),
@@ -50,7 +49,7 @@ namespace eicrecon {
     // 2a. simple loop over iterator (post-increment)
     //auto mc_first_electron = mcparts.end();
     //for (auto p = mcparts.begin(); p != mcparts.end(); p++) {
-    //  if (p->getPDG() == 11) {
+    //  if (p.getPDG() == 11) {
     //    mc_first_electron = p;
     //    break;
     //  }
@@ -58,7 +57,7 @@ namespace eicrecon {
     // 2b. simple loop over iterator (pre-increment)
     //auto mc_first_electron = mcparts.end();
     //for (auto p = mcparts.begin(); p != mcparts.end(); ++p) {
-    //  if (p->getPDG() == 11) {
+    //  if (p.getPDG() == 11) {
     //    mc_first_electron = p;
     //    break;
     //  }
@@ -67,7 +66,7 @@ namespace eicrecon {
     // 3. pre-initialized simple loop
     //auto mc_first_electron = mcparts.begin();
     //for (; mc_first_electron != mcparts.end(); ++mc_first_electron) {
-    //  if (mc_first_electron->getPDG() == 11) {
+    //  if (mc_first_electron.getPDG() == 11) {
     //    break;
     //  }
     //}
@@ -91,14 +90,15 @@ namespace eicrecon {
 
     // Get incoming electron beam
     const auto ei_coll = Jug::Base::Beam::find_first_beam_electron(mcparts);
-    if (ei_coll->size() == 0) {
+    if (ei_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam electron found");
       }
+      return nullptr;
     }
     const PxPyPzEVector ei(
       Jug::Base::Beam::round_beam_four_momentum(
-        ei_coll[0]->getMomentum(),
+        ei_coll[0].getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
         0.0)
@@ -106,25 +106,27 @@ namespace eicrecon {
 
     // Get incoming hadron beam
     const auto pi_coll = Jug::Base::Beam::find_first_beam_hadron(mcparts);
-    if (pi_coll->size() == 0) {
+    if (pi_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam hadron found");
       }
+      return nullptr;
     }
     const PxPyPzEVector pi(
       Jug::Base::Beam::round_beam_four_momentum(
-        pi_coll[0]->getMomentum(),
-        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
+        pi_coll[0].getMomentum(),
+        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
 
     // Get first scattered electron
     const auto ef_coll = Jug::Base::Beam::find_first_scattered_electron(mcparts);
-    if (ef_coll->size() == 0) {
+    if (ef_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No truth scattered electron found");
       }
+      return nullptr;
     }
     // Associate first scattered electron with reconstructed electrons
     //const auto ef_assoc = std::find_if(
@@ -133,7 +135,7 @@ namespace eicrecon {
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
+      if (ef_assoc.getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
         break;
       }
     }
@@ -141,8 +143,9 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("Truth scattered electron not in reconstructed particles");
       }
+      return nullptr;
     }
-    const auto ef_rc{ef_assoc->getRec()};
+    const auto ef_rc{ef_assoc.getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 
     // Loop over reconstructed particles to get outgoing scattered electron
@@ -156,10 +159,11 @@ namespace eicrecon {
     }
 
     // If no scattered electron was found
-    if (electrons->size() == 0) {
+    if (electrons.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No scattered electron found");
       }
+      return nullptr;
     }
 
     // DIS kinematics calculations
@@ -176,14 +180,14 @@ namespace eicrecon {
 
     // Debugging output
     if (m_log->level() <= spdlog::level::debug) {
-      m_log->debug("pi = ", pi << endmsg;
-      m_log->debug("ei = ", ei << endmsg;
-      m_log->debug("ef = ", ef << endmsg;
-      m_log->debug("q = ", q << endmsg;
+      m_log->debug("pi = ", pi)
+      m_log->debug("ei = ", ei)
+      m_log->debug("ef = ", ef)
+      m_log->debug("q = ", q)
       m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
-              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu()
-      );
+              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
     }
+    return nullptr;
   }
 
 
