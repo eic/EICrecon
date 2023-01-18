@@ -5,8 +5,8 @@
 #include <cmath>
 #include <vector>
 
-#include "JugBase/Utilities/Beam.h"
-#include "JugBase/Utilities/Boost.h"
+#include "Beam.h"
+#include "Boost.h"
 #include "InclusiveKinematicsElectron.h"
 
 #include "Math/Vector4D.h"
