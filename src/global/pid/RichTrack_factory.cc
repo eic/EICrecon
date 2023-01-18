@@ -30,8 +30,8 @@ void eicrecon::RichTrack_factory::Init() {
    */
   m_numPlanes = 5;
   if(param_prefix.rfind("DRICH")!=std::string::npos || param_prefix.rfind("PFRICH")!=std::string::npos) {
-    if(param_prefix.rfind("Aerogel")) m_numPlanes = 5;
-    else if(param_prefix.rfind("Gas")) m_numPlanes = 10;
+    if(param_prefix.rfind("Aerogel")!=std::string::npos) m_numPlanes = 5;
+    else if(param_prefix.rfind("Gas")!=std::string::npos) m_numPlanes = 10;
   }
 
   // configuration parameters
