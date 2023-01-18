@@ -10,8 +10,8 @@ void eicrecon::RichTrack_factory::Init() {
   auto app = GetApplication();
 
   // input tags
-  auto m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-  auto param_prefix = m_detector_name + ":" + GetTag();
+  auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+  auto param_prefix = detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
   m_radiatorID = rich::ParseRadiatorName(GetTag());
 
@@ -20,10 +20,19 @@ void eicrecon::RichTrack_factory::Init() {
   m_actsSvc    = app->GetService<ACTSGeo_service>();
   InitLogger(param_prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
-  m_log->debug("m_detector_name='{}'  param_prefix='{}'  m_radiatorID={}", m_detector_name, param_prefix, m_radiatorID);
+  m_log->debug("detector_name='{}'  param_prefix='{}'  m_radiatorID={}", detector_name, param_prefix, m_radiatorID);
 
   // default configuration parameters
+  /* FIXME: eventually we will move this factory to an independent algorithm
+   * and be able to use a Config class, overridable in {D,PF}RICH.cc; for now,
+   * a quick way to set the defaults without reco_flags.py, to tide us over
+   * until we have a proper config file front end
+   */
   m_numPlanes = 5;
+  if(param_prefix.rfind("DRICH")!=std::string::npos || param_prefix.rfind("PFRICH")!=std::string::npos) {
+    if(param_prefix.rfind("Aerogel")) m_numPlanes = 5;
+    else if(param_prefix.rfind("Gas")) m_numPlanes = 10;
+  }
 
   // configuration parameters
   auto set_param = [&param_prefix, &app, this] (std::string name, auto &val, std::string description) {
@@ -33,7 +42,7 @@ void eicrecon::RichTrack_factory::Init() {
   m_log->debug("numPlanes = {}",m_numPlanes);
   
   // get RICH geometry for track projection
-  m_actsGeo = m_richGeoSvc->GetActsGeo(m_detector_name);
+  m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
   m_trackingPlanes = m_actsGeo->TrackingPlanes(m_radiatorID, m_numPlanes);
 }
 
