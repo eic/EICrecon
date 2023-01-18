@@ -99,7 +99,7 @@ namespace eicrecon {
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
-        ei_coll[0].getMomentum(),
+        ei_coll[0]->getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
         0.0)
@@ -115,8 +115,8 @@ namespace eicrecon {
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
-        pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        pi_coll[0]->getMomentum(),
+        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
@@ -136,7 +136,7 @@ namespace eicrecon {
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc.getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+      if (ef_assoc->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
         break;
       }
     }
@@ -146,15 +146,15 @@ namespace eicrecon {
       }
       return nullptr;
     }
-    const auto ef_rc{ef_assoc.getRec()};
+    const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 
     // Loop over reconstructed particles to get outgoing scattered electron
     // Use the true scattered electron from the MC information
     std::vector<PxPyPzEVector> electrons;
     for (const auto& p: rcparts) {
-      if (p.getObjectID().index == ef_rc_id) {
-        electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
+      if (p->getObjectID().index == ef_rc_id) {
+        electrons.emplace_back(p->getMomentum().x, p->getMomentum().y, p->getMomentum().z, p->getEnergy());
         break;
       }
     }
@@ -176,18 +176,18 @@ namespace eicrecon {
     const auto nu = q_dot_pi / m_proton;
     const auto x = Q2 / (2. * q_dot_pi);
     const auto W = sqrt( + 2.*q_dot_pi - Q2);
-    auto kin = out_kinematics.create(x, Q2, W, y, nu);
-    kin.setScat(ef_rc);
+    // auto kin = out_kinematics.create(x, Q2, W, y, nu);
+    // kin.setScat(ef_rc);
 
-    // Debugging output
-    if (m_log->level() <= spdlog::level::debug) {
-      m_log->debug("pi = ", pi)
-      m_log->debug("ei = ", ei)
-      m_log->debug("ef = ", ef)
-      m_log->debug("q = ", q)
-      m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
-              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-    }
+    // // Debugging output
+    // if (m_log->level() <= spdlog::level::debug) {
+    //   m_log->debug("pi = ", pi);
+    //   m_log->debug("ei = ", ei);
+    //   m_log->debug("ef = ", ef);
+    //   m_log->debug("q = ", q);
+    //   m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+    //           kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
+    // }
     return nullptr;
   }
 

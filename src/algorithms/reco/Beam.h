@@ -17,7 +17,7 @@ namespace eicrecon {
       const std::set<int32_t>& pdg) {
     std::vector<decltype(parts[0])> c;
     for (const auto& p: parts) {
-      if (pdg.count(p.getPDG()) > 0) {
+      if (pdg.count(p->getPDG()) > 0) {
         c.push_back(p);
         break;
       }
@@ -32,8 +32,8 @@ namespace eicrecon {
       const std::set<int32_t>& pdg) {
     std::vector<decltype(parts[0])> c;
     for (const auto& p: parts) {
-      if (status.count(p.getGeneratorStatus()) > 0 &&
-          pdg.count(p.getPDG()) > 0) {
+      if (status.count(p->getGeneratorStatus()) > 0 &&
+          pdg.count(p->getPDG()) > 0) {
         c.push_back(p);
         break;
       }
@@ -41,19 +41,19 @@ namespace eicrecon {
     return c;
   }
 
-  inline auto find_first_beam_electron(const edm4hep::MCParticleCollection& mcparts) {
+  inline auto find_first_beam_electron(const std::vector<const edm4hep::MCParticle*>& mcparts) {
     return find_first_with_status_pdg(mcparts, {4}, {11});
   }
 
-  inline auto find_first_beam_hadron(const edm4hep::MCParticleCollection& mcparts) {
+  inline auto find_first_beam_hadron(const std::vector<const edm4hep::MCParticle*>n& mcparts) {
     return find_first_with_status_pdg(mcparts, {4}, {2212, 2112});
   }
 
-  inline auto find_first_scattered_electron(const edm4hep::MCParticleCollection& mcparts) {
+  inline auto find_first_scattered_electron(const std::vector<const edm4hep::MCParticle*>& mcparts) {
     return find_first_with_status_pdg(mcparts, {1}, {11});
   }
 
-  inline auto find_first_scattered_electron(const edm4eic::ReconstructedParticleCollection& rcparts) {
+  inline auto find_first_scattered_electron(const std::vector<const edm4eic::ReconstructedParticle*>& rcparts) {
     return find_first_with_pdg(rcparts, {11});
   }
 
