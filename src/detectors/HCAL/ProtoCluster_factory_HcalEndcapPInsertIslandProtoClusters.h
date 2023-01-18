@@ -34,7 +34,7 @@ public:
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        u_localDistXY={};     //{this, "localDistXY", {}};
+        u_localDistXY={15*dd4hep::mm, 15*dd4hep::mm};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};

@@ -751,6 +751,9 @@ eicrecon_reco_flags = [
     ('DRICH:DRICHRawHits:safetyFactor',    '0.7',       'overall safety factor'                                 ),
     # ('DRICH:DRICHRawHits:quantumEfficiency', '...', 'quantum efficiency' ), # FIXME cannot define here; instead it is hard coded in src/algorithms/digi/PhotoMultiplierHitDigiConfig.h
 
+    ('DRICH:DRICHAerogelTracks:numPlanes', '5',  'number of aerogel radiator track-projection planes' ),
+    ('DRICH:DRICHGasTracks:numPlanes',     '10', 'number of gas radiator track-projection planes'     ),
+
     # ============================ F A R   F O R W A R D ===================================
     
     # RPOTS

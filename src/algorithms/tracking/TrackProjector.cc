@@ -23,7 +23,6 @@
 #include "Acts/Geometry/GeometryIdentifier.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/MagneticField/SharedBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 
@@ -34,6 +33,7 @@
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
 #include "TrackProjector.h"
+#include "extensions/spdlog/SpdlogFormatters.h"
 
 #include <cmath>
 
