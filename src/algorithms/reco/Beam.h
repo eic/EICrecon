@@ -8,7 +8,7 @@ using ROOT::Math::PxPyPzEVector;
 
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/ReconstructedParticleCollection.h"
-
+#include <set>
 namespace eicrecon {
 
   template<class collection>

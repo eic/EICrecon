@@ -33,10 +33,11 @@ namespace eicrecon {
   }
 
   ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
-    std::vector<const edm4hep::MCParticle *> mcparticles,
-    std::vector<edm4eic::ReconstructedParticle *> inparts,
-    std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc) {
+    std::vector<const edm4hep::MCParticle *> mcparts,
+    std::vector<edm4eic::ReconstructedParticle *> rcparts,
+    std::vector<edm4eic::MCRecoParticleAssociation *> rcassoc) {
     
+
     // Resulting inclusive kinematics
     std::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics;
     
@@ -89,7 +90,7 @@ namespace eicrecon {
     //}
 
     // Get incoming electron beam
-    const auto ei_coll = Jug::Base::Beam::find_first_beam_electron(mcparts);
+    const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam electron found");
@@ -97,7 +98,7 @@ namespace eicrecon {
       return nullptr;
     }
     const PxPyPzEVector ei(
-      Jug::Base::Beam::round_beam_four_momentum(
+      round_beam_four_momentum(
         ei_coll[0].getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
@@ -105,7 +106,7 @@ namespace eicrecon {
       );
 
     // Get incoming hadron beam
-    const auto pi_coll = Jug::Base::Beam::find_first_beam_hadron(mcparts);
+    const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam hadron found");
@@ -113,7 +114,7 @@ namespace eicrecon {
       return nullptr;
     }
     const PxPyPzEVector pi(
-      Jug::Base::Beam::round_beam_four_momentum(
+      round_beam_four_momentum(
         pi_coll[0].getMomentum(),
         pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
@@ -121,7 +122,7 @@ namespace eicrecon {
       );
 
     // Get first scattered electron
-    const auto ef_coll = Jug::Base::Beam::find_first_scattered_electron(mcparts);
+    const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No truth scattered electron found");

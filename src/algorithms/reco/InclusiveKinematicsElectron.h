@@ -35,13 +35,11 @@ namespace eicrecon {
         ParticlesWithAssociation *execute(
                 std::vector<const edm4hep::MCParticle *> mcparticles,
                 std::vector<edm4eic::ReconstructedParticle *> inparts,
-                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
-                std::vector<edm4eic::InclusiveKinematicsCollection *> outputInclusiveKinematics);
+                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-         double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928};
-    };
+        double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025*dd4hep::radian};};
 
 } // namespace eicrecon
 
