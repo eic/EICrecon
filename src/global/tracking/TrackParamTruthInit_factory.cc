@@ -15,13 +15,31 @@
 #include <algorithms/tracking/TrackParamTruthInitConfig.h>
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
-    // This prefix will be used for parameters
-    std::string param_prefix = GetDefaultParameterPrefix();
+    auto app = GetApplication();
 
-    InitLogger(param_prefix);
+    // This prefix will be used for parameters
+    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name+ ":" + GetTag();
+
+    // Initialize input tags
     InitDataTags(param_prefix);
 
-    // Initialize underlying algorithm
+    // Initialize logger
+    InitLogger(param_prefix, "info");
+
+    // Algorithm configuration
+    auto cfg = GetDefaultConfig();
+    app->SetDefaultParameter(param_prefix + ":MaxVertexX", cfg.m_maxVertexX , "Maximum abs(vertex x) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MaxVertexY", cfg.m_maxVertexY , "Maximum abs(vertex y) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MaxVertexZ", cfg.m_maxVertexZ , "Maximum abs(vertex z) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MinMomentum", cfg.m_minMomentum , "Minimum momentum for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MaxEtaForward", cfg.m_maxEtaForward , "Maximum forward abs(eta) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MaxEtaBackward", cfg.m_maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed");
+    app->SetDefaultParameter(param_prefix + ":MomentumSplit", cfg.m_momentumSplit, "Momentum magnitude fraction to use as width for random trifurcation");
+    app->SetDefaultParameter(param_prefix + ":MomentumSmear", cfg.m_momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing");
+
+    // Initialize algorithm
+    m_truth_track_seeding_algo.applyConfig(cfg);
     m_truth_track_seeding_algo.init(m_log);
 }
 

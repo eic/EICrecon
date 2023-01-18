@@ -28,13 +28,13 @@ public:
         // digitization settings, must be consistent with digi class
         m_capADC=1024;//{this, "capacityADC", 8096};
         m_dyRangeADC=3.6 * dd4hep::MeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
-        m_pedMeanADC=400;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
+        m_pedMeanADC=20;//{this, "pedestalMean", 400};
+        m_pedSigmaADC=0.3;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
         m_thresholdFactor=4.0;//{this, "thresholdFactor", 0.0};
-        m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
+        m_thresholdValue=1.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
         m_sampFrac=0.998;//{this, "samplingFraction", 1.0};

@@ -3,15 +3,11 @@
 //
 //
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
+#include "RichGeo_service.h"
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-
-    using namespace eicrecon;
-
+    app->ProvideService(std::make_shared<RichGeo_service>(app) );
   }
 }

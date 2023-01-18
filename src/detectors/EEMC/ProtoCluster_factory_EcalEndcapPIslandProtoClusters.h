@@ -29,17 +29,17 @@ public:
         m_input_tag = "EcalEndcapPRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=0.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
-        u_localDistXY={};     //{this, "localDistXY", {}};
+        u_localDistXY={10.0 * dd4hep::cm, 10.0 * dd4hep::cm};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
+        u_dimScaledLocalDistXY={1.5,1.5};// from ATHENA reconstruction.py
 
 
         app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
