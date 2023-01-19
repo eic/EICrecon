@@ -11,6 +11,6 @@ extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     app->Add(new eicrecon::Digitizer_processor);
-    // app->Add(new eicrecon::IrtCherenkovParticleID_processor);
+    app->Add(new eicrecon::IrtCherenkovParticleID_processor);
   }
 }
