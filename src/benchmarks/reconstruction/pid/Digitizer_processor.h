@@ -10,7 +10,7 @@
 #include <edm4eic/CherenkovParticleID.h>
 
 // algorithms
-#include <algorithms/pid/IrtCherenkovParticleIDAnalysis.h>
+#include <algorithms/digi/PhotoMultiplierHitDigiAnalysis.h>
 
 // services
 #include <services/rootfile/RootFile_service.h>
@@ -20,25 +20,25 @@
 #include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
-  class BenchmarksPID_processor :
+  class Digitizer_processor :
     public JEventProcessorSequentialRoot,
-    public SpdlogMixin<BenchmarksPID_processor>
+    public SpdlogMixin<Digitizer_processor>
   {
 
     public:
 
-      BenchmarksPID_processor() { SetTypeName(NAME_OF_THIS); }
+      Digitizer_processor() { SetTypeName(NAME_OF_THIS); }
       void InitWithGlobalRootLock() override;
       void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
       void FinishWithGlobalRootLock() override;
 
     private:
 
-      // input collections
-      PrefetchT<edm4eic::CherenkovParticleID> m_cherenkov_pids = {this, "DRICHIrtCherenkovParticleID"}; // FIXME: generalize for other RICHes
+      // input collections // FIXME: generalize for other RICHes
+      PrefetchT<edm4eic::RawPMTHit> m_digi_hits = {this, "DRICHRawHits"};
 
-      // underlying algorithm
-      eicrecon::IrtCherenkovParticleIDAnalysis m_analysis_algo;
+      // underlying algorithms
+      eicrecon::PhotoMultiplierHitDigiAnalysis m_analysis_algo;
 
   };
 }

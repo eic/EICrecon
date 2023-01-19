@@ -4,11 +4,13 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include "BenchmarksPID_processor.h"
+#include "Digitizer_processor.h"
+#include "IrtCherenkovParticleID_processor.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->Add(new eicrecon::BenchmarksPID_processor);
+    app->Add(new eicrecon::Digitizer_processor);
+    // app->Add(new eicrecon::IrtCherenkovParticleID_processor);
   }
 }
