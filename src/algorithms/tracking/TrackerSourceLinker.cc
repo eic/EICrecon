@@ -80,13 +80,19 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
         Acts::Vector2 pos;
+        auto& hit_det = hit->getCellID()&0xFF;
+        auto onSurfaceTolerance = 0.0001;      // By default, ACTS uses 0.1 micron as the on surface tolerance
+        if (hit_det==150){
+         onSurfaceTolerance = 0.001;           // Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
+        }
+      
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
             pos = surface->globalToLocal(
                     Acts::GeometryContext(),
                     {hit_pos.x, hit_pos.y, hit_pos.z},
-                    {0, 0, 0}).value();
+                    {0, 0, 0}, onSurfaceTolerance).value();
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
