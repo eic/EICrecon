@@ -32,10 +32,11 @@ namespace eicrecon {
 
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        ParticlesWithAssociation *execute(
-                std::vector<const edm4hep::MCParticle *> mcparticles,
-                std::vector<edm4eic::ReconstructedParticle *> inparts,
-                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc);
+        std::vector<edm4eic::InclusiveKinematics*> execute(
+                std::vector<const edm4hep::MCParticle*> mcparticles,
+                std::vector<const edm4eic::ReconstructedParticle*> inparts,
+                std::vector<const edm4eic::MCRecoParticleAssociation*> inpartsassoc
+        );
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

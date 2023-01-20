@@ -32,15 +32,14 @@ namespace eicrecon {
     // }
   }
 
-  ParticlesWithAssociation *InclusiveKinematicsElectron::execute(
+  std::vector<edm4eic::InclusiveKinematics*> InclusiveKinematicsElectron::execute(
     std::vector<const edm4hep::MCParticle *> mcparts,
-    std::vector<edm4eic::ReconstructedParticle *> rcparts,
-    std::vector<edm4eic::MCRecoParticleAssociation *> rcassoc) {
-    
+    std::vector<const edm4eic::ReconstructedParticle *> rcparts,
+    std::vector<const edm4eic::MCRecoParticleAssociation *> rcassoc) {
 
     // Resulting inclusive kinematics
-    std::vector<edm4eic::InclusiveKinematics *> outputInclusiveKinematics;
-    
+    std::vector<edm4eic::InclusiveKinematics *> kinematics;
+
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
     //  mcparts.begin(),
@@ -95,7 +94,7 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam electron found");
       }
-      return nullptr;
+      return kinematics;
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
@@ -111,7 +110,7 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No beam hadron found");
       }
-      return nullptr;
+      return kinematics;
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
@@ -127,7 +126,7 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No truth scattered electron found");
       }
-      return nullptr;
+      return kinematics;
     }
     // Associate first scattered electron with reconstructed electrons
     //const auto ef_assoc = std::find_if(
@@ -144,7 +143,7 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("Truth scattered electron not in reconstructed particles");
       }
-      return nullptr;
+      return kinematics;
     }
     const auto ef_rc{(*ef_assoc)->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
@@ -164,7 +163,7 @@ namespace eicrecon {
       if (m_log->level() <= spdlog::level::debug) {
         m_log->debug("No scattered electron found");
       }
-      return nullptr;
+      return kinematics;
     }
 
     // DIS kinematics calculations
@@ -176,19 +175,22 @@ namespace eicrecon {
     const auto nu = q_dot_pi / m_proton;
     const auto x = Q2 / (2. * q_dot_pi);
     const auto W = sqrt( + 2.*q_dot_pi - Q2);
-    // auto kin = out_kinematics.create(x, Q2, W, y, nu);
-    // kin.setScat(ef_rc);
+    edm4eic::MutableInclusiveKinematics kin(x, Q2, W, y, nu);
+    kin.setScat(ef_rc);
 
-    // // Debugging output
-    // if (m_log->level() <= spdlog::level::debug) {
-    //   m_log->debug("pi = ", pi);
-    //   m_log->debug("ei = ", ei);
-    //   m_log->debug("ef = ", ef);
-    //   m_log->debug("q = ", q);
-    //   m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
-    //           kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-    // }
-    return nullptr;
+    // Debugging output
+    if (m_log->level() <= spdlog::level::debug) {
+      //m_log->debug("pi = ", pi);
+      //m_log->debug("ei = ", ei);
+      //m_log->debug("ef = ", ef);
+      //m_log->debug("q = ", q);
+      m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
+    }
+
+    kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
+
+    return kinematics;
   }
 
 
