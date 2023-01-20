@@ -53,6 +53,9 @@ private:
     /// If not null, such json file is created
     std::string m_json_file_name = "";
 
+    /// If not null, such jana configuration file is created
+    std::string m_janaconfig_file_name = "jana.conf";
+
     /// Print parameter summary to screen at end of job
     bool m_print_to_screen = true;
 
