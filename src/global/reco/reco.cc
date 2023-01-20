@@ -12,6 +12,7 @@
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedParticles_factory.h"
+#include "InclusiveKinematicsElectron_factory.h"
 
 //
 extern "C" {
@@ -29,7 +30,10 @@ void InitPlugin(JApplication *app) {
             {"EcalEndcapNClusters", "EcalBarrelSciGlassClusters"}, "ReconstructedParticlesWithAssoc"));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
-                     {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
+            {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+            {"ReconstructedParticles"}, "InclusiveKinematicsElectron"));
 
 
 }
