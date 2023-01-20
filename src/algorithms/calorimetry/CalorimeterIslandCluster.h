@@ -141,7 +141,7 @@ private:
           // different sector, local coordinates do not work, using global coordinates
         } else {
           // sector may have rotation (barrel), so z is included
-          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist);
+          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm); // EDM4hep units are mm, so convert sectorDist to mm
         }
    }
 
