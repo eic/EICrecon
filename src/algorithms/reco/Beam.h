@@ -11,11 +11,11 @@ using ROOT::Math::PxPyPzEVector;
 #include <set>
 namespace eicrecon {
 
-  template<class collection>
+  template<class T>
   auto find_first_with_pdg(
-      const collection& parts,
+      const std::vector<T*>& parts,
       const std::set<int32_t>& pdg) {
-    std::vector<decltype(parts[0])> c;
+    std::vector<T*> c;
     for (const auto& p: parts) {
       if (pdg.count(p->getPDG()) > 0) {
         c.push_back(p);
@@ -25,12 +25,12 @@ namespace eicrecon {
     return c;
   }
 
-  template<class collection>
+  template<class T>
   auto find_first_with_status_pdg(
-      const collection& parts,
+      const std::vector<T*>& parts,
       const std::set<int32_t>& status,
       const std::set<int32_t>& pdg) {
-    std::vector<decltype(parts[0])> c;
+    std::vector<T*> c;
     for (const auto& p: parts) {
       if (status.count(p->getGeneratorStatus()) > 0 &&
           pdg.count(p->getPDG()) > 0) {
@@ -45,7 +45,7 @@ namespace eicrecon {
     return find_first_with_status_pdg(mcparts, {4}, {11});
   }
 
-  inline auto find_first_beam_hadron(const std::vector<const edm4hep::MCParticle*>n& mcparts) {
+  inline auto find_first_beam_hadron(const std::vector<const edm4hep::MCParticle*>& mcparts) {
     return find_first_with_status_pdg(mcparts, {4}, {2212, 2112});
   }
 
