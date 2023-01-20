@@ -38,6 +38,9 @@ public:
         m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
         m_sectorDist           = 3.0 * dd4hep::cm;
         m_minClusterNhits      = 5; // From Maria Z. comment in PR
+        m_minClusterEdep       = 100 * dd4hep::MeV;
+        m_minClusterCenterEdep = 0;
+        m_minClusterHitEdep    = 0;
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
