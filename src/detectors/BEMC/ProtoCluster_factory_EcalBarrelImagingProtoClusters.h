@@ -37,7 +37,7 @@ public:
         u_layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}; //  # adjacent layer
         m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
         m_sectorDist           = 3.0 * dd4hep::cm;
-        m_minClusterNhits      = 5; // From Maria Z. comment in PR
+        m_minClusterNhits      = 10; // From Maria Z. comment in PR
         m_minClusterEdep       = 100 * dd4hep::MeV;
         m_minClusterCenterEdep = 0;
         m_minClusterHitEdep    = 0;
