@@ -14,12 +14,12 @@
 namespace eicrecon {
 
     class InclusiveKinematicsElectron_factory :
-            public JChainFactoryT<ParticlesWithAssociation>,
+            public JChainFactoryT<edm4eic::InclusiveKinematics>,
             public SpdlogMixin<InclusiveKinematicsElectron_factory> {
 
     public:
         explicit InclusiveKinematicsElectron_factory(std::vector<std::string> default_input_tags):
-            JChainFactoryT<ParticlesWithAssociation>(std::move(default_input_tags)) {
+            JChainFactoryT<edm4eic::InclusiveKinematics>(std::move(default_input_tags)) {
         }
 
         /** One time initialization **/

@@ -12,6 +12,7 @@
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedParticles_factory.h"
+#include "ReconstructedParticleAssociations_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
 
 //
@@ -32,8 +33,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
             {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
 
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
+            {"ChargedParticlesWithAssociations"},
+            "ReconstructedParticlesAssociations"));
+
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
-            {"ReconstructedParticles"}, "InclusiveKinematicsElectron"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsElectron"));
 
 
 }

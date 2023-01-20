@@ -39,11 +39,13 @@ namespace eicrecon {
 
     void InclusiveKinematicsElectron_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-        auto rc_particles = event->GetSingle<edm4eic::ReconstructedParticles>("ReconstructedParticles");
+        auto rc_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+        auto rc_particles_assoc = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedParticlesAssociations");
 
         auto inclusive_kinematics = m_inclusive_kinematics_algo.execute(
             mc_particles,
-            rc_particles
+            rc_particles,
+            rc_particles_assoc
         );
 
         Set(inclusive_kinematics);
