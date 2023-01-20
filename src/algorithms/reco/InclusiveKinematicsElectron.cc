@@ -136,7 +136,7 @@ namespace eicrecon {
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
+      if ((*ef_assoc)->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
         break;
       }
     }
@@ -146,7 +146,7 @@ namespace eicrecon {
       }
       return nullptr;
     }
-    const auto ef_rc{ef_assoc->getRec()};
+    const auto ef_rc{(*ef_assoc)->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 
     // Loop over reconstructed particles to get outgoing scattered electron
