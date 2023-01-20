@@ -12,13 +12,13 @@
 
 
 
-class ProtoCluster_factory_LumiSpecCalTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_EcalLumiSpecTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_LumiSpecCalTruthProtoClusters(){
-        SetTag("LumiSpecCalTruthProtoClusters");
+    ProtoCluster_factory_EcalLumiSpecTruthProtoClusters(){
+        SetTag("EcalLumiSpecTruthProtoClusters");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -26,10 +26,10 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_inputHit_tag="LumiSpecCalRecHits";
-        m_inputMCHit_tag="LumiSpecCalHits";
+        m_inputHit_tag="EcalLumiSpecRecHits";
+        m_inputMCHit_tag="EcalLumiSpecHits";
 
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 
         AlgorithmInit(m_log);
     }

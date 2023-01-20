@@ -18,14 +18,14 @@
 
 
 
-class RawCalorimeterHit_factory_LumiSpecCalRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalLumiSpecRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_LumiSpecCalRawHits() {
-        SetTag("LumiSpecCalRawHits");
+    RawCalorimeterHit_factory_EcalLumiSpecRawHits() {
+        SetTag("EcalLumiSpecRawHits");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -35,7 +35,7 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "LumiSpecCALHits";
+        m_input_tag = "EcalLumiSpecHits";
         u_eRes = {0.0 * dd4hep::MeV, 20 * dd4hep::MeV, 0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
@@ -54,19 +54,19 @@ public:
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRawHits:readoutClass",     m_readout);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:readoutClass",     m_readout);
 
         AlgorithmInit(m_log);
     }

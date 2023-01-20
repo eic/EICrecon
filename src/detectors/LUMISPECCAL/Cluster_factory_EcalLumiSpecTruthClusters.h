@@ -15,25 +15,25 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_LumiSpecCalTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalLumiSpecTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_LumiSpecCalTruthClustersAssociations(){
-        SetTag("LumiSpecCalTruthClustersAssociations");
+    Association_factory_EcalLumiSpecTruthClustersAssociations(){
+        SetTag("EcalLumiSpecTruthClustersAssociations");
     }
 };
 
 
 
-class Cluster_factory_LumiSpecCalTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalLumiSpecTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_LumiSpecCalTruthClusters(){
-        SetTag("LumiSpecCalTruthClusters");
+    Cluster_factory_EcalLumiSpecTruthClusters(){
+        SetTag("EcalLumiSpecTruthClusters");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -42,8 +42,8 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="LumiSpecCalHits";
-        m_input_protoclust_tag="LumiSpecCalTruthProtoClusters";
+        m_input_simhit_tag="EcalLumiSpecHits";
+        m_input_protoclust_tag="EcalLumiSpecTruthProtoClusters";
     
         m_sampFrac=0.03;//{this, "samplingFraction", 1.0};
         m_logWeightBase=4.6;//{this, "logWeightBase", 3.6};
@@ -56,13 +56,13 @@ public:
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalTruthClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -92,7 +92,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "LumiSpecCalTruthClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalLumiSpecTruthClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

@@ -8,13 +8,13 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_LumiSpecCalRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalLumiSpecRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_LumiSpecCalRecHits(){
-        SetTag("LumiSpecCalRecHits");
+    CalorimeterHit_factory_EcalLumiSpecRecHits(){
+        SetTag("EcalLumiSpecRecHits");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -23,7 +23,7 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "LumiSpecCalRawHits";
+        m_input_tag = "EcalLumiSpecRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
@@ -41,7 +41,7 @@ public:
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="LumiSpecCalHits";  // from ATHENA's reconstruction.py
+        m_readout="EcalLumiSpecHits";  // from ATHENA's reconstruction.py
         m_layerField="";              // from ATHENA's reconstruction.py (i.e. not defined there)
         m_sectorField="sector";       // from ATHENA's reconstruction.py
 
@@ -49,21 +49,21 @@ public:
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:thresholdFactor",  m_thresholdFactor);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:thresholdValue",   m_thresholdValue);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:samplingFraction", m_sampFrac);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:readout",          m_readout);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:layerField",       m_layerField);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:sectorField",      m_sectorField);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:localDetElement",  m_localDetElement);
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalRecHits:localDetFields",   u_localDetFields);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:thresholdFactor",  m_thresholdFactor);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:thresholdValue",   m_thresholdValue);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:readout",          m_readout);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:layerField",       m_layerField);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:sectorField",      m_sectorField);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:localDetElement",  m_localDetElement);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:localDetFields",   u_localDetFields);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         AlgorithmInit(m_log);

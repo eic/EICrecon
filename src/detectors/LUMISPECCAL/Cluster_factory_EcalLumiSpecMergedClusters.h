@@ -15,25 +15,25 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_LumiSpecCalMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalLumiSpecMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_LumiSpecCalMergedClustersAssociations(){
-        SetTag("LumiSpecCalMergedClustersAssociations");
+    Association_factory_EcalLumiSpecMergedClustersAssociations(){
+        SetTag("EcalLumiSpecMergedClustersAssociations");
     }
 };
 
 
 
-class Cluster_factory_LumiSpecCalMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalLumiSpecMergedClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_LumiSpecCalMergedClusters(){
-        SetTag("LumiSpecCalMergedClusters");
+    Cluster_factory_EcalLumiSpecMergedClusters(){
+        SetTag("EcalLumiSpecMergedClusters");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -42,14 +42,14 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_tag="LumiSpecCalClusters";
-        m_inputAssociations_tag="LumiSpecCalClustersAssociations";
+        m_input_tag="EcalLumiSpecClusters";
+        m_inputAssociations_tag="EcalLumiSpecClustersAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("LUMISPECCAL:LumiSpecCalMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
 
         AlgorithmInit(m_log);
     }
@@ -75,7 +75,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "LumiSpecCalMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalLumiSpecMergedClustersAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
