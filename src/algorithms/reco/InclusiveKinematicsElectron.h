@@ -1,9 +1,5 @@
-// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Dmitry Romanov
-
-// Takes a list of particles (presumed to be from tracking), and all available clusters.
-// 1. Match clusters to their tracks using the mcID field
-// 2. For unmatched clusters create neutrals and add to the particle list
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023 Sylvester Joosten, Dmitry Romanov, Wouter Deconinck 
 
 #pragma once
 
