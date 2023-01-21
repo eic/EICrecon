@@ -47,6 +47,54 @@ void EemcTrkPropagation_processor::Init()
     // Create a directory for this plugin. And subdirectories for series of histograms
     m_dir_main = file->mkdir(plugin_name.c_str());
 
+    //Define histograms
+    h1a = new TH2D("h1a","",100,0,25,100,0,25);
+    h1a->GetXaxis()->SetTitle("True Momentum [GeV/c]");h1a->GetXaxis()->CenterTitle();
+    h1a->GetYaxis()->SetTitle("Rec. Track Momentum [GeV/c]");h1a->GetYaxis()->CenterTitle();
+    h1a->SetDirectory(m_dir_main);
+
+    h1b = new TH2D("h1b","",100,0,25,100,0,25);
+    h1b->GetXaxis()->SetTitle("True Energy [GeV]");h1b->GetXaxis()->CenterTitle();
+    h1b->GetYaxis()->SetTitle("Rec. Cluster Energy [GeV]");h1b->GetYaxis()->CenterTitle();
+    h1b->SetDirectory(m_dir_main);
+
+    h2a = new TH1D("h2a","",100,-1900,-1800);
+    h2a->GetXaxis()->SetTitle("Track Z Projection to EEMC [mm]");h2a->GetXaxis()->CenterTitle();
+    h2a->SetLineColor(kBlack);h2a->SetLineWidth(2);
+    h2a->SetDirectory(m_dir_main);
+
+    h2b = new TH1D("h2b","",100,-1900,-1800);
+    h2b->GetXaxis()->SetTitle("EEMC Cluster Z position [mm]");h2b->GetXaxis()->CenterTitle();
+    h2b->SetLineColor(kBlack);h2b->SetLineWidth(2);
+    h2b->SetDirectory(m_dir_main);
+
+    h3a = new TH2D("h3a","",100,-1000,1000,100,-1000,1000);
+    h3a->GetXaxis()->SetTitle("Track X Projection to EEMC [mm]");h3a->GetXaxis()->CenterTitle();
+    h3a->GetYaxis()->SetTitle("EEMC Cluster X position [mm]");h3a->GetYaxis()->CenterTitle();
+    h3a->GetYaxis()->SetTitleOffset(1.2);
+    h3a->SetDirectory(m_dir_main);
+
+    h3b = new TH2D("h3b","",100,-1000,1000,100,-1000,1000);
+    h3b->GetXaxis()->SetTitle("Track Y Projection to EEMC [mm]");h3b->GetXaxis()->CenterTitle();
+    h3b->GetYaxis()->SetTitle("EEMC Cluster Y position [mm]");h3b->GetYaxis()->CenterTitle();
+    h3b->GetYaxis()->SetTitleOffset(1.2);
+    h3b->SetDirectory(m_dir_main);
+
+    h4a = new TH1D("h4a","",100,-80,80);
+    h4a->GetXaxis()->SetTitle("EEMC Cluster X - Projection X [mm]");h4a->GetXaxis()->CenterTitle();
+    h4a->SetLineColor(kBlack);h4a->SetLineWidth(2);
+    h4a->SetDirectory(m_dir_main);
+
+    h4b = new TH1D("h4b","",100,-80,80);
+    h4b->GetXaxis()->SetTitle("EEMC Cluster Y - Projection Y [mm]");h4b->GetXaxis()->CenterTitle();
+    h4b->SetLineColor(kBlack);h4b->SetLineWidth(2);
+    h4b->SetDirectory(m_dir_main);
+
+    h5a = new TH1D("h5a","",100,0,1.5);
+    h5a->GetXaxis()->SetTitle("EEMC Cluster E / Rec. Track Momentum");h5a->GetXaxis()->CenterTitle();
+    h5a->SetLineColor(kBlack);h5a->SetLineWidth(2);
+    h5a->SetDirectory(m_dir_main);
+
     // Get log level from user parameter or default
     InitLogger(plugin_name);
 
@@ -152,7 +200,7 @@ void EemcTrkPropagation_processor::Process(const std::shared_ptr<const JEvent>& 
     auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
 
     // Iterate over trajectories
-    m_log->debug("Propagating through {} trajectories", trajectories.size());
+    m_log->trace("Propagating through {} trajectories", trajectories.size());
     for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
         auto &trajectory = trajectories[traj_index];
         m_log->trace(" -- trajectory {} --", traj_index);
@@ -174,8 +222,24 @@ void EemcTrkPropagation_processor::Process(const std::shared_ptr<const JEvent>& 
         // Now go through reconstructed tracks points
         auto pos = projection_point->position;
         auto length =  projection_point->pathlength;
+        auto traj_mom = projection_point->momentum;
+        auto mom_mag = sqrt( traj_mom.x*traj_mom.x + traj_mom.y*traj_mom.y + traj_mom.z*traj_mom.z );
+        m_log->trace("Trajectory index, proj x, proj y, proj z, pathlength, momentum:");
+        m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length, mom_mag);
 
-        m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y, pos.z, length);
+        //Fill histograms
+        if(num_primary==1 && num_clus==1 && num_rec==1){
+            h1a->Fill(mcp,recp);
+            h1b->Fill(mce,cluse);
+            h2a->Fill(pos.z);
+            h2b->Fill(clus_z);
+            h3a->Fill(pos.x,clus_x);
+            h3b->Fill(pos.y,clus_y);
+            h4a->Fill(clus_x-pos.x);
+            h4b->Fill(clus_y-pos.y);
+            h5a->Fill(cluse/recp);
+        }
+
     }
 }
 

@@ -12,6 +12,9 @@
 
 #include <TDirectory.h>
 
+#include <TH1.h>
+#include <TH2.h>
+
 class JEvent;
 class JApplication;
 
@@ -48,6 +51,17 @@ public:
     // for example, want to close an output file here.
     // Only one thread will call this.
     void Finish() override;
+
+    //Histograms
+    TH2 *h1a; //Rec track momentum vs. true momentum
+    TH2 *h1b; //EEMC cluster E vs. true energy
+    TH1 *h2a; //Track projection z at EEMC
+    TH1 *h2b; //EEMC Cluster z position
+    TH2 *h3a; //EEMC Cluster x position vs. Track projection x
+    TH2 *h3b; //EEMC Cluster y position vs. Track projection y
+    TH1 *h4a; //EEMC Cluster x position minus Track projection x 
+    TH1 *h4b; //EEMC Cluster y position minus Track projection y 
+    TH1 *h5a; //EEMC cluster E divided by rec track momentum
 
 private:
 

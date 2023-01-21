@@ -10,6 +10,6 @@ eicrecon \
 -Pplugins=dump_flags,EEMCProjPlugin \
 -Ppodio:output_file=eicrecon_out.root \
 -PEemc_TrkPropagation:LogLevel=trace \
--Pjana:nevents=10 \
+-Pjana:nevents=1000 \
 -Pdd4hep:xml_files=epic.xml \
 output.edm4hep.root | tee eicrecon_out.dat
