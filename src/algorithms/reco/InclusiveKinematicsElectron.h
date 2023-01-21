@@ -5,8 +5,7 @@
 // 1. Match clusters to their tracks using the mcID field
 // 2. For unmatched clusters create neutrals and add to the particle list
 
-#ifndef EICRECON_INCLUSIVEKINEMATICELECTRON_H
-#define EICRECON_INCLUSIVEKINEMATICELECTRON_H
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -44,5 +43,3 @@ namespace eicrecon {
         };
 
 } // namespace eicrecon
-
-#endif //EICRECON_INCLUSIVEKINEMATICELECTRON_H
