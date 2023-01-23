@@ -67,7 +67,6 @@ namespace eicrecon {
                 continue;
             }
             auto &trackTip = trackTips.front();
-
             // Collect the trajectory summary info
             auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
             int m_nMeasurements = trajState.nMeasurements;

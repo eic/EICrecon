@@ -157,9 +157,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapPRecHits",
             "HcalEndcapPMergedHits",
             "HcalEndcapPClusters",
-            "HcalEndcapPTruthClusterAssociations",
-            "HcalEndcapPClusterAssociations",
-            "HcalEndcapPMergedClusterAssociations",
+            "HcalEndcapPTruthClustersAssociations",
+            "HcalEndcapPClustersAssociations",
+            "HcalEndcapPMergedClustersAssociations",
+            "GFHCALRawHits",   // this causes premature exit of eicrecon
+            "GFHCALRecHits",
+            "GFHCALMergedHits",
+            "GFHCALClusters",
+            "GFHCALTruthClustersAssociations",
+            "GFHCALClustersAssociations",
+            "GFHCALMergedClustersAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -341,8 +348,10 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         catch(std::exception &e) {
             // Limit printing warning to just once per factory
             std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
-            failing_factories.insert(fac_name);
-            m_log->warn("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
+            if (m_is_first_event) {
+                failing_factories.insert(fac_name);
+                m_log->warn("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
+            }
         }
     }
     m_writer->writeEvent();

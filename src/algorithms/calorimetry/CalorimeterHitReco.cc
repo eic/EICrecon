@@ -132,6 +132,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
 
         //did not pass the zero-suppresion threshold
         if (rh->getAmplitude() < m_pedMeanADC + thresholdADC) {
+            std::cout << "hit amplitude " << rh->getAmplitude() << " is smaller than threshold " << m_pedMeanADC + thresholdADC << std::endl;
             continue;
         }
 

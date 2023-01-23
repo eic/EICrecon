@@ -39,7 +39,9 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
     m_th2_btof_phiz->SetDirectory(m_dir_main);
     m_th2_ftof_rphi->SetDirectory(m_dir_main);
 
-    m_tntuple_track = new TNtuple("track","track with tof","det:proj_x:proj_y:proj_z:proj_pathlength:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca");
+    
+//    m_tntuple_track = new TNtuple("track","track with tof","det:pdg:p:track_phi:proj_x:proj_y:proj_z:proj_pathlength:proj_nhits_tof:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca:tofhit_barrel_n:tofhit_endcap_n");
+    m_tntuple_track = new TNtuple("track","track with tof","det:pdg:p:track_phi:track_n:proj_pathlength:proj_nhits_tof:tofhit_t:tofhit_dca:tofhit_barrel_n:tofhit_endcap_n");
     m_tntuple_track->SetDirectory(m_dir_main);
 }
 
@@ -47,6 +49,18 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    // go through MC particles to find primary particle. thus only works for particle gun events at the moment:
+    logger()->trace("MC particles:");
+    m_log->trace("   {:>10} {:>10}", "[pdg]", "[status]");
+    int thisPDG = 0;
+    for (auto mc_part: mcParticles()) {
+        m_log->trace("   {:>10} {:>10}", mc_part->getPDG(), mc_part->getGeneratorStatus());
+    	if (mc_part->getGeneratorStatus() == 1){
+    	    thisPDG = mc_part->getPDG();
+    	    break;
+        }
+    }
+
 
     // List TOF Barrel hits from barrel
     logger()->trace("TOF barrel hits:");
@@ -73,8 +87,34 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     // Now go through reconstructed tracks points
     logger()->trace("Going over tracks:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-    for( auto track_segment : trackSegments() ){
+
+    // count track projections into tof:
+    int tracks_into_tof = 0;
+    for( int i_trk = 0; i_trk < trackSegments().size(); i_trk++){
+        auto track_segment = trackSegments().at(i_trk);
+
+        for(auto point: track_segment->getPoints()) {
+            auto &pos = point.position;
+
+            int det=IsTOFHit(pos.x, pos.y, pos.z);
+            if(det != 0) {
+            	// track with tof hit
+            	tracks_into_tof += 1;
+            }
+        }
+    }
+
+    for( int i_trk = 0; i_trk < trackSegments().size(); i_trk++){
+    	auto track_segment = trackSegments().at(i_trk);
+    	auto reco_track = recoTracks().at(i_trk);
+// DANGER!! was this wrong? \/
+//    	i_trk = i_trk + 1;
+// DANGE!! was this wrong?  /\
         logger()->trace(" Track trajectory");
+        
+	auto p_track = reco_track->getMomentum();
+	auto p_track_mag = sqrt(p_track.x*p_track.x + p_track.y*p_track.y + p_track.z*p_track.z);
+	auto p_track_phi = acos(p_track.z / p_track_mag);
 
         for(auto point: track_segment->getPoints()) {
             auto &pos = point.position;
@@ -110,7 +150,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
                     }
                 }
             }
-            if(det!=0) m_tntuple_track->Fill(det, pos.x, pos.y, pos.z, point.pathlength, hit_x, hit_y, hit_z, hit_t, distance_closest);
+//                                          "det:pdg:p:track_phi:proj_x:proj_y:proj_z:proj_pathlength:proj_nhits_tof:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca:tofhit_barrel_n:tofhit_endcap_n:");
+
+//            if(det!=0) m_tntuple_track->Fill({det, thisPDG, p_track_mag, p_track_phi, pos.x, pos.y, pos.z, point.pathlength, tracks_into_tof, hit_x, hit_y, hit_z, hit_t, distance_closest, int(barrelHits().size()), int(endcapHits().size())});
+            if(det!=0) m_tntuple_track->Fill(det, thisPDG, p_track_mag, p_track_phi, trackSegments().size(), point.pathlength, tracks_into_tof, hit_t, distance_closest, barrelHits().size(), endcapHits().size());
         }
     }
 }
