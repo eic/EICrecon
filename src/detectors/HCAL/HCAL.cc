@@ -68,6 +68,7 @@ extern "C" {
         // app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNClusters>());
         // app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>());
 
+<<<<<<< HEAD
         // app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPRawHits>());
         // app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>());
         // app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>());
@@ -92,6 +93,32 @@ extern "C" {
         // app->Add(new JFactoryGeneratorT<Association_factory_GFHCALClustersAssociations>());
         // app->Add(new JFactoryGeneratorT<Association_factory_GFHCALMergedClustersAssociations>());
 
+=======
+        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPRawHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPMergedClusters>());
+        app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPTruthClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPMergedClusterAssociations>());
+        
+        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_GFHCALRawHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_GFHCALRecHits>());
+        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_GFHCALMergedHits>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_GFHCALTruthProtoClusters>());
+        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_GFHCALIslandProtoClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_GFHCALClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_GFHCALTruthClusters>());
+        app->Add(new JFactoryGeneratorT<Cluster_factory_GFHCALMergedClusters>());
+        // app->Add(new JFactoryGeneratorT<Association_factory_GFHCALTruthClustersAssociations>());
+        // app->Add(new JFactoryGeneratorT<Association_factory_GFHCALClustersAssociations>());
+        // app->Add(new JFactoryGeneratorT<Association_factory_GFHCALMergedClustersAssociations>());
+
+>>>>>>> d85f9d5f (commit of all angular studies changes)
         // app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPInsertRawHits>());
         // app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>());
         // app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>());
