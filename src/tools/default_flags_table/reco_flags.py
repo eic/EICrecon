@@ -747,7 +747,7 @@ eicrecon_reco_flags = [
     ('DRICH:DRICHRawHits:pedMean',         '200.0',     ''                                                      ),
     ('DRICH:DRICHRawHits:pedError',        '3.0',       ''                                                      ),
     ('DRICH:DRICHRawHits:enablePixelGaps', 'true',      'enable/disable removal of hits in gaps between pixels' ),
-    # ('DRICH:DRICHRawHits:pixelSize',       '3.0*mm',    'pixel (active) size'                                   ), # FIXME: do not use until https://github.com/eic/EICrecon/issues/383 is resolved
+    ('DRICH:DRICHRawHits:pixelSize',       '3.0*mm',    'pixel (active) size'                                   ),
     ('DRICH:DRICHRawHits:safetyFactor',    '0.7',       'overall safety factor'                                 ),
     # ('DRICH:DRICHRawHits:quantumEfficiency', '...', 'quantum efficiency' ), # FIXME cannot define here; instead it is hard coded in src/algorithms/digi/PhotoMultiplierHitDigiConfig.h
 

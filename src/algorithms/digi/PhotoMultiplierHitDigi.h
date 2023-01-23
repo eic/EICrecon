@@ -19,6 +19,7 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawPMTHit.h>
 #include <spdlog/spdlog.h>
+#include <Evaluator/DD4hepUnits.h>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include <algorithms/interfaces/WithPodConfig.h>
