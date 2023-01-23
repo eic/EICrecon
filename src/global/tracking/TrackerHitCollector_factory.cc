@@ -44,10 +44,12 @@ namespace eicrecon {
         // Just collect hits together
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
+            // std::cout << "Found " << hits.size() << " hits in " << input_tag << std::endl;
             for (const auto hit : hits) {
                 total_hits.push_back(const_cast<edm4eic::TrackerHit*>(hit));
             }
         }
+        // std::cout << "TrackerHitCollector_factory::Process: total_hits = " << total_hits.size() << std::endl;
         Set(total_hits);
     }
 } // eicrecon
