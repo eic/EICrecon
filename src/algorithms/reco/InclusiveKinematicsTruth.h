@@ -28,7 +28,7 @@ namespace eicrecon {
         void init(std::shared_ptr<spdlog::logger> logger);
 
         std::vector<edm4eic::InclusiveKinematics*> execute(
-                std::vector<const edm4hep::MCParticle*> mcparts,
+                std::vector<const edm4hep::MCParticle*> mcparts
 
         );
 
