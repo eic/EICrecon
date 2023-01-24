@@ -103,6 +103,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticlesAssociations",
             "CentralTrackSegments",
+            "InclusiveKinematicsElectron",
+            "InclusiveKinematicsTruth",
 
             // Ecal stuff
             "EcalEndcapNRawHits",
