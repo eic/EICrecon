@@ -16,10 +16,6 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <JANA/JEvent.h>
-#include <Evaluator/DD4hepUnits.h>
-
-using namespace dd4hep;
-
 
 //------------------------
 // AlgorithmInit
@@ -76,30 +72,31 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           uint32_t npe;
           double signal;
           double time;
-          Position pos;
+          dd4hep::Position pos;
         };
         std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
+            auto edep_eV = ahit->getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             // m_log->trace("{:-<60}","Simulation Hit");
-            // m_log->trace("  {:>20}: {}\n", "EDep", ahit->getEDep()/eV);
+            // m_log->trace("  {:>20}: {}\n", "EDep", edep_eV);
 
             // overall safety factor
             if (m_rngUni() > m_cfg.safetyFactor) continue;
 
             // quantum efficiency
-            if (!qe_pass(ahit->getEDep(), m_rngUni())) continue;
+            if (!qe_pass(edep_eV, m_rngUni())) continue;
 
             // pixel gap cuts
             // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
             auto id = ahit->getCellID();
-            Position pos_pixel, pos_hit;
+            dd4hep::Position pos_pixel, pos_hit;
             if(m_cfg.enablePixelGaps) {
               pos_pixel = get_sensor_local_position( id, m_cellid_converter->position(id) );
               pos_hit   = get_sensor_local_position( id, vec2pos(ahit->getPosition())     );
-              if( std::abs( pos_hit.x()/mm - pos_pixel.x()/mm ) > m_cfg.pixelSize/mm/2 ||
-                  std::abs( pos_hit.y()/mm - pos_pixel.y()/mm ) > m_cfg.pixelSize/mm/2
+              if( std::abs( pos_hit.x()/dd4hep::mm - pos_pixel.x()/dd4hep::mm ) > m_cfg.pixelSize/2 ||
+                  std::abs( pos_hit.y()/dd4hep::mm - pos_pixel.y()/dd4hep::mm ) > m_cfg.pixelSize/2
                 ) continue;
             }
 
@@ -112,7 +109,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             if (it != hit_groups.end()) {
                 size_t i = 0;
                 for (auto git = it->second.begin(); git != it->second.end(); ++git, ++i) {
-                    if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow/ns)) {
+                    if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow)) {
                         git->npe += 1;
                         git->signal += amp;
                         break;
@@ -140,7 +137,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
                   it.first,
                   static_cast<uint32_t>(data.signal), 
-                  static_cast<uint32_t>(data.time/(m_cfg.timeStep/ns))
+                  static_cast<uint32_t>(data.time/m_cfg.timeStep)
                   //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
@@ -155,7 +152,7 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
         // get quantum efficiency table
         qeff.clear();
         for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
-          qeff.push_back({ 1239.84*eV*nm / wl, qe }); // convert wavelength -> energy
+          qeff.push_back({ 1239.84 / wl, qe }); // convert wavelength [nm] -> energy [eV]
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),
@@ -166,19 +163,19 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
         // print the table
         m_log->debug("{:-^60}"," Quantum Efficiency vs. Energy ");
         for(auto& [en,qe] : qeff)
-          m_log->debug("  {:>10.4} {:<}",en/eV,qe);
+          m_log->debug("  {:>10.4} {:<}",en,qe);
         m_log->trace("{:=^60}","");
 
         // sanity checks
         if (qeff.empty()) {
-            qeff = {{2.6*eV, 0.3}, {7.0*eV, 0.3}};
+            qeff = {{2.6, 0.3}, {7.0, 0.3}};
             m_log->warn("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
         }
-        if (qeff.front().first > 3.0*eV) {
-            m_log->warn("Quantum efficiency data start from {:.2f} {}", qeff.front().first/eV , " eV, maybe you are using wrong units?");
+        if (qeff.front().first > 3.0) {
+            m_log->warn("Quantum efficiency data start from {:.2f} {}", qeff.front().first, " eV, maybe you are using wrong units?");
         }
-        if (qeff.back().first < 3.0*eV) {
-            m_log->warn("Quantum efficiency data end at {:.2f} {}" , qeff.back().first/eV , " eV, maybe you are using wrong units?");
+        if (qeff.back().first < 3.0) {
+            m_log->warn("Quantum efficiency data end at {:.2f} {}", qeff.back().first, " eV, maybe you are using wrong units?");
         }
 }
 
@@ -217,7 +214,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
                     });
 
         if (it == qeff.end()) {
-            // m_log->warn("{} eV is out of QE data range, assuming 0\% efficiency",ev/eV);
+            // m_log->warn("{} eV is out of QE data range, assuming 0\% efficiency",ev);
             return false;
         }
 
@@ -227,7 +224,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
             prob = (it->second*(itn->first - ev) + itn->second*(ev - it->first)) / (itn->first - it->first);
         }
 
-        // m_log->trace("{} eV, QE: {}\%",ev/eV,prob*100.);
+        // m_log->trace("{} eV, QE: {}\%",ev,prob*100.);
         return rand <= prob;
 }
 
@@ -235,7 +232,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 // transform global position `pos` to sensor `id` frame position
 // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
 // FIXME: here be dragons... 
-Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, Position pos) {
+dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, dd4hep::Position pos) {
 
   // get the VolumeManagerContext for this sensitive detector
   auto context = m_cellid_converter->findContext(id);
@@ -253,23 +250,23 @@ Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id
   volToElement.LocalToMaster(xyz_l, xyz_e);
   const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
   elementToGlobal.LocalToMaster(xyz_e, xyz_g);
-  Position pos_sensor;
+  dd4hep::Position pos_sensor;
   pos_sensor.SetCoordinates(xyz_g);
 
   // get the position vector of `pos` w.r.t. the sensor position `pos_sensor`
-  Direction pos_pv = pos - pos_sensor;
+  dd4hep::Direction pos_pv = pos - pos_sensor;
 
   // then transform it to the sensor's local frame
   pos_pv.GetCoordinates(pv_g);
   volToElement.MasterToLocalVect(pv_g, pv_l);
-  Position pos_transformed;
+  dd4hep::Position pos_transformed;
   pos_transformed.SetCoordinates(pv_l);
 
   // trace log
   if(m_log->level() <= spdlog::level::trace) {
     m_log->trace("pixel hit on cellID={:#018x}",id);
-    auto print_pos = [&] (std::string name, Position p) {
-      m_log->trace("  {:>30} x={:.2f} y={:.2f} z={:.2f} [mm]: ", name, p.x()/mm,  p.y()/mm,  p.z()/mm);
+    auto print_pos = [&] (std::string name, dd4hep::Position p) {
+      m_log->trace("  {:>30} x={:.2f} y={:.2f} z={:.2f} [mm]: ", name, p.x()/dd4hep::mm,  p.y()/dd4hep::mm,  p.z()/dd4hep::mm);
     };
     print_pos("input position",  pos);
     print_pos("sensor position", pos_sensor);
