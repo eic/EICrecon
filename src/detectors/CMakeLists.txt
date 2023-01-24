@@ -5,7 +5,6 @@ add_subdirectory(ZDC)
 add_subdirectory(B0ECAL)
 
 # Tracking detectors
-add_subdirectory(B0TRK)     # B0 tracker
 add_subdirectory(BTRK)      # Barrel tracker
 add_subdirectory(BVTX)      # Barrel vertex
 add_subdirectory(ECGEM)     # EndCap GEM
