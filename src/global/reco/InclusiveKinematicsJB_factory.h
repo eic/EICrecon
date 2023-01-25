@@ -33,7 +33,7 @@ namespace eicrecon {
     protected:
 
         std::vector<std::string> m_input_assoc_tags = {"InclusiveKinematicsJB"};
-        InclusiveKinematicsElectron m_inclusive_kinematics_algo;
+        InclusiveKinematicsJB m_inclusive_kinematics_algo;
 
     };
 
