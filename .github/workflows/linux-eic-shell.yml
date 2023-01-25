@@ -264,54 +264,10 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  run_eicrecon_reco_flags-gcc:
-    runs-on: ubuntu-latest
-    needs:
-    - build
-    - ddsim-gun
-    strategy:
-      matrix:
-        particle: [pi, e]
-        detector_config: [arches, brycecanyon]
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: install-gcc-eic-shell-Release
-    - uses: actions/download-artifact@v3
-      with:
-        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v3
-    - uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
-        run: |
-          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
-          export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
-    - uses: actions/upload-artifact@v3
-      with:
-        name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
-        if-no-files-found: error
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
-        path: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
-        if-no-files-found: error
-    - uses: actions/upload-artifact@v3
-      with:
-        name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
-        path: jana.dot
-        if-no-files-found: error
-
   # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
   # to embed into docs
   build-docs-advanced:
-    needs:
-      - run_eicrecon_reco_flags-gcc
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -320,17 +276,9 @@ jobs:
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: pi_arches_right_flags.json
-      - uses: actions/download-artifact@v3
-        with:
-          name: pi_brycecanyon_right_flags.json
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
-          cp pi_arches_right_flags.json docs/arches_flags.json
-          cp pi_brycecanyon_right_flags.json docs/brycecanyon_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/upload-artifact@v3
