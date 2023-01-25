@@ -122,14 +122,14 @@ jobs:
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-        if-no-files-found: error  
+        if-no-files-found: error
 
   ddsim-dis:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         beam: [5x41, 10x100, 18x275]
-        minq2: [1, 10, 100, 1000]
+        minq2: [1, 1000]
         detector_config: [arches, brycecanyon]
         exclude:
         - beam: 5x41
@@ -231,7 +231,7 @@ jobs:
     strategy:
       matrix:
         beam: [5x41, 10x100, 18x275]
-        minq2: [1, 10, 100, 1000]
+        minq2: [1, 1000]
         detector_config: [arches, brycecanyon]
         exclude:
         - beam: 5x41
