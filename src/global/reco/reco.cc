@@ -40,8 +40,11 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsElectron"));
             
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsTruth"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsJB_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsJB"));
 
 
 }
