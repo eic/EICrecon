@@ -119,7 +119,7 @@ namespace eicrecon {
     double Esum = 0;
 
     // Get boost to colinear frame
-    auto boost = Boost::determine_boost(ei, pi);
+    auto boost = determine_boost(ei, pi);
 
     for (const auto& p: rcparts) {
       // Get the scattered electron index and angle
@@ -130,7 +130,7 @@ namespace eicrecon {
         // Lorentz vector in lab frame
         PxPyPzEVector hf_lab(p->getMomentum().x, p->getMomentum().y, p->getMomentum().z, p->getEnergy());
         // Boost to colinear frame
-        PxPyPzEVector hf_boosted = Boost::apply_boost(boost, hf_lab);
+        PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
 
         pxsum += hf_boosted.Px();
         pysum += hf_boosted.Py();
