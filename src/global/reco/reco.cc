@@ -14,6 +14,8 @@
 #include "ReconstructedParticles_factory.h"
 #include "ReconstructedParticleAssociations_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
+#include "InclusiveKinematicsTruth_factory.h"
+#include "InclusiveKinematicsJB_factory.h"
 
 //
 extern "C" {
