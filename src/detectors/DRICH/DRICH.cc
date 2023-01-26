@@ -14,6 +14,7 @@
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 
 
 extern "C" {
@@ -22,7 +23,9 @@ extern "C" {
 
     using namespace eicrecon;
 
-    // Digitization
+    // configuration parameters ///////////////////////////////////////////////
+
+    // digitization
     PhotoMultiplierHitDigiConfig digi_cfg;
     digi_cfg.seed            = 0;
     digi_cfg.hitTimeWindow   = 20.0; // [ns]
@@ -50,17 +53,58 @@ extern "C" {
     digi_cfg.quantumEfficiency.push_back({800, 0.08});
     digi_cfg.quantumEfficiency.push_back({850, 0.06});
     digi_cfg.quantumEfficiency.push_back({900, 0.04});
-    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DRICHHits"}, "DRICHRawHits", digi_cfg));
 
-    // Track Propagation to each radiator
-    // FIXME: algorithm configuration currently set in RichTrack factory; need to write independent RichTrack algorithm
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHAerogelTracks"));
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
+    // track propagation to each radiator
+    /* FIXME: algorithm configuration currently set in RichTrack factory; need
+     *        to write independent RichTrack algorithm with a config class, then we
+     *        can move the user-level settings to here
+     * FIXME: set irt_cfg.radiators.at(*).zbins below to match RichTrack config
+     */
 
+    // PID
+    IrtCherenkovParticleIDConfig irt_cfg;
+    // - refractive index interpolation
+    irt_cfg.numRIndexBins = 100;
+    // - aerogel
+    irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
+    irt_cfg.radiators.at("Aerogel").zbins           = 5;
+    irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
+    irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
+    irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
+    irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
+    // - gas
+    irt_cfg.radiators.insert({"Gas", RadiatorConfig{}});
+    irt_cfg.radiators.at("Gas").zbins           = 10;
+    irt_cfg.radiators.at("Gas").referenceRIndex = 1.00076;
+    irt_cfg.radiators.at("Gas").attenuation     = 0; // [mm]
+    irt_cfg.radiators.at("Gas").smearingMode    = "gaussian";
+    irt_cfg.radiators.at("Gas").smearing        = 5e-3; // [radians]
+    // - PDG list
+    irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { -11, 211, 321, 2212 });
+
+
+    // wiring between factories and data ///////////////////////////////////////
+
+    // digitization
+    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+          {"DRICHHits"},
+          "DRICHRawHits",
+          digi_cfg
+          ));
+    // track projections
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+          {"CentralCKFTrajectories"},
+          "DRICHAerogelTracks"
+          ));
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+          {"CentralCKFTrajectories"},
+          "DRICHGasTracks"
+          ));
     // PID
     app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
           {"DRICHRawHits","DRICHAerogelTracks","DRICHGasTracks"},
-          "DRICHIrtCherenkovParticleID"
+          "DRICHIrtCherenkovParticleID",
+          irt_cfg
           ));
   }
 }

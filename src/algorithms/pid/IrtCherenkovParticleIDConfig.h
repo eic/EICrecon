@@ -10,48 +10,35 @@ namespace eicrecon {
 
   // radiator config parameters
   struct RadiatorConfig {
-    std::string smearingMode;
-    double      smearing;
-    double      referenceRIndex;
-    double      attenuation;
-    int         zbins;
+    int         zbins;           // number of z-bins (should match the number of projected track points)
+    double      referenceRIndex; // reference radiator refractive index
+    double      attenuation;     // reference radiator attenuation length [mm]; set to 0 to disable
+    std::string smearingMode;    // smearing type: "gaussian", "uniform"
+    double      smearing;        // smearing amount [radians]
   };
 
   // IRT algorithm config
   class IrtCherenkovParticleIDConfig {
     public:
 
-      // NOTE: the values hard-coded here are defaults, may be out-of-date, and
-      //       should be overridden externally
+      /////////////////////////////////////////////////////
+      // CONFIGURATION PARAMETERS
+      //   NOTE: some defaults are hard-coded here; override externally
 
-      unsigned numRIndexBins = 100; // number of bins for refractive index vs. energy
+      unsigned numRIndexBins = 100; // number of bins to interpolate the refractive index vs. energy
 
-      // radiator-specific settings
-      std::map <std::string,RadiatorConfig> radiators = {
-        { "Aerogel", RadiatorConfig{
-                                     "gaussian",     // smearingMode
-                                     2*dd4hep::mrad, // smearing
-                                     1.0190,         // referenceRIndex
-                                     48*dd4hep::mm,  // attenuation
-                                     5,              // zbins
-                                   }},
-        { "Gas",     RadiatorConfig{
-                                     "gaussian",     // smearingMode
-                                     5*dd4hep::mrad, // smearing
-                                     1.00076,        // referenceRIndex
-                                     0*dd4hep::mm,   // attenuation
-                                     10,             // zbins
-                                   }}
-      };
+      /* radiator-specific settings; handled by `RadiatorConfig` struct (see above)
+       * example: radiators.insert({ "Aerogel", RadiatorConfig{ ... }});
+       *          radiators.insert({ "Gas", RadiatorConfig{ ... }});
+       */
+      std::map <std::string,RadiatorConfig> radiators;
 
-      // list of PDG codes for PID
-      std::vector<int> pdgList = {
-        -11,
-        211,
-        321,
-        2212
-      };
+      /* list of PDG codes to identify with this PID algorithm
+       * example: std::vector<int> pdgList = { -11, 211, 321, 2212 };
+       */
+      std::vector<int> pdgList;
 
+      //
       /////////////////////////////////////////////////////
 
       // print all parameters
