@@ -18,6 +18,7 @@
 #include "InclusiveKinematicsJB_factory.h"
 #include "InclusiveKinematicsDA_factory.h"
 #include "InclusiveKinematicseSigma_factory.h"
+#include "InclusiveKinematicsSigma_factory.h"
 
 //
 extern "C" {
@@ -55,6 +56,9 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicseSigma"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsSigma"));
 
 }
 } // extern "C"
