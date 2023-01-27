@@ -112,7 +112,22 @@ jobs:
         detector_config: [arches, brycecanyon]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Get detector info
+      id: detector_info
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          eic-info | grep ${DETECTOR}/${DETECTOR_VERSION} | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+    - name: Retrieve simulation files
+      id: retrieve_simulation_files
+      uses: actions/cache@v3
+      with:
+        path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        key: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
     - uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
@@ -136,7 +151,22 @@ jobs:
           minq2: 1000
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Get detector info
+      id: detector_info
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          eic-info | grep ${DETECTOR}/${DETECTOR_VERSION} | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+    - name: Retrieve simulation files
+      id: retrieve_simulation_files
+      uses: actions/cache@v3
+      with:
+        path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
     - uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
