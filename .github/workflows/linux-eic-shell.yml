@@ -114,12 +114,8 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Get detector info
       id: detector_info
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
-        run: |
-          eic-info | grep ${DETECTOR}/${DETECTOR_VERSION} | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+      run: |
+        grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v3
@@ -153,12 +149,8 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Get detector info
       id: detector_info
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
-        run: |
-          eic-info | grep ${DETECTOR}/${DETECTOR_VERSION} | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+      run: |
+        grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v3
