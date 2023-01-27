@@ -16,8 +16,9 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <TRandomGen.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawPMTHit.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/RawPMTHitCollection.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
 

@@ -48,7 +48,7 @@ void rich::IrtGeo::Bind() {
   m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_det);
   m_irtDetector->m_ReadoutIDToPosition = [this] (auto cell_id) {
     auto pos = this->CellID_to_Position(cell_id);
-    return TVector3(pos.x(),pos.y(),pos.z());
+    return (1/dd4hep::mm) * TVector3(pos.x(),pos.y(),pos.z());
   };
 }
 

@@ -73,6 +73,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           double signal;
           double time;
           dd4hep::Position pos;
+          edm4hep::MCParticle photon;
         };
         std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
@@ -100,9 +101,10 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 ) continue;
             }
 
-            // cell time, signal amplitude
+            // cell time, signal amplitude, truth photon
             double time = ahit->getTime();//ahit->getMCParticle().getTime();
-            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            double amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            auto   phot = ahit->getMCParticle();
 
             // group hits
             auto it = hit_groups.find(id);
@@ -117,10 +119,10 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit});
+                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, phot});
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit}};
+                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, phot}};
             }
         }
 
@@ -134,13 +136,13 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         std::vector<edm4eic::RawPMTHit*> raw_hits;
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
-                edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
-                  it.first,
-                  static_cast<uint32_t>(data.signal),
-                  static_cast<uint32_t>(data.time/m_cfg.timeStep)
-                  //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
-                };
-                raw_hits.push_back(hit);
+                edm4eic::MutableRawPMTHit hit;
+                hit.setCellID(it.first);
+                hit.setIntegral(static_cast<uint32_t>(data.signal));
+                hit.setTimeStamp(static_cast<uint32_t>(data.time/m_cfg.timeStep));
+                hit.setPhoton(data.photon);
+                // hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
+                raw_hits.push_back(new edm4eic::RawPMTHit(hit)); // force immutable
             }
         }
         return raw_hits;

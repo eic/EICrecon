@@ -23,6 +23,7 @@ namespace eicrecon {
   //---------------------------------------------------------------
   class Binning {
     public:
+      static constexpr int    n_bins        = 100;
       static constexpr int    momentum_bins = 100;
       static constexpr int    momentum_max  = 60;
       static constexpr int    npe_bins      = 100;
@@ -39,6 +40,8 @@ namespace eicrecon {
   class RadiatorAnalysis {
     public:
       RadiatorAnalysis(TString rad_name) : m_rad_name(rad_name) {
+
+        // distributions
         m_npe_dist = new TH1D(
             "npe_dist_"+m_rad_name,
             "Overall NPE for "+m_rad_name+";NPE",
@@ -55,11 +58,27 @@ namespace eicrecon {
             Binning::phi_bins, -TMath::Pi(), TMath::Pi(),
             Binning::theta_bins, 0, Binning::theta_max
             );
+
+        // truth
+        m_mc_wavelength = new TH1D(
+            "mc_wavelength_"+m_rad_name,
+            "MC Photon Wavelength for "+m_rad_name+";#lambda [nm]",
+            Binning::n_bins, 0, 1000
+            );
+        m_mc_rindex = new TH1D(
+            "mc_rindex_"+m_rad_name,
+            "MC Refractive Index for "+m_rad_name+";n",
+            10*Binning::n_bins, 0.99, 1.03
+            );
+        
+        // PID
         m_highest_weight_dist = new TH1D(
             "highest_weight_dist_"+m_rad_name,
             "Highest PDG Weight for "+m_rad_name+";PDG",
             Binning::pdg_bins(), 0, Binning::pdg_bins()
             );
+
+        // momentum scans
         m_npe_vs_p = new TH2D(
             "npe_vs_p_"+m_rad_name,
             "Overall NPE vs. Particle Momentum for "+m_rad_name+";p [GeV];#theta [mrad]",
@@ -86,6 +105,8 @@ namespace eicrecon {
       TH1D *m_npe_dist;
       TH1D *m_theta_dist;
       TH2D *m_photon_theta_vs_phi;
+      TH1D *m_mc_wavelength;
+      TH1D *m_mc_rindex;
       TH1D *m_highest_weight_dist;
       TH2D *m_npe_vs_p;
       TH2D *m_theta_vs_p;

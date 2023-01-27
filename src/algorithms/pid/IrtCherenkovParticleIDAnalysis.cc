@@ -60,6 +60,10 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(std::vector<cons
     for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
       radiator_histos->m_photon_theta_vs_phi->Fill(phi,theta*1e3); // [rad] -> [mrad]
 
+    // fill MC dists
+    radiator_histos->m_mc_wavelength->Fill(pid->getWavelength());
+    radiator_histos->m_mc_rindex->Fill(pid->getRindex());
+
     // find the PDG hypothesis with the highest weight
     float max_weight     = -1000;
     int   pdg_max_weight = 0;

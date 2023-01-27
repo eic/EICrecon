@@ -61,12 +61,12 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
       irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
       irt_rad->SetReferenceRefractiveIndex(cfg_rad.referenceRIndex);
       if(cfg_rad.attenuation>0)
-        irt_rad->SetReferenceAttenuationLength(cfg_rad.attenuation / dd4hep::mm);
+        irt_rad->SetReferenceAttenuationLength(cfg_rad.attenuation);
       if(cfg_rad.smearing>0) {
         if(cfg_rad.smearingMode=="uniform")
-          irt_rad->SetUniformSmearing(cfg_rad.smearing / dd4hep::radian);
+          irt_rad->SetUniformSmearing(cfg_rad.smearing);
         else if(cfg_rad.smearingMode=="gaussian")
-          irt_rad->SetGaussianSmearing(cfg_rad.smearing / dd4hep::radian);
+          irt_rad->SetGaussianSmearing(cfg_rad.smearing);
         else
           m_log->error("Unknown smearing mode '{}' for {} radiator",cfg_rad.smearingMode,rad_name);
       }
@@ -131,18 +131,21 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
     // get sensor and pixel info
     auto cell_id       = raw_hit->getCellID();
     uint64_t sensor_id = cell_id & m_cell_mask;
-    TVector3 pixel_pos = (1/dd4hep::mm) * m_irt_det->m_ReadoutIDToPosition(cell_id);
+    TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
     m_log->trace("cell_id={:#X}  copy={}  pixel_pos=( {:>10.2f} {:>10.2f} {:>10.2f} )",
         cell_id, sensor_id, pixel_pos.x(), pixel_pos.y(), pixel_pos.z());
     // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
 
     // start new IRT photon
+    auto mc_photon  = raw_hit->getPhoton(); // get MC photon (anything that uses this is labelled "MC CHEAT")
     auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
     auto irt_photon = std::make_shared<OpticalPhoton>();
     irt_photon->SetVolumeCopy(sensor_id);
     irt_photon->SetDetectionPosition(pixel_pos);
     irt_photon->SetPhotonDetector(irt_sensor);
     irt_photon->SetDetected(true);
+    irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex())); // MC CHEAT
+    irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum())); // MC CHEAT
     irt_photons.push_back(std::move(irt_photon));
 
   } // end `in_raw_hits` loop
@@ -190,6 +193,25 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       // - we don't know which photon goes with which radiator, thus we add them all to each radiator;
       //   the radiators' photons are mixed in ChargedParticle::PIDReconstruction
       for(auto irt_photon : irt_photons) {
+
+        // MC CHEAT -- for testing only: use MC to get the actual radiator
+        auto mc_rad = m_irt_det->GuessRadiator(
+              irt_photon->GetVertexPosition(),
+              irt_photon->GetVertexPosition() // FIXME: assumes IP is at (0,0,0)
+              );
+        if(mc_rad != irt_rad) continue;
+        m_log->critical("cheat mode: using truth link photon and radiator");
+
+        // Retrieve a refractive index estimate; it is not exactly the one, which 
+        // was used in GEANT, but should be very close
+        double ri;
+        auto ri_set = Tools::GetFinelyBinnedTableEntry(
+            irt_rad->m_ri_lookup_table,
+            1e9 * irt_photon->GetVertexMomentum().Mag(), // MC CHEAT; [GeV]->[eV] conversion
+            &ri
+            );
+        if(ri_set) irt_photon->SetVertexRefractiveIndex(ri);
+
         // add copy of `irt_photon` to the history, since ~RadiatorHistory() will destroy it
         irt_rad_history->AddOpticalPhoton(new OpticalPhoton(*irt_photon));
         /* FIXME: this considers ALL of the `irt_photons`... we can limit this
@@ -247,13 +269,12 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         // auto phot_weight = fabs(sin(phi));
 
         // add to the total
+        npe++;
         weight_sum += phot_weight;
         theta_sum  += phot_weight * phot_theta;
         phot_theta_phi.push_back({ phot_theta, phot_phi });
-        npe++;
-        // FIXME: these need MC cheating
-        // rindex_sum += irt_photon->GetVertexRefractiveIndex();
-        // wavelength_sum += 1239.8/(1E9*irt_photon->GetVertexMomentum().Mag());
+        rindex_sum     += irt_photon->GetVertexRefractiveIndex(); // MC CHEAT
+        wavelength_sum += 1239.84 / (1e9 * irt_photon->GetVertexMomentum().Mag()); // MC CHEAT; [GeV]->[eV] conversion
 
       } // end loop over this radiator's photons
 
@@ -306,9 +327,6 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         out_cherenkov_pid.addToHypotheses(out_hypothesis);
 
       } // end hypothesis loop
-
-      // relate photons
-      // out_cherenkov_pid.addToPhotons(TODO);
 
       // relate charged particle
       auto out_charged_particle = *out_charged_particles.at(irt_rad);
