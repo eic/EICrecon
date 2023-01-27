@@ -84,6 +84,7 @@ void tracking_studiesProcessor::InitWithGlobalRootLock(){
     m_dRICH_center_surface = Acts::Surface::makeShared<Acts::DiscSurface>(dRICH_center_Trf, dRICH_center_Bounds);
 
 
+
     // //DIRC
     // zmin = 0;
     // zmax = 0;
