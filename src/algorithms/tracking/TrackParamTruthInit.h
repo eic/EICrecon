@@ -27,7 +27,6 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        TrackParamTruthInitConfig m_cfg;
         std::shared_ptr<TDatabasePDG> m_pdg_db;
 
         std::default_random_engine generator; // TODO: need something more appropriate here
