@@ -129,7 +129,6 @@ add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
-add_subdirectory( src/tools/default_flags_table )
 
 
 
