@@ -19,7 +19,7 @@
 #include <edm4hep/ParticleID.h>
 
 // services
-#include <services/geometry/irt/IrtGeo_service.h>
+#include <services/geometry/rich/RichGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
@@ -42,9 +42,9 @@ namespace eicrecon {
 
     private:
       std::string m_detector_name;
-      std::shared_ptr<IrtGeo_service> m_irtGeoSvc;
+      std::shared_ptr<RichGeo_service> m_richGeoSvc;
       std::shared_ptr<spdlog::logger> m_log;
-      CherenkovDetectorCollection *m_irtGeo;
+      CherenkovDetectorCollection *m_irtDetectorCollection;
 
   };
 }

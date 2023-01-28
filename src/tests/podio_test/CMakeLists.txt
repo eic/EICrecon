@@ -20,7 +20,7 @@ set( podio_test_SOURCES ${mysourcefiles} )
 
 add_executable(podio_test ${podio_test_SOURCES})
 
-target_include_directories(podio_test PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(podio_test PUBLIC ${EICRECON_SOURCE_DIR}/src)
 target_include_directories(podio_test SYSTEM PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} )
 target_link_libraries(podio_test ${JANA_LIB} ${ROOT_LIBRARIES} podio_plugin log_plugin)
 

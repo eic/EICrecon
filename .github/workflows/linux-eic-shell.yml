@@ -38,9 +38,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: .ccache
-        key: ccache-${{ matrix.CC }}-${{ github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-             ccache-${{ matrix.CC }}-${{ github.ref_name }}-
+             ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
+             ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-
              ccache-${{ matrix.CC }}-
              ccache-
     - name: Configure ccache
@@ -103,7 +104,7 @@ jobs:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
 
-  ddsim:
+  ddsim-gun:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -121,13 +122,38 @@ jobs:
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-        if-no-files-found: error  
+        if-no-files-found: error
+
+  ddsim-dis:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        beam: [5x41, 10x100, 18x275]
+        minq2: [1, 1000]
+        detector_config: [arches, brycecanyon]
+        exclude:
+        - beam: 5x41
+          minq2: 1000
+    steps:
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        if-no-files-found: error
 
   valgrind-memcheck-eicrecon-gcc:
     runs-on: ubuntu-latest
     needs:
     - build
-    - ddsim
+    - ddsim-gun
     strategy:
       matrix:
         particle: [pi]
@@ -155,11 +181,11 @@ jobs:
         path: valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log
         if-no-files-found: error
 
-  eicrecon-gcc:
+  eicrecon-gcc-gun:
     runs-on: ubuntu-latest
     needs:
     - build
-    - ddsim
+    - ddsim-gun
     strategy:
       matrix:
         particle: [pi, e]
@@ -197,22 +223,26 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  run_eicrecon_reco_flags-gcc:
+  eicrecon-gcc-dis:
     runs-on: ubuntu-latest
     needs:
     - build
-    - ddsim
+    - ddsim-dis
     strategy:
       matrix:
-        particle: [pi, e]
+        beam: [5x41, 10x100, 18x275]
+        minq2: [1, 1000]
         detector_config: [arches, brycecanyon]
+        exclude:
+        - beam: 5x41
+          minq2: 1000
     steps:
     - uses: actions/download-artifact@v3
       with:
         name: install-gcc-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
-        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -222,20 +252,15 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/run_eicrecon_reco_flags.py sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }} -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pplugins=janadot
     - uses: actions/upload-artifact@v3
       with:
-        name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.tree.edm4eic.root
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
-        path: ${{ matrix.particle }}_${{ matrix.detector_config }}_right_flags.json
-        if-no-files-found: error
-    - uses: actions/upload-artifact@v3
-      with:
-        name: run_eicrecon_reco_flags_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
         path: jana.dot
         if-no-files-found: error
 
@@ -243,8 +268,6 @@ jobs:
   # the difference is that these jobs use resulting artifacts from EICrecon runs
   # to embed into docs
   build-docs-advanced:
-    needs:
-      - run_eicrecon_reco_flags-gcc
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -253,17 +276,9 @@ jobs:
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: pi_arches_right_flags.json
-      - uses: actions/download-artifact@v3
-        with:
-          name: pi_brycecanyon_right_flags.json
       - run: |
           apk add doxygen graphviz
           doxygen Doxyfile
-          cp pi_arches_right_flags.json docs/arches_flags.json
-          cp pi_brycecanyon_right_flags.json docs/brycecanyon_flags.json
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/upload-artifact@v3
