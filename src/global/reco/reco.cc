@@ -34,12 +34,8 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
         {
-            "EcalEndcapNInsertClusters",
             "EcalEndcapNClusters",
-            "EcalBarrelSciGlassClusters",
-            "EcalBarrelImagingClusters",
             "EcalEndcapPClusters",
-            "EcalEndcapPInsertClusters"
          },
         "ReconstructedParticlesWithAssoc"
     ));
