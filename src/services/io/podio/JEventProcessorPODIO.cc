@@ -88,6 +88,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
 
+            // PID
+            "DRICHHits",
+            "MRICHHits",
+            "DIRCBarHits",
+
             // Forward & Far forward hits
             "ForwardOffMTrackerRecHits",
             "ForwardRomanPotRecHits",
