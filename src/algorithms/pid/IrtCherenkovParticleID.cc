@@ -131,16 +131,32 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
   m_log->trace("{:#<70}","### SENSOR HITS ");
   for(const auto& raw_hit : in_raw_hits) {
 
+    // get MC photon, typically only used by cheat modes or trace logging
+    auto mc_photon = raw_hit->getPhoton();
+    if(mc_photon.getPDG() != -22)
+      m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+
     // get sensor and pixel info
-    auto cell_id       = raw_hit->getCellID();
-    uint64_t sensor_id = cell_id & m_cell_mask;
-    TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
-    m_log->trace("cell_id={:#X}  copy={}  pixel_pos=( {:>10.2f} {:>10.2f} {:>10.2f} )",
-        cell_id, sensor_id, pixel_pos.x(), pixel_pos.y(), pixel_pos.z());
     // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
+    auto cell_id         = raw_hit->getCellID();
+    uint64_t sensor_id   = cell_id & m_cell_mask;
+    TVector3 pixel_pos   = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
+    TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
+    if(m_log->level() <= spdlog::level::trace) {
+      TVector3 sensor_pos = m_irt_det->m_ReadoutIDToSensorPosition(cell_id);
+      m_log->trace("cell_id={:#X}  copy={}", cell_id, sensor_id);
+      auto print_vec = [&m_log=m_log] (auto name, TVector3 vec) {
+        m_log->trace("  {:>20} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, vec.x(), vec.y(), vec.z());
+      };
+      print_vec("pixel position",  pixel_pos);
+      print_vec("sensor position", sensor_pos);
+      print_vec("photon endpoint", mc_endpoint);
+      m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
+      m_log->trace("  dist( sensor, photon ) = {}", (sensor_pos - mc_endpoint).Mag());
+      m_log->trace("  dist( pixel,  sensor ) = {}", (pixel_pos  - sensor_pos).Mag());
+    }
 
     // start new IRT photon
-    auto mc_photon  = raw_hit->getPhoton(); // get MC photon (typically only used by cheat modes)
     auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
     auto irt_photon = std::make_shared<OpticalPhoton>();
     irt_photon->SetVolumeCopy(sensor_id);
