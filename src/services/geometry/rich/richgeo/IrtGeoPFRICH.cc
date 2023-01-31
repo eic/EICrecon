@@ -80,6 +80,7 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // sensor modules: search the detector tree for sensors
   auto sensorThickness  = m_det->constant<double>("PFRICH_sensor_thickness") / dd4hep::mm;
+  auto sensorSize       = m_det->constant<double>("PFRICH_sensor_size") / dd4hep::mm;
   bool firstSensor = true;
   for(auto const& [de_name, detSensor] : m_detRich.children()) {
     if(de_name.find("sensor_de")!=std::string::npos) {
@@ -89,11 +90,16 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
       // - get sensor centroid position
       auto pvSensor  = detSensor.placement();
       auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());
-      // - get sensor surface position; add the offset vector to `m_sensor_surface_offset`
+      // - get sensor surface position
       dd4hep::Direction sensorNorm(0,0,1); // FIXME: generalize; this assumes planar layout, with norm along +z axis (toward IP)
       auto surfaceOffset = sensorNorm.Unit() * (0.5*sensorThickness);
       auto posSensorSurface = posSensor + surfaceOffset;
-      m_sensor_surface_offset.insert({imod,surfaceOffset});
+      // - add to `m_sensor` map
+      rich::Sensor sensor_info;
+      sensor_info.size             = sensorSize;
+      sensor_info.surface_centroid = posSensorSurface;
+      sensor_info.surface_offset   = surfaceOffset;
+      m_sensor.insert({ imod, sensor_info });
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};

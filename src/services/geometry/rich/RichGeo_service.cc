@@ -10,9 +10,9 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
 
   // logging service
   auto log_service = srv_locator->get<Log_service>();
-  m_log = log_service->logger("rich");
+  m_log = log_service->logger("richgeo");
   std::string log_level_str = "info";
-  m_app->SetDefaultParameter("rich:LogLevel", log_level_str, "Log level for RichGeo_service");
+  m_app->SetDefaultParameter("richgeo:LogLevel", log_level_str, "Log level for RichGeo_service");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
   m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
 

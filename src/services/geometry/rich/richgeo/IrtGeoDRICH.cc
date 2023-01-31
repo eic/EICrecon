@@ -116,6 +116,7 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
     // sensor sphere (only used for validation of sensor normals)
     auto sensorSphRadius  = m_det->constant<double>("DRICH_sensor_sph_radius") / dd4hep::mm;
     auto sensorThickness  = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
+    auto sensorSize       = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
     dd4hep::Position sensorSphCenter(
       m_det->constant<double>("DRICH_sensor_sph_center_x_"+secName) / dd4hep::mm,
       m_det->constant<double>("DRICH_sensor_sph_center_y_"+secName) / dd4hep::mm,
@@ -136,12 +137,16 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
         // - get sensor centroid position
         auto pvSensor  = detSensor.placement();
         auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());
-        m_sensor_centroid.insert({imodsec,posSensor});
-        // - get sensor surface position; add the offset vector to `m_sensor_surface_offset`
+        // - get sensor surface position
         dd4hep::Direction radialDir = posSensor - sensorSphCenter; // sensor sphere radius direction
         auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
         auto posSensorSurface = posSensor + surfaceOffset;
-        m_sensor_surface_offset.insert({imodsec,surfaceOffset});
+        // - add to `m_sensor` map
+        rich::Sensor sensor_info;
+        sensor_info.size             = sensorSize;
+        sensor_info.surface_centroid = posSensorSurface;
+        sensor_info.surface_offset   = surfaceOffset;
+        m_sensor.insert({ imodsec, sensor_info });
         // - get surface normal and in-plane vectors
         double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
         double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
@@ -192,15 +197,13 @@ void rich::IrtGeoDRICH::DD4hep_to_IRT() {
             imodsec,           // copy number
             sensorFlatSurface  // surface
             );
-        /*
         m_log.PrintLog(
-            "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
+            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
             imodsec,
             posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
             normXdir.x(),  normXdir.y(),  normXdir.z(),
             normYdir.x(),  normYdir.y(),  normYdir.z()
             );
-            */
       }
     } // search for sensors
 

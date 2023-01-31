@@ -53,9 +53,7 @@ namespace rich {
 
       // cell ID conversion
       std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
-      std::unordered_map<int,dd4hep::Position> m_sensor_centroid; // sensor id -> sensor centroid
-      // - pixel surface centroid = pixel volume centroid + `m_sensor_surface_offset`:
-      std::unordered_map<int,dd4hep::Direction> m_sensor_surface_offset; // sensor id -> offset
+      std::unordered_map<int,rich::Sensor> m_sensor; // sensor ID -> sensor info
 
       // IRT geometry handles
       CherenkovDetectorCollection *m_irtDetectorCollection;

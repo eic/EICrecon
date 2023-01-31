@@ -15,7 +15,7 @@ namespace rich {
    * to be usable independent of EICrecon, it uses a custom method `PrintLog`
    * - for compatibility with the EICrecon log service, set `verbose`
    *   based on its log level to control whether `PrintLog` prints anything
-   * - static `PrintError` prints an error regardless of `verbose`
+   * - static `PrintError` and `PrintWarning` prints an error regardless of `verbose`
    */
   class Logger {
     private:
@@ -27,14 +27,30 @@ namespace rich {
       }
       template <typename... VALS>
         void PrintLog(std::string message, VALS... values) {
-          if(verbose) fmt::print("[RichGeo]     {}\n", fmt::format(message, values...));
+          if(verbose) fmt::print("[richgeo]     {}\n", fmt::format(message, values...));
         }
       template <typename... VALS>
         static void PrintError(std::string message, VALS... values) {
-          fmt::print(stderr,"[RichGeo]     ERROR: {}\n", fmt::format(message, values...));
+          fmt::print(stderr,"[richgeo]     ERROR: {}\n", fmt::format(message, values...));
+        }
+      template <typename... VALS>
+        static void PrintWarning(std::string message, VALS... values) {
+          fmt::print(stderr,"[richgeo]     WARNING: {}\n", fmt::format(message, values...));
         }
     private:
       bool verbose;
+  };
+
+  // sensors
+  /* keep track of information for a sensor
+   */
+  class Sensor {
+    public:
+      Sensor() {};
+      ~Sensor() {};
+      double            size;
+      dd4hep::Position  surface_centroid;
+      dd4hep::Direction surface_offset; // surface centroid = volume centroid + `surface_offset`
   };
 
   // radiators

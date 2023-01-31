@@ -159,5 +159,11 @@ namespace eicrecon {
           return TVector3(v.x(), v.y(), v.z());
         }
 
+      // -------------------------------------------------------------------------------------
+      // printing: convert objects to strings
+      static std::string TVector3_to_string(std::string name, TVector3 v) {
+        return fmt::format("{:>30} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, v.x(), v.y(), v.z());
+      }
+
   }; // class Tools
 } // namespace eicrecon

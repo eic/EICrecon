@@ -138,22 +138,16 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
     // get sensor and pixel info
     // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
-    auto cell_id         = raw_hit->getCellID();
-    uint64_t sensor_id   = cell_id & m_cell_mask;
-    TVector3 pixel_pos   = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
-    TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
+    auto     cell_id           = raw_hit->getCellID();
+    uint64_t sensor_id         = cell_id & m_cell_mask;
+    TVector3 pixel_pos         = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
     if(m_log->level() <= spdlog::level::trace) {
-      TVector3 sensor_pos = m_irt_det->m_ReadoutIDToSensorPosition(cell_id);
-      m_log->trace("cell_id={:#X}  copy={}", cell_id, sensor_id);
-      auto print_vec = [&m_log=m_log] (auto name, TVector3 vec) {
-        m_log->trace("  {:>20} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, vec.x(), vec.y(), vec.z());
-      };
-      print_vec("pixel position",  pixel_pos);
-      print_vec("sensor position", sensor_pos);
-      print_vec("photon endpoint", mc_endpoint);
-      m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
-      m_log->trace("  dist( sensor, photon ) = {}", (sensor_pos - mc_endpoint).Mag());
-      m_log->trace("  dist( pixel,  sensor ) = {}", (pixel_pos  - sensor_pos).Mag());
+      m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
+      m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));
+      //// FIXME: photons go through the sensors, ending on a vessel wall
+      // TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
+      // m_log->trace(Tools::TVector3_to_string("photon endpoint",mc_endpoint));
+      // m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
     }
 
     // start new IRT photon
@@ -210,8 +204,8 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
         // irt_rad_history->AddStep( new ChargedParticleStep(position,momentum) ); // FIXME: not needed, if we can just use AddLocation?
         irt_rad->AddLocation(position,momentum);
-        m_log->trace(" point: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", position.x(), position.y(), position.z());
-        m_log->trace("        p=( {:>10.2f} {:>10.2f} {:>10.2f} )", momentum.x(), momentum.y(), momentum.z());
+        m_log->trace(Tools::TVector3_to_string(" point: x",position));
+        m_log->trace(Tools::TVector3_to_string("        p",momentum));
       }
 
       // add each `irt_photon` to the radiator history
