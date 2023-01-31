@@ -94,17 +94,20 @@ void calo_studiesProcessor::InitWithGlobalRootLock() {
   nHitsTrackVsEtaVsP->SetDirectory(m_dir_main);
   nHitsEventVsEtaVsP->SetDirectory(m_dir_main);
 
+  hSamplingFractionEta = new TH2D("hSamplingFractionEta", "", 100, -4., 4., 500, 0., 1.);
+  hSamplingFractionEta->SetDirectory(m_dir_main);
+
   hPosCaloModulesXY = new TH2D("hPosCaloModulesXY", "", 54, 0., 54., 54, 0., 54.);
   hPosCaloModulesXY->SetDirectory(m_dir_main);
 
   hCaloCellIDs = new TH3D("hCaloCellIDs", "", 28, 0, 28, 54*4, 0., 54.*4, 54*2, 0., 54.*2);
   hCaloCellIDs->SetDirectory(m_dir_main);
-  hCaloCellIDs_xy = new TH2D("hCaloCellIDs_xy", "", 54*4, 0., 54.*4, 54*2, 0., 54.*2);
+  hCaloCellIDs_xy = new TH2D("hCaloCellIDs_xy", "", 60*4, 0., 60.*4, 60*2, 0., 60.*2);
   hCaloCellIDs_xy->SetDirectory(m_dir_main);
 
-  hPosCaloHitsXY = new TH2D("hPosCaloHitsXY", "", 400, -400., 400., 400, -400., 400.);
-  hPosCaloHitsZX = new TH2D("hPosCaloHitsZX", "", 200, 300., 500., 400, -400., 400.);
-  hPosCaloHitsZY = new TH2D("hPosCaloHitsZY", "", 200, 300., 500., 400, -400., 400.);
+  hPosCaloHitsXY = new TH2D("hPosCaloHitsXY", "", 600, -300., 300., 600, -300., 300.);
+  hPosCaloHitsZX = new TH2D("hPosCaloHitsZX", "", 200, 300., 500., 600, -300., 300.);
+  hPosCaloHitsZY = new TH2D("hPosCaloHitsZY", "", 200, 300., 500., 600, -300., 300.);
   hPosCaloHitsXY->SetDirectory(m_dir_main);
   hPosCaloHitsZX->SetDirectory(m_dir_main);
   hPosCaloHitsZY->SetDirectory(m_dir_main);
@@ -162,6 +165,8 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
 
   std::vector<towersStrct> input_towers_temp;
   int nCaloHits = 0;
+  float sumActiveCaloEnergy = 0;
+  float sumPassiveCaloEnergy = 0;
   for (auto caloHit : gfhcalHits()) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
@@ -173,10 +178,16 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
 
     auto detector_module_x  = m_decoder->get(cellID, 1);
     auto detector_module_y  = m_decoder->get(cellID, 2);
-    // auto detector_module_type  = m_decoder->get(cellID, 3);
+    auto detector_passive  = m_decoder->get(cellID, 3);
     auto detector_layer_x = m_decoder->get(cellID, 4);
     auto detector_layer_y = m_decoder->get(cellID, 5);
     auto detector_layer_z = m_decoder->get(cellID, 6);
+
+    if(detector_passive == 0) {
+      sumActiveCaloEnergy += energy;
+    } else {
+      sumPassiveCaloEnergy += energy;
+    }
     // if(detector_module_type==0){
     // cout << "\t8M module \tmodulex: " << detector_module_x << "\tmoduley: " << detector_module_y << "\tlayerx: " << detector_layer_x << "\tlayery: " << detector_layer_y << "\tlayerz: " << detector_layer_z <<"\tx " << x << "\ty " << y << "\tz " << z << "\tcellID: " << cellID  << "\tenergy: " << energy << endl;
     // } else {
@@ -217,6 +228,9 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
       input_towers_temp.push_back(tempstructT);
     }
   }
+
+  hSamplingFractionEta->Fill(mceta, sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy));
+
   std::sort(input_towers_temp.begin(), input_towers_temp.end(), &acompare);
 
   // print towers
