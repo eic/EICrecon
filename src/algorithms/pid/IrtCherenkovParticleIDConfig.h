@@ -38,16 +38,42 @@ namespace eicrecon {
        */
       std::vector<int> pdgList;
 
+      /* cheat modes: useful for test purposes, or idealizing; the real PID should run with all
+       * cheat modes off
+       */
+      bool cheatPhotonVertex = false; // if true, use photon vertex info from MC truth
+      bool cheatTrueRadiator = false; // if true, use MC truth to obtain true radiator, for each hit
+
       //
       /////////////////////////////////////////////////////
 
+      // print warnings about cheat modes
+      void PrintCheats(
+          std::shared_ptr<spdlog::logger> m_log,
+          spdlog::level::level_enum lvl=spdlog::level::debug,
+          bool printAll=false
+          )
+      {
+        auto puts = [&m_log, &lvl, &printAll] (auto name, bool val, auto desc) {
+          if(printAll) m_log->log(val ? spdlog::level::critical : lvl, "  {:>20} = {:<}", name, val);
+          else if(val) m_log->critical("CHEAT MODE '{}' ENABLED: {}", name, desc);
+        };
+        puts("cheatPhotonVertex", cheatPhotonVertex, "using MC truth for photon vertex info");
+        puts("cheatTrueRadiator", cheatTrueRadiator, "using MC truth to obtain true radiator");
+      }
+
       // print all parameters
-      void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
+      void Print(
+          std::shared_ptr<spdlog::logger> m_log,
+          spdlog::level::level_enum lvl=spdlog::level::debug
+          )
+      {
         m_log->log(lvl, "{:=^60}"," IrtCherenkovParticleIDConfig Settings ");
         auto puts = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
         puts("numRIndexBins",numRIndexBins);
+        PrintCheats(m_log, lvl, true);
         m_log->log(lvl, "pdgList:");
         for(const auto& pdg : pdgList) m_log->log(lvl, "  {}", pdg);
         for(const auto& [name,rad] : radiators) {

@@ -104,6 +104,9 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
   m_log->trace("number of raw sensor hits: {}", in_raw_hits.size());
 
+  // annoy the user, if a cheat mode is enabled
+  m_cfg.PrintCheats(m_log);
+
   // start output collections
   std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids;
   if(m_init_failed) return out_cherenkov_pids;
@@ -137,15 +140,21 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
     // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
 
     // start new IRT photon
-    auto mc_photon  = raw_hit->getPhoton(); // get MC photon (anything that uses this is labelled "MC CHEAT")
+    auto mc_photon  = raw_hit->getPhoton(); // get MC photon (typically only used by cheat modes)
     auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
     auto irt_photon = std::make_shared<OpticalPhoton>();
     irt_photon->SetVolumeCopy(sensor_id);
     irt_photon->SetDetectionPosition(pixel_pos);
     irt_photon->SetPhotonDetector(irt_sensor);
     irt_photon->SetDetected(true);
-    irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex())); // MC CHEAT
-    irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum())); // MC CHEAT
+
+    // cheat mode: get photon vertex info from MC truth
+    if(m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
+      irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
+      irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
+    }
+
+    // add to `irt_photons`
     irt_photons.push_back(std::move(irt_photon));
 
   } // end `in_raw_hits` loop
@@ -194,23 +203,26 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       //   the radiators' photons are mixed in ChargedParticle::PIDReconstruction
       for(auto irt_photon : irt_photons) {
 
-        // MC CHEAT -- for testing only: use MC to get the actual radiator
-        auto mc_rad = m_irt_det->GuessRadiator(
-              irt_photon->GetVertexPosition(),
-              irt_photon->GetVertexPosition() // FIXME: assumes IP is at (0,0,0)
-              );
-        if(mc_rad != irt_rad) continue;
-        m_log->critical("cheat mode: using truth link photon and radiator");
+        // cheat mode, for testing only: use MC to get the actual radiator
+        if(m_cfg.cheatTrueRadiator) {
+          auto mc_rad = m_irt_det->GuessRadiator(
+                irt_photon->GetVertexPosition(),
+                irt_photon->GetVertexPosition() // FIXME: assumes IP is at (0,0,0)
+                );
+          if(mc_rad != irt_rad) continue;
+        }
 
-        // Retrieve a refractive index estimate; it is not exactly the one, which 
+        // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which 
         // was used in GEANT, but should be very close
-        double ri;
-        auto ri_set = Tools::GetFinelyBinnedTableEntry(
-            irt_rad->m_ri_lookup_table,
-            1e9 * irt_photon->GetVertexMomentum().Mag(), // MC CHEAT; [GeV]->[eV] conversion
-            &ri
-            );
-        if(ri_set) irt_photon->SetVertexRefractiveIndex(ri);
+        if(m_cfg.cheatPhotonVertex) {
+          double ri;
+          auto ri_set = Tools::GetFinelyBinnedTableEntry(
+              irt_rad->m_ri_lookup_table,
+              1e9 * irt_photon->GetVertexMomentum().Mag(),
+              &ri
+              );
+          if(ri_set) irt_photon->SetVertexRefractiveIndex(ri);
+        }
 
         // add copy of `irt_photon` to the history, since ~RadiatorHistory() will destroy it
         irt_rad_history->AddOpticalPhoton(new OpticalPhoton(*irt_photon));
@@ -273,8 +285,10 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         weight_sum += phot_weight;
         theta_sum  += phot_weight * phot_theta;
         phot_theta_phi.push_back({ phot_theta, phot_phi });
-        rindex_sum     += irt_photon->GetVertexRefractiveIndex(); // MC CHEAT
-        wavelength_sum += 1239.84 / (1e9 * irt_photon->GetVertexMomentum().Mag()); // MC CHEAT; [GeV]->[eV] conversion
+        if(m_cfg.cheatPhotonVertex) {
+          rindex_sum     += irt_photon->GetVertexRefractiveIndex();
+          wavelength_sum += 1239.84 / (1e9 * irt_photon->GetVertexMomentum().Mag()); // [GeV]->[eV] conversion
+        }
 
       } // end loop over this radiator's photons
 

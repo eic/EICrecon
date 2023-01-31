@@ -33,6 +33,8 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
     set_param(name+":attenuation",     rad.attenuation,     "");
     set_param(name+":zbins",           rad.zbins,           "");
   }
+  set_param("cheatPhotonVertex", cfg.cheatPhotonVertex, "");
+  set_param("cheatTrueRadiator", cfg.cheatTrueRadiator, "");
 
   // initialize underlying algorithm
   m_irt_algo.applyConfig(cfg);
