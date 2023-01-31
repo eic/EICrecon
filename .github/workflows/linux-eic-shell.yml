@@ -92,7 +92,7 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17'
+          git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -clang-tidy-binary run-clang-tidy
     - uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push'}}
       with:
