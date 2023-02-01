@@ -50,6 +50,7 @@ public:
     void Finish() override;
 
     //Histograms
+    TH2 *h1a; //Rec track momentum vs. true momentum
 
 private:
 

@@ -15,7 +15,7 @@ SIM.inputFiles = []
 ## Macro file to execute for runType 'run' or 'vis'
 SIM.macroFile = ""
 ## number of events to simulate, used in batch mode
-SIM.numberOfEvents = 10
+SIM.numberOfEvents = 100
 ## Outputfile from the simulation: .slcio, edm4hep.root and .root output files are supported
 SIM.outputFile = "dummyOutput.slcio"
 ## Physics list to use in simulation
@@ -187,10 +187,10 @@ SIM.gun.energy = None
 SIM.gun.isotrop = True
 
 ## Maximal momentum when using distribution (default = 0.0)
-SIM.gun.momentumMax = 2000.0
+SIM.gun.momentumMax = 10000.0
 
 ## Minimal momentum when using distribution (default = 0.0)
-SIM.gun.momentumMin = 2000.0
+SIM.gun.momentumMin = 1000.0
 SIM.gun.multiplicity = 1
 SIM.gun.particle = "e-"
 SIM.gun.phiMax = None

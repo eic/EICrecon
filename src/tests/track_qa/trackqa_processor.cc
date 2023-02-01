@@ -49,6 +49,10 @@ void trackqa_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     //Define histograms
+    h1a = new TH2D("h1a","",100,0,25,100,0,25);
+    h1a->GetXaxis()->SetTitle("True Momentum [GeV/c]");h1a->GetXaxis()->CenterTitle();
+    h1a->GetYaxis()->SetTitle("Rec. Track Momentum [GeV/c]");h1a->GetYaxis()->CenterTitle();
+    h1a->SetDirectory(m_dir_main);
 
     // Get log level from user parameter or default
     InitLogger(plugin_name);
@@ -254,6 +258,12 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             m_log->trace("");
         }); //End visiting track points
         m_log->trace("Number of calibrated states: {}",m_nCalibrated);
+
+        //Fill histograms
+        if(num_primary==1){
+            h1a->Fill(mcp,p_traj);
+        }
+
     } //End loop over trajectories
 
     m_log->trace("-------------------------");
