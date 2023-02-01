@@ -122,6 +122,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         
         int nHits_detector = 0;
         for(auto hit: hits) {
+            auto cell_id = hit->getCellID(); //FIXME: convert to volume id and layer id
             auto x = hit->getPosition().x;
             auto y = hit->getPosition().y;
             auto z = hit->getPosition().z;
@@ -130,6 +131,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
             nHits_detector++;
             m_log->trace("For digitized hit number {}:",nHits_detector);
+            m_log->trace("Cell Id is {}",cell_id);
             m_log->trace("Hit x, y, z, r, eta:");
             m_log->trace("{:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}",x,y,z,r,etahit);
             nHitsallTrackers++;
@@ -163,14 +165,16 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
         // Collect the trajectory summary info
         auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-        int m_nMeasurements = trajState.nMeasurements;
         int m_nStates = trajState.nStates;
+        int m_nMeasurements = trajState.nMeasurements;
+        int m_nOutliers = trajState.nOutliers;
         auto m_chi2Sum = trajState.chi2Sum;
 
         //General Trajectory Information
         m_log->trace("Number of elements in trackTips {}", trackTips.size());
-        m_log->trace("Number of measurements in trajectory: {}", m_nMeasurements);
         m_log->trace("Number of states in trajectory     : {}", m_nStates);
+        m_log->trace("Number of measurements in trajectory: {}", m_nMeasurements);
+        m_log->trace("Number of outliers in trajectory     : {}", m_nOutliers);
         m_log->trace("Total chi-square of trajectory    : {:>8.2f}",m_chi2Sum);
    
         //Initial Trajectory Parameters
@@ -210,6 +214,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             auto geoID = trackstate.referenceSurface().geometryId();
             auto volume = geoID.volume();
             auto layer = geoID.layer();
+            m_log->trace("Volume id is {}, layer id is {}",volume,layer);
 
             if (trackstate.hasCalibrated()) {
                 m_nCalibrated++;
