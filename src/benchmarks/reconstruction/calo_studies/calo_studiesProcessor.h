@@ -60,6 +60,7 @@ public:
     TDirectory *m_dir_main;
     TH1D* hPosTestX;
     TH1D* hClusterEcalib;
+    TH2D* hClusterEcalib2D;
     TH2D* hSamplingFractionEta;
     TH2D* hPosCaloModulesXY;
     TH2D* hPosCaloHitsXY;

@@ -84,8 +84,10 @@ void calo_studiesProcessor::InitWithGlobalRootLock() {
   // Create histograms here. e.g.
   hPosTestX = new TH1D("hPosTestX", "BEMC hit energy (raw)", 100, -100, 100);
   hPosTestX->SetDirectory(m_dir_main);
-  hClusterEcalib = new TH1D("hClusterEcalib", "", 200, 0., 2.0);
+  hClusterEcalib = new TH1D("hClusterEcalib", "", 300, 0., 3.0);
   hClusterEcalib->SetDirectory(m_dir_main);
+  hClusterEcalib2D = new TH2D("hClusterEcalib2D", "",500,0,50., 300, 0., 3.0);
+  hClusterEcalib2D->SetDirectory(m_dir_main);
 
   nHitsTrackVsEtaVsP =
       new TH3D("nHitsTrackVsEtaVsP", "", 100, -4., 4., 20, -0.5, 19.5, 150, 0., 15.);
@@ -230,6 +232,8 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
   }
 
   hSamplingFractionEta->Fill(mceta, sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy));
+  // cout << "sumActiveCaloEnergy: " << sumActiveCaloEnergy << "\tsumPassiveCaloEnergy: " << sumPassiveCaloEnergy << "\tsampling fraction: " << sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy) << endl;
+
 
   std::sort(input_towers_temp.begin(), input_towers_temp.end(), &acompare);
 
@@ -237,11 +241,12 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
   double tot_energy = 0;
   for (auto& tower : input_towers_temp) {
     // std::cout << "tower: " << tower.cellIDx << " " << tower.cellIDy << " " << tower.cellIDz << " " << tower.energy << std::endl;
-    tower.energy = tower.energy / 300.; // calibrate
+    tower.energy = tower.energy / 100.; // calibrate
     tot_energy += tower.energy;
   }
   // std::cout << "ntowers: " << input_towers_temp.size() << "\ttotal energy: " << tot_energy << std::endl;
   hClusterEcalib->Fill(tot_energy/mcenergy); 
+  hClusterEcalib2D->Fill(mcp, tot_energy/mcenergy); 
   // for(int itow=0; itow<_nTowers_LFHCAL; itow++){
   //     if(_tower_LFHCAL_E[itow]>aggE/escaling){
   //       towersStrct tempstructT;
