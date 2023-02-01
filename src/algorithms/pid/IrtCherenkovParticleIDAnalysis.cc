@@ -77,7 +77,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spd
     m_radiator_histos.insert({id,std::make_shared<RadiatorAnalysis>(TString(rad_name))});
 
   // initialize common histograms
-  m_nphot_vs_p = new TH2D("nphot_vs_p", "Number of Incident Photons vs. True Momentum;p [GeV];NPHOT",
+  m_nphot_vs_p = new TH2D("nphot_vs_p", "N_{photons} vs. Thrown Momentum;p [GeV];N_{photons}",
       RadiatorAnalysis::momentum_bins, 0, RadiatorAnalysis::momentum_max,
       RadiatorAnalysis::nphot_max,     0, RadiatorAnalysis::nphot_max
       );
