@@ -47,6 +47,7 @@ private:
     // PrefetchT<edm4eic::TrackerHit> barrelHits = {this, "TOFBarrelRecHit"};
     // PrefetchT<edm4eic::TrackerHit> endcapHits = {this, "TOFEndcapRecHits"};
     PrefetchT<edm4eic::CalorimeterHit> gfhcalHits = {this, "GFHCALRecHits"};
+    PrefetchT<edm4hep::SimCalorimeterHit> gfhcalHitsRaw = {this, "GFHCALHits"};
 
     // Declare histogram and tree pointers here. e.g.
     // TH2D* hEdigi = nullptr ;

@@ -169,7 +169,7 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
   int nCaloHits = 0;
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
-  for (auto caloHit : gfhcalHits()) {
+  for (auto caloHit : gfhcalHitsRaw()) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;

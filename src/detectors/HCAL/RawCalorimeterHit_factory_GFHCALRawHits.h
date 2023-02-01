@@ -34,7 +34,16 @@ public:
     // Init
     void Init() override {
         auto app = GetApplication();
-
+        // u_eRes = {};
+        // m_tRes = 0.0 * dd4hep::ns;
+        // m_capADC = 256;
+        // m_dyRangeADC = 50 * dd4hep::MeV;
+        // m_pedMeanADC = 10;
+        // m_pedSigmaADC = 2.0;
+        // m_resolutionTDC = 1.0 * dd4hep::ns;
+        // m_corrMeanScale = 1.0;
+        // u_fields={};
+        // u_refs={1, 0};
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "GFHCALHits";
         u_eRes = {};
