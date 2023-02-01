@@ -6,9 +6,6 @@
 // JANA
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-// data model
-#include <edm4eic/CherenkovParticleID.h>
-
 // algorithms
 #include <algorithms/digi/PhotoMultiplierHitDigiAnalysis.h>
 

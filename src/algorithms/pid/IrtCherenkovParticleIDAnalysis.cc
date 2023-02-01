@@ -3,19 +3,125 @@
 
 #include "IrtCherenkovParticleIDAnalysis.h"
 
+
+// RadiatorAnalysis constructor: defines histograms for a radiator
+//---------------------------------------------------------------------------
+eicrecon::RadiatorAnalysis::RadiatorAnalysis(TString rad_name) : m_rad_name(rad_name) {
+
+  // distributions
+  m_npe_dist = new TH1D(
+      "npe_dist_"+m_rad_name,
+      "Overall NPE for "+m_rad_name+";NPE",
+      npe_bins, 0, npe_max
+      );
+  m_theta_dist = new TH1D(
+      "theta_dist_"+m_rad_name,
+      "Estimated Cherenkov Angle for "+m_rad_name+";#theta [mrad]",
+      theta_bins, 0, theta_max
+      );
+  m_photon_theta_vs_phi = new TH2D(
+      "photon_theta_vs_phi_"+m_rad_name,
+      "Estimated Photon #theta vs #phi for "+m_rad_name+";#phi [rad];#theta [mrad]",
+      phi_bins, -TMath::Pi(), TMath::Pi(),
+      theta_bins, 0, theta_max
+      );
+
+  // truth
+  m_mc_wavelength = new TH1D(
+      "mc_wavelength_"+m_rad_name,
+      "MC Photon Wavelength for "+m_rad_name+";#lambda [nm]",
+      n_bins, 0, 1000
+      );
+  m_mc_rindex = new TH1D(
+      "mc_rindex_"+m_rad_name,
+      "MC Refractive Index for "+m_rad_name+";n",
+      10*n_bins, 0.99, 1.03
+      );
+
+  // PID
+  m_highest_weight_dist = new TH1D(
+      "highest_weight_dist_"+m_rad_name,
+      "Highest PDG Weight for "+m_rad_name+";PDG",
+      pdg_bins(), 0, pdg_bins()
+      );
+
+  // momentum scans
+  m_npe_vs_p = new TH2D(
+      "npe_vs_p_"+m_rad_name,
+      "Overall NPE vs. Particle Momentum for "+m_rad_name+";p [GeV];NPE",
+      momentum_bins, 0, momentum_max,
+      npe_bins, 0, npe_max
+      );
+  m_theta_vs_p = new TH2D(
+      "theta_vs_p_"+m_rad_name,
+      "Estimated Cherenkov Angle vs. Particle Momentum for "+m_rad_name+";p [GeV];#theta [mrad]",
+      momentum_bins, 0, momentum_max,
+      theta_bins, 0, theta_max
+      );
+  m_highest_weight_vs_p = new TH2D(
+      "highest_weight_vs_p_"+m_rad_name,
+      "Highest PDG Weight vs. Particle Momentum for "+m_rad_name+";p [GeV]",
+      momentum_bins, 0, momentum_max,
+      pdg_bins(), 0, pdg_bins()
+      );
+}
+
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
   m_log = logger;
+
+  // initialize histograms for each radiator
   for(auto& [id,rad_name] : Tools::GetRadiatorIDs())
     m_radiator_histos.insert({id,std::make_shared<RadiatorAnalysis>(TString(rad_name))});
+
+  // initialize common histograms
+  m_nphot_vs_p = new TH2D("nphot_vs_p", "Number of Incident Photons vs. True Momentum;p [GeV];NPHOT",
+      RadiatorAnalysis::momentum_bins, 0, RadiatorAnalysis::momentum_max,
+      RadiatorAnalysis::nphot_max,     0, RadiatorAnalysis::nphot_max
+      );
+  m_nphot_vs_p__transient = new TH1D("nphot_vs_p__transient", "",
+      m_nphot_vs_p->GetNbinsX(),
+      m_nphot_vs_p->GetXaxis()->GetXmin(),
+      m_nphot_vs_p->GetXaxis()->GetXmax()
+      );
 }
 
 
 // AlgorithmProcess
 //---------------------------------------------------------------------------
-void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids) {
+void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
+    std::vector<const edm4hep::SimTrackerHit*>       sim_hits,
+    std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids
+    )
+{
   m_log->trace("{:=^70}"," call IrtCherenkovParticleIDAnalysis::AlgorithmProcess ");
+
+  // get the number of photons vs. momentum for this event
+  // - get the true charged particle momentum, and fill 1D histogram `m_nphot_vs_p__transient`
+  //   for each (pre-digitized) sensor hit
+  // - number of entries in each momentum bin will be the number of photons for this event
+  for(const auto& hit : sim_hits) {
+    float momentum = 0;
+    auto photon = hit->getMCParticle();
+    if(photon.parents_size()>0) {
+      auto charged_particle = photon.getParents(0);
+      momentum = edm4hep::utils::p(charged_particle);
+    }
+    m_nphot_vs_p__transient->Fill(momentum);
+  }
+  // - use `m_nphot_vs_p__transient` results to fill 2D hist `m_nphot_vs_p` for this event
+  for(int b=1; b<=m_nphot_vs_p__transient->GetNbinsX(); b++) {
+    auto nphot = m_nphot_vs_p__transient->GetBinContent(b);
+    if(nphot>0) {
+      auto momentum = m_nphot_vs_p__transient->GetBinCenter(b);
+      m_nphot_vs_p->Fill(momentum,nphot);
+    }
+  }
+  // - clear `m_nphot_vs_p__transient` to be ready for the next event
+  m_nphot_vs_p__transient->Reset();
+
 
   // loop over `CherenkovParticleID` objects
   for(const auto& pid : cherenkov_pids) {
@@ -87,4 +193,6 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(std::vector<cons
 // AlgorithmFinish
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmFinish() {
+  // delete transient histograms, so they don't get written
+  delete m_nphot_vs_p__transient;
 }

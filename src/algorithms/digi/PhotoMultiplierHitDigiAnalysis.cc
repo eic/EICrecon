@@ -30,8 +30,7 @@ void eicrecon::PhotoMultiplierHitDigiAnalysis::AlgorithmInit(std::shared_ptr<spd
 //---------------------------------------------------------------------------
 void eicrecon::PhotoMultiplierHitDigiAnalysis::AlgorithmProcess(std::vector<const edm4eic::RawPMTHit*> hits) {
   m_log->trace("{:=^70}"," call PhotoMultiplierHitDigiAnalysis::AlgorithmProcess ");
-
-  // loop over `CherenkovParticleID` objects
+  // loop over digitized hits
   for(const auto& hit : hits) {
     auto adc = hit->getIntegral();
     auto tdc = hit->getTimeStamp();

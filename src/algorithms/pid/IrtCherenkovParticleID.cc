@@ -138,9 +138,9 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
     // get sensor and pixel info
     // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
-    auto     cell_id           = raw_hit->getCellID();
-    uint64_t sensor_id         = cell_id & m_cell_mask;
-    TVector3 pixel_pos         = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
+    auto     cell_id   = raw_hit->getCellID();
+    uint64_t sensor_id = cell_id & m_cell_mask;
+    TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
     if(m_log->level() <= spdlog::level::trace) {
       m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
       m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));
@@ -263,6 +263,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
     // loop over radiators
     for(auto [rad_name,irt_rad] : m_pid_radiators) {
+      m_log->trace("-> {} Radiator (ID={}):", rad_name, irt_rad->m_ID);
 
       // Cherenkov angle (theta) estimate
       unsigned npe            = 0;
@@ -274,6 +275,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
       // loop over this radiator's photons, and decide which to include in the theta estimate
       auto irt_rad_history = irt_particle->FindRadiatorHistory(irt_rad);
+      m_log->trace("  Photoelectrons:");
       for(auto irt_photon : irt_rad_history->Photons()) {
 
         // check whether this photon was selected by at least one mass hypothesis
@@ -281,6 +283,13 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         for(auto irt_photon_sel : irt_photon->_m_Selected)
           if(irt_photon_sel.second==irt_rad) { selected=true; break; }
         if(!selected) continue;
+
+        // trace logging
+        m_log->trace(Tools::TVector3_to_string(
+              fmt::format("- sensor_id={:#X}: hit",irt_photon->GetVolumeCopy()),
+              irt_photon->GetDetectionPosition()
+              ));
+        m_log->trace(Tools::TVector3_to_string("photon vertex",irt_photon->GetVertexPosition()));
 
         // get this photon's theta and phi estimates
         auto phot_theta = irt_photon->_m_PDF[irt_rad].GetAverage();
@@ -322,7 +331,6 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
       }
-      m_log->trace("-> {} Radiator (ID={}):", rad_name, irt_rad->m_ID);
       m_log->trace("  Cherenkov Angle Estimate:");
       m_log->trace("    {:>16}:  {:<10}",     "NPE",          npe);
       m_log->trace("    {:>16}:  {:<10.3}",   "<theta>",      theta_ave);

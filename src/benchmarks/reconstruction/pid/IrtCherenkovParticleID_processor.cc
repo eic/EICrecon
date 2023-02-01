@@ -29,7 +29,7 @@ void eicrecon::IrtCherenkovParticleID_processor::InitWithGlobalRootLock() {
 // ProcessSequential
 //-------------------------------------------
 void eicrecon::IrtCherenkovParticleID_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  m_analysis_algo.AlgorithmProcess(m_cherenkov_pids());
+  m_analysis_algo.AlgorithmProcess(m_sim_hits(),m_cherenkov_pids());
 }
 
 //-------------------------------------------

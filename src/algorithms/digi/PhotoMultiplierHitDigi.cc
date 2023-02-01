@@ -80,8 +80,8 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         // calculate signal
         for(const auto& ahit : sim_hits) {
             auto edep_eV = ahit->getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
-            // m_log->trace("{:-<60}","Simulation Hit");
-            // m_log->trace("  {:>20}: {}\n", "EDep", edep_eV);
+            auto id      = ahit->getCellID();
+            m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
 
             // overall safety factor
             if (m_rngUni() > m_cfg.safetyFactor) continue;
@@ -91,7 +91,6 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
 
             // pixel gap cuts
             // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
-            auto id = ahit->getCellID();
             dd4hep::Position pos_pixel, pos_hit;
             if(m_cfg.enablePixelGaps) {
               pos_pixel = get_sensor_local_position( id, m_cellid_converter->position(id) );
@@ -130,7 +129,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         if(m_log->level() <= spdlog::level::trace)
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec)
-              m_log->trace("hit_group: pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
+              m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
 
         // build raw hits
         std::vector<edm4eic::RawPMTHit*> raw_hits;
@@ -265,6 +264,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   pos_transformed.SetCoordinates(pv_l);
 
   // trace log
+  /*
   if(m_log->level() <= spdlog::level::trace) {
     m_log->trace("pixel hit on cellID={:#018x}",id);
     auto print_pos = [&] (std::string name, dd4hep::Position p) {
@@ -277,6 +277,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
     // for (size_t j = 0; j < std::size(dim); ++j)
     //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
   }
+  */
 
   return pos_transformed;
 }

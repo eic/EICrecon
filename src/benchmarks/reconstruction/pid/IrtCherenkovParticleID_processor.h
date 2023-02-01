@@ -6,9 +6,6 @@
 // JANA
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-// data model
-#include <edm4eic/CherenkovParticleID.h>
-
 // algorithms
 #include <algorithms/pid/IrtCherenkovParticleIDAnalysis.h>
 
@@ -35,6 +32,7 @@ namespace eicrecon {
     private:
 
       // input collections // FIXME: generalize for other RICHes
+      PrefetchT<edm4hep::SimTrackerHit>       m_sim_hits       = {this, "DRICHHits"};
       PrefetchT<edm4eic::CherenkovParticleID> m_cherenkov_pids = {this, "DRICHIrtCherenkovParticleID"};
 
       // underlying algorithms
