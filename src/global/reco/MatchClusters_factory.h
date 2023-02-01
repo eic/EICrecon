@@ -34,7 +34,7 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
     protected:
 
-        std::vector<std::string> m_input_assoc_tags = {"EcalBarrelClusterAssociations"};
+        std::vector<std::string> m_input_assoc_tags;
         MatchClusters m_match_algo;
 
     };
