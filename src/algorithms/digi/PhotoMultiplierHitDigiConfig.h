@@ -7,19 +7,19 @@ namespace eicrecon {
     public:
 
       // random number generator seed
-      unsigned long seed = 0;
+      unsigned long seed = 0; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering
-      double hitTimeWindow = 20.0;   // [ns]
-      double timeStep      = 0.0625; // [ns]
-      double speMean       = 80.0;
-      double speError      = 16.0;
-      double pedMean       = 200.0;
-      double pedError      = 3.0;
+      double hitTimeWindow = 20.0;  // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
+      double timeStep      = 16.0;  // number of TDC counts per unit time // [ns^-1]
+      double speMean       = 80.0;  // mean ADC counts for a single photon
+      double speError      = 16.0;  // sigma of ADC counts for a single photon
+      double pedMean       = 200.0; // mean ADC counts for the pedestal
+      double pedError      = 3.0;   // sigma of ADC counts for the pedestal
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
-      double pixelSize       = 3.0;   // [mm] // pixel (active) size
+      double pixelSize       = 3.0;   // pixel (active) size // [mm]
 
       // overall safety factor
       /* simulations assume the detector is ideal and perfect, but reality is

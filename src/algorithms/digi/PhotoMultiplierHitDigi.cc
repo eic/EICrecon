@@ -69,13 +69,13 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
         struct HitData {
-          uint32_t npe;
+          int npe;
           double signal;
-          double time;
+          decltype(edm4hep::SimTrackerHitData::time) time;
           dd4hep::Position pos;
           edm4hep::MCParticle photon;
         };
-        std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
+        std::unordered_map<decltype(edm4eic::RawPMTHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
@@ -101,7 +101,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             }
 
             // cell time, signal amplitude, truth photon
-            double time = ahit->getTime();//ahit->getMCParticle().getTime();
+            auto   time = ahit->getTime();
             double amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
             auto   phot = ahit->getMCParticle();
 
@@ -113,15 +113,21 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                     if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow)) {
                         git->npe += 1;
                         git->signal += amp;
+                        m_log->trace(" -> add to group @ {:#X}: signal={}", id, git->signal);
                         break;
                     }
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, phot});
+                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm();
+                    it->second.emplace_back(HitData{1, sig, time, pos_hit, phot});
+                    m_log->trace(" -> no group found,");
+                    m_log->trace("    so new group @ {:#X}: signal={}", id, sig);
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, phot}};
+                auto sig = amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm();
+                hit_groups[id] = {HitData{1, sig, time, pos_hit, phot}};
+                m_log->trace(" -> new group @ {:#X}: signal={}", id, sig);
             }
         }
 
@@ -129,7 +135,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         if(m_log->level() <= spdlog::level::trace)
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec)
-              m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
+              m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
 
         // build raw hits
         std::vector<edm4eic::RawPMTHit*> raw_hits;
@@ -137,11 +143,16 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             for (auto &data : it.second) {
                 edm4eic::MutableRawPMTHit hit;
                 hit.setCellID(it.first);
-                hit.setIntegral(static_cast<uint32_t>(data.signal));
-                hit.setTimeStamp(static_cast<uint32_t>(data.time/m_cfg.timeStep));
+                hit.setIntegral(  static_cast<decltype(edm4eic::RawPMTHitData::integral)>  (data.signal)              );
+                hit.setTimeStamp( static_cast<decltype(edm4eic::RawPMTHitData::timeStamp)> (data.time*m_cfg.timeStep) );
                 hit.setPhoton(data.photon);
                 // hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 raw_hits.push_back(new edm4eic::RawPMTHit(hit)); // force immutable
+                m_log->trace("raw_hit: cellID={:#X} -> integral={} timeStamp={}",
+                    hit.getCellID(),
+                    hit.getIntegral(),
+                    hit.getTimeStamp()
+                    );
             }
         }
         return raw_hits;
