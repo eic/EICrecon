@@ -36,7 +36,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelSciGlassHits";
-        u_eRes =  {0.0, 0.02, 0.0};
+        u_eRes =  {0.0, 0.0, 0.0};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 20 * dd4hep::GeV;
