@@ -9,6 +9,10 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 
+// Expression evaluator from DD4hep
+#include <Evaluator/Evaluator.h>
+#include <Evaluator/detail/Evaluator.h>
+
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -106,10 +110,61 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 //    };
 
     bool method_found = false;
-    for (auto& uprop : uprops) {
-      if (set_dist_method(uprop)) {
-        method_found = true;
-        break;
+    if (u_adjacencyMatrix.value() != "") {
+      m_geoSvc = service(m_geoSvcName);
+      // sanity checks
+      if (!m_geoSvc) {
+        m_log->error("Unable to locate Geometry Service. "
+                  + "Make sure you have GeoSvc and SimSvc in the right order in the configuration.");
+        return;
+      }
+      if (m_readout.value().empty()) {
+        m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
+      }
+      m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
+
+      is_neighbour = [this](const CaloHit& h1, const CaloHit& h2) {
+        dd4hep::tools::Evaluator::Object evaluator;
+        for(const auto &p : m_idSpec.fields()) {
+          const std::string &name = p.first;
+          const dd4hep::IDDescriptor::Field* field = p.second;
+          evaluator.setVariable((name + "_1").c_str(), field->value(h1.getCellID()));
+          evaluator.setVariable((name + "_2").c_str(), field->value(h2.getCellID()));
+          m_log->debug("setVariable(\"" << name  << "_1\", " << field->value(h1.getCellID()) << ");" << endmsg;
+          m_log->debug("setVariable(\"" << name  << "_2\", " << field->value(h2.getCellID()) << ");" << endmsg;
+        }
+        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.value().c_str());
+        if (eval.status()) {
+          // no known conversion from 'MsgStream' to 'std::ostream &'
+          std::stringstream sstr;
+          eval.print_error(sstr);
+          m_log->error(sstr.str());
+        }
+        m_log->debug("result = {}", eval.result());
+        return eval.result();
+      };
+      method_found = true;
+    }
+    if (!method_found)
+    {
+      for (auto& uprop : uprops) {
+        if (set_dist_method(uprop)) {
+          method_found = true;
+
+          is_neighbour = [this](const CaloHit& h1, const CaloHit& h2) {
+            // in the same sector
+            if (h1.getSector() == h2.getSector()) {
+              auto dist = hitsDist(h1, h2);
+              return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
+              // different sector, local coordinates do not work, using global coordinates
+            } else {
+              // sector may have rotation (barrel), so z is included
+              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= sectorDist);
+            }
+          };
+
+          break;
+        }
       }
     }
     if (not method_found) {
