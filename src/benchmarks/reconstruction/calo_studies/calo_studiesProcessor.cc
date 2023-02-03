@@ -88,6 +88,32 @@ void calo_studiesProcessor::InitWithGlobalRootLock() {
   hClusterEcalib->SetDirectory(m_dir_main);
   hClusterEcalib2D = new TH2D("hClusterEcalib2D", "",500,0,50., 300, 0., 3.0);
   hClusterEcalib2D->SetDirectory(m_dir_main);
+  hClusterEcalib2DinAcc = new TH2D("hClusterEcalib2DinAcc", "",500,0,50., 300, 0., 3.0);
+  hClusterEcalib2DinAcc->SetDirectory(m_dir_main);
+  hClusterEcalib3D = new TH3D("hClusterEcalib3D", "", 400, -4., 4.,500,0,50., 300, 0., 3.0);
+  hClusterEcalib3D->SetDirectory(m_dir_main);
+
+
+  hMCEnergyVsEta = new TH2D("hMCEnergyVsEta", "; E (GeV); #eta", 1500, 0., 150., 400, 1., 5.);
+  hMCEnergyVsEta->SetDirectory(m_dir_main);
+  hClusterEcalib_E_eta = new TH3D("hClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #eta", 1500, 0., 150.0, 200, 0., 2.0, 20, 1, 5);
+  hClusterEcalib_E_eta->SetDirectory(m_dir_main);
+  hClusterESimcalib_E_eta = new TH3D("hClusterESimcalib_E_eta", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #eta" , 1500, 0., 150.0, 200, 0., 2.0, 20, 1, 5);
+  hClusterESimcalib_E_eta->SetDirectory(m_dir_main);
+  hClusterEcalib_E_phi = new TH3D("hClusterEcalib_E_phi", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #varphi (rad)", 1500, 0., 150.0, 200, 0., 2.0, 360 , 0, 2*TMath::Pi());
+  hClusterEcalib_E_phi->SetDirectory(m_dir_main);
+  hClusterESimcalib_E_phi = new TH3D("hClusterESimcalib_E_phi", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #varphi (rad)" , 1500, 0., 150.0, 200, 0., 2.0, 360 , 0, 2*TMath::Pi());
+  hClusterESimcalib_E_phi->SetDirectory(m_dir_main);
+  hCellESim_layerZ = new TH2D("hCellESim_layerZ", "; #cell ID Z; E_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1);
+  hCellESim_layerZ->SetDirectory(m_dir_main);
+  hCellESim_layerX = new TH2D("hCellESim_layerX", "; #cell ID X; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
+  hCellESim_layerX->SetDirectory(m_dir_main);
+  hCellESim_layerY = new TH2D("hCellESim_layerY", "; #cell ID Y; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
+  hCellESim_layerY->SetDirectory(m_dir_main);
+  hCellTSim_layerZ = new TH2D("hCellTSim_layerZ", "; #cell ID Z; t_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1000);
+  hCellTSim_layerZ->SetDirectory(m_dir_main);
+  
+
 
   nHitsTrackVsEtaVsP =
       new TH3D("nHitsTrackVsEtaVsP", "", 100, -4., 4., 20, -0.5, 19.5, 150, 0., 15.);
@@ -96,7 +122,7 @@ void calo_studiesProcessor::InitWithGlobalRootLock() {
   nHitsTrackVsEtaVsP->SetDirectory(m_dir_main);
   nHitsEventVsEtaVsP->SetDirectory(m_dir_main);
 
-  hSamplingFractionEta = new TH2D("hSamplingFractionEta", "", 100, -4., 4., 500, 0., 1.);
+  hSamplingFractionEta = new TH2D("hSamplingFractionEta", "", 400, 1., 5., 500, 0., 0.2);
   hSamplingFractionEta->SetDirectory(m_dir_main);
 
   hPosCaloModulesXY = new TH2D("hPosCaloModulesXY", "", 54, 0., 54., 54, 0., 54.);
@@ -163,13 +189,11 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
     mcphi = atan2(mom.y, mom.x);
     // determine mc momentum
     mcp = sqrt(mom.x * mom.x + mom.y * mom.y + mom.z * mom.z);
+    hMCEnergyVsEta->Fill(mcp,mceta);
   }
 
-  std::vector<towersStrct> input_towers_temp;
-  int nCaloHits = 0;
-  float sumActiveCaloEnergy = 0;
-  float sumPassiveCaloEnergy = 0;
-  for (auto caloHit : gfhcalHitsRaw()) {
+  std::vector<towersStrct> input_tower_rec;
+  for (auto caloHit : gfhcalRecHits()) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -184,12 +208,67 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
     auto detector_layer_x = m_decoder->get(cellID, 4);
     auto detector_layer_y = m_decoder->get(cellID, 5);
     auto detector_layer_z = m_decoder->get(cellID, 6);
+    if (detector_passive > 0) continue;    
+
+
+    int cellIDx = 54*4 - detector_module_x * 4 + detector_layer_x;
+    int cellIDy = 54*2 - detector_module_y * 2 + detector_layer_y;
+    int cellIDz = detector_layer_z;
+    // hCaloCellIDs->Fill(cellIDz,cellIDx, cellIDy);
+    // hCaloCellIDs_xy->Fill(cellIDx, cellIDy);
+
+    //loop over input_tower_rec and find if there is already a tower with the same cellID
+    bool found = false;
+    for (auto& tower : input_tower_rec) {
+      if ((tower.cellIDx == cellIDx) && (tower.cellIDy == cellIDy) && (tower.cellIDz == cellIDz)) {
+        tower.energy += energy;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      towersStrct tempstructT;
+      tempstructT.energy       = energy; 
+      tempstructT.cellIDx    = cellIDx;
+      tempstructT.cellIDy    = cellIDy;
+      tempstructT.cellIDz      = cellIDz;
+      tempstructT.tower_trueID  = 0; //TODO how to get trueID?
+      input_tower_rec.push_back(tempstructT);
+    }
+  }
+
+  std::vector<towersStrct> input_tower_sim;
+  int nCaloHits = 0;
+  float sumActiveCaloEnergy = 0;
+  float sumPassiveCaloEnergy = 0;
+  for (auto caloHit : gfhcalSimHits()) {
+    float x         = caloHit->getPosition().x / 10.;
+    float y         = caloHit->getPosition().y / 10.;
+    float z         = caloHit->getPosition().z / 10.;
+    uint64_t cellID = caloHit->getCellID();
+    float energy    = caloHit->getEnergy();
+    double time = std::numeric_limits<double>::max();
+    for (const auto& c : caloHit->getContributions()) {
+        if (c.getTime() <= time) {
+            time = c.getTime();
+        }
+    }    // cout << "Calo hit: " << x << " " << y << " " << z << "\tcellID: " << cellID
+        //  << "\tenergy: " << energy << endl;
+
+    auto detector_module_x  = m_decoder->get(cellID, 1);
+    auto detector_module_y  = m_decoder->get(cellID, 2);
+    auto detector_passive  = m_decoder->get(cellID, 3);
+    auto detector_layer_x = m_decoder->get(cellID, 4);
+    auto detector_layer_y = m_decoder->get(cellID, 5);
+    auto detector_layer_z = m_decoder->get(cellID, 6);
 
     if(detector_passive == 0) {
       sumActiveCaloEnergy += energy;
     } else {
       sumPassiveCaloEnergy += energy;
     }
+    if (detector_passive > 0) continue;    
+
     // if(detector_module_type==0){
     // cout << "\t8M module \tmodulex: " << detector_module_x << "\tmoduley: " << detector_module_y << "\tlayerx: " << detector_layer_x << "\tlayery: " << detector_layer_y << "\tlayerz: " << detector_layer_z <<"\tx " << x << "\ty " << y << "\tz " << z << "\tcellID: " << cellID  << "\tenergy: " << energy << endl;
     // } else {
@@ -208,12 +287,18 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
     hPosCaloHitsZX->Fill(z, x);
     hPosCaloHitsZY->Fill(z, y);
 
+
+    hCellESim_layerZ->Fill(detector_layer_z, energy);
+    hCellESim_layerX->Fill(cellIDx, energy);
+    hCellESim_layerY->Fill(cellIDy, energy);
+    hCellTSim_layerZ->Fill(detector_layer_z, time);
+
     hPosCaloModulesXY->Fill(detector_module_x, detector_module_y);
     nCaloHits++;
 
-    //loop over input_towers_temp and find if there is already a tower with the same cellID
+    //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
-    for (auto& tower : input_towers_temp) {
+    for (auto& tower : input_tower_sim) {
       if ((tower.cellIDx == cellIDx) && (tower.cellIDy == cellIDy) && (tower.cellIDz == cellIDz)) {
         tower.energy += energy;
         found = true;
@@ -227,7 +312,7 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
       tempstructT.cellIDy    = cellIDy;
       tempstructT.cellIDz      = cellIDz;
       tempstructT.tower_trueID  = 0; //TODO how to get trueID?
-      input_towers_temp.push_back(tempstructT);
+      input_tower_sim.push_back(tempstructT);
     }
   }
 
@@ -235,18 +320,37 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
   // cout << "sumActiveCaloEnergy: " << sumActiveCaloEnergy << "\tsumPassiveCaloEnergy: " << sumPassiveCaloEnergy << "\tsampling fraction: " << sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy) << endl;
 
 
-  std::sort(input_towers_temp.begin(), input_towers_temp.end(), &acompare);
+  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
+  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
 
-  // print towers
-  double tot_energy = 0;
-  for (auto& tower : input_towers_temp) {
-    // std::cout << "tower: " << tower.cellIDx << " " << tower.cellIDy << " " << tower.cellIDz << " " << tower.energy << std::endl;
-    tower.energy = tower.energy / 100.; // calibrate
-    tot_energy += tower.energy;
+  // print towers rec hits
+  double tot_energyRecHit = 0;
+  for (auto& tower : input_tower_rec) {
+    tower.energy = tower.energy; // calibrate
+    tot_energyRecHit += tower.energy;
   }
-  // std::cout << "ntowers: " << input_towers_temp.size() << "\ttotal energy: " << tot_energy << std::endl;
-  hClusterEcalib->Fill(tot_energy/mcenergy); 
-  hClusterEcalib2D->Fill(mcp, tot_energy/mcenergy); 
+
+  double samplingFraction = 0.02;
+  // print towers sim hits
+  double tot_energySimHit = 0;
+  for (auto& tower : input_tower_sim) {
+    tower.energy = tower.energy/samplingFraction; // calibrate
+    tot_energySimHit += tower.energy;
+  }
+  // std::cout << "ntowers: " << input_tower_sim.size() << "\ttotal energy: " << tot_energy << std::endl;
+  // std::cout << "ecalib: " << tot_energy/mcenergy << std::endl;
+  hClusterEcalib->Fill(tot_energySimHit/mcenergy); 
+  hClusterEcalib2D->Fill(mcp, tot_energySimHit/mcenergy); 
+  if(mceta<3.17 && mceta>1.2){
+    hClusterEcalib2DinAcc->Fill(mcp, tot_energySimHit/mcenergy); 
+  }
+  hClusterEcalib3D->Fill(mceta, mcp, tot_energySimHit/mcenergy); 
+
+  hClusterEcalib_E_eta->Fill(mcenergy, tot_energyRecHit/mcenergy, mceta); 
+  hClusterESimcalib_E_eta->Fill(mcenergy, tot_energySimHit/mcenergy, mceta);   
+  hClusterEcalib_E_phi->Fill(mcenergy, tot_energyRecHit/mcenergy, mcphi); 
+  hClusterESimcalib_E_phi->Fill(mcenergy, tot_energySimHit/mcenergy, mcphi);   
+
   // for(int itow=0; itow<_nTowers_LFHCAL; itow++){
   //     if(_tower_LFHCAL_E[itow]>aggE/escaling){
   //       towersStrct tempstructT;
