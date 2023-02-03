@@ -102,6 +102,11 @@ public:
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
     double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
+    // geometry service to get ids
+    std::string m_geoSvcName; //{this, "geoServiceName", "GeoSvc"};
+    std::string m_readout; //{this, "readoutClass", ""};
+    std::string u_adjacencyMatrix; //{this, "adjacencyMatrix", ""};
+
     // neighbour checking distances
     double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
     std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
@@ -114,17 +119,20 @@ public:
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
     // helper function to group hits
-    std::function<bool(const CaloHit& h1, const CaloHit& h2)> is_neighbour;
+    std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
 
     // unitless counterparts of the input parameters
     std::array<double, 2> neighbourDist;
+
+    // Pointer to the geometry service
+    std::shared_ptr<JDD4hep_service> m_geoSvc;
+    dd4hep::IDDescriptor m_idSpec;
 
     //-----------------------------------------------
 
     // unitless counterparts of inputs
     double           stepTDC, tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask, ref_mask;
 
     // inputs/outputs

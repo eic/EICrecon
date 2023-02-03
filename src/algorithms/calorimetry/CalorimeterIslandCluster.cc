@@ -99,41 +99,33 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
             {"dimScaledLocalDistXY", u_dimScaledLocalDistXY}
     };
 
-//    std::vector<std::vector<double>> uprops{
-//        u_localDistXY,
-//        u_localDistXZ,
-//        u_localDistYZ,
-//        u_globalDistRPhi,
-//        u_globalDistEtaPhi,
-//        // default one should be the last one
-//        u_dimScaledLocalDistXY,
-//    };
-
     bool method_found = false;
-    if (u_adjacencyMatrix.value() != "") {
-      m_geoSvc = service(m_geoSvcName);
+
+    // Adjacency matrix methods
+    if (u_adjacencyMatrix != "") {
       // sanity checks
       if (!m_geoSvc) {
-        m_log->error("Unable to locate Geometry Service. "
-                  + "Make sure you have GeoSvc and SimSvc in the right order in the configuration.");
+        m_log->error("Unable to locate Geometry Service. ",
+                     "Make sure you have GeoSvc and SimSvc",
+                     "in the right order in the configuration.");
         return;
       }
-      if (m_readout.value().empty()) {
+      if (m_readout.empty()) {
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
 
-      is_neighbour = [this](const CaloHit& h1, const CaloHit& h2) {
+      is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
         dd4hep::tools::Evaluator::Object evaluator;
         for(const auto &p : m_idSpec.fields()) {
           const std::string &name = p.first;
           const dd4hep::IDDescriptor::Field* field = p.second;
-          evaluator.setVariable((name + "_1").c_str(), field->value(h1.getCellID()));
-          evaluator.setVariable((name + "_2").c_str(), field->value(h2.getCellID()));
-          m_log->debug("setVariable(\"" << name  << "_1\", " << field->value(h1.getCellID()) << ");" << endmsg;
-          m_log->debug("setVariable(\"" << name  << "_2\", " << field->value(h2.getCellID()) << ");" << endmsg;
+          evaluator.setVariable((name + "_1").c_str(), field->value(h1->getCellID()));
+          evaluator.setVariable((name + "_2").c_str(), field->value(h2->getCellID()));
+          m_log->debug("setVariable(\"{}_1\", {});", name, field->value(h1->getCellID()));
+          m_log->debug("setVariable(\"{}_2\", {});", name, field->value(h2->getCellID()));
         }
-        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.value().c_str());
+        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
         if (eval.status()) {
           // no known conversion from 'MsgStream' to 'std::ostream &'
           std::stringstream sstr;
@@ -145,37 +137,39 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
       };
       method_found = true;
     }
-    if (!method_found)
-    {
+
+    // Coordinate distance methods
+    if (not method_found) {
       for (auto& uprop : uprops) {
         if (set_dist_method(uprop)) {
           method_found = true;
 
-          is_neighbour = [this](const CaloHit& h1, const CaloHit& h2) {
+          is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
             // in the same sector
-            if (h1.getSector() == h2.getSector()) {
+            if (h1->getSector() == h2->getSector()) {
               auto dist = hitsDist(h1, h2);
               return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
               // different sector, local coordinates do not work, using global coordinates
             } else {
               // sector may have rotation (barrel), so z is included
-              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= sectorDist);
+              // (EDM4hep units are mm, so convert sectorDist to mm)
+              return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm);
             }
           };
 
+          m_log->info("Using clustering method: {}", uprop.first);
           break;
         }
       }
     }
+
     if (not method_found) {
-        //LOG_ERROR(default_cerr_logger) << "Cannot determine the clustering coordinates" << LOG_END;
         m_log->error("Cannot determine the clustering coordinates");
         japp->Quit();
         return;
     }
 
     return;
-    
 }
 
 //------------------------
