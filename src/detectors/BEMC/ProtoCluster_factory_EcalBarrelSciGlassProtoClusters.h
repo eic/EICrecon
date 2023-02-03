@@ -35,7 +35,7 @@ public:
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "";
+        u_adjacencyMatrix = "(abs(tower_1 - tower_2) + abs((sector_1 - sector2) * 5 + row_1 - row2)) == 1";
         m_readout = "";
 
         // neighbour checking distances
