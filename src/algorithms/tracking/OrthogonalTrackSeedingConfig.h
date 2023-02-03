@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACK_SEEDING_CONFIG_H
-#define EICRECON_ORTHOGONAL_TRACK_SEEDING_CONFIG_H
+#pragma once
 
 #include <vector>
 
@@ -101,6 +100,3 @@ namespace eicrecon {
   };
   
 }
-  
-#endif 
-  
