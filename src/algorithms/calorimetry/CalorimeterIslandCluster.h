@@ -4,8 +4,7 @@
 //  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef _CalorimeterIslandCluster_h_
-#define _CalorimeterIslandCluster_h_
+#pragma once
 
 #include <random>
 
@@ -248,4 +247,3 @@ private:
 }
 };
 
-#endif // _CalorimeterHitDigi_h_

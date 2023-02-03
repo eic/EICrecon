@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_
-#define _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -79,4 +78,3 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_

@@ -3,8 +3,7 @@
 //
 //
 
-#ifndef _JEventSourcePODIO_h_
-#define  _JEventSourcePODIO_h_
+#pragma once
 
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
@@ -44,5 +43,4 @@ protected:
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
 
-#endif // _JEventSourcePODIO_h_
 

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACK_SEEDING_H
-#define EICRECON_TRACK_SEEDING_H
+#pragma once
 
 #include <functional>
 #include <random>
@@ -66,4 +65,3 @@ namespace eicrecon {
 }
 
 
-#endif //EICRECON_TRUTHTRACKSEEDING_H

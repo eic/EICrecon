@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _EICRootReader_h_
-#define _EICRootReader_h_
+#pragma once
 
 #include <string>
 #include <map>
@@ -75,5 +74,4 @@ protected:
     std::vector<EICEventStore::DataVector*> m_objidvectors;  // keep podio::ObjectID objects in separate list
 };
 
-#endif // _EICRootReader_h_
 

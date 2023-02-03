@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_IWITHCONFIG_H
-#define EICRECON_IWITHCONFIG_H
+#pragma once
 namespace eicrecon {
 
     /**
@@ -29,4 +28,3 @@ namespace eicrecon {
         ConfigT m_cfg;
     };
 }
-#endif //EICRECON_IWITHCONFIG_H

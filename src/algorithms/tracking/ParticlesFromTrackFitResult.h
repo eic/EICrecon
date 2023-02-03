@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PARTICLESFROMTRACKFITRESULT_H
-#define EICRECON_PARTICLESFROMTRACKFITRESULT_H
+#pragma once
 
 #include <memory>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -27,4 +26,3 @@ private:
 };
 
 
-#endif //EICRECON_PARTICLESFROMTRACKFITRESULT_H

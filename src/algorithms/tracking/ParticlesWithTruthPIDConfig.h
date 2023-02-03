@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PARTICLESWITHTRUTHPIDCONFIG_H
-#define EICRECON_PARTICLESWITHTRUTHPIDCONFIG_H
+#pragma once
 
 namespace eicrecon {
 
@@ -17,4 +16,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_PARTICLESWITHTRUTHPIDCONFIG_H

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_SPDLOGMIXIN_H
-#define EICRECON_SPDLOGMIXIN_H
+#pragma once
 
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -74,4 +73,3 @@ namespace eicrecon {
     };
 }
 
-#endif //EICRECON_SPDLOGMIXIN_H

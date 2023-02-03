@@ -9,8 +9,7 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
-#ifndef _CalorimeterClusterRecoCoG_h_
-#define _CalorimeterClusterRecoCoG_h_
+#pragma once
 
 #include <random>
 
@@ -193,4 +192,3 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     
 };
 
-#endif // _CalorimeterClusterRecoCoG_h_

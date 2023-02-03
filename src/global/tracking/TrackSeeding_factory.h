@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TrackSeeding_factory_H
-#define EICRECON_TrackSeeding_factory_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 
@@ -43,4 +42,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_TrackSeeding_factory_H

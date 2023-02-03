@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _EICEventStore_h_
-#define _EICEventStore_h_
+#pragma once
 
 #include <podio/ObjBase.h>
 #include <podio/ICollectionProvider.h>
@@ -120,4 +119,3 @@ public:
     std::vector<podio::ObjBase*> m_podio_objs; // these are
 };
 
-#endif // _EICEventStore_h_

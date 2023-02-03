@@ -6,8 +6,7 @@
 // Author: Chao Peng
 // Date: 06/14/2021
 
-#ifndef _CalorimeterHitReco_h_
-#define _CalorimeterHitReco_h_
+#pragma once
 
 #include <random>
 
@@ -88,4 +87,3 @@ private:
     //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 };
 
-#endif // _CalorimeterHitReco_h_
