@@ -36,7 +36,7 @@ public:
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         u_adjacencyMatrix = "(abs(tower_1 - tower_2) + abs((sector_1 - sector2) * 5 + row_1 - row2)) == 1";
-        m_readout = "";
+        m_readout = "EcalBarrelSciGlassHits";
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
