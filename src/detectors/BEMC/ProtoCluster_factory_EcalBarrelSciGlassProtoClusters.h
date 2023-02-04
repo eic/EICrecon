@@ -33,14 +33,22 @@ public:
         m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
         m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        // Magic constants:
+        //  24 - number of sectors
+        //  5  - number of towers per sector
+        u_adjacencyMatrix = "(abs(tower_1 - tower_2) + (abs((sector_1 - sector_2) * 5 + row_1 - row_2) == 1) + (abs((sector_1 - sector_2) * 5 + row_1 - row_2) == (24 * 5 - 1))) == 1";
+        m_readout = "EcalBarrelSciGlassHits";
+
         // neighbour checking distances
-        m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
+        m_sectorDist=0.0 * dd4hep::cm;             // not applicable
         u_localDistXY={};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
-        u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
+        u_globalDistEtaPhi={}; //{this, "globalDistEtaPhi", {}};
+        u_dimScaledLocalDistXY={}; // not used
 
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:splitCluster",             m_splitCluster);
@@ -53,6 +61,9 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
