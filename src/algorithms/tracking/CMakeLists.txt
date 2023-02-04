@@ -58,7 +58,6 @@ plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen)
 ## Add libraries (works same as target_include_directories)
 #plugin_link_libraries(${PLUGIN_NAME}
 #        ${ROOT_LIBRARIES}
-#        dd4hep_library
 #        EDM4HEP::edm4hep
 #        EDM4EIC::edm4eic
 #        spdlog::spdlog
@@ -67,7 +66,6 @@ plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen)
 #
 #target_link_libraries(${PLUGIN_NAME}_plugin
 #        ${ROOT_LIBRARIES}
-#        dd4hep_library
 #        EDM4HEP::edm4hep
 #        EDM4EIC::edm4eic
 #        spdlog::spdlog
