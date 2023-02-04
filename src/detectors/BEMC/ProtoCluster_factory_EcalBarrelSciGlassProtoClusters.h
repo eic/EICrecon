@@ -39,13 +39,13 @@ public:
         m_readout = "EcalBarrelSciGlassHits";
 
         // neighbour checking distances
-        m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
+        m_sectorDist=0.0 * dd4hep::cm;             // not applicable
         u_localDistXY={};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
-        u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
+        u_globalDistEtaPhi={}; //{this, "globalDistEtaPhi", {}};
+        u_dimScaledLocalDistXY={}; // not used
 
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:splitCluster",             m_splitCluster);
