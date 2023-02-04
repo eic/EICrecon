@@ -127,7 +127,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         }
         dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
         if (eval.status()) {
-          // no known conversion from 'MsgStream' to 'std::ostream &'
           std::stringstream sstr;
           eval.print_error(sstr);
           m_log->error(sstr.str());
