@@ -1,7 +1,7 @@
 // Copyright 2022, David Lawrence
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-//  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
+//  Sections Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "CalorimeterIslandCluster.h"
