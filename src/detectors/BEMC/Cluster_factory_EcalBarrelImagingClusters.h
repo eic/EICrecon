@@ -48,7 +48,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_mcHits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
         m_inputProtoClusters=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);

@@ -11,8 +11,8 @@ ACTS has two loggers controlled by two flags:
   initialization steps
 
 The reason for such level split is: it might be important to have a verbose log during initialization
-to view geometry conversion printout; while there is no need for full printout of each track reconstruction. 
-And wise versa. 
+to view geometry conversion printout; while there is no need for full printout of each track reconstruction.
+And wise versa.
 
 Examples:
 
@@ -21,9 +21,9 @@ Examples:
 acts:LogLevel = "trace"
 
 # But now initialization set to "info", no print of geometry import in details
-acts:InitLogLevel = "info" 
+acts:InitLogLevel = "info"
 
-# Don't print verbose messages during reconstruction, 
+# Don't print verbose messages during reconstruction,
 # but print full info on initial geometry conversion
 acts:LogLevel = "info"
 acts:InitLogLevel = "trace"

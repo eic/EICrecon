@@ -70,7 +70,7 @@ public:
   dd4hep::BitFieldCoder* id_dec = nullptr;
   uint32_t NcellIDerrors = 0;
   uint32_t MaxCellIDerrors = 100;
-  
+
   size_t sector_idx{0}, layer_idx{0};
 
   // name of detelment or fields to find the local detector (for global->local transform)

@@ -1,10 +1,10 @@
 * [Home](/)
-* Getting started    
+* Getting started
     * [EIC shell (recommended)](get-started/eic-shell.md)
     * [Manual build](get-started/manual-build.md)
     * [EDPM](get-started/edpm.md)
 * HowTo
-    * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md) 
+    * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md)
     * [Use docker](howto/use_docker.md)
     * [Use singularity](howto/use_singularity.md)
     * [Make Plugin](howto/make_plugin.md)
@@ -17,7 +17,7 @@
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
-* Tutorials 
+* Tutorials
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
     * [End user plugin](tutorial/03-end-user-plugin.md)
@@ -25,5 +25,4 @@
     * [Contributing](tutorial/05-contributing.md)
 * Misc
     * [References](misc/references.md)
-    * [This website](misc/this_website.md)   
-
+    * [This website](misc/this_website.md)

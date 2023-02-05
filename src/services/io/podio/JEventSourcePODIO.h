@@ -24,7 +24,7 @@ public:
 
     void GetEvent(std::shared_ptr<JEvent>) override;
     void FinishEvent(JEvent&) override ;
-    
+
     static std::string GetDescription();
 
     void PrintCollectionTypeTable(void);
@@ -45,4 +45,3 @@ template <>
 double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
 
 #endif // _JEventSourcePODIO_h_
-

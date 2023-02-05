@@ -105,4 +105,3 @@ void RPOTScheckProcessor::FinishWithGlobalRootLock() {
     // Do any final calculations here.
 
 }
-

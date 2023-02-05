@@ -28,7 +28,7 @@ private:
 
 public:
     TRACKINGcheckProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void InitWithGlobalRootLock() override;
     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
     void FinishWithGlobalRootLock() override;

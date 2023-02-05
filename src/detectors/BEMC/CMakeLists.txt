@@ -30,5 +30,3 @@ plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library )
-
-

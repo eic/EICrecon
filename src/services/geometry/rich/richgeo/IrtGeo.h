@@ -32,7 +32,7 @@ namespace rich {
       IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false);
       // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
       IrtGeo(std::string detName_, std::string compactFile_="", bool verbose_=false);
-      ~IrtGeo(); 
+      ~IrtGeo();
 
       // access the full IRT geometry
       CherenkovDetectorCollection *GetIrtDetectorCollection() { return m_irtDetectorCollection; }

@@ -28,4 +28,3 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add libraries (works similar target_include_directories but for plugin targets)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library)
-

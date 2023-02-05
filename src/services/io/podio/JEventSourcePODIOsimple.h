@@ -50,4 +50,3 @@ template <>
 double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::string);
 
 #endif // _JEventSourcePODIOsimple_h_
-
