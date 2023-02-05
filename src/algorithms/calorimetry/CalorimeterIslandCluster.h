@@ -102,6 +102,11 @@ public:
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
     double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
+    // geometry service to get ids
+    std::string m_geoSvcName; //{this, "geoServiceName", "GeoSvc"};
+    std::string m_readout; //{this, "readoutClass", ""};
+    std::string u_adjacencyMatrix; //{this, "adjacencyMatrix", ""};
+
     // neighbour checking distances
     double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
     std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
@@ -110,18 +115,24 @@ public:
     std::vector<double> u_globalDistRPhi;//{this, "globalDistRPhi", {}};
     std::vector<double> u_globalDistEtaPhi;//{this, "globalDistEtaPhi", {}};
     std::vector<double> u_dimScaledLocalDistXY;//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
-  // neighbor checking function
+    // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
-  // unitless counterparts of the input parameters
+    // helper function to group hits
+    std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
+
+    // unitless counterparts of the input parameters
     std::array<double, 2> neighbourDist;
+
+    // Pointer to the geometry service
+    std::shared_ptr<JDD4hep_service> m_geoSvc;
+    dd4hep::IDDescriptor m_idSpec;
 
     //-----------------------------------------------
 
     // unitless counterparts of inputs
     double           stepTDC, tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask, ref_mask;
 
     // inputs/outputs
@@ -131,19 +142,6 @@ public:
 private:
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
-
-    // helper function to group hits
-    inline bool is_neighbour(const CaloHit *h1, const CaloHit *h2) const {
-        // in the same sector
-        if (h1->getSector() == h2->getSector()) {
-          auto dist = hitsDist(h1, h2);
-          return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
-          // different sector, local coordinates do not work, using global coordinates
-        } else {
-          // sector may have rotation (barrel), so z is included
-          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm); // EDM4hep units are mm, so convert sectorDist to mm
-        }
-   }
 
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
