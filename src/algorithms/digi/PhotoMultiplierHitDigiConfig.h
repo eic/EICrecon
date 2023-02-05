@@ -7,6 +7,7 @@ namespace eicrecon {
     public:
 
       // random number generator seed
+      // FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
       unsigned long seed = 0; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering

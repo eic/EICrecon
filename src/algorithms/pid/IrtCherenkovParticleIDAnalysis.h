@@ -43,7 +43,7 @@ namespace eicrecon {
       // binning
       static constexpr int    n_bins        = 100;
       static constexpr int    momentum_bins = 100;
-      static constexpr int    momentum_max  = 60;
+      static constexpr int    momentum_max  = 70;
       static constexpr int    npe_bins      = 100;
       static constexpr double npe_max       = 100;
       static constexpr int    nphot_max     = 400;
@@ -68,6 +68,7 @@ namespace eicrecon {
       // algorithm methods
       void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
       void AlgorithmProcess(
+          std::vector<const edm4hep::MCParticle*>          mc_parts,
           std::vector<const edm4hep::SimTrackerHit*>       sim_hits,
           std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids
           );

@@ -92,24 +92,36 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spd
 // AlgorithmProcess
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
+    std::vector<const edm4hep::MCParticle*>          mc_parts,
     std::vector<const edm4hep::SimTrackerHit*>       sim_hits,
     std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids
     )
 {
   m_log->trace("{:=^70}"," call IrtCherenkovParticleIDAnalysis::AlgorithmProcess ");
 
-  // get the number of photons vs. momentum for this event
-  // - get the true charged particle momentum, and fill 1D histogram `m_nphot_vs_p__transient`
-  //   for each (pre-digitized) sensor hit
-  // - number of entries in each momentum bin will be the number of photons for this event
-  for(const auto& hit : sim_hits) {
-    float momentum = 0;
-    auto photon = hit->getMCParticle();
-    if(photon.parents_size()>0) {
-      auto charged_particle = photon.getParents(0);
-      momentum = edm4hep::utils::p(charged_particle);
+  // get thrown momentum from truth
+  int   n_thrown = 0;
+  float thrown_momentum = 0.0;
+  for(const auto& part : mc_parts) {
+    if(part->getGeneratorStatus()==1) {
+      thrown_momentum = edm4hep::utils::p(*part);
+      n_thrown++;
     }
-    m_nphot_vs_p__transient->Fill(momentum);
+  }
+  if(n_thrown == 0) m_log->warn("no thrown particle found"); 
+  if(n_thrown >  1) m_log->warn("this benchmark does not yet support multi-track events (n_thrown={})\n",n_thrown);
+
+  // get the number of photons vs. thrown momentum for this event
+  // - fill 1D thrown_momentum histogram `m_nphot_vs_p__transient` for each (pre-digitized) sensor hit
+  for(const auto& hit : sim_hits) {
+    // FIXME: get `thrown_momentum` from multi-track events; but in this attempt
+    // below the parent momentum is not consistent; instead for now we use
+    // `thrown_momentum` from truth
+    /*
+    auto photon = hit->getMCParticle();
+    if(photon.parents_size()>0) thrown_momentum = edm4hep::utils::p(photon.getParents(0));
+    */
+    m_nphot_vs_p__transient->Fill(thrown_momentum);
   }
   // - use `m_nphot_vs_p__transient` results to fill 2D hist `m_nphot_vs_p` for this event
   for(int b=1; b<=m_nphot_vs_p__transient->GetNbinsX(); b++) {
@@ -121,7 +133,6 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
   }
   // - clear `m_nphot_vs_p__transient` to be ready for the next event
   m_nphot_vs_p__transient->Reset();
-
 
   // loop over `CherenkovParticleID` objects
   for(const auto& pid : cherenkov_pids) {
@@ -139,13 +150,18 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     }
     m_log->trace("-> {} Radiator (ID={}):", rad_name, pid->getRadiator());
 
-    // estimate the charged particle energy using the momentum of the first TrackPoint at this radiator's entrance
+    // estimate the charged particle momentum using the momentum of the first TrackPoint at this radiator's entrance
+    /*
     auto charged_particle = pid->getChargedParticle();
     if(!charged_particle.isAvailable())   { m_log->warn("Charged particle not available in this radiator");      continue; }
     if(charged_particle.points_size()==0) { m_log->warn("Charged particle has no TrackPoints in this radiator"); continue; }
     auto charged_particle_momentum = edm4hep::utils::magnitude( charged_particle.getPoints(0).momentum );
     m_log->trace("  Charged Particle p = {} GeV at radiator entrance", charged_particle_momentum);
     m_log->trace("  If it is a pion, E = {} GeV", std::hypot(charged_particle_momentum, Tools::GetPDGMass(211)));
+    */
+    // alternatively: use thrown particle momentum (FIXME: will not work for multi-track events)
+    auto charged_particle_momentum = thrown_momentum;
+    m_log->trace("  Charged Particle p = {} GeV from truth", charged_particle_momentum);
 
     // trace logging for IRT results
     m_log->trace("  Cherenkov Angle Estimate:");
