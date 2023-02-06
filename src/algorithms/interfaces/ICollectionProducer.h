@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_ICOLLECTIONPRODUCER_H
-#define EICRECON_ICOLLECTIONPRODUCER_H
+#pragma once
 
 #include <vector>
 
@@ -27,4 +26,3 @@ namespace eicrecon {
 }
 
 
-#endif //EICRECON_ICOLLECTIONPRODUCER_H

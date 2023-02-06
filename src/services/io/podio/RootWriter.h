@@ -1,5 +1,4 @@
-#ifndef EIC_PODIO_ROOTWRITER_H
-#define EIC_PODIO_ROOTWRITER_H
+#pragma once
 
 #include <podio/CollectionBase.h>
 #include <podio/CollectionBranches.h>
@@ -65,4 +64,3 @@ private:
 };
 
 } // namespace eic
-#endif

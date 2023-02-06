@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_CHAIN_FACTORY_GENERATOR_T_H
-#define EICRECON_CHAIN_FACTORY_GENERATOR_T_H
+#pragma once
 
 
 #include <vector>
@@ -60,4 +59,3 @@ private:
 };
 
 
-#endif //EICRECON_CHAIN_FACTORY_GENERATOR_T_H

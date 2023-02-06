@@ -1,6 +1,5 @@
 
-#ifndef _EICRootWriterSimple_h_
-#define _EICRootWriterSimple_h_
+#pragma once
 
 #include <JANA/JEventProcessor.h>
 #include <spdlog/spdlog.h>
@@ -38,5 +37,4 @@ public:
 };
 
 
-#endif // _EICRootWriterSimple_h_
 

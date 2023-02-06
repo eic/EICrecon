@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
 
-#ifndef JUGGLER_JUGRECO_CKFTracking_HH
-#define JUGGLER_JUGRECO_CKFTracking_HH
+#pragma once
 
 #include <functional>
 #include <random>
@@ -93,4 +92,3 @@ namespace eicrecon {
 
 } // namespace Jug::Reco
 
-#endif

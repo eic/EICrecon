@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PODIOASSOCIATIONHELPER_H
-#define EICRECON_PODIOASSOCIATIONHELPER_H
+#pragma once
 
 namespace eicrecon {
 
@@ -13,4 +12,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_PODIOASSOCIATIONHELPER_H

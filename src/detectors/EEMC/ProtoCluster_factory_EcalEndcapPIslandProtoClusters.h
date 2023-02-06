@@ -32,6 +32,11 @@ public:
         m_minClusterHitEdep=0.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
         m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        u_adjacencyMatrix = "";
+        m_readout = "";
+
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
         u_localDistXY={10.0 * dd4hep::cm, 10.0 * dd4hep::cm};     //{this, "localDistXY", {}};
@@ -53,6 +58,9 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

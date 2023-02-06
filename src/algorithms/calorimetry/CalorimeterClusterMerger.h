@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#ifndef _CalorimeterClusterMerger_h_
-#define _CalorimeterClusterMerger_h_
+#pragma once
 
 #include <random>
 #include <spdlog/spdlog.h>
@@ -90,4 +89,3 @@ private:
 
 };
 
-#endif //_CalorimeterClusterMerger_h_
