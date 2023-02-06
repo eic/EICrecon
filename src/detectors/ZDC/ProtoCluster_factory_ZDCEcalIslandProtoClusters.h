@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_ZDCEcalIslandProtoClusters_h_
-#define _ProtoCLuster_factory_ZDCEcalIslandProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -81,4 +80,3 @@ public:
     }
 };
 
-#endif // _ProtoCLuster_factory_ZDCEcalIslandProtoClusters_h_

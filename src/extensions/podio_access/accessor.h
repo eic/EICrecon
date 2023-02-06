@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_ACCESSOR_H
-#define EICRECON_ACCESSOR_H
+#pragma once
 
 /** @example
  *
@@ -35,4 +34,3 @@
   (OBJECT).*Access((Only_##MEMBER<std::remove_reference<decltype(OBJECT)>::type>*)nullptr)
 
 
-#endif //EICRECON_ACCESSOR_H

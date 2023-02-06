@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
-#define EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
+#pragma once
 
 #include <random>
 
@@ -85,4 +84,3 @@ void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Process(
 }
 
 
-#endif //EICRECON_JFACTORY_SILICONTRACKERDIGIT_H

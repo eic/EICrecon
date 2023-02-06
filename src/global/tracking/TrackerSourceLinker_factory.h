@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKERSOURCELINKER_FACTORY_H
-#define EICRECON_TRACKERSOURCELINKER_FACTORY_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <extensions/jana/JChainFactoryT.h>
@@ -42,4 +41,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_TRACKERSOURCELINKER_FACTORY_H

@@ -1,5 +1,4 @@
-#ifndef EICRECON_TRACK_PROPAGATION_TEST_PROCESSOR_H
-#define EICRECON_TRACK_PROPAGATION_TEST_PROCESSOR_H
+#pragma once
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
@@ -61,4 +60,3 @@ private:
     std::shared_ptr<Acts::DiscSurface> m_hcal_surface;
 };
 
-#endif //EICRECON_TRACK_PROPAGATION_TEST_PROCESSOR_H

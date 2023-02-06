@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
-#define EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
+#pragma once
 
 #include <random>
 
@@ -33,4 +32,3 @@ private:
 };
 
 
-#endif //EICRECON_JFACTORY_SILICONTRACKERDIGIT_H

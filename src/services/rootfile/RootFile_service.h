@@ -1,5 +1,4 @@
-#ifndef __RootFile_service_h__
-#define __RootFile_service_h__
+#pragma once
 
 
 #include <iostream>
@@ -105,4 +104,3 @@ private:
     std::once_flag init_flag;
 };
 
-#endif // __RootFile_service_h__

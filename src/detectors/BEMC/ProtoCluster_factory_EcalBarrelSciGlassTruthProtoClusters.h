@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_EcalBarrelTruthProtoClusters_h_
-#define _TruthCluster_factory_EcalBarrelTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -62,4 +61,3 @@ private:
     std::string              m_inputMCHit_tag;
 };
 
-#endif // _ProtoCLuster_factory_EcalBarrelIslandProtoClusters_h_

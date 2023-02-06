@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPARAMTRUTHINIT_H
-#define EICRECON_TRACKPARAMTRUTHINIT_H
+#pragma once
 
 #include <algorithms/interfaces/IObjectProducer.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
@@ -36,4 +35,3 @@ namespace eicrecon {
     };
 }   // namespace eicrecon
 
-#endif //EICRECON_TRACKPARAMTRUTHINIT_H

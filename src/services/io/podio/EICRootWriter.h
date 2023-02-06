@@ -3,8 +3,7 @@
 //
 //
 
-#ifndef _EDM4hepWriter_h_
-#define _EDM4hepWriter_h_
+#pragma once
 
 // podio specific includes
 #include <podio/podioVersion.h>
@@ -74,5 +73,4 @@ protected:
 };
 
 
-#endif // _EDM4hepWriter_h_
 
