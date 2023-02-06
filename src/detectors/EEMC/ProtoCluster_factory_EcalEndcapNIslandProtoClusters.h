@@ -58,7 +58,7 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();

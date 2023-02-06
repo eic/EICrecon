@@ -57,7 +57,7 @@ public:
         app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
         app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("HCAL:HcalBarrelIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
