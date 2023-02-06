@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong
 
-#ifndef RECTRACKER_ACTSLOGGER_H
-#define RECTRACKER_ACTSLOGGER_H
+#pragma once
 
 #include <Acts/Utilities/Logger.hpp>
 #include <GaudiKernel/ServiceHandle.h>
@@ -95,4 +94,3 @@ private:
   std::string m_name;
 };
 
-#endif  // RECTRACKER_ACTSLOGGER_H

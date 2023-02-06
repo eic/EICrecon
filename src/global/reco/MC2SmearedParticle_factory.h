@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_MC2SMEAREDPARTICLE_FACTORY_H
-#define EICRECON_MC2SMEAREDPARTICLE_FACTORY_H
+#pragma once
 
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/ReconstructedParticle.h>
@@ -40,4 +39,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_MC2SMEAREDPARTICLE_FACTORY_H

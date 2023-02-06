@@ -2,8 +2,7 @@
 // Created by xmei on 9/7/22.
 //
 
-#ifndef EICRECON_EICRECON_CLI_H
-#define EICRECON_EICRECON_CLI_H
+#pragma once
 
 #include <JANA/JApplication.h>
 
@@ -77,4 +76,3 @@ namespace jana {
 
 }
 
-#endif //EICRECON_EICRECON_CLI_H

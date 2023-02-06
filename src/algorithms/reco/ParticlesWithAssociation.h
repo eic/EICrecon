@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PARTICLESWITHASSOCIATION_H
-#define EICRECON_PARTICLESWITHASSOCIATION_H
+#pragma once
 
 #include <vector>
 
@@ -36,4 +35,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_PARTICLESWITHASSOCIATION_H

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TruthTrackSeeding_factory_H
-#define EICRECON_TruthTrackSeeding_factory_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include "extensions/jana/JChainFactoryT.h"
@@ -45,4 +44,3 @@ class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters
 
 } // eicrecon
 
-#endif //EICRECON_TruthTrackSeeding_factory_H

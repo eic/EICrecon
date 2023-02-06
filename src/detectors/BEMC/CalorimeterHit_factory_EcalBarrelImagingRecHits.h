@@ -1,6 +1,5 @@
 
-#ifndef CalorimeterHit_factory_EcalBarrelImagingRecHits_h_
-#define CalorimeterHit_factory_EcalBarrelImagingRecHits_h_
+#pragma once
 
 #include <JANA/JFactoryT.h>
 
@@ -72,4 +71,3 @@ public:
 
 };
 
-#endif // CalorimeterHit_factory_EcalBarrelImagingRecHits_h_

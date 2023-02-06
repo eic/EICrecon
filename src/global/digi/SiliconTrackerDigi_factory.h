@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORY_SILICON_TRACKER_DIGI_H
-#define EICRECON_JFACTORY_SILICON_TRACKER_DIGI_H
+#pragma once
 
 #include <random>
 
@@ -53,4 +52,3 @@ namespace eicrecon {
 
 }
 
-#endif //EICRECON_JFACTORY_SILICON_TRACKER_DIGI_H

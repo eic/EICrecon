@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalBarrelImagingClusters_h_
-#define _Cluster_factory_EcalBarrelImagingClusters_h_
+#pragma once
 
 #include <random>
 
@@ -66,4 +65,3 @@ public:
     }
 };
 
-#endif // _Cluster_factory_EcalBarrelImagingClusters_h_

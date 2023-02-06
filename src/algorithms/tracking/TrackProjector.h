@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPROJECTOR_H
-#define EICRECON_TRACKPROJECTOR_H
+#pragma once
 
 #include <edm4eic/TrackSegment.h>
 
@@ -40,4 +39,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_TRACKPROJECTOR_H

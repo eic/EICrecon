@@ -3,8 +3,7 @@
 //
 //
 
-#ifndef _EDM4hepWriter_h_
-#define _EDM4hepWriter_h_
+#pragma once
 
 // podio specific includes
 #include <podio/podioVersion.h>
@@ -72,6 +71,3 @@ protected:
         return name + "_" + std::to_string(index);
     }
 };
-
-
-#endif // _EDM4hepWriter_h_

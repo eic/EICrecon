@@ -1,5 +1,4 @@
-#ifndef EICRECON_SPACE_POINT_H
-#define EICRECON_SPACE_POINT_H
+#pragma once
 
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Seeding/Seed.hpp>
@@ -62,4 +61,3 @@ using SeedContainer = std::vector<Acts::Seed<SpacePoint>>;
 
 }
 
-#endif

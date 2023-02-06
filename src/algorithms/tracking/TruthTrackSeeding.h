@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRUTHTRACKSEEDING_H
-#define EICRECON_TRUTHTRACKSEEDING_H
+#pragma once
 
 #include <algorithms/interfaces/IObjectProducer.h>
 #include <edm4hep/MCParticle.h>
@@ -25,4 +24,3 @@ namespace eicrecon {
 }
 
 
-#endif //EICRECON_TRUTHTRACKSEEDING_H
