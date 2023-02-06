@@ -97,4 +97,3 @@ void BEMCcheckProcessor::FinishWithGlobalRootLock() {
     // Do any final calculations here.
 
 }
-

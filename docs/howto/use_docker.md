@@ -21,7 +21,7 @@ The containers are released both for docker and singularity. Singularity images 
 - **jug_dev** - have all major HENP packages such as ROOT, Geant4 and DD4HEP but without detector and reconstruction. The image is used for testing purposes and automation.
 - **jug_xl** - intended to be used to run simulation and work on detectors for users. jug_dev + full simulation packages
 
-  
+
 
 ### Versioning:
 
@@ -32,7 +32,7 @@ The containers are released both for docker and singularity. Singularity images 
 - **4.0.0** - exact tagged version
 
 
-Nightly and testing are different in that nightly uses the master branch of the software, while testing uses 
+Nightly and testing are different in that nightly uses the master branch of the software, while testing uses
 whatever version is given at the top of the [gitlab-ci.yml](https://eicweb.phy.anl.gov/containers/eic_container/-/blob/master/.gitlab-ci.yml#L68).
 So testing is the precursor to the next release version.
 
@@ -44,7 +44,7 @@ Now it is recommended to use: ```eicweb/jug_xl:nightly```
 
 ## Run in docker
 
-Containers are available at eicweb namespace at 
+Containers are available at eicweb namespace at
 [the dockerhub](https://hub.docker.com/u/eicweb)
 
 To download or update the container:
@@ -62,7 +62,7 @@ docker run -it --rm eicweb/jug_xl:nightly
 
 ```--rm``` flag Docker **automatically cleans up the container** and remove the file system
 **when the container exits**. We use --rm flag for the sake of the tutorial repeatability. **If you work with the container,
-might be, you don't need it** (read more below). 
+might be, you don't need it** (read more below).
 
 ```-it``` flag enables interactive session. Without this flag ctrl+c will not work on Mac
 machines. In general `-it` is used to run e.g. bash session (see below)
@@ -70,8 +70,8 @@ machines. In general `-it` is used to run e.g. bash session (see below)
 
 Each time `docker run` command is called, it spawns a new container.
 In particular, it first creates a writeable container layer over the
-specified image, and then starts it using the specified command. If `--rm` flag is not used, 
-a stopped container can be restarted with all its previous changes intact using `docker start` command. 
+specified image, and then starts it using the specified command. If `--rm` flag is not used,
+a stopped container can be restarted with all its previous changes intact using `docker start` command.
 Docker works somehow like tmux or screen - you can reconnect to the running image,
 attach many bash shells and even if container is stopped you can start it again and reconnect.
 This makes debugging easier, and you retain all your data. But `--rm` flag good for repeatability.
@@ -93,7 +93,7 @@ is already setup. But the detector needs to be selected for use with
 simulation or reconstruction:
 
 ```bash
-# Detectors live in 
+# Detectors live in
 # /opt/detectors
 # one can select particular configuration as
 # source /opt/detector/epic-22.10.0/setup.sh
@@ -139,12 +139,12 @@ docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined eicwe
 ```
 
 
-## Docker in IDEs 
+## Docker in IDEs
 
-It might be a very convenient to use development tools (IDE's, debuggers, etc.) 
+It might be a very convenient to use development tools (IDE's, debuggers, etc.)
 installed on your system, while using the docker to build, run and debug the code.
 The setup depends on particular tool:
-  
+
 - [Visual Studio Code docker remote debugging](https://code.visualstudio.com/docs/remote/remote-overview)
 - [CLion docker toolchain](https://www.jetbrains.com/help/clion/clion-toolchains-in-docker.html)
 
@@ -154,9 +154,9 @@ The setup depends on particular tool:
 
 ## X11 - Working with GUI
 
-To use X11 directly require x11 client apps on Macs and Windows 
+To use X11 directly require x11 client apps on Macs and Windows
 and may have some issues with user id's and permissions on Posix (max & linux).
-It might look complex, but actually it is not that bad and works most of the time. 
+It might look complex, but actually it is not that bad and works most of the time.
 
 
 **Requirements**: X11 cliens (windows and mac), additional docker flags (see of each OS)
@@ -196,14 +196,14 @@ After installing, open XQuartz, and go to XQuartz, Preferences, select the Secur
 Afterwards, open a terminal and run the following commands:
 
 ```bash
-ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}') 
+ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
 
 echo $ip   # To make sure it was successfull
            # If nothing is displayed, replace en0 with en1 and so on
-           
+
 xhost + $ip  # start XQuartz and whitelist your local IP address
 
-``` 
+```
 
 This will start XQuartz and whitelist your local IP address.
 
@@ -224,9 +224,7 @@ action needed. For the most optimal experience, you can install your software to
 
 ```
 FROM eicweb/jug_xl:nighlty
-RUN apt-get update \ 
+RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install git gdb
 ```
-
-

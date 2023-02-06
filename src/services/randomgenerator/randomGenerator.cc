@@ -68,7 +68,7 @@ RandomGenerator::RandomGenerator(std::string gen_name,std::string distribution_n
     {
         return dist(rand_gen);
     }
-    
+
     RandomGenerator::get_distribution_name() const
     {
         return m_dist_name;
@@ -78,6 +78,6 @@ RandomGenerator::RandomGenerator(std::string gen_name,std::string distribution_n
     {
         return m_gen_name;
     }
-    
+
 
 }

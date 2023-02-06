@@ -34,4 +34,3 @@ if( DEFINED ENV{EICrecon_MY} )
 else()
     set( USER_PLUGIN_OUTPUT_DIRECTORY ${PLUGIN_OUTPUT_DIRECTORY} )
 endif()
-

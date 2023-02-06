@@ -72,4 +72,3 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> &logger() { return m_log; }
     };
 }
-

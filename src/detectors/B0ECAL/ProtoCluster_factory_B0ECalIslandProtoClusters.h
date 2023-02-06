@@ -77,4 +77,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-

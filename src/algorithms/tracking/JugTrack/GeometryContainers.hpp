@@ -187,4 +187,3 @@ struct GeometryIdMultisetAccessor {
 };
 
 }  // namespace FW
-

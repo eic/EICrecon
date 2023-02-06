@@ -17,7 +17,7 @@
 #include <TDatabasePDG.h>
 #include <tuple>
 
-namespace 
+namespace
 {
   //! convenience square method
   template<class T>
@@ -32,7 +32,7 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
 
     m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
     m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
-    
+
     m_cfg.configure();
 }
 
@@ -51,7 +51,7 @@ eicrecon::SeedContainer eicrecon::TrackSeeding::runSeeder(std::vector<const edm4
 
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_cfg.m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
- 
+
   return seeds;
 }
 
@@ -87,7 +87,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
       auto slopeZ0 = lineFit(rzHitPositions);
-  
+
       int charge = determineCharge(xyHitPositions);
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
@@ -97,7 +97,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float pt = 0.3 * R * (m_cfg.m_bFieldInZ * 1000) / 100.;
       float p = pt * cosh(eta);
       float qOverP = charge / p;
-      
+
       const auto xypos = findRoot(RX0Y0);
       const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
@@ -111,7 +111,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 	{
 	  localpos = local.value();
 	}
-      
+
       edm4eic::TrackParameters *params = new edm4eic::TrackParameters{
 	-1, // type --> seed(-1)
 	{(float)localpos(0), (float)localpos(1)}, // 2d location on surface
@@ -123,7 +123,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 	10, // time in ns
 	0.1, // error on time
 	(float)charge // charge
-	
+
       };
 
       trackparams.push_back(params);
@@ -136,17 +136,17 @@ std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,
   const float R = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
-  const double miny = (std::sqrt(square(X0) * square(R) * square(Y0) + square(R) 
-		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3)) 
+  const double miny = (std::sqrt(square(X0) * square(R) * square(Y0) + square(R)
+		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3))
     / (square(X0) + square(Y0));
 
-  const double miny2 = (-std::sqrt(square(X0) * square(R) * square(Y0) + square(R) 
-		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3)) 
+  const double miny2 = (-std::sqrt(square(X0) * square(R) * square(Y0) + square(R)
+		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3))
     / (square(X0) + square(Y0));
 
   const double minx = std::sqrt(square(R) - square(miny - Y0)) + X0;
   const double minx2 = -std::sqrt(square(R) - square(miny2 - Y0)) + X0;
-  
+
   /// Figure out which of the two roots is actually closer to the origin
   const float x = ( std::abs(minx) < std::abs(minx2)) ? minx:minx2;
   const float y = ( std::abs(miny) < std::abs(miny2)) ? miny:miny2;
@@ -159,14 +159,14 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>&
   int charge = 1;
   const auto& firstpos = positions.at(0);
   const auto& secondpos = positions.at(1);
-  
+
   const auto firstphi = atan2(firstpos.second, firstpos.first);
   const auto secondphi = atan2(secondpos.second, secondpos.first);
   auto dphi = secondphi - firstphi;
   if(dphi > M_PI) dphi = 2.*M_PI - dphi;
   if(dphi < -M_PI) dphi = 2*M_PI + dphi;
   if(dphi < 0) charge = -1;
-  
+
   return charge;
 }
 

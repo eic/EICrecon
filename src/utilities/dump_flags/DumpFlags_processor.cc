@@ -152,4 +152,3 @@ void DumpFlags_processor::Finish()
         }
     }
 }
-
