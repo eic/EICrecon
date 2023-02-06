@@ -20,7 +20,7 @@
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger) 
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
@@ -136,7 +136,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             for (auto &data : it.second) {
                 edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
                   it.first,
-                  static_cast<uint32_t>(data.signal), 
+                  static_cast<uint32_t>(data.signal),
                   static_cast<uint32_t>(data.time/m_cfg.timeStep)
                   //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
@@ -144,7 +144,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             }
         }
         return raw_hits;
-        
+
 }
 
 void  eicrecon::PhotoMultiplierHitDigi::qe_init()
@@ -231,7 +231,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 
 // transform global position `pos` to sensor `id` frame position
 // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-// FIXME: here be dragons... 
+// FIXME: here be dragons...
 dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, dd4hep::Position pos) {
 
   // get the VolumeManagerContext for this sensitive detector

@@ -4,49 +4,49 @@
 ```mermaid
 flowchart LR
   classDef alg fill:#f96;
-  
+
   subgraph Tracking output
     direction TB
     TrackingOutput(CentralDetectorParticles)
   end
-  
+
   subgraph Simulation output
     direction TB
     MCParticles(MCParticles)
   end
-  
+
   subgraph Calorimetry output
     direction TB
-    
+
     CalorimetryClusters(CalorimetryClusters:<br/>SubsystemClusters)
     CalorimetryAssociations(CalorimetryAssociations:<br/>SubsystemClustersAssociations)
   end
-  
+
   MCParticles --> MC2SmearedParticle[MC2SmearedParticle]:::alg
-  MC2SmearedParticle --> GeneratedParticles 
-  
+  MC2SmearedParticle --> GeneratedParticles
+
   MCParticles --> ParticlesWithTruthPID[ParticlesWithTruthPID]:::alg
   TrackingOutput --> ParticlesWithTruthPID
-      
+
   ParticlesWithTruthPID --> ReconstructedChargedParticles(ReconstructedChargedParticles)
   ParticlesWithTruthPID --> ReconstructedChargedParticlesAssoc(ReconstructedChargedParticlesAssoc)
-    
+
   MCParticles --> MatchClusters[MatchClusters]:::alg
   ReconstructedChargedParticles --> MatchClusters
-  ReconstructedChargedParticlesAssoc --> MatchClusters 
-  
+  ReconstructedChargedParticlesAssoc --> MatchClusters
+
   CalorimetryAssociations --> MatchClusters
   CalorimetryClusters --> MatchClusters
-  
+
   MatchClusters --> ReconstructedParticles(ReconstructedParticles)
   MatchClusters --> ReconstructedParticlesAssoc(ReconstructedParticlesAssoc)
-  
+
   subgraph EDM4EIC PODIO output
     direction TB
-    
+
     ReconstructedParticles
     ReconstructedParticlesAssoc
     GeneratedParticles
   end
-  
+
 ```

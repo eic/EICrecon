@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_RECONSTRUCTED_PARTICLE_ASSOCIATIONS_FACTORY_H
-#define EICRECON_RECONSTRUCTED_PARTICLE_ASSOCIATIONS_FACTORY_H
+#pragma once
 
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include "extensions/jana/JChainFactoryT.h"
@@ -36,4 +35,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_RECONSTRUCTED_PARTICLE_ASSOCIATIONS_FACTORY_H

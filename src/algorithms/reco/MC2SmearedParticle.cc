@@ -60,10 +60,3 @@ edm4eic::ReconstructedParticle *eicrecon::MC2SmearedParticle::produce(const edm4
     return new edm4eic::ReconstructedParticle(rec_part);
 
 }
-
-
-
-
-
-
-

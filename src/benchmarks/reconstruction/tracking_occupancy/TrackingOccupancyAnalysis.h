@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKING_OCCUPANCY_ANALYSIS_H
-#define EICRECON_TRACKING_OCCUPANCY_ANALYSIS_H
+#pragma once
 
 #include <TH1F.h>
 #include <TH3F.h>
@@ -40,4 +39,3 @@ private:
 };
 
 
-#endif //EICRECON_TRACKING_OCCUPANCY_ANALYSIS_H

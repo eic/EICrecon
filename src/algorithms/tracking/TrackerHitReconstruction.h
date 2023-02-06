@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKERHITRECONSTRUCTION_H
-#define EICRECON_TRACKERHITRECONSTRUCTION_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -56,4 +55,3 @@ namespace eicrecon {
 
 
 
-#endif //EICRECON_TRACKERHITRECONSTRUCTION_H

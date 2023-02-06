@@ -51,7 +51,7 @@ private:
 
 public:
     LogServiceProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void Init() override {
         /// Once in app lifetime function call
 
@@ -168,4 +168,3 @@ extern "C" {
         app->Add(new MyLoggingProcessor);
     }
 }
-    

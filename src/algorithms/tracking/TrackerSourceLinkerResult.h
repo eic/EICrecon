@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKERSOURCELINKERRESULT_H
-#define EICRECON_TRACKERSOURCELINKERRESULT_H
+#pragma once
 
 #include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
 #include <algorithms/tracking/JugTrack/IndexSourceLink.hpp>
@@ -19,4 +18,3 @@ namespace eicrecon {
 
 
 
-#endif //EICRECON_TRACKERSOURCELINKERRESULT_H

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPARAMTRUTHINITCONFIG_H
-#define EICRECON_TRACKPARAMTRUTHINITCONFIG_H
+#pragma once
 
 #include <Acts/Definitions/Units.hpp>
 
@@ -21,4 +20,3 @@ struct TrackParamTruthInitConfig {
 };
 
 
-#endif //EICRECON_TRACKPARAMTRUTHINITCONFIG_H

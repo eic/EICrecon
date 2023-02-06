@@ -69,7 +69,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         auto nclus= clus->clone();
         edm4eic::Cluster* new_clus = new edm4eic::Cluster(nclus);
         merged.push_back(new_clus);
-        
+
         auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setRecID(new_clus->getObjectID().index);
         ca->setSimID(mcID);
@@ -120,5 +120,5 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
     }
 
     // That's all!
-    
+
 }

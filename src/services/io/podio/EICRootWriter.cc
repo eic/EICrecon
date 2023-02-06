@@ -461,6 +461,3 @@ void EICRootWriter::Finish() {
     }
 
 }
-
-
-

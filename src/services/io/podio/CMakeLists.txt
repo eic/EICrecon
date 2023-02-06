@@ -53,9 +53,6 @@ plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} ${LINK_LIBRARIES})
 
-# Additional libraries
-#plugin_link_libraries(${PLUGIN_NAME} dd4hep_library)
-
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
         ${PROJECT_BINARY_DIR}/libdatamodel_vectors_rdict.pcm
@@ -74,4 +71,3 @@ return()
 # We have git for that
 # http://thecodelesscode.com/case/41
 # 2022-10-17 DR =)
-

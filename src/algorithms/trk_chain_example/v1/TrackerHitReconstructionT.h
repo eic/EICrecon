@@ -2,8 +2,7 @@
 // Created by romanov on 8/6/22.
 //
 
-#ifndef EICRECON_TRACKERHITRECONSTRUCTIONT_H
-#define EICRECON_TRACKERHITRECONSTRUCTIONT_H
+#pragma once
 
 namespace eicrecon {
 
@@ -13,4 +12,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_TRACKERHITRECONSTRUCTIONT_H

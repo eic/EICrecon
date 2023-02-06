@@ -25,7 +25,7 @@ void write_read_test() {
     edm4eic::MutableCalorimeterHit hit1;
     hit1.setCellID(22);
     hit1.setEnergy(22.2);
-    
+
     edm4eic::MutableCalorimeterHit hit2;
     hit2.setCellID(27);
     hit2.setEnergy(27.7);
@@ -60,11 +60,11 @@ void write_read_test() {
     edm4eic::MutableCalorimeterHit hit4;
     hit4.setCellID(42);
     hit4.setEnergy(42.2);
-    
+
     edm4eic::MutableCalorimeterHit hit5;
     hit5.setCellID(7);
     hit5.setEnergy(7.6);
-    
+
     edm4eic::MutableCluster cluster3;
     cluster3.setEnergy(7.6);
     cluster3.setNhits(1);
@@ -137,7 +137,7 @@ void read_write_test() {
             clusters_out.push_back(cluster.clone());
             if (cluster.getEnergy() < 50) {
                 std::cout << "Adding cluster with energy " << cluster.getEnergy() << std::endl;
-                clusters_out_filtered.push_back(cluster.clone()); 
+                clusters_out_filtered.push_back(cluster.clone());
                 // will this do a deep or shallow copy in memory?
                 // what about in file?
                 // will references be included?

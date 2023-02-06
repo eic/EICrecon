@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_STRINGHELPERS_H
-#define EICRECON_STRINGHELPERS_H
+#pragma once
 
 #include <string>
 #include <algorithm>
@@ -243,4 +242,3 @@ namespace eicrecon::str
     }
 }
 
-#endif //EICRECON_STRINGHELPERS_H

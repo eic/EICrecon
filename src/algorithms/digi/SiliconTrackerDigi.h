@@ -1,5 +1,4 @@
-#ifndef EICRECON_SILICONTRACKERDIGI_H
-#define EICRECON_SILICONTRACKERDIGI_H
+#pragma once
 
 #include <vector>
 
@@ -47,4 +46,3 @@ namespace eicrecon {
 
 } // eicrecon
 
-#endif //EICRECON_SILICONTRACKERDIGI_H
