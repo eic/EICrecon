@@ -31,7 +31,7 @@ private:
 
 public:
     BEMC_testProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void InitWithGlobalRootLock() override {
 
         // Create histograms
@@ -56,4 +56,3 @@ extern "C" {
         app->Add(new BEMC_testProcessor);
     }
 }
-    

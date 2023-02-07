@@ -26,4 +26,3 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries (works same as target_include_directories)
 # plugin_link_libraries(${PLUGIN_NAME} ... )
-

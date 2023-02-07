@@ -64,10 +64,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag); 
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -85,4 +85,3 @@ private:
     std::string              m_input_tag;
     std::string              m_inputAssociations_tag;
 };
-

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
 
-#ifndef JugTrack_Measurement_HH
-#define JugTrack_Measurement_HH
+#pragma once
 
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/MultiTrajectory.hpp"
@@ -57,4 +56,3 @@ namespace eicrecon {
 
 } // namespace Jug
 
-#endif

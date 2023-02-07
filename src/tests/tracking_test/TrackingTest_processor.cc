@@ -181,4 +181,3 @@ void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const J
 
     auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 }
-

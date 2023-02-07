@@ -25,5 +25,3 @@ set( podio_copy_SOURCES ${mysourcefiles} )
 add_executable(podio_copy ${podio_copy_SOURCES})
 target_include_directories(podio_copy PUBLIC ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(podio_copy ${JANA_LIB} ${PODIO_LIBRARIES})
-
-

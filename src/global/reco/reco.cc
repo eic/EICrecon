@@ -33,7 +33,12 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"}, "GeneratedParticles", smearing_default_config));
 
     app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
-            {"EcalEndcapNClusters", "EcalBarrelSciGlassClusters"}, "ReconstructedParticlesWithAssoc"));
+        {
+            "EcalEndcapNClusters",
+            "EcalEndcapPClusters",
+         },
+        "ReconstructedParticlesWithAssoc"
+    ));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
             {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
@@ -44,7 +49,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsElectron"));
-            
+
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsTruth"));
 
@@ -62,4 +67,3 @@ void InitPlugin(JApplication *app) {
 
 }
 } // extern "C"
-

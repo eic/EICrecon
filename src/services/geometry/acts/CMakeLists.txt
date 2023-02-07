@@ -45,20 +45,19 @@ plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking
 #
 #
 ## Add libraries (works same as target_include_directories)
-#plugin_link_libraries(${PLUGIN_NAME} dd4hep_library EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
+#plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
 #
-#target_link_libraries(${PLUGIN_NAME}_plugin dd4hep_library EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
+#target_link_libraries(${PLUGIN_NAME}_plugin EDM4HEP::edm4hep  EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog algorithms_tracking_library)
 #
 #get_target_property(ACTSPLUGINLIBS ${PLUGIN_NAME}_plugin LINK_LIBRARIES)
 #message(STATUS "LINK_LIBRARIES = ${ACTSPLUGINLIBS}")
 #
 #
-##LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
-##LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
-##                                            dd4hep_library;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
+##LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
+##LINK_LIBRARIES = JANA::jana2;spdlog::spdlog;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
+##                                            EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
 #target_link_libraries(${PLUGIN_NAME}_plugin
 #        Eigen3::Eigen
-#        dd4hep_library
 #        EDM4HEP::edm4hep
 #
 #        EDM4EIC::edm4eic

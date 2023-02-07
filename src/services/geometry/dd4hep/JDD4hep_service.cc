@@ -12,7 +12,7 @@
 #include <fmt/color.h>
 
 #include "JDD4hep_service.h"
-    
+
 #include <DD4hep/Printout.h>
 
 //----------------------------------------------------------------

@@ -12,7 +12,7 @@ eicrecon infile.root [infile2.root [infile3.root ...]]
 ~~~
 
 To write to an output file, set the _podio:output_file_ configuration
-parameter to the name of the output file. 
+parameter to the name of the output file.
 
 ~~~
 eicrecon infile.root -Ppodio:output_file=outfile.root
@@ -89,17 +89,17 @@ You may speed up how fast events are read in if you are only interested in certa
 by configuring the include and exclude lists. For example if you are only interested in the
 _MCParticles_ collection then do this:
 ~~~
-eicrecon -Ppodio:input_include_collections=MCParticles infile.root 
+eicrecon -Ppodio:input_include_collections=MCParticles infile.root
 ~~~
 
 You may also specify multiple collections using a comma separated list:
 ~~~
-eicrecon -Ppodio:input_include_collections=MCParticles,EcalEndcapNHits infile.root 
+eicrecon -Ppodio:input_include_collections=MCParticles,EcalEndcapNHits infile.root
 ~~~
 
 Specify a list of collections to exclude like this:
 ~~~
-eicrecon -Ppodio:input_exclude_collections=MCParticles,EcalEndcapNHits infile.root 
+eicrecon -Ppodio:input_exclude_collections=MCParticles,EcalEndcapNHits infile.root
 ~~~
 
 You may specify both an include list and an exclude list.
@@ -107,9 +107,9 @@ You may specify both an include list and an exclude list.
 
 Similar to the input, you may also specify which collections to write out using the
 _podio:output_include_collections_ and _podio:output_exclude_collections_ configuration
-parameters. 
+parameters.
 
-### Testing 
+### Testing
 There may be certain instances where you would like to test an infinite stream of events, but
 have a limited number of events in your root file. The _podio:run_forever_ flag will cause
 the file to be repeatedly cycled over. For example:
@@ -124,7 +124,7 @@ One my specify that an additional copy of the output root file be made at the ve
 end of processing. The second file will have the same name as the first, but the
 directory for this second copy may be specified like this:
 ~~~
-eicrecon -Ppodio:output_file=myfile1.root -Ppodio:output_file_copy_dir=/path/to/copydir infile.root 
+eicrecon -Ppodio:output_file=myfile1.root -Ppodio:output_file_copy_dir=/path/to/copydir infile.root
 ~~~
 The above will result in a file _myfile1.root_ in the local directory and another copy
 at _/path/to/copydir/myfile1.root_ .
@@ -151,22 +151,15 @@ specified). Only objects from the primary input file and reconstructed values wi
 background file may be smaller than the number of events in the primary input file.
 * This is implemented by opening _num_background_events_ instances of the background
 events file. This not terribly efficient and will work fine up to about
-_num_background_events_ <= 10. For values much larger than that, you 
+_num_background_events_ <= 10. For values much larger than that, you
 
 ### Techincal notes
 
 
-* This uses a code generator to generate some routines that can take a class name 
+* This uses a code generator to generate some routines that can take a class name
 in the form of a string and then call a templated function which can then use
 that class. This is only possible for the limited number of data types defined
 in the edm4hep data model. The code generation is done based on filenames it
 finds matching the pattern _${EDM4HEP_ROOT}/include/edm4hep/*Collection.h_ . Thus,
 if the model is updated, this will need to be recompiled, but it should automatically
 find the classes defined in the updated model.
-
-
- 
-
-
-
-

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#ifndef EICRECON_MC2SMEAREDPARTICLE_H
-#define EICRECON_MC2SMEAREDPARTICLE_H
+#pragma once
 
 #include <vector>
 #include <TRandomGen.h>
@@ -42,4 +41,3 @@ namespace eicrecon {
         std::function<double()> m_gauss;
     };
 }
-#endif //EICRECON_MC2SMEAREDPARTICLE_H

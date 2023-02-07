@@ -11,5 +11,4 @@ briefly cover the scope of this tutorial and functionality will be covered.
 
 ![image Simulated Data Flow](img/simulated_data_flow.png)
 
-{% include links.md %}  
-
+{% include links.md %}

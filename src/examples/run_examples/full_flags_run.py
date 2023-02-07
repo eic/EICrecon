@@ -24,7 +24,3 @@ flags = [
 
 # (!) NEXT WILL BE REPLACED BY TEMPLATE #
 reco_parameters_flags = []
-
-
-
-

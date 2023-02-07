@@ -23,7 +23,7 @@ using namespace dd4hep;
 void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
 
     m_log=logger;
-    
+
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
     // TDC channels to timing conversion
