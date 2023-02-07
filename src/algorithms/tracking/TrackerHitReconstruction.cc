@@ -60,5 +60,3 @@ edm4eic::TrackerHit *eicrecon::TrackerHitReconstruction::produce(const edm4eic::
          static_cast<float>(raw_hit->getCharge() / 1.0e6),   // Collected energy (GeV)
          0.0F);                                       // Error on the energy
 }
-
-

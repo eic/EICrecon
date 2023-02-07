@@ -11,29 +11,29 @@
 We use GitHub as the main code repository tool. The repositories are located:
 
 - [EICrecon][eicrecon] - EIC reconstruction algorithms and EIC-related code for JANA framework
-- [JANA2][jana2] - The core framework 
+- [JANA2][jana2] - The core framework
 
 If you hesitate where to file an issue or a question, then the most probably it should be done in EICrecon project. There are [EICrecon issues][eicrecon-issues] and [discussions](https://github.com/eic/EICrecon/discussions)
 
-There is also [EICrecon project board][eicrecon-project] where one can see what issues are in work and what could be picked up. 
+There is also [EICrecon project board][eicrecon-project] where one can see what issues are in work and what could be picked up.
 
 #### Exercise:
 
-- Go to [EICrecon project board][eicrecon-project] and see what tickets are marked as "TODO" 
+- Go to [EICrecon project board][eicrecon-project] and see what tickets are marked as "TODO"
 
 
 
 ## Contributing workflow
 
-- A workflow starts from creating an issue with a bug report or a feature request. It is important to create an issue even if the subject was discussed on a meeting, personally, etc. 
+- A workflow starts from creating an issue with a bug report or a feature request. It is important to create an issue even if the subject was discussed on a meeting, personally, etc.
 
-- Then create a branch out of the issue. 
+- Then create a branch out of the issue.
 
    ![Create branch from issue](img/create_branch_1.png)
 
-   ![Create branch from issue](img/create_branch_2.png) 
+   ![Create branch from issue](img/create_branch_2.png)
 
-- After you commit and push changes to the branch, create a pull request (PR). As soon as PR is created a continious integration (CI) system will run to test the project compiles and runs on EIC environment. Any further push to this branch will trigger CI rerun the tests and check if merge is ready to be done. PRs are also a good place do discuss changes and code with collaborators. So it might be reasonable to create a PR even if not all work on issue is done. In this case create a Draft PR. 
+- After you commit and push changes to the branch, create a pull request (PR). As soon as PR is created a continious integration (CI) system will run to test the project compiles and runs on EIC environment. Any further push to this branch will trigger CI rerun the tests and check if merge is ready to be done. PRs are also a good place do discuss changes and code with collaborators. So it might be reasonable to create a PR even if not all work on issue is done. In this case create a Draft PR.
 
    ![Create branch from issue](img/create_branch_3.png)
 
@@ -76,4 +76,3 @@ One can find coding style and other contributins policies at [CONTRIBUTING.md](h
 [EICrecon project on GitHub]()
 
 {% include links.md %}
-

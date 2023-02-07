@@ -48,9 +48,9 @@ public:
         u_refs={};
         m_geoSvcName = "";
         m_readout = "";
-        
+
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-        
+
 
         // This is another option for exposing the data members as JANA configuration parameters.
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:input_tag",        m_input_tag, "Name of input collection to use");
@@ -92,4 +92,3 @@ public:
     }
 
 };
-

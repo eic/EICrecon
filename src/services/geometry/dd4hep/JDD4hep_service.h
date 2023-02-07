@@ -16,8 +16,7 @@
 //
 
 
-#ifndef __JDD4hep_service_h__
-#define __JDD4hep_service_h__
+#pragma once
 
 
 #include <iostream>
@@ -59,4 +58,3 @@ private:
     std::string  resolveFileName(const std::string &filename, char *detector_path_env);
 };
 
-#endif // __JDD4hep_service_h__

@@ -8,4 +8,3 @@ eicrecon
 -Phistsfile=/home/romanov/work/data/eicrecon_test/histogram.ana.root
 /home/romanov/eic/soft/eicrecon/main/src/examples/test_data_generator/2022-11-15_pgun_pi-_epic_arches_e0.01-30GeV_alldir_4prt_1000evt.edm4hep.root
 ```
-

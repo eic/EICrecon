@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_SPDLOGEXTENSIONS_H
-#define EICRECON_SPDLOGEXTENSIONS_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -57,4 +56,3 @@ namespace eicrecon {
         throw JException(err_msg);
     }
 }
-#endif //EICRECON_SPDLOGEXTENSIONS_H

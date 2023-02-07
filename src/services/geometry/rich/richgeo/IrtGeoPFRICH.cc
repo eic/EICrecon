@@ -137,7 +137,7 @@ void rich::IrtGeoPFRICH::DD4hep_to_IRT() {
           );
 
       // complete the radiator volume description; this is the rear side of the container gas volume
-      // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once), 
+      // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once),
       // assuming that all the sensors will be sitting at roughly the same location along the beam line anyway;
       if(firstSensor) {
         m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);

@@ -1,5 +1,4 @@
-#ifndef EIC_PODIO_EVENTSTORE_H
-#define EIC_PODIO_EVENTSTORE_H
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -164,4 +163,3 @@ T& EventStore::get(const std::string& name) {
 }
 
 } // namespace podio
-#endif

@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORYT_TRACKERHITRECONSTRUCTION_H
-#define EICRECON_JFACTORYT_TRACKERHITRECONSTRUCTION_H
+#pragma once
 
 
 #include <fmt/core.h>
@@ -53,4 +52,3 @@ void JFactoryT_TrackerHitReconstruction<OutputType>::Process(const std::shared_p
 }
 
 
-#endif //EICRECON_JFACTORYT_TRACKERHITRECONSTRUCTION_H

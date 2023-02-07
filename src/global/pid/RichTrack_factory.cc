@@ -40,7 +40,7 @@ void eicrecon::RichTrack_factory::Init() {
   };
   set_param("numPlanes", m_numPlanes, "number of track-projection planes");
   m_log->debug("numPlanes = {}",m_numPlanes);
-  
+
   // get RICH geometry for track projection
   m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
   m_trackingPlanes = m_actsGeo->TrackingPlanes(m_radiatorID, m_numPlanes);

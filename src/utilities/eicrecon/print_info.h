@@ -2,8 +2,7 @@
 // Created by xmei on 9/8/22.
 //
 
-#ifndef EICRECON_PRINT_INFO_H
-#define EICRECON_PRINT_INFO_H
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -49,4 +48,3 @@ void printJANAHeaderIMG() {
                  " YMMMM9 _dM_     _dMM_M_      \\M _dM_     _dMM_MMMMMMMM " << std::endl << std::endl;
 }
 
-#endif //EICRECON_PRINT_INFO_H

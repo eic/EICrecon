@@ -38,16 +38,16 @@ private:
 
 public:
     TofEfficiency_processor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void InitWithGlobalRootLock() override;
     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
     void FinishWithGlobalRootLock() override;
-    
+
     int IsTOFHit(float x, float y, float z);
 
     TDirectory *m_dir_main;
-    
+
     TH2F * m_th2_btof_phiz;
-    TH2F * m_th2_ftof_rphi;                 
+    TH2F * m_th2_ftof_rphi;
     TNtuple * m_tntuple_track;
 };

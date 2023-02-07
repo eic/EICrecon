@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _JEventSourcePODIOsimple_h_
-#define  _JEventSourcePODIOsimple_h_
+#pragma once
 
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
@@ -48,6 +47,4 @@ protected:
 
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::string);
-
-#endif // _JEventSourcePODIOsimple_h_
 
