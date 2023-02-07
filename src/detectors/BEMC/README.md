@@ -19,7 +19,7 @@ _JFactory_BEMCRawCalorimeterHit_utility_ class.
 The main difference in the coding is that for option 2, one needs to derefence the algorithm
 class object whenever refering to one of its members. Otherwise, they are line-for-line the same.
 
-The _CalorimeterHitDigi_ class methods are not reentrant, This is not an issue 
+The _CalorimeterHitDigi_ class methods are not reentrant, This is not an issue
 since only one thread will be executing the method of a given object at a time.
 (The same method of multiple objects may be executed in parallel.) Thus,
 inputs and outputs of the class are stored in data members of _CalorimeterHitDigi_.

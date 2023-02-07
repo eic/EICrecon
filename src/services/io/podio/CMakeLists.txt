@@ -71,4 +71,3 @@ return()
 # We have git for that
 # http://thecodelesscode.com/case/41
 # 2022-10-17 DR =)
-

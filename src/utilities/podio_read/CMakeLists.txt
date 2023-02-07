@@ -41,4 +41,3 @@ set( podio_read_SOURCES ${mysourcefiles} G__edm4hep_vectors.cxx)
 add_executable(podio_read ${podio_read_SOURCES})
 target_include_directories(podio_read PUBLIC ${CMAKE_SOURCE_DIR} ${EDM4HEP_INCLUDE_DIR} ${PODIO_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(podio_read ${JANA_LIB} ${PODIO_LIBRARIES})
-

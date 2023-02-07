@@ -32,4 +32,3 @@ install(FILES ${my_headers} DESTINATION include/podio_test)
 # For root dictionaries
 # file(GLOB my_pcms "${CMAKE_CURRENT_BINARY_DIR}/*.pcm")
 # install(FILES ${my_pcms} DESTINATION bin)
-

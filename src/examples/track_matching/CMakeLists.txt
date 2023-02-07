@@ -63,4 +63,3 @@ add_executable(reco_particles_track_matching
 target_include_directories(reco_particles_track_matching ${COMMON_TARGET_INCLUDES})
 target_link_libraries(reco_particles_track_matching ${COMMON_TARGET_LIBRARIES})
 install(TARGETS reco_particles_track_matching)
-

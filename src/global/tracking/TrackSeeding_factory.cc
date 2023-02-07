@@ -58,7 +58,7 @@ void eicrecon::TrackSeeding_factory::Init() {
     // Initialize algorithm
     m_seeding_algo.applyConfig(cfg);
     m_seeding_algo.init(acts_service->actsGeoProvider(), m_log);
-  
+
 }
 
 void eicrecon::TrackSeeding_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {

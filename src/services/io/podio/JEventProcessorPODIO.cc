@@ -326,7 +326,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             }
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
-            if (result == std::nullopt) { 
+            if (result == std::nullopt) {
                 m_log->warn("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
             }
             else {
@@ -353,4 +353,3 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 void JEventProcessorPODIO::Finish() {
     m_writer->finish();
 }
-

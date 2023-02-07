@@ -13,9 +13,9 @@ To do this we will use the eicmkplugin.py script that comes with EICrecon.  This
 source EICrecon/bin/eicrecon-this.sh
 ~~~
 
-The eickmkplugin script can be called simply by typing: "eicmkplugin.py" followed by the name of the plugin. Let's begin by calling: 
+The eickmkplugin script can be called simply by typing: "eicmkplugin.py" followed by the name of the plugin. Let's begin by calling:
 ~~~
-eicmkplugin.py  myFirstPlugin 
+eicmkplugin.py  myFirstPlugin
 ~~~
 
 You should now have terminal output that looks like this:
@@ -30,7 +30,7 @@ Build with:
   cmake -S myFirstPlugin -B myFirstPlugin/build
   cmake --build myFirstPlugin/build --target install
 ~~~
-There should now exist a new folder labeled "myPlugin". That directory contains 2 files: a CMakelists.txt file (needed for compiling our new plugin) and the source code for the plugin itself. 
+There should now exist a new folder labeled "myPlugin". That directory contains 2 files: a CMakelists.txt file (needed for compiling our new plugin) and the source code for the plugin itself.
 
 Inside the source code for your plugin is a fairly simple class.  The private data members should contain the necessary variables to successfully run your plugin;  this will likely include any histograms, canvases, fits or other accoutrement. The public section contains the required Constructor, Init, Process, and Finish functions.  In init we get the application, as well as initialize any variables or histograms, etc.  The Process function typically gets objects from the event and does something with them (e.g. fill the histogram of cluster energy). And finally Finish is called where we clean up and do final things before ending the run of our plugin.
 
@@ -40,19 +40,19 @@ Before we compile our plugins we need to tell JANA about where the plugins will 
 mkdir EICrecon_MY
 export EICrecon_MY=${PWD}/EICrecon_MY
 ~~~
- 
+
 To compile your plugin, let's follow the guidance given and type:
 ~~~
 cmake -S myFirstPlugin -B myFirstPlugin/build
 cmake --build myFirstPlugin/build --target install
 ~~~
 
-You can test plugin installed and can load correctly by runnign eicrecon with it: 
+You can test plugin installed and can load correctly by runnign eicrecon with it:
 ~~~
 eicrecon -Pplugins=myFirstPlugin,JTest -Pjana:nevents=10
 ~~~
 
-The second plugin, JTest, just supplies dummy events, ensuring your plugin is properly compiled and found. To generate your first histograms, let's edit the myFirstPluginProcessor.cc and myFirstPluginProcessor.h files (located in the myFirstPlugin directory). Start by modifying myFirstPluginProcessor.h.  In the end it should look similar to the one below: 
+The second plugin, JTest, just supplies dummy events, ensuring your plugin is properly compiled and found. To generate your first histograms, let's edit the myFirstPluginProcessor.cc and myFirstPluginProcessor.h files (located in the myFirstPlugin directory). Start by modifying myFirstPluginProcessor.h.  In the end it should look similar to the one below:
 
 ```c++
 #include <JANA/JEventProcessorSequentialRoot.h>
@@ -72,7 +72,7 @@ private:
 
 public:
     myFirstPluginProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void InitWithGlobalRootLock() override;
     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
     void FinishWithGlobalRootLock() override;
@@ -143,9 +143,9 @@ ________________________________________________________________________________
 
 As exercises try (make sure you rebuild everytime you change your plugin):
 
-1) Plot the X,Y positions of all the hits.  
+1) Plot the X,Y positions of all the hits.
 
-2) Repeat only for hits with energy greater than 0.005 GeV.  
+2) Repeat only for hits with energy greater than 0.005 GeV.
 
 3) Try to plot similar histograms from the EcalEndcapN.
 
@@ -155,4 +155,3 @@ Note: very shortly you will be adding a factory.  After you do come back to this
 
 
 {% include links.md %}
-

@@ -54,7 +54,7 @@ namespace eicrecon {
 
     // Step 2: Apply boosts and rotations to any particle 4-vector
     // (here too, choices will have to be made as to what the 4-vector is for reconstructed particles)
-  
+
     // Boost and rotate particle 4-momenta into the headon frame
     tf(part);
     return part;

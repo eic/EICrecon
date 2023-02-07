@@ -21,7 +21,7 @@ namespace eicrecon {
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
       double pixelSize       = 3.0;   // [mm] // pixel (active) size
 
-      // overall safety factor 
+      // overall safety factor
       /* simulations assume the detector is ideal and perfect, but reality is
        * often neither; use this safety factor to reduce the number of initial
        * photon hits for a more conservative estimate of the number of

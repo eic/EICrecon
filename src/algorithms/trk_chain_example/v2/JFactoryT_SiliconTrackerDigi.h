@@ -48,7 +48,7 @@ void SiliconTrackerDigi_factoryT<SimTrackerHitInT, RawTrackerHitOutT>::Init() {
     // BTRK:parameter FarForward:paraeter, etc. whichever plugin uses this template
     // That has limitations but the convenient in the most of the cases
     m_config_prefix = this->GetPluginName();
-    
+
     //... process m_config_prefix
 }
 
