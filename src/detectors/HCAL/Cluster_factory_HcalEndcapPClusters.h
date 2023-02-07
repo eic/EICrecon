@@ -14,13 +14,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_HcalEndcapPClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_HcalEndcapPClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_HcalEndcapPClustersAssociations(){
-        SetTag("HcalEndcapPClustersAssociations");
+    Association_factory_HcalEndcapPClusterAssociations(){
+        SetTag("HcalEndcapPClusterAssociations");
     }
 };
 

@@ -19,7 +19,7 @@ flowchart LR
     direction TB
     
     CalorimetryClusters(CalorimetryClusters:<br/>SubsystemClusters)
-    CalorimetryAssociations(CalorimetryAssociations:<br/>SubsystemClustersAssociations)
+    CalorimetryAssociations(CalorimetryAssociations:<br/>SubsystemClusterAssociations)
   end
   
   MCParticles --> MC2SmearedParticle[MC2SmearedParticle]:::alg

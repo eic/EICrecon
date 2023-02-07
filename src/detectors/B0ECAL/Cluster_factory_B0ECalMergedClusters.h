@@ -62,7 +62,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "B0ECalMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "B0ECalMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
