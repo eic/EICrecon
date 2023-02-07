@@ -124,52 +124,6 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
     }
   }
 
-
-  // loop over raw hits ***************************************************
-  // - make `irt_photons`: a list of `OpticalPhoton`s for the IRT algorithm
-  std::vector<std::shared_ptr<OpticalPhoton>> irt_photons;
-  m_log->trace("{:#<70}","### SENSOR HITS ");
-  for(const auto& raw_hit : in_raw_hits) {
-
-    // get MC photon, typically only used by cheat modes or trace logging
-    auto mc_photon = raw_hit->getPhoton();
-    if(mc_photon.getPDG() != -22)
-      m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
-
-    // get sensor and pixel info
-    // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
-    auto     cell_id   = raw_hit->getCellID();
-    uint64_t sensor_id = cell_id & m_cell_mask;
-    TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
-    if(m_log->level() <= spdlog::level::trace) {
-      m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
-      m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));
-      //// FIXME: photons go through the sensors, ending on a vessel wall
-      // TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
-      // m_log->trace(Tools::TVector3_to_string("photon endpoint",mc_endpoint));
-      // m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
-    }
-
-    // start new IRT photon
-    auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
-    auto irt_photon = std::make_shared<OpticalPhoton>();
-    irt_photon->SetVolumeCopy(sensor_id);
-    irt_photon->SetDetectionPosition(pixel_pos);
-    irt_photon->SetPhotonDetector(irt_sensor);
-    irt_photon->SetDetected(true);
-
-    // cheat mode: get photon vertex info from MC truth
-    if(m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
-      irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
-      irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
-    }
-
-    // add to `irt_photons`
-    irt_photons.push_back(std::move(irt_photon));
-
-  } // end `in_raw_hits` loop
-
-
   // loop over charged particles ********************************************
   m_log->trace("{:#<70}","### CHARGED PARTICLES ");
   for(long i=0; i<num_charged_particles; i++) {
@@ -202,24 +156,56 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       for(const auto& point : charged_particle->getPoints()) {
         TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
-        // irt_rad_history->AddStep( new ChargedParticleStep(position,momentum) ); // FIXME: not needed, if we can just use AddLocation?
         irt_rad->AddLocation(position,momentum);
         m_log->trace(Tools::TVector3_to_string(" point: x",position));
         m_log->trace(Tools::TVector3_to_string("        p",momentum));
       }
 
-      // add each `irt_photon` to the radiator history
-      // - we don't know which photon goes with which radiator, thus we add them all to each radiator;
-      //   the radiators' photons are mixed in ChargedParticle::PIDReconstruction
-      for(auto irt_photon : irt_photons) {
 
-        // cheat mode, for testing only: use MC to get the actual radiator
+      // loop over raw hits ***************************************************
+      m_log->trace("{:#<70}","### SENSOR HITS ");
+      for(const auto& raw_hit : in_raw_hits) {
+
+        // get MC photon, typically only used by cheat modes or trace logging
+        auto mc_photon = raw_hit->getPhoton();
+        if(mc_photon.getPDG() != -22)
+          m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+
+        // cheat mode, for testing only: use MC photon to get the actual radiator
         if(m_cfg.cheatTrueRadiator) {
-          auto mc_rad = m_irt_det->GuessRadiator(
-                irt_photon->GetVertexPosition(),
-                irt_photon->GetVertexPosition() // FIXME: assumes IP is at (0,0,0)
-                );
-          if(mc_rad != irt_rad) continue;
+          auto vtx = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
+          auto mc_rad = m_irt_det->GuessRadiator(vtx,vtx); // FIXME: assumes IP is at (0,0,0)
+          if(mc_rad != irt_rad) continue; // skip this photon, if not from radiator `irt_rad`
+          m_log->trace(Tools::TVector3_to_string(
+                fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
+        }
+
+        // get sensor and pixel info
+        // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
+        auto     cell_id   = raw_hit->getCellID();
+        uint64_t sensor_id = cell_id & m_cell_mask;
+        TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
+        if(m_log->level() <= spdlog::level::trace) {
+          m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
+          m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));
+          //// FIXME: photons go through the sensors, ending on a vessel wall
+          // TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
+          // m_log->trace(Tools::TVector3_to_string("photon endpoint",mc_endpoint));
+          // m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
+        }
+
+        // start new IRT photon
+        auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // FIXME: assumes one sensor type
+        auto irt_photon = new OpticalPhoton(); // it will be destroyed when `irt_particle` is destroyed
+        irt_photon->SetVolumeCopy(sensor_id);
+        irt_photon->SetDetectionPosition(pixel_pos);
+        irt_photon->SetPhotonDetector(irt_sensor);
+        irt_photon->SetDetected(true);
+
+        // cheat mode: get photon vertex info from MC truth
+        if(m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
+          irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
+          irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
         }
 
         // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which 
@@ -234,14 +220,17 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
           if(ri_set) irt_photon->SetVertexRefractiveIndex(ri);
         }
 
-        // add copy of `irt_photon` to the history, since ~RadiatorHistory() will destroy it
-        irt_rad_history->AddOpticalPhoton(new OpticalPhoton(*irt_photon));
-        /* FIXME: this considers ALL of the `irt_photons`... we can limit this
+        // add each `irt_photon` to the radiator history
+        // - unless cheating, we don't know which photon goes with which
+        // radiator, thus we add them all to each radiator; the radiators'
+        // photons are mixed in ChargedParticle::PIDReconstruction
+        irt_rad_history->AddOpticalPhoton(irt_photon);
+        /* FIXME: this considers ALL of the `irt_photon`s... we can limit this
          * once we add the ability to get a fiducial volume for each track, i.e.,
          * a region of sensors where we expect to see this `irt_particle`'s
          * Cherenkov photons; this should also combat sensor noise
          */
-      }
+      } // end `in_raw_hits` loop
 
     } // end radiator loop
 
@@ -282,7 +271,10 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         bool selected = false;
         for(auto irt_photon_sel : irt_photon->_m_Selected)
           if(irt_photon_sel.second==irt_rad) { selected=true; break; }
-        if(!selected) continue;
+        if(!selected) {
+          m_log->trace("TEST: not selected (rad={})",rad_name);
+          continue;
+        }
 
         // trace logging
         m_log->trace(Tools::TVector3_to_string(
@@ -368,6 +360,11 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid)); // force immutable
 
     } // end radiator loop
+
+    /* NOTE: `irt_particle` will now be destroyed, and along with it:
+     * - `irt_rad_history` for each radiator
+     * - all `irt_photon`s associated with each `irt_rad_history`
+     */
 
   } // end `in_charged_particles` loop
 
