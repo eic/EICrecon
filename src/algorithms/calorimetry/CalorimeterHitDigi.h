@@ -48,6 +48,7 @@ public:
 
     // digitization settings
     unsigned int             m_capADC;
+    double                   m_capTime;
     double                   m_dyRangeADC;
     unsigned int             m_pedMeanADC;
     double                   m_pedSigmaADC;

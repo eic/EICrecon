@@ -26,9 +26,9 @@ public:
         m_input_tag = "GFHCALRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=1024;//{this, "capacityADC", 8096};
-        m_dyRangeADC=3.6 * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
-        m_pedMeanADC=5;//{this, "pedestalMean", 400};
+        m_capADC=65536;//2^15
+        m_dyRangeADC=1 * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
+        m_pedMeanADC=20;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.8;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
@@ -37,7 +37,7 @@ public:
         m_thresholdValue=3.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.025;//{this, "samplingFraction", 1.0};
+        m_sampFrac=0.033;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";

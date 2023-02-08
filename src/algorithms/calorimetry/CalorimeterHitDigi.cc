@@ -17,6 +17,8 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include "DDRec/CellIDPositionConverter.h"
+
 using namespace dd4hep;
 
 //
@@ -165,8 +167,10 @@ void CalorimeterHitDigi::single_hits_digi(){
                 time = c.getTime();
             }
         }
+        if (time > m_capTime) continue;
+        
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
-
+//         if (eDep> 1.e-3)std::cout << "E sim "<< eDep << "\t adc: " << adc << "\t time: "<< time << "\t maxtime: " << m_capTime << "\t tdc: " <<  tdc  << "\t cell ID" << ahit->getCellID() << std::endl;
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 ahit->getCellID(),
                 (adc > m_capADC ? m_capADC : adc),

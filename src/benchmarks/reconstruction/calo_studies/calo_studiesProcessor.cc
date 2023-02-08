@@ -296,18 +296,29 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
     hPosCaloModulesXY->Fill(detector_module_x, detector_module_y);
     nCaloHits++;
 
+  double samplingFractionFe = 0.031;
+  double samplingFractionW = 0.016;
+
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_sim) {
       if ((tower.cellIDx == cellIDx) && (tower.cellIDy == cellIDy) && (tower.cellIDz == cellIDz)) {
-        tower.energy += energy;
+        if(cellIDz<3){
+          tower.energy += energy/samplingFractionW;
+        } else {
+          tower.energy += energy/samplingFractionFe;
+        }
         found = true;
         break;
       }
     }
     if (!found) {
       towersStrct tempstructT;
-      tempstructT.energy       = energy; 
+      if(cellIDz<3){
+        tempstructT.energy = energy/samplingFractionW;
+      } else {
+        tempstructT.energy = energy/samplingFractionFe;
+      }
       tempstructT.cellIDx    = cellIDx;
       tempstructT.cellIDy    = cellIDy;
       tempstructT.cellIDz      = cellIDz;
@@ -334,7 +345,8 @@ void calo_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent
   // print towers sim hits
   double tot_energySimHit = 0;
   for (auto& tower : input_tower_sim) {
-    tower.energy = tower.energy/samplingFraction; // calibrate
+    // tower.energy = tower.energy/samplingFraction; // calibrate
+    tower.energy = tower.energy; // calibrate
     tot_energySimHit += tower.energy;
   }
   // std::cout << "ntowers: " << input_tower_sim.size() << "\ttotal energy: " << tot_energy << std::endl;

@@ -34,23 +34,14 @@ public:
     // Init
     void Init() override {
         auto app = GetApplication();
-        // u_eRes = {};
-        // m_tRes = 0.0 * dd4hep::ns;
-        // m_capADC = 256;
-        // m_dyRangeADC = 50 * dd4hep::MeV;
-        // m_pedMeanADC = 10;
-        // m_pedSigmaADC = 2.0;
-        // m_resolutionTDC = 1.0 * dd4hep::ns;
-        // m_corrMeanScale = 1.0;
-        // u_fields={};
-        // u_refs={1, 0};
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "GFHCALHits";
         u_eRes = {};
-        m_tRes = 0.0 * dd4hep::ns;
-        m_capADC = 1024;
-        m_dyRangeADC = 3.6 * dd4hep::GeV ;
-        m_pedMeanADC = 20;
+        m_tRes = 0.0; // in ns
+        m_capTime = 100 ; // given in ns
+        m_capADC=65536;//2^15
+        m_dyRangeADC=1 * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
+        m_pedMeanADC=20;//{this, "pedestalMean", 400};
         m_pedSigmaADC = 0.8;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
@@ -63,6 +54,7 @@ public:
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
         app->SetDefaultParameter("HCAL:GFHCALRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("HCAL:LFHCALRawHits:maxTimeInt",       m_capTime);
         app->SetDefaultParameter("HCAL:GFHCALRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("HCAL:GFHCALRawHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("HCAL:GFHCALRawHits:dynamicRangeADC",  m_dyRangeADC);
