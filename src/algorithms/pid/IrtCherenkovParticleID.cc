@@ -164,6 +164,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
       // loop over raw hits ***************************************************
       m_log->trace("{:#<70}","### SENSOR HITS ");
+      std::vector<TVector3> mc_photon_vertices;
       for(const auto& raw_hit : in_raw_hits) {
 
         // get MC photon, typically only used by cheat modes or trace logging
@@ -180,8 +181,11 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
                 fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
         }
 
+        // cheat mode: use photon vertices to identify ("pin") the true track
+        if(m_cfg.cheatPhotonPinning)
+          mc_photon_vertices.push_back(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
+
         // get sensor and pixel info
-        // FIXME: `pixel_pos` is slightly different from juggler (but who is right?)
         auto     cell_id   = raw_hit->getCellID();
         uint64_t sensor_id = cell_id & m_cell_mask;
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
@@ -232,7 +236,48 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
          */
       } // end `in_raw_hits` loop
 
+
+      // cheat mode: use photon vertices to identify ("pin") the true track
+      // FIXME: this would be better as an independent algorithm, executable as
+      // an alternative to the track projection algorithm
+      if(m_cfg.cheatPhotonPinning) {
+        // get reconstructed track |p|, then remove its `TrackPoints` from `irt_rad`
+        auto track_p = irt_rad->m_Locations.front().second.Mag();
+        // sort the vertices by z-coordinate
+        std::sort(mc_photon_vertices.begin(), mc_photon_vertices.end(),
+            [] (auto& a, auto& b) { return a.z() < b.z(); });
+        // choose only `zbins` of them, roughly equally spaced
+        std::vector<TVector3> pins_pos, pins_mom;
+        auto zbins = static_cast<unsigned>(irt_rad->GetTrajectoryBinCount() + 1);
+        auto step  = static_cast<unsigned>(mc_photon_vertices.size() / (zbins-1));
+        if(zbins <= mc_photon_vertices.size()) {
+          for(int z=0; z<zbins; z++) {
+            auto s = z*step;
+            if(s==mc_photon_vertices.size()) s-=1;
+            pins_pos.push_back(mc_photon_vertices[s]);
+          }
+          // estimate momenta: difference in pin positions scaled by `track_p`
+          auto mom = [&track_p] (auto& a, auto& b) { return track_p * (b-a).Unit(); };
+          for(int s=0; s+1<pins_pos.size(); s++)
+            pins_mom.push_back(mom( pins_pos[s], pins_pos[s+1] ));
+          pins_mom.push_back(mom( pins_pos[pins_pos.size()-2], pins_pos[pins_pos.size()-1] )); // ( set 'last' to 'penultimate')
+          // add to `irt_rad`
+          m_log->trace("cheat: photon-pinned TrackPoints in '{}' radiator:",rad_name);
+          irt_rad->ResetLocations();
+          for(int s=0; s<pins_pos.size(); s++) {
+            irt_rad->AddLocation(pins_pos[s],pins_mom[s]);
+            m_log->trace(Tools::TVector3_to_string(" point: x",pins_pos[s]));
+            m_log->trace(Tools::TVector3_to_string("        p",pins_mom[s]));
+          }
+        }
+        else
+          m_log->warn("num photon vertices ({}) < zbins ({}); using reconstructed track points instead",
+              mc_photon_vertices.size(), zbins);
+      }
+
+
     } // end radiator loop
+
 
 
     // particle identification +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -271,10 +316,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         bool selected = false;
         for(auto irt_photon_sel : irt_photon->_m_Selected)
           if(irt_photon_sel.second==irt_rad) { selected=true; break; }
-        if(!selected) {
-          m_log->trace("TEST: not selected (rad={})",rad_name);
-          continue;
-        }
+        if(!selected) continue;
 
         // trace logging
         m_log->trace(Tools::TVector3_to_string(

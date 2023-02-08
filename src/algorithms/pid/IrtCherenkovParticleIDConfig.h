@@ -41,8 +41,9 @@ namespace eicrecon {
       /* cheat modes: useful for test purposes, or idealizing; the real PID should run with all
        * cheat modes off
        */
-      bool cheatPhotonVertex = false; // if true, use photon vertex info from MC truth
-      bool cheatTrueRadiator = false; // if true, use MC truth to obtain true radiator, for each hit
+      bool cheatPhotonVertex  = false; // if true, use photon vertex info from MC truth
+      bool cheatTrueRadiator  = false; // if true, use MC truth to obtain true radiator, for each hit
+      bool cheatPhotonPinning = false; // if true, use photon vertices as charged particle points
 
       //
       /////////////////////////////////////////////////////
@@ -58,8 +59,9 @@ namespace eicrecon {
           if(printAll) m_log->log(val ? spdlog::level::critical : lvl, "  {:>20} = {:<}", name, val);
           else if(val) m_log->critical("CHEAT MODE '{}' ENABLED: {}", name, desc);
         };
-        puts("cheatPhotonVertex", cheatPhotonVertex, "using MC truth for photon vertex info");
-        puts("cheatTrueRadiator", cheatTrueRadiator, "using MC truth to obtain true radiator");
+        puts("cheatPhotonVertex",  cheatPhotonVertex,  "using MC truth for photon vertex info");
+        puts("cheatTrueRadiator",  cheatTrueRadiator,  "using MC truth to obtain true radiator");
+        puts("cheatPhotonPinning", cheatPhotonPinning, "using photon vertices as charged particle points");
       }
 
       // print all parameters

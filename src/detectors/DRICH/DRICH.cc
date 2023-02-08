@@ -83,8 +83,9 @@ extern "C" {
     // - PDG list
     irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { -11, 211, 321, 2212 });
     // - cheat modes
-    irt_cfg.cheatPhotonVertex = true;
-    irt_cfg.cheatTrueRadiator = true;
+    irt_cfg.cheatPhotonVertex  = true;
+    irt_cfg.cheatTrueRadiator  = true;
+    irt_cfg.cheatPhotonPinning = true;
 
 
     // wiring between factories and data ///////////////////////////////////////
