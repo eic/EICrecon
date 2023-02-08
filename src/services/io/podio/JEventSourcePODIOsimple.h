@@ -48,4 +48,3 @@ protected:
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::string);
 
-

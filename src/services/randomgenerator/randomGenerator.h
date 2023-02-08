@@ -9,7 +9,7 @@
 
 
 //base class for RandomGenerator (gen specific)
-//abstracted class agnostic to 
+//abstracted class agnostic to
 
 
 class RandomGenerator{
@@ -126,4 +126,3 @@ RandomGenerator* RandomGenerator::Make(std::string gen_name, std::string dist_ty
     }
 
 }
-

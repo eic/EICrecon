@@ -116,4 +116,3 @@ void TrackPropagationTest_processor::Finish()
 //    m_log->trace("TrackPropagationTest_processor finished\n");
 
 }
-

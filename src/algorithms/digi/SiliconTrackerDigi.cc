@@ -82,5 +82,3 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
 
     return rawhits;
 }
-
-

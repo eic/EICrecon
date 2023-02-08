@@ -35,6 +35,3 @@ public:
     std::map<std::string, std::string> m_collections_to_write;  // derived from above config. parameters
 
 };
-
-
-

@@ -59,4 +59,3 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>());
     }
 }
-    

@@ -23,7 +23,7 @@ class EICRootWriter : public JEventProcessor {
 
     // Shared state (e.g. histograms, TTrees, TFiles) live
     std::mutex m_mutex;
-    
+
 public:
 
     EICRootWriter();
@@ -71,6 +71,3 @@ protected:
         return name + "_" + std::to_string(index);
     }
 };
-
-
-

@@ -198,5 +198,3 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
 
     m_init_log->info("ActsGeometryProvider initialization complete");
 }
-
-

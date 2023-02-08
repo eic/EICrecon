@@ -17,7 +17,7 @@ public:
   GaudiFilterPolicy(IMessageSvc* owner) : m_owner(owner) {}
 
   bool doPrint(const Acts::Logging::Level& lvl) const {
-    
+
     MSG::Level l = MSG::VERBOSE;
     switch (lvl) {
     case Acts::Logging::VERBOSE:
