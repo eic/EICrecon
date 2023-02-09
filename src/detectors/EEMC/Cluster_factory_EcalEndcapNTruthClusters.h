@@ -15,13 +15,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapNTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapNTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapNTruthClustersAssociations(){
-        SetTag("EcalEndcapNTruthClustersAssociations");
+    Association_factory_EcalEndcapNTruthClusterAssociations(){
+        SetTag("EcalEndcapNTruthClusterAssociations");
     }
 };
 
@@ -92,7 +92,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapNTruthClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapNTruthClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
