@@ -38,6 +38,7 @@ public:
         //  24 - number of sectors
         //  5  - number of towers per sector
         u_adjacencyMatrix = "(abs(tower_1 - tower_2) + (abs((sector_1 - sector_2) * 5 + row_1 - row_2) == 1) + (abs((sector_1 - sector_2) * 5 + row_1 - row_2) == (24 * 5 - 1))) == 1";
+        std::remove(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ' ');
         m_readout = "EcalBarrelSciGlassHits";
 
         // neighbour checking distances
