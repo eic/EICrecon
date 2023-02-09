@@ -69,4 +69,3 @@ public:
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-

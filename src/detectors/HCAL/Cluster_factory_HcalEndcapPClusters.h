@@ -42,7 +42,7 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="HcalEndcapPHits";
         m_input_protoclust_tag="HcalEndcapPIslandProtoClusters";
-    
+
         m_sampFrac=0.025;// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/bf366a35b480cda6c610b0dd6a4d4efcfd9a8e03/JugReco/src/components/ClusterRecoCoG.cpp
         m_logWeightBase=6.2;// from ATHENA's reconstruction.py
         m_depthCorrection=0.0;// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/bf366a35b480cda6c610b0dd6a4d4efcfd9a8e03/JugReco/src/components/ClusterRecoCoG.cpp
@@ -78,10 +78,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -96,4 +96,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-

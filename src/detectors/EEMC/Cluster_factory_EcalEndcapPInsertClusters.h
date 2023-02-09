@@ -44,7 +44,7 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalEndcapPInsertHits";
         m_input_protoclust_tag="EcalEndcapPInsertIslandProtoClusters";
-    
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
@@ -79,10 +79,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -97,4 +97,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-

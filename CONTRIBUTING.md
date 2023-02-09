@@ -2,7 +2,7 @@
 # Code style and naming
 There are many coding guidelines which could be selected by the whole community, now we need a minimum to start with consistent code
 
-## C++ 
+## C++
 
 ### Code
 
@@ -25,7 +25,7 @@ There are many coding guidelines which could be selected by the whole community,
 
 ### Sample
 
-(This code smaple is temporary and needs further development) 
+(This code smaple is temporary and needs further development)
 
 ```c++
 #include <vector>
@@ -38,8 +38,8 @@ public:
     Foo(some_arg) {
         m_field = some_arg;
     }
-    
-private: 
+
+private:
     int m_field;
 };
 
@@ -51,13 +51,13 @@ public:
 
     virtual void method1() = 0;
     virtual void method2() = 0;
-    
+
     int  x() { return m_x; }
     void setX(x) { m_x = x; }
-    
+
 private:
     int m_x;
-    
+
 };
 
 ```
@@ -82,7 +82,7 @@ std::vector<const MutableTrackerHit*> results   // NO!
 
 ## spdlog as a main logging engine
 
-[spdlog](https://github.com/gabime/spdlog) is suggested as the main logging engine for EICRecon. Based on 
+[spdlog](https://github.com/gabime/spdlog) is suggested as the main logging engine for EICRecon. Based on
 
 One can use a general and plugin level loggers as
 

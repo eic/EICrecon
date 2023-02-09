@@ -25,6 +25,3 @@ target_compile_definitions(eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT
 
 # Install executable
 install(TARGETS eicrecon DESTINATION bin)
-
-
-

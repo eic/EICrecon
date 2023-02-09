@@ -118,4 +118,3 @@ public:
     std::vector<DataVector*> m_objidvectors;   // keep podio::ObjectID objects in separate list
     std::vector<podio::ObjBase*> m_podio_objs; // these are
 };
-

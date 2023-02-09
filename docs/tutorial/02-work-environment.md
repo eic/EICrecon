@@ -21,7 +21,7 @@ cd ~/eic
 curl --location https://get.epic-eic.org | bash
 ./eic-shell
 
-# or, if /cvmfs is available: 
+# or, if /cvmfs is available:
 # n.b. on JLab ifarm you may need to do 'module load singularity/3.9.5' first
 
 singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly eic-shell
@@ -136,7 +136,7 @@ eicrecon 2022-09-26_ncdis10x100_minq2-1_100ev.edm4hep.root
 
 
 ## Generating a podio output file
-To write reconstructed values to an output file, you need to tell *eicrecon* what to write. 
+To write reconstructed values to an output file, you need to tell *eicrecon* what to write.
 There are several options available, but the mosrt useful one is *podio:output_include_collections*.
 This is a comma separated list of colelctions to write to the output file. For example:
 
@@ -153,4 +153,3 @@ Use *eicrecon* to generate an output file with both *ReconstructedParticles* and
 
 
 {% include links.md %}
-

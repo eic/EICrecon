@@ -857,4 +857,3 @@
     ,["ZDCEcalTruthClusters:LogLevel", "info", "info", "log_level for ZDCEcalTruthClusters: trace, debug, info, warn, error, critical, off"]
     ,["ZDCEcalTruthProtoClusters:LogLevel", "info", "info", "log_level for ZDCEcalTruthProtoClusters: trace, debug, info, warn, error, critical, off"]
 ]
-

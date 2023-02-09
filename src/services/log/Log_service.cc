@@ -46,8 +46,3 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
 spdlog::level::level_enum Log_service::getDefaultLevel() {return spdlog::default_logger()->level();}
 
 std::string Log_service::getDefaultLevelStr() {return eicrecon::LogLevelToString(getDefaultLevel());}
-
-
-
-
-

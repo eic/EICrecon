@@ -57,7 +57,7 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
         app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("HCAL:HcalEndcapPIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();

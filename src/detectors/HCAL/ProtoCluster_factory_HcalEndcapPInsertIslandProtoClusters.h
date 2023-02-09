@@ -57,7 +57,7 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
         app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("HCAL:HcalEndcapPInsertIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
@@ -85,4 +85,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-

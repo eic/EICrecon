@@ -73,5 +73,3 @@ protected:
     std::vector<EICEventStore::DataVector*> m_datavectors;   // pod data objects
     std::vector<EICEventStore::DataVector*> m_objidvectors;  // keep podio::ObjectID objects in separate list
 };
-
-

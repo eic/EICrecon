@@ -109,4 +109,3 @@ fi
 if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
     export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
-
