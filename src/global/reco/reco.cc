@@ -45,25 +45,25 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
             {"ChargedParticlesWithAssociations"},
-            "ReconstructedParticlesAssociations"));
+            "ReconstructedParticleAssociations"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsElectron"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsElectron"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsTruth"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsTruth"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsJB_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsJB"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsJB"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsDA_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsDA"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsDA"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicseSigma"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicseSigma"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticlesAssociations"}, "InclusiveKinematicsSigma"));
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsSigma"));
 
 }
 } // extern "C"
