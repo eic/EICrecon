@@ -148,7 +148,7 @@ bool EventStore::collectionRegistered(const std::string& name) const {
 
 void EventStore::setReader(podio::IReader* reader) {
   m_reader = reader;
-  setCollectionIDTable(reader->getCollectionIDTable());
+  setCollectionIDTable(std::shared_ptr<podio::CollectionIDTable>(reader->getCollectionIDTable()));
 }
 
 } // namespace podio

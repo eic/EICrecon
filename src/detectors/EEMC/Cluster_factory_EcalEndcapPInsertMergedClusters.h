@@ -15,13 +15,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapPInsertMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapPInsertMergedClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapPInsertMergedClustersAssociations(){
-        SetTag("EcalEndcapPInsertMergedClustersAssociations");
+    Association_factory_EcalEndcapPInsertMergedClusterAssociations(){
+        SetTag("EcalEndcapPInsertMergedClusterAssociations");
     }
 };
 
@@ -43,7 +43,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapPInsertClusters";
-        m_inputAssociations_tag="EcalEndcapPInsertClustersAssociations";
+        m_inputAssociations_tag="EcalEndcapPInsertClusterAssociations";
 
         app->SetDefaultParameter("EEMC:EcalEndcapPInsertMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapPInsertMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
@@ -72,7 +72,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPInsertMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPInsertMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

@@ -57,7 +57,7 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:adjacencyMatrix", u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();

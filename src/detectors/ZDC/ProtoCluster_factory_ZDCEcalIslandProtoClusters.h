@@ -32,6 +32,11 @@ public:
         m_minClusterHitEdep=0.1 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
         m_minClusterCenterEdep=3.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        u_adjacencyMatrix = "";
+        m_readout = "";
+
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
         u_localDistXY={50 * dd4hep::cm, 50 * dd4hep::cm};     //{this, "localDistXY", {}};
@@ -54,6 +59,9 @@ public:
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
+        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
@@ -79,4 +87,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-
