@@ -30,15 +30,17 @@ namespace eicrecon {
       TString GetRadiatorName() { return m_rad_name; }
 
       // histograms
+      // - distributions
       TH1D *m_npe_dist;
       TH1D *m_theta_dist;
-      TH2D *m_photon_theta_vs_phi;
-      TH1D *m_mc_wavelength;
-      TH1D *m_mc_rindex;
-      TH1D *m_highest_weight_dist;
+      TH1D *m_mcWavelength_dist;
+      TH1D *m_mcRindex_dist;
+      TH1D *m_highestWeight_dist;
+      TH2D *m_photonTheta_vs_photonPhi;
+      // - momentum scans
       TH2D *m_npe_vs_p;
       TH2D *m_theta_vs_p;
-      TH2D *m_highest_weight_vs_p;
+      TH2D *m_highestWeight_vs_p;
 
       // binning
       static constexpr int    n_bins        = 100;
@@ -47,8 +49,8 @@ namespace eicrecon {
       static constexpr int    npe_bins      = 100;
       static constexpr double npe_max       = 100;
       static constexpr int    nphot_max     = 400;
-      static constexpr int    theta_bins    = 100;
-      static constexpr double theta_max     = 1000;
+      static constexpr int    theta_bins    = 1500;
+      static constexpr double theta_max     = 300;
       static constexpr int    phi_bins      = 100;
       static int pdg_bins() { return Tools::GetNumPDGs() + 1; }
 

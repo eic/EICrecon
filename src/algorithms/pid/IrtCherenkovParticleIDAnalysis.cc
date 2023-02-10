@@ -19,28 +19,28 @@ eicrecon::RadiatorAnalysis::RadiatorAnalysis(TString rad_name) : m_rad_name(rad_
       "Estimated Cherenkov Angle for "+m_rad_name+";#theta [mrad]",
       theta_bins, 0, theta_max
       );
-  m_photon_theta_vs_phi = new TH2D(
-      "photon_theta_vs_phi_"+m_rad_name,
+  m_photonTheta_vs_photonPhi = new TH2D(
+      "photonTheta_vs_photonPhi_"+m_rad_name,
       "Estimated Photon #theta vs #phi for "+m_rad_name+";#phi [rad];#theta [mrad]",
       phi_bins, -TMath::Pi(), TMath::Pi(),
       theta_bins, 0, theta_max
       );
 
   // truth
-  m_mc_wavelength = new TH1D(
-      "mc_wavelength_"+m_rad_name,
+  m_mcWavelength_dist = new TH1D(
+      "mcWavelength_"+m_rad_name,
       "MC Photon Wavelength for "+m_rad_name+";#lambda [nm]",
       n_bins, 0, 1000
       );
-  m_mc_rindex = new TH1D(
-      "mc_rindex_"+m_rad_name,
+  m_mcRindex_dist = new TH1D(
+      "mcRindex_"+m_rad_name,
       "MC Refractive Index for "+m_rad_name+";n",
       10*n_bins, 0.99, 1.03
       );
 
   // PID
-  m_highest_weight_dist = new TH1D(
-      "highest_weight_dist_"+m_rad_name,
+  m_highestWeight_dist = new TH1D(
+      "highestWeight_dist_"+m_rad_name,
       "Highest PDG Weight for "+m_rad_name+";PDG",
       pdg_bins(), 0, pdg_bins()
       );
@@ -58,8 +58,8 @@ eicrecon::RadiatorAnalysis::RadiatorAnalysis(TString rad_name) : m_rad_name(rad_
       momentum_bins, 0, momentum_max,
       theta_bins, 0, theta_max
       );
-  m_highest_weight_vs_p = new TH2D(
-      "highest_weight_vs_p_"+m_rad_name,
+  m_highestWeight_vs_p = new TH2D(
+      "highestWeight_vs_p_"+m_rad_name,
       "Highest PDG Weight vs. Particle Momentum for "+m_rad_name+";p [GeV]",
       momentum_bins, 0, momentum_max,
       pdg_bins(), 0, pdg_bins()
@@ -180,11 +180,11 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     radiator_histos->m_theta_dist->Fill(pid->getTheta()*1e3); // [rad] -> [mrad]
     radiator_histos->m_theta_vs_p->Fill(charged_particle_momentum,pid->getTheta()*1e3); // [rad] -> [mrad]
     for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
-      radiator_histos->m_photon_theta_vs_phi->Fill(phi,theta*1e3); // [rad] -> [mrad]
+      radiator_histos->m_photonTheta_vs_photonPhi->Fill(phi,theta*1e3); // [rad] -> [mrad]
 
     // fill MC dists
-    radiator_histos->m_mc_wavelength->Fill(pid->getWavelength());
-    radiator_histos->m_mc_rindex->Fill(pid->getRindex());
+    radiator_histos->m_mcWavelength_dist->Fill(pid->getWavelength());
+    radiator_histos->m_mcRindex_dist->Fill(pid->getRindex());
 
     // find the PDG hypothesis with the highest weight
     float max_weight     = -1000;
@@ -199,8 +199,8 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     if(pdg_max_weight!=0 && !std::isnan(pdg_max_weight))
       pdg_max_weight_str = std::to_string(pdg_max_weight);
     m_log->trace(" Highest weight is {} for PDG {} (string='{}')", max_weight, pdg_max_weight, pdg_max_weight_str);
-    radiator_histos->m_highest_weight_dist->Fill(pdg_max_weight_str.c_str(), 1);
-    radiator_histos->m_highest_weight_vs_p->Fill(charged_particle_momentum, pdg_max_weight_str.c_str(), 1);
+    radiator_histos->m_highestWeight_dist->Fill(pdg_max_weight_str.c_str(), 1);
+    radiator_histos->m_highestWeight_vs_p->Fill(charged_particle_momentum, pdg_max_weight_str.c_str(), 1);
 
   }
 }
