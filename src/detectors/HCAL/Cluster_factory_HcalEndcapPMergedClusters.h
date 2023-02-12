@@ -15,13 +15,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_HcalEndcapPMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_HcalEndcapPMergedClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_HcalEndcapPMergedClustersAssociations(){
-        SetTag("HcalEndcapPMergedClustersAssociations");
+    Association_factory_HcalEndcapPMergedClusterAssociations(){
+        SetTag("HcalEndcapPMergedClusterAssociations");
     }
 };
 
@@ -43,7 +43,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="HcalEndcapPClusters";
-        m_inputAssociations_tag="HcalEndcapPClustersAssociations";
+        m_inputAssociations_tag="HcalEndcapPClusterAssociations";
 
         app->SetDefaultParameter("HCAL:HcalEndcapPMergedClusters:input_tag",      m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("HCAL:HcalEndcapPMergedClusters:inputAssociations_tag",      m_inputAssociations_tag, "Name of input associations collection to use");
@@ -72,7 +72,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "HcalEndcapPMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "HcalEndcapPMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
