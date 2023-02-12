@@ -30,5 +30,3 @@ private:
     std::string m_config_prefix;    /// A prefix to use for command line parameters
 
 };
-
-

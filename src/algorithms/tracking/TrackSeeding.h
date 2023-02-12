@@ -63,5 +63,3 @@ namespace eicrecon {
 	std::tuple<float,float> lineFit(std::vector<std::pair<float,float>>& positions) const;
     };
 }
-
-

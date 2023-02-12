@@ -32,5 +32,3 @@
   template struct CONCATE(MEMBER, __LINE__)<Only_##MEMBER<CLASS>, &CLASS::MEMBER>
 #define ACCESS(OBJECT, MEMBER) \
   (OBJECT).*Access((Only_##MEMBER<std::remove_reference<decltype(OBJECT)>::type>*)nullptr)
-
-

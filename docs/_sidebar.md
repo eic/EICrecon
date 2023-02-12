@@ -26,5 +26,5 @@
 * Misc
     * [References](misc/references.md)
 * Flags
-    * [Flags view](table_flags/flags_view.md) 
+    * [Flags view](table_flags/flags_view.md)
     * [This website](misc/this_website.md)

@@ -14,7 +14,3 @@ namespace eicrecon {
         std::vector<std::shared_ptr<eicrecon::IndexSourceLink>> sourceLinks;
     };
 }
-
-
-
-

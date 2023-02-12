@@ -28,4 +28,3 @@ namespace eicrecon::Reco {
 
     };
 } // namespace Jug::Reco
-

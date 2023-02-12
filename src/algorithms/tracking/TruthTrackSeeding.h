@@ -22,5 +22,3 @@ namespace eicrecon {
         std::shared_ptr<TDatabasePDG> m_pdg_db;
     };
 }
-
-

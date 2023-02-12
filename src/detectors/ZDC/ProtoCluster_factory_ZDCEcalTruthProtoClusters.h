@@ -58,4 +58,3 @@ private:
     std::string              m_inputHit_tag;
     std::string              m_inputMCHit_tag;
 };
-

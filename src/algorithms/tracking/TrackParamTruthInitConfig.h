@@ -18,5 +18,3 @@ struct TrackParamTruthInitConfig {
     double m_momentumSmear    = 0.0;
 
 };
-
-

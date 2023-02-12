@@ -36,4 +36,3 @@ namespace eicrecon {
         void tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance);
     };
 }
-

@@ -145,5 +145,3 @@ private:
 //  MsgStream m_log;
 
 };
-
-

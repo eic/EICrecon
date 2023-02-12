@@ -93,4 +93,3 @@ private:
   MsgStream m_messenger;
   std::string m_name;
 };
-
