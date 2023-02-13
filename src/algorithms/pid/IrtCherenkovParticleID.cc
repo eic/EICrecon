@@ -188,7 +188,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         // get sensor and pixel info
         auto     cell_id   = raw_hit->getCellID();
         uint64_t sensor_id = cell_id & m_cell_mask;
-        TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPixelPosition(cell_id);
+        TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
         if(m_log->level() <= spdlog::level::trace) {
           m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
           m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));

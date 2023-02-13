@@ -53,7 +53,7 @@ void rich::IrtGeo::Bind() {
 
   // define the `cell ID -> pixel position` converter, correcting the returned
   // `Position` to be at the sensor surface
-  m_irtDetector->m_ReadoutIDToPixelPosition = [this] (auto cell_id) {
+  m_irtDetector->m_ReadoutIDToPosition = [this] (auto cell_id) {
     // decode cell ID to get the sensor ID and pixel volume centroid
     auto sensor_id = cell_id & m_irtDetector->GetReadoutCellMask();
     auto pixel_volume_centroid = (1/dd4hep::mm) * m_cellid_converter->position(cell_id);
