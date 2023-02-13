@@ -52,6 +52,3 @@ namespace eicrecon {
         std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
     };
 }
-
-
-

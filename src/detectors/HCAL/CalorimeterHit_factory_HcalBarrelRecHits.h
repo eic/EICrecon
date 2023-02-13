@@ -89,4 +89,3 @@ public:
 
     std::shared_ptr<spdlog::logger> m_log;
 };
-

@@ -241,4 +241,3 @@ namespace eicrecon::str
         return str;
     }
 }
-

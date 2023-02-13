@@ -88,4 +88,3 @@ private:
     void single_hits_digi();
     void signal_sum_digi();
 };
-

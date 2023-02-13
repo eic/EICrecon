@@ -24,5 +24,3 @@ private:
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_particles;
     std::unique_ptr<edm4eic::TrackParametersCollection> m_track_parameters;
 };
-
-

@@ -12,5 +12,3 @@ namespace eicrecon {
         double momentum_smearing = 0;
     };
 }
-
-

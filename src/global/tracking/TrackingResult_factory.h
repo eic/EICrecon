@@ -30,5 +30,3 @@ private:
 
     eicrecon::Reco::ParticlesFromTrackFit m_particle_maker_algo;      /// Track source linker algorithm
 };
-
-

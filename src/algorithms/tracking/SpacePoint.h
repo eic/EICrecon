@@ -60,4 +60,3 @@ using SpacePointPtr = std::unique_ptr<SpacePoint>;
 using SeedContainer = std::vector<Acts::Seed<SpacePoint>>;
 
 }
-
