@@ -46,5 +46,3 @@ private:
 
     eicrecon::TrackerHitReconstruction m_reco_algo;     /// The reconstruction algorithm
 };
-
-

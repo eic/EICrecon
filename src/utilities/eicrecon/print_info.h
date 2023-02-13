@@ -47,4 +47,3 @@ void printJANAHeaderIMG() {
                  "((   ,M9  d'      YM. M      \\MM   d'      YM. ,M'      \n"
                  " YMMMM9 _dM_     _dMM_M_      \\M _dM_     _dMM_MMMMMMMM " << std::endl << std::endl;
 }
-

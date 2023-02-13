@@ -43,4 +43,3 @@ class TruthTrackSeeding_factory : public JChainFactoryT<edm4eic::TrackParameters
     };
 
 } // eicrecon
-

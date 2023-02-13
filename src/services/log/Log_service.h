@@ -36,4 +36,3 @@ private:
     JApplication* m_application;
     std::string m_log_level_str;
 };
-

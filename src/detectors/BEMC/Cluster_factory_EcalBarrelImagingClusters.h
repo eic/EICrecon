@@ -64,4 +64,3 @@ public:
         m_outputLayers.clear();
     }
 };
-
