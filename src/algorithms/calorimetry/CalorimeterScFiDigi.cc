@@ -73,6 +73,7 @@ void CalorimeterScFiDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
         // get decoders
         try {
             auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
+            id_dec = id_desc.decoder();
             id_mask = 0;
             std::vector<std::pair<std::string, int>> ref_fields;
             for (size_t i = 0; i < u_fields.size(); ++i) {
@@ -81,8 +82,15 @@ void CalorimeterScFiDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
                 int ref = i < u_refs.size() ? u_refs[i] : 0;
                 ref_fields.emplace_back(u_fields[i], ref);
             }
+            // need to also merge z
+            if (!m_zsegment.empty()) {
+                z_idx = id_dec->index(m_zsegment);
+                // 0 is a placeholder, real value will be determined in merging
+                ref_fields.emplace_back(m_zsegment, 0);
+            }
             ref_mask = id_desc.encode(ref_fields);
             // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
+            // update z field index from the decoder
         } catch (...) {
             m_log->warn("Failed to load ID decoder for {}", m_readout);
             japp->Quit();
@@ -138,13 +146,16 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
 
     // signal sum
     for (auto &[id, hits] : merge_map) {
-        double edep     = hits[0]->getEnergy();
-        double time     = hits[0]->getContributions(0).getTime();
-        double max_edep = hits[0]->getEnergy();
+        double  edep     = hits[0]->getEnergy();
+        double  time     = hits[0]->getContributions(0).getTime();
+        double  max_edep = hits[0]->getEnergy();
+        double  ztot     = id_dec->get(hits[0]->getCellID(), z_idx)*edep;
+
         // sum energy, take time from the most energetic hit
         // TODO, implement a timing window to sum or split the hits group
         for (size_t i = 1; i < hits.size(); ++i) {
             edep += hits[i]->getEnergy();
+            ztot += id_dec->get(hits[i]->getCellID(), z_idx)*hits[i]->getEnergy();
             if (hits[i]->getEnergy() > max_edep) {
                 max_edep = hits[i]->getEnergy();
                 for (const auto& c : hits[i]->getContributions()) {
@@ -153,6 +164,11 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
                     }
                 }
             }
+        }
+        auto mid = id;
+        // replace z information with energy-weighted-average z over this merging group
+        if (!m_zsegment.empty()) {
+            id_dec->set(mid, z_idx, std::llround(ztot/edep));
         }
 
         // safety check
@@ -167,7 +183,7 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         auto rawhit = new edm4hep::RawCalorimeterHit(
-                id,
+                mid,
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );
