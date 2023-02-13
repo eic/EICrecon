@@ -75,5 +75,3 @@ void SiliconTrackerDigi_factoryT<SimTrackerHitInT, RawTrackerHitOutT>::Process(c
 
     fmt::print("JFactory_BEMCRawCalorimeterHit<>::Process(...)\n");
 }
-
-

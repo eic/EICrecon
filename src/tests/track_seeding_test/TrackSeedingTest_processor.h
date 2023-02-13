@@ -59,4 +59,3 @@ private:
     /// A surface to propagate to
     std::shared_ptr<Acts::DiscSurface> m_hcal_surface;
 };
-

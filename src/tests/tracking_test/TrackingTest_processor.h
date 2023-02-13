@@ -56,4 +56,3 @@ private:
     std::shared_ptr<spdlog::logger> m_log;
     TDirectory *m_dir_main;
 };
-

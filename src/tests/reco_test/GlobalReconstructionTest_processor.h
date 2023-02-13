@@ -51,4 +51,3 @@ private:
 
     void printRecoParticles(std::vector<const edm4eic::ReconstructedParticle*> reco_particles, const std::string &title);
 };
-

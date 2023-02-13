@@ -13,6 +13,3 @@ namespace eicrecon {
         std::vector<size_t> m_numMeasurementsCutOff = {10}; //{this, "numMeasurementsCutOff", {10}};
     };
 }
-
-
-
