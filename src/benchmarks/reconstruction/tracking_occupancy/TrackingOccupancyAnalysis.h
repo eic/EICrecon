@@ -37,5 +37,3 @@ private:
     /// Total occupancy of all m_data_names
     TH2F * m_total_occup_th2;                 /// MC Particles px,py
 };
-
-

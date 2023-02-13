@@ -88,4 +88,3 @@ void JFactoryT_SimTrackerHitsCollector<SimTrackerHitOutT>::Process(const std::sh
     // Add data as a factory output
     this->Set(hits);
 }
-

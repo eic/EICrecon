@@ -57,5 +57,3 @@ private:
     std::vector<std::string> m_default_input_tags;
     FactoryConfigType m_default_cfg;                   /// Default config for a factories. (!) Must be properly copyable
 };
-
-

@@ -191,4 +191,3 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
 
 
 };
-
