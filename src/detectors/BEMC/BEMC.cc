@@ -40,7 +40,7 @@ extern "C" {
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiMergedHits>());
+        // app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiMergedHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>());
 
