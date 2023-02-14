@@ -45,7 +45,7 @@ public:
         m_sectorField="module";          // from ATHENA's reconstruction.py
 
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
-        u_localDetFields={"system", "module"};          // from ATHENA's reconstruction.py (i.e. not defined there)
+        u_localDetFields={"system"};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
