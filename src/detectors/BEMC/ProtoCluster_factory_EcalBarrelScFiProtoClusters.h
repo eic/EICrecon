@@ -26,7 +26,7 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalBarrelScFiRecHits";
+        m_input_tag = "EcalBarrelScFiMergedHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
