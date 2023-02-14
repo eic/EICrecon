@@ -129,7 +129,7 @@ void CalorimeterScFiDigi::AlgorithmProcess()  {
 }
 
 //------------------------
-// signal_sum_digi
+// light_guide_digi
 //------------------------
 void CalorimeterScFiDigi::light_guide_digi( void ){
 
