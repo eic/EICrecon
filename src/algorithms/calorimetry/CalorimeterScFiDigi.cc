@@ -151,26 +151,22 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
         double  edep     = hits[0]->getEnergy();
         double  time     = hits[0]->getContributions(0).getTime();
         double  max_edep = hits[0]->getEnergy();
-        double  ztot     = id_dec->get(hits[0]->getCellID(), z_idx)*edep;
+        int64_t mid      = hits[0]->getCellID();
 
         // sum energy, take time from the most energetic hit
         // TODO, implement a timing window to sum or split the hits group
         for (size_t i = 1; i < hits.size(); ++i) {
+            int64_t ztmp  = id_dec->get(hits[i]->getCellID(), z_idx);
             edep += hits[i]->getEnergy();
-            ztot += id_dec->get(hits[i]->getCellID(), z_idx)*hits[i]->getEnergy();
             if (hits[i]->getEnergy() > max_edep) {
                 max_edep = hits[i]->getEnergy();
+                mid = hits[i]->getCellID();
                 for (const auto& c : hits[i]->getContributions()) {
                     if (c.getTime() <= time) {
                         time = c.getTime();
                     }
                 }
             }
-        }
-        auto mid = id;
-        // replace z information with energy-weighted-average z over this merging group
-        if (!m_zsegment.empty()) {
-            id_dec->set(mid, z_idx, std::llround(ztot/edep));
         }
 
         // safety check
@@ -184,6 +180,7 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
+        // use the cellid from the most energetic hit in this group
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 mid,
                 (adc > m_capADC ? m_capADC : adc),
