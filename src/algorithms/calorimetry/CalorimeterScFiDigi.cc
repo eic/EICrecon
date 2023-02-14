@@ -85,7 +85,9 @@ void CalorimeterScFiDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
             // need to also merge z
             if (!m_zsegment.empty()) {
                 z_idx = id_dec->index(m_zsegment);
-                // 0 is a placeholder, real value will be determined in merging
+                // treat z segment as a field to merge
+                id_mask |= id_desc.field(m_zsegment)->mask();
+                // but new z value will be determined in merging, 0 is a placeholder here
                 ref_fields.emplace_back(m_zsegment, 0);
             }
             ref_mask = id_desc.encode(ref_fields);
@@ -189,4 +191,5 @@ void CalorimeterScFiDigi::light_guide_digi( void ){
         );
         rawhits.push_back(rawhit);
     }
+    m_log->debug("size before digi: {:d}, after: {:d}", simhits.size(), rawhits.size());
 }

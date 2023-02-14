@@ -45,7 +45,9 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
-        m_readout = "";
+        m_readout="EcalBarrelScFiHits";
+        u_fields = {"fiber"};
+        u_refs = {1};
         m_zsegment = "z";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
