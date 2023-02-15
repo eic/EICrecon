@@ -256,8 +256,8 @@ private:
       size_t j = 0;
       // calculate weights for local maxima
       for (const auto& chit : maxima) {
-        double dist_ref = chit.getDimension().x;
-        double energy   = chit.getEnergy();
+        double dist_ref = chit->getDimension().x;
+        double energy   = chit->getEnergy();
         double dist     = edm4eic::magnitude(hitsDist(chit, hit));
         weights[j]      = std::exp(-dist / dist_ref) * energy;
         j += 1;
@@ -280,7 +280,7 @@ private:
         if (weight <= 1e-6) {
           continue;
         }
-        pcls[k].addToHits(hit);
+        pcls[k].addToHits(*hit);
         pcls[k].addToWeights(weight);
       }
       i += 1;
