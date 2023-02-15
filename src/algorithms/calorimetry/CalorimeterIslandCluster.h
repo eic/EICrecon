@@ -289,7 +289,7 @@ private:
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
     }
     if (m_log->level() <= spdlog::level::info) {
-      m_log->verbose("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
+      m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
     }
   }
 };
