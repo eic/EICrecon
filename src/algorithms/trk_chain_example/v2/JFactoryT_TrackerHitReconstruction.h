@@ -50,5 +50,3 @@ void JFactoryT_TrackerHitReconstruction<OutputType>::Process(const std::shared_p
 
     fmt::print("JFactory_BEMCRawCalorimeterHit<{}>::Process(...)\n", typeid(OutputType).name());
 }
-
-

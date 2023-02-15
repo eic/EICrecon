@@ -21,13 +21,13 @@
 #include <edm4hep/RawCalorimeterHit.h>
 #include <spdlog/spdlog.h>
 
-class CalorimeterHitDigi {
+class CalorimeterScFiDigi {
 
     // Insert any member variables here
 
 public:
-    CalorimeterHitDigi() = default;
-    ~CalorimeterHitDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
+    CalorimeterScFiDigi() = default;
+    ~CalorimeterScFiDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
     virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
     virtual void AlgorithmChangeRun() ;
     virtual void AlgorithmProcess() ;
@@ -59,6 +59,7 @@ public:
     std::vector<int>         u_refs;
     std::string              m_geoSvcName;
     std::string              m_readout;
+    std::string              m_zsegment;
 
     // This may be used to declare the data members as JANA configuration parameters.
     // This should compile OK even without JANA so long as you don't try using it.
@@ -74,8 +75,9 @@ public:
     // unitless counterparts of inputs
     double           dyRangeADC{0}, stepTDC{0}, tRes{0}, eRes[3] = {0., 0., 0.};
     //Rndm::Numbers    m_normDist;
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
-    uint64_t         id_mask{0}, ref_mask{0};
+    std::shared_ptr<JDD4hep_service>    m_geoSvc;
+    dd4hep::BitFieldCoder*              id_dec = nullptr;
+    uint64_t                            id_mask{0}, ref_mask{0}, z_idx{0};
 
     // inputs/outputs
     std::vector<const edm4hep::SimCalorimeterHit*> simhits;
@@ -85,6 +87,5 @@ private:
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
-    void single_hits_digi();
-    void signal_sum_digi();
+    void light_guide_digi();
 };

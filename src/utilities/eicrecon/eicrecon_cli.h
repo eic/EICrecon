@@ -75,4 +75,3 @@ namespace jana {
     int Execute(JApplication* app, UserOptions& options);
 
 }
-

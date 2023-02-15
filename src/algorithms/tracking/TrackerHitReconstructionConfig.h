@@ -9,5 +9,3 @@ namespace eicrecon {
         float time_resolution = 10;
     };
 }
-
-

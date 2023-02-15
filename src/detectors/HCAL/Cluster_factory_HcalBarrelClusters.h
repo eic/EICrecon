@@ -85,4 +85,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-

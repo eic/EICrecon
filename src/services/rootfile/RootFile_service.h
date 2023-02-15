@@ -103,4 +103,3 @@ private:
     TFile *m_histfile = nullptr;
     std::once_flag init_flag;
 };
-

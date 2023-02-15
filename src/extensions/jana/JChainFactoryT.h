@@ -84,4 +84,3 @@ private:
     /// Working input tags (with adjustment by user parameters)
     std::vector<std::string> m_input_tags;              /// Tag for the input data
 };
-
