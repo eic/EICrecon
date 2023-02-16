@@ -108,7 +108,7 @@ namespace eicrecon {
             double qe0 = prev.second;
             double a = (qe1 - qe0) / (e1 - e0);
             double b = qe0 - a*e0;
-            // FIXME: check floating point accuracy when moving to a next point; do we actually 
+            // FIXME: check floating point accuracy when moving to a next point; do we actually
             // care whether the overall number of bins will be "nbins+1" or more?;
             for(double e = e0+step; e<e1; e+=step)
               ret.push_back(std::make_pair(e, a*e + b));
@@ -121,7 +121,7 @@ namespace eicrecon {
 
       // -------------------------------------------------------------------------------------
       static bool GetFinelyBinnedTableEntry(
-          const std::vector<std::pair<double, double>> &table, 
+          const std::vector<std::pair<double, double>> &table,
           double argument,
           double *entry
           )

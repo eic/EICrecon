@@ -27,7 +27,7 @@ extern "C" {
 
     // digitization
     PhotoMultiplierHitDigiConfig digi_cfg;
-    digi_cfg.seed            = 5; // FIXME: set to 0 for a 'unique' seed, but 
+    digi_cfg.seed            = 5; // FIXME: set to 0 for a 'unique' seed, but
                                   // that seems to delay the RNG from actually randomizing
     digi_cfg.hitTimeWindow   = 20.0; // [ns]
     digi_cfg.timeStep        = 16.0; // [ns^-1]

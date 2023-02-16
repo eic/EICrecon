@@ -212,7 +212,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
           irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
         }
 
-        // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which 
+        // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which
         // was used in GEANT, but should be very close
         if(m_cfg.cheatPhotonVertex) {
           double ri;
@@ -376,7 +376,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       m_log->trace("  Mass Hypotheses:");
       m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
       for(auto [pdg,mass] : m_pdg_mass) {
-        
+
         // get hypothesis results
         auto irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight     = irt_hypothesis->GetWeight(irt_rad);

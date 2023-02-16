@@ -121,7 +121,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
       n_thrown++;
     }
   }
-  if(n_thrown == 0) m_log->warn("no thrown particle found"); 
+  if(n_thrown == 0) m_log->warn("no thrown particle found");
   if(n_thrown >  1) m_log->warn("this benchmark does not yet support multi-track events (n_thrown={})\n",n_thrown);
 
   // get the number of photons vs. thrown momentum for this event
