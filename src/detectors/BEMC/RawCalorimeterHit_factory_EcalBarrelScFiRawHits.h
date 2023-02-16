@@ -48,7 +48,6 @@ public:
         m_readout="EcalBarrelScFiHits";
         u_fields = {"fiber"};
         u_refs = {1};
-        m_zsegment = "z";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
@@ -66,7 +65,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:readoutClass",     m_readout);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:zSegment",         m_zsegment);
 
         // Call Init for generic algorithm
         AlgorithmInit(m_log);
