@@ -11,8 +11,7 @@
 // Date: 06/02/2021
 
 
-#ifndef _CalorimeterHitDigi_h_
-#define _CalorimeterHitDigi_h_
+#pragma once
 
 #include <random>
 
@@ -89,5 +88,3 @@ private:
     void single_hits_digi();
     void signal_sum_digi();
 };
-
-#endif // _CalorimeterHitDigi_h_

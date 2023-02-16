@@ -6,7 +6,7 @@
 simulation and reconstruction framework and the supporting packages on a
 user machine. You would primarily need this for low-level code development
 and debugging if the [`eic-shell` option](Use_with_eic_shell.md) is not
-available. It is a user friendly CLI alternative to the 
+available. It is a user friendly CLI alternative to the
 [manual build instructions](Manual_Build.md).
 
 Something that users can simply do `pip install edpm; edpm install package`.
@@ -23,7 +23,7 @@ Install eicrecon
 
 ```sh
 # 1. System prerequesties
-edpm req ubuntu22           # get list of required OS packets. Use `centos8` on RHEL8  
+edpm req ubuntu22           # get list of required OS packets. Use `centos8` on RHEL8
 sudo apt install ...        # install watever 'edpm req' tells you
 
 # 2. Where to install
@@ -66,7 +66,7 @@ you have to reinstall dependent packages yourself. to reinstall some package
 ```
 edpm rm package && edpm install package    # reinstall package
 
-# sometimes on wants to just rebuild a package, without redownloading 
+# sometimes on wants to just rebuild a package, without redownloading
 edpm install --forca package   # rebuild package even if it exists
 ```
 
@@ -86,7 +86,7 @@ Examples:
 
 1. Dynamically source output of ```edpm env``` command (recommended)
 
-    ```bash        
+    ```bash
     source <(edpm env)                # works on bash
     ```
 2. Save output of ```edpm env``` command to a file (can be useful)

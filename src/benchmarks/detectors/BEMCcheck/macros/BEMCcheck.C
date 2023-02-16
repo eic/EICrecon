@@ -32,11 +32,11 @@ void BEMCcheck(void)
 
     c1->cd(2);
     EcalEndcapNhits_occupancy->Draw();
-    
+
     c1->cd(3);
     gPad->SetLogy();
     EcalEndcapNhits_hit_energy->Draw();
-    
+
     //---------------- EcalEndcapNRawhits
     c1->cd(5);
     gPad->SetLogy();
@@ -45,7 +45,7 @@ void BEMCcheck(void)
     c1->cd(6);
     gPad->SetLogy();
     EcalEndcapNRawhits_amplitude->Draw();
-    
+
     c1->cd(7);
     EcalEndcapNRawhits_timestamp->Draw();
 
@@ -56,14 +56,14 @@ void BEMCcheck(void)
 
     c1->cd(10);
     EcalEndcapNRecHits_xy->Draw();
-    
+
     c1->cd(11);
     EcalEndcapNRecHits_z->Draw();
-    
+
     c1->cd(12);
     gPad->SetLogy();
     EcalEndcapNRecHits_time->Draw();
-    
+
     c1->cd(8);
     gPad->SetLogy();
     EcalEndcapNRecHits_hit_energy->Draw();
@@ -72,7 +72,7 @@ void BEMCcheck(void)
     c1->cd(13);
     gPad->SetLogy();
     EcalEndcapNIslandProtoClusters_clusters_per_event->Draw();
-    
+
     c1->cd(14);
     gPad->SetLogy();
     EcalEndcapNIslandProtoClusters_hits_per_cluster->Draw();
@@ -80,5 +80,3 @@ void BEMCcheck(void)
     c1->SaveAs("BEMCcheck.pdf");
     c1->SaveAs("BEMCcheck.png");
 }
-
-

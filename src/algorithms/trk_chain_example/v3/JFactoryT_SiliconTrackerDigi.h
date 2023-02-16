@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
-#define EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
+#pragma once
 
 #include <random>
 
@@ -83,6 +82,3 @@ void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Process(
 
     fmt::print("JFactory_BEMCRawCalorimeterHit<>::Process(...)\n");
 }
-
-
-#endif //EICRECON_JFACTORY_SILICONTRACKERDIGIT_H

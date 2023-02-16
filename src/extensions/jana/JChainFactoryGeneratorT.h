@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_CHAIN_FACTORY_GENERATOR_T_H
-#define EICRECON_CHAIN_FACTORY_GENERATOR_T_H
+#pragma once
 
 
 #include <vector>
@@ -58,6 +57,3 @@ private:
     std::vector<std::string> m_default_input_tags;
     FactoryConfigType m_default_cfg;                   /// Default config for a factories. (!) Must be properly copyable
 };
-
-
-#endif //EICRECON_CHAIN_FACTORY_GENERATOR_T_H

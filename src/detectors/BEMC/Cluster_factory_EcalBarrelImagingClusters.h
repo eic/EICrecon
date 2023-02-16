@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_EcalBarrelImagingClusters_h_
-#define _Cluster_factory_EcalBarrelImagingClusters_h_
+#pragma once
 
 #include <random>
 
@@ -48,7 +47,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_mcHits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
         m_inputProtoClusters=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
@@ -65,5 +64,3 @@ public:
         m_outputLayers.clear();
     }
 };
-
-#endif // _Cluster_factory_EcalBarrelImagingClusters_h_

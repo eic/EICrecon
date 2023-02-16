@@ -59,4 +59,3 @@ public:
 private:
     std::string m_input_tag;
 };
-

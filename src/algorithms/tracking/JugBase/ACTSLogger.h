@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong
 
-#ifndef RECTRACKER_ACTSLOGGER_H
-#define RECTRACKER_ACTSLOGGER_H
+#pragma once
 
 #include <Acts/Utilities/Logger.hpp>
 #include <GaudiKernel/ServiceHandle.h>
@@ -18,7 +17,7 @@ public:
   GaudiFilterPolicy(IMessageSvc* owner) : m_owner(owner) {}
 
   bool doPrint(const Acts::Logging::Level& lvl) const {
-    
+
     MSG::Level l = MSG::VERBOSE;
     switch (lvl) {
     case Acts::Logging::VERBOSE:
@@ -94,5 +93,3 @@ private:
   MsgStream m_messenger;
   std::string m_name;
 };
-
-#endif  // RECTRACKER_ACTSLOGGER_H

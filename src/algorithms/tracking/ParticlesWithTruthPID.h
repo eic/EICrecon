@@ -2,8 +2,7 @@
 // Copyright (C) 2022 Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 
 
-#ifndef EICRECON_PARTICLESWITHTRUTHPID_H
-#define EICRECON_PARTICLESWITHTRUTHPID_H
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -37,5 +36,3 @@ namespace eicrecon {
         void tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance);
     };
 }
-
-#endif //EICRECON_PARTICLESWITHTRUTHPID_H

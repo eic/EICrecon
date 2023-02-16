@@ -9,8 +9,7 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
-#ifndef _CalorimeterClusterRecoCoG_h_
-#define _CalorimeterClusterRecoCoG_h_
+#pragma once
 
 #include <random>
 
@@ -58,7 +57,7 @@ public:
 
     std::string m_input_simhit_tag;
     std::string m_input_protoclust_tag;
-    
+
     double m_sampFrac;//{this, "samplingFraction", 1.0};
     double m_logWeightBase;//{this, "logWeightBase", 3.6};
     double m_depthCorrection;//{this, "depthCorrection", 0.0};
@@ -73,7 +72,7 @@ public:
 
     std::function<double(double, double, double, int)> weightFunc;
 
-    
+
   //inputs EcalEndcapNTruthProtoClusters AND EcalEndcapNHits
 
   //inputs
@@ -190,7 +189,5 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     return new edm4eic::Cluster(cl);
   }
 
-    
-};
 
-#endif // _CalorimeterClusterRecoCoG_h_
+};

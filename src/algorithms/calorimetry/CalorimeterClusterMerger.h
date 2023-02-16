@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#ifndef _CalorimeterClusterMerger_h_
-#define _CalorimeterClusterMerger_h_
+#pragma once
 
 #include <random>
 #include <spdlog/spdlog.h>
@@ -37,7 +36,7 @@ public:
     //inputs
     std::vector<const edm4eic::Cluster*> m_inputClusters;//{"InputClusters", Gaudi::DataHandle::Reader, this};
     std::vector<const edm4eic::MCRecoClusterParticleAssociation*> m_inputAssociations;//{"InputAssociations", Gaudi::DataHandle::Reader, this};
-  
+
     // Outputs
     std::vector<edm4eic::Cluster*> m_outputClusters;//{"OutputClusters", Gaudi::DataHandle::Writer, this};
     std::vector<edm4eic::MCRecoClusterParticleAssociation*> m_outputAssociations;//{"OutputAssociations", Gaudi::DataHandle::Writer, this};
@@ -89,5 +88,3 @@ private:
   }
 
 };
-
-#endif //_CalorimeterClusterMerger_h_

@@ -11,4 +11,3 @@ if __name__ == "__main__":
     jana.plugin("data_flow_test")
     jana.source("/home/romanov/work/data/athena_py8_5x41_mq2-10_beameff_ip6_hidiv_100ev.edm4hep.root")
     jana.run(retval_raise=True)
-

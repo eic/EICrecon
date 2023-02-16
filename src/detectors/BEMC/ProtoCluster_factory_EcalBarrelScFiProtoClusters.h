@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_
-#define _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -27,11 +26,16 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalBarrelScFiMergedHits";
+        m_input_tag = "EcalBarrelScFiRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
         m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        u_adjacencyMatrix = "";
+        m_readout = "";
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // ?
@@ -53,6 +57,9 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
@@ -78,5 +85,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-
-#endif // _ProtoCLuster_factory_EcalBarrelScFiIslandProtoClusters_h_

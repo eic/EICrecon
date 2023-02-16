@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong
 
-#ifndef JugTrack_Trajectories_HH
-#define JugTrack_Trajectories_HH
+#pragma once
 
 #include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/VectorMultiTrajectory.hpp"
@@ -103,4 +102,3 @@ struct TrackingResultTrajectory final {
 using TrajectoriesContainer = std::vector<TrackingResultTrajectory>;
 
 } // namespace Jug
-#endif

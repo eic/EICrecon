@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_HcalEndcapPTruthProtoClusters_h_
-#define _TruthCluster_factory_HcalEndcapPTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -58,5 +57,3 @@ private:
     std::string              m_inputHit_tag;
     std::string              m_inputMCHit_tag;
 };
-
-#endif // _ProtoCLuster_factory_HcalEndcapPIslandProtoClusters_h_

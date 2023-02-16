@@ -140,5 +140,15 @@ void DumpFlags_processor::Finish()
             throw JException(ex.what());
         }
     }
-}
 
+    // Save JANA simple key-value file
+    if(!m_janaconfig_file_name.empty()) {
+        try{
+            pm->WriteConfigFile(m_janaconfig_file_name);
+        }
+        catch(std::exception ex) {
+            m_log->error("Can't open file '{}' for write", m_janaconfig_file_name);    // TODO personal logger
+            throw JException(ex.what());
+        }
+    }
+}

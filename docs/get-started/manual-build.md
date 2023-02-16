@@ -113,7 +113,7 @@ source ${PODIO_HOME}/env.sh
 ~~~
 export EDM4HEP_VERSION=v00-06
 export EDM4HEP_HOME=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}
-export EDM4HEP=${EDM4HEP_HOME}/install 
+export EDM4HEP=${EDM4HEP_HOME}/install
 export EDM4HEP_ROOT=${EDM4HEP}
 git clone https://github.com/key4hep/EDM4hep -b ${EDM4HEP_VERSION} ${EDM4HEP_HOME}
 cd ${EDM4HEP_HOME}
@@ -124,8 +124,8 @@ cmake --build build --target install -- -j8
 ### edm4eic
 ~~~
 export EDM4EIC_VERSION=v1.0.1
-export EDM4EIC_HOME=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION} 
-export EDM4EIC_ROOT=${EDM4EIC_HOME}/install 
+export EDM4EIC_HOME=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}
+export EDM4EIC_ROOT=${EDM4EIC_HOME}/install
 git clone https://github.com/eic/edm4eic -b ${EDM4EIC_VERSION} ${EDM4EIC_HOME}
 cd ${EDM4EIC_HOME}
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${EDM4EIC_ROOT} -DCMAKE_CXX_STANDARD=17
@@ -135,8 +135,8 @@ cmake --build build --target install -- -j8
 ### lcio
 ~~~
 export LCIO_VERSION=v02-17-01
-export LCIO_HOME=${EICTOPDIR}/LCIO/${LCIO_VERSION} 
-export LCIO_ROOT=${LCIO_HOME}/install 
+export LCIO_HOME=${EICTOPDIR}/LCIO/${LCIO_VERSION}
+export LCIO_ROOT=${LCIO_HOME}/install
 git clone https://github.com/iLCSoft/LCIO -b ${LCIO_VERSION} ${LCIO_HOME}
 cmake -S ${LCIO_HOME} -B ${LCIO_HOME}/build -DCMAKE_INSTALL_PREFIX=${LCIO_ROOT} -DCMAKE_CXX_STANDARD=17
 cmake --build ${LCIO_HOME}/build --target install -- -j8
@@ -162,7 +162,7 @@ export EIGEN_VERSION=3.4.0
 export EIGEN_HOME=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 git clone https://gitlab.com/libeigen/eigen.git -b ${EIGEN_VERSION} ${EIGEN_HOME}
 cd ${EIGEN_HOME}
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17 
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${EIGEN_HOME} -DCMAKE_CXX_STANDARD=17
 cmake --build build --target install -- -j8
 export Eigen3_ROOT=${EIGEN_HOME}
 
@@ -170,7 +170,7 @@ export ACTS_VERSION=v19.9.0
 export ACTS_HOME=${EICTOPDIR}/ACTS/${ACTS_VERSION}
 git clone https://github.com/acts-project/acts -b ${ACTS_VERSION} ${ACTS_HOME}
 cd ${ACTS_HOME}
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON -DACTS_BUILD_PLUGIN_DIGITIZATION=ON 
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=${ACTS_HOME}/install -DCMAKE_CXX_STANDARD=17 -DACTS_BUILD_PLUGIN_DD4HEP=on -DACTS_BUILD_PLUGIN_TGEO=on  -DACTS_BUILD_PLUGIN_JSON=ON -DACTS_BUILD_PLUGIN_DIGITIZATION=ON
 cmake --build build --target install -- -j8
 source ${ACTS_HOME}/install/bin/this_acts.sh
 ~~~
@@ -178,7 +178,7 @@ source ${ACTS_HOME}/install/bin/this_acts.sh
 ### IRT
 ~~~
 export IRT_HOME=${EICTOPDIR}/irt
-export IRT_ROOT=${IRT_HOME}/install 
+export IRT_ROOT=${IRT_HOME}/install
 git clone https://github.com/eic/irt ${IRT_HOME}
 cmake -S ${IRT_HOME} -B ${IRT_HOME}/build -DCMAKE_INSTALL_PREFIX=${IRT_ROOT}
 cmake --build ${IRT_HOME}/build -j8
@@ -252,7 +252,7 @@ export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 export EDM4EIC_ROOT=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4EIC_ROOT}/lib:${EDM4EIC_ROOT}/lib64:${LD_LIBRARY_PATH}
-export LCIO_ROOT=${EICTOPDIR}/LCIO/${LCIO_VERSION}/install 
+export LCIO_ROOT=${EICTOPDIR}/LCIO/${LCIO_VERSION}/install
 export LD_LIBRARY_PATH=${LCIO_ROOT}/lib64:${LD_LIBRARY_PATH}
 export IRT_ROOT=${EICTOPDIR}/irt/install
 source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh

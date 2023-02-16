@@ -3,8 +3,7 @@
 //
 //
 
-#ifndef _JEventSourcePODIO_h_
-#define  _JEventSourcePODIO_h_
+#pragma once
 
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
@@ -24,7 +23,7 @@ public:
 
     void GetEvent(std::shared_ptr<JEvent>) override;
     void FinishEvent(JEvent&) override ;
-    
+
     static std::string GetDescription();
 
     void PrintCollectionTypeTable(void);
@@ -43,6 +42,3 @@ protected:
 
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
-
-#endif // _JEventSourcePODIO_h_
-

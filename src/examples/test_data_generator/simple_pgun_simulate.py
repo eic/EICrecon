@@ -20,4 +20,3 @@ if __name__ == "__main__":
 
     cfg.events_num = 10000
     run_simulation(cfg, should_upload)
-

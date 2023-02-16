@@ -48,13 +48,10 @@ set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EI
 
 # Add include directories (works same as target_include_directories)
 message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src)
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${EICRECON_SOURCE_DIR}/src)
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} ${LINK_LIBRARIES})
-
-# Additional libraries
-#plugin_link_libraries(${PLUGIN_NAME} dd4hep_library)
 
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
@@ -74,4 +71,3 @@ return()
 # We have git for that
 # http://thecodelesscode.com/case/41
 # 2022-10-17 DR =)
-

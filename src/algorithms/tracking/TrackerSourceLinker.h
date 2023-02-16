@@ -5,8 +5,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck
 // TODO refactor header when license is clear
 
-#ifndef EICRECON_TRACKER_SOURCE_LINKER_H
-#define EICRECON_TRACKER_SOURCE_LINKER_H
+#pragma once
 
 #include "TrackerSourceLinkerResult.h"
 
@@ -42,4 +41,3 @@ namespace eicrecon {
     };
 
 }
-#endif //EICRECON_TRACKER_SOURCE_LINKER_H

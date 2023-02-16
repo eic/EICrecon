@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TrackParamTruthInit_factory_H
-#define EICRECON_TrackParamTruthInit_factory_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <extensions/jana/JChainFactoryT.h>
@@ -39,5 +38,3 @@ class TrackParamTruthInit_factory :
     };
 
 } // eicrecon
-
-#endif //EICRECON_TrackParamTruthInit_factory_H

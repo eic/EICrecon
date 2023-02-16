@@ -8,7 +8,7 @@ Eic image require singularity \> 3.0
 
 The [oficial installation instructions](https://sylabs.io/guides/3.0/user-guide/installation.html) have many steps.
 
-If you use ubuntu (mint, whatever compatible), there is a 
+If you use ubuntu (mint, whatever compatible), there is a
 [debian repo with 3.10.3 version](https://packages.debian.org/source/sid/singularity-container),
 which works pretty nicely (You will have to install dependencies, it will print them\...)
 

@@ -51,10 +51,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag); 
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -62,7 +62,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "B0ECalMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "B0ECalMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
@@ -72,4 +72,3 @@ private:
     std::string              m_input_tag;
     std::string              m_inputAssociations_tag;
 };
-
