@@ -9,7 +9,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterScFiDigi.h>
+#include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -18,7 +18,7 @@
 
 
 
-class RawCalorimeterHit_factory_EcalBarrelScFiRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterScFiDigi {
+class RawCalorimeterHit_factory_EcalBarrelScFiRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
@@ -34,7 +34,7 @@ public:
     void Init() override {
         auto app = GetApplication();
 
-        // Set default values for all config. parameters in CalorimeterScFiDigi algorithm
+        // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelScFiHits";
         u_eRes = {0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
