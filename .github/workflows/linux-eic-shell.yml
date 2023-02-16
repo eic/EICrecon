@@ -66,6 +66,8 @@ jobs:
           !src/
           !build/
           !apt_cache/
+          !.git/
+          !.ccache/
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
