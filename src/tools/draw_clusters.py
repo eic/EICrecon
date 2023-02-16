@@ -198,4 +198,3 @@ if __name__ == '__main__':
     # build GIF
     imageio.mimsave(os.path.join(args.outdir, 'e{:d}_c{:d}_layers2.gif'.format(args.iev, args.icl)),
                     frames, 'GIF', duration=args.dura)
-
