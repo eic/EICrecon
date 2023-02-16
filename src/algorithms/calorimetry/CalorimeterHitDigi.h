@@ -73,7 +73,8 @@ public:
 
     // unitless counterparts of inputs
     double           dyRangeADC{0}, stepTDC{0}, tRes{0}, eRes[3] = {0., 0., 0.};
-    //Rndm::Numbers    m_normDist;
+    // variables for merging at digitization step
+    bool             merge_hits = false;
     std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask{0}, ref_mask{0};
 
