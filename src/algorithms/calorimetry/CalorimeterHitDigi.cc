@@ -64,9 +64,9 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     tRes       = m_tRes / dd4hep::ns;
     stepTDC    = dd4hep::ns / m_resolutionTDC;
 
-    // need signal sum
+    // all these are for signal sum at digitization level
+    merge_hits = false;
     if (!u_fields.empty()) {
-
         // sanity checks
         if (!m_geoSvc) {
             m_log->error("Unable to locate Geometry Service.");
@@ -91,13 +91,17 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             ref_mask = id_desc.encode(ref_fields);
             // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
-            m_log->warn("Failed to load ID decoder for {}", m_readout);
-            japp->Quit();
+            // a workaround to avoid breaking the whole analysis if a field is not in some configurations
+            // TODO: it should be a fatal error to not cause unexpected analysis results
+            m_log->warn("Failed to load ID decoder for {}, hits will not be merged.", m_readout);
+            // japp->Quit();
             return;
         }
         id_mask = ~id_mask;
         //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
         m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
+        // all checks passed
+        merge_hits = true;
     }
 }
 
@@ -122,7 +126,7 @@ void CalorimeterHitDigi::AlgorithmProcess()  {
     for( auto h : rawhits ) delete h;
     rawhits.clear();
 
-    if (!u_fields.empty()) {
+    if (merge_hits) {
         signal_sum_digi();
     } else {
         single_hits_digi();
@@ -191,15 +195,18 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
     }
 
     // signal sum
+    // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
     for (auto &[id, hits] : merge_map) {
         double edep     = hits[0]->getEnergy();
         double time     = hits[0]->getContributions(0).getTime();
         double max_edep = hits[0]->getEnergy();
+        auto   mid      = hits[0]->getCellID();
         // sum energy, take time from the most energetic hit
         for (size_t i = 1; i < hits.size(); ++i) {
             edep += hits[i]->getEnergy();
             if (hits[i]->getEnergy() > max_edep) {
                 max_edep = hits[i]->getEnergy();
+                mid = hits[i]->getCellID();
                 for (const auto& c : hits[i]->getContributions()) {
                     if (c.getTime() <= time) {
                         time = c.getTime();
@@ -225,7 +232,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         auto rawhit = new edm4hep::RawCalorimeterHit(
-                id,
+                mid,
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );

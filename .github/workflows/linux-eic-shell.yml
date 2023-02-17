@@ -47,7 +47,7 @@ jobs:
     - name: Configure ccache
       run: |
         mkdir -p ~/.ccache/
-        echo "cache_dir=${{ github.workspace }}/.ccache" >> ~/.ccache/ccache.conf
+        echo "cache_dir=${{ github.workspace }}/.ccache" > ~/.ccache/ccache.conf
         echo "max_size=500MB" >> ~/.ccache/ccache.conf
         echo "compression=true" >> ~/.ccache/ccache.conf
     - uses: cvmfs-contrib/github-action-cvmfs@v3
@@ -66,6 +66,8 @@ jobs:
           !src/
           !build/
           !apt_cache/
+          !.git/
+          !.ccache/
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:

@@ -9,7 +9,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterScFiDigi.h>
+#include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -18,7 +18,7 @@
 
 
 
-class RawCalorimeterHit_factory_EcalBarrelScFiRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterScFiDigi {
+class RawCalorimeterHit_factory_EcalBarrelScFiRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
@@ -34,7 +34,7 @@ public:
     void Init() override {
         auto app = GetApplication();
 
-        // Set default values for all config. parameters in CalorimeterScFiDigi algorithm
+        // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelScFiHits";
         u_eRes = {0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
@@ -46,9 +46,8 @@ public:
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
         m_readout="EcalBarrelScFiHits";
-        u_fields = {"fiber"};
-        u_refs = {1};
-        m_zsegment = "z";
+        u_fields = {"fiber", "z"};
+        u_refs = {1, 1};
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
@@ -66,7 +65,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:readoutClass",     m_readout);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRawHits:zSegment",         m_zsegment);
 
         // Call Init for generic algorithm
         AlgorithmInit(m_log);

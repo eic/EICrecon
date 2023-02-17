@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
 
@@ -75,6 +74,9 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
 
     for (const auto& pcl : proto) {
       auto cl = reconstruct(pcl);
+
+      // skip null clusters
+      if (cl == nullptr) continue;
 
       if (m_log->level() <= spdlog::level::debug) {
         //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / dd4hep::GeV << " GeV, (" << cl.getPosition().x / dd4hep::mm << ", " << cl.getPosition().y / dd4hep::mm << ", " << cl.getPosition().z / dd4hep::mm << ")" << LOG_END;
