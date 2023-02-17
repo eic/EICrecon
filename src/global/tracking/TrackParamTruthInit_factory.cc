@@ -35,7 +35,6 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     app->SetDefaultParameter(param_prefix + ":MinMomentum", cfg.m_minMomentum , "Minimum momentum for truth tracks turned into seed");
     app->SetDefaultParameter(param_prefix + ":MaxEtaForward", cfg.m_maxEtaForward , "Maximum forward abs(eta) for truth tracks turned into seed");
     app->SetDefaultParameter(param_prefix + ":MaxEtaBackward", cfg.m_maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed");
-    app->SetDefaultParameter(param_prefix + ":MomentumSplit", cfg.m_momentumSplit, "Momentum magnitude fraction to use as width for random trifurcation");
     app->SetDefaultParameter(param_prefix + ":MomentumSmear", cfg.m_momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing");
 
     // Initialize algorithm
