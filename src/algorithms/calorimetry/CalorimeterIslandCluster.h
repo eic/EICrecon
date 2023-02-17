@@ -242,5 +242,54 @@ private:
 
       return;
     }
-}
+
+    // split between maxima
+    // TODO, here we can implement iterations with profile, or even ML for better splits
+    std::vector<double> weights(maxima.size(), 1.);
+    std::vector<edm4eic::MutableProtoCluster> pcls;
+    for (size_t k = 0; k < maxima.size(); ++k) {
+      pcls.emplace_back();
+    }
+
+    size_t i = 0;
+    for (const auto& [idx, hit] : group) {
+      size_t j = 0;
+      // calculate weights for local maxima
+      for (const auto& chit : maxima) {
+        double dist_ref = chit->getDimension().x;
+        double energy   = chit->getEnergy();
+        double dist     = edm4eic::magnitude(hitsDist(chit, hit));
+        weights[j]      = std::exp(-dist / dist_ref) * energy;
+        j += 1;
+      }
+
+      // normalize weights
+      vec_normalize(weights);
+
+      // ignore small weights
+      for (auto& w : weights) {
+        if (w < 0.02) {
+          w = 0;
+        }
+      }
+      vec_normalize(weights);
+
+      // split energy between local maxima
+      for (size_t k = 0; k < maxima.size(); ++k) {
+        double weight = weights[k];
+        if (weight <= 1e-6) {
+          continue;
+        }
+        pcls[k].addToHits(*hit);
+        pcls[k].addToWeights(weight);
+      }
+      i += 1;
+    }
+    for (auto& pcl : pcls) {
+      proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
+    }
+    if (m_log->level() <= spdlog::level::info) {
+      m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
+    }
+  }
 };
