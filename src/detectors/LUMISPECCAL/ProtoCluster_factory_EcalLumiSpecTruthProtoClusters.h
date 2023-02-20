@@ -27,7 +27,7 @@ public:
     void Init() override{
         auto app = GetApplication();
         m_inputHit_tag="EcalLumiSpecRecHits";
-        m_inputMCHit_tag="EcalLumiSpecHits";
+        m_inputMCHit_tag="LumiSpecCALHits";
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
 

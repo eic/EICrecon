@@ -42,7 +42,7 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalLumiSpecHits";
+        m_input_simhit_tag="LumiSpecCALHits";
         m_input_protoclust_tag="EcalLumiSpecTruthProtoClusters";
     
         m_sampFrac=0.03;//{this, "samplingFraction", 1.0};
