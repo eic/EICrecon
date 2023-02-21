@@ -34,6 +34,7 @@
 #include <services/geometry/acts/ACTSGeo_service.h>
 #include <services/log/Log_service.h>
 #include <spdlog/spdlog.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
 
 class tracking_studiesProcessor : public JEventProcessorSequentialRoot {
 private:
@@ -57,17 +58,20 @@ public:
   void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
   void FinishWithGlobalRootLock() override;
   TDirectory* m_dir_main;
-  TH1D* hPosTestX;
+  TH2D* hPosTestRZ;
   TH2D* hThetaResoVsEta;
   TH2D* hThetaResoVsP;
   TH2D* hPhiResoVsEta;
   TH2D* hPhiResoVsP;
   TH3D* nHitsTrackVsEtaVsP;
+  TH3D* hThetaResoVsEtaVsP;
+  TH3D* hPhiResoVsEtaVsP;
   int nTracksFilled = 0;
   int nEventsFilled = 0;
   TH3D* nHitsEventVsEtaVsP;
   std::shared_ptr<spdlog::logger> m_log;
   // Acts::GeometryContext geoContext;
+  std::shared_ptr<JDD4hep_service> m_geoSvc;
 
   /// Tracking propagation algorithm
   eicrecon::TrackPropagation m_propagation_algo;
