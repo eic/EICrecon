@@ -11,6 +11,7 @@
 #include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include <cctype>
 
 using namespace dd4hep;
 
@@ -37,7 +38,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
     try{
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
-    }catch(...){
+    } catch(...) {
         m_log->warn("Failed to get idSpec for {}", m_readout);
         return;
     }
@@ -61,7 +62,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             std::stringstream readouts;
             for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
             m_log->warn("Available readouts: {}", readouts.str() );
-        }else {
+        } else {
             m_log->warn("Failed to find field index for {}.", m_readout);
             if (!m_sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_sectorField); }
             if (!m_layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_layerField); }
@@ -123,7 +124,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    if( NcellIDerrors >= MaxCellIDerrors) return;
+    if (NcellIDerrors >= MaxCellIDerrors) return;
 
     auto converter = m_geoSvc->cellIDPositionConverter();
     for (const auto rh: rawhits) {
@@ -154,6 +155,26 @@ void CalorimeterHitReco::AlgorithmProcess() {
             // global positions
             gpos = converter->position(cellID);
 
+            // masked position (look for a mother volume)
+            if (gpos_mask != 0) {
+                auto mpos = converter->position(cellID & ~gpos_mask);
+                for (const char &c : m_mask_position) {
+                    switch (std::tolower(c)) {
+                    case 'x':
+                        gpos.SetX(mpos.X());
+                        break;
+                    case 'y':
+                        gpos.SetY(mpos.Y());
+                        break;
+                    case 'z':
+                        gpos.SetZ(mpos.Z());
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
             // local positions
             if (m_localDetElement.empty()) {
                 auto volman = m_geoSvc->detector()->volumeManager();
@@ -162,7 +183,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
         } catch (...) {
             // Error looking up cellID. Messages should already have been printed.
             // Also, see comment at top of this method.
-            if( ++NcellIDerrors >= MaxCellIDerrors ){
+            if (++NcellIDerrors >= MaxCellIDerrors) {
                 m_log->error("Maximum number of errors reached: {}", MaxCellIDerrors);
                 m_log->error("This is likely an issue with the cellID being unknown.");
                 m_log->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
