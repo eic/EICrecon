@@ -74,10 +74,10 @@ public:
 
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
-  std::string m_localDetElement="";
-  std::vector<std::string> u_localDetFields={};
+  std::string m_localDetElement="", m_mask_position="";
+  std::vector<std::string> u_localDetFields={}, u_posMaskFields;
   dd4hep::DetElement local;
-  size_t local_mask = ~0;
+  size_t local_mask = ~0, gpos_mask = 0;
 
     std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
