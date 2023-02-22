@@ -11,6 +11,7 @@
 #include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include <cctype>
 
 using namespace dd4hep;
 
@@ -37,7 +38,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
     try{
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
-    }catch(...){
+    } catch(...) {
         m_log->warn("Failed to get idSpec for {}", m_readout);
         return;
     }
@@ -55,20 +56,32 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             layer_idx = id_dec->index(m_layerField);
             m_log->info("Find layer field {}, index = {}", m_layerField, sector_idx);
         }
+        if (!u_maskPosFields.empty()) {
+            size_t tmp_mask = 0;
+            for (auto &field : u_maskPosFields) {
+                tmp_mask |= id_spec.field(field)->mask();
+            }
+            // assign this mask if all fields succeed
+            gpos_mask = tmp_mask;
+        }
     } catch (...) {
-        if( !id_dec ) {
+        if (!id_dec) {
             m_log->warn("Failed to load ID decoder for {}", m_readout);
             std::stringstream readouts;
             for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
             m_log->warn("Available readouts: {}", readouts.str() );
-        }else {
+        } else {
             m_log->warn("Failed to find field index for {}.", m_readout);
             if (!m_sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_sectorField); }
             if (!m_layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_layerField); }
+            if (!u_maskPosFields.empty()) {
+                m_log->warn(" -- looking for masking fields  \"{}\".", fmt::join(u_maskPosFields, ", "));
+            }
             std::stringstream fields;
             for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
             m_log->warn("Available fields: {}", fields.str() );
             m_log->warn("n.b. The local position, sector id and layer id will not be correct for this.");
+            m_log->warn("Position masking may not be applied.");
             m_log->warn("however, the position, energy, and time values should still be good.");
         }
 
@@ -123,7 +136,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    if( NcellIDerrors >= MaxCellIDerrors) return;
+    if (NcellIDerrors >= MaxCellIDerrors) return;
 
     auto converter = m_geoSvc->cellIDPositionConverter();
     for (const auto rh: rawhits) {
@@ -153,6 +166,27 @@ void CalorimeterHitReco::AlgorithmProcess() {
             // global positions
             gpos = converter->position(cellID);
 
+            // masked position (look for a mother volume)
+            if (gpos_mask != 0) {
+                auto mpos = converter->position(cellID & ~gpos_mask);
+                // replace corresponding coords
+                for (const char &c : m_maskPos) {
+                    switch (std::tolower(c)) {
+                    case 'x':
+                        gpos.SetX(mpos.X());
+                        break;
+                    case 'y':
+                        gpos.SetY(mpos.Y());
+                        break;
+                    case 'z':
+                        gpos.SetZ(mpos.Z());
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
             // local positions
             if (m_localDetElement.empty()) {
                 auto volman = m_geoSvc->detector()->volumeManager();
@@ -161,7 +195,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
         } catch (...) {
             // Error looking up cellID. Messages should already have been printed.
             // Also, see comment at top of this method.
-            if( ++NcellIDerrors >= MaxCellIDerrors ){
+            if (++NcellIDerrors >= MaxCellIDerrors) {
                 m_log->error("Maximum number of errors reached: {}", MaxCellIDerrors);
                 m_log->error("This is likely an issue with the cellID being unknown.");
                 m_log->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
