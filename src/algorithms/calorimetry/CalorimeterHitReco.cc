@@ -56,8 +56,16 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             layer_idx = id_dec->index(m_layerField);
             m_log->info("Find layer field {}, index = {}", m_layerField, sector_idx);
         }
+        if (!u_maskPosFields.empty()) {
+            size_t tmp_mask = 0;
+            for (auto &field : u_maskPosFields) {
+                tmp_mask |= id_spec.field(field)->mask();
+            }
+            // assign this mask if all fields succeed
+            gpos_mask = tmp_mask;
+        }
     } catch (...) {
-        if( !id_dec ) {
+        if (!id_dec) {
             m_log->warn("Failed to load ID decoder for {}", m_readout);
             std::stringstream readouts;
             for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
@@ -66,10 +74,14 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             m_log->warn("Failed to find field index for {}.", m_readout);
             if (!m_sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_sectorField); }
             if (!m_layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_layerField); }
+            if (!u_maskPosFields.empty()) {
+                m_log->warn(" -- looking for masking fields  \"{}\".", fmt::join(u_maskPosFields, ", "));
+            }
             std::stringstream fields;
             for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
             m_log->warn("Available fields: {}", fields.str() );
             m_log->warn("n.b. The local position, sector id and layer id will not be correct for this.");
+            m_log->warn("Position masking may not be applied.");
             m_log->warn("however, the position, energy, and time values should still be good.");
         }
 
@@ -158,7 +170,8 @@ void CalorimeterHitReco::AlgorithmProcess() {
             // masked position (look for a mother volume)
             if (gpos_mask != 0) {
                 auto mpos = converter->position(cellID & ~gpos_mask);
-                for (const char &c : m_mask_position) {
+                // replace corresponding coords
+                for (const char &c : m_maskPos) {
                     switch (std::tolower(c)) {
                     case 'x':
                         gpos.SetX(mpos.X());

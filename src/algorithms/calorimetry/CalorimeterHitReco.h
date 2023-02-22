@@ -74,8 +74,8 @@ public:
 
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
-  std::string m_localDetElement="", m_mask_position="";
-  std::vector<std::string> u_localDetFields={}, u_posMaskFields;
+  std::string m_localDetElement="", m_maskPos="";
+  std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
   size_t local_mask = ~0, gpos_mask = 0;
 
