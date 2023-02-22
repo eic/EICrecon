@@ -86,9 +86,9 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   nHitsEventVsEtaVsP->SetDirectory(m_dir_main);
 
   hThetaResoVsEtaVsP =
-      new TH3D("hThetaResoVsEtaVsP", "", 400, -4, 4, 1000, -0.1, 0.1, 400, 0, 20);
+      new TH3D("hThetaResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
   hPhiResoVsEtaVsP =
-      new TH3D("hPhiResoVsEtaVsP", "", 400, -4, 4, 1000, -0.1, 0.1, 400, 0, 20);
+      new TH3D("hPhiResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
   hThetaResoVsEtaVsP->SetDirectory(m_dir_main);
   hPhiResoVsEtaVsP->SetDirectory(m_dir_main);
 
