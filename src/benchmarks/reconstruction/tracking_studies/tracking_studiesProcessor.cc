@@ -435,8 +435,8 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       "MPGDBarrelHits",    // MPGD
       "VertexBarrelHits",  // Vertex
       "TrackerEndcapHits", // End Cap tracker
-      // "TOFEndcapHits",     // End Cap TOF
-      // "TOFBarrelHits",     // Barrel TOF
+      "TOFEndcapHits",     // End Cap TOF
+      "TOFBarrelHits",     // Barrel TOF
       // "DRICHHits",        // Barrel TOF
       "MPGDDIRCHits", // Barrel TOF
                       "DIRCBarHits"
