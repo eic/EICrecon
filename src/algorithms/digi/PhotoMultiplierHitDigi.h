@@ -35,7 +35,8 @@ public:
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::RawPMTHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    std::vector<edm4eic::RawPMTHit*> AlgorithmProcess(dd4hep::Detector *detector, std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    // std::vector<edm4eic::RawPMTHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
@@ -70,5 +71,6 @@ private:
     void qe_init();
     template<class RndmIter, typename T, class Compare> RndmIter interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const;
     bool qe_pass(double ev, double rand) const;
+    bool Noise_Digits(float noise_rate, int time_windows) const;
 };
 }
