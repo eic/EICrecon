@@ -23,7 +23,11 @@ plugin_glob_all(${PLUGIN_NAME})
 # (same as target_include_directories but for both plugin and library)
 plugin_include_directories(${PLUGIN_NAME}
         SYSTEM PUBLIC
-            ${ROOT_INCLUDE_DIRS})
+            ${EDM4EIC_INCLUDE_DIR}
+            ${podio_INCLUDE_DIR}
+            ${EDM4HEP_INCLUDE_DIR}
+            ${ROOT_INCLUDE_DIRS}
+            ${Acts_INCLUDE_DIRS})
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
