@@ -194,7 +194,7 @@ private:
           continue;
         }
 
-        if (is_neighbour(hit, hit2) && hit2->getEnergy() > hit->getEnergy()) {
+        if (is_neighbour(hit, hit2) && (hit2->getEnergy() > hit->getEnergy())) {
           maximum = false;
           break;
         }
