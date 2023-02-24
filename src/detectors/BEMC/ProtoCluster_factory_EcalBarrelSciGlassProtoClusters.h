@@ -37,8 +37,17 @@ public:
         // Magic constants:
         //  24 - number of sectors
         //  5  - number of towers per sector
-        u_adjacencyMatrix = "(abs(tower_1 - tower_2) + min(abs((sector_1 - sector_2) * 5 + row_1 - row_2), 24 * 5 - abs((sector_1 - sector_2) * 5 + row_1 - row_2))) == 1";
-        std::remove(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ' ');
+        u_adjacencyMatrix = "
+        (
+          abs(tower_1 - tower_2)
+        + min(
+              abs((sector_1 - sector_2) * 5 + row_1 - row_2),
+              24 * 5 - abs((sector_1 - sector_2) * 5 + row_1 - row_2)
+          )
+        ) == 1";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
         m_readout = "EcalBarrelSciGlassHits";
 
         // neighbour checking distances
