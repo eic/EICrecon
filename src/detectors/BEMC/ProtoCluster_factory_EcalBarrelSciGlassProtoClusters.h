@@ -37,6 +37,7 @@ public:
         // Magic constants:
         //  24 - number of sectors
         //  5  - number of towers per sector
+        // The following compares distance of 1 to a taxicab metric on a cylinder that is our calorimeter:
         u_adjacencyMatrix = "
         (
           abs(tower_1 - tower_2)
