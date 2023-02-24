@@ -64,7 +64,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-std::vector<edm4eic::RawPMTHit*>
+std::vector<edm4eic::RawTrackerHit*>
 eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
@@ -131,10 +131,10 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
               m_log->trace("hit_group: pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
 
         // build raw hits
-        std::vector<edm4eic::RawPMTHit*> raw_hits;
+        std::vector<edm4eic::RawTrackerHit*> raw_hits;
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
-                edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
+                edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{
                   it.first,
                   static_cast<uint32_t>(data.signal),
                   static_cast<uint32_t>(data.time/m_cfg.timeStep)
