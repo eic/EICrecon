@@ -130,6 +130,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
           std::stringstream sstr;
           eval.print_error(sstr);
           m_log->error(sstr.str());
+          japp->Quit();
         }
         m_log->debug("result = {}", eval.result());
         return eval.result();
