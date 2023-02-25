@@ -16,7 +16,6 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "log",
         "dd4hep",
         "acts",
-        "richgeo",
         "rich",
         "rootfile",
         "algorithms_calorimetry",
