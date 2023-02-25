@@ -116,7 +116,7 @@ include(cmake/print_subdirectory_tree.cmake)                # Prints processed s
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
-add_definition(-D__GXX_MERGED_TYPEINFO_NAMES=1)
+add_definitions(-D__GXX_MERGED_TYPEINFO_NAMES=1)
 
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
