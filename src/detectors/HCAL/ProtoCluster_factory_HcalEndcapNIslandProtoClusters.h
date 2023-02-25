@@ -39,12 +39,15 @@ public:
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        u_localDistXY={15*dd4hep::mm, 15*dd4hep::mm};     //{this, "localDistXY", {}};
+            //{this, "localDistXY", {}};
+        //u_localDistXY={15*dd4hep::cm, 15*dd4hep::cm};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={15.0*dd4hep::mm, 15.0*dd4hep::mm};// from ATHENA's reconstruction.py
+        ///u_dimScaledLocalDistXY={15.0*dd4hep::mm, 15.0*dd4hep::mm};// from ATHENA's reconstruction.py
+        u_dimScaledLocalDistXY={1.5, 1.5};
+        u_localDistXY={25*dd4hep::cm, 25*dd4hep::cm}; 
 
 
         app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:splitCluster",             m_splitCluster);

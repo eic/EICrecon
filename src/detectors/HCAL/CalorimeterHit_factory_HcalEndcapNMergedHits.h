@@ -27,7 +27,7 @@ public:
 
         m_readout="HcalEndcapNHits";
         u_fields={"layer", "slice"};  // from ATHENA's reconstruction.py
-        u_refs={1, 0};                // from ATHENA's reconstruction.py
+        u_refs={1, 2};                // from ATHENA's reconstruction.py
 
         m_geoSvc= app->GetService<JDD4hep_service>();
 

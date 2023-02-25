@@ -29,7 +29,9 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="HcalEndcapNHits";
+        /////m_input_simhit_tag="HcalEndcapNHits";
+        ////m_input_simhit_tag="HcalEndcapNMergedHits";
+        ////m_input_tag = "HcalEndcapNMergedHits";
         m_input_protoclust_tag="HcalEndcapNIslandProtoClusters";
 
         m_sampFrac=1.0;// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/bf366a35b480cda6c610b0dd6a4d4efcfd9a8e03/JugReco/src/components/ClusterRecoCoG.cpp
@@ -46,7 +48,7 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:samplingFraction",             m_sampFrac);
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:logWeightBase",  m_logWeightBase);
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("HCAL:HcalEndcapNClusters:input_simhit_tag", m_input_simhit_tag);
+        /////app->SetDefaultParameter("HCAL:HcalEndcapNClusters:input_simhit_tag", m_input_simhit_tag);
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:input_protoclust_tag", m_input_protoclust_tag);
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:energyWeight",   m_energyWeight);
         app->SetDefaultParameter("HCAL:HcalEndcapNClusters:moduleDimZName",   m_moduleDimZName);
@@ -69,7 +71,9 @@ public:
 
 
         // Prefill inputs
-        m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
+        //m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
+        ////m_inputSimhits=event->Get<edm4eic::CalorimeterHit>(m_input_simhit_tag);
+        ///hits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
         m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
