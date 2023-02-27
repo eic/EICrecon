@@ -10,9 +10,9 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
 
   // logging service
   auto log_service = srv_locator->get<Log_service>();
-  m_log = log_service->logger("rich");
+  m_log = log_service->logger("richgeo");
   std::string log_level_str = "info";
-  m_app->SetDefaultParameter("rich:LogLevel", log_level_str, "Log level for RichGeo_service");
+  m_app->SetDefaultParameter("richgeo:LogLevel", log_level_str, "Log level for RichGeo_service");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
   m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
 
@@ -25,7 +25,7 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
 }
 
 // IrtGeo -----------------------------------------------------------
-rich::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
+richgeo::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
 
   // initialize, if not yet initialized
   try {
@@ -35,8 +35,8 @@ rich::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
       // instantiate IrtGeo-derived object, depending on detector
       auto which_rich = detector_name;
       std::transform(which_rich.begin(), which_rich.end(), which_rich.begin(), ::toupper);
-      if     ( which_rich=="DRICH"  ) m_irtGeo = new rich::IrtGeoDRICH(m_dd4hepGeo,  m_verbose);
-      else if( which_rich=="PFRICH" ) m_irtGeo = new rich::IrtGeoPFRICH(m_dd4hepGeo, m_verbose);
+      if     ( which_rich=="DRICH"  ) m_irtGeo = new richgeo::IrtGeoDRICH(m_dd4hepGeo,  m_verbose);
+      else if( which_rich=="PFRICH" ) m_irtGeo = new richgeo::IrtGeoPFRICH(m_dd4hepGeo, m_verbose);
       else throw JException(fmt::format("IrtGeo is not defined for detector '{}'",detector_name));
     };
     std::call_once(m_init_irt, initialize);
@@ -49,13 +49,13 @@ rich::IrtGeo *RichGeo_service::GetIrtGeo(std::string detector_name) {
 }
 
 // ActsGeo -----------------------------------------------------------
-rich::ActsGeo *RichGeo_service::GetActsGeo(std::string detector_name) {
+richgeo::ActsGeo *RichGeo_service::GetActsGeo(std::string detector_name) {
   // initialize, if not yet initialized
   try {
     m_log->debug("Call RichGeo_service::GetActsGeo initializer");
     auto initialize = [this,&detector_name] () {
       if(!m_dd4hepGeo) throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
-      m_actsGeo = new rich::ActsGeo(detector_name, m_dd4hepGeo, m_verbose);
+      m_actsGeo = new richgeo::ActsGeo(detector_name, m_dd4hepGeo, m_verbose);
     };
     std::call_once(m_init_acts, initialize);
   }

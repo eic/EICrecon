@@ -14,7 +14,7 @@
 #include <algorithms/tracking/TrackPropagation.h>
 
 // services
-#include <services/geometry/rich/RichGeo_service.h>
+#include <services/geometry/richgeo/RichGeo_service.h>
 #include <services/geometry/acts/ACTSGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
@@ -44,7 +44,7 @@ namespace eicrecon {
       std::string m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
       std::shared_ptr<ACTSGeo_service> m_actsSvc;
-      rich::ActsGeo *m_actsGeo;
+      richgeo::ActsGeo *m_actsGeo;
       std::vector<std::shared_ptr<Acts::Surface>> m_trackingPlanes;
       int m_numPlanes;
       int m_radiatorID;

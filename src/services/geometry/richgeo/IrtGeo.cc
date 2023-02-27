@@ -6,14 +6,14 @@
 #include "IrtGeo.h"
 
 // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-rich::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_) :
+richgeo::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_) :
   m_detName(detName_), m_det(det_), m_log(Logger::Instance(verbose_))
 {
   Bind();
 }
 
 // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-rich::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbose_) :
+richgeo::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbose_) :
   m_detName(detName_), m_log(Logger::Instance(verbose_))
 {
   // compact file name; if it's not been specified, try to find the default one
@@ -37,7 +37,7 @@ rich::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbos
 }
 
 // set IRT and DD4hep geometry handles
-void rich::IrtGeo::Bind() {
+void richgeo::IrtGeo::Bind() {
   // DD4hep geometry handles
   m_detRich = m_det->detector(m_detName);
   m_posRich = m_detRich.placement().position();
@@ -46,7 +46,7 @@ void rich::IrtGeo::Bind() {
   m_irtDetector = m_irtDetectorCollection->AddNewDetector(m_detName.c_str());
 }
 
-rich::IrtGeo::~IrtGeo() {
+richgeo::IrtGeo::~IrtGeo() {
   if(m_irtDetector) delete m_irtDetector;
   if(m_irtDetectorCollection) delete m_irtDetectorCollection;
 }
