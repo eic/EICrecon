@@ -38,9 +38,9 @@ public:
         m_readout = "";
 
         // neighbour checking distances
-        m_sectorDist=5.0 * dd4hep::cm;             // ?
+        m_sectorDist=50. * dd4hep::mm;             // connects hits from different sectors
         u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={30 * dd4hep::mm, 30 * dd4hep::mm};     //{this, "localDistXZ", {}};  n.b. 30 * dd4hep::mm, 30 * dd4hep::mm came from comment Maria Z. put into PR.
+        u_localDistXZ={40 * dd4hep::mm, 40 * dd4hep::mm};     //{this, "localDistXZ", {}};  n.b. 30 * dd4hep::mm, 30 * dd4hep::mm came from comment Maria Z. put into PR.
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};

@@ -8,7 +8,7 @@
 
 #include "IrtGeo.h"
 
-namespace rich {
+namespace richgeo {
   class IrtGeoPFRICH : public IrtGeo {
 
     public:

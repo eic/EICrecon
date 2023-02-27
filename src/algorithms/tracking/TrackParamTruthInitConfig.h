@@ -14,7 +14,6 @@ struct TrackParamTruthInitConfig {
     double m_minMomentum      = 100 * Acts::UnitConstants::MeV;
     double m_maxEtaForward    = 4.0;
     double m_maxEtaBackward   = 4.1;
-    double m_momentumSplit    = 0.0;
-    double m_momentumSmear    = 0.0;
+    double m_momentumSmear    = 0.1;
 
 };

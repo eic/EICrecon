@@ -19,11 +19,11 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 // richgeo
-#include "richgeo/RichGeo.h"
-#include "richgeo/IrtGeo.h"
-#include "richgeo/IrtGeoDRICH.h"
-#include "richgeo/IrtGeoPFRICH.h"
-#include "richgeo/ActsGeo.h"
+#include "RichGeo.h"
+#include "IrtGeo.h"
+#include "IrtGeoDRICH.h"
+#include "IrtGeoPFRICH.h"
+#include "ActsGeo.h"
 
 class RichGeo_service : public JService {
   public:
@@ -34,8 +34,8 @@ class RichGeo_service : public JService {
     dd4hep::Detector *GetDD4hepGeo() { return m_dd4hepGeo; };
 
     // return pointers to geometry bindings; initializes the bindings upon the first time called
-    rich::IrtGeo *GetIrtGeo(std::string detector_name);
-    rich::ActsGeo *GetActsGeo(std::string detector_name);
+    richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
+    richgeo::ActsGeo *GetActsGeo(std::string detector_name);
 
   private:
     RichGeo_service() = default;
@@ -45,8 +45,8 @@ class RichGeo_service : public JService {
     std::once_flag   m_init_acts;
     JApplication     *m_app       = nullptr;
     dd4hep::Detector *m_dd4hepGeo = nullptr;
-    rich::IrtGeo     *m_irtGeo    = nullptr;
-    rich::ActsGeo    *m_actsGeo   = nullptr;
+    richgeo::IrtGeo  *m_irtGeo    = nullptr;
+    richgeo::ActsGeo *m_actsGeo   = nullptr;
 
     std::shared_ptr<spdlog::logger> m_log;
     bool m_verbose;

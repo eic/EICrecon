@@ -24,7 +24,7 @@
 // local
 #include "RichGeo.h"
 
-namespace rich {
+namespace richgeo {
   class IrtGeo {
     public:
 
