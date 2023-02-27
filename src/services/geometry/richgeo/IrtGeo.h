@@ -53,7 +53,7 @@ namespace richgeo {
 
       // cell ID conversion
       std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
-      std::unordered_map<int,rich::Sensor> m_sensor; // sensor ID -> sensor info
+      std::unordered_map<int,richgeo::Sensor> m_sensor; // sensor ID -> sensor info
 
       // IRT geometry handles
       CherenkovDetectorCollection *m_irtDetectorCollection;

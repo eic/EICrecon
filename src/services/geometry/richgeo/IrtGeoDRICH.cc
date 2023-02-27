@@ -142,7 +142,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
         auto posSensorSurface = posSensor + surfaceOffset;
         // - add to `m_sensor` map
-        rich::Sensor sensor_info;
+        richgeo::Sensor sensor_info;
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensorSurface;
         sensor_info.surface_offset   = surfaceOffset;

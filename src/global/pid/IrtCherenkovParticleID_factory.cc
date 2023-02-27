@@ -62,10 +62,10 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
         raw_hits.insert(raw_hits.end(), in.begin(), in.end());
       }
       else {
-        auto radiator_id = rich::ParseRadiatorName(input_tag);
+        auto radiator_id = richgeo::ParseRadiatorName(input_tag);
         if(radiator_id>=0) {
           auto in = event->Get<edm4eic::TrackSegment>(input_tag);
-          charged_particles.insert({ rich::RadiatorName(radiator_id), in });
+          charged_particles.insert({ richgeo::RadiatorName(radiator_id), in });
         }
         else
           m_log->error("Unknown input collection '{}'", input_tag);

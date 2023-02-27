@@ -76,7 +76,7 @@ void richgeo::IrtGeo::Bind() {
 // ------------------------------------------------
 
 // fill table of refractive indices
-void rich::IrtGeo::SetRefractiveIndexTable() {
+void richgeo::IrtGeo::SetRefractiveIndexTable() {
   m_log.PrintLog("{:-^60}"," Refractive Index Tables ");
   for(auto rad_obj : m_irtDetector->Radiators()) {
     m_log.PrintLog("{}:", rad_obj.first);
