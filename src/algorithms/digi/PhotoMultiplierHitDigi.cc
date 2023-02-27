@@ -136,8 +136,8 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             for (auto &data : it.second) {
                 edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{
                   it.first,
-                  static_cast<uint32_t>(data.signal),
-                  static_cast<uint32_t>(data.time/m_cfg.timeStep)
+                  static_cast<int32_t>(data.signal),
+                  static_cast<int32_t>(data.time/m_cfg.timeStep)
                   //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
