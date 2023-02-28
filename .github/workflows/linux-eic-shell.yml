@@ -219,7 +219,7 @@ jobs:
         particle: [pi, e]
         detector_config: [arches, brycecanyon]
     env:
-      ASAN_OPTIONS: malloc_context_size=20:verify_asan_link_order=0:detect_stack_use_after_return=true:halt_on_error=false
+      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=true:halt_on_error=false
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -268,7 +268,7 @@ jobs:
         - beam: 5x41
           minq2: 1000
     env:
-      ASAN_OPTIONS: malloc_context_size=20:verify_asan_link_order=0:detect_stack_use_after_return=true:halt_on_error=false
+      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=true:halt_on_error=false
     steps:
     - uses: actions/download-artifact@v3
       with:
