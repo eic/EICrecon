@@ -117,12 +117,25 @@ include(cmake/jana_plugin.cmake)                            # Add common setting
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 
+# Address sanitizer
+if (${USE_ASAN})
+    add_compile_options(-fsanitize=address -g -O2)
+    add_link_options(-fsanitize=address)
+endif()
+
+# Thread sanitizer 
+if (${USE_TSAN})
+    add_compile_options(-fsanitize=thread -g -O2)
+    add_link_options(-fsanitize=thread)
+endif()
+
+
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
 # ------------------------------------------------------------------
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
-add_subdirectory( src/benchmarks )
+add_subdirectory( src/benchmarks ) 
 add_subdirectory( src/detectors )
 add_subdirectory( src/examples )
 add_subdirectory( src/global )
