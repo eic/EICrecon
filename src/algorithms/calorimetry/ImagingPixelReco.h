@@ -36,7 +36,7 @@ protected:
     // length unit (from dd4hep geometry service)
     double m_lUnit; // {this, "lengthUnit", dd4hep::mm};
     // digitization parameters
-    unsigned int m_capADC; // {this, "capacitysize_tADC", 8096};
+    unsigned int m_capADC; // {this, "capacityADC", 8096};
     unsigned int m_pedMeanADC; // {this, "pedestalMean", 400};
     double m_dyRangeADC; // {this, "dynamicRangeADC", 100 * dd4hep::MeV};
     double m_pedSigmaADC; // {this, "pedestalSigma", 3.2};
