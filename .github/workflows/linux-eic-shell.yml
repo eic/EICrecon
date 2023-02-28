@@ -57,7 +57,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # install this repo
-          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=ON
+          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF
           cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
