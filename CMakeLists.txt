@@ -118,12 +118,14 @@ list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modul
 
 
 # Address sanitizer
+option(USE_ASAN "Compile with address sanitizer" OFF)
 if (${USE_ASAN})
     add_compile_options(-fsanitize=address -g -O2)
     add_link_options(-fsanitize=address)
 endif()
 
 # Thread sanitizer
+option(USE_TSAN "Compile with thread sanitizer" OFF)
 if (${USE_TSAN})
     add_compile_options(-fsanitize=thread -g -O2)
     add_link_options(-fsanitize=thread)
