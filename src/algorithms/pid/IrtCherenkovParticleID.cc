@@ -96,7 +96,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmChangeRun() {
 // AlgorithmProcess
 //---------------------------------------------------------------------------
 std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
-    std::vector<const edm4eic::RawPMTHit*>& in_raw_hits,
+    std::vector<const edm4eic::RawTrackerHit*>& in_raw_hits,
     std::map<std::string,std::vector<const edm4eic::TrackSegment*>>& in_charged_particles
     )
 {

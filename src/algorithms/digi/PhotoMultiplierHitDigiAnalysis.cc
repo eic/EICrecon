@@ -28,11 +28,11 @@ void eicrecon::PhotoMultiplierHitDigiAnalysis::AlgorithmInit(std::shared_ptr<spd
 
 // AlgorithmProcess
 //---------------------------------------------------------------------------
-void eicrecon::PhotoMultiplierHitDigiAnalysis::AlgorithmProcess(std::vector<const edm4eic::RawPMTHit*> hits) {
+void eicrecon::PhotoMultiplierHitDigiAnalysis::AlgorithmProcess(std::vector<const edm4eic::RawTrackerHit*> hits) {
   m_log->trace("{:=^70}"," call PhotoMultiplierHitDigiAnalysis::AlgorithmProcess ");
   // loop over digitized hits
   for(const auto& hit : hits) {
-    auto adc = hit->getIntegral();
+    auto adc = hit->getCharge();
     auto tdc = hit->getTimeStamp();
     m_adc_dist->Fill(adc);
     m_tdc_dist->Fill(tdc);

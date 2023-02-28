@@ -32,7 +32,7 @@ namespace eicrecon {
     private:
 
       // input collections // FIXME: generalize for other RICHes
-      PrefetchT<edm4eic::RawPMTHit> m_digi_hits = {this, "DRICHRawHits"};
+      PrefetchT<edm4eic::RawTrackerHit> m_digi_hits = {this, "DRICHRawHits"};
 
       // underlying algorithms
       eicrecon::PhotoMultiplierHitDigiAnalysis m_analysis_algo;

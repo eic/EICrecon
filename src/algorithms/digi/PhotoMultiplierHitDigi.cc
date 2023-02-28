@@ -64,8 +64,10 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-std::vector<edm4eic::RawPMTHit*>
-eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
+eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
+    std::vector<const edm4hep::SimTrackerHit*>& sim_hits
+    )
+{
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
         struct HitData {
@@ -75,7 +77,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           dd4hep::Position pos;
           edm4hep::MCParticle photon;
         };
-        std::unordered_map<decltype(edm4eic::RawPMTHitData::cellID), std::vector<HitData>> hit_groups;
+        std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
@@ -103,7 +105,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             // cell time, signal amplitude, truth photon
             auto   time = ahit->getTime();
             double amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-            auto   phot = ahit->getMCParticle();
+            auto   phot = ahit->getMCParticle(); // TODO::::::::::::::::::::::::::::: what happens here if we don't have photons enabled?
 
             // group hits
             auto it = hit_groups.find(id);
@@ -137,25 +139,25 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             for(auto &hit : hitVec)
               m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
 
-        // build raw hits
-        std::vector<edm4eic::RawPMTHit*> raw_hits;
+        // build output `PhotoMultiplierHitDigiResult`
+        PhotoMultiplierHitDigiResult result;
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
-                edm4eic::MutableRawPMTHit hit;
+                edm4eic::MutableRawTrackerHit hit;
                 hit.setCellID(it.first);
-                hit.setIntegral(  static_cast<decltype(edm4eic::RawPMTHitData::integral)>  (data.signal)              );
-                hit.setTimeStamp( static_cast<decltype(edm4eic::RawPMTHitData::timeStamp)> (data.time*m_cfg.timeStep) );
-                hit.setPhoton(data.photon);
+                hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)              );
+                hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time*m_cfg.timeStep) );
                 // hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
-                raw_hits.push_back(new edm4eic::RawPMTHit(hit)); // force immutable
-                m_log->trace("raw_hit: cellID={:#X} -> integral={} timeStamp={}",
+                result.raw_hits.push_back(new edm4eic::RawTrackerHit(hit)); // force immutable
+                result.photons.push_back(data.photon);
+                m_log->trace("raw_hit: cellID={:#X} -> charge={} timeStamp={}",
                     hit.getCellID(),
-                    hit.getIntegral(),
+                    hit.getCharge(),
                     hit.getTimeStamp()
                     );
             }
         }
-        return raw_hits;
+        return result;
 
 }
 

@@ -53,12 +53,12 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   // accumulate input collections
   // - if `input_tag` contains `Hits`, add to `raw_hits`
   // - if `input_tag` contains `Tracks`, add to `charged_particles`
-  std::vector<const edm4eic::RawPMTHit*> raw_hits;
+  std::vector<const edm4eic::RawTrackerHit*> raw_hits;
   std::map<std::string,std::vector<const edm4eic::TrackSegment*>> charged_particles; // map : radiator_name -> list of TrackSegments
   for(const auto &input_tag: GetInputTags()) {
     try {
       if(input_tag.find("Hits") != std::string::npos) {
-        auto in = event->Get<edm4eic::RawPMTHit>(input_tag);
+        auto in = event->Get<edm4eic::RawTrackerHit>(input_tag);
         raw_hits.insert(raw_hits.end(), in.begin(), in.end());
       }
       else {

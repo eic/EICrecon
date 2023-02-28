@@ -18,7 +18,7 @@
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/RawPMTHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
 
@@ -27,6 +27,11 @@
 
 namespace eicrecon {
 
+struct PhotoMultiplierHitDigiResult {
+  std::vector<edm4eic::RawTrackerHit*> raw_hits;
+  std::vector<edm4eic::MCRecoTrackerHitAssociation> hit_assoc;
+}
+
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
 public:
@@ -34,7 +39,7 @@ public:
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::RawPMTHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    PhotoMultiplierHitDigiResult AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...

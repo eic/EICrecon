@@ -4,7 +4,7 @@
 #pragma once
 
 // data model
-#include <edm4eic/RawPMTHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -43,7 +43,7 @@ namespace eicrecon {
       //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
       // - the output is a collection of particle ID objects
       std::vector<edm4eic::CherenkovParticleID*> AlgorithmProcess(
-          std::vector<const edm4eic::RawPMTHit*>& in_raw_hits,
+          std::vector<const edm4eic::RawTrackerHit*>& in_raw_hits,
           std::map<std::string,std::vector<const edm4eic::TrackSegment*>>& in_charged_particles
           );
 

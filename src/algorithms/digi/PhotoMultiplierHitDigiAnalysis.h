@@ -9,7 +9,7 @@
 #include <TMath.h>
 
 // data model
-#include <edm4eic/RawPMTHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 
 // EICrecon
 #include <spdlog/spdlog.h>
@@ -35,7 +35,7 @@ namespace eicrecon {
 
       // algorithm methods
       void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-      void AlgorithmProcess(std::vector<const edm4eic::RawPMTHit*> hits);
+      void AlgorithmProcess(std::vector<const edm4eic::RawTrackerHit*> hits);
       void AlgorithmFinish();
 
     private:

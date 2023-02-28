@@ -8,7 +8,7 @@
 #include <JANA/JEvent.h>
 
 // data model
-#include <edm4eic/RawPMTHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 
