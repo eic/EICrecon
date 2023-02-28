@@ -134,8 +134,14 @@ endif()
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
 if (${USE_UBSAN})
-    add_compile_options(-fsanitize=undefined -fsanitize=implicit-conversion -fsanitize=nullability -g -O1)
-    add_link_options(-fsanitize=undefined -fsanitize=implicit-conversion -fsanitize=nullability)
+    include(CheckCXXCompilerFlag)
+    foreach (sanitizer undefined nullability implicit-conversion)
+        check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
+        if (CXX_COMPILER_HAS_sanitize_${sanitizer})
+            add_compile_options(-fsanitize=${sanitizer} -g -O1)
+            add_link_options(-fsanitize=${sanitizer})
+        endif()
+    endforeach()
 endif()
 
 
