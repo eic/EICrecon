@@ -131,6 +131,13 @@ if (${USE_TSAN})
     add_link_options(-fsanitize=thread)
 endif()
 
+# Undefined behavior sanitizer
+option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
+if (${USE_UBSAN})
+    add_compile_options(-fsanitize=undefined -g -O2)
+    add_link_options(-fsanitize=undefined)
+endif()
+
 
 # ------------------------------------------------------------------
 print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
