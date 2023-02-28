@@ -13,7 +13,7 @@ void eicrecon::RichTrack_factory::Init() {
   auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
   auto param_prefix = detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
-  m_radiatorID = rich::ParseRadiatorName(GetTag());
+  m_radiatorID = richgeo::ParseRadiatorName(GetTag());
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();

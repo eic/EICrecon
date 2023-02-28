@@ -8,7 +8,7 @@
 #include <string>
 #include <fmt/format.h>
 
-namespace rich {
+namespace richgeo {
 
   // local logging singleton
   /* NOTE: EICrecon uses `spdlog` with a logging service; since `RichGeo` is meant

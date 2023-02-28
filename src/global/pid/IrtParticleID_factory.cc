@@ -41,7 +41,7 @@ void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent
   auto photoelectrons = event->Get<edm4hep::SimTrackerHit>(m_detector_name+"Hits");
 
   // loop over photoelectrons
-  // FIXME: at the moment, we do nothing; the current version of this factory is only meant to test the `rich` service
+  // FIXME: at the moment, we do nothing; the current version of this factory is only meant to test the `richgeo` service
   std::vector<edm4hep::ParticleID*> output_pid;
   // for( const auto& photoelectron : photoelectrons ) {
   //   auto pid = new edm4hep::ParticleID(
