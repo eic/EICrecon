@@ -120,22 +120,22 @@ list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modul
 # Address sanitizer
 option(USE_ASAN "Compile with address sanitizer" OFF)
 if (${USE_ASAN})
-    add_compile_options(-fsanitize=address -g -O2)
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
     add_link_options(-fsanitize=address)
 endif()
 
 # Thread sanitizer
 option(USE_TSAN "Compile with thread sanitizer" OFF)
 if (${USE_TSAN})
-    add_compile_options(-fsanitize=thread -g -O2)
+    add_compile_options(-fsanitize=thread -g -O1)
     add_link_options(-fsanitize=thread)
 endif()
 
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
 if (${USE_UBSAN})
-    add_compile_options(-fsanitize=undefined -g -O2)
-    add_link_options(-fsanitize=undefined)
+    add_compile_options(-fsanitize=undefined -fsanitize=implicit-conversion -fsanitize=nullability -g -O1)
+    add_link_options(-fsanitize=undefined -fsanitize=implicit-conversion -fsanitize=nullability)
 endif()
 
 
