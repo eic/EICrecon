@@ -23,7 +23,7 @@
 #include "fastjet/tools/Subtractor.hh"
 #include "fastjet/tools/JetMedianBackgroundEstimator.hh"
 // jet definition
-#include "Jet.h"
+#include <edm4eic/Jet.h>
 
 using namespace fastjet;
 

@@ -20,7 +20,7 @@ namespace eicrecon {
     m_log->trace("Initialized");
   }
 
-  std::vector<edm4eic::Jet>* JetReconstruction::reconstrution(const std::vector<edm4hep::Vector3f> momenta) {
+  std::vector<edm4eic::Jet>* JetReconstruction::execute(const std::vector<edm4hep::Vector3f> momenta) {
 
     // Skip empty
     if (momenta.empty()) {
