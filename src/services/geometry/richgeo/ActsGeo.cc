@@ -5,7 +5,7 @@
 
 #include "ActsGeo.h"
 
-std::vector<std::shared_ptr<Acts::Surface>> rich::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
+std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
 
   // output list of surfaces
   std::vector<std::shared_ptr<Acts::Surface>> discs;

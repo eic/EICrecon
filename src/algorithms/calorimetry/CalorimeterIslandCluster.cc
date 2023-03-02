@@ -163,9 +163,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     }
 
     if (not method_found) {
-        m_log->error("Cannot determine the clustering coordinates");
-        japp->Quit();
-        return;
+        throw std::runtime_error("Cannot determine the clustering coordinates");
     }
 
     return;

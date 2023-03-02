@@ -5,7 +5,7 @@
 
 #include "IrtGeoDRICH.h"
 
-void rich::IrtGeoDRICH::DD4hep_to_IRT() {
+void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope
   /* FIXME: have no connection to GEANT G4LogicalVolume pointers; however all is needed
