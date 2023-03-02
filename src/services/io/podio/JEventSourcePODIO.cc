@@ -151,8 +151,7 @@ void JEventSourcePODIO::Open() {
         version_mismatch |= (version.major == podio::version::build_version.major) && (version.minor>podio::version::build_version.minor);
         if( version_mismatch ){
             LOG_ERROR(default_cerr_logger) << "Mismatch in PODIO versions! " << version << " > " << podio::version::build_version << LOG_END;
-            GetApplication()->Quit();
-            return;
+            throw std::runtime_error("Mismatch in PODIO versions");
         }
         LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version << ")" << LOG_END;
 
@@ -165,8 +164,7 @@ void JEventSourcePODIO::Open() {
         _DBG__;
         LOG_ERROR(default_cerr_logger) << "Problem opening file \"" << GetResourceName() << "\"" << LOG_END;
         LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
-        GetApplication()->Quit();
-        return;
+        throw e;
     }
 
     // If user specified which collections to include/exclude then set those branch's status now
