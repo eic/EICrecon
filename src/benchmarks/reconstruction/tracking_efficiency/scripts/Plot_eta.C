@@ -29,7 +29,7 @@ void Plot_eta()
    TCanvas * c1 = new TCanvas("c1","coutput",1400,1000);
    c1->SetMargin(0.10, 0.05 ,0.1,0.05);
    c1->SetGridx();
-   
+
    TH1D *h0 = new TH1D("h0","h0",200,-4.,4.);
    TH1D *h1 = new TH1D("h1","h1",200,-4.,4.); // Barr1
    TH1D *h2 = new TH1D("h2","h2",200,-4.,4.); // BMT1
@@ -42,7 +42,7 @@ void Plot_eta()
    h0->GetYaxis()->SetTitle("Entries (a.u.)");
    h0->GetXaxis()->CenterTitle();
    h0->GetYaxis()->CenterTitle();
-   	
+
    TString vtx_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(VertexBarrelHits.position.x*VertexBarrelHits.position.x+VertexBarrelHits.position.y*VertexBarrelHits.position.y),VertexBarrelHits.position.z))/2))>>h0";
    TString Barrel_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(SiBarrelHits.position.x*SiBarrelHits.position.x+SiBarrelHits.position.y*SiBarrelHits.position.y),SiBarrelHits.position.z))/2))>>h1";
    TString BMM_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(MPGDBarrelHits.position.x*MPGDBarrelHits.position.x+MPGDBarrelHits.position.y*MPGDBarrelHits.position.y),MPGDBarrelHits.position.z))/2))>>h2";
@@ -96,5 +96,5 @@ void Plot_eta()
   c1->cd();
   l1->Draw();
   c1->SaveAs("eta_DD4HEP.png");
-      
+
 }
