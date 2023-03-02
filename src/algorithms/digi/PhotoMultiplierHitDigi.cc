@@ -15,7 +15,6 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
-#include <fmt/format.h>
 #include <JANA/JEvent.h>
 
 //------------------------
