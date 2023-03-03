@@ -73,7 +73,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           double time;
           dd4hep::Position pos;
         };
-        std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
+        std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
@@ -135,8 +135,8 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             for (auto &data : it.second) {
                 edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{
                   it.first,
-                  static_cast<int32_t>(data.signal),
-                  static_cast<int32_t>(data.time/m_cfg.timeStep)
+                  static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal),
+                  static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(data.time/m_cfg.timeStep)
                   //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
