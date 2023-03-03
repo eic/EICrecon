@@ -42,8 +42,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     auto sc2 = m_rngNorm;//m_rngNorm.initialize(randSvc, Rndm::Gauss(0., 1.));
     //if (!sc1.isSuccess() || !sc2.isSuccess()) {
     if (!sc1 || !sc2) {
-        m_log->error("Cannot initialize random generator!");
-        japp->Quit();
+        throw std::runtime_error("Cannot initialize random generator!");
     }
 
     // initialize quantum efficiency table
