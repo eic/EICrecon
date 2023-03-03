@@ -69,5 +69,5 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
   // Digitize
   auto result = m_digi_algo.AlgorithmProcess(sim_hits);
   Set(result.raw_hits);
-  event->Insert(result.photons, m_plugin_name+"Photons");
+  event->Insert(result.hit_associations, m_plugin_name+"Associations");
 }

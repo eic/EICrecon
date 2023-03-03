@@ -29,7 +29,7 @@ namespace eicrecon {
 
 struct PhotoMultiplierHitDigiResult {
   std::vector<edm4eic::RawTrackerHit*> raw_hits;
-  std::vector<edm4eic::MCRecoTrackerHitAssociation> hit_assoc;
+  std::vector<edm4eic::MCRecoTrackerHitAssociation> hit_associations;
 }
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
