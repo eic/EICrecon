@@ -1,5 +1,4 @@
-#ifndef EICRECON_OCCUPANCY_ANALYSIS_H
-#define EICRECON_OCCUPANCY_ANALYSIS_H
+#pragma once
 
 #include <TH1F.h>
 #include <TH3F.h>
@@ -129,5 +128,3 @@ private:
         return "";
     }
 };
-
-#endif //EICRECON_OCCUPANCY_ANALYSIS_H

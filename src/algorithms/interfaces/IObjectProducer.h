@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_IOBJECTPRODUCER_H
-#define EICRECON_IOBJECTPRODUCER_H
+#pragma once
 
 namespace eicrecon {
 
@@ -23,5 +22,3 @@ namespace eicrecon {
     };
 
 } // eicrecon
-
-#endif //EICRECON_IOBJECTPRODUCER_H

@@ -1,5 +1,4 @@
-#ifndef EICRECON_SPACE_POINT_H
-#define EICRECON_SPACE_POINT_H
+#pragma once
 
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Seeding/Seed.hpp>
@@ -35,7 +34,7 @@ class SpacePoint : public edm4eic::TrackerHit
       (std::pow(x(), 2) + std::pow(y(), 2));
   }
   float varianceZ() const { return getPositionError().zz; }
-  
+
   bool isOnSurface() const {
     if (m_surface == nullptr) {
       return false;
@@ -47,7 +46,7 @@ class SpacePoint : public edm4eic::TrackerHit
 
 inline bool operator==(SpacePoint a, SpacePoint b)
 {
-  return (a.getObjectID() == b.getObjectID()); 
+  return (a.getObjectID() == b.getObjectID());
 }
 static bool spCompare(SpacePoint r, SpacePoint s)
 {
@@ -61,5 +60,3 @@ using SpacePointPtr = std::unique_ptr<SpacePoint>;
 using SeedContainer = std::vector<Acts::Seed<SpacePoint>>;
 
 }
-
-#endif

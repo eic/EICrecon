@@ -6,8 +6,7 @@
 // Author: Chao Peng
 // Date: 06/14/2021
 
-#ifndef _CalorimeterHitReco_h_
-#define _CalorimeterHitReco_h_
+#pragma once
 
 #include <random>
 
@@ -70,15 +69,15 @@ public:
   dd4hep::BitFieldCoder* id_dec = nullptr;
   uint32_t NcellIDerrors = 0;
   uint32_t MaxCellIDerrors = 100;
-  
+
   size_t sector_idx{0}, layer_idx{0};
 
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
-  std::string m_localDetElement="";
-  std::vector<std::string> u_localDetFields={};
+  std::string m_localDetElement="", m_maskPos="";
+  std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
-  size_t local_mask = ~0;
+  size_t local_mask = ~0, gpos_mask = 0;
 
     std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
@@ -87,5 +86,3 @@ private:
     //std::default_random_engine generator; // TODO: need something more appropriate here
     //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 };
-
-#endif // _CalorimeterHitReco_h_

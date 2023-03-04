@@ -16,8 +16,7 @@
 //
 
 
-#ifndef __ACTSGeo_service_h__
-#define __ACTSGeo_service_h__
+#pragma once
 
 
 #include <iostream>
@@ -60,5 +59,3 @@ private:
     std::shared_ptr<spdlog::logger> m_log;
     std::shared_ptr<spdlog::logger> m_init_log;
 };
-
-#endif // __ACTSGeo_service_h__

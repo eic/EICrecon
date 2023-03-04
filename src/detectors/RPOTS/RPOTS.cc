@@ -33,4 +33,3 @@ void InitPlugin(JApplication *app) {
             hit_reco_cfg));           // Hit reco default config for factories
 }
 }
-

@@ -29,4 +29,3 @@ void InitPlugin(JApplication *app) {
 
 }
 } // extern "C"
-

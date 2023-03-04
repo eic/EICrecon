@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACK_SEEDING_CONFIG_H
-#define EICRECON_ORTHOGONAL_TRACK_SEEDING_CONFIG_H
+#pragma once
 
 #include <vector>
 
@@ -14,7 +13,7 @@
 #include "SpacePoint.h"
 
 namespace eicrecon {
- 
+
   struct OrthogonalTrackSeedingConfig {
     float m_rMax = 500. * Acts::UnitConstants::mm;
     float m_rMin = 33. * Acts::UnitConstants::mm;
@@ -26,31 +25,31 @@ namespace eicrecon {
     float m_collisionRegionMax = 300 * Acts::UnitConstants::mm;
     float m_zMin = -800. * Acts::UnitConstants::mm;
     float m_zMax = 800. * Acts::UnitConstants::mm;
-    
+
     /// max number of seeds a single middle sp can belong to
     float m_maxSeedsPerSpM = 1;
-    float m_cotThetaMax = 16; 
+    float m_cotThetaMax = 16;
     float m_sigmaScattering = 5;
     float m_radLengthPerSeed = 0.1;
     float m_minPt = 100.; // MeV
     float m_bFieldInZ = 0.0017; //kTesla
     float m_beamPosX = 0;
     float m_beamPosY = 0;
-    
+
     /// Maximum transverse PCA allowed
     float m_impactMax = 20. * Acts::UnitConstants::mm;
-    
+
     /// Middle spacepoint must fall between these two radii
     float m_rMinMiddle = 20. * Acts::UnitConstants::mm;
     float m_rMaxMiddle = 400. * Acts::UnitConstants::mm;
-    
+
     Acts::SeedFilterConfig m_seedFilterConfig;
     Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
-    
+
     void configure()
     {
       m_seedFilterConfig.maxSeedsPerSpM = m_maxSeedsPerSpM;
-      
+
       m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
       m_seedFinderConfig.rMax = m_rMax;
       m_seedFinderConfig.deltaRMinTopSP = m_deltaRMinTopSP;
@@ -60,8 +59,8 @@ namespace eicrecon {
       m_seedFinderConfig.collisionRegionMin = m_collisionRegionMin;
       m_seedFinderConfig.collisionRegionMax = m_collisionRegionMax;
       m_seedFinderConfig.zMin = m_zMin;
-      m_seedFinderConfig.zMax = m_zMax;	
-      m_seedFinderConfig.maxSeedsPerSpM = m_maxSeedsPerSpM;			
+      m_seedFinderConfig.zMax = m_zMax;
+      m_seedFinderConfig.maxSeedsPerSpM = m_maxSeedsPerSpM;
       m_seedFinderConfig.cotThetaMax = m_cotThetaMax;
       m_seedFinderConfig.sigmaScattering = m_sigmaScattering;
       m_seedFinderConfig.radLengthPerSeed = m_radLengthPerSeed;
@@ -90,8 +89,8 @@ namespace eicrecon {
 	std::pow(m_seedFinderConfig.minPt * 2 /
 		 m_seedFinderConfig.pTPerHelixRadius,
 		 2);
-      
-      m_seedFinderConfig.pT2perRadius = 
+
+      m_seedFinderConfig.pT2perRadius =
 	std::pow(
           m_seedFinderConfig.highland / m_seedFinderConfig.pTPerHelixRadius,
 	  2);
@@ -99,8 +98,5 @@ namespace eicrecon {
     }
 
   };
-  
+
 }
-  
-#endif 
-  

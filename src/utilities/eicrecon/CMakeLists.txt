@@ -13,7 +13,7 @@ find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 # Compile all sources into executable
 file(GLOB SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
 
-set( INCLUDE_DIRS  ${PROJECT_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
+set( INCLUDE_DIRS  ${PROJECT_BINARY_DIR} ${EICRECON_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
 set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${CMAKE_DL_LIBS} Threads::Threads )
 
 # Define executable
@@ -25,6 +25,3 @@ target_compile_definitions(eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT
 
 # Install executable
 install(TARGETS eicrecon DESTINATION bin)
-
-
-

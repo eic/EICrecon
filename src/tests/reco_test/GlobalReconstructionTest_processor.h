@@ -1,5 +1,4 @@
-#ifndef EICRECON_GLOBAL_RECO_TEST_PROCESSOR_H
-#define EICRECON_GLOBAL_RECO_TEST_PROCESSOR_H
+#pragma once
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
@@ -52,5 +51,3 @@ private:
 
     void printRecoParticles(std::vector<const edm4eic::ReconstructedParticle*> reco_particles, const std::string &title);
 };
-
-#endif //EICRECON_GLOBAL_RECO_TEST_PROCESSOR_H

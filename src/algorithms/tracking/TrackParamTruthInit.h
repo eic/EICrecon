@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPARAMTRUTHINIT_H
-#define EICRECON_TRACKPARAMTRUTHINIT_H
+#pragma once
 
 #include <algorithms/interfaces/IObjectProducer.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
@@ -27,7 +26,6 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        TrackParamTruthInitConfig m_cfg;
         std::shared_ptr<TDatabasePDG> m_pdg_db;
 
         std::default_random_engine generator; // TODO: need something more appropriate here
@@ -36,5 +34,3 @@ namespace eicrecon {
 
     };
 }   // namespace eicrecon
-
-#endif //EICRECON_TRACKPARAMTRUTHINIT_H

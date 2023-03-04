@@ -48,9 +48,9 @@ public:
         u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
-        
+
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-        
+
 
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
@@ -92,4 +92,3 @@ public:
     }
 
 };
-

@@ -1,5 +1,4 @@
-#ifndef __Spdlog_service_h__
-#define __Spdlog_service_h__
+#pragma once
 
 
 #include <iostream>
@@ -37,5 +36,3 @@ private:
     JApplication* m_application;
     std::string m_log_level_str;
 };
-
-#endif // __Spdlog_service_h__

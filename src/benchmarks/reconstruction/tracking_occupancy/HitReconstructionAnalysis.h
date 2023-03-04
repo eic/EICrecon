@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_HIT_RECONSTRUCTION_ANALYSIS_H
-#define EICRECON_HIT_RECONSTRUCTION_ANALYSIS_H
+#pragma once
 
 #include <TH1F.h>
 #include <TH3F.h>
@@ -38,5 +37,3 @@ private:
     /// Total occupancy of all m_data_names
     TH2F * m_total_occup_th2;                 /// MC Particles px,py
 };
-
-#endif //EICRECON_HIT_RECONSTRUCTION_ANALYSIS_H

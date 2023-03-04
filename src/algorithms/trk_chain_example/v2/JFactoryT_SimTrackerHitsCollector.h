@@ -2,8 +2,7 @@
 // Created by romanov on 8/6/22.
 //
 
-#ifndef EICRECON_JFACTORY_SIMTRACKERHITSCOLLECTIONT_H
-#define EICRECON_JFACTORY_SIMTRACKERHITSCOLLECTIONT_H
+#pragma once
 
 #include <random>
 
@@ -89,5 +88,3 @@ void JFactoryT_SimTrackerHitsCollector<SimTrackerHitOutT>::Process(const std::sh
     // Add data as a factory output
     this->Set(hits);
 }
-
-#endif //EICRECON_JFACTORY_SIMTRACKERHITSCOLLECTIONT_H

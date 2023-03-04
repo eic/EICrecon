@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_ICOLLECTOR_H
-#define EICRECON_ICOLLECTOR_H
+#pragma once
 
 namespace eicrecon {
 
@@ -21,5 +20,3 @@ namespace eicrecon {
     };
 
 } // eicrecon
-
-#endif //EICRECON_ICOLLECTOR_H

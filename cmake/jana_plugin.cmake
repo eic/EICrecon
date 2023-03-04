@@ -27,7 +27,8 @@ macro(plugin_add _name)
 
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
-    target_include_directories(${_name}_plugin PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
+    target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
     target_include_directories(${_name}_plugin PUBLIC ${fmt_DIR}/../../../include)
@@ -42,7 +43,7 @@ macro(plugin_add _name)
     if(${_name}_WITH_STATIC_LIB)
         # Define library
         add_library(${_name}_library STATIC "")
-	    target_include_directories(${_name}_library PUBLIC ${CMAKE_SOURCE_DIR}/src)
+	    target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_include_directories(${_name}_library PUBLIC ${fmt_DIR}/../../../include)
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
@@ -111,7 +112,7 @@ macro(plugin_glob_all _name)
     file(GLOB HEADER_FILES *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
-    string(REPLACE ${CMAKE_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
+    string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
 
     # Add sources to plugin
     target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})

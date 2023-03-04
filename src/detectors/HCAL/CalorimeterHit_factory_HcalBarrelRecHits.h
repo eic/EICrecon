@@ -1,6 +1,5 @@
 
-#ifndef CalorimeterHit_factory_HcalBarrelRecHits_h_
-#define CalorimeterHit_factory_HcalBarrelRecHits_h_
+#pragma once
 
 #include <JANA/JFactoryT.h>
 
@@ -90,5 +89,3 @@ public:
 
     std::shared_ptr<spdlog::logger> m_log;
 };
-
-#endif // CalorimeterHit_factory_HcalBarrelRecHits_h_

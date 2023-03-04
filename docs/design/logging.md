@@ -47,20 +47,20 @@ private:
 
 public:
     /// Once in m_app lifetime function call
-    void Init() override {        
+    void Init() override {
 
         auto m_app = GetApplication();
 
         // The service centralizes the use of spdlog and properly spawning logger
         auto log_service = m_app->GetService<Log_service>();
 
-        // Loggers are spawned by name.        
+        // Loggers are spawned by name.
         m_log = log_service->logger("ExampleProcessor");
-        
+
         // log things!
         m_log->info("Hello world! {}", 42);
     }
-    
+
     /// The function is executed every event
     void Process(const std::shared_ptr<const JEvent>& event) override {
         // Will print something if 'trace' log level is set (see below)
@@ -124,25 +124,25 @@ SPDLOG_DEBUG("Some debug message");
 In order to wire your logger level with a jana-parameter to change log level without recompilation, use:
 
 ```cpp
-// includes: 
+// includes:
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 // ... all from previous example
 void Init() override {
    // ...
-   
-   // This is a default level  
+
+   // This is a default level
    std::string log_level_str = "info";
-   
+
    // Ask service locator for parameter manager. We want to get this plugin parameters.
    auto pm = m_app->GetJParameterManager();
-   
+
    // Define parameter
    pm->SetDefaultParameter("log_example:log-level", log_level_str, "log_level: trace, debug, info, warn, err, critical, off");
-   
+
    // At this point log_level_str is initialized with user provided flag value or the default value
-   
+
    // convert input std::string to spdlog::level::level_enum and set logger level
    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 }

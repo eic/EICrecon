@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _RawCalorimeterHit_factory_HcalBarrelRawHits_h_
-#define _RawCalorimeterHit_factory_HcalBarrelRawHits_h_
+#pragma once
 
 #include <random>
 
@@ -91,5 +90,3 @@ public:
     }
 
 };
-
-#endif // _RawCalorimeterHit_factory_HcalBarrelRawHits_h_

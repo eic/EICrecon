@@ -9,7 +9,7 @@
 #include "TrackingTest_processor.h"
 //#include "JFactory_EcalBarrelRawCalorimeterHit.h.bck"
 //#include "JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits.h.bck"
-    
+
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
@@ -18,4 +18,3 @@ extern "C" {
         //app->Add(new JFactoryGeneratorT<JFactory_RawCalorimeterHit_EcalBarrelRawCalorimeterHits>());
     }
 }
-    

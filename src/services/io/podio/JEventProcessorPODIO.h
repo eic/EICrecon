@@ -1,6 +1,5 @@
 
-#ifndef _EICRootWriterSimple_h_
-#define _EICRootWriterSimple_h_
+#pragma once
 
 #include <JANA/JEventProcessor.h>
 #include <spdlog/spdlog.h>
@@ -36,7 +35,3 @@ public:
     std::map<std::string, std::string> m_collections_to_write;  // derived from above config. parameters
 
 };
-
-
-#endif // _EICRootWriterSimple_h_
-

@@ -1,18 +1,18 @@
 # EICrecon common flags and environment
 
 This page does not provide all available run flags/parameters for EICrecon.
-There are many more parameters that can be used in algorithms. 
-Moreover dynamically attached plugins add their own parameters. 
-Here is a list of common flags/parameters and environment variables to 
+There are many more parameters that can be used in algorithms.
+Moreover dynamically attached plugins add their own parameters.
+Here is a list of common flags/parameters and environment variables to
 control the core flow of EICrecon execution.
 
-## EICrecon 
+## EICrecon
 
 EICrecon follows JANA2 principles of using flags. Components of reconstruction software
-can declare parameters, which users can control with `-P` flag. 
+can declare parameters, which users can control with `-P` flag.
 
 ```bash
-eicrecon -Pplugins=JTest  -PMyPlugin:MyVariable=5 input_file1.root input_file2.root   
+eicrecon -Pplugins=JTest  -PMyPlugin:MyVariable=5 input_file1.root input_file2.root
 ```
 
 We can understand this command as follows:

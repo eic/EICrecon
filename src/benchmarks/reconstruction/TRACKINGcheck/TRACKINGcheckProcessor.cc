@@ -130,4 +130,3 @@ void TRACKINGcheckProcessor::FinishWithGlobalRootLock() {
     // Do any final calculations here.
 
 }
-

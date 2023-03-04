@@ -15,13 +15,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapNMergedClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapNMergedClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapNMergedClustersAssociations(){
-        SetTag("EcalEndcapNMergedClustersAssociations");
+    Association_factory_EcalEndcapNMergedClusterAssociations(){
+        SetTag("EcalEndcapNMergedClusterAssociations");
     }
 };
 
@@ -43,7 +43,7 @@ public:
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_tag="EcalEndcapNClusters";
-        m_inputAssociations_tag="EcalEndcapNClustersAssociations";
+        m_inputAssociations_tag="EcalEndcapNClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
@@ -64,10 +64,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag); 
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -75,7 +75,7 @@ public:
         //outputs
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapNMergedClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapNMergedClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
@@ -85,4 +85,3 @@ private:
     std::string              m_input_tag;
     std::string              m_inputAssociations_tag;
 };
-

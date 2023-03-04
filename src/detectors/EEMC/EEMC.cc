@@ -41,9 +41,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNMergedClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNTruthClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNMergedClustersAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNTruthClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNMergedClusterAssociations>());
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPRecHits>());
@@ -52,9 +52,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPMergedClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPTruthClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPMergedClustersAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPTruthClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPMergedClusterAssociations>());
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPInsertRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPInsertRecHits>());
@@ -63,9 +63,8 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertMergedClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertTruthClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertMergedClustersAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertTruthClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertMergedClusterAssociations>());
     }
 }
-    

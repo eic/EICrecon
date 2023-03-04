@@ -1,6 +1,5 @@
 
-#ifndef CalorimeterHit_factory_HcalEndcapPRecHits_h_
-#define CalorimeterHit_factory_HcalEndcapPRecHits_h_
+#pragma once
 
 #include <JANA/JFactoryT.h>
 
@@ -89,5 +88,3 @@ public:
     }
 
 };
-
-#endif // CalorimeterHit_factory_HcalEndcapPRecHits_h_

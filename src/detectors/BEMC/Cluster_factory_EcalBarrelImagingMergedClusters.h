@@ -72,4 +72,3 @@ private:
     std::string m_positionClusters_tag;
     std::string m_positionAssociations_tag;
 };
-

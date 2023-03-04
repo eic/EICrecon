@@ -7,11 +7,11 @@ schedule for this is not yet set._
 
 In JANA, algorithms are kept in `JFactory` classes. These are the classes that
 interact with the JANA framework to match requests for certain objects or
-collections with the algorithm that produces them. 
+collections with the algorithm that produces them.
 
 
 ## Creating a new factory
-For this example, we will create a factory that takes reconstructed 
+For this example, we will create a factory that takes reconstructed
 `edm4eic::ProtoCluster` objects from the collection `EcalEndcapNIslandProtoClusters`
 and will create objects of type `edm4eic::Cluster` with collection name
 `EcalEndcapNIslandClusters`.
@@ -84,7 +84,7 @@ public:
                 position.z += p.z*weight;
                 sum_weights += weight;
             }
-            
+
             // Normalize position
             position.x /= sum_weights;
             position.y /= sum_weights;
@@ -123,7 +123,7 @@ For the above algorithm to be available in JANA to other factories or plugins,
 you will need to add a `JFactoryGeneratorT` object for it. Do this by editing
 the file named for the source directory in which it resides. In this example,
 because the above file will live in _src/detectors/EEMC_, edit the file
-__src/detectors/EEMC/EEMC.cc_. It should look something like the following where 
+__src/detectors/EEMC/EEMC.cc_. It should look something like the following where
 the last `include` line and the last _app->Add(...)_ line have been added to
 declare the new factory.
 
@@ -180,7 +180,7 @@ hRecClusterEnergy  = new TH1D("hRecClusterEnergy",  "EcalEndcapNIslandClusters e
 for( auto cluster : clusters() ) hRecClusterEnergy->Fill(  cluster->getEnergy() / dd4hep::MeV );
 ```
 
-Run some events through and have a look at the result. Here is what this looks like 
+Run some events through and have a look at the result. Here is what this looks like
 for the file:
 [https://eicaidata.s3.amazonaws.com/2022-09-04_pgun_e-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root]()
 
@@ -189,7 +189,7 @@ for the file:
 ## Generic algorithms
 For EPIC, we have as a goal to use generic algorithms that are framework unaware.
 Thus, for these algorithms the _JFactory_ classes will serve as a layer to JANA
-for these generic algorithm classes. 
+for these generic algorithm classes.
 
 At this point in time, the generic algorithms that `EICrecon` uses are being kept in the
 `EICrecon` repository. Work is ongoing in a separate repository that is
@@ -208,7 +208,3 @@ files:
 Using generic algorithms requires additional classes and so makes things
 slightly more complex. However, the generic algorithms can be recycled
 for use in multiple detector systems which adds some simplification.
-
-
-
-

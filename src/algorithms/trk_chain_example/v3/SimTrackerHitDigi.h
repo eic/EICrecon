@@ -1,5 +1,4 @@
-#ifndef EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
-#define EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
+#pragma once
 
 #include <random>
 
@@ -31,6 +30,3 @@ private:
     std::string m_config_prefix;    /// A prefix to use for command line parameters
 
 };
-
-
-#endif //EICRECON_JFACTORY_SILICONTRACKERDIGIT_H
