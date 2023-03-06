@@ -44,8 +44,14 @@ public:
         m_layerField="layer";            // from ATHENA's reconstruction.py (i.e. not defined there)
         m_sectorField="module";          // from ATHENA's reconstruction.py
 
-        m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
-        u_localDetFields={"system"};          // from ATHENA's reconstruction.py (i.e. not defined there)
+        m_localDetElement="";            // from ATHENA's reconstruction.py (i.e. not defined there)
+        u_localDetFields={"system"};     // from ATHENA's reconstruction.py (i.e. not defined there)
+
+        // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+        // TODO: a more realistic way to get z is to reconstruct it from timing
+        m_maskPos = "xy";
+        u_maskPosFields = {"fiber", "z"};
+
 
 //        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
@@ -60,6 +66,7 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:thresholdFactor",  m_thresholdFactor);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:thresholdValue",   m_thresholdValue);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:samplingFraction", m_sampFrac);
+        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:maskPosition",     m_maskPos);
         m_geoSvc = app->template GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         AlgorithmInit(m_log);
