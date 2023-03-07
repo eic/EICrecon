@@ -12,12 +12,12 @@
 namespace eicrecon {
 
     class JetReco_factory :
-            public JChainFactoryT<edm4eic::Jet>,
+            public JChainFactoryT<edm4eic::ReconstructedParticle>,
             public SpdlogMixin<JetReco_factory> {
 
     public:
         explicit JetReco_factory(std::vector<std::string> default_input_tags):
-            JChainFactoryT<edm4eic::Jet>(std::move(default_input_tags)) {
+            JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
         }
 
         /** One time initialization **/
@@ -30,7 +30,6 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
     protected:
-        std::vector<std::string> m_input_assoc_tags = {"JetReco"};
         JetReconstruction m_jet_algo;
 
     };
