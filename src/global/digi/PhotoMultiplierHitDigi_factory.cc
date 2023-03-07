@@ -55,6 +55,10 @@ void eicrecon::PhotoMultiplierHitDigi_factory::ChangeRun(const std::shared_ptr<c
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
+  auto app = GetApplication();
+  // Services
+  auto geo_service = app->GetService<JDD4hep_service>();
+
   // Collect all hits from different tags
   std::vector<const edm4hep::SimTrackerHit*> sim_hits;
   for(const auto &input_tag: GetInputTags()) {
@@ -68,5 +72,6 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
   }
 
   // Digitize
-  Set(m_digi_algo.AlgorithmProcess(sim_hits));
+  Set(m_digi_algo.AlgorithmProcess(geo_service->detector(), sim_hits));
+  //Set(m_digi_algo.AlgorithmProcess(sim_hits));
 }

@@ -49,6 +49,11 @@ namespace eicrecon {
         {850, 0.06},
         {900, 0.04}
       };
+
+      // noise
+      double noise_rate = 0.0001;
+      double time_windows = 1.;
+
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
          {325, 1.00},
@@ -74,6 +79,8 @@ namespace eicrecon {
         puts("enablePixelGaps",enablePixelGaps);
         puts("pixelSize",pixelSize);
         puts("safetyFactor",safetyFactor);
+        puts("noise_rate",noise_rate);
+        puts("time_windows",time_windows);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);
