@@ -14,7 +14,7 @@
 
 using std::string;
 
-void reco_particles_track_matching(char *file_name) {
+void reco_particles_track_matching(TString file_name) {
     auto file = new TFile(file_name);
     auto tree = (TTree *) file->Get("events");
     TTreeReader tree_reader(tree);       // !the tree reader
