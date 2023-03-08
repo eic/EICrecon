@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fmt/color.h>
+#include <fmt/format.h>
 
 #include "JDD4hep_service.h"
 
@@ -115,7 +116,7 @@ void JDD4hep_service::Initialize() {
         LOG << "Geometry successfully loaded." << LOG_END;
     }catch(std::exception &e){
         LOG_ERROR(default_cerr_logger)<< "Problem loading geometry: " << e.what() << LOG_END;
-        app->Quit();
+        throw std::runtime_error(fmt::format("Problem loading geometry: {}", e.what()));
     }
 
     // Restore the ticker setting
