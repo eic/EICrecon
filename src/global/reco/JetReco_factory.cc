@@ -6,9 +6,7 @@
 #include <memory>
 
 #include <JANA/JEvent.h>
-#include <edm4eic/ReconstructedParticle.h>
-
-#include "services/log/Log_service.h"
+#include <services/log/Log_service.h>
 
 
 namespace eicrecon {

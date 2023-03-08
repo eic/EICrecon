@@ -6,9 +6,9 @@
 #include <memory>
 
 #include <JANA/JEvent.h>
-#include <edm4hep/MCParticle.h>
-
 #include <services/log/Log_service.h>
+
+#include <edm4hep/MCParticle.h>
 
 
 namespace eicrecon {

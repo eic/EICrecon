@@ -66,7 +66,7 @@ namespace eicrecon {
           cst_edm.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
           cst_edm.setEnergy(csts[j].e());
           cst_edm.setMass(csts[j].m());
-          jet_edm.addToParticles(cst_edm);
+          //jet_edm.addToParticles(cst_edm);  // FIXME: global issue with podio reference
         }
       } // for constituent j
 
