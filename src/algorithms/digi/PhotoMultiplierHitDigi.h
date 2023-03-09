@@ -17,8 +17,9 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h> // FIXME: probably don't need this (remove HitData::photon too?)
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
 
@@ -29,8 +30,8 @@ namespace eicrecon {
 
 struct PhotoMultiplierHitDigiResult {
   std::vector<edm4eic::RawTrackerHit*> raw_hits;
-  std::vector<edm4eic::MCRecoTrackerHitAssociation> hit_associations;
-}
+  std::vector<edm4eic::MCRecoTrackerHitAssociation*> hit_associations;
+};
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 

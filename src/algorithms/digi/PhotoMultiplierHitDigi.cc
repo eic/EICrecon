@@ -146,8 +146,8 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)              );
                 hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time*m_cfg.timeStep) );
                 // hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
+                hit.setPhoton(data.photon); // FIXME: remove this
                 result.raw_hits.push_back(new edm4eic::RawTrackerHit(hit)); // force immutable
-                result.photons.push_back(data.photon);
                 m_log->trace("raw_hit: cellID={:#X} -> charge={} timeStamp={}",
                     hit.getCellID(),
                     hit.getCharge(),
