@@ -28,10 +28,10 @@ void InitPlugin(JApplication *app) {
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     //RomanPotsReconstructionConfig rp_reco_cfg;
     //hit_reco_cfg.time_resolution = 8;
-    //app->Add(new JFactoryGeneratorT<RomanPotsReconstruction_factory>);
-    app->Add(new JChainFactoryGeneratorT<RomanPotsReconstruction_factory>(
-	    {"ForwardRomanPotHits"},    // Input data collection tags
-             "ForwardRomanPotRecParticle")); //,          // Output data tag
+    app->Add(new JFactoryGeneratorT<RomanPotsReconstruction_factory>());
+    //app->Add(new JChainFactoryGeneratorT<RomanPotsReconstruction_factory>(
+    //	    {"ForwardRomanPotHits"},    // Input data collection tags
+    //         "ForwardRomanPotRecParticle")); //,          // Output data tag
             //rp_reco_cfg));           // Hit reco default config for factories
 }
 }

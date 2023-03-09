@@ -10,21 +10,27 @@
 #include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
+    
+	
+    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticle"); }	
+	
     void RomanPotsReconstruction_factory::Init() {
 	// This prefix will be used for parameters
-	    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-	    std::string param_prefix = plugin_name+ ":" + GetTag();
+	//std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+	//std::string param_prefix = plugin_name+ ":" + GetTag();
 
-	    // Create plugin level sub-log
-	    //m_log = spdlog::stdout_color_mt("RomanPotsReconstruction_factory");
+	// Create plugin level sub-log
+	//m_log = spdlog::stdout_color_mt("RomanPotsReconstruction_factory");
 
-	    // Ask service locator for parameter manager. We want to get this plugin parameters.
-	    auto pm = this->GetApplication()->GetJParameterManager();
+	// Ask service locator for parameter manager. We want to get this plugin parameters.
+	//auto pm = this->GetApplication()->GetJParameterManager();
 
-	    //pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-	    //pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
+	//pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
+	//pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
 
-     
+        auto app = GetApplication(); //FIXME: What is this actually doing?
+
+	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticle");
 
 		//-------------------------------------------------------------------------
 		//----from FarForwardParticles.h  -----------------------------------------
@@ -101,14 +107,14 @@ namespace eicrecon {
     }
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
-		// Now we check that user provided an input names
-	    std::vector<std::string> &input_tags = m_input_tags;
+	    // Now we check that user provided an input names
+	    //std::vector<std::string> &input_tags = m_input_tags;
 
 	    std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
 
-	    if(input_tags.empty()) {
-	        input_tags = GetDefaultInputTags();
-	    }
+	    //if(input_tags.empty()) {
+	    //    input_tags = GetDefaultInputTags();
+	   // }
 
 		//-------------------------------------------------------------------------
 		//----from FarForwardParticles.h  -----------------------------------------
@@ -121,8 +127,10 @@ namespace eicrecon {
     	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
     	// include the Eigen libraries, used in ACTS, for the linear algebra.
 
-   
-        auto &rawhits = m_inputHits;
+        
+
+        //auto &rawhits = m_inputHits;
+	auto rawhits =  event->Get<edm4eic::TrackerHit>("ForwardRomanPotHits");
 	//            auto &rc = *(m_outputParticles.createAndPut());
 	//        std::vector<edm4eic::MutableReconstructedParticle *> rc;
 
@@ -143,7 +151,7 @@ namespace eicrecon {
         std::vector<double> hity;
         std::vector<double> hitz;
 
-        for (const auto &h: rawhits) {
+        for (const auto h: rawhits) {
 
             auto cellID = h->getCellID();
             // The actual hit position in Global Coordinates
@@ -236,6 +244,8 @@ namespace eicrecon {
             rpTrack.setPDG(2212);
             //rpTrack.covMatrix(); // @TODO: Errors
             outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
+
+	    //Set(outputRPTracks);
 
         } // end enough hits for matrix reco
 
