@@ -6,7 +6,9 @@
 
 Eic image require singularity \> 3.0
 
-The [oficial installation instructions](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html#quick-installation-steps) have many steps.
+If you use Debian sid, you may be able to install `singularity-container`. If you use Ubuntu or Red Hat, the `deb` and `rpm` packages at https://github.com/sylabs/singularity/releases/ may be useful.
+
+The [official installation instructions](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html#quick-installation-steps) may be useful for other operating systems.
 
 ## Install work environment
 
