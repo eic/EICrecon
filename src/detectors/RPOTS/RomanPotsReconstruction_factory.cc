@@ -1,4 +1,4 @@
-// Created by Dmitry Romanov
+// Created by Dmitry Romanov -- edited by Alex Jentsch to do Roman Pots reconstruction
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
@@ -103,6 +103,9 @@ namespace eicrecon {
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 		// Now we check that user provided an input names
 	    std::vector<std::string> &input_tags = m_input_tags;
+
+	    std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
+
 	    if(input_tags.empty()) {
 	        input_tags = GetDefaultInputTags();
 	    }
@@ -217,7 +220,7 @@ namespace eicrecon {
             double p = nomMomentum * (1 + 0.01 * Xip[0]);
             double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
-            const float prec[3] = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
+            float prec[3] = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
                                    static_cast<float>(p / norm)};
 
             //----- end RP reconstruction code ------
@@ -230,11 +233,13 @@ namespace eicrecon {
             rpTrack.setCharge(1);
             rpTrack.setMass(.938272);
             rpTrack.setGoodnessOfPID(1.);
-            rpTrack.setPDG(2122);
+            rpTrack.setPDG(2212);
             //rpTrack.covMatrix(); // @TODO: Errors
-            m_outputParticles.push_back(new edm4eic::ReconstructedParticle(rpTrack));
+            outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
 
         } // end enough hits for matrix reco
+
+	Set(outputRPTracks);
 
         return;
     }//process
@@ -267,5 +272,7 @@ namespace eicrecon {
 	    Set(results);
 	*/
 	//}
-	
+
+	//Set(outputRPTracks);
+
 } // eicrecon

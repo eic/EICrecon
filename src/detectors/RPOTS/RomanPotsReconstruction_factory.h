@@ -16,6 +16,7 @@
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/vector_utils.h>
 
@@ -46,43 +47,42 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 		
-		
-	    std::vector<const edm4eic::TrackerHit*> m_inputHits;
-	    std::vector<edm4eic::ReconstructedParticle*> m_outputParticles;
+	std::vector<const edm4eic::TrackerHit*> m_inputHits;
+	//std::vector<edm4eic::ReconstructedParticle*> m_outputParticles;
 
-	    //----- Define constants here ------
+	//----- Define constants here ------
 
-	    double local_x_offset_station_1 = -833.3878326;
-	    double local_x_offset_station_2 = -924.342804;
-	    double local_x_slope_offset = -0.00622147;
-	    double local_y_slope_offset = -0.0451035;
-	    double crossingAngle; // -0.025
-	    double nomMomentum; // 275.0
+	const double local_x_offset_station_1 = -833.3878326;
+	const double local_x_offset_station_2 = -924.342804;
+	const double local_x_slope_offset = -0.00622147;
+	const double local_y_slope_offset = -0.0451035;
+	const double crossingAngle = -0.025;
+	const double nomMomentum = 275.0;
 
-	    std::string m_readout;
-	    std::string m_layerField;
-	    std::string m_sectorField;
+	std::string m_readout;
+	std::string m_layerField;
+	std::string m_sectorField;
 
-	    dd4hep::BitFieldCoder *id_dec = nullptr;
-	    size_t sector_idx{0}, layer_idx{0};
+	dd4hep::BitFieldCoder *id_dec = nullptr;
+	size_t sector_idx{0}, layer_idx{0};
 
-	    std::string m_localDetElement;
-	    std::vector<std::string> u_localDetFields;
+	std::string m_localDetElement;
+	std::vector<std::string> u_localDetFields;
 
-	    dd4hep::DetElement local;
-	    size_t local_mask = ~0;
-	    dd4hep::Detector *detector = nullptr;
-	    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+	dd4hep::DetElement local;
+	size_t local_mask = ~0;
+	dd4hep::Detector *detector = nullptr;
+	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
-	    const double aXRP[2][2] = {{2.102403743, 29.11067626},
-	                               {0.186640381, 0.192604619}};
-	    const double aYRP[2][2] = {{0.0000159900, 3.94082098},
-	                               {0.0000079946, -0.1402995}};
+	const double aXRP[2][2] = {{2.102403743, 29.11067626},
+	                           {0.186640381, 0.192604619}};
+	const double aYRP[2][2] = {{0.0000159900, 3.94082098},
+	                           {0.0000079946, -0.1402995}};
 
-	    double aXRPinv[2][2] = {{0.0, 0.0},
-	                            {0.0, 0.0}};
-	    double aYRPinv[2][2] = {{0.0, 0.0},
-	                            {0.0, 0.0}};
+	double aXRPinv[2][2] = {{0.0, 0.0},
+	                        {0.0, 0.0}};
+	double aYRPinv[2][2] = {{0.0, 0.0},
+	                        {0.0, 0.0}};
 		
 		
 		
