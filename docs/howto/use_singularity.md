@@ -10,7 +10,7 @@ The [oficial installation instructions](https://sylabs.io/guides/3.0/user-guide/
 
 If you use debian or ubuntu (mint, whatever compatible), there is a
 [debian repo with 3.11 version at ftp.fi.debian.org](http://ftp.fi.debian.org/debian/pool/main/s/singularity-container/),
-You will have to install dependencies, and need `sudo apt install containernetworking-plugins` prior the installation. 
+You will have to install dependencies, and need `sudo apt install containernetworking-plugins` prior the installation.
 
 Please don\'t install NeuroDebian repo (first in google search) as its singularity v2.6
 and eic image require singularity \> 3.0.
