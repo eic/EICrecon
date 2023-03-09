@@ -94,7 +94,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
 
             //
-            "ForwardRomanPotParticles",
+            "ForwardRomanPotRecParticle",
             "SmearedFarForwardParticles",
 
             // Reconstructed data
