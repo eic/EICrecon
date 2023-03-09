@@ -8,15 +8,9 @@ Eic image require singularity \> 3.0
 
 The [oficial installation instructions](https://sylabs.io/guides/3.0/user-guide/installation.html) have many steps.
 
-If you use ubuntu (mint, whatever compatible), there is a
-[debian repo with 3.10.3 version](https://packages.debian.org/source/sid/singularity-container),
-which works pretty nicely (You will have to install dependencies, it will print them\...)
-
-```bash
-sudo apt install containernetworking-plugins
-wget http://ftp.fi.debian.org/debian/pool/main/s/singularity-container/singularity-container_3.10.3+ds1-1_amd64.deb
-sudo dpkg -i singularity-container_3.10.3+ds1-1_amd64.deb
-```
+If you use debian or ubuntu (mint, whatever compatible), there is a
+[debian repo with 3.11 version at ftp.fi.debian.org](http://ftp.fi.debian.org/debian/pool/main/s/singularity-container/),
+You will have to install dependencies, and need `sudo apt install containernetworking-plugins` prior the installation. 
 
 Please don\'t install NeuroDebian repo (first in google search) as its singularity v2.6
 and eic image require singularity \> 3.0.
