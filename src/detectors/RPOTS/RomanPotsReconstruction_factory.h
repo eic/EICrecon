@@ -19,13 +19,11 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/vector_utils.h>
+#include <edm4hep/SimTrackerHit.h>
 
-
-#include <edm4eic/ReconstructedParticle.h>
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
-#include <algorithms/romanpots/FarForwardParticles.h>
 
 namespace eicrecon {
 
@@ -48,7 +46,7 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 		
-	std::vector<const edm4eic::TrackerHit*> m_inputHits;
+	//std::vector<const edm4eic::TrackerHit*> m_inputHits;
 	//std::vector<edm4eic::ReconstructedParticle*> m_outputParticles;
 
 	//----- Define constants here ------

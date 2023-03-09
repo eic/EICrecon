@@ -35,7 +35,7 @@ namespace eicrecon {
 		//-------------------------------------------------------------------------
 		//----from FarForwardParticles.h  -----------------------------------------
 		//-------------------------------------------------------------------------
-
+	/*
         auto id_spec = detector->readout(m_readout).idSpec();
         try {
             id_dec = id_spec.decoder();
@@ -76,7 +76,7 @@ namespace eicrecon {
             //                      fmt::join(fields, ", "))
             //        << endmsg;
         }
-
+	*/
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
         if (det == 0) {
@@ -94,16 +94,12 @@ namespace eicrecon {
         aYRPinv[0][1] = -aYRP[0][1] / det;
         aYRPinv[1][0] = -aYRP[1][0] / det;
         aYRPinv[1][1] = aYRP[0][0] / det;
-
-        return;
     
-
-	    //m_roman_pot_reco_algo.init();
     
     }//init
 
     void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        // Nothing to do here
+    	// Nothing to do here
     }
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -130,11 +126,11 @@ namespace eicrecon {
         
 
         //auto &rawhits = m_inputHits;
-	auto rawhits =  event->Get<edm4eic::TrackerHit>("ForwardRomanPotHits");
+	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 	//            auto &rc = *(m_outputParticles.createAndPut());
 	//        std::vector<edm4eic::MutableReconstructedParticle *> rc;
 
-        auto converter = m_cellid_converter;
+        //auto converter = m_cellid_converter;
 
         // for (const auto& part : mc) {
         //    if (part.genStatus() > 1) {
@@ -151,54 +147,67 @@ namespace eicrecon {
         std::vector<double> hity;
         std::vector<double> hitz;
 
+		double goodHitX[2] = {0.0, 0.0};
+		double goodHitY[2] = {0.0, 0.0};
+		double goodHitZ[2] = {0.0, 0.0};
+
+		bool goodHit1 = false;
+		bool goodHit2 = false;
+
         for (const auto h: rawhits) {
 
-            auto cellID = h->getCellID();
+           // auto cellID = h->getCellID();
             // The actual hit position in Global Coordinates
-            // auto pos0 = h.position();
+            auto pos0 = h->getPosition();
 
-            auto gpos = converter->position(cellID);
+            //auto gpos = converter->position(cellID);
             // local positions
-            if (m_localDetElement.empty()) {
-                auto volman = detector->volumeManager();
-                local = volman.lookupDetElement(cellID);
-            }
-            auto pos0 = local.nominal().worldToLocal(
-                    dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
+            //if (m_localDetElement.empty()) {
+            //    auto volman = detector->volumeManager();
+            //    local = volman.lookupDetElement(cellID);
+            //}
+            //auto pos0 = local.nominal().worldToLocal(
+            //        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
             // auto mom0 = h.momentum;
             // auto pidCode = h.g4ID;
-            auto eDep = h->getEdep();
+            //auto eDep = h->getEdep();
 
-            if (eDep < 0.00001) {
-                continue;
-            }
+            //if (eDep < 0.00001) {
+            //    continue;
+            //}
 
-            if (eventReset < 2) {
-                hitx.push_back(pos0.x()); // - local_x_offset_station_2);
-            }                           // use station 2 for both offsets since it is used for the reference orbit
-            else {
-                hitx.push_back(pos0.x()); // - local_x_offset_station_2);
-            }
-
-            hity.push_back(pos0.y());
-            hitz.push_back(pos0.z());
-
-            eventReset++;
-        }
+			if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){ 
+			
+				goodHitX[1] = pos0.x;
+				goodHitY[1] = pos0.y;
+				goodHitZ[1] = pos0.z;
+				goodHit2 = true;
+			
+			}
+			if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){ 
+			
+				goodHitX[0] = pos0.x;
+				goodHitY[0] = pos0.y;
+				goodHitZ[0] = pos0.z;
+				goodHit1 = true;
+			
+			}
+				
+		}// end loop over hits
 
         // NB:
         // This is a "dumb" algorithm - I am just checking the basic thing works with a simple single-proton test.
         // Will need to update and modify for generic # of hits for more complicated final-states.
 
-        if (eventReset == 4) {
+        if (goodHit1 && goodHit2) {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory
-            double XL[2] = {hitx[0], hitx[2]};
-            double YL[2] = {hity[0], hity[2]};
+            double XL[2] = {goodHitX[0] - local_x_offset_station_1, goodHitX[1] - local_x_offset_station_2};
+            double YL[2] = {goodHitY[0], goodHitY[1]};
 
-            double base = hitz[2] - hitz[0];
+            double base = goodHitZ[1] - goodHitZ[0];
 
             if (base == 0) {
                 m_log->info("Detector separation = 0! Cannot calculate slope!");
@@ -228,8 +237,10 @@ namespace eicrecon {
             double p = nomMomentum * (1 + 0.01 * Xip[0]);
             double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
-            float prec[3] = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
+            float prec[3] = {static_cast<float>((p * rsx) / norm), static_cast<float>((p * rsy) / norm),
                                    static_cast<float>(p / norm)};
+	    
+	    float refPoint[3] = {static_cast<float>(goodHitX[0]), static_cast<float>(goodHitY[0]), static_cast<float>(goodHitZ[0])};
 
             //----- end RP reconstruction code ------
 
@@ -237,13 +248,15 @@ namespace eicrecon {
             rpTrack.setType(0);
             rpTrack.setMomentum({prec});
             rpTrack.setEnergy(std::hypot(edm4eic::magnitude(rpTrack.getMomentum()), .938272));
-            rpTrack.setReferencePoint({0, 0, 0});
+            rpTrack.setReferencePoint({refPoint});
             rpTrack.setCharge(1);
             rpTrack.setMass(.938272);
             rpTrack.setGoodnessOfPID(1.);
             rpTrack.setPDG(2212);
             //rpTrack.covMatrix(); // @TODO: Errors
             outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
+		
+	    std::cout << "RP track stored to vector" << std::endl;
 
 	    //Set(outputRPTracks);
 
