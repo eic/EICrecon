@@ -18,10 +18,10 @@ laptops). It also creates eic\_shell with the right environment setup,
 prepares the current dir to work with detector or etc.
 
 ```bash
-curl https://eicweb.phy.anl.gov/containers/eic_container/-/raw/master/install.sh | bash
+curl -L https://get.epic-eic.org | bash
 ```
 
-**install.sh** checks if it is run on BNL or JLab farms, so existing
+This checks if it is run on BNL or JLab farms, so existing
 CVMFS images are used and installation is almost instant. On local
 systems singularity images will be downloaded.
 
@@ -30,7 +30,7 @@ singularity images are being copied, disable CVMFS behaviour, and other
 parameters:
 
 ```bash
-curl https://eicweb.phy.anl.gov/containers/eic_container/-/raw/master/install.sh
+curl -L https://get.epic-eic.org > install.sh
 chmod +x install.sh
 ./install.sh --help
 ```
