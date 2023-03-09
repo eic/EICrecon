@@ -45,7 +45,7 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
-		
+
 	//std::vector<const edm4eic::TrackerHit*> m_inputHits;
 	//std::vector<edm4eic::ReconstructedParticle*> m_outputParticles;
 
@@ -82,18 +82,18 @@ namespace eicrecon {
 	                        {0.0, 0.0}};
 	double aYRPinv[2][2] = {{0.0, 0.0},
 	                        {0.0, 0.0}};
-		
-		
-		
+
+
+
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
 		//std::vector<std::string> m_input_tags;              /// Tag for the input data
 
-		//eicrecon::FarForwardParticles m_roman_pot_reco_algo;  /// Roman Pot reconstruction algorithm	
-	
-	
-	
+		//eicrecon::FarForwardParticles m_roman_pot_reco_algo;  /// Roman Pot reconstruction algorithm
+
+
+
     };
 
 } // eicrecon

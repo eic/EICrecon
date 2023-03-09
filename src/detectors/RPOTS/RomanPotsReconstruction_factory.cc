@@ -10,10 +10,10 @@
 #include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
-    
-	
-    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticle"); }	
-	
+
+
+    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticle"); }
+
     void RomanPotsReconstruction_factory::Init() {
 	// This prefix will be used for parameters
 	//std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
@@ -94,8 +94,8 @@ namespace eicrecon {
         aYRPinv[0][1] = -aYRP[0][1] / det;
         aYRPinv[1][0] = -aYRP[1][0] / det;
         aYRPinv[1][1] = aYRP[0][0] / det;
-    
-    
+
+
     }//init
 
     void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -123,7 +123,7 @@ namespace eicrecon {
     	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
     	// include the Eigen libraries, used in ACTS, for the linear algebra.
 
-        
+
 
         //auto &rawhits = m_inputHits;
 	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
@@ -177,23 +177,23 @@ namespace eicrecon {
             //    continue;
             //}
 
-			if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){ 
-			
+			if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){
+
 				goodHitX[1] = pos0.x;
 				goodHitY[1] = pos0.y;
 				goodHitZ[1] = pos0.z;
 				goodHit2 = true;
-			
+
 			}
-			if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){ 
-			
+			if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){
+
 				goodHitX[0] = pos0.x;
 				goodHitY[0] = pos0.y;
 				goodHitZ[0] = pos0.z;
 				goodHit1 = true;
-			
+
 			}
-				
+
 		}// end loop over hits
 
         // NB:
@@ -239,7 +239,7 @@ namespace eicrecon {
 
             float prec[3] = {static_cast<float>((p * rsx) / norm), static_cast<float>((p * rsy) / norm),
                                    static_cast<float>(p / norm)};
-	    
+
 	    float refPoint[3] = {static_cast<float>(goodHitX[0]), static_cast<float>(goodHitY[0]), static_cast<float>(goodHitZ[0])};
 
             //----- end RP reconstruction code ------
@@ -255,7 +255,7 @@ namespace eicrecon {
             rpTrack.setPDG(2212);
             //rpTrack.covMatrix(); // @TODO: Errors
             outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
-		
+
 	    std::cout << "RP track stored to vector" << std::endl;
 
 	    //Set(outputRPTracks);
@@ -266,7 +266,7 @@ namespace eicrecon {
 
         return;
     }//process
-	
+
 	//--------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------
 
