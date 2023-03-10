@@ -11,13 +11,13 @@
 namespace eicrecon {
 
 
-    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticle"); }
+    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticles"); }
 
     void RomanPotsReconstruction_factory::Init() {
 
         auto app = GetApplication();
 
-	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticle");
+	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticles");
 
 	/*
         auto id_spec = detector->readout(m_readout).idSpec();
