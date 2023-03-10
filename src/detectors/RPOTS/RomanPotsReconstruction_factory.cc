@@ -1,10 +1,9 @@
-// Created by Dmitry Romanov -- edited by Alex Jentsch to do Roman Pots reconstruction
+// Created by Alex Jentsch to do Roman Pots reconstruction
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
 #include <JANA/JEvent.h>
 #include "RomanPotsReconstruction_factory.h"
-#include <global/digi/SiliconTrackerDigi_factory.h>
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
@@ -15,26 +14,11 @@ namespace eicrecon {
     RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticle"); }
 
     void RomanPotsReconstruction_factory::Init() {
-	// This prefix will be used for parameters
-	//std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-	//std::string param_prefix = plugin_name+ ":" + GetTag();
-
-	// Create plugin level sub-log
-	//m_log = spdlog::stdout_color_mt("RomanPotsReconstruction_factory");
-
-	// Ask service locator for parameter manager. We want to get this plugin parameters.
-	//auto pm = this->GetApplication()->GetJParameterManager();
-
-	//pm->SetDefaultParameter(param_prefix + ":verbose", m_verbose, "verbosity: 0 - none, 1 - default, 2 - debug, 3 - trace");
-	//pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
 
         auto app = GetApplication(); //FIXME: What is this actually doing?
 
 	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticle");
 
-		//-------------------------------------------------------------------------
-		//----from FarForwardParticles.h  -----------------------------------------
-		//-------------------------------------------------------------------------
 	/*
         auto id_spec = detector->readout(m_readout).idSpec();
         try {
@@ -94,27 +78,18 @@ namespace eicrecon {
         aYRPinv[0][1] = -aYRP[0][1] / det;
         aYRPinv[1][0] = -aYRP[1][0] / det;
         aYRPinv[1][1] = aYRP[0][0] / det;
+    
+    
+    }//END init
 
-
-    }//init
 
     void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     	// Nothing to do here
     }
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
-	    // Now we check that user provided an input names
-	    //std::vector<std::string> &input_tags = m_input_tags;
 
-	    std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
-
-	    //if(input_tags.empty()) {
-	    //    input_tags = GetDefaultInputTags();
-	   // }
-
-		//-------------------------------------------------------------------------
-		//----from FarForwardParticles.h  -----------------------------------------
-		//-------------------------------------------------------------------------
+	std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
 
     	// See Wouter's example to extract local coordinates CalorimeterHitReco.cpp
     	// includes DDRec/CellIDPositionConverter.here
@@ -123,22 +98,9 @@ namespace eicrecon {
     	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
     	// include the Eigen libraries, used in ACTS, for the linear algebra.
 
-
-
-        //auto &rawhits = m_inputHits;
+        
 	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
-	//            auto &rc = *(m_outputParticles.createAndPut());
-	//        std::vector<edm4eic::MutableReconstructedParticle *> rc;
 
-        //auto converter = m_cellid_converter;
-
-        // for (const auto& part : mc) {
-        //    if (part.genStatus() > 1) {
-        //        if (msgLevel(MSG::DEBUG)) {
-        //            debug() << "ignoring particle with genStatus = " << part.genStatus() << endmsg;
-        //        }
-        //        continue;
-        //    }
 
         //---- begin Roman Pot Reconstruction code ----
 
@@ -147,19 +109,20 @@ namespace eicrecon {
         std::vector<double> hity;
         std::vector<double> hitz;
 
-		double goodHitX[2] = {0.0, 0.0};
-		double goodHitY[2] = {0.0, 0.0};
-		double goodHitZ[2] = {0.0, 0.0};
+	double goodHitX[2] = {0.0, 0.0};
+	double goodHitY[2] = {0.0, 0.0};
+	double goodHitZ[2] = {0.0, 0.0};
 
-		bool goodHit1 = false;
-		bool goodHit2 = false;
+	bool goodHit1 = false;
+	bool goodHit2 = false;
 
         for (const auto h: rawhits) {
 
-           // auto cellID = h->getCellID();
+            // auto cellID = h->getCellID();
             // The actual hit position in Global Coordinates
             auto pos0 = h->getPosition();
 
+	    //TODO: this code is for the local coordinates conversion -- next PR
             //auto gpos = converter->position(cellID);
             // local positions
             //if (m_localDetElement.empty()) {
@@ -169,32 +132,24 @@ namespace eicrecon {
             //auto pos0 = local.nominal().worldToLocal(
             //        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-            // auto mom0 = h.momentum;
-            // auto pidCode = h.g4ID;
-            //auto eDep = h->getEdep();
-
-            //if (eDep < 0.00001) {
-            //    continue;
-            //}
-
-			if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){
-
-				goodHitX[1] = pos0.x;
-				goodHitY[1] = pos0.y;
-				goodHitZ[1] = pos0.z;
-				goodHit2 = true;
-
-			}
-			if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){
-
-				goodHitX[0] = pos0.x;
-				goodHitY[0] = pos0.y;
-				goodHitZ[0] = pos0.z;
-				goodHit1 = true;
-
-			}
-
-		}// end loop over hits
+	    if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){ 
+			
+		goodHitX[1] = pos0.x;
+		goodHitY[1] = pos0.y;
+		goodHitZ[1] = pos0.z;
+	    	goodHit2 = true;
+			
+	    }
+	    if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){ 
+			
+		goodHitX[0] = pos0.x;
+		goodHitY[0] = pos0.y;
+		goodHitZ[0] = pos0.z;
+		goodHit1 = true;
+			
+	    }
+				
+	}// end loop over hits
 
         // NB:
         // This is a "dumb" algorithm - I am just checking the basic thing works with a simple single-proton test.
@@ -203,7 +158,8 @@ namespace eicrecon {
         if (goodHit1 && goodHit2) {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
-            // trajectory
+            // trajectory -- should eventually be in local coordinates.
+	    // 
             double XL[2] = {goodHitX[0] - local_x_offset_station_1, goodHitX[1] - local_x_offset_station_2};
             double YL[2] = {goodHitY[0], goodHitY[1]};
 
@@ -256,46 +212,12 @@ namespace eicrecon {
             //rpTrack.covMatrix(); // @TODO: Errors
             outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
 
-	    std::cout << "RP track stored to vector" << std::endl;
 
-	    //Set(outputRPTracks);
-
-        } // end enough hits for matrix reco
+        } // END matrix reco
 
 	Set(outputRPTracks);
 
         return;
     }//process
-
-	//--------------------------------------------------------------------------------------
-	//--------------------------------------------------------------------------------------
-
-	/*
-	    // Produce track parameters out of MCParticles
-	    std::vector<edm4eic::ReconstructedParticle*> results;
-	    for(auto rp_digi_hit: rp_digi_hits) {
-
-	        // Status check for hits
-			//we REALLY need to send the full hit collection to the algorithm
-	        //if(rp_digi_hits->getGeneratorStatus() != 1 ) continue;
-
-	        // Do conversion
-	        auto result = m_roman_pot_reco_algo.produce(mc_particle);
-	        results.push_back(result);
-
-	        // >oO debug output
-	        if(m_log->level() <= spdlog::level::debug) {
-	            const auto p = std::hypot(result->getMomentum().x, result->getMomentum().y, result->getMomentum().z);
-	            m_log->debug("Roman Pots raw hits produced track with ");
-	            m_log->debug("   p =  {} GeV\"", p);
-	            m_log->debug("   pT = {}", p.Pt());
-	        }
-	    }
-
-	    Set(results);
-	*/
-	//}
-
-	//Set(outputRPTracks);
 
 } // eicrecon

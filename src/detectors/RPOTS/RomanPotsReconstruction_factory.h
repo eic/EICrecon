@@ -28,12 +28,8 @@
 namespace eicrecon {
 
     class RomanPotsReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
-            //public SpdlogMixin<RomanPotsReconstruction_factory> {
 
     public:
-        //explicit RomanPotsReconstruction_factory(std::vector<std::string> default_input_tags):
-        //    JChainFactoryT<edm4eic::ReconstructedParticle>( std::move(default_input_tags)) {
-        //}
 
 	RomanPotsReconstruction_factory(); //constructer
 
@@ -45,9 +41,6 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
-
-	//std::vector<const edm4eic::TrackerHit*> m_inputHits;
-	//std::vector<edm4eic::ReconstructedParticle*> m_outputParticles;
 
 	//----- Define constants here ------
 
@@ -87,13 +80,7 @@ namespace eicrecon {
 
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-
-		//std::vector<std::string> m_input_tags;              /// Tag for the input data
-
-		//eicrecon::FarForwardParticles m_roman_pot_reco_algo;  /// Roman Pot reconstruction algorithm
-
-
-
+	
     };
 
 } // eicrecon
