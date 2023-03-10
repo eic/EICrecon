@@ -93,7 +93,7 @@ extern "C" {
     // digitization
     app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
           {"DRICHHits"},
-          "DRICHRawHits",
+          "DRICHRawHitsAssociations",
           digi_cfg
           ));
     // track projections
@@ -107,7 +107,7 @@ extern "C" {
           ));
     // PID
     app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          {"DRICHRawHits","DRICHAerogelTracks","DRICHGasTracks"},
+          {"DRICHRawHitsAssociations", "DRICHAerogelTracks", "DRICHGasTracks"},
           "DRICHIrtCherenkovParticleID",
           irt_cfg
           ));

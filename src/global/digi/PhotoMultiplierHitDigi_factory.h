@@ -11,7 +11,6 @@
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/MCRecoTrackerHitAssociation.h>
 
 // algorithms
@@ -30,13 +29,13 @@ namespace eicrecon {
     class PhotoMultiplierHitDigi;
 
     class PhotoMultiplierHitDigi_factory :
-            public JChainFactoryT<edm4eic::RawTrackerHit, PhotoMultiplierHitDigiConfig>,
+            public JChainFactoryT<edm4eic::MCRecoTrackerHitAssociation, PhotoMultiplierHitDigiConfig>,
             public SpdlogMixin<PhotoMultiplierHitDigi_factory> {
 
     public:
 
         explicit PhotoMultiplierHitDigi_factory(std::vector<std::string> default_input_tags, PhotoMultiplierHitDigiConfig cfg) :
-            JChainFactoryT<edm4eic::RawTrackerHit, PhotoMultiplierHitDigiConfig>(std::move(default_input_tags), cfg) {}
+            JChainFactoryT<edm4eic::MCRecoTrackerHitAssociation, PhotoMultiplierHitDigiConfig>(std::move(default_input_tags), cfg) {}
 
         /** One time initialization **/
         void Init() override;

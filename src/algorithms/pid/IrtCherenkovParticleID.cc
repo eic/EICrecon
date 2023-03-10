@@ -96,13 +96,13 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmChangeRun() {
 // AlgorithmProcess
 //---------------------------------------------------------------------------
 std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
-    std::vector<const edm4eic::RawTrackerHit*>& in_raw_hits,
+    std::vector<const edm4eic::MCRecoTrackerHitAssociation*>& in_hit_assocs,
     std::map<std::string,std::vector<const edm4eic::TrackSegment*>>& in_charged_particles
     )
 {
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
-  m_log->trace("number of raw sensor hits: {}", in_raw_hits.size());
+  m_log->trace("number of raw sensor hits: {}", in_hit_assocs.size());
 
   // annoy the user, if a cheat mode is enabled
   m_cfg.PrintCheats(m_log);
@@ -165,12 +165,24 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       // loop over raw hits ***************************************************
       m_log->trace("{:#<70}","### SENSOR HITS ");
       std::vector<TVector3> mc_photon_vertices;
-      for(const auto& raw_hit : in_raw_hits) {
+      for(const auto& hit_assoc : in_hit_assocs) {
 
-        // get MC photon, typically only used by cheat modes or trace logging
-        auto mc_photon = raw_hit->getPhoton();
-        if(mc_photon.getPDG() != -22)
-          m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+        // get the raw hit
+        auto raw_hit = hit_assoc->getRawHit();
+
+        // get MC photon(s), typically only used by cheat modes or trace logging
+        edm4hep::MCParticle mc_photon;
+        if(hit_assoc->simHits_size() == 0) {
+          if(m_cfg.CheatModeEnabled())
+            m_log->error("cheat mode enabled, but no MC photons provided");
+        }
+        else {
+          // FIXME: occasionally there will be more than one photon associated with a hit;
+          // for now let's just take the first one...
+          mc_photon = hit_assoc->getSimHits(0).getMCParticle();
+          if(mc_photon.getPDG() != -22)
+            m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+        }
 
         // cheat mode, for testing only: use MC photon to get the actual radiator
         if(m_cfg.cheatTrueRadiator) {
@@ -186,7 +198,8 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
           mc_photon_vertices.push_back(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
 
         // get sensor and pixel info
-        auto     cell_id   = raw_hit->getCellID();
+        // FIXME: signal and timing cuts (ADC, TDC, ToT, ...)
+        auto     cell_id   = raw_hit.getCellID();
         uint64_t sensor_id = cell_id & m_cell_mask;
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
         if(m_log->level() <= spdlog::level::trace) {
@@ -234,7 +247,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
          * a region of sensors where we expect to see this `irt_particle`'s
          * Cherenkov photons; this should also combat sensor noise
          */
-      } // end `in_raw_hits` loop
+      } // end `in_hit_assocs` loop
 
 
       // cheat mode: use photon vertices to identify ("pin") the true track

@@ -64,6 +64,13 @@ namespace eicrecon {
         puts("cheatPhotonPinning", cheatPhotonPinning, "using photon vertices as charged particle points");
       }
 
+      // boolean: true if any cheat mode is enabled
+      bool CheatModeEnabled() {
+        return cheatPhotonVertex
+          || cheatTrueRadiator
+          || cheatPhotonPinning;
+      }
+
       // print all parameters
       void Print(
           std::shared_ptr<spdlog::logger> m_log,

@@ -51,15 +51,15 @@ void eicrecon::IrtCherenkovParticleID_factory::ChangeRun(const std::shared_ptr<c
 void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // accumulate input collections
-  // - if `input_tag` contains `Hits`, add to `raw_hits`
+  // - if `input_tag` contains `Hits`, add to `raw_hit_assocs`
   // - if `input_tag` contains `Tracks`, add to `charged_particles`
-  std::vector<const edm4eic::RawTrackerHit*> raw_hits;
+  std::vector<const edm4eic::MCRecoTrackerHitAssociation*> raw_hit_assocs;
   std::map<std::string,std::vector<const edm4eic::TrackSegment*>> charged_particles; // map : radiator_name -> list of TrackSegments
   for(const auto &input_tag: GetInputTags()) {
     try {
       if(input_tag.find("Hits") != std::string::npos) {
-        auto in = event->Get<edm4eic::RawTrackerHit>(input_tag);
-        raw_hits.insert(raw_hits.end(), in.begin(), in.end());
+        auto in = event->Get<edm4eic::MCRecoTrackerHitAssociation>(input_tag);
+        raw_hit_assocs.insert(raw_hit_assocs.end(), in.begin(), in.end());
       }
       else {
         auto radiator_id = richgeo::ParseRadiatorName(input_tag);
@@ -77,7 +77,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   }
 
   // call the IrtCherenkovParticleID algorithm
-  auto cherenkov_pids = m_irt_algo.AlgorithmProcess( raw_hits, charged_particles );
+  auto cherenkov_pids = m_irt_algo.AlgorithmProcess( raw_hit_assocs, charged_particles );
 
   // output
   Set(std::move(cherenkov_pids));

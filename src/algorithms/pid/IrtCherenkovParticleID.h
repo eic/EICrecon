@@ -4,10 +4,10 @@
 #pragma once
 
 // data model
-#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
 
 // IRT
 #include <IRT/CherenkovRadiator.h>
@@ -38,12 +38,13 @@ namespace eicrecon {
       void AlgorithmChangeRun();
 
       // AlgorithmProcess
-      // - `in_raw_hits` is a collection of digitized (raw) sensor hits
+      // - `in_hit_assocs` is a collection of digitized (raw) sensor hits, associated
+      //   with MC (simulated) hits
       // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
       //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
       // - the output is a collection of particle ID objects
       std::vector<edm4eic::CherenkovParticleID*> AlgorithmProcess(
-          std::vector<const edm4eic::RawTrackerHit*>& in_raw_hits,
+          std::vector<const edm4eic::MCRecoTrackerHitAssociation*>& in_hit_assocs,
           std::map<std::string,std::vector<const edm4eic::TrackSegment*>>& in_charged_particles
           );
 
