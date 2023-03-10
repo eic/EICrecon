@@ -78,8 +78,8 @@ namespace eicrecon {
         aYRPinv[0][1] = -aYRP[0][1] / det;
         aYRPinv[1][0] = -aYRP[1][0] / det;
         aYRPinv[1][1] = aYRP[0][0] / det;
-    
-    
+
+
     }//END init
 
 
@@ -98,7 +98,7 @@ namespace eicrecon {
     	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
     	// include the Eigen libraries, used in ACTS, for the linear algebra.
 
-        
+
 	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 
 
@@ -132,23 +132,23 @@ namespace eicrecon {
             //auto pos0 = local.nominal().worldToLocal(
             //        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-	    if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){ 
-			
+	    if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){
+
 		goodHitX[1] = pos0.x;
 		goodHitY[1] = pos0.y;
 		goodHitZ[1] = pos0.z;
 	    	goodHit2 = true;
-			
+
 	    }
-	    if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){ 
-			
+	    if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){
+
 		goodHitX[0] = pos0.x;
 		goodHitY[0] = pos0.y;
 		goodHitZ[0] = pos0.z;
 		goodHit1 = true;
-			
+
 	    }
-				
+
 	}// end loop over hits
 
         // NB:
@@ -159,7 +159,7 @@ namespace eicrecon {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
-	    // 
+	    //
             double XL[2] = {goodHitX[0] - local_x_offset_station_1, goodHitX[1] - local_x_offset_station_2};
             double YL[2] = {goodHitY[0], goodHitY[1]};
 
