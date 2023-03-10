@@ -52,7 +52,7 @@ namespace eicrecon {
 
       // noise
       double noiseRate = 20000; // [Hz]
-      double timeWindow = 0.;  // [ns]
+      double timeWindow = 20.;  // [ns]
 
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
