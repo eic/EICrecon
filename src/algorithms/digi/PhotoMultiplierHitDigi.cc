@@ -170,11 +170,12 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
                   y_encoded = ( y << readoutCoder["y"].offset() ) & readoutCoder["y"].mask();
                   auto cellID = systemID + imodsec + x_encoded + y_encoded;
                   auto it = hit_groups.find(cellID);
-                  if (Noise_Digits(m_cfg.noise_rate, m_cfg.time_windows)){
+                  if (Noise_Digits(m_cfg.noiseRate, m_cfg.timeWindow)){
                     // cell time, signal amplitude
                     double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+                    double time = m_cfg.timeWindow*m_rngUni();
                     auto pos_hit_global = m_cellid_converter->position(cellID);
-                    hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), 13.81, pos_hit_global}};
+                    hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit_global}};
                   }
                   else continue;
                 }
@@ -329,7 +330,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   return pos_transformed;
 }
 
-bool  eicrecon::PhotoMultiplierHitDigi::Noise_Digits(float noise_rate, int time_windows) const
+bool  eicrecon::PhotoMultiplierHitDigi::Noise_Digits(float noiseRate, int timeWindow) const
 {
-  return (m_rngUni() < noise_rate*time_windows);
+  return (m_rngUni() < (noiseRate*timeWindow*dd4hep::ns));
 }

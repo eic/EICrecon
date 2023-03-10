@@ -7,7 +7,7 @@ namespace eicrecon {
     public:
 
       // random number generator seed
-      unsigned long seed = 0;
+      unsigned long seed = 37;
 
       // triggering
       double hitTimeWindow = 20.0;   // [ns]
@@ -51,8 +51,8 @@ namespace eicrecon {
       };
 
       // noise
-      double noise_rate = 0.0001;
-      double time_windows = 1.;
+      double noiseRate = 20000; // [Hz]
+      double timeWindow = 0.;  // [ns]
 
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
@@ -79,8 +79,8 @@ namespace eicrecon {
         puts("enablePixelGaps",enablePixelGaps);
         puts("pixelSize",pixelSize);
         puts("safetyFactor",safetyFactor);
-        puts("noise_rate",noise_rate);
-        puts("time_windows",time_windows);
+        puts("noiseRate",noiseRate);
+        puts("timeWindow",timeWindow);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);
