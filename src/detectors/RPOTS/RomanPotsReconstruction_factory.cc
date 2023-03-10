@@ -15,6 +15,8 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Init() {
 
+        auto app = GetApplication();
+
 	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticle");
 
 	/*
