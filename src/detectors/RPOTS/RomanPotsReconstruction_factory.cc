@@ -15,8 +15,6 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Init() {
 
-        auto app = GetApplication(); //FIXME: What is this actually doing?
-
 	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticle");
 
 	/*
@@ -33,7 +31,7 @@ namespace eicrecon {
             }
         } catch (...) {
             m_log->error("Failed to load ID decoder for {}", m_readout);
-            return;
+            throw JException("Failed to load ID decoder");
         }
 
         // local detector name has higher priority
@@ -43,7 +41,7 @@ namespace eicrecon {
                 m_log->info("Local coordinate system from DetElement {}", m_localDetElement);
             } catch (...) {
                 m_log->error("Failed to locate local coordinate system from DetElement {}", m_localDetElement);
-                return;
+                throw JException("Failed to locate local coordinate system");
             }
             // or get from fields
         } else {
@@ -65,7 +63,7 @@ namespace eicrecon {
 
         if (det == 0) {
             m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-            return;
+            throw JException("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
         }
 
         aXRPinv[0][0] = aXRP[1][1] / det;
@@ -80,7 +78,7 @@ namespace eicrecon {
         aYRPinv[1][1] = aYRP[0][0] / det;
 
 
-    }//END init
+    }
 
 
     void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
@@ -167,7 +165,7 @@ namespace eicrecon {
 
             if (base == 0) {
                 m_log->info("Detector separation = 0! Cannot calculate slope!");
-                return;
+                throw JException("Detector separation = 0! Cannot calculate slope!");
             }
 
             double Xip[2] = {0.0, 0.0};
@@ -217,7 +215,6 @@ namespace eicrecon {
 
 	Set(outputRPTracks);
 
-        return;
-    }//process
+    }
 
-} // eicrecon
+}
