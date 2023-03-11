@@ -181,18 +181,18 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
 
     // trace logging for IRT results
     m_log->trace("  Cherenkov Angle Estimate:");
-    m_log->trace("    {:>16}:  {:<10}",     "NPE",          pid->getNpe());
-    m_log->trace("    {:>16}:  {:<10.3}",   "<theta>",      pid->getTheta());
-    m_log->trace("    {:>16}:  {:<10.3}",   "<rindex>",     pid->getRindex());
-    m_log->trace("    {:>16}:  {:<10.3}",   "<wavelength>", pid->getWavelength());
+    m_log->trace("    {:>16}:  {:<10}",       "NPE",      pid->getNpe());
+    m_log->trace("    {:>16}:  {:<10.3} rad", "<theta>",  pid->getTheta());
+    m_log->trace("    {:>16}:  {:<10.3}",     "<rindex>", pid->getRefractiveIndex());
+    m_log->trace("    {:>16}:  {:<10.3} eV",  "<energy>", pid->getPhotonEnergy()*1e9);
     m_log->trace("  Mass Hypotheses:");
     m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
     for(const auto& hyp : pid->getHypotheses())
       m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", hyp.pdg, hyp.weight, hyp.npe);
 
     // calculate expected Cherenkov angle, using refractive index from MC truth
-    auto rIndexMC      = pid->getRindex(); // average refractive index for photons used in this `pid`
-    auto thetaRec      = pid->getTheta();  // average reconstructed Cherenkov angle estimate
+    auto rIndexMC = pid->getRefractiveIndex(); // average refractive index for photons used in this `pid`
+    auto thetaRec = pid->getTheta();           // average reconstructed Cherenkov angle estimate
     auto thetaExpected = TMath::ACos(
         TMath::Hypot( charged_particle_momentum, charged_particle_mass ) /
         ( rIndexMC * charged_particle_momentum )
@@ -212,7 +212,8 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
       radiator_histos->m_photonTheta_vs_photonPhi->Fill(phi,theta*1e3); // [rad] -> [mrad]
 
     // fill MC dists
-    radiator_histos->m_mcWavelength_dist->Fill(pid->getWavelength());
+    auto hc = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm); // [GeV*nm]
+    radiator_histos->m_mcWavelength_dist->Fill( hc / pid->getPhotonEnergy() ); // energy [GeV] -> wavelength [nm]
     radiator_histos->m_mcRindex_dist->Fill(rIndexMC);
 
     // find the PDG hypothesis with the highest weight

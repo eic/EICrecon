@@ -176,8 +176,9 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 {
         // get quantum efficiency table
         qeff.clear();
+        auto hc = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::eV * dd4hep::nm); // [eV*nm]
         for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
-          qeff.push_back({ 1239.84 / wl, qe }); // convert wavelength [nm] -> energy [eV]
+          qeff.push_back({ hc / wl, qe }); // convert wavelength [nm] -> energy [eV]
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),

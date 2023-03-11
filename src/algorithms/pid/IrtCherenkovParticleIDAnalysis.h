@@ -19,6 +19,9 @@
 #include <spdlog/spdlog.h>
 #include "Tools.h"
 
+// DD4hep
+#include <Evaluator/DD4hepUnits.h>
+
 namespace eicrecon {
 
   // analysis for one radiator
@@ -85,9 +88,11 @@ namespace eicrecon {
       TH2D *m_nphot_vs_p;
       TH1D *m_nphot_vs_p__transient; // transient (not written)
 
+      // map: radiator ID -> RadiatorAnalysis object
+      std::unordered_map<decltype(edm4eic::CherenkovParticleIDData::radiator),std::shared_ptr<RadiatorAnalysis>> m_radiator_histos;
+
       // additional objects
       std::shared_ptr<spdlog::logger> m_log;
-      std::unordered_map<int,std::shared_ptr<RadiatorAnalysis>> m_radiator_histos; // radiator ID -> RadiatorAnalysis
 
   };
 

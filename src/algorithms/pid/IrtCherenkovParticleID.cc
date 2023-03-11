@@ -313,11 +313,11 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       m_log->trace("-> {} Radiator (ID={}):", rad_name, irt_rad->m_ID);
 
       // Cherenkov angle (theta) estimate
-      unsigned npe            = 0;
-      double   theta_sum      = 0.0;
-      double   rindex_sum     = 0.0;
-      double   wavelength_sum = 0.0;
-      double   weight_sum     = 0.0;
+      unsigned npe        = 0;
+      double   theta_sum  = 0.0;
+      double   rindex_sum = 0.0;
+      double   energy_sum = 0.0;
+      double   weight_sum = 0.0;
       std::vector<std::pair<double,double>> phot_theta_phi;
 
       // loop over this radiator's photons, and decide which to include in the theta estimate
@@ -352,38 +352,38 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         theta_sum  += phot_weight * phot_theta;
         phot_theta_phi.push_back({ phot_theta, phot_phi });
         if(m_cfg.cheatPhotonVertex) {
-          rindex_sum     += irt_photon->GetVertexRefractiveIndex();
-          wavelength_sum += 1239.84 / (1e9 * irt_photon->GetVertexMomentum().Mag()); // [GeV]->[eV] conversion
+          rindex_sum += irt_photon->GetVertexRefractiveIndex();
+          energy_sum += irt_photon->GetVertexMomentum().Mag();
         }
 
       } // end loop over this radiator's photons
 
       // compute averages
-      auto ComputeAve     = [] (auto sum, auto count) { return count>0 ? sum / count : 0.0; };
-      auto theta_ave      = ComputeAve(theta_sum,      weight_sum);
-      auto rindex_ave     = ComputeAve(rindex_sum,     npe);
-      auto wavelength_ave = ComputeAve(wavelength_sum, npe);
+      auto ComputeAve = [] (auto sum, auto count) { return count>0 ? sum / count : 0.0; };
+      auto theta_ave  = ComputeAve(theta_sum,  weight_sum);
+      auto rindex_ave = ComputeAve(rindex_sum, npe);
+      auto energy_ave = ComputeAve(energy_sum, npe);
 
 
       // fill output collections -----------------------------------------------
 
       // fill Cherenkov angle estimate
       edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
-      out_cherenkov_pid.setRadiator(   decltype(edm4eic::CherenkovParticleIDData::radiator)   (irt_rad->m_ID)  );
-      out_cherenkov_pid.setNpe(        decltype(edm4eic::CherenkovParticleIDData::npe)        (npe)            );
-      out_cherenkov_pid.setTheta(      decltype(edm4eic::CherenkovParticleIDData::theta)      (theta_ave)      );
-      out_cherenkov_pid.setRindex(     decltype(edm4eic::CherenkovParticleIDData::rindex)     (rindex_ave)     );
-      out_cherenkov_pid.setWavelength( decltype(edm4eic::CherenkovParticleIDData::wavelength) (wavelength_ave) );
+      out_cherenkov_pid.setRadiator(        decltype(edm4eic::CherenkovParticleIDData::radiator)        (irt_rad->m_ID) );
+      out_cherenkov_pid.setNpe(             decltype(edm4eic::CherenkovParticleIDData::npe)             (npe)           );
+      out_cherenkov_pid.setTheta(           decltype(edm4eic::CherenkovParticleIDData::theta)           (theta_ave)     );
+      out_cherenkov_pid.setRefractiveIndex( decltype(edm4eic::CherenkovParticleIDData::refractiveIndex) (rindex_ave)    );
+      out_cherenkov_pid.setPhotonEnergy(    decltype(edm4eic::CherenkovParticleIDData::photonEnergy)    (energy_ave)    );
       for(auto [phot_theta,phot_phi] : phot_theta_phi) {
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
       }
       m_log->trace("  Cherenkov Angle Estimate:");
-      m_log->trace("    {:>16}:  {:<10}",     "NPE",          npe);
-      m_log->trace("    {:>16}:  {:<10.3}",   "<theta>",      theta_ave);
-      m_log->trace("    {:>16}:  {:<10.3}",   "<rindex>",     rindex_ave);
-      m_log->trace("    {:>16}:  {:<10.3}",   "<wavelength>", wavelength_ave);
-      m_log->trace("    {:>16}:  {:<10.3}",   "weight_sum",   weight_sum);
+      m_log->trace("    {:>16}:  {:<10}",       "NPE",        npe);
+      m_log->trace("    {:>16}:  {:<10.3} rad", "<theta>",    theta_ave);
+      m_log->trace("    {:>16}:  {:<10.3}",     "<rindex>",   rindex_ave);
+      m_log->trace("    {:>16}:  {:<10.3} eV",  "<energy>",   energy_ave*1e9); // [GeV] -> [eV]
+      m_log->trace("    {:>16}:  {:<10.3}",     "weight_sum", weight_sum);
 
       // relate mass hypotheses
       m_log->trace("  Mass Hypotheses:");
@@ -397,10 +397,10 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", pdg, hyp_weight, hyp_npe);
 
         // fill `ParticleID` output collection
-        edm4eic::CherenkovPdgHypothesis out_hypothesis;
-        out_hypothesis.pdg    = decltype(edm4eic::CherenkovPdgHypothesis::pdg)    (pdg);
-        out_hypothesis.weight = decltype(edm4eic::CherenkovPdgHypothesis::weight) (hyp_weight);
-        out_hypothesis.npe    = decltype(edm4eic::CherenkovPdgHypothesis::npe)    (hyp_npe);
+        edm4eic::CherenkovParticleIDHypothesis out_hypothesis;
+        out_hypothesis.pdg    = decltype(edm4eic::CherenkovParticleIDHypothesis::pdg)    (pdg);
+        out_hypothesis.weight = decltype(edm4eic::CherenkovParticleIDHypothesis::weight) (hyp_weight);
+        out_hypothesis.npe    = decltype(edm4eic::CherenkovParticleIDHypothesis::npe)    (hyp_npe);
 
         // relate
         out_cherenkov_pid.addToHypotheses(out_hypothesis);
@@ -410,6 +410,11 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       // relate charged particle
       auto out_charged_particle = *out_charged_particles.at(irt_rad);
       out_cherenkov_pid.setChargedParticle(out_charged_particle);
+
+      // relate hit associations
+      // FIXME: throws warning 'Trying to persistify untracked object'; not yet used downstream, so disable for now
+      // for(const auto& hit_assoc : in_hit_assocs)
+      //   out_cherenkov_pid.addToRawHitAssociations(*hit_assoc);
 
       // append
       out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid)); // force immutable
