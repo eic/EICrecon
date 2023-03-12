@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Derek Anderson, Zhongling Ji
 
 #include "JetReconstruction.h"
 
@@ -52,6 +53,10 @@ namespace eicrecon {
 
       m_log->trace("  jet {}: pt = {}, y = {}, phi = {}", i, jets[i].pt(), jets[i].rap(), jets[i].phi());
       edm4eic::MutableReconstructedParticle jet_edm;
+      // Type = 0 for jets, Type = 1 for constituents
+      // Use PDG values to match jets and constituents
+      jet_edm.setType(0);
+      jet_edm.setPDG(i);
       jet_edm.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
       jet_edm.setEnergy(jets[i].e());
       jet_edm.setMass(jets[i].m());
@@ -63,10 +68,16 @@ namespace eicrecon {
         // Only consider constituents in the momentum range
         if (cst_pt > m_minCstPt && cst_pt < m_maxCstPt) {
           edm4eic::MutableReconstructedParticle cst_edm;
+          // Type = 0 for jets, Type = 1 for constituents
+          // Use PDG values to match jets and constituents
+          cst_edm.setType(1);
+          cst_edm.setPDG(i);
           cst_edm.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
           cst_edm.setEnergy(csts[j].e());
           cst_edm.setMass(csts[j].m());
           //jet_edm.addToParticles(cst_edm);  // FIXME: global issue with podio reference
+          // Store constituents in jets due to the above issue
+          jets_edm.push_back(new edm4eic::ReconstructedParticle(cst_edm));
         }
       } // for constituent j
 
