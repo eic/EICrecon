@@ -1,13 +1,5 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory
-//
-// ----------------------------------------------------------------------------
-// 'JetReconstructionConfig.h'
-// Derek Anderson
-// 02.10.2023
-//
-// configures parameters for jet reconstruction algorithm
-// ---------------------------------------------------------------------------
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Derek Anderson, Zhongling Ji
 
 #ifndef EICRECON_JETRECONSTRUCTION_H
 #define EICRECON_JETRECONSTRUCTION_H
@@ -68,5 +60,3 @@ namespace eicrecon {
 }  // end eicrecon namespace
 
 #endif
-
-// end ------------------------------------------------------------------------
