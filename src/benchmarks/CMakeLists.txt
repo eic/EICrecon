@@ -6,7 +6,3 @@ add_subdirectory( reconstruction/tracking_occupancy )
 add_subdirectory( reconstruction/tracking_efficiency )
 add_subdirectory( reconstruction/tof_efficiency )
 add_subdirectory( reconstruction/tracking_studies )
-<<<<<<< HEAD
-add_subdirectory( reconstruction/calo_studies )
-=======
->>>>>>> d85f9d5f (commit of all angular studies changes)
