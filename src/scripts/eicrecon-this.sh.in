@@ -85,6 +85,7 @@ if [[ -d ${IRT} ]] ; then
     if [[ ! ":$LD_LIBRARY_PATH:" == *":IRT_LIBDIR:"* ]]; then
         export LD_LIBRARY_PATH="${IRT_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
     fi
+    export ROOT_INCLUDE_PATH="${IRT_ROOT}/include/IRT${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
 
 #----------------- EICrecon
