@@ -85,7 +85,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         if (hit_det==150){
          onSurfaceTolerance = 0.001;           // Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
         }
-      
+
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
@@ -110,12 +110,12 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
                         {},\t {},\t {}                           \n\
                         local_x,\t local_y,\t local_z            \n\
                         {},\t {},\t {}",
-                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z, 
-                        inverse(0,0), inverse(0,1), inverse(0,2), 
-                        inverse(1,0), inverse(1,1), inverse(1,2), 
-                        inverse(2,0), inverse(2,1), inverse(2,2), 
+                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z,
+                        inverse(0,0), inverse(0,1), inverse(0,2),
+                        inverse(1,0), inverse(1,1), inverse(1,2),
+                        inverse(2,0), inverse(2,1), inverse(2,2),
                         hit_pos.x*inverse(0,0)+hit_pos.y*inverse(0,1)+hit_pos.z*inverse(0,2),
-                        hit_pos.x*inverse(1,0)+hit_pos.y*inverse(1,1)+hit_pos.z*inverse(1,2), 
+                        hit_pos.x*inverse(1,0)+hit_pos.y*inverse(1,1)+hit_pos.z*inverse(1,2),
                         hit_pos.x*inverse(2,0)+hit_pos.y*inverse(2,1)+hit_pos.z*inverse(2,2));
             continue;
         }
