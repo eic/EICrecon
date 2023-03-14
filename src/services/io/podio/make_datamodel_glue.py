@@ -96,6 +96,18 @@ def AddCollections(datamodelName, collectionfiles):
         put_simple_lines.append('        return helper(std::forward<ArgsT>(args)...);')
         put_simple_lines.append('    }')
 
+        type_map.append('template <> struct PodioTypeMap<' + datamodelName + '::' + basename + '> {')
+        type_map.append('    using collection_t = ' + datamodelName + '::' + basename + 'Collection;')
+        type_map.append('    using mutable_t = ' + datamodelName + '::Mutable' + basename + ';')
+        type_map.append('};')
+        type_map.append('template <> struct PodioCollectionMap<' + datamodelName + '::' + basename + 'Collection> {')
+        type_map.append('    using contents_t = ' + datamodelName + '::' + basename + ';')
+        type_map.append('};')
+
+        visitor.append('        if (podio_typename == "' + datamodelName + '::' + basename + 'Collection") {')
+        visitor.append('            return visitor(static_cast<const ' + datamodelName + '::' + basename + 'Collection& >(collection));')
+        visitor.append('        }')
+
 
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
 collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
@@ -105,6 +117,8 @@ copy_simple_lines = []
 make_lines        = []
 put_lines         = []
 put_simple_lines  = []
+type_map = []
+visitor = []
 AddCollections('edm4hep', collectionfiles_edm4hep)
 AddCollections('edm4eic'   , collectionfiles_edm4eic   )
 
@@ -190,4 +204,17 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\nstd::optional<RetValT> CallWithPODIOType(std::string podio_typename, ArgsT... args) {\n')
     f.write('\n'.join(put_simple_lines))
     f.write('\n    return std::nullopt;\n}\n')
+    f.write('\n')
+    f.write('\ntemplate <typename T> struct PodioTypeMap {};')
+    f.write('\ntemplate <typename T> struct PodioCollectionMap {};')
+    f.write('\n\n')
+    f.write('\n'.join(type_map))
+    f.write('\n')
+    f.write('\ntemplate <typename Visitor> struct VisitPodioCollection {')
+    f.write('\n    void operator()(Visitor& visitor, const podio::CollectionBase& collection) {')
+    f.write('\n        std::string podio_typename = collection.getTypeName();\n')
+    f.write('\n'.join(visitor))
+    f.write('\n        throw std::runtime_error("Unrecognized podio typename!");')
+    f.write('\n    }')
+    f.write('\n};\n')
     f.close()
