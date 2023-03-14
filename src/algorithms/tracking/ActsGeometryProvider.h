@@ -15,8 +15,7 @@
 //  Created by Julia Hrdinka on 30/03/15.
 //
 //
-#ifndef GEOSVC_H
-#define GEOSVC_H
+#pragma once
 
 // ACTS
 #include "Acts/Utilities/Logger.hpp"
@@ -146,6 +145,3 @@ private:
 //  MsgStream m_log;
 
 };
-
-
-#endif // GEOSVC_H

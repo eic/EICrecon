@@ -13,13 +13,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_HcalEndcapPTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_HcalEndcapPTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_HcalEndcapPTruthClustersAssociations(){
-        SetTag("HcalEndcapPTruthClustersAssociations");
+    Association_factory_HcalEndcapPTruthClusterAssociations(){
+        SetTag("HcalEndcapPTruthClusterAssociations");
     }
 };
 
@@ -76,10 +76,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -94,4 +94,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-

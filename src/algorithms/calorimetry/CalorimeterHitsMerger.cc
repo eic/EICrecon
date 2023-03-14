@@ -115,5 +115,3 @@ void CalorimeterHitsMerger::execute() {
 
     m_log->debug(fmt::format("Size before = {}, after = {}", m_inputs.size(), m_outputs.size()) );
 }
-
-

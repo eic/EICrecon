@@ -153,4 +153,3 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
     return result;
 }
-

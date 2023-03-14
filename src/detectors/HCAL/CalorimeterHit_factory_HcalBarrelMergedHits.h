@@ -25,8 +25,8 @@ public:
         m_input_tag = "HcalBarrelRecHits";
 
         m_readout="HcalBarrelHits";
-        u_fields={"tower", "tile"};
-        u_refs={1, 0};
+        u_fields={"tile"};
+        u_refs={0};
 
         m_geoSvc= app->GetService<JDD4hep_service>();
 
@@ -58,4 +58,3 @@ public:
 private:
     std::string m_input_tag;
 };
-

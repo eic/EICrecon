@@ -20,7 +20,7 @@
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger) 
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
@@ -42,8 +42,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     auto sc2 = m_rngNorm;//m_rngNorm.initialize(randSvc, Rndm::Gauss(0., 1.));
     //if (!sc1.isSuccess() || !sc2.isSuccess()) {
     if (!sc1 || !sc2) {
-        m_log->error("Cannot initialize random generator!");
-        japp->Quit();
+        throw std::runtime_error("Cannot initialize random generator!");
     }
 
     // initialize quantum efficiency table
@@ -64,7 +63,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-std::vector<edm4eic::RawPMTHit*>
+std::vector<edm4eic::RawTrackerHit*>
 eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
@@ -74,7 +73,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           double time;
           dd4hep::Position pos;
         };
-        std::unordered_map<uint64_t, std::vector<HitData>> hit_groups;
+        std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         for(const auto& ahit : sim_hits) {
@@ -131,20 +130,20 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
               m_log->trace("hit_group: pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
 
         // build raw hits
-        std::vector<edm4eic::RawPMTHit*> raw_hits;
+        std::vector<edm4eic::RawTrackerHit*> raw_hits;
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
-                edm4eic::RawPMTHit* hit = new edm4eic::RawPMTHit{
+                edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{
                   it.first,
-                  static_cast<uint32_t>(data.signal), 
-                  static_cast<uint32_t>(data.time/m_cfg.timeStep)
+                  static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal),
+                  static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(data.time/m_cfg.timeStep)
                   //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
             }
         }
         return raw_hits;
-        
+
 }
 
 void  eicrecon::PhotoMultiplierHitDigi::qe_init()
@@ -231,7 +230,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 
 // transform global position `pos` to sensor `id` frame position
 // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-// FIXME: here be dragons... 
+// FIXME: here be dragons...
 dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, dd4hep::Position pos) {
 
   // get the VolumeManagerContext for this sensitive detector

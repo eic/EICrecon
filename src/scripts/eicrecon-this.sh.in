@@ -14,12 +14,14 @@ export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
 
 #----------------- JANA2
 if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
+    unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
     export JANA_ROOT=$( readlink -f @JANA_DIR@/../../.. )
     source @JANA_DIR@/../../../bin/jana-this.sh
 fi
 
 #----------------- ROOT
 if [[ -f @ROOT_BINDIR@/thisroot.sh ]] ; then
+    unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
     source @ROOT_BINDIR@/thisroot.sh
 fi
 
@@ -107,4 +109,3 @@ fi
 if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
     export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
-

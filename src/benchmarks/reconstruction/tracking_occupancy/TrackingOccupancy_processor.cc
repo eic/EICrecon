@@ -92,4 +92,3 @@ void TrackingOccupancy_processor::Finish()
 {
 	// Nothing to do here
 }
-

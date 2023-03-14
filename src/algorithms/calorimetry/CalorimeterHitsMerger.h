@@ -46,4 +46,3 @@ public:
     virtual void execute();
 
 }; // class CalorimeterHitsMerger
-

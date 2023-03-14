@@ -28,4 +28,3 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<TruthCluster_factory_B0ECalTruthProtoClusters>());
     }
 }
-    

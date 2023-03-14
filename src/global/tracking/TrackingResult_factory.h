@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKINGRESULT_FACTORY_H
-#define EICRECON_TRACKINGRESULT_FACTORY_H
+#pragma once
 
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFit.h>
@@ -31,6 +30,3 @@ private:
 
     eicrecon::Reco::ParticlesFromTrackFit m_particle_maker_algo;      /// Track source linker algorithm
 };
-
-
-#endif //EICRECON_TRACKINGRESULT_FACTORY_H

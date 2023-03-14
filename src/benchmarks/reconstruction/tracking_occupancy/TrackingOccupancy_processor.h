@@ -1,5 +1,4 @@
-#ifndef EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H
-#define EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H
+#pragma once
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
@@ -59,5 +58,3 @@ private:
 
     std::shared_ptr<spdlog::logger> m_log;
 };
-
-#endif //EICRECON_TRACKING_OCCUPANCY_PROCESSOR_H

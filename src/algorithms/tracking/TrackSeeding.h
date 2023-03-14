@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACK_SEEDING_H
-#define EICRECON_TRACK_SEEDING_H
+#pragma once
 
 #include <functional>
 #include <random>
@@ -64,6 +63,3 @@ namespace eicrecon {
 	std::tuple<float,float> lineFit(std::vector<std::pair<float,float>>& positions) const;
     };
 }
-
-
-#endif //EICRECON_TRUTHTRACKSEEDING_H

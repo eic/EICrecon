@@ -8,8 +8,7 @@
  * which might be changed by user parameters.
  */
 
-#ifndef EICRECON_JCHAINFACTORYT_H
-#define EICRECON_JCHAINFACTORYT_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -85,5 +84,3 @@ private:
     /// Working input tags (with adjustment by user parameters)
     std::vector<std::string> m_input_tags;              /// Tag for the input data
 };
-
-#endif //EICRECON_JCHAINFACTORYT_H

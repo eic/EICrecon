@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
-#define _TruthCluster_factory_HcalBarrelTruthProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -61,5 +60,3 @@ private:
 
     std::shared_ptr<spdlog::logger> m_log;
 };
-
-#endif // _ProtoCLuster_factory_HcalBarrelIslandProtoClusters_h_

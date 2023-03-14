@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKERHITCOLLECTOR_FACTORY_H
-#define EICRECON_TRACKERHITCOLLECTOR_FACTORY_H
+#pragma once
 
 #include <spdlog/logger.h>
 #include <edm4eic/TrackerHit.h>
@@ -38,5 +37,3 @@ namespace eicrecon {
     };
 
 } // eicrecon
-
-#endif //EICRECON_TRACKERHITCOLLECTOR_FACTORY_H

@@ -1,5 +1,4 @@
-#ifndef EICRECON_SILICONTRACKERDIGICONFIG_H
-#define EICRECON_SILICONTRACKERDIGICONFIG_H
+#pragma once
 
 namespace eicrecon {
 
@@ -9,5 +8,3 @@ namespace eicrecon {
     };
 
 } // eicrecon
-
-#endif //EICRECON_SILICONTRACKERDIGICONFIG_H

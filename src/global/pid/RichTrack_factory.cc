@@ -13,7 +13,7 @@ void eicrecon::RichTrack_factory::Init() {
   auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
   auto param_prefix = detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
-  m_radiatorID = rich::ParseRadiatorName(GetTag());
+  m_radiatorID = richgeo::ParseRadiatorName(GetTag());
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
@@ -40,7 +40,7 @@ void eicrecon::RichTrack_factory::Init() {
   };
   set_param("numPlanes", m_numPlanes, "number of track-projection planes");
   m_log->debug("numPlanes = {}",m_numPlanes);
-  
+
   // get RICH geometry for track projection
   m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
   m_trackingPlanes = m_actsGeo->TrackingPlanes(m_radiatorID, m_numPlanes);

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_CKFTRACKINGCONFIG_H
-#define EICRECON_CKFTRACKINGCONFIG_H
+#pragma once
 
 #include <vector>
 
@@ -14,7 +13,3 @@ namespace eicrecon {
         std::vector<size_t> m_numMeasurementsCutOff = {10}; //{this, "numMeasurementsCutOff", {10}};
     };
 }
-
-
-
-#endif //EICRECON_CKFTRACKINGCONFIG_H

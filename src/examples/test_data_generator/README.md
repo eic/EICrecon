@@ -9,7 +9,7 @@ Examples of how to generate data, that might be used for testing
 - [simple_pgun_simulate.py](simple_pgun_simulate.py) - simple example of simulation of one particle gun data
 - [simple_pythia_sim.py](simple_pythia_sim.py) - simple example to run pythia 8 file through dd4hep
 
- 
+
 ## S3 upload
 
 Download AWS cli [from here](https://aws.amazon.com/cli/)

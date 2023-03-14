@@ -8,11 +8,10 @@
 
 #include "DumpFlags_processor.h"
 
-    
+
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
         app->Add(new DumpFlags_processor(app));
     }
 }
-    
