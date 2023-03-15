@@ -16,8 +16,8 @@ namespace eicrecon {
     void RomanPotsReconstruction_factory::Init() {
 
 	std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-	std::string param_prefix = plugin_name + ":" + m_input_tag + ":"; 
-	
+	std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
+
 	auto app = GetApplication();
 
 	m_log = app->GetService<Log_service>()->logger(m_output_tag);
@@ -26,7 +26,7 @@ namespace eicrecon {
 
 	app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
 	m_geoSvc = app->GetService<JDD4hep_service>();
-	
+
 	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
@@ -47,7 +47,7 @@ namespace eicrecon {
 
 
 	m_log->info("RP Decoding complete...");
-		
+
         // local detector name has higher priority
         if (!m_localDetElement.empty()) {
             try {
