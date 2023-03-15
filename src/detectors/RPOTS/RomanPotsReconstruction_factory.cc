@@ -23,7 +23,7 @@ namespace eicrecon {
 	app->SetDefaultParameter("RPOTS:ForwardRomanPotHits:readoutClass", m_readout);
 	m_geoSvc = app->GetService<JDD4hep_service>();
 
-	
+
 	if(m_readout.empty()){ std::cout << "READOUT IS EMPTY!" << std::endl;  return; }
 
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
@@ -43,7 +43,7 @@ namespace eicrecon {
         }
 
 	std::cout << "Decoding complete..." << std::endl;
-		
+
         // local detector name has higher priority
         if (!m_localDetElement.empty()) {
             try {
@@ -68,7 +68,7 @@ namespace eicrecon {
             //                      fmt::join(fields, ", "))
             //        << endmsg;
         }
-	
+
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
         if (det == 0) {
@@ -122,17 +122,17 @@ namespace eicrecon {
         for (const auto h: rawhits) {
 
             auto cellID = h->getCellID();
-		
+
 	    //global --> local begins here -----
 
             auto gpos = converter->position(cellID);
-            
+
 	    // local positions
             //if (m_localDetElement.empty()) {
             auto volman = m_geoSvc->detector()->volumeManager();
             local = volman.lookupDetElement(cellID);
 	    //}
-	   
+
             auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
 	    //information is stored in cm, we need mm - multiply everything by 10 for now
