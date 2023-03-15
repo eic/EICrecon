@@ -11,20 +11,23 @@
 namespace eicrecon {
 
 
-    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticles"); }
+    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag(m_output_tag); }
 
     void RomanPotsReconstruction_factory::Init() {
 
-        auto app = GetApplication();
+	std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+	std::string param_prefix = plugin_name + ":" + m_input_tag + ":"; 
+	
+	auto app = GetApplication();
 
-	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticles");
+	m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-	m_readout = "ForwardRomanPotHits";
-	app->SetDefaultParameter("RPOTS:ForwardRomanPotHits:readoutClass", m_readout);
+	m_readout = m_input_tag;
+
+	app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
 	m_geoSvc = app->GetService<JDD4hep_service>();
-
-
-	if(m_readout.empty()){ std::cout << "READOUT IS EMPTY!" << std::endl;  return; }
+	
+	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
         auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
         try {
@@ -42,8 +45,9 @@ namespace eicrecon {
             throw JException("Failed to load ID decoder");
         }
 
-	std::cout << "Decoding complete..." << std::endl;
 
+	m_log->info("RP Decoding complete...");
+		
         // local detector name has higher priority
         if (!m_localDetElement.empty()) {
             try {
@@ -135,21 +139,21 @@ namespace eicrecon {
 
             auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-	    //information is stored in cm, we need mm - multiply everything by 10 for now
+	    //information is stored in cm, we need mm - divide by dd4hep::mm
 
-	    if(!goodHit2 && 10*gpos.z() > 27099.0 && 10*gpos.z() < 28022.0){
+	    if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
 
-		goodHitX[1] = 10*pos0.x();
-		goodHitY[1] = 10*pos0.y();
-		goodHitZ[1] = 10*gpos.z();
+		goodHitX[1] = pos0.x()/dd4hep::mm;
+		goodHitY[1] = pos0.y()/dd4hep::mm;
+		goodHitZ[1] = gpos.z()/dd4hep::mm;
 	    	goodHit2 = true;
 
 	    }
-	    if(!goodHit1 && 10*gpos.z() > 25099.0 && 10*gpos.z() < 26022.0){
+	    if(!goodHit1 && gpos.z()/dd4hep::mm > 25099.0 && gpos.z()/dd4hep::mm < 26022.0){
 
-		goodHitX[0] = 10*pos0.x();
-		goodHitY[0] = 10*pos0.y();
-		goodHitZ[0] = 10*gpos.z();
+		goodHitX[0] = pos0.x()/dd4hep::mm;
+		goodHitY[0] = pos0.y()/dd4hep::mm;
+		goodHitZ[0] = gpos.z()/dd4hep::mm;
 		goodHit1 = true;
 
 	    }

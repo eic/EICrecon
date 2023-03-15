@@ -82,6 +82,8 @@ namespace eicrecon {
 
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+		std::string m_input_tag  = "ForwardRomanPotHits"; 
+		std::string m_output_tag = "ForwardRomanPotRecParticles";
 
     };
 
