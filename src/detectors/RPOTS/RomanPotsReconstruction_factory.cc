@@ -19,8 +19,14 @@ namespace eicrecon {
 
 	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticles");
 
-	/*
-        auto id_spec = detector->readout(m_readout).idSpec();
+	m_readout = "ForwardRomanPotHits";
+	app->SetDefaultParameter("RPOTS:ForwardRomanPotHits:readoutClass", m_readout);
+	m_geoSvc = app->GetService<JDD4hep_service>();
+
+	
+	if(m_readout.empty()){ std::cout << "READOUT IS EMPTY!" << std::endl;  return; }
+
+        auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
         try {
             id_dec = id_spec.decoder();
             if (!m_sectorField.empty()) {
@@ -36,6 +42,8 @@ namespace eicrecon {
             throw JException("Failed to load ID decoder");
         }
 
+	std::cout << "Decoding complete..." << std::endl;
+		
         // local detector name has higher priority
         if (!m_localDetElement.empty()) {
             try {
@@ -60,7 +68,7 @@ namespace eicrecon {
             //                      fmt::join(fields, ", "))
             //        << endmsg;
         }
-	*/
+	
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
         if (det == 0) {
@@ -89,15 +97,10 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
+
 	std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
 
-    	// See Wouter's example to extract local coordinates CalorimeterHitReco.cpp
-    	// includes DDRec/CellIDPositionConverter.here
-    	// See tutorial
-    	// auto converter = m_GeoSvc ....
-    	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
-    	// include the Eigen libraries, used in ACTS, for the linear algebra.
-
+	auto converter = m_geoSvc->cellIDPositionConverter();
 
 	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 
@@ -118,33 +121,35 @@ namespace eicrecon {
 
         for (const auto h: rawhits) {
 
-            // auto cellID = h->getCellID();
-            // The actual hit position in Global Coordinates
-            auto pos0 = h->getPosition();
+            auto cellID = h->getCellID();
+		
+	    //global --> local begins here -----
 
-	    //TODO: this code is for the local coordinates conversion -- next PR
-            //auto gpos = converter->position(cellID);
-            // local positions
+            auto gpos = converter->position(cellID);
+            
+	    // local positions
             //if (m_localDetElement.empty()) {
-            //    auto volman = detector->volumeManager();
-            //    local = volman.lookupDetElement(cellID);
-            //}
-            //auto pos0 = local.nominal().worldToLocal(
-            //        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
+            auto volman = m_geoSvc->detector()->volumeManager();
+            local = volman.lookupDetElement(cellID);
+	    //}
+	   
+            auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-	    if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){
+	    //information is stored in cm, we need mm - multiply everything by 10 for now
 
-		goodHitX[1] = pos0.x;
-		goodHitY[1] = pos0.y;
-		goodHitZ[1] = pos0.z;
+	    if(!goodHit2 && 10*gpos.z() > 27099.0 && 10*gpos.z() < 28022.0){
+
+		goodHitX[1] = 10*pos0.x();
+		goodHitY[1] = 10*pos0.y();
+		goodHitZ[1] = 10*gpos.z();
 	    	goodHit2 = true;
 
 	    }
-	    if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){
+	    if(!goodHit1 && 10*gpos.z() > 25099.0 && 10*gpos.z() < 26022.0){
 
-		goodHitX[0] = pos0.x;
-		goodHitY[0] = pos0.y;
-		goodHitZ[0] = pos0.z;
+		goodHitX[0] = 10*pos0.x();
+		goodHitY[0] = 10*pos0.y();
+		goodHitZ[0] = 10*gpos.z();
 		goodHit1 = true;
 
 	    }
@@ -160,7 +165,7 @@ namespace eicrecon {
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
 	    //
-            double XL[2] = {goodHitX[0] - local_x_offset_station_1, goodHitX[1] - local_x_offset_station_2};
+            double XL[2] = {goodHitX[0], goodHitX[1]};
             double YL[2] = {goodHitY[0], goodHitY[1]};
 
             double base = goodHitZ[1] - goodHitZ[0];
