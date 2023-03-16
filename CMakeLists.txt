@@ -32,8 +32,7 @@ project(EICRecon)
 
 # Set version based on git
 include(cmake/git_version.cmake)
-set_git_version(VERSION)
-set(CMAKE_PROJECT_VERSION ${VERSION})
+set_git_version(CMAKE_PROJECT_VERSION)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
