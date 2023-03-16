@@ -13,14 +13,14 @@ macro(set_git_version VERSION)
       OUTPUT_STRIP_TRAILING_WHITESPACE
       )
     if(NOT GIT_DESCRIBE_ERROR_CODE)
-	    set(VERSION ${GIT_DESCRIBE_VERSION})
+	    set(${VERSION} ${GIT_DESCRIBE_VERSION} PARENT_SCOPE)
     endif()
   endif()
 
   # Final fallback: Just use a bogus version string that is semantically older
   # than anything else and spit out a warning to the developer.
-  if(NOT DEFINED VERSION)
-    set(VERSION v0.0.0-unknown)
-    message(WARNING "Failed to determine VERSION from Git tags. Using default version \"${VERSION}\".")
+  if(NOT DEFINED ${VERSION})
+    set(${VERSION} v0.0.0-unknown PARENT_SCOPE)
+    message(WARNING "Failed to determine VERSION from Git tags. Using default version \"${${VERSION}}\".")
   endif()
 endmacro()
