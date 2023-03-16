@@ -3,7 +3,6 @@
 //
 //
 
-#include "JEventSourcePODIO.h"
 #include "JEventSourcePODIOsimple.h"
 #include "JEventProcessorPODIO.h"
 
@@ -12,7 +11,6 @@
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIOsimple>());
 
     // Disable this behavior for now so one can run eicrecon with only the

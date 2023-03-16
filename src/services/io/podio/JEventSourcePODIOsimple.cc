@@ -30,30 +30,29 @@
 
 
 //------------------------------------------------------------------------------
-// CopyPodioToJEventSimpleT
+// InsertingVisitor
 //
-/// This is called from the GetEvent method below by way of the generated code
-/// in datamodel_glue.h. This will make copies of the high-level podio objects
-/// that wrap the same "Obj" mid-level objects managed by the collection.
-/// The copies of the high-level objects are managed by JANA and can be accessed
-/// via the standard JANA event.Get<>() mechanism.
+/// This datamodel visitor will insert a PODIO collection into a JEvent.
+/// This allows us to access the PODIO data through JEvent::Get and JEvent::GetCollection.
+/// This makes it transparent to downstream factories whether the data was loaded from file, or calculated.
+/// InsertingVisitor is called in GetEvent()
 ///
-/// \tparam T           podio high-level data type (e.g. edm4hep::EventHeader)
-/// \tparam Tcollection podio collection type (e.g. edm4hep::EventHeaderCollection)
-/// \param collection   pointer to the podio collection (e.g. edm4hep::EventHeaderCollection*)
-/// \param name         name of the collection which will be used as the factory tag for these objects
-/// \param event        JANA JEvent to copy the data objects into
+/// \param event             JANA JEvent to copy the data objects into
+/// \param collection_name   name of the collection which will be used as the factory tag for these objects
 //------------------------------------------------------------------------------
-template <typename T, typename Tcollection>
-void CopyToJEventSimpleT(const Tcollection *collection, const std::string &name, std::shared_ptr<JEvent> &event){
+struct InsertingVisitor {
+    JEvent& m_event;
+    const std::string& m_collection_name;
 
-    std::vector<const T*> tptrs;
-    for( int i=0; i<collection->size(); i++){
-        const auto &obj = (*collection)[i];  // Create new object of type "T" on stack that uses existing "Obj" object.
-        tptrs.push_back( new T(obj) ); // Create new object of type "T" on heap that uses existing "Obj" object.
+    InsertingVisitor(JEvent& event, const std::string& collection_name) : m_event(event), m_collection_name(collection_name){};
+
+    template <typename T>
+    void operator() (const T& collection) {
+        using ContentsT = typename PodioCollectionMap<T>::contents_t;
+        m_event.InsertCollection<ContentsT>(&collection, m_collection_name);
     }
-    event->Insert( tptrs, name );
-}
+};
+
 
 //------------------------------------------------------------------------------
 // Constructor
@@ -66,7 +65,7 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
 
     // Tell JANA that we want it to call the FinishEvent() method.
-    EnableFinishEvent();
+    // EnableFinishEvent();
 
     // Allow user to specify to recycle events forever
     GetApplication()->SetDefaultParameter(
@@ -82,6 +81,10 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
             "Print list of collection names and their types"
             );
 
+    // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
+    // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
+    // quite inefficient.
+    /*
     std::string background_filename;
     GetApplication()->SetDefaultParameter(
             "podio:background_filename",
@@ -95,7 +98,7 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
             num_background_events,
             "Number of background events to add to every primary event."
     );
-
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -103,10 +106,6 @@ JEventSourcePODIOsimple::JEventSourcePODIOsimple(std::string resource_name, JApp
 //------------------------------------------------------------------------------
 JEventSourcePODIOsimple::~JEventSourcePODIOsimple() {
     LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
-    for( auto &[bg_reader, bg_store, ievent] : readers_background ){
-        delete bg_store;
-        delete bg_reader;
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -117,8 +116,8 @@ JEventSourcePODIOsimple::~JEventSourcePODIOsimple() {
 void JEventSourcePODIOsimple::Open() {
 
     bool print_type_table = GetApplication()->GetParameterValue<bool>("podio:print_type_table");
-    std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
-    int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
+    // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
+    // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
     // Open primary events file
     try {
@@ -136,9 +135,9 @@ void JEventSourcePODIOsimple::Open() {
 
         // Have PODIO reader open file and get the number of events from it.
         reader.openFile( GetResourceName() );
-        if( ! reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );
+        if( ! m_reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );
 
-        auto version = reader.currentFileVersion();
+        auto version = m_reader.currentFileVersion();
         bool version_mismatch = version.major > podio::version::build_version.major;
         version_mismatch |= (version.major == podio::version::build_version.major) && (version.minor>podio::version::build_version.minor);
         if( version_mismatch ) {
@@ -150,11 +149,8 @@ void JEventSourcePODIOsimple::Open() {
 
         LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version << ")" << LOG_END;
 
-        Nevents_in_file = reader.getEntries();
+        Nevents_in_file = m_reader.getEntries("events");
         LOG << "Opened PODIO file \"" << GetResourceName() << "\" with " << Nevents_in_file << " events" << LOG_END;
-
-        store.setReader(&reader);
-        reader.readEvent();
 
         if( print_type_table ) PrintCollectionTypeTable();
 
@@ -163,44 +159,19 @@ void JEventSourcePODIOsimple::Open() {
         throw JException( fmt::format( "Problem opening file \"{}\"", GetResourceName() ) );
     }
 
-    // If the user specified a background events file, then create dedicated readers
-    // and EventStores for the number of background events to be added to each primary event.
-    // This seems a bit over-the-top, but podio likes the data objects to be owned by a
-    // collection and a collection to be owned by an EventStore. Thus, we do it this way.
-    if( ! background_filename.empty() ) {
-        for (int i = 0; i < num_background_events; i++) {
-            auto bg_reader = new podio::ROOTReader();
-            auto bg_store = new podio::EventStore();
-            bg_reader->openFile( background_filename );
-            if (!bg_reader->isValid())
-                throw std::runtime_error(fmt::format("podio ROOTReader says background events file {} is invalid", background_filename));
-
-            auto version = bg_reader->currentFileVersion();
-            bool version_mismatch = version.major > podio::version::build_version.major;
-            version_mismatch |= (version.major == podio::version::build_version.major) &&
-                                (version.minor > podio::version::build_version.minor);
-            if (version_mismatch) {
-                std::stringstream ss;
-                ss << "Mismatch in PODIO versions for background file! " << version << " > " << podio::version::build_version;
-                // FIXME: The podio ROOTReader is somehow failing to read in the correct version numbers from the file
-//            throw JException(ss.str());
-            }
-
-            // Need to offset where events are read from each file so they are not duplicating background events
-            // (at least any more than necessary)
-            auto Nentries_background = bg_reader->getEntries();
-            auto offset = (readers_background.size()*Nentries_background)/num_background_events;
-
-            bg_store->setReader(bg_reader);
-            bg_reader->goToEvent(offset);
-            bg_reader->readEvent();
-
-            readers_background.emplace_back(bg_reader, bg_store, offset);
-        }
-
-        LOG << "Merging " << readers_background.size() << " background events from " << background_filename << LOG_END;
-    }
 }
+
+//------------------------------------------------------------------------------
+// Close
+//
+/// Cleanly close the resource when JANA is terminated via Ctrl-C or jana:nevents
+///
+/// \param event
+//------------------------------------------------------------------------------
+void JEventSourcePODIOsimple::Close() {
+    m_reader.closeFile();
+}
+
 
 //------------------------------------------------------------------------------
 // GetEvent
@@ -219,78 +190,31 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
         if( m_run_forever ){
             Nevents_read = 0;
         }else{
-            reader.closeFile();
+            m_reader.closeFile();
             throw RETURN_STATUS::kNO_MORE_EVENTS;
         }
     }
 
-    // The podio supplied RootReader and EventStore are not multi-thread capable so limit to a single event in flight
-    // Since the JANA skip events mechanism does not seem to call FinishEvent when skipping, any flag for
-    // in-flight events will not be cleared. Thus, use the JEvent pointer so that
-    std::thread::id no_thread; // default value is no thread
-    if( processing_thread_id == no_thread ){
-        // No thread is processing event
-        processing_thread_id = std::this_thread::get_id();
-    }else if( processing_thread_id != std::this_thread::get_id() ){
-        // Another thread is already processing the event
-        throw RETURN_STATUS ::kBUSY;
+    auto frame_data = m_reader.readEntry("events", Nevents_read);
+    auto frame = std::make_unique<podio::Frame>(std::move(frame_data));
+
+    auto& event_headers = frame->get<EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
+    if (event_headers.size() != 1) {
+        throw JException("Bad event headers: Entry %d contains %d items, but 1 expected.", Nevents_read, event_headers.size());
+    }
+    event->SetEventNumber(event_headers[0].getEventNumber());
+    event->SetRunNumber(event_headers[0].getRunNumber());
+
+    // Insert contents of frame into JFactories
+    DatamodelCollectionVisit<InsertingVisitor> visit;
+    for (const std::string& coll_name : frame->getAvailableCollections()) {
+        const podio::CollectionBase* collection = frame->get(coll_name);
+        InsertingVisitor visitor(*event, coll_name);
+        visit(visitor, *collection);
     }
 
-    // Read the specified event into the EventStore and make the EventStore pointer available via JANA
-    store.clear();
-    reader.endOfEvent();
-    reader.goToEvent( Nevents_read++ );
-    auto fac = event->Insert( &store );
-    fac->SetFactoryFlag(JFactory::NOT_OBJECT_OWNER); // jana should not delete this
-
-    // Loop over collections in EventStore and copy pointers to their contents into jevent
-    auto collectionIDtable = store.getCollectionIDTable();
-    for( auto id : collectionIDtable->ids() ){
-         podio::CollectionBase *coll={nullptr};
-        if( store.get(id, coll) ){
-            auto name = collectionIDtable->name(id);
-            auto className = coll->getTypeName();
-            CopyToJEventSimple( className, name, coll, event);
-
-            if( name == "EventHeader"){
-                auto ehc = reinterpret_cast<const edm4hep::EventHeaderCollection *>(coll);
-                if( ehc && ehc->size() ){
-                    event->SetEventNumber( (*ehc)[0].getEventNumber());
-                    event->SetRunNumber( (*ehc)[0].getRunNumber());
-                }
-            }
-        }
-    }
-
-    // If user specified to add background hits, do that here
-    for( auto &[bg_reader, bg_store, ievent] : readers_background ){
-        bg_store->clear();
-        bg_reader->endOfEvent();
-        if( ++ievent >= bg_reader->getEntries() ) ievent = 0; // rewind if we have used all events
-        bg_reader->goToEvent( ievent );
-        event->Insert( bg_store ); // factory already flagged as NOT_OBJECT_OWNER above
-        auto bg_collectionIDtable = bg_store->getCollectionIDTable();
-        for (auto id: bg_collectionIDtable->ids()) {
-            podio::CollectionBase *coll = {nullptr};
-            if (bg_store->get(id, coll)) {
-                auto name = bg_collectionIDtable->name(id);
-                auto className = coll->getTypeName();
-                CopyToJEventSimple(className, name, coll, event); // n.b. this will add to existing objects
-            }
-        }
-    }
-}
-
-//------------------------------------------------------------------------------
-// FinishEvent
-//
-/// Clear the flag used to limit us to a single event in flight.
-///
-/// \param event
-//------------------------------------------------------------------------------
-void JEventSourcePODIOsimple::FinishEvent(JEvent &event){
-
-    processing_thread_id = std::thread::id(); // reset to no thread value
+    event->Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
+    Nevents_read += 1;
 }
 
 //------------------------------------------------------------------------------
@@ -331,21 +255,22 @@ double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::strin
 //------------------------------------------------------------------------------
 void JEventSourcePODIOsimple::PrintCollectionTypeTable(void) {
 
-    // First, get maximum length of the collection name strings so
-    // we can print nicely aligned columns.
+    // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
+    auto frame_data = m_reader.readEntry("events", 0);
+    auto frame = std::make_unique<podio::Frame>(std::move(frame_data));
+
+    std::map<std::string, std::string> collectionNames;
     size_t max_name_len = 0;
     size_t max_type_len = 0;
-    std::map<std::string, std::string> collectionNames;
-    auto collectionIDtable = store.getCollectionIDTable();
-    for (auto id : collectionIDtable->ids()) {
-        auto name = collectionIDtable->name(id);
-        podio::CollectionBase *coll = {nullptr};
-        if (store.get(id, coll)) {
-            auto type = coll->getTypeName();
-            max_name_len = std::max(max_name_len, name.length());
-            max_type_len = std::max(max_type_len, type.length());
-            collectionNames[name] = type;
-        }
+
+    // Record all (collection name, value type name) pairs
+    // Record the maximum length of both strings so that we can print nicely aligned columns.
+    for (const std::string& name : frame->getAvailableCollections()) {
+        const podio::CollectionBase* coll = frame->get(name);
+        const std::string& type = coll->getTypeName();
+        max_name_len = std::max(max_name_len, name.length());
+        max_type_len = std::max(max_type_len, type.length());
+        collectionNames[name] = type;
     }
 
     // Print table
@@ -362,3 +287,4 @@ void JEventSourcePODIOsimple::PrintCollectionTypeTable(void) {
     std::cout << std::endl;
 
 }
+
