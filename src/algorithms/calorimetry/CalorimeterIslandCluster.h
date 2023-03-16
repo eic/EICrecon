@@ -225,10 +225,7 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (m_log->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
-        //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-        m_log->trace("No maxima found, not building any clusters");
-      }
+      m_log->debug("No maxima found, not building any clusters");
       return;
     } else if (maxima.size() == 1) {
       edm4eic::MutableProtoCluster pcl;
@@ -288,8 +285,6 @@ private:
     for (auto& pcl : pcls) {
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
     }
-    if (m_log->level() <= spdlog::level::info) {
-      m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
-    }
+    m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
   }
 };
