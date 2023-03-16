@@ -32,7 +32,7 @@ namespace eicrecon {
     float m_sigmaScattering = 5;
     float m_radLengthPerSeed = 0.1;
     float m_minPt = 100.; // MeV
-    float m_bFieldInZ = 0.0017; //kTesla
+    float m_bFieldInZ = 1.7 * Acts::UnitConstants::T; // GeV/(e*mm)
     float m_beamPosX = 0;
     float m_beamPosY = 0;
 
