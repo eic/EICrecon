@@ -82,6 +82,9 @@ namespace eicrecon {
           );
       void AlgorithmFinish();
 
+      // h*c constant, for wavelength <=> energy conversion [GeV*nm]
+      static constexpr double HC = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm);
+
     private:
 
       // histograms (both radiators combined)
