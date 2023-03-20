@@ -45,7 +45,6 @@ extern "C" {
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelMergedHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalBarrelClusters>());

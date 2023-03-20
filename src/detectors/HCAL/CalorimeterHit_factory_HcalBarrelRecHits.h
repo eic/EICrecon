@@ -25,11 +25,11 @@ public:
         m_input_tag = "HcalBarrelRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=256; // best guess
-        m_dyRangeADC=20. * dd4hep::MeV; // best guess
-        m_pedMeanADC=20; // best guess
-        m_pedSigmaADC=0.3; // best guess
-        m_resolutionTDC=10 * dd4hep::picosecond; // best guess
+        m_capADC=65536;
+        m_dyRangeADC=1.0. * dd4hep::GeV;
+        m_pedMeanADC=10;
+        m_pedSigmaADC=2.0;
+        m_resolutionTDC=1.0 * dd4hep::picosecond;
 
         // zero suppression values
         m_thresholdFactor=5.0;// from ATHENA's reconstruction.py
