@@ -37,7 +37,7 @@ public:
         //   32 = number of sectors
         //   24 = number of towers per sector in phi
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "((((abs(sector_1-sector_2)==0)&&(abs(tower_1-tower_2)==1))==1)+(((abs(sector_1-sector_2)==0)&&(abs(fmod(tower_1,24)-fmod(tower_2,24))==0))==1)+(((abs(sector_1-sector_2)==1)&&(abs(fmod(tower_1,24)-fmod(tower_2,24))==0))==1)+(((abs(fmod(sector_1,31)-fmod(sector_2,31))==0)&&(abs(fmod(tower_1,24)-fmod(tower_2,24))==0))==1))==1";
+        u_adjacencyMatrix = "((((abs(sector_1-sector_2)==0)&&(abs(tower_1-tower_2)==1))==1)||(((abs(sector_1-sector_2)==0)&&(abs(tower_1-tower_2)==24))==1)||(((abs(sector_1-sector_2)==1)&&(abs(tower_1-tower_2)==24))==1)||(((abs(fmod(sector_1,31)-fmod(sector_2,31))==0)&&(abs(tower_1-tower_2)==24))==1))==1";
         m_readout = "HcalBarrelHits";
 
         // neighbour checking distances
