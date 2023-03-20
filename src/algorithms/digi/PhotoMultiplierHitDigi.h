@@ -17,7 +17,7 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawPMTHit.h>
+#include <edm4eic/RawTrackerHit.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
 
@@ -35,7 +35,7 @@ public:
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::RawPMTHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    std::vector<edm4eic::RawTrackerHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
