@@ -18,13 +18,13 @@
 #include <JANA/JEvent.h>
 // #include <extensions/spdlog/SpdlogMixin.h>
 
-// // The following just makes this a JANA plugin
-// extern "C" {
-// void InitPlugin(JApplication* app) {
-//   InitJANAPlugin(app);
-//   app->Add(new tracking_studiesProcessor());
-// }
-// }
+// The following just makes this a JANA plugin
+extern "C" {
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new tracking_studiesProcessor());
+}
+}
 
 //-------------------------------------------
 // InitWithGlobalRootLock
