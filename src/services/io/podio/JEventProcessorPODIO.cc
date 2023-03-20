@@ -109,8 +109,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicseSigma",
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
-            "JetTruth",
-            "JetReco",
 
             // Ecal stuff
             "EcalEndcapNRawHits",

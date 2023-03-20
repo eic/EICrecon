@@ -249,19 +249,3 @@ macro(plugin_add_cern_root _name)
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
     plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
 endmacro()
-
-
-# Adds FastJet for a plugin
-macro(plugin_add_fastjet _name)
-
-    if(NOT FASTJET_FOUND)
-        find_package(FastJet REQUIRED)
-    endif()
-
-    # Add include directories
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS} )
-
-    # Add libraries
-    plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
-
-endmacro()
