@@ -10,12 +10,16 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
+#include <global/pid/RichPseudoTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
+#include <algorithms/pid/PseudoTracksConfig.h>
 
+// other
+#include <services/geometry/richgeo/RichGeo.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -62,6 +66,11 @@ extern "C" {
      * FIXME: set irt_cfg.radiators.at(*).zbins below to match RichTrack config
      */
 
+    // pseudo-track points for each radiator: uses photon pinning to get the real track
+    PseudoTracksConfig pseudo_track_cfg[richgeo::nRadiators];
+    pseudo_track_cfg[richgeo::kAerogel].numPoints = 5;
+    pseudo_track_cfg[richgeo::kGas].numPoints     = 10;
+
     // PID
     IrtCherenkovParticleIDConfig irt_cfg;
     // - refractive index interpolation
@@ -85,7 +94,6 @@ extern "C" {
     // - cheat modes
     irt_cfg.cheatPhotonVertex  = true;
     irt_cfg.cheatTrueRadiator  = true;
-    irt_cfg.cheatPhotonPinning = true;
 
 
     // wiring between factories and data ///////////////////////////////////////
@@ -105,9 +113,21 @@ extern "C" {
           {"CentralCKFTrajectories"},
           "DRICHGasTracks"
           ));
+    // pseudo-track points
+    app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>(
+          {"DRICHHits"},
+          "DRICHAerogelPseudoTracks",
+          pseudo_track_cfg[richgeo::kAerogel]
+          ));
+    app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>(
+          {"DRICHHits"},
+          "DRICHGasPseudoTracks",
+          pseudo_track_cfg[richgeo::kGas]
+          ));
     // PID
     app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          {"DRICHRawHitsAssociations", "DRICHAerogelTracks", "DRICHGasTracks"},
+          {"DRICHRawHitsAssociations", "DRICHAerogelPseudoTracks", "DRICHGasPseudoTracks"}, // use pseudo-tracks (photon vertices)
+          // {"DRICHRawHitsAssociations", "DRICHAerogelTracks", "DRICHGasTracks"}, // use track reconstruction
           "DRICHIrtCherenkovParticleID",
           irt_cfg
           ));

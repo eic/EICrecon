@@ -35,7 +35,6 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
   }
   set_param("cheatPhotonVertex",  cfg.cheatPhotonVertex,  "");
   set_param("cheatTrueRadiator",  cfg.cheatTrueRadiator,  "");
-  set_param("cheatPhotonPinning", cfg.cheatPhotonPinning, "");
 
   // initialize underlying algorithm
   m_irt_algo.applyConfig(cfg);

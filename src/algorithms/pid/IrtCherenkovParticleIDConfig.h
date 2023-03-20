@@ -43,7 +43,6 @@ namespace eicrecon {
        */
       bool cheatPhotonVertex  = false; // if true, use photon vertex info from MC truth
       bool cheatTrueRadiator  = false; // if true, use MC truth to obtain true radiator, for each hit
-      bool cheatPhotonPinning = false; // if true, use photon vertices as charged particle points
 
       //
       /////////////////////////////////////////////////////
@@ -61,14 +60,11 @@ namespace eicrecon {
         };
         puts("cheatPhotonVertex",  cheatPhotonVertex,  "using MC truth for photon vertex info");
         puts("cheatTrueRadiator",  cheatTrueRadiator,  "using MC truth to obtain true radiator");
-        puts("cheatPhotonPinning", cheatPhotonPinning, "using photon vertices as charged particle points");
       }
 
       // boolean: true if any cheat mode is enabled
       bool CheatModeEnabled() {
-        return cheatPhotonVertex
-          || cheatTrueRadiator
-          || cheatPhotonPinning;
+        return cheatPhotonVertex || cheatTrueRadiator;
       }
 
       // print all parameters
