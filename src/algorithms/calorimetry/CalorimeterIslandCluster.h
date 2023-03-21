@@ -251,15 +251,39 @@ private:
       pcls.emplace_back();
     }
 
+    double lambda;
+    {
+      const double lambda_min = 1e-3, lambda_max = 1e1;
+      const int num_steps = 40;
+      const double scale = std::pow(lambda_max / lambda_min, 1. / num_steps);
+      std::vector<double> xi2(num_steps, 0.);
+
+      lambda = lambda_min;
+      for (int step = 0; step < num_steps; step++, lambda *= scale) {
+        // calculate weights for local maxima
+        for (const auto& chit : maxima) {
+          double dist_ref = chit->getDimension().x;
+          double energy   = chit->getEnergy();
+          for (const auto& [idx, hit] : group) {
+            double dist     = edm4eic::magnitude(hitsDist(chit, hit));
+            xi2[step] += std::pow(hit->getEnergy() - std::exp(-dist / lambda) * energy, 2.);
+          }
+        }
+      }
+      lambda = lambda_min * std::pow(scale, std::min_element(xi2.begin(), xi2.end()) - xi2.begin());
+      m_log->debug("lambda = {:e}, group.size() = {}", lambda, group.size());
+    }
+
     size_t i = 0;
     for (const auto& [idx, hit] : group) {
       size_t j = 0;
+
       // calculate weights for local maxima
       for (const auto& chit : maxima) {
         double dist_ref = chit->getDimension().x;
         double energy   = chit->getEnergy();
         double dist     = edm4eic::magnitude(hitsDist(chit, hit));
-        weights[j]      = std::exp(-dist / dist_ref) * energy;
+        weights[j]      = std::exp(-dist / lambda) * energy;
         j += 1;
       }
 
