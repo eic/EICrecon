@@ -8,7 +8,6 @@
 
 #include "RawCalorimeterHit_factory_HcalBarrelRawHits.h"
 #include "CalorimeterHit_factory_HcalBarrelRecHits.h"
-#include "CalorimeterHit_factory_HcalBarrelMergedHits.h"
 #include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 #include "Cluster_factory_HcalBarrelClusters.h"
