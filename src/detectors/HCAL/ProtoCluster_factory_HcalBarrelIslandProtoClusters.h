@@ -36,7 +36,8 @@ public:
         m_geoSvcName = "GeoSvc";
         // Magic constants:
         //   32 - number of sectors
-        //   24 - number of towers per sector per phi
+        //   2  - number of rows per sector
+        //   24 - number of towers per row
         u_adjacencyMatrix = 
           "("
           "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
