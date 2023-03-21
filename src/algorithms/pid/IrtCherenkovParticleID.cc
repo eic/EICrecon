@@ -18,6 +18,9 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   // print the configuration parameters
   m_cfg.Print(m_log, spdlog::level::debug);
 
+  // inform the user if a cheat mode is enabled
+  m_cfg.PrintCheats(m_log);
+
   // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
   auto &detectors = m_irt_det_coll->GetDetectors();
   if(detectors.size() == 0) {
@@ -103,9 +106,6 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
   m_log->trace("number of raw sensor hits: {}", in_hit_assocs.size());
-
-  // annoy the user, if a cheat mode is enabled
-  m_cfg.PrintCheats(m_log);
 
   // start output collections
   std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids;

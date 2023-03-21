@@ -93,5 +93,10 @@ std::vector<edm4eic::TrackSegment*> eicrecon::PseudoTracks::AlgorithmProcess(
 
   // append
   out_tracks.push_back(new edm4eic::TrackSegment(out_track)); // force immutable
+
+  // cleanup
+  phot_vertices.clear();
+
+  // return
   return out_tracks;
 }
