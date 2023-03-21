@@ -104,6 +104,7 @@ extern "C" {
           "DRICHRawHitsAssociations",
           digi_cfg
           ));
+
     // track projections
     app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
           {"CentralCKFTrajectories"},
@@ -113,7 +114,9 @@ extern "C" {
           {"CentralCKFTrajectories"},
           "DRICHGasTracks"
           ));
-    // pseudo-track points
+
+    // pseudo-track points (from MC photon vertices)
+    /*
     app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>(
           {"DRICHHits"},
           "DRICHAerogelPseudoTracks",
@@ -124,10 +127,21 @@ extern "C" {
           "DRICHGasPseudoTracks",
           pseudo_track_cfg[richgeo::kGas]
           ));
+          */
+
     // PID
+    std::vector<std::string> irt_input_tags = {
+      /* use reconstructed tracks' propagation */
+      "DRICHAerogelTracks",
+      "DRICHGasTracks",
+      /* use pseudo-tracks (from MC photon vertices); unreliable! */
+      // "DRICHAerogelPseudoTracks",
+      // "DRICHGasPseudoTracks",
+      /* digitized hits */
+      "DRICHRawHitsAssociations"
+    };
     app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          {"DRICHRawHitsAssociations", "DRICHAerogelPseudoTracks", "DRICHGasPseudoTracks"}, // use pseudo-tracks (photon vertices)
-          // {"DRICHRawHitsAssociations", "DRICHAerogelTracks", "DRICHGasTracks"}, // use track reconstruction
+          irt_input_tags,
           "DRICHIrtCherenkovParticleID",
           irt_cfg
           ));
