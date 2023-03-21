@@ -33,11 +33,21 @@ public:
         m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
         // adjacency matrix
-        // [Derek A.] magic numbers:
-        //   32 = number of sectors
-        //   24 = number of towers per sector in phi
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "((((abs(sector_1-sector_2)==0)&&(abs(tower_1-tower_2)==1))==1)||(((abs(sector_1-sector_2)==0)&&(abs(tower_1-tower_2)==24))==1)||(((abs(sector_1-sector_2)==1)&&(abs(tower_1-tower_2)==24))==1)||(((abs(fmod(sector_1,31)-fmod(sector_2,31))==0)&&(abs(tower_1-tower_2)==24))==1))==1";
+        // Magic constants:
+        //   32 - number of sectors
+        //   24 - number of towers per sector per phi
+        u_adjacencyMatrix = 
+          "("
+          "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+          "  + min("
+          "      abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24)),"
+          "      32 * 2 - abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24))"
+          "    )"
+          ") == 1";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
         m_readout = "HcalBarrelHits";
 
         // neighbour checking distances
