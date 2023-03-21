@@ -1,4 +1,4 @@
-// Copyright 2022, Christopher Dilks, adapted from Alexander Kiselev's Juggler implementation `IRTAlgorithm`
+// Copyright 2023, Christopher Dilks, adapted from Alexander Kiselev's Juggler implementation `IRTAlgorithm`
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #include "IrtCherenkovParticleID.h"

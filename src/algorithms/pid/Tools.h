@@ -1,4 +1,4 @@
-// Copyright 2022, Alexander Kiselev, Christopher Dilks
+// Copyright 2023, Alexander Kiselev, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 // Ported from Juggler's JugPID `IRTAlgorithmServices`
