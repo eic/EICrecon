@@ -23,6 +23,7 @@
 void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
+    m_detector = detector;
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
     m_log=logger;
 
@@ -64,7 +65,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 // AlgorithmProcess
 //------------------------
 std::vector<edm4eic::RawTrackerHit*>
-eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
+eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
 
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
         struct HitData {
@@ -149,12 +150,12 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
           //build noise raw hits
           std::unordered_map<uint64_t, std::vector<HitData>> hit_groups_noise;
 
-          const auto& readoutCoder = *detector->readout("DRICHHits").idSpec().decoder();
-          auto m_detRICH = detector->detector("DRICH");
+          const auto& readoutCoder = *m_detector->readout("DRICHHits").idSpec().decoder();
+          auto m_detRICH = m_detector->detector("DRICH");
           auto systemID = m_detRICH.id();
           auto m_posRICH = m_detRICH.placement().position();
-          auto nSectors = detector->constant<int>("DRICH_num_sectors");
-          auto num_px = detector->constant<int>("DRICH_num_px");
+          auto nSectors = m_detector->constant<int>("DRICH_num_sectors");
+          auto num_px = m_detector->constant<int>("DRICH_num_px");
 
           for (int isec = 0; isec < nSectors; isec++) {
             std::string secName = "sec" + std::to_string(isec);

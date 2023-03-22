@@ -35,7 +35,7 @@ public:
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::RawTrackerHit*> AlgorithmProcess(dd4hep::Detector *detector, std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    std::vector<edm4eic::RawTrackerHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
@@ -61,6 +61,7 @@ public:
 
 private:
 
+    dd4hep::Detector* m_detector = nullptr;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
