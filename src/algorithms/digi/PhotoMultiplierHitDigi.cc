@@ -72,6 +72,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
           double signal;
           double time;
           dd4hep::Position pos;
+          dd4hep::Position pos_global;
         };
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
@@ -92,9 +93,9 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
             auto id = ahit->getCellID();
             dd4hep::Position pos_pixel, pos_hit, pos_hit_global;
             if(m_cfg.enablePixelGaps) {
-              pos_pixel = get_sensor_local_position( id, m_cellid_converter->position(id) );
-              pos_hit   = get_sensor_local_position( id, vec2pos(ahit->getPosition())     );
               pos_hit_global =  m_cellid_converter->position(id);
+              pos_pixel = get_sensor_local_position( id, pos_hit_global );
+              pos_hit   = get_sensor_local_position( id, vec2pos(ahit->getPosition())     );
               if( std::abs( pos_hit.x()/dd4hep::mm - pos_pixel.x()/dd4hep::mm ) > m_cfg.pixelSize/2 ||
                   std::abs( pos_hit.y()/dd4hep::mm - pos_pixel.y()/dd4hep::mm ) > m_cfg.pixelSize/2
                 ) continue;
@@ -117,10 +118,10 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit_global});
+                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global});
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit_global}};
+                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
             }
         }
 
@@ -148,14 +149,15 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
           //build noise raw hits
           std::unordered_map<uint64_t, std::vector<HitData>> hit_groups_noise;
 
-          const auto& readoutCoder   = *detector->readout("DRICHHits").idSpec().decoder();
-          auto nSectors       = detector->constant<int>("DRICH_num_sectors");
+          const auto& readoutCoder = *detector->readout("DRICHHits").idSpec().decoder();
+          auto m_detRICH = detector->detector("DRICH");
+          auto systemID = m_detRICH.id();
+          auto m_posRICH = m_detRICH.placement().position();
+          auto nSectors = detector->constant<int>("DRICH_num_sectors");
+          auto num_px = detector->constant<int>("DRICH_num_px");
 
           for (int isec = 0; isec < nSectors; isec++) {
             std::string secName = "sec" + std::to_string(isec);
-            auto m_detRICH = detector->detector("DRICH");
-            auto systemID = m_detRICH.id();
-            auto m_posRICH = m_detRICH.placement().position();
 
             for(auto const& [de_name, detSensor] : m_detRICH.children()) {
               if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
@@ -163,10 +165,10 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
                 auto imodsec = detSensor.id();
                 uint64_t x_encoded = 0;
 
-                for (uint64_t x = 0; x < 7; x++){
+                for (uint64_t x = 0; x < num_px; x++){
                   x_encoded = ( x << readoutCoder["x"].offset() )  & readoutCoder["x"].mask();
                   uint64_t y_encoded = 0;
-                  for (uint64_t y = 0; y < 7; y++){
+                  for (uint64_t y = 0; y < num_px; y++){
                     y_encoded = ( y << readoutCoder["y"].offset() ) & readoutCoder["y"].mask();
                     auto cellID = systemID + imodsec + x_encoded + y_encoded;
                     auto it = hit_groups.find(cellID);
@@ -174,8 +176,9 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
                       // cell time, signal amplitude
                       double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
                       double time = m_cfg.timeWindow*m_rngUni();
-                      auto pos_hit_global = m_cellid_converter->position(cellID);
-                      hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit_global}};
+                      dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
+                      dd4hep::Position pos_hit = get_sensor_local_position( cellID, pos_hit_global );
+                      hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
                     }
                     else continue;
                   }
@@ -183,7 +186,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(dd4hep::Detector *detector, s
               }
             }
           }
- 
+
           for (auto &it : hit_groups_noise) {
             for (auto &data : it.second) {
               edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{

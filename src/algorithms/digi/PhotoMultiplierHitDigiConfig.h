@@ -80,6 +80,7 @@ namespace eicrecon {
         puts("enablePixelGaps",enablePixelGaps);
         puts("pixelSize",pixelSize);
         puts("safetyFactor",safetyFactor);
+        puts("noiseInjection",noiseInjection);
         puts("noiseRate",noiseRate);
         puts("timeWindow",timeWindow);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
