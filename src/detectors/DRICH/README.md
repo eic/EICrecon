@@ -28,17 +28,13 @@ flowchart TB
     Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
   end
 
-  subgraph Reconstruction
-    ParticleAlg[<strong>Particle Reconstruction</strong>]:::alg
-  end
-
   subgraph Digitization
     DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
     RawHits(<strong>DRICHRawHitsAssociations</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
   end
 
   subgraph Charged Particles
-    PseudoTracksAlg[<strong>MC Cherenkov Photon Vertices</strong><br/>PseudoTracks<br><i>PseudoTrack_factory</i>]:::alg
+    PseudoTracksAlg[<strong>MC Cherenkov Photon Vertices</strong><br/>PseudoTrack<br><i>PseudoTrack_factory</i>]:::alg
     PseudoTracks(<strong>DRICHAerogelPseudoTracks</strong><br/><strong>DRICHGasPseudoTracks</strong><br/>edm4eic::TrackSegment):::col
 
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br><i>RichTrack_factory</i>]:::alg
@@ -47,20 +43,20 @@ flowchart TB
 
     TrackOR{OR}:::op
 
-    ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflections<br><i>RichTrackReflections_factory</i>]:::alg
+    ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br><i>RichTrackReflection_factory</i>]:::alg
     Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
   end
 
   subgraph Particle Identification Algorithms
     IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
     IRTPID(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
-    Final[<strong>Final PID</strong><br/>ParticleID<br><i>ParticleID_factory</i>]:::alg
+    TrackPIDAlg[<strong>Track with Final PIDs</strong><br/>RichTrackWithParticleID<br><i>RichTrackWithParticleID_factory</i>]:::alg
   end
 
-  subgraph User-level Outputs
-    FinalPID(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col
-    ReconstructedParticles(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
-  end
+  TrackPID(<strong>DRICHTracksWithParticleID</strong><br/>edm4eic::TrackSegment):::col
+  ProxMatch[<strong>Proximity Matching</strong><br/>ProximityMatcher<br><i>ReconstructedParticleWithParticleID_factory</i>]:::alg
+  ReconstructedChargedParticles(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  ReconstructedParticles(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
 
   %%-----------------
   %% Edges
@@ -86,13 +82,14 @@ flowchart TB
   TrackOR --> IRT
   Reflections --> IRT
   IRT --> IRTPID
-  IRTPID --> Final
-  Final --> FinalPID
+  IRTPID --> TrackPIDAlg
+  TrackPIDAlg --> TrackPID
 
   %% linking
-  Trajectories --> ParticleAlg
-  FinalPID --> ParticleAlg
-  ParticleAlg --> ReconstructedParticles
+  Trajectories -- tracking plugin algorithms --> ReconstructedChargedParticles
+  TrackPID --> ProxMatch
+  ReconstructedChargedParticles --> ProxMatch
+  ProxMatch --> ReconstructedParticles
 ```
 
 ## Data Model
@@ -175,11 +172,11 @@ flowchart LR
 ```
 
 ### User-level PID Output
-- `DRICHAerogelTracks` and `DRICHGasTracks` are combined to `DRICHTracks`
+- `DRICHAerogelTracks` and `DRICHGasTracks` are combined to `DRICHTracksWithParticleID`
 - `DRICHIrtCherenkovParticleID::hypotheses` are combined from each radiator, and transformed to `edm4hep::ParticleID`
   objects named `DRICHParticleID`
-- Use 1-N relation `edm4eic::TrackSegment::particleIDs` to link `DRICHTrack` to `DRICHParticleIDs`
-- Then use (eta,phi) proximity matching to find the `ReconstructedParticle` that corresponds to the `DRICHTrack`, and
+- Use 1-N relation `edm4eic::TrackSegment::particleIDs` to link `DRICHTracksWithParticleID` to `DRICHParticleIDs`
+- Then use (eta,phi) proximity matching to find the `ReconstructedParticle` that corresponds to the `DRICHTrackWithParticleID`, and
   link particle ID objects
   - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object, and
     set `ReconstructedParticle::PDG` accordingly; the diagram below exemplifies this for a pion
@@ -191,7 +188,7 @@ flowchart TB
   classDef comp fill:#8888ff,color:black
 
   %% nodes
-  Track(<strong>DRICHTracks</strong><br/>edm4eic::TrackSegment):::col
+  Track(<strong>DRICHTracksWithParticleID</strong><br/>edm4eic::TrackSegment):::col
   Prox[proximity matching]:::alg
   Recon(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
   subgraph <strong>DRICHParticleID</strong>
