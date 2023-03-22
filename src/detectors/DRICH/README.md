@@ -129,7 +129,7 @@ flowchart LR
     HypGas2([Kaon Hypothesis]):::comp
     HypGas3([Proton Hypothesis]):::comp
   end
-  
+
 
   %% edges
   CPIDAgl --> HypAgl0
