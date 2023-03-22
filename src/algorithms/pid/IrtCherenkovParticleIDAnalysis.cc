@@ -209,7 +209,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     m_log->trace("  Mass Hypotheses:");
     m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
     for(const auto& hyp : pid->getHypotheses())
-      m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", hyp.pdg, hyp.weight, hyp.npe);
+      m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", hyp.PDG, hyp.weight, hyp.npe);
 
     // fill PID histograms
     radiator_histos->m_npe_dist->Fill(pid->getNpe());
@@ -229,7 +229,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     for(const auto& hyp : pid->getHypotheses()) {
       if(hyp.weight > max_weight) {
         max_weight     = hyp.weight;
-        pdg_max_weight = hyp.pdg;
+        pdg_max_weight = hyp.PDG;
       }
     }
     std::string pdg_max_weight_str = "UNKNOWN";

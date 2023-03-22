@@ -318,10 +318,10 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
       // fill Cherenkov angle estimate
       edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
-      out_cherenkov_pid.setRadiator(        decltype(edm4eic::CherenkovParticleIDData::radiator)        (irt_rad->m_ID) );
-      out_cherenkov_pid.setNpe(             decltype(edm4eic::CherenkovParticleIDData::npe)             (npe)           );
-      out_cherenkov_pid.setRefractiveIndex( decltype(edm4eic::CherenkovParticleIDData::refractiveIndex) (rindex_ave)    );
-      out_cherenkov_pid.setPhotonEnergy(    decltype(edm4eic::CherenkovParticleIDData::photonEnergy)    (energy_ave)    );
+      out_cherenkov_pid.setRadiator(        static_cast<decltype(edm4eic::CherenkovParticleIDData::radiator)>        (irt_rad->m_ID) );
+      out_cherenkov_pid.setNpe(             static_cast<decltype(edm4eic::CherenkovParticleIDData::npe)>             (npe)           );
+      out_cherenkov_pid.setRefractiveIndex( static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)> (rindex_ave)    );
+      out_cherenkov_pid.setPhotonEnergy(    static_cast<decltype(edm4eic::CherenkovParticleIDData::photonEnergy)>    (energy_ave)    );
       for(auto [phot_theta,phot_phi] : phot_theta_phi) {
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
@@ -345,9 +345,9 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;
-        out_hypothesis.pdg    = decltype(edm4eic::CherenkovParticleIDHypothesis::pdg)    (pdg);
-        out_hypothesis.weight = decltype(edm4eic::CherenkovParticleIDHypothesis::weight) (hyp_weight);
-        out_hypothesis.npe    = decltype(edm4eic::CherenkovParticleIDHypothesis::npe)    (hyp_npe);
+        out_hypothesis.PDG    = static_cast<decltype(edm4eic::CherenkovParticleIDHypothesis::PDG)>    (pdg);
+        out_hypothesis.weight = static_cast<decltype(edm4eic::CherenkovParticleIDHypothesis::weight)> (hyp_weight);
+        out_hypothesis.npe    = static_cast<decltype(edm4eic::CherenkovParticleIDHypothesis::npe)>    (hyp_npe);
 
         // relate
         out_cherenkov_pid.addToHypotheses(out_hypothesis);

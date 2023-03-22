@@ -12,11 +12,13 @@
 #include <global/pid/RichTrack_factory.h>
 #include <global/pid/RichPseudoTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
+#include <global/pid/ParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
-#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 #include <algorithms/pid/PseudoTracksConfig.h>
+#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
+#include <algorithms/pid/ParticleIDConfig.h>
 
 // other
 #include <services/geometry/richgeo/RichGeo.h>
@@ -71,7 +73,7 @@ extern "C" {
     pseudo_track_cfg[richgeo::kAerogel].numPoints = 5;
     pseudo_track_cfg[richgeo::kGas].numPoints     = 10;
 
-    // PID
+    // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
     // - refractive index interpolation
     irt_cfg.numRIndexBins = 100;
@@ -94,6 +96,10 @@ extern "C" {
     // - cheat modes
     irt_cfg.cheatPhotonVertex  = true;
     irt_cfg.cheatTrueRadiator  = true;
+
+    // Final PID
+    ParticleIDConfig pid_cfg;
+    pid_cfg.highestWeightOnly = true;
 
 
     // wiring between factories and data ///////////////////////////////////////
@@ -144,6 +150,11 @@ extern "C" {
           irt_input_tags,
           "DRICHIrtCherenkovParticleID",
           irt_cfg
+          ));
+    app->Add(new JChainFactoryGeneratorT<ParticleID_factory>(
+          {"DRICHIrtCherenkovParticleID"},
+          "DRICHParticleID",
+          pid_cfg
           ));
   }
 }
