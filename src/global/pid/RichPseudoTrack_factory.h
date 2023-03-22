@@ -12,7 +12,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 
 // algorithms
-#include <algorithms/pid/PseudoTracks.h>
+#include <algorithms/pid/PseudoTrack.h>
 
 // services
 #include <services/geometry/richgeo/RichGeo_service.h>
@@ -23,13 +23,13 @@
 
 namespace eicrecon {
   class RichPseudoTrack_factory :
-    public JChainFactoryT<edm4eic::TrackSegment, PseudoTracksConfig>,
+    public JChainFactoryT<edm4eic::TrackSegment, PseudoTrackConfig>,
     public SpdlogMixin<RichPseudoTrack_factory>
   {
     public:
 
-      explicit RichPseudoTrack_factory(std::vector<std::string> default_input_tags, PseudoTracksConfig cfg) :
-          JChainFactoryT<edm4eic::TrackSegment, PseudoTracksConfig>(std::move(default_input_tags), cfg) {}
+      explicit RichPseudoTrack_factory(std::vector<std::string> default_input_tags, PseudoTrackConfig cfg) :
+          JChainFactoryT<edm4eic::TrackSegment, PseudoTrackConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/
       void Init() override;
@@ -46,6 +46,6 @@ namespace eicrecon {
       richgeo::ActsGeo *m_actsGeo;
       int m_numPlanes;
       int m_radiatorID;
-      eicrecon::PseudoTracks m_tracks_algo;
+      eicrecon::PseudoTrack m_tracks_algo;
   };
 }

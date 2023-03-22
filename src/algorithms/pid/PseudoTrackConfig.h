@@ -7,7 +7,7 @@
 
 namespace eicrecon {
 
-  class PseudoTracksConfig {
+  class PseudoTrackConfig {
     public:
 
       /////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace eicrecon {
           spdlog::level::level_enum lvl=spdlog::level::debug
           )
       {
-        m_log->log(lvl, "{:=^60}"," PseudoTracksConfig Settings ");
+        m_log->log(lvl, "{:=^60}"," PseudoTrackConfig Settings ");
         auto puts = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };

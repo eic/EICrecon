@@ -1,11 +1,11 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-#include "PseudoTracks.h"
+#include "PseudoTrack.h"
 
 // AlgorithmInit
 //---------------------------------------------------------------------------
-void eicrecon::PseudoTracks::AlgorithmInit(
+void eicrecon::PseudoTrack::AlgorithmInit(
     std::function<bool(double,double,double)> within_radiator,
     std::shared_ptr<spdlog::logger>& logger
     )
@@ -18,18 +18,18 @@ void eicrecon::PseudoTracks::AlgorithmInit(
 
 // AlgorithmChangeRun
 //---------------------------------------------------------------------------
-void eicrecon::PseudoTracks::AlgorithmChangeRun() {
+void eicrecon::PseudoTrack::AlgorithmChangeRun() {
 }
 
 
 // AlgorithmProcess
 //---------------------------------------------------------------------------
-std::vector<edm4eic::TrackSegment*> eicrecon::PseudoTracks::AlgorithmProcess(
+std::vector<edm4eic::TrackSegment*> eicrecon::PseudoTrack::AlgorithmProcess(
     std::vector<const edm4hep::SimTrackerHit*>& in_hits
     )
 {
   // logging
-  m_log->trace("{:=^70}"," call PseudoTracks::AlgorithmProcess ");
+  m_log->trace("{:=^70}"," call PseudoTrack::AlgorithmProcess ");
   m_log->trace("number of raw sensor hits: {}", in_hits.size());
 
   // start output collections

@@ -14,17 +14,17 @@
 #include <edm4eic/TrackSegmentCollection.h>
 
 // EICrecon
-#include "PseudoTracksConfig.h"
+#include "PseudoTrackConfig.h"
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
 
-  class PseudoTracks : public WithPodConfig<PseudoTracksConfig> {
+  class PseudoTrack : public WithPodConfig<PseudoTrackConfig> {
 
     public:
-      PseudoTracks() = default;
-      ~PseudoTracks() {}
+      PseudoTrack() = default;
+      ~PseudoTrack() {}
 
       void AlgorithmInit(
           std::function<bool(double,double,double)> within_radiator,

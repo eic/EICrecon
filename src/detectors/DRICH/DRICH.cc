@@ -16,7 +16,7 @@
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
-#include <algorithms/pid/PseudoTracksConfig.h>
+#include <algorithms/pid/PseudoTrackConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 #include <algorithms/pid/ParticleIDConfig.h>
 
@@ -69,7 +69,7 @@ extern "C" {
      */
 
     // pseudo-track points for each radiator: uses photon pinning to get the real track
-    PseudoTracksConfig pseudo_track_cfg[richgeo::nRadiators];
+    PseudoTrackConfig pseudo_track_cfg[richgeo::nRadiators];
     pseudo_track_cfg[richgeo::kAerogel].numPoints = 5;
     pseudo_track_cfg[richgeo::kGas].numPoints     = 10;
 
