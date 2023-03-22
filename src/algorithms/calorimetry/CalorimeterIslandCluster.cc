@@ -65,6 +65,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         {"globalDistRPhi", {globalDistRPhi, {dd4hep::mm, dd4hep::rad}}}, {"globalDistEtaPhi", {globalDistEtaPhi, {1., dd4hep::rad}}}
     };
 
+        hitsDist = globalDistEtaPhi; // FIXME
 
     // set coordinate system
     auto set_dist_method = [this](std::pair<std::string, std::vector<double>> uprop) {
@@ -129,7 +130,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         if (eval.status()) {
           std::stringstream sstr;
           eval.print_error(sstr);
-          m_log->error(sstr.str());
+          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: ", sstr.str()));
         }
         m_log->debug("result = {}", eval.result());
         return eval.result();
@@ -163,9 +164,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     }
 
     if (not method_found) {
-        m_log->error("Cannot determine the clustering coordinates");
-        japp->Quit();
-        return;
+        throw std::runtime_error("Cannot determine the clustering coordinates");
     }
 
     return;

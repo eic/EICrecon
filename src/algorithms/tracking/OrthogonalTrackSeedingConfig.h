@@ -31,8 +31,8 @@ namespace eicrecon {
     float m_cotThetaMax = 16;
     float m_sigmaScattering = 5;
     float m_radLengthPerSeed = 0.1;
-    float m_minPt = 100.; // MeV
-    float m_bFieldInZ = 0.0017; //kTesla
+    float m_minPt = 100. * Acts::UnitConstants::MeV; // MeV
+    float m_bFieldInZ = 1.7 * Acts::UnitConstants::T; // T in Acts units of GeV/(e*mm)
     float m_beamPosX = 0;
     float m_beamPosY = 0;
 
