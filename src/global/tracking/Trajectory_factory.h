@@ -29,7 +29,7 @@ namespace eicrecon {
 
     private:
 
-        std::vector<std::string> m_input_tags; 
+        std::vector<std::string> m_input_tags;
     };
 
 } // eicrecon
