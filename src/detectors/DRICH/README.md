@@ -32,13 +32,13 @@ flowchart TB
     ParticleAlg[<strong>Particle Reconstruction</strong>]:::alg
   end
 
-  subraph Digitization
+  subgraph Digitization
     DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
     RawHits(<strong>DRICHRawHitsAssociations</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
   end
 
   subgraph Charged Particles
-    PseudoTracksAlg[<strong>Pseudo-tracking</strong><br/>PseudoTracks<br><i>PseudoTrack_factory</i>]:::alg
+    PseudoTracksAlg[<strong>MC Cherenkov Photon Vertices</strong><br/>PseudoTracks<br><i>PseudoTrack_factory</i>]:::alg
     PseudoTracks(<strong>DRICHAerogelPseudoTracks</strong><br/><strong>DRICHGasPseudoTracks</strong><br/>edm4eic::TrackSegment):::col
 
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br><i>RichTrack_factory</i>]:::alg
@@ -57,7 +57,7 @@ flowchart TB
     Final[<strong>Final PID</strong><br/>ParticleID<br><i>ParticleID_factory</i>]:::alg
   end
 
-  subgraph Outputs
+  subgraph User-level Outputs
     FinalPID(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col
     ReconstructedParticles(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
   end
