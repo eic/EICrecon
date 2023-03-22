@@ -22,7 +22,7 @@ namespace eicrecon {
 
       void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
       void AlgorithmChangeRun();
-      
+
       /* AlgorithmProcess
        * - produce a `ParticleID` collection, given an input collection
        * - use function overloading to support different input collections from other PID subsystems
