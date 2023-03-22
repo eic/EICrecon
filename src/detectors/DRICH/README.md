@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TB
-  classDef alg fill:#ff8888;
-  classDef col fill:#00aaaa;
-  classDef op fill:#00aa00;
+  classDef alg fill:#ff8888,color:black
+  classDef col fill:#00aaaa,color:black
+  classDef op fill:#00aa00,color:black
   subgraph Inputs
     direction LR
     SimHits(<strong>DRICHHits</strong><br/>edm4hep::SimTrackerHit):::col
