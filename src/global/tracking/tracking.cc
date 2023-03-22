@@ -20,6 +20,7 @@
 #include "TrackerHitCollector_factory.h"
 #include "TrackParameters_factory.h"
 #include "TrackProjector_factory.h"
+#include "Trajectory_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
 #include <global/reco/ReconstructedParticles_factory.h>
 #include <global/reco/ReconstructedParticleAssociations_factory.h>
@@ -62,6 +63,9 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<TrackingResult_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
+    
+    app->Add(new JChainFactoryGeneratorT<Trajectory_factory>(
+            {"CentralCKFTrajectories"}, "outputTrajectories"));  
 
     app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
             {"CentralTrackingParticles"}, "outputParticles"));
