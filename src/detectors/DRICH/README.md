@@ -104,7 +104,7 @@ flowchart TB
 ```mermaid
 flowchart LR
   classDef col fill:#00aaaa,color:black
-  
+
   %% nodes
   Association(<strong>DRICHRawHitsAssociation</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
   subgraph Digitized
@@ -118,7 +118,7 @@ flowchart LR
     Photon1(edm4hep::MCParticle):::col
     Photon2(edm4hep::MCParticle):::col
   end
-  
+
   %% edges
   Association -- rawHit --> RawHit
   Association -- simHits --> SimHit1
@@ -160,7 +160,7 @@ flowchart LR
     HypGas2([Kaon Hypothesis]):::comp
     HypGas3([Proton Hypothesis]):::comp
   end
-  
+
   %% edges
   CPIDAgl -- hypotheses --> HypAgl0
   CPIDAgl -- hypotheses --> HypAgl1
