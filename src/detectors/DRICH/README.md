@@ -97,6 +97,37 @@ flowchart TB
 
 ## Data Model
 
+### Digitized Hits
+- Association `edm4eic::MCRecoTrackerHitAssociation` stores the 1-N link from a digitized hit to the MC truth hits
+  - each MC truth hit has a 1-1 relation to the original MC `opticalphoton` (or whatever particle caused the hit)
+  - digitized noise hits will not have associated MC truth hits
+```mermaid
+flowchart LR
+  classDef col fill:#00aaaa,color:black
+  
+  %% nodes
+  Association(<strong>DRICHRawHitsAssociation</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
+  subgraph Digitized
+    RawHit(edm4eic::RawTrackerHit):::col
+  end
+  subgraph Simulated MC Truth
+    direction TB
+    SimHit1(edm4hep::SimTrackerHit):::col
+    SimHit2(edm4hep::SimTrackerHit):::col
+    SimHit3(... additional MC hits ...):::col
+    Photon1(edm4hep::MCParticle):::col
+    Photon2(edm4hep::MCParticle):::col
+  end
+  
+  %% edges
+  Association -- rawHit --> RawHit
+  Association -- simHits --> SimHit1
+  Association -- simHits --> SimHit2
+  Association -- simHits --> SimHit3
+  SimHit1 -- MCParticle --> Photon1
+  SimHit2 -- MCParticle --> Photon2
+```
+
 ### Expert-level PID Output
 - RICH-specific particle ID datatype `edm4eic::CherenkovParticleID`
   - Vector components `edm4eic::CherenkovParticleIDHypothesis`, one for each PID hypothesis
@@ -129,19 +160,18 @@ flowchart LR
     HypGas2([Kaon Hypothesis]):::comp
     HypGas3([Proton Hypothesis]):::comp
   end
-
-
+  
   %% edges
-  CPIDAgl --> HypAgl0
-  CPIDAgl --> HypAgl1
-  CPIDAgl --> HypAgl2
-  CPIDAgl --> HypAgl3
-  CPIDAgl --> TrackAgl
-  CPIDGas --> HypGas0
-  CPIDGas --> HypGas1
-  CPIDGas --> HypGas2
-  CPIDGas --> HypGas3
-  CPIDGas --> TrackGas
+  CPIDAgl -- hypotheses --> HypAgl0
+  CPIDAgl -- hypotheses --> HypAgl1
+  CPIDAgl -- hypotheses --> HypAgl2
+  CPIDAgl -- hypotheses --> HypAgl3
+  CPIDAgl -- chargedParticle --> TrackAgl
+  CPIDGas -- hypotheses --> HypGas0
+  CPIDGas -- hypotheses --> HypGas1
+  CPIDGas -- hypotheses --> HypGas2
+  CPIDGas -- hypotheses --> HypGas3
+  CPIDGas -- chargedParticle --> TrackGas
 ```
 
 ### User-level PID Output
@@ -152,7 +182,7 @@ flowchart LR
 - Then use (eta,phi) proximity matching to find the `ReconstructedParticle` that corresponds to the `DRICHTrack`, and
   link particle ID objects
   - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object, and
-    set `ReconstructedParticle::PDG` accordingly
+    set `ReconstructedParticle::PDG` accordingly; the diagram below exemplifies this for a pion
   - Use 1-N relation `ReconstructedParticle::particleIDs` to link all the `edm4hep::ParticleID` objects
 ```mermaid
 flowchart TB
@@ -175,13 +205,14 @@ flowchart TB
   %% edges
   Track --> Prox
   Prox --> Recon
-  Track --> Hyp0
-  Track --> Hyp1
-  Track --> Hyp2
-  Track --> Hyp3
-  Recon --> Hyp0
-  Recon --> Hyp1
+  Track -- particleIDs --> Hyp0
+  Track -- particleIDs --> Hyp1
+  Track -- particleIDs --> Hyp2
+  Track -- particleIDs --> Hyp3
+  Recon -- particleIDs --> Hyp0
+  Recon -- particleIDs --> Hyp1
   Recon -- particleIDUsed --> Hyp1
-  Recon --> Hyp2
-  Recon --> Hyp3
+  Recon -- PDG --> Pdg1
+  Recon -- particleIDs --> Hyp2
+  Recon -- particleIDs --> Hyp3
   ```
