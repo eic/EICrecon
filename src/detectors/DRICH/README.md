@@ -1,5 +1,16 @@
 # dRICH
 
+## Algorithm and Data Flowchart
+### Legend
+- Blue, rounded boxes: collection
+  - **collection name**
+  - collection datatype
+- Red, squared boxes: algorithm
+  - **description**
+  - algorithm name
+  - *factory name*
+
+### Flowchart
 ```mermaid
 flowchart TB
   classDef alg fill:#ff8888,color:black
@@ -70,12 +81,3 @@ flowchart TB
   FinalPID --> ParticleAlg
   ParticleAlg --> ReconstructedParticles
 ```
-
-### Legend
-- Blue, rounded boxes: collection
-  - **collection name**
-  - collection datatype
-- Red, squared boxes: algorithm
-  - **description**
-  - algorithm name
-  - *factory name*
