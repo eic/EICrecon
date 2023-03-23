@@ -27,6 +27,8 @@ flowchart TB
     SimHits(<strong>DRICHHits</strong><br/>edm4hep::SimTrackerHit):::col
     Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
   end
+  ReconstructedChargedParticles(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+
 
   subgraph Digitization
     DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
@@ -50,13 +52,13 @@ flowchart TB
   subgraph Particle Identification Algorithms
     IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
     IRTPID(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
-    TrackPIDAlg[<strong>Track with Final PIDs</strong><br/>RichTrackWithParticleID<br><i>RichTrackWithParticleID_factory</i>]:::alg
+    
+    Merge[<strong>Combine PID from radiators</strong><br/>MergeCherenkovParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
+    MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 
-  TrackPID(<strong>DRICHTracksWithParticleID</strong><br/>edm4eic::TrackSegment):::col
-  ProxMatch[<strong>Proximity Matching</strong><br/>ProximityMatcher<br><i>ReconstructedParticleWithParticleID_factory</i>]:::alg
-  ReconstructedChargedParticles(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
-  ReconstructedParticles(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>ReconstructedParticleWithParticleID_factory</i>]:::alg
+  ReconstructedParticles(<strong>ReconstructedParticlesWithDRICHParticleID</strong><br/>edm4eic::ReconstructedParticle):::col
 
   %%-----------------
   %% Edges
@@ -82,12 +84,12 @@ flowchart TB
   TrackOR --> IRT
   Reflections --> IRT
   IRT --> IRTPID
-  IRTPID --> TrackPIDAlg
-  TrackPIDAlg --> TrackPID
+  IRTPID --> Merge
+  Merge --> MergePID
 
   %% linking
   Trajectories -- tracking plugin algorithms --> ReconstructedChargedParticles
-  TrackPID --> ProxMatch
+  MergePID --> ProxMatch
   ReconstructedChargedParticles --> ProxMatch
   ProxMatch --> ReconstructedParticles
 ```
@@ -172,25 +174,23 @@ flowchart LR
 ```
 
 ### User-level PID Output
-- `DRICHAerogelTracks` and `DRICHGasTracks` are combined to `DRICHTracksWithParticleID`
-- `DRICHIrtCherenkovParticleID::hypotheses` are combined from each radiator, and transformed to `edm4hep::ParticleID`
-  objects named `DRICHParticleID`
-- Use 1-N relation `edm4eic::TrackSegment::particleIDs` to link `DRICHTracksWithParticleID` to `DRICHParticleIDs`
-- Then use (eta,phi) proximity matching to find the `ReconstructedParticle` that corresponds to the `DRICHTrackWithParticleID`, and
-  link particle ID objects
+- Add `edm4hep::ParticleID` objects to `ReconstructedParticle`
   - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object, and
     set `ReconstructedParticle::PDG` accordingly; the diagram below exemplifies this for a pion
   - Use 1-N relation `ReconstructedParticle::particleIDs` to link all the `edm4hep::ParticleID` objects
+- User can then access the most-likely PDG via:
+```cpp
+ReconstructedParticle::getPDG();                      // EDM4eic specific; could be be filled with true PDG instead
+ReconstructedParticle::getParticleIDUsed().getPDG();  // alternative; always PDG from PID (more consistent with EDM4hep)
+```
 ```mermaid
-flowchart TB
+flowchart LR
   classDef col fill:#00aaaa,color:black
   classDef alg fill:#ff8888,color:black
   classDef comp fill:#8888ff,color:black
 
   %% nodes
-  Track(<strong>DRICHTracksWithParticleID</strong><br/>edm4eic::TrackSegment):::col
-  Prox[proximity matching]:::alg
-  Recon(<strong>ReconstructedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  Recon(<strong>ReconstructedParticleWithDRICHParticleID</strong><br/>edm4eic::ReconstructedParticle):::col
   subgraph <strong>DRICHParticleID</strong>
     direction LR
     Hyp0(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col --> Pdg0([PDG=electron]):::comp
@@ -200,12 +200,6 @@ flowchart TB
   end
 
   %% edges
-  Track --> Prox
-  Prox --> Recon
-  Track -- particleIDs --> Hyp0
-  Track -- particleIDs --> Hyp1
-  Track -- particleIDs --> Hyp2
-  Track -- particleIDs --> Hyp3
   Recon -- particleIDs --> Hyp0
   Recon -- particleIDs --> Hyp1
   Recon -- particleIDUsed --> Hyp1
