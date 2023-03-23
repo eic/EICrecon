@@ -178,7 +178,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                       double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
                       double time = m_cfg.timeWindow*m_rngUni();
                       dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
-                      dd4hep::Position pos_hit = get_sensor_local_position( cellID, pos_hit_global );
+                      dd4hep::Position pos_hit = {0,0,0}; // unused
                       hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
                     }
                     else continue;
