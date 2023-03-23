@@ -4,7 +4,7 @@
 #include <JANA/JEventProcessor.h>
 #include <spdlog/spdlog.h>
 
-#include <services/io/podio/RootFrameWriter.h>
+#include <podio/ROOTFrameWriter.h>
 
 
 class JEventProcessorPODIO : public JEventProcessor {

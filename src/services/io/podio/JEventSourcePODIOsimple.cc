@@ -18,9 +18,6 @@
 #include <JANA/JFactoryGenerator.h>
 
 // podio specific includes
-#include <podio/EventStore.h>
-#include <podio/IReader.h>
-#include <podio/UserDataCollection.h>
 #include <podio/podioVersion.h>
 
 #include <fmt/format.h>
