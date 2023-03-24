@@ -20,7 +20,7 @@ plugin_add_event_model(${PLUGIN_NAME})
 plugin_glob_all(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
-# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
