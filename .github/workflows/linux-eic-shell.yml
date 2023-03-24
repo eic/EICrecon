@@ -93,8 +93,7 @@ jobs:
         run: |
           chmod u+x bin/eicrecon
           echo "Installed EICrecon version: $(bin/eicrecon --version)"
-          # if [[ $(bin/eicrecon --version) =~ unknown ]] ; then echo "ERROR: unknown version" ; false ; fi
-          if [[ $(bin/eicrecon --version) =~ unknown ]] ; then echo "ERROR: unknown version" ; true ; fi # testing force pass
+          if [[ $(bin/eicrecon --version) =~ unknown ]] ; then echo "ERROR: unknown version" ; false ; fi
 
   clang-tidy:
     runs-on: ubuntu-latest
