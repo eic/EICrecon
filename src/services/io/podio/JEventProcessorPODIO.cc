@@ -94,7 +94,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
 
             //
-            "ForwardRomanPotParticles",
+            "ForwardRomanPotRecParticles",
             "SmearedFarForwardParticles",
 
             // Reconstructed data
@@ -109,6 +109,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicseSigma",
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
+            "JetTruth",
+            "JetReco",
 
             // Ecal stuff
             "EcalEndcapNRawHits",
