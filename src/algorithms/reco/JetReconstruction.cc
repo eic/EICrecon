@@ -70,7 +70,7 @@ namespace eicrecon {
         const double cst_pt = csts[j].pt();
         m_log->trace("    constituent {}'s pt: {}", j, cst_pt);
         // Only consider constituents in the momentum range
-        if (cst_pt > m_minCstPt && cst_pt < m_maxCstPt) {
+        if ((cst_pt > m_minCstPt) && (cst_pt < m_maxCstPt)) {
           edm4eic::MutableReconstructedParticle cst_edm;
           // Type = 0 for jets, Type = 1 for constituents
           // Use PDG values to match jets and constituents
