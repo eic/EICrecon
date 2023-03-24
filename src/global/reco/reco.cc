@@ -68,10 +68,10 @@ void InitPlugin(JApplication *app) {
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsSigma"));
 
     app->Add(new JChainFactoryGeneratorT<JetTruth_factory>(
-            {"MCParticles"}, "JetTruth"));
+            {"MCParticles"}, "GeneratedJets"));
 
     app->Add(new JChainFactoryGeneratorT<JetReco_factory>(
-            {"ReconstructedParticles"}, "JetReco"));
+            {"ReconstructedParticles"}, "ReconstructedJets"));
 
 }
 } // extern "C"
