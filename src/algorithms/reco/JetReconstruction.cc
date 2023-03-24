@@ -8,6 +8,7 @@
 
 // Event Model related classes
 #include <edm4eic/vector_utils.h>
+#include <edm4eic/MutableReconstructedParticle.h>
 
 using namespace fastjet;
 

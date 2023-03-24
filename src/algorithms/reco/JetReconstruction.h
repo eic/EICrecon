@@ -10,7 +10,7 @@
 #include <spdlog/spdlog.h>
 #include <DD4hep/DD4hepUnits.h>
 #include <edm4hep/utils/kinematics.h>
-#include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticle.h>
 // fastjet includes
 #include <fastjet/config.h>
 #include <fastjet/Selector.hh>
