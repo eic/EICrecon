@@ -86,12 +86,12 @@ namespace eicrecon {
         aXOMDinv[1][1] = aXOMD[0][0] / det;
 
         det = aYOMD[0][0] * aYOMD[1][1] - aYOMD[0][1] * aYOMD[1][0];
-		
+
         if (det == 0) {
             m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
             throw JException("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
         }
-		
+
         aYOMDinv[0][0] = aYOMD[1][1] / det;
         aYOMDinv[0][1] = -aYOMD[0][1] / det;
         aYOMDinv[1][0] = -aYOMD[1][0] / det;
@@ -148,7 +148,7 @@ namespace eicrecon {
 	    //information is stored in cm, we need mm - divide by dd4hep::mm
 
 	    if(!goodHit2 && gpos.z()/dd4hep::mm > 24499.0 && gpos.z()/dd4hep::mm < 24522.0){
-			
+
 		goodHitX[1] = pos0.x()/dd4hep::mm;
 		goodHitY[1] = pos0.y()/dd4hep::mm;
 		goodHitZ[1] = gpos.z()/dd4hep::mm;
@@ -174,13 +174,13 @@ namespace eicrecon {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
-		
+
             double XL[2] = {goodHitX[0] - local_x_offset, goodHitX[1] - local_x_offset};
             double YL[2] = {goodHitY[0] - local_y_offset, goodHitY[1] - local_y_offset};
 
             double base = goodHitZ[1] - goodHitZ[0];
-			
-			
+
+
 
             if (base == 0) {
                 m_log->info("Detector separation = 0! Cannot calculate slope!");
@@ -205,7 +205,7 @@ namespace eicrecon {
             // convert polar angles to radians
             double rsx = Xip[1] / 1000.;
             double rsy = Yip[1] / 1000.;
-			
+
             // calculate momentum magnitude from measured deltaP – using thin lens optics.
             double p = 137.5 * (1 + 0.01 * Xip[0]);
             double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
