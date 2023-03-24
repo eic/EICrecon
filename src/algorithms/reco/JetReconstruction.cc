@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Derek Anderson, Zhongling Ji
 
+// class definition
 #include "JetReconstruction.h"
 
+// standard c includes
 #include <cmath>
-#include <vector>
-
 // Event Model related classes
 #include <edm4eic/vector_utils.h>
 #include <edm4eic/MutableReconstructedParticle.h>
+// fastjet includes
+#include <fastjet/PseudoJet.hh>
+#include <fastjet/ClusterSequenceArea.hh>
 
 using namespace fastjet;
 

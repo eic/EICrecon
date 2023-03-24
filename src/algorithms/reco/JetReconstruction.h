@@ -13,12 +13,9 @@
 #include <edm4eic/ReconstructedParticle.h>
 // fastjet includes
 #include <fastjet/config.h>
-#include <fastjet/Selector.hh>
-#include <fastjet/PseudoJet.hh>
-#include <fastjet/ClusterSequence.hh>
-#include <fastjet/ClusterSequenceArea.hh>
-#include <fastjet/tools/Subtractor.hh>
-#include <fastjet/tools/JetMedianBackgroundEstimator.hh>
+#include <fastjet/JetDefinition.hh>
+#include <fastjet/AreaDefinition.hh>
+
 
 
 namespace eicrecon {
