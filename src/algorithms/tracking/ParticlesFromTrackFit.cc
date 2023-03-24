@@ -1,12 +1,9 @@
 #include "ParticlesFromTrackFit.h"
 #include <algorithm>
 
-
 #include "DDRec/CellIDPositionConverter.h"
 #include "DDRec/SurfaceManager.h"
 #include "DDRec/Surface.h"
-
-
 
 #include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/MultiTrajectoryHelpers.hpp"
@@ -15,9 +12,9 @@
 #include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/TrackerHitCollection.h"
 #include "edm4eic/TrackParametersCollection.h"
+#include "edm4eic/Trajectory.h"
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
-
 
 #include "Acts/Utilities/Helpers.hpp"
 
@@ -34,6 +31,7 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
     // create output collections
     auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();
     auto track_pars = std::make_unique<edm4eic::TrackParametersCollection>();
+    auto edm4eic_trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
 
     m_log->debug("Trajectories size: {}", std::size(trajectories));
 
@@ -48,11 +46,33 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
             m_log->debug("Empty multiTrajectory.");
             continue;
         }
-
         const auto& trackTip = trackTips.front();
 
         // Collect the trajectory summary info
-        auto trajState       = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+        auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+
+        // Collect the trajectory summary info
+        unsigned int  m_nStates       = trajState.nStates;
+        unsigned int  m_nMeasurements = trajState.nMeasurements;
+        unsigned int  m_nOutliers     = trajState.nOutliers;
+        unsigned int  m_nHoles        = trajState.nHoles;
+        float         m_chi2Sum       = trajState.chi2Sum;
+        unsigned int  m_ndf           = trajState.NDF;
+        unsigned int  m_nSharedHits   = trajState.nSharedHits;
+
+        bool hasFit = traj->hasTrackParameters(trackTip);
+
+        auto edm4eic_traj = edm4eic_trajectories->create(
+                hasFit,
+                m_nStates,
+                m_nMeasurements,
+                m_nOutliers,
+                m_nHoles,
+                m_chi2Sum,
+                m_ndf,
+                m_nSharedHits
+                );
+
         //int  m_nMeasurements = trajState.nMeasurements;
         //int  m_nStates       = trajState.nStates;
 
@@ -105,6 +125,8 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
                     timeError,
                     static_cast<float>(boundParam.charge())};
             track_pars->push_back(pars);
+
+            edm4eic_traj.setTrackParameters(pars);
         }
 
         auto tsize = trackTips.size();
@@ -137,5 +159,8 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
         });
     }
 
-    return new ParticlesFromTrackFitResult(std::move(rec_parts), std::move(track_pars));
+    return new ParticlesFromTrackFitResult(
+            std::move(rec_parts),
+            std::move(track_pars),
+            std::move(edm4eic_trajectories));
 }

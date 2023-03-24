@@ -29,11 +29,11 @@ namespace eicrecon {
 
     void Trajectory_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-        auto trajectory_info = event->GetSingle<edm4eic::Trajectory>("outputTrajectories");
+        auto trajectories = event->Get<edm4eic::Trajectory>("outputTrajectories");
 
         try {
             std::vector<edm4eic::Trajectory *> result;
-            for (size_t i = 0; i < trajectory_info->Trajectory()->size(); i++) {
+            for (const auto *trajectory: trajectories) {
                 auto trajectory_params = (*trajectory_info->Trajectory())[i];
                 result.push_back(new edm4eic::Trajectory(trajectory_params));
             }

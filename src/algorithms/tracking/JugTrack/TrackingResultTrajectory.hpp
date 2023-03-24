@@ -27,9 +27,7 @@ struct TrackingResultTrajectory final {
   /// (Reconstructed) trajectory with multiple states.
   using MultiTrajectory = Acts::VectorMultiTrajectory;
   /// Fitted parameters identified by indices in the multi trajectory.
-  using IndexedParameters =
-      std::unordered_map<Acts::MultiTrajectoryTraits::IndexType,
-                         TrackParameters>;
+  using IndexedParameters = std::unordered_map<Acts::MultiTrajectoryTraits::IndexType, TrackParameters>;
 
   /// Default construct an empty object. Required for container compatibility
   /// and to signal an error.

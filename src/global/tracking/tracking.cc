@@ -65,7 +65,7 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
 
     app->Add(new JChainFactoryGeneratorT<Trajectory_factory>(
-            {"CentralCKFTrajectories"}, "outputTrajectories"));
+            {"CentralCKFTrajectories"}, "CentralTrackingTrajectories"));
 
     app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
             {"CentralTrackingParticles"}, "outputParticles"));
