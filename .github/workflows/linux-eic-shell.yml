@@ -92,10 +92,9 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           chmod u+x bin/eicrecon
-          version=$(bin/eicrecon --version)
-          echo "Installed EICrecon version: ${version}"
-          # if [[ ${version} =~ unknown ]] ; then echo "ERROR: unknown version" ; false ; fi
-          if [[ ${version} =~ unknown ]] ; then echo "ERROR: unknown version" ; true ; fi # testing force pass
+          echo "Installed EICrecon version: $(bin/eicrecon --version)"
+          # if [[ $(bin/eicrecon --version) =~ unknown ]] ; then echo "ERROR: unknown version" ; false ; fi
+          if [[ $(bin/eicrecon --version) =~ unknown ]] ; then echo "ERROR: unknown version" ; true ; fi # testing force pass
 
   clang-tidy:
     runs-on: ubuntu-latest
