@@ -110,9 +110,6 @@ set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../in
 # CERN ROOT
 find_package(ROOT REQUIRED)
 
-# IRT
-find_package(IRT REQUIRED)
-
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
 
