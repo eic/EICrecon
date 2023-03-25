@@ -6,16 +6,16 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <string>
+
 #include <TFile.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 
 #include <fmt/core.h>
 
-using std::string;
-
-void reco_particles_track_matching(TString file_name) {
-    auto file = new TFile(file_name);
+void reco_particles_track_matching(const std::string &file_name) {
+    auto file = new TFile(file_name.c_str());
     auto tree = (TTree *) file->Get("events");
     TTreeReader tree_reader(tree);       // !the tree reader
     tree->Print();
@@ -56,6 +56,6 @@ void reco_particles_track_matching(TString file_name) {
 
 
 int main() {
-    reco_particles_track_matching("/home/romanov/eic/soft/eicrecon/main/src/examples/test_data_generator/2022-11-15_pgun_pi-_epic_arches_e0.01-30GeV_alldir_4prt_1000evt_reco.tree.edm4eic.root");
+    reco_particles_track_matching("input.edm4eic.root");
     return 0;
 }
