@@ -80,7 +80,6 @@ fi
 #----------------- IRT
 if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
     export LD_LIBRARY_PATH="@IRT_LIBRARY_DIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    export ROOT_INCLUDE_PATH="@IRT_INCLUDE_DIR@${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
 
 #----------------- EICrecon
