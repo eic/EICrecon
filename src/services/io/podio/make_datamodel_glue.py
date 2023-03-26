@@ -77,9 +77,6 @@ def AddCollections(datamodelName, collectionfiles):
         type_map.append('    using collection_t = ' + datamodelName + '::' + basename + 'Collection;')
         type_map.append('    using mutable_t = ' + datamodelName + '::Mutable' + basename + ';')
         type_map.append('};')
-        type_map.append('template <> struct PodioCollectionMap<' + datamodelName + '::' + basename + 'Collection> {')
-        type_map.append('    using contents_t = ' + datamodelName + '::' + basename + ';')
-        type_map.append('};')
 
         visitor.append('        if (podio_typename == "' + datamodelName + '::' + basename + 'Collection") {')
         visitor.append('            return visitor(static_cast<const ' + datamodelName + '::' + basename + 'Collection& >(collection));')
@@ -110,7 +107,6 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n')
 
     f.write('\ntemplate <typename T> struct PodioTypeMap {};')
-    f.write('\ntemplate <typename T> struct PodioCollectionMap {};')
     f.write('\n\n')
     f.write('\n'.join(type_map))
     f.write('\n')

@@ -45,7 +45,8 @@ struct InsertingVisitor {
 
     template <typename T>
     void operator() (const T& collection) {
-        using ContentsT = typename PodioCollectionMap<T>::contents_t;
+
+        using ContentsT = decltype(collection[0]);
         m_event.InsertCollectionAlreadyInFrame<ContentsT>(&collection, m_collection_name);
     }
 };
