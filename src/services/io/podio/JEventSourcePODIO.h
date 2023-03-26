@@ -9,12 +9,12 @@
 
 #include <podio/ROOTFrameReader.h>
 
-class JEventSourcePODIOsimple : public JEventSource {
+class JEventSourcePODIO : public JEventSource {
 
 public:
-    JEventSourcePODIOsimple(std::string resource_name, JApplication* app);
+    JEventSourcePODIO(std::string resource_name, JApplication* app);
 
-    virtual ~JEventSourcePODIOsimple();
+    virtual ~JEventSourcePODIO();
 
     void Open() override;
 
@@ -40,4 +40,4 @@ protected:
 };
 
 template <>
-double JEventSourceGeneratorT<JEventSourcePODIOsimple>::CheckOpenable(std::string);
+double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
