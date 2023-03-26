@@ -6,7 +6,7 @@
 
 #include <spdlog/spdlog.h>
 #include "extensions/spdlog/SpdlogMixin.h"
-
+#include <services/io/podio/datamodel_glue.h>
 #include <algorithms/digi/SmearedFarForwardParticles.h>
 
 

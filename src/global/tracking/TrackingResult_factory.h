@@ -10,11 +10,11 @@
 #include <extensions/spdlog/SpdlogMixin.h>
 
 class TrackingResult_factory:
-        public JChainFactoryT<ParticlesFromTrackFitResult>,
+        public JChainFactoryT<ParticlesFromTrackFitResult, NoConfig, JFactoryT>,
         public eicrecon::SpdlogMixin<TrackingResult_factory> {
 public:
     explicit TrackingResult_factory(std::vector<std::string> default_input_tags):
-    JChainFactoryT<ParticlesFromTrackFitResult>(std::move(default_input_tags) ) {
+    JChainFactoryT<ParticlesFromTrackFitResult, NoConfig, JFactoryT>(std::move(default_input_tags) ) {
     }
 
     /** One time initialization **/

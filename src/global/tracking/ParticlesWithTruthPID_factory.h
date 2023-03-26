@@ -14,12 +14,12 @@
 namespace eicrecon {
 
     class ParticlesWithTruthPID_factory :
-            public JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>,
+            public JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig, JFactoryT>,
             public SpdlogMixin<ParticlesWithTruthPID_factory> {
 
     public:
         explicit ParticlesWithTruthPID_factory( std::vector<std::string> default_input_tags, ParticlesWithTruthPIDConfig cfg):
-            JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig>(std::move(default_input_tags), cfg) {
+            JChainFactoryT<ParticlesWithAssociation, ParticlesWithTruthPIDConfig, JFactoryT>(std::move(default_input_tags), cfg) {
         }
 
         /** One time initialization **/

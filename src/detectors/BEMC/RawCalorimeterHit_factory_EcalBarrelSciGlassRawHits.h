@@ -7,6 +7,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
+#include <services/io/podio/datamodel_glue.h>
 #include <JANA/Podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
@@ -17,7 +18,6 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
-template <> struct PodioTypeMap<edm4hep::RawCalorimeterHit> { using collection_t = edm4hep::RawCalorimeterHitCollection; };
 
 class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 

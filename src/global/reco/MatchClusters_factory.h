@@ -15,12 +15,12 @@
 namespace eicrecon {
 
     class MatchClusters_factory :
-            public JChainFactoryT<ParticlesWithAssociation>,
+            public JChainFactoryT<ParticlesWithAssociation,NoConfig,JFactoryT>,
             public SpdlogMixin<MatchClusters_factory> {
 
     public:
         explicit MatchClusters_factory(std::vector<std::string> default_input_tags):
-            JChainFactoryT<ParticlesWithAssociation>( std::move(default_input_tags)) {
+            JChainFactoryT<ParticlesWithAssociation,NoConfig,JFactoryT>( std::move(default_input_tags)) {
         }
 
         /** One time initialization **/
