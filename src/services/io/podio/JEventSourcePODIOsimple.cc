@@ -131,8 +131,9 @@ void JEventSourcePODIOsimple::Open() {
         }
 
         // Have PODIO reader open file and get the number of events from it.
-        reader.openFile( GetResourceName() );
-        if( ! m_reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );
+        m_reader.openFile( GetResourceName() );
+        // if( ! m_reader.isValid() ) throw std::runtime_error( fmt::format("podio ROOTReader says {} is invalid", GetResourceName()) );
+        // TODO: Test what PODIO's ROOTFrameReader does when the file is invalid
 
         auto version = m_reader.currentFileVersion();
         bool version_mismatch = version.major > podio::version::build_version.major;
@@ -166,7 +167,8 @@ void JEventSourcePODIOsimple::Open() {
 /// \param event
 //------------------------------------------------------------------------------
 void JEventSourcePODIOsimple::Close() {
-    m_reader.closeFile();
+    // m_reader.close();
+    // TODO: ROOTFrameReader does not appear to have a close() method.
 }
 
 
@@ -187,7 +189,8 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
         if( m_run_forever ){
             Nevents_read = 0;
         }else{
-            m_reader.closeFile();
+            // m_reader.close();
+            // TODO:: ROOTFrameReader does not appear to have a close() method.
             throw RETURN_STATUS::kNO_MORE_EVENTS;
         }
     }
@@ -195,15 +198,15 @@ void JEventSourcePODIOsimple::GetEvent(std::shared_ptr<JEvent> event) {
     auto frame_data = m_reader.readEntry("events", Nevents_read);
     auto frame = std::make_unique<podio::Frame>(std::move(frame_data));
 
-    auto& event_headers = frame->get<EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
+    auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
     if (event_headers.size() != 1) {
         throw JException("Bad event headers: Entry %d contains %d items, but 1 expected.", Nevents_read, event_headers.size());
     }
     event->SetEventNumber(event_headers[0].getEventNumber());
     event->SetRunNumber(event_headers[0].getRunNumber());
 
-    // Insert contents of frame into JFactories
-    DatamodelCollectionVisit<InsertingVisitor> visit;
+    // Insert contents odf frame into JFactories
+    VisitPodioCollection<InsertingVisitor> visit;
     for (const std::string& coll_name : frame->getAvailableCollections()) {
         const podio::CollectionBase* collection = frame->get(coll_name);
         InsertingVisitor visitor(*event, coll_name);

@@ -2,6 +2,7 @@
 #include "JEventProcessorPODIO.h"
 #include <services/log/Log_service.h>
 #include <JANA/Services/JComponentManager.h>
+#include <podio/Frame.h>
 
 #include <datamodel_glue.h>
 #include <algorithm>
@@ -172,7 +173,7 @@ void JEventProcessorPODIO::Init() {
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
-    m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_filename);
+    m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_file);
     // TODO: Does ROOTFrameWriter validate that the output filename is indeed writable BEFORE attempting to close it
     //       after all processing is complete?
 
