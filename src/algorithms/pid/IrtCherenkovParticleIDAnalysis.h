@@ -49,7 +49,7 @@ namespace eicrecon {
 
       // binning
       static constexpr int    n_bins         = 100;
-      static constexpr int    momentum_bins  = 100;
+      static constexpr int    momentum_bins  = 500;
       static constexpr int    momentum_max   = 70;
       static constexpr int    npe_bins       = 100;
       static constexpr double npe_max        = 100;
