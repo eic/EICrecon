@@ -12,7 +12,8 @@
 
 // JANA
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
@@ -24,7 +25,7 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 namespace eicrecon {
-  class IrtParticleID_factory : public JFactoryT<edm4hep::ParticleID> {
+  class IrtParticleID_factory : public JFactoryPodioT<edm4hep::ParticleID> {
     public:
 
       IrtParticleID_factory() {

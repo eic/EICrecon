@@ -4,7 +4,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>

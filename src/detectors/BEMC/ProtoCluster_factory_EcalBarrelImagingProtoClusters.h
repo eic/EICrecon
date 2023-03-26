@@ -6,13 +6,14 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/ImagingTopoCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalBarrelImagingProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, ImagingTopoCluster {
+class ProtoCluster_factory_EcalBarrelImagingProtoClusters : public JFactoryPodioT<edm4eic::ProtoCluster>, ImagingTopoCluster {
 
 public:
 

@@ -3,13 +3,14 @@
 
 #include <fmt/core.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 #include <edm4hep/TrackerHit.h>
 
 
 
 template <typename OutputType>
-class JFactoryT_TrackerHitReconstruction : public JFactoryT<OutputType> {
+class JFactoryT_TrackerHitReconstruction : public JFactoryPodioT<OutputType> {
 
 public:
     JFactoryT_TrackerHitReconstruction() {

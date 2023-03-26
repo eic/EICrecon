@@ -8,7 +8,8 @@
 
 #include <fmt/core.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 #include <JANA/JEvent.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <edm4hep/SimTrackerHit.h>
@@ -16,7 +17,7 @@
 
 
 template <typename OutputT>
-class JFactoryT_SimTrackerHitsCollector : public JFactoryT<OutputT>, eicrecon::ICollectionProducer {
+class JFactoryT_SimTrackerHitsCollector : public JFactoryPodioT<OutputT>, eicrecon::ICollectionProducer {
 
 public:
     JFactoryT_SimTrackerHitsCollector() {

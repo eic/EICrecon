@@ -12,7 +12,7 @@
 
 namespace eicrecon {
 
-class ReconstructedParticle_factory_SmearedFarForwardParticles : public JFactoryT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>, SmearedFarForwardParticles {
+class ReconstructedParticle_factory_SmearedFarForwardParticles : public JFactoryPodioT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>, SmearedFarForwardParticles {
 
 public:
 

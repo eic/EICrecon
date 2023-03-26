@@ -6,7 +6,8 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/ImagingClusterReco.h>
 #include <services/log/Log_service.h>
@@ -14,7 +15,7 @@
 
 
 
-class Cluster_factory_EcalBarrelImagingClusters : public JFactoryT<edm4eic::Cluster>, ImagingClusterReco {
+class Cluster_factory_EcalBarrelImagingClusters : public JFactoryPodioT<edm4eic::Cluster>, ImagingClusterReco {
 
 public:
 

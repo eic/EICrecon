@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <JANA/JFactoryT.h>
+#include <JANA/Podio/JFactoryPodioT.h>
 #include "extensions/string/StringHelpers.h"
 
 
@@ -24,7 +24,7 @@ struct NoConfig {
 };
 
 template <typename OutT, typename ConfigT = NoConfig>
-class JChainFactoryT : public JFactoryT<OutT> {
+class JChainFactoryT : public JFactoryPodioT<OutT> {
 public:
 
     using OutputType = OutT;
