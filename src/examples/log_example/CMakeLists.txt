@@ -12,3 +12,5 @@ plugin_add(${PLUGIN_NAME})
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+plugin_add_event_model(${PLUGIN_NAME})
