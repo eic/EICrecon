@@ -36,12 +36,12 @@ void GeometryNavigationSteps_processor::Init()
 
     // Create a directory for this plugin. And subdirectories for series of histograms
     m_dir_main = file->mkdir(plugin_name.c_str());
-  
+
     // Get log level from user parameter or default
     InitLogger(plugin_name);
-  
-    auto acts_service = GetApplication()->GetService<ACTSGeo_service>();  
-  
+
+    auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
+
 }
 
 

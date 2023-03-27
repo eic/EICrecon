@@ -53,5 +53,5 @@ private:
     Acts::MagneticFieldContext m_fieldContext;
     std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
     std::shared_ptr<spdlog::logger> m_log;
-        
+
 };
