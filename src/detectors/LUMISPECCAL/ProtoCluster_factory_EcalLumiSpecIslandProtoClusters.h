@@ -28,24 +28,25 @@ public:
         auto app = GetApplication();
         m_input_tag = "EcalLumiSpecRecHits";
 
-        m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+        m_splitCluster = true;               // from ATHENA reconstruction.py
+        m_minClusterHitEdep = 1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep = 30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
-        // adjacency matrix
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "";
-        m_readout = "";
+        m_readout = "LumiSpecCALHits";
+        
+        // adjacency matrix is a boolean expression which is meant to return 0 for non-adjacent clusters (split)
+        u_adjacencyMatrix = "(sector_1 == sector_2) && ((abs(ceil(module_1 / 10) - ceil(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)";
+        u_adjacencyMatrix.erase( std::remove_if( u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace), u_adjacencyMatrix.end() ); // removes white space in string that may cause errors
         
         // neighbour checking distances
-        m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
-        u_localDistXY={};     //{this, "localDistXY", {}};
-        u_localDistXZ={};     //{this, "localDistXZ", {}};
-        u_localDistYZ={};     //{this, "localDistYZ", {}};
-        u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
-        u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
-
+        m_sectorDist = 0.0 * dd4hep::cm;             // from ATHENA reconstruction.py
+        u_localDistXY = {};     //{this, "localDistXY", {}};
+        u_localDistXZ = {};     //{this, "localDistXZ", {}};
+        u_localDistYZ = {};     //{this, "localDistYZ", {}};
+        u_globalDistRPhi = {};  //{this, "globalDistRPhi", {}};
+        u_globalDistEtaPhi = {};//{this, "globalDistEtaPhi", {}};
+        u_dimScaledLocalDistXY = {1.8, 1.8};// from ATHENA reconstruction.py
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster",             m_splitCluster);
