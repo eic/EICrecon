@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include "GeometryNavigationTest_processor.h"
+#include "GeometryNavigationSteps_processor.h"
 
 
 extern "C" {
