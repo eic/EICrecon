@@ -13,7 +13,7 @@ namespace eicrecon {
 
     class GeneratedJets_factory :
             public JChainFactoryT<edm4eic::ReconstructedParticle>,
-            public SpdlogMixin<JetTruth_factory> {
+            public SpdlogMixin<GeneratedJets_factory> {
 
     public:
         explicit GeneratedJets_factory(std::vector<std::string> default_input_tags):
