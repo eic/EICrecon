@@ -67,10 +67,10 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
             {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsSigma"));
 
-    app->Add(new JChainFactoryGeneratorT<JetTruth_factory>(
+    app->Add(new JChainFactoryGeneratorT<GeneratedJets_factory>(
             {"MCParticles"}, "GeneratedJets"));
 
-    app->Add(new JChainFactoryGeneratorT<JetReco_factory>(
+    app->Add(new JChainFactoryGeneratorT<ReconstructedJets_factory>(
             {"ReconstructedParticles"}, "ReconstructedJets"));
 
 }
