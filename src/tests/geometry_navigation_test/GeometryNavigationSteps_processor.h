@@ -3,6 +3,7 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -52,7 +53,6 @@ private:
     TDirectory *m_dir_main{};
     Acts::GeometryContext m_geoContext;
     Acts::MagneticFieldContext m_fieldContext;
-    std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
     std::shared_ptr<spdlog::logger> m_log;
 
 };
