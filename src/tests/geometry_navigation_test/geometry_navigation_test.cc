@@ -16,6 +16,6 @@ extern "C" {
         InitJANAPlugin(app);
 
         // Adds our processor to JANA2 to execute
-        app->Add(new GeometryNavigationTest_processor(app));
+        app->Add(new GeometryNavigationSteps_processor(app));
     }
 }
