@@ -11,13 +11,13 @@
 class JEvent;
 class JApplication;
 
-class GeometryNavigationTest_processor:
+class GeometryNavigationSteps_processor:
         public JEventProcessor,
-        public eicrecon::SpdlogMixin<GeometryNavigationTest_processor>   // this automates proper log initialization
+        public eicrecon::SpdlogMixin<GeometryNavigationSteps_processor>   // this automates proper log initialization
 {
 public:
-    explicit GeometryNavigationTest_processor(JApplication *);
-    ~GeometryNavigationTest_processor() override = default;
+    explicit GeometryNavigationSteps_processor(JApplication *);
+    ~GeometryNavigationSteps_processor() override = default;
 
     //----------------------------
     // Init
