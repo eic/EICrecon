@@ -62,6 +62,8 @@ jobs:
         head /usr/local/include/IRT/IRT.h
         echo "--- irt libs:"
         ls /usr/local/lib/|grep IRT
+        echo "--- classdef:"
+        grep -C1 'ClassDef' /usr/local/include/IRT/CherenkovDetector.h
     - name: Build and install
       run: |
         # install this repo
