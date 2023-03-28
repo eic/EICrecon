@@ -35,6 +35,9 @@ public:
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         u_adjacencyMatrix = "";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
         m_readout = "";
 
         // neighbour checking distances
