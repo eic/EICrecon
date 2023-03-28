@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2023 Zhongling Ji, Derek Anderson
 
 #pragma once
 
@@ -11,12 +11,12 @@
 
 namespace eicrecon {
 
-    class JetTruth_factory :
+    class ReconstructedJets_factory :
             public JChainFactoryT<edm4eic::ReconstructedParticle>,
-            public SpdlogMixin<JetTruth_factory> {
+            public SpdlogMixin<JetReco_factory> {
 
     public:
-        explicit JetTruth_factory(std::vector<std::string> default_input_tags):
+        explicit ReconstructedJets_factory(std::vector<std::string> default_input_tags):
             JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
         }
 

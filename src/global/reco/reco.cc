@@ -19,8 +19,8 @@
 #include "InclusiveKinematicsDA_factory.h"
 #include "InclusiveKinematicseSigma_factory.h"
 #include "InclusiveKinematicsSigma_factory.h"
-#include "JetTruth_factory.h"
-#include "JetReco_factory.h"
+#include "GeneratedJets_factory.h"
+#include "ReconstructedJets_factory.h"
 
 //
 extern "C" {

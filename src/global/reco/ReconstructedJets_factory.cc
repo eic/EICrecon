@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2023 Zhongling Ji, Derek Anderson
 
-#include "JetReco_factory.h"
+#include "ReconstructedJets_factory.h"
 
 #include <memory>
 
@@ -11,7 +11,7 @@
 
 namespace eicrecon {
 
-    void JetReco_factory::Init() {
+    void ReconstructedJets_factory::Init() {
 
         // This prefix will be used for parameters
         std::string param_prefix = "reco:" + GetTag();
@@ -25,11 +25,11 @@ namespace eicrecon {
         m_jet_algo.init(m_log);
     }
 
-    void JetReco_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void ReconstructedJets_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
         // Nothing to do here
     }
 
-    void JetReco_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void ReconstructedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto rc_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticles");
 
         std::vector<const edm4hep::LorentzVectorE*> momenta;

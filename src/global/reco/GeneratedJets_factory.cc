@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2023 Zhongling Ji, Derek Anderson
 
-#include "JetTruth_factory.h"
+#include "GeneratedJets_factory.h"
 
 #include <memory>
 
@@ -13,7 +13,7 @@
 
 namespace eicrecon {
 
-    void JetTruth_factory::Init() {
+    void GeneratedJets_factory::Init() {
 
         // This prefix will be used for parameters
         std::string param_prefix = "reco:" + GetTag();
@@ -27,11 +27,11 @@ namespace eicrecon {
         m_jet_algo.init(m_log);
     }
 
-    void JetTruth_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void GeneratedJets_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
         // Nothing to do here
     }
 
-    void JetTruth_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void GeneratedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
         std::vector<const edm4hep::LorentzVectorE*> momenta;
