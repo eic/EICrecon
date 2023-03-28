@@ -48,9 +48,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No beam electron found");
-      }
+      m_log->debug("No beam electron found");
       return kinematics;
     }
     const auto ei_p = ei_coll[0]->getMomentum();
@@ -61,9 +59,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No beam hadron found");
-      }
+      m_log->debug("No beam hadron found");
       return kinematics;
     }
     const auto pi_p = pi_coll[0]->getMomentum();
@@ -78,9 +74,7 @@ namespace eicrecon {
     // the beam.
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No truth scattered electron found");
-      }
+      m_log->debug("No truth scattered electron found");
       return kinematics;
     }
     const auto ef_p = ef_coll[0]->getMomentum();
@@ -98,19 +92,12 @@ namespace eicrecon {
     const auto W = sqrt(pi_mass*pi_mass + 2.*q_dot_pi - Q2);
     edm4eic::MutableInclusiveKinematics kin(x, Q2, W, y, nu);
 
-    // Debugging output
-    if (m_log->level() <= spdlog::level::debug) {
-      //m_log->debug("pi = ", pi);
-      //m_log->debug("ei = ", ei);
-      //m_log->debug("ef = ", ef);
-      //m_log->debug("q = ", q);
-      m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
-              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-  }
+    m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+            kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
 
-  kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
+    kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
 
-  return kinematics;
+    return kinematics;
   }
 
 } // namespace Jug::Reco
