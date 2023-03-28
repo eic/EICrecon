@@ -2,6 +2,7 @@
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogMixin.h>
