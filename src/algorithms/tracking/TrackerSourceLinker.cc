@@ -50,9 +50,10 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     int hit_index = 0;
     for (auto hit: trk_hits) {
 
-        Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
+        Acts::SymMatrix3 cov = Acts::SymMatrix3::Zero();
         cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
         cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
+        cov(2, 2) = hit->getTimeError() * Acts::UnitConstants::ns * Acts::UnitConstants::ns;
 
 
         const auto* vol_ctx = m_cellid_converter->findContext(hit->getCellID());
@@ -78,7 +79,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         auto& hit_pos = hit->getPosition();
 
-        Acts::Vector2 loc = Acts::Vector2::Zero();
+        Acts::Vector3 loc = Acts::Vector3::Zero();
         Acts::Vector2 pos;
         try {
             // transform global position into local coordinates
@@ -90,6 +91,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
+            loc[Acts::eBoundTime] = hit->getTime();
         }
         catch(std::exception &ex) {
 
@@ -117,7 +119,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         auto sourceLink = std::make_shared<eicrecon::IndexSourceLink>(surface->geometryId(), hit_index);
         sourceLinks.emplace_back(sourceLink);
 
-        auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+        auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1, Acts::eBoundTime);
         measurements->emplace_back(std::move(measurement));
 
         hit_index++;
