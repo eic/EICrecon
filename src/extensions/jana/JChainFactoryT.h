@@ -14,8 +14,7 @@
 #include <vector>
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/JFactoryT.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include "extensions/string/StringHelpers.h"
 
 
@@ -25,7 +24,7 @@
 struct NoConfig {
 };
 
-template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = JFactoryPodioT>
+template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = JFactoryPodioTFixed>
 class JChainFactoryT : public BaseT<OutT> {
 public:
 

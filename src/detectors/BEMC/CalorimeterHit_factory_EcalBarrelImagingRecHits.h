@@ -2,13 +2,13 @@
 #pragma once
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 
 #include <algorithms/calorimetry/ImagingPixelReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JFactoryPodioT<edm4eic::CalorimeterHit>, ImagingPixelReco {
+class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JFactoryPodioTFixed<edm4eic::CalorimeterHit>, ImagingPixelReco {
 
 public:
 

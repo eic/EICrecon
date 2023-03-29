@@ -7,11 +7,11 @@
 #include <random>
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-class TruthCluster_factory_B0ECalTruthProtoClusters : public JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class TruthCluster_factory_B0ECalTruthProtoClusters : public JFactoryPodioTFixed<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------

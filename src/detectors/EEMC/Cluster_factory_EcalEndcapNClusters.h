@@ -8,7 +8,7 @@
 #include <random>
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -17,7 +17,7 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapNClusterAssociations : public JFactoryPodioT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapNClusterAssociations : public JFactoryPodioTFixed<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
@@ -29,7 +29,7 @@ public:
 
 
 
-class Cluster_factory_EcalEndcapNClusters : public JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalEndcapNClusters : public JFactoryPodioTFixed<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------

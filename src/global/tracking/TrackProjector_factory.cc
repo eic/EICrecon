@@ -26,7 +26,6 @@ namespace eicrecon {
     }
 
     void TrackProjector_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        JFactoryPodioT::ChangeRun(event);
     }
 
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {

@@ -2,13 +2,13 @@
 #pragma once
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 
 #include <algorithms/calorimetry/CalorimeterHitsMerger.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelScFiMergedHits : public JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitsMerger {
+class CalorimeterHit_factory_EcalBarrelScFiMergedHits : public JFactoryPodioTFixed<edm4eic::CalorimeterHit>, CalorimeterHitsMerger {
 
 public:
     //------------------------------------------

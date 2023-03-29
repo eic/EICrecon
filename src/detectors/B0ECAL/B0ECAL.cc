@@ -15,6 +15,24 @@
 #include "Cluster_factory_B0ECalMergedClusters.h"
 #include "TruthCluster_factory_B0ECalTruthProtoClusters.h"
 
+std::string PrintStatus(JFactory::Status status) {
+    switch(status) {
+        case JFactory::Status::Uninitialized: return "Uninitialized";
+        case JFactory::Status::Unprocessed: return "Unprocessed";
+        case JFactory::Status::Processed: return "Processed";
+        case JFactory::Status::Inserted: return "Inserted";
+        default: return "Unknown";
+    }
+}
+
+struct MyFacGen : public JFactoryGenerator {
+    void GenerateFactories(JFactorySet *factory_set) override {
+        auto* factory = new Cluster_factory_B0ECalClusters;
+        LOG << "Created B0ECalClusterFactory with status=" << PrintStatus(factory->GetStatus()) << LOG_END;
+        factory_set->Add(factory);
+    }
+};
+
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -23,7 +41,7 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_B0ECalClusters>());
+        app->Add(new MyFacGen);
         app->Add(new JFactoryGeneratorT<Cluster_factory_B0ECalMergedClusters>());
         app->Add(new JFactoryGeneratorT<TruthCluster_factory_B0ECalTruthProtoClusters>());
     }

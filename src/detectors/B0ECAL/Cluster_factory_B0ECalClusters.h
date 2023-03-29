@@ -8,7 +8,7 @@
 #include <random>
 
 #include <services/io/podio/datamodel_glue.h>
-#include <JANA/Podio/JFactoryPodioT.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -16,7 +16,7 @@
 
 
 
-class Cluster_factory_B0ECalClusters : public JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_B0ECalClusters : public JFactoryPodioTFixed<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
@@ -29,6 +29,7 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
+        LOG << "In B0ECalClusters_factory Init()" << LOG_END;
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="B0ECalHits";
