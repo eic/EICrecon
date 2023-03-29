@@ -338,7 +338,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
             }
         }
-        catch(std::exception &e) {
+        catch(const JException &e) {
             // Limit printing warning to just once per factory
             std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
             failing_factories.insert(fac_name);
