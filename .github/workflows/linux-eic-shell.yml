@@ -152,45 +152,45 @@ jobs:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error
 
-  ddsim-dis:
-    runs-on: ubuntu-latest
-    container:
-      image: eicweb/jug_xl:unstable-mr-290-522
-    strategy:
-      matrix:
-        beam: [5x41, 10x100, 18x275]
-        minq2: [1, 1000]
-        detector_config: [arches, brycecanyon]
-        exclude:
-        - beam: 5x41
-          minq2: 1000
-    steps:
-    # - uses: cvmfs-contrib/github-action-cvmfs@v3
-    # - name: Get detector info
-    #   id: detector_info
-    #   run: |
-    #     grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
-    # - name: Retrieve simulation files
-    #   id: retrieve_simulation_files
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-    #     key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
-    - name: Produce simulation files
-      # if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
-      run: |
-        source /usr/local/bin/thisroot.sh
-        source /usr/local/bin/thisdd4hep.sh
-        source /opt/detector/epic-main/setup.sh
-        echo "DETECTOR_PATH = ${DETECTOR_PATH}"
-        echo "DETECTOR      = ${DETECTOR}"
-        url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
-        ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-    - uses: actions/upload-artifact@v3
-      with:
-        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-        path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-        if-no-files-found: error
+  # ddsim-dis:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: eicweb/jug_xl:unstable-mr-290-522
+  #   strategy:
+  #     matrix:
+  #       beam: [5x41, 10x100, 18x275]
+  #       minq2: [1, 1000]
+  #       detector_config: [arches, brycecanyon]
+  #       exclude:
+  #       - beam: 5x41
+  #         minq2: 1000
+  #   steps:
+  #   # - uses: cvmfs-contrib/github-action-cvmfs@v3
+  #   # - name: Get detector info
+  #   #   id: detector_info
+  #   #   run: |
+  #   #     grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+  #   # - name: Retrieve simulation files
+  #   #   id: retrieve_simulation_files
+  #   #   uses: actions/cache@v3
+  #   #   with:
+  #   #     path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #   #     key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
+  #   - name: Produce simulation files
+  #     # if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
+  #     run: |
+  #       source /usr/local/bin/thisroot.sh
+  #       source /usr/local/bin/thisdd4hep.sh
+  #       source /opt/detector/epic-main/setup.sh
+  #       echo "DETECTOR_PATH = ${DETECTOR_PATH}"
+  #       echo "DETECTOR      = ${DETECTOR}"
+  #       url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
+  #       ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #       path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #       if-no-files-found: error
 
   # valgrind-memcheck-eicrecon-gcc:
   #   runs-on: ubuntu-latest
@@ -250,8 +250,14 @@ jobs:
         source /opt/detector/epic-main/setup.sh
         echo "DETECTOR_PATH = ${DETECTOR_PATH}"
         echo "DETECTOR      = ${DETECTOR}"
+        echo "ls local plugins:"
+        ls $PWD/lib/EICrecon/plugins
         export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
         export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+        echo "JANA_PLUGIN_PATH = ${JANA_PLUGIN_PATH}"
+        echo "JANA_HOME (before) = ${JANA_HOME}"
+        export JANA_HOME=/usr/local
+        echo "JANA_HOME (after) = ${JANA_HOME}"
         chmod a+x bin/*
         $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
@@ -270,49 +276,49 @@ jobs:
     #     path: jana.dot
     #     if-no-files-found: error
 
-  eicrecon-gcc-dis:
-    runs-on: ubuntu-latest
-    container:
-      image: eicweb/jug_xl:unstable-mr-290-522
-    needs:
-    - build
-    - ddsim-dis
-    strategy:
-      matrix:
-        beam: [5x41, 10x100, 18x275]
-        minq2: [1, 1000]
-        detector_config: [arches, brycecanyon]
-        exclude:
-        - beam: 5x41
-          minq2: 1000
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: install-gcc-eic-shell-Release
-    - uses: actions/download-artifact@v3
-      with:
-        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-    - name: Run EICrecon
-      run: |
-        source /usr/local/bin/thisroot.sh
-        source /usr/local/bin/thisdd4hep.sh
-        source /opt/detector/epic-main/setup.sh
-        echo "DETECTOR_PATH = ${DETECTOR_PATH}"
-        echo "DETECTOR      = ${DETECTOR}"
-        export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
-        export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-        chmod a+x bin/*
-        $PWD/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
-    - uses: actions/upload-artifact@v3
-      with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root
-        if-no-files-found: error
-    # - uses: actions/upload-artifact@v3
-    #   with:
-    #     name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
-    #     path: jana.dot
-    #     if-no-files-found: error
+  # eicrecon-gcc-dis:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: eicweb/jug_xl:unstable-mr-290-522
+  #   needs:
+  #   - build
+  #   - ddsim-dis
+  #   strategy:
+  #     matrix:
+  #       beam: [5x41, 10x100, 18x275]
+  #       minq2: [1, 1000]
+  #       detector_config: [arches, brycecanyon]
+  #       exclude:
+  #       - beam: 5x41
+  #         minq2: 1000
+  #   steps:
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: install-gcc-eic-shell-Release
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #   - name: Run EICrecon
+  #     run: |
+  #       source /usr/local/bin/thisroot.sh
+  #       source /usr/local/bin/thisdd4hep.sh
+  #       source /opt/detector/epic-main/setup.sh
+  #       echo "DETECTOR_PATH = ${DETECTOR_PATH}"
+  #       echo "DETECTOR      = ${DETECTOR}"
+  #       export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+  #       export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+  #       chmod a+x bin/*
+  #       $PWD/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+  #       path: rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root
+  #       if-no-files-found: error
+  #   # - uses: actions/upload-artifact@v3
+  #   #   with:
+  #   #     name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
+  #   #     path: jana.dot
+  #   #     if-no-files-found: error
 
   # # build-docs and deploy-docs copy doxygen.yml functionality
   # # the difference is that these jobs use resulting artifacts from EICrecon runs
