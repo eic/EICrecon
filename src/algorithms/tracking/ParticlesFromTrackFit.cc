@@ -34,6 +34,8 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
     // create output collections
     auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();
     auto track_pars = std::make_unique<edm4eic::TrackParametersCollection>();
+    rec_parts->setSubsetCollection(true);
+    track_pars->setSubsetCollection(true);
 
     m_log->debug("Trajectories size: {}", std::size(trajectories));
 
@@ -93,7 +95,7 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
                     static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))};
             const float timeError{sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
 
-            edm4eic::TrackParameters pars{
+            track_pars->create(
                     0, // type: track head --> 0
                     loc,
                     locError,
@@ -103,8 +105,8 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
                     momentumError,
                     static_cast<float>(parameter[Acts::eBoundTime]),
                     timeError,
-                    static_cast<float>(boundParam.charge())};
-            track_pars->push_back(pars);
+                    static_cast<float>(boundParam.charge()));
+            // track_pars->push_back(pars);
         }
 
         auto tsize = trackTips.size();
