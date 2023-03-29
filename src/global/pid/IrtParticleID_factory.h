@@ -19,7 +19,7 @@
 #include <edm4hep/ParticleID.h>
 
 // services
-#include <services/geometry/rich/RichGeo_service.h>
+#include <services/geometry/richgeo/RichGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 

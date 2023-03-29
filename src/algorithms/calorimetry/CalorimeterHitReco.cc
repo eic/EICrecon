@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Chao Peng, Sylvester Joosten, Wouter Deconinck, Chao, Whitney Armstrong
 
@@ -108,10 +107,6 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         if (fields.empty()) {
             local_mask = ~0;
         }
-        // TODO: Fix the broken fmt::join for the fields type
-//    LOG_INFO(default_cerr_logger) << fmt::format("Local DetElement mask {:#064b} from fields [{}]", local_mask, fmt::join(fields, ", "))
-//				  << LOG_END;
-
     }
 
     return;
@@ -223,7 +218,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
         const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
                                                                     gpos.z() / m_lUnit);
         const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
-                                                                      cdim[2] / m_lUnit);
+                                                                      cdim.size() > 2? cdim[2] / m_lUnit: 0);
         const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
                                                                        pos.z() / m_lUnit);
 

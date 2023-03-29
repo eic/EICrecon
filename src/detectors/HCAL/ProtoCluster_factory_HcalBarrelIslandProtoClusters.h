@@ -26,7 +26,7 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "HcalBarrelMergedHits";
+        m_input_tag = "HcalBarrelRecHits";
 
         m_splitCluster=false;              // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
         m_minClusterHitEdep=3.0 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
@@ -34,8 +34,22 @@ public:
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "";
-        m_readout = "";
+        // Magic constants:
+        //   32 - number of sectors
+        //   2  - number of rows per sector
+        //   24 - number of towers per row
+        u_adjacencyMatrix =
+          "("
+          "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+          "  + min("
+          "      abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24)),"
+          "      32 * 2 - abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24))"
+          "    )"
+          ") == 1";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
+        m_readout = "HcalBarrelHits";
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py

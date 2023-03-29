@@ -39,7 +39,6 @@ void CalorimeterClusterRecoCoG::AlgorithmInit(std::shared_ptr<spdlog::logger>& l
     std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
     auto it = weightMethods.find(ew);
     if (it == weightMethods.end()) {
-      //LOG_ERROR(default_cerr_logger) << fmt::format("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", ")) << LOG_END;
       m_log->error("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
       return;
     }
@@ -78,10 +77,7 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
       // skip null clusters
       if (cl == nullptr) continue;
 
-      if (m_log->level() <= spdlog::level::debug) {
-        //LOG_INFO(default_cout_logger) << cl.getNhits() << " hits: " << cl.getEnergy() / dd4hep::GeV << " GeV, (" << cl.getPosition().x / dd4hep::mm << ", " << cl.getPosition().y / dd4hep::mm << ", " << cl.getPosition().z / dd4hep::mm << ")" << LOG_END;
-        m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
-      }
+      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
       clusters.push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
@@ -127,19 +123,14 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         }
         if (!(mchit != mchits.end())) {
           // break if no matching hit found for this CellID
-          //LOG_WARN(default_cout_logger) << "Proto-cluster has highest energy in CellID " << pclhit->getCellID() << ", but no mc hit with that CellID was found." << LOG_END;
           m_log->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
-          //LOG_INFO(default_cout_logger) << "Proto-cluster hits: " << LOG_END;
-          m_log->debug("Proto-cluster hits: ");
+          m_log->trace("Proto-cluster hits: ");
           for (const auto& pclhit1: pclhits) {
-            //LOG_INFO(default_cout_logger) << pclhit1.getCellID() << ": " << pclhit1.getEnergy() << LOG_END;
-            m_log->debug("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
+            m_log->trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
           }
-          //LOG_INFO(default_cout_logger) << "MC hits: " << LOG_END;
-          m_log->debug("MC hits: ");
+          m_log->trace("MC hits: ");
           for (const auto& mchit1: mchits) {
-            //LOG_INFO(default_cout_logger) << mchit1->getCellID() << ": " << mchit1->getEnergy() << LOG_END;
-            m_log->debug("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
+            m_log->trace("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
           }
           break;
         }
@@ -147,17 +138,10 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         // 3. find mchit's MCParticle
         const auto& mcp = (*mchit)->getContributions(0).getParticle();
 
-        // debug output
-        if (m_log->level() <= spdlog::level::debug) {
-          //LOG_INFO(default_cout_logger) << "cluster has largest energy in cellID: " << pclhit->getCellID() << LOG_END;
-          m_log->debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
-          //LOG_INFO(default_cout_logger) << "pcl hit with highest energy " << pclhit->getEnergy() << " at index " << pclhit->getObjectID().index << LOG_END;
-          m_log->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
-          //LOG_INFO(default_cout_logger) << "corresponding mc hit energy " << (*mchit)->getEnergy() << " at index " << (*mchit)->getObjectID().index << LOG_END;
-          m_log->debug("corresponding mc hit energy {} at index {}", (*mchit)->getEnergy(), (*mchit)->getObjectID().index);
-          //LOG_INFO(default_cout_logger) << "from MCParticle index " << mcp.getObjectID().index << ", PDG " << mcp.getPDG() << ", " << edm4eic::magnitude(mcp.getMomentum()) << LOG_END;
-          m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
-        }
+        m_log->debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
+        m_log->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
+        m_log->debug("corresponding mc hit energy {} at index {}", (*mchit)->getEnergy(), (*mchit)->getObjectID().index);
+        m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
@@ -171,10 +155,7 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         m_outputAssociations.push_back(cassoc);
         delete clusterassoc;
       } else {
-        if (m_log->level() <= spdlog::level::debug) {
-          //LOG_INFO(default_cout_logger) << "No mcHitCollection was provided, so no truth association will be performed." << LOG_END;
-          m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
-        }
+        m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
     }
 

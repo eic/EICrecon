@@ -94,11 +94,10 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
             // TODO: it should be a fatal error to not cause unexpected analysis results
             m_log->warn("Failed to load ID decoder for {}, hits will not be merged.", m_readout);
-            // japp->Quit();
+            // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_readout));
             return;
         }
         id_mask = ~id_mask;
-        //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
         m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
         // all checks passed
         merge_hits = true;
