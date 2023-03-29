@@ -36,13 +36,6 @@ namespace eicrecon {
         auto tracking_data = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
 
         try {
-
-            // Check if data is available
-            if(tracking_data == nullptr) {
-                m_log->warn("ParticlesFromTrackFitResult=null, empty tracking results!");
-                return;
-            }
-
             std::vector<edm4eic::TrackParameters *> result;
             for (size_t i = 0; i < tracking_data->trackParameters()->size(); i++) {
                 auto track_params = (*tracking_data->trackParameters())[i];
