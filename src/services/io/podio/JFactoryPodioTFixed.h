@@ -200,4 +200,3 @@ void JFactoryPodioTFixed<T>::Insert(T* aDatum) {
     collection->push_back(*aDatum);
     SetCollection(std::move(collection));
 }
-

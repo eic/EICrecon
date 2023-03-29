@@ -288,4 +288,3 @@ void JEventSourcePODIO::PrintCollectionTypeTable(void) {
     std::cout << std::endl;
 
 }
-
