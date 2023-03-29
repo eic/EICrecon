@@ -19,6 +19,8 @@ namespace eicrecon {
     public:
         TrackerHitCollector_factory( std::vector<std::string> default_input_tags, TrackerHitReconstructionConfig cfg ):
                 JChainFactoryT<edm4eic::TrackerHit, TrackerHitReconstructionConfig>(std::move(default_input_tags), cfg ) {
+
+            SetSubsetCollection(true);
         }
 
         /** One time initialization **/

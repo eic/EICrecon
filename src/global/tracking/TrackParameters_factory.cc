@@ -39,7 +39,9 @@ namespace eicrecon {
             std::vector<edm4eic::TrackParameters *> result;
             for (size_t i = 0; i < tracking_data->trackParameters()->size(); i++) {
                 auto track_params = (*tracking_data->trackParameters())[i];
-                result.push_back(new edm4eic::TrackParameters(track_params));
+                result.push_back(new edm4eic::TrackParameters(track_params.clone()));
+                // TODO: NWB: Doing a deep copy for now because I expect PODIO is going to be unhappy about making the
+                //       original collection be the subset collection and the new one to have the ownership of its contents
             }
             Set(result);
         }
