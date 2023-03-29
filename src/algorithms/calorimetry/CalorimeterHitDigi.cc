@@ -98,7 +98,6 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             return;
         }
         id_mask = ~id_mask;
-        //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
         m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
         // all checks passed
         merge_hits = true;

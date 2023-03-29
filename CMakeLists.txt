@@ -28,7 +28,11 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.3.6)
+project(EICRecon)
+
+# Set version based on git
+include(cmake/git_version.cmake)
+set_git_version(CMAKE_PROJECT_VERSION)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")

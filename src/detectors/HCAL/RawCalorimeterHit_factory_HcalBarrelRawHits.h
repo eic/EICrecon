@@ -38,16 +38,16 @@ public:
         m_input_tag = "HcalBarrelHits";
         u_eRes = {};
         m_tRes = 0.0 * dd4hep::ns;
-        m_capADC = 256;
-        m_dyRangeADC = 50 * dd4hep::MeV;
+        m_capADC = 65536;
+        m_dyRangeADC = 1.0 * dd4hep::GeV;
         m_pedMeanADC = 10;
         m_pedSigmaADC = 2.0;
-        m_resolutionTDC = 1.0 * dd4hep::ns;
+        m_resolutionTDC = 1.0 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
-        u_fields={};
-        u_refs={1, 0};
-        m_geoSvcName = "ActsGeometryProvider";
-        m_readout = "";
+        u_fields={"tile"};
+        u_refs={0};
+        m_geoSvcName = "geoServiceName";
+        m_readout = "HcalBarrelHits";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.

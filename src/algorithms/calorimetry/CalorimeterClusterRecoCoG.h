@@ -89,11 +89,9 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     edm4eic::MutableCluster cl;
     cl.setNhits(pcl->hits_size());
 
+    m_log->debug("hit size = {}", pcl->hits_size());
+
     // no hits
-    if (m_log->level() <=spdlog::level::debug) {
-      //LOG_INFO(default_cout_logger) << "hit size = " << pcl->hits_size() << LOG_END;
-      m_log->debug("hit size = {}", pcl->hits_size());
-    }
     if (pcl->hits_size() == 0) {
       return nullptr;
     }
@@ -109,10 +107,7 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
       const auto& hit   = pcl->getHits()[i];
       const auto weight = pcl->getWeights()[i];
-      if (m_log->level() <=spdlog::level::debug) {
-        //LOG_INFO(default_cout_logger) << "hit energy = " << hit.getEnergy() << " hit weight: " << weight << LOG_END;
-        m_log->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
-      }
+      m_log->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
       auto energy = hit.getEnergy() * weight;
       totalE += energy;
       if (energy > maxE) {
@@ -142,7 +137,6 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
       v = v + (hit.getPosition() * w);
     }
     if (tw == 0.) {
-      //LOG_WARN(default_cout_logger) << "zero total weights encountered, you may want to adjust your weighting parameter." << LOG_END;
       m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
     }
     cl.setPosition(v / tw);
@@ -158,10 +152,7 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
         const double newR     = edm4eic::magnitude(cl.getPosition());
         const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
         cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
-        if (m_log->level() <=spdlog::level::debug) {
-          //LOG_INFO(default_cout_logger) << "Bound cluster position to contributing hits due to " << (overflow ? "overflow" : "underflow") << LOG_END;
-          m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
-        }
+        m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
       }
     }
 
