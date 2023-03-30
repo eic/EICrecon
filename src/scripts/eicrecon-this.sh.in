@@ -78,13 +78,8 @@ fi
 # fi
 
 #----------------- IRT
-IRT=$( readlink -f @IRT_DIR@/../.. )
-if [[ -d ${IRT} ]] ; then
-    export IRT_ROOT=${IRT}
-    IRT_LIBDIR=$( readlink -f @IRT_DIR@/.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":IRT_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${IRT_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
+if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
+    export LD_LIBRARY_PATH="@IRT_LIBRARY_DIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
 
 #----------------- EICrecon

@@ -94,7 +94,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       if(theta < 0)
 	{ theta += M_PI; }
       float eta = -log(tan(theta/2.));
-      float pt = 0.3 * R * (m_cfg.m_bFieldInZ * 1000) / 100.;
+      float pt = R * m_cfg.m_bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
       float p = pt * cosh(eta);
       float qOverP = charge / p;
 
