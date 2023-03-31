@@ -32,18 +32,17 @@ namespace eicrecon {
           );
 
       // input parameters
-      // FIXME these will need to adjusted...
-      double m_minCstPt  = 0.5 * dd4hep::MeV;  // minimum pT of objects fed to cluster sequence [set to just under e- mass right now]
-      double m_maxCstPt  = 50. * dd4hep::GeV;  // maximum pT of objects fed to clsuter sequence
+      double m_minCstPt  = 0.2  * dd4hep::GeV;  // minimum pT of objects fed to cluster sequence
+      double m_maxCstPt  = 100. * dd4hep::GeV;  // maximum pT of objects fed to clsuter sequence
 
       // jet parameters
-      float                         m_rJet         = 0.4;                             // jet resolution  parameter
-      double                        m_minJetPt     = m_minCstPt;                      // minimum jet pT
-      fastjet::JetAlgorithm         m_jetAlgo      = fastjet::antikt_algorithm;       // jet finding algorithm
-      fastjet::RecombinationScheme  m_recombScheme = fastjet::RecombinationScheme::pt_scheme;  // particle recombination scheme
+      float                         m_rJet         = 1.0;                                     // jet resolution  parameter
+      double                        m_minJetPt     = 1.0 * dd4hep::GeV;                       // minimum jet pT
+      fastjet::JetAlgorithm         m_jetAlgo      = fastjet::antikt_algorithm;               // jet finding algorithm
+      fastjet::RecombinationScheme  m_recombScheme = fastjet::RecombinationScheme::E_scheme;  // particle recombination scheme
 
       // area parameters
-      double             m_ghostMaxRap    = 5.;                     // maximum rapidity of ghosts
+      double             m_ghostMaxRap    = 3.5;                    // maximum rapidity of ghosts
       int                m_numGhostRepeat = 1;                      // number of times a ghost is reused per grid site
       double             m_ghostArea      = 0.001;                  // area per ghost
       fastjet::AreaType  m_areaType       = fastjet::AreaType::active_area;  // type of area calculated
