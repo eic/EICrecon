@@ -1,10 +1,10 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-#include "ParticleID_factory.h"
+#include "MergeCherenkovParticleID_factory.h"
 
 //-----------------------------------------------------------------------------
-void eicrecon::ParticleID_factory::Init() {
+void eicrecon::MergeCherenkovParticleID_factory::Init() {
 
   // get plugin name and tag
   auto app = GetApplication();
@@ -22,7 +22,7 @@ void eicrecon::ParticleID_factory::Init() {
     name = param_prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
-  set_param("highestWeightOnly", cfg.highestWeightOnly, "");
+  set_param("mergeMode", cfg.mergeMode, "");
 
   // initialize underlying algorithm
   m_algo.applyConfig(cfg);
@@ -30,12 +30,12 @@ void eicrecon::ParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::ParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::MergeCherenkovParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
   m_algo.AlgorithmChangeRun();
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::ParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // accumulate input collections
   // FIXME: generalize this when we have differing input tag types
@@ -50,7 +50,7 @@ void eicrecon::ParticleID_factory::Process(const std::shared_ptr<const JEvent> &
     }
   }
 
-  // call the ParticleID algorithm
+  // call the MergeParticleID algorithm
   auto global_pids = m_algo.AlgorithmProcess(cherenkov_pids);
 
   // output

@@ -53,7 +53,7 @@ flowchart TB
     IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
     IRTPID(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
 
-    Merge[<strong>Combine PID from radiators</strong><br/>MergeCherenkovParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
+    Merge[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
     MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 

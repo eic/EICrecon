@@ -7,14 +7,16 @@
 
 namespace eicrecon {
 
-  class ParticleIDConfig {
+  class MergeParticleIDConfig {
     public:
 
       /////////////////////////////////////////////////////
       // CONFIGURATION PARAMETERS
       //   NOTE: some defaults are hard-coded here; override externally
 
-      bool highestWeightOnly = true; // if true, write out only the ParticleID with the highest weight
+      // decide how to combine the weights
+      enum math_enum { kAddWeights, kMultiplyWeights };
+      int mergeMode = kAddWeights;
 
       //
       /////////////////////////////////////////////////////
@@ -25,11 +27,11 @@ namespace eicrecon {
           spdlog::level::level_enum lvl=spdlog::level::debug
           )
       {
-        m_log->log(lvl, "{:=^60}"," ParticleIDConfig Settings ");
+        m_log->log(lvl, "{:=^60}"," MergeParticleIDConfig Settings ");
         auto puts = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("highestWeightOnly",highestWeightOnly);
+        puts("mergeMode",mergeMode);
         m_log->log(lvl, "{:=^60}","");
       }
 

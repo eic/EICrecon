@@ -12,13 +12,13 @@
 #include <global/pid/RichTrack_factory.h>
 #include <global/pid/RichPseudoTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
-#include <global/pid/ParticleID_factory.h>
+#include <global/pid/MergeCherenkovParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 #include <algorithms/pid/PseudoTrackConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
-#include <algorithms/pid/ParticleIDConfig.h>
+#include <algorithms/pid/MergeParticleIDConfig.h>
 
 // other
 #include <services/geometry/richgeo/RichGeo.h>
@@ -67,6 +67,7 @@ extern "C" {
      *        can move the user-level settings to here
      * FIXME: set irt_cfg.radiators.at(*).zbins below to match RichTrack config
      */
+    bool useReconstructedTracks = true; // if false, use pseudo-tracks instead of reconstructed track projections
 
     // pseudo-track points for each radiator: uses photon pinning to get the real track
     PseudoTrackConfig pseudo_track_cfg[richgeo::nRadiators];
@@ -98,63 +99,40 @@ extern "C" {
     irt_cfg.cheatTrueRadiator  = true;
 
     // Final PID
-    ParticleIDConfig pid_cfg;
-    pid_cfg.highestWeightOnly = true;
+    MergeParticleIDConfig merge_cfg;
+    merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
 
 
     // wiring between factories and data ///////////////////////////////////////
+    // clang-format off
 
     // digitization
-    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-          {"DRICHHits"},
-          "DRICHRawHitsAssociations",
-          digi_cfg
-          ));
+    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>( {"DRICHHits"}, "DRICHRawHitsAssociations", digi_cfg ));
 
-    // track projections
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
-          {"CentralCKFTrajectories"},
-          "DRICHAerogelTracks"
-          ));
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
-          {"CentralCKFTrajectories"},
-          "DRICHGasTracks"
-          ));
+    // charged particle tracks
+    if(useReconstructedTracks) { // use reconstructed track projections
+      app->Add(new JChainFactoryGeneratorT<RichTrack_factory>( {"CentralCKFTrajectories"}, "DRICHAerogelTracks" ));
+      app->Add(new JChainFactoryGeneratorT<RichTrack_factory>( {"CentralCKFTrajectories"}, "DRICHGasTracks"     ));
+    }
+    else { // otherwise use pseudo-track points (from MC photon vertices)
+      app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>( {"DRICHHits"}, "DRICHAerogelPseudoTracks", pseudo_track_cfg[richgeo::kAerogel] ));
+      app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>( {"DRICHHits"}, "DRICHGasPseudoTracks",     pseudo_track_cfg[richgeo::kGas]     ));
+    }
 
-    // pseudo-track points (from MC photon vertices)
-    /*
-    app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>(
-          {"DRICHHits"},
-          "DRICHAerogelPseudoTracks",
-          pseudo_track_cfg[richgeo::kAerogel]
-          ));
-    app->Add(new JChainFactoryGeneratorT<RichPseudoTrack_factory>(
-          {"DRICHHits"},
-          "DRICHGasPseudoTracks",
-          pseudo_track_cfg[richgeo::kGas]
-          ));
-          */
-
-    // PID
-    std::vector<std::string> irt_input_tags = {
-      /* use reconstructed tracks' propagation */
-      "DRICHAerogelTracks",
-      "DRICHGasTracks",
-      /* use pseudo-tracks (from MC photon vertices); unreliable! */
-      // "DRICHAerogelPseudoTracks",
-      // "DRICHGasPseudoTracks",
-      /* digitized hits */
-      "DRICHRawHitsAssociations"
-    };
+    // PID algorithm
     app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          irt_input_tags,
+          {
+            useReconstructedTracks ? "DRICHAerogelTracks" : "DRICHAerogelPseudoTracks",
+            useReconstructedTracks ? "DRICHGasTracks"     : "DRICHGasPseudoTracks",
+            "DRICHRawHitsAssociations"
+          },
           "DRICHIrtCherenkovParticleID",
           irt_cfg
           ));
-    app->Add(new JChainFactoryGeneratorT<ParticleID_factory>(
-          {"DRICHIrtCherenkovParticleID"},
-          "DRICHParticleID",
-          pid_cfg
-          ));
+
+    // merge aerogel and gas PID results
+    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>( {"DRICHIrtCherenkovParticleID"}, "DRICHMergedCherenkovParticleID", merge_cfg));
+
+    // clang-format on
   }
 }
