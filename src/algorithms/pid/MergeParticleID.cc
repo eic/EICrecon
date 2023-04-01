@@ -69,7 +69,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::MergeParticleID::AlgorithmP
       // merge PDG hypotheses, combining their weights and other members
       for(auto in_hyp : in_pid->getHypotheses()) {
         m_log->trace("      PDG = {:<6} weight = {:<10.8}", in_hyp.PDG, in_hyp.weight);
-        if(i==0) 
+        if(i==0)
           out_pid.addToHypotheses(in_hyp);
         else {
           // find the hypothesis for this PDG
