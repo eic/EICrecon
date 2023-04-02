@@ -21,7 +21,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: eicweb/jug_xl:unstable-mr-290-535
+      image: eicweb/jug_xl:unstable-mr-290-539
     strategy:
       matrix:
         include:
@@ -120,7 +120,7 @@ jobs:
   ddsim-gun:
     runs-on: ubuntu-latest
     container:
-      image: eicweb/jug_xl:unstable-mr-290-535
+      image: eicweb/jug_xl:unstable-mr-290-539
     strategy:
       matrix:
         particle: [pi, e]
@@ -155,7 +155,7 @@ jobs:
   # ddsim-dis:
   #   runs-on: ubuntu-latest
   #   container:
-  #     image: eicweb/jug_xl:unstable-mr-290-535
+  #     image: eicweb/jug_xl:unstable-mr-290-539
   #   strategy:
   #     matrix:
   #       beam: [5x41, 10x100, 18x275]
@@ -228,7 +228,7 @@ jobs:
   eicrecon-gcc-gun:
     runs-on: ubuntu-latest
     container:
-      image: eicweb/jug_xl:unstable-mr-290-535
+      image: eicweb/jug_xl:unstable-mr-290-539
     needs:
     - build
     - ddsim-gun
@@ -279,7 +279,7 @@ jobs:
   # eicrecon-gcc-dis:
   #   runs-on: ubuntu-latest
   #   container:
-  #     image: eicweb/jug_xl:unstable-mr-290-535
+  #     image: eicweb/jug_xl:unstable-mr-290-539
   #   needs:
   #   - build
   #   - ddsim-dis
