@@ -35,14 +35,18 @@ namespace eicrecon {
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
         std::vector<const edm4hep::LorentzVectorE*> momenta;
-        for (const auto& p: mc_particles)
-          if (p->getGeneratorStatus() == 1) {
-            const auto& mom = p->getMomentum();
-            const auto& energy = p->getEnergy();
+        for (const auto& p : mc_particles) {
+          if (p -> getGeneratorStatus() == 1) {
+            const auto& mom    = p -> getMomentum();
+            const auto& energy = p -> getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(mom.x, mom.y, mom.z, energy));
           }
+        }
 
         auto jets = m_jet_algo.execute(momenta);
+        for (const auto &mom : momenta) {
+          delete mom;
+        }
         Set(jets);
     }
 } // eicrecon

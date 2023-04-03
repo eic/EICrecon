@@ -28,8 +28,8 @@ namespace eicrecon {
       void init(std::shared_ptr<spdlog::logger> logger);
 
       std::vector<edm4eic::ReconstructedParticle*> execute(
-          std::vector<const edm4hep::LorentzVectorE*> momenta
-          );
+        const std::vector<const edm4hep::LorentzVectorE*> momenta
+      );
 
       // input parameters
       double m_minCstPt  = 0.2  * dd4hep::GeV;  // minimum pT of objects fed to cluster sequence

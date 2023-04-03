@@ -24,7 +24,7 @@ namespace eicrecon {
   }
 
   std::vector<edm4eic::ReconstructedParticle*> JetReconstruction::execute(
-      std::vector<const edm4hep::LorentzVectorE*> momenta) {
+    const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
     std::vector<edm4eic::ReconstructedParticle*> jets_edm;
