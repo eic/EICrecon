@@ -41,7 +41,7 @@ namespace eicrecon {
         }
 
         auto jets = m_jet_algo.execute(momenta);
-        for (const auso &mom : momenta) {
+        for (const auto &mom : momenta) {
           delete mom;
         } 
         Set(jets);
