@@ -107,9 +107,9 @@ endmacro()
 macro(plugin_glob_all _name)
 
     # But... GLOB here makes this file just hot pluggable
-    file(GLOB LIB_SRC_FILES *.cc *.cpp *.c)
-    file(GLOB PLUGIN_SRC_FILES *.cc *.cpp *.c)
-    file(GLOB HEADER_FILES *.h *.hh *.hpp)
+    file(GLOB LIB_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
     string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
@@ -199,7 +199,6 @@ endmacro()
 macro(plugin_add_irt _name)
     if(NOT IRT_FOUND)
         find_package(IRT REQUIRED)
-        set(IRT_INCLUDE_DIR ${IRT_DIR}/../../include)
     endif()
     plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
     plugin_link_libraries(${PLUGIN_NAME} IRT)

@@ -107,10 +107,6 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         if (fields.empty()) {
             local_mask = ~0;
         }
-        // TODO: Fix the broken fmt::join for the fields type
-//    LOG_INFO(default_cerr_logger) << fmt::format("Local DetElement mask {:#064b} from fields [{}]", local_mask, fmt::join(fields, ", "))
-//				  << LOG_END;
-
     }
 
     return;
