@@ -165,7 +165,7 @@ namespace eicrecon {
         }
 
       // -------------------------------------------------------------------------------------
-      
+
       // printing: vectors
       static void PrintTVector3(
           std::shared_ptr<spdlog::logger> m_log,
