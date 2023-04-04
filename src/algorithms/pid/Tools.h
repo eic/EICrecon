@@ -1,7 +1,7 @@
 // Copyright 2023, Alexander Kiselev, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Ported from Juggler's JugPID `IRTAlgorithmServices`
+// Several methods ported from Juggler's JugPID `IRTAlgorithmServices`
 //
 
 #pragma once
@@ -9,12 +9,17 @@
 // general
 #include <map>
 #include <math.h>
+#include <spdlog/spdlog.h>
 
 // ROOT
 #include <TVector3.h>
 
 // IRT
 #include <IRT/ParametricSurface.h>
+
+// data model
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 
 namespace eicrecon {
@@ -160,10 +165,70 @@ namespace eicrecon {
         }
 
       // -------------------------------------------------------------------------------------
-      // printing: convert objects to strings
-      static std::string TVector3_to_string(std::string name, TVector3 v) {
-        return fmt::format("{:>30} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, v.x(), v.y(), v.z());
+      
+      // printing: vectors
+      static void PrintTVector3(
+          std::shared_ptr<spdlog::logger> m_log,
+          std::string name, TVector3 vec,
+          int nameBuffer=30, spdlog::level::level_enum lvl=spdlog::level::trace
+          )
+      {
+        m_log->log(lvl, "{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(), vec.y(), vec.z());
       }
+
+      // printing: hypothesis tables
+      static void PrintHypothesisTableHead(
+          std::shared_ptr<spdlog::logger> m_log,
+          int indent=4, spdlog::level::level_enum lvl=spdlog::level::trace
+          )
+      {
+        m_log->log(lvl, "{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
+      }
+      static void PrintHypothesisTableLine(
+          std::shared_ptr<spdlog::logger> m_log,
+          edm4eic::CherenkovParticleIDHypothesis hyp,
+          int indent=4, spdlog::level::level_enum lvl=spdlog::level::trace
+          )
+      {
+        m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
+      }
+      static void PrintHypothesisTableLine(
+          std::shared_ptr<spdlog::logger> m_log,
+          edm4hep::ParticleID hyp,
+          int indent=4, spdlog::level::level_enum lvl=spdlog::level::trace
+          )
+      {
+        float npe = hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
+        m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(), hyp.getLikelihood(), npe);
+      }
+
+      // printing: Cherenkov angle estimate
+      static void PrintCherenkovEstimate(
+          std::shared_ptr<spdlog::logger> m_log,
+          edm4eic::CherenkovParticleID pid,
+          bool printHypotheses = true,
+          int indent=2, spdlog::level::level_enum lvl=spdlog::level::trace
+          )
+      {
+        if(m_log->level() <= lvl) {
+          double thetaAve = 0;
+          if(pid.getNpe() > 0)
+            for(const auto& [theta,phi] : pid.getThetaPhiPhotons())
+              thetaAve += theta / pid.getNpe();
+          m_log->log(lvl, "{:{}}Cherenkov Angle Estimate:", "", indent);
+          m_log->log(lvl, "{:{}}  {:>16}:  {:>10}",         "", indent, "NPE",      pid.getNpe());
+          m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} mrad",  "", indent, "<theta>",  thetaAve*1e3); // [rad] -> [mrad]
+          m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8}",       "", indent, "<rindex>", pid.getRefractiveIndex());
+          m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} eV",    "", indent, "<energy>", pid.getPhotonEnergy()*1e9); // [GeV] -> [eV]
+          if(printHypotheses) {
+            m_log->log(lvl, "{:{}}Mass Hypotheses:",          "", indent);
+            Tools::PrintHypothesisTableHead(m_log, indent+2);
+            for(const auto& hyp : pid.getHypotheses())
+              Tools::PrintHypothesisTableLine(m_log, hyp, indent+2);
+          }
+        }
+      }
+
 
   }; // class Tools
 } // namespace eicrecon

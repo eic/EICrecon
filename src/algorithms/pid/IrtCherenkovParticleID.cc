@@ -157,8 +157,8 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
         irt_rad->AddLocation(position,momentum);
-        m_log->trace(Tools::TVector3_to_string(" point: x",position));
-        m_log->trace(Tools::TVector3_to_string("        p",momentum));
+        Tools::PrintTVector3(m_log, " point: x", position);
+        Tools::PrintTVector3(m_log, "        p", momentum);
       }
 
 
@@ -188,8 +188,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
           auto vtx = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
           auto mc_rad = m_irt_det->GuessRadiator(vtx,vtx); // FIXME: assumes IP is at (0,0,0)
           if(mc_rad != irt_rad) continue; // skip this photon, if not from radiator `irt_rad`
-          m_log->trace(Tools::TVector3_to_string(
-                fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
+          Tools::PrintTVector3(m_log, fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx);
         }
 
         // get sensor and pixel info
@@ -199,10 +198,10 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
         if(m_log->level() <= spdlog::level::trace) {
           m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
-          m_log->trace(Tools::TVector3_to_string("pixel position",pixel_pos));
+          Tools::PrintTVector3(m_log, "pixel position", pixel_pos);
           //// FIXME: photons go through the sensors, ending on a vessel wall
           // TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
-          // m_log->trace(Tools::TVector3_to_string("photon endpoint",mc_endpoint));
+          // Tools::PrintTVector3(m_log, "photon endpoint", mc_endpoint);
           // m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
         }
 
@@ -286,11 +285,12 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         if(!selected) continue;
 
         // trace logging
-        m_log->trace(Tools::TVector3_to_string(
-              fmt::format("- sensor_id={:#X}: hit",irt_photon->GetVolumeCopy()),
-              irt_photon->GetDetectionPosition()
-              ));
-        m_log->trace(Tools::TVector3_to_string("photon vertex",irt_photon->GetVertexPosition()));
+        Tools::PrintTVector3(
+            m_log,
+            fmt::format("- sensor_id={:#X}: hit",irt_photon->GetVolumeCopy()),
+            irt_photon->GetDetectionPosition()
+            );
+        Tools::PrintTVector3(m_log, "photon vertex", irt_photon->GetVertexPosition());
 
         // get this photon's theta and phi estimates
         auto phot_theta = irt_photon->_m_PDF[irt_rad].GetAverage();
@@ -326,22 +326,14 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         edm4hep::Vector2f theta_phi{ float(phot_theta), float(phot_phi) };
         out_cherenkov_pid.addToThetaPhiPhotons(theta_phi);
       }
-      m_log->trace("  Cherenkov Angle Estimate:");
-      m_log->trace("    {:>16}:  {:<10}",       "NPE",        npe);
-      m_log->trace("    {:>16}:  {:<10.3} rad", "<theta>",    theta_ave);
-      m_log->trace("    {:>16}:  {:<10.3}",     "<rindex>",   rindex_ave);
-      m_log->trace("    {:>16}:  {:<10.3} eV",  "<energy>",   energy_ave*1e9); // [GeV] -> [eV]
 
       // relate mass hypotheses
-      m_log->trace("  Mass Hypotheses:");
-      m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
       for(auto [pdg,mass] : m_pdg_mass) {
 
         // get hypothesis results
         auto irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight     = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe        = irt_hypothesis->GetNpe(irt_rad);
-        m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", pdg, hyp_weight, hyp_npe);
 
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;
@@ -353,6 +345,9 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         out_cherenkov_pid.addToHypotheses(out_hypothesis);
 
       } // end hypothesis loop
+
+      // logging
+      Tools::PrintCherenkovEstimate(m_log, out_cherenkov_pid);
 
       // relate charged particle
       auto out_charged_particle = *out_charged_particles.at(irt_rad);

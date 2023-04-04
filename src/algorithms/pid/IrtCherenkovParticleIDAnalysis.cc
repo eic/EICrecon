@@ -200,16 +200,8 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
         );
     auto theta_resid = theta_rec - theta_exp;
 
-    // trace logging for IRT results
-    m_log->trace("  Cherenkov Angle Estimate:");
-    m_log->trace("    {:>16}:  {:<10}",        "NPE",      pid->getNpe());
-    m_log->trace("    {:>16}:  {:<10.3} mrad", "<theta>",  theta_rec*1e3); // [rad] -> [mrad]
-    m_log->trace("    {:>16}:  {:<10.3}",      "<rindex>", pid->getRefractiveIndex());
-    m_log->trace("    {:>16}:  {:<10.3} eV",   "<energy>", pid->getPhotonEnergy()*1e9); // [GeV] -> [eV]
-    m_log->trace("  Mass Hypotheses:");
-    m_log->trace("    {:>6}  {:>10}  {:>10}", "PDG", "Weight", "NPE");
-    for(const auto& hyp : pid->getHypotheses())
-      m_log->trace("    {:>6}  {:>10.8}  {:>10.8}", hyp.PDG, hyp.weight, hyp.npe);
+    // logging
+    Tools::PrintCherenkovEstimate(m_log, *pid);
 
     // fill PID histograms
     radiator_histos->m_npe_dist->Fill(pid->getNpe());
