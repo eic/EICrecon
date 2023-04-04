@@ -17,6 +17,9 @@
 // IRT
 #include <IRT/ParametricSurface.h>
 
+// DD4hep
+#include <Evaluator/DD4hepUnits.h>
+
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -45,6 +48,12 @@ namespace eicrecon {
   // Tools class, filled with miscellanous helper functions
   class Tools {
     public:
+
+      // -------------------------------------------------------------------------------------
+
+      // h*c constant, for wavelength <=> energy conversion [GeV*nm]
+      static constexpr double HC = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm);
+
 
       // -------------------------------------------------------------------------------------
       // Radiator IDs

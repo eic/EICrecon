@@ -31,5 +31,13 @@ std::vector<edm4eic::ReconstructedParticle*> eicrecon::LinkParticleID::Algorithm
   // start output collection
   std::vector<edm4eic::ReconstructedParticle*> out_particles;
 
+  // loop over input reconstructed particles
+  for(auto& in_particle : in_particles) {
+    auto in_particle_p   = in_particle->getMomentum();
+    auto in_particle_eta = edm4hep::utils::eta(in_particle_p);
+    auto in_particle_phi = edm4hep::utils::angleAzimuthal(in_particle_p);
+    m_log->trace("Input particle: (eta,phi) = ( {:>10.8}, {:>10.8} deg )", in_particle_eta, in_particle_phi / dd4hep::degree);
+  }
+
   return out_particles;
 }

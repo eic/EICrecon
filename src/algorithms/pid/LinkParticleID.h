@@ -9,6 +9,10 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/utils/vector_utils.h>
+
+// DD4hep
+#include <Evaluator/DD4hepUnits.h>
 
 // EICrecon
 #include "LinkParticleIDConfig.h"

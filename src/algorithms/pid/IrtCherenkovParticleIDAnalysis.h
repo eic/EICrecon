@@ -19,9 +19,6 @@
 #include <spdlog/spdlog.h>
 #include "Tools.h"
 
-// DD4hep
-#include <Evaluator/DD4hepUnits.h>
-
 namespace eicrecon {
 
   // analysis for one radiator
@@ -81,9 +78,6 @@ namespace eicrecon {
           std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids
           );
       void AlgorithmFinish();
-
-      // h*c constant, for wavelength <=> energy conversion [GeV*nm]
-      static constexpr double HC = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm);
 
     private:
 

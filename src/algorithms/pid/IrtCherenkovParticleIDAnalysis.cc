@@ -212,7 +212,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
     radiator_histos->m_thetaResid_vs_p->Fill(charged_particle_momentum,theta_resid*1e3); // [rad] -> [mrad]
     for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
       radiator_histos->m_photonTheta_vs_photonPhi->Fill(phi,theta*1e3); // [rad] -> [mrad]
-    radiator_histos->m_mcWavelength_dist->Fill( HC / pid->getPhotonEnergy() ); // energy [GeV] -> wavelength [nm]
+    radiator_histos->m_mcWavelength_dist->Fill( Tools::HC / pid->getPhotonEnergy() ); // energy [GeV] -> wavelength [nm]
     radiator_histos->m_mcRindex_dist->Fill(mc_rindex);
 
     // find the PDG hypothesis with the highest weight
