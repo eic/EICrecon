@@ -27,8 +27,6 @@ flowchart TB
     SimHits(<strong>DRICHHits</strong><br/>edm4hep::SimTrackerHit):::col
     Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
   end
-  ReconstructedChargedParticles(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
-
 
   subgraph Digitization
     DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
@@ -57,8 +55,13 @@ flowchart TB
     MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 
-  ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>ReconstructedParticleWithParticleID_factory</i>]:::alg
-  ReconstructedParticles(<strong>ReconstructedParticlesWithDRICHParticleID</strong><br/>edm4eic::ReconstructedParticle):::col
+  ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
+  subgraph Tracking Plugin Algorithms
+    ReconAssocs(<strong>ChargedParticlesWithAssociations</strong><br/>eicrecon::ParticlesWithAssociation):::col
+    ReconAssocsPID(<strong>ChargedParticlesWithAssociationsAndPID</strong><br/>eicrecon::ParticlesWithAssociation):::col
+    ReconAssocsFinal(<strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ReconFinal(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  end
 
   %%-----------------
   %% Edges
@@ -88,10 +91,12 @@ flowchart TB
   Merge --> MergePID
 
   %% linking
-  Trajectories -- tracking plugin algorithms --> ReconstructedChargedParticles
+  Trajectories -- tracking plugin algorithms --> ReconAssocs
   MergePID --> ProxMatch
-  ReconstructedChargedParticles --> ProxMatch
-  ProxMatch --> ReconstructedParticles
+  ReconAssocs --> ProxMatch
+  ProxMatch --> ReconAssocsPID
+  ReconAssocsPID --> ReconAssocsFinal
+  ReconAssocsPID --> ReconFinal
 ```
 
 ## Data Model
