@@ -13,7 +13,7 @@
 #include <global/pid/RichPseudoTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
 #include <global/pid/MergeCherenkovParticleID_factory.h>
-#include <global/pid/ReconstructedParticleWithParticleID_factory.h>
+#include <global/pid/LinkParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
@@ -164,7 +164,7 @@ extern "C" {
           ));
 
     // link reconstructed particles
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleWithParticleID_factory>(
+    app->Add(new JChainFactoryGeneratorT<LinkParticleID_factory>(
           {"DRICHMergedCherenkovParticleID", "ReconstructedParticles"},
           "ReconstructedParticlesWithDRICHParticleID",
           link_cfg

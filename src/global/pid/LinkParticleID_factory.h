@@ -24,14 +24,14 @@
 
 namespace eicrecon {
   class LinkParticleID;
-  class ReconstructedParticleWithParticleID_factory :
+  class LinkParticleID_factory :
     public JChainFactoryT<edm4eic::ReconstructedParticle, LinkParticleIDConfig>,
-    public SpdlogMixin<ReconstructedParticleWithParticleID_factory>
+    public SpdlogMixin<LinkParticleID_factory>
   {
 
     public:
 
-      explicit ReconstructedParticleWithParticleID_factory(std::vector<std::string> default_input_tags, LinkParticleIDConfig cfg) :
+      explicit LinkParticleID_factory(std::vector<std::string> default_input_tags, LinkParticleIDConfig cfg) :
         JChainFactoryT<edm4eic::ReconstructedParticle, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/

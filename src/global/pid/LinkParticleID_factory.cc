@@ -1,10 +1,10 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-#include "ReconstructedParticleWithParticleID_factory.h"
+#include "LinkParticleID_factory.h"
 
 //-----------------------------------------------------------------------------
-void eicrecon::ReconstructedParticleWithParticleID_factory::Init() {
+void eicrecon::LinkParticleID_factory::Init() {
 
   // get plugin name and tag
   auto app = GetApplication();
@@ -36,12 +36,12 @@ void eicrecon::ReconstructedParticleWithParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::ReconstructedParticleWithParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::LinkParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
   m_algo.AlgorithmChangeRun();
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::ReconstructedParticleWithParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::LinkParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // accumulate input collections
   // - if `input_tag` contains `Reconstructed`, add to `reconstructed_particles`
