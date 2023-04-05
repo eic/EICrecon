@@ -145,9 +145,9 @@ void CalorimeterHitDigi::single_hits_digi(){
         // apply additional calorimeter noise to corrected energy deposit
         const double eResRel = (eDep > m_threshold)
                                ? m_normDist(generator) * std::sqrt(
-                                    std::pow(eRes[0] / std::sqrt(eDep), 2) +
+                                    std::pow(eRes[0] / std::sqrt(eDep / dd4hep::GeV), 2) +
                                     std::pow(eRes[1], 2) +
-                                    std::pow(eRes[2] / (eDep), 2)
+                                    std::pow(eRes[2] / (eDep / dd4hep::GeV), 2)
                 )
                                : 0;
 //       const double eResRel = (eDep > 1e-6)
@@ -217,14 +217,14 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
 //        double eResRel = 0.;
         // safety check
         const double eResRel = (edep > m_threshold)
-                ? m_normDist(generator) * eRes[0] / std::sqrt(edep) +
+                ? m_normDist(generator) * eRes[0] / std::sqrt(edep / dd4hep::GeV) +
                   m_normDist(generator) * eRes[1] +
-                  m_normDist(generator) * eRes[2] / edep
+                  m_normDist(generator) * eRes[2] / (edep / dd4hep::GeV)
                   : 0;
 //        if (edep > 1e-6) {
-//            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep) +
+//            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep / dd4hep::GeV) +
 //                      m_normDist(generator) * eRes[1] +
-//                      m_normDist(generator) * eRes[2] / edep;
+//                      m_normDist(generator) * eRes[2] / (edep / dd4hep::GeV);
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
