@@ -35,17 +35,18 @@ void InitPlugin(JApplication *app) {
 
     // Tracker hits collector
     app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
-                     {
-                         "SiBarrelTrackerRecHits",          // Si tracker hits
-                         "SiBarrelVertexRecHits",
-                         "SiEndcapTrackerRecHits",
-                         "TOFBarrelRecHit",      // TOF hits
-                         "TOFEndcapRecHits",
-                         "MPGDBarrelRecHits",        // MPGD
-                         "MPGDDIRCRecHits"},
-
-                      "CentralTrackingRecHits"));    // Output collection name
-
+      {
+	"SiBarrelTrackerRecHits",          // Si tracker hits
+	  "SiBarrelVertexRecHits",
+	  "SiEndcapTrackerRecHits",
+	  "TOFBarrelRecHit",      // TOF hits
+	  "TOFEndcapRecHits",
+	  "MPGDBarrelRecHits",        // MPGD
+	  "MPGDDIRCRecHits",
+	  "TaggerTrackerHit"},
+      
+      "CentralTrackingRecHits"));    // Output collection name
+    
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
@@ -77,6 +78,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
             {"ChargedParticlesWithAssociations"},
             "ReconstructedChargedParticlesAssociations"));
+
 
 
 }

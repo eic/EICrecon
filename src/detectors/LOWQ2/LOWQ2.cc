@@ -20,12 +20,19 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig digi_cfg;
-    
+    //digi_cfg.timeResolution = 2.5; // Change timing resolution.
+    //Why isn't there the same for energy digitization, just std::llround(sim_hit->getEDep() * 1e6)? Whole Digi process isn't quite consistent.
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TaggerTrackerHits"}, "TaggerTrackerRawHit", digi_cfg));
 
     TrackerHitReconstructionConfig hit_reco_cfg;
     // change default parameters like hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
+
+
+
+
+
+
 
 //     app->Add(new JFactoryGeneratorT<RawTrackerHit_factory_ForwardRomanPotRawHits>());
 //     app->Add(new JFactoryGeneratorT<TrackerHit_factory_ForwardRomanPotRecHits>());
