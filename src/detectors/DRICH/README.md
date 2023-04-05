@@ -91,7 +91,7 @@ flowchart TB
   Merge --> MergePID
 
   %% linking
-  Trajectories -- tracking plugin algorithms --> ReconAssocs
+  Trajectories --> ReconAssocs
   MergePID --> ProxMatch
   ReconAssocs --> ProxMatch
   ProxMatch --> ReconAssocsPID
