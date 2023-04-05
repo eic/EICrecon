@@ -139,5 +139,3 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
 
     return new ParticlesFromTrackFitResult(std::move(rec_parts), std::move(track_pars));
 }
-
-

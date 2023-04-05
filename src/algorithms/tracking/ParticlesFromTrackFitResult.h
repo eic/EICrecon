@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_PARTICLESFROMTRACKFITRESULT_H
-#define EICRECON_PARTICLESFROMTRACKFITRESULT_H
+#pragma once
 
 #include <memory>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -25,6 +24,3 @@ private:
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_particles;
     std::unique_ptr<edm4eic::TrackParametersCollection> m_track_parameters;
 };
-
-
-#endif //EICRECON_PARTICLESFROMTRACKFITRESULT_H

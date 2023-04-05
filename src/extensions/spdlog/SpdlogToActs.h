@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_SPDLOGTOACTS_H
-#define EICRECON_SPDLOGTOACTS_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -30,10 +29,13 @@ namespace eicrecon {
                 return Acts::Logging::FATAL;
             case spdlog::level::off:
                 return Acts::Logging::FATAL;
+            case spdlog::level::n_levels:
+                [[fallthrough]];
+            default:
+                break;
         }
 
         auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
         throw JException(err_msg);
     }
 }
-#endif //EICRECON_SPDLOGTOACTS_H

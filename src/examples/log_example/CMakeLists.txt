@@ -13,3 +13,5 @@ plugin_add(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
+# TODO his is a temporary fix for JANA 2.1.0. This plugin have nothing to do with event model
+plugin_add_event_model(${PLUGIN_NAME})

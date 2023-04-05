@@ -18,8 +18,8 @@ void eicrecon::IrtParticleID_factory::Init() {
   app->SetDefaultParameter(tag+":which_rich", m_detector_name, "Indicate which RICH to use");
 
   // services
-  m_irtGeoSvc = app->template GetService<IrtGeo_service>();
-  m_irtGeo = m_irtGeoSvc->IrtGeometry(m_detector_name);
+  m_richGeoSvc = app->template GetService<RichGeo_service>();
+  m_irtDetectorCollection = m_richGeoSvc->GetIrtGeo(m_detector_name)->GetIrtDetectorCollection();
   m_log = app->GetService<Log_service>()->logger(GetTag()); // FIXME: use SpdlogMixin
 
   // set log level
@@ -30,6 +30,10 @@ void eicrecon::IrtParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
+void eicrecon::IrtParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+}
+
+//-----------------------------------------------------------------------------
 void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // inputs
@@ -37,7 +41,7 @@ void eicrecon::IrtParticleID_factory::Process(const std::shared_ptr<const JEvent
   auto photoelectrons = event->Get<edm4hep::SimTrackerHit>(m_detector_name+"Hits");
 
   // loop over photoelectrons
-  // FIXME: at the moment, we do nothing; the current version of this factory is only meant to test the `irt` service
+  // FIXME: at the moment, we do nothing; the current version of this factory is only meant to test the `richgeo` service
   std::vector<edm4hep::ParticleID*> output_pid;
   // for( const auto& photoelectron : photoelectrons ) {
   //   auto pid = new edm4hep::ParticleID(

@@ -2,8 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 //
 
-#ifndef EICRECON_PARTICLESFROMTRACKFIT_H
-#define EICRECON_PARTICLESFROMTRACKFIT_H
+#pragma once
 
 
 #include <spdlog/logger.h>
@@ -29,5 +28,3 @@ namespace eicrecon::Reco {
 
     };
 } // namespace Jug::Reco
-
-#endif //EICRECON_PARTICLESFROMTRACKFIT_H

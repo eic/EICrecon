@@ -7,11 +7,10 @@
 #include <JANA/JFactoryGenerator.h>
 
 #include "TrackingOccupancy_processor.h"
-    
+
 extern "C" {
     void InitPlugin(JApplication *app) {
         InitJANAPlugin(app);
         app->Add(new TrackingOccupancy_processor(app));
     }
 }
-    

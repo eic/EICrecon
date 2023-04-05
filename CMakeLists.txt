@@ -28,11 +28,35 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(EICRecon VERSION 0.3.6)
+project(EICRecon)
+
+# Set version based on git
+include(cmake/git_version.cmake)
+set_git_version(CMAKE_PROJECT_VERSION)
 
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# Export compile commands as json for run-clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# This PROJECT_SOURCE_DIR at this point corresponds to repository root.
+# Saving it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake
+# to correctly set plugin includes (and in other places as needed)
+set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+
+# Also use clang-tidy integration in CMake
+option(ENABLE_CLANG_TIDY "Enable clang-tidy integration in cmake" OFF)
+if(ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+  if (CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" CACHE STRING "" FORCE)
+  else()
+    set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE)
+  endif()
 endif()
 
 # Enable -fPIC for all targets
@@ -94,7 +118,7 @@ set(EICRECON_VERBOSE_CMAKE OFF)
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
 include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
-list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
+list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 
 # ------------------------------------------------------------------
@@ -109,7 +133,6 @@ add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
-add_subdirectory( src/tools/default_flags_table )
 
 
 
@@ -125,4 +148,3 @@ configure_package_config_file(cmake/EICreconConfig.cmake.in cmake/EICreconConfig
 install(FILES ${CMAKE_BINARY_DIR}/cmake/EICreconConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)  # why is this needed?
 file(GLOB EICRECON_CMAKE_FILES cmake/*.cmake)
 install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
-

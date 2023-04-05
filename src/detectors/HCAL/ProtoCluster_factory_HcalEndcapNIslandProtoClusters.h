@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _ProtoCLuster_factory_HcalEndcapNIslandProtoClusters_h_
-#define _ProtoCLuster_factory_HcalEndcapNIslandProtoClusters_h_
+#pragma once
 
 #include <random>
 
@@ -33,9 +32,17 @@ public:
         m_minClusterHitEdep=0.0 * dd4hep::MeV;    // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
         m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA's reconstruction.py
 
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        u_adjacencyMatrix = "";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
+        m_readout = "";
+
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        u_localDistXY={};     //{this, "localDistXY", {}};
+        u_localDistXY={15*dd4hep::mm, 15*dd4hep::mm};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
@@ -53,6 +60,9 @@ public:
         app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
+        app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("HCAL:HcalEndcapNIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
@@ -78,5 +88,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-
-#endif // _ProtoCLuster_factory_HcalEndcapNIslandProtoClusters_h_

@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _RawCalorimeterHit_factory_HcalEndcapPRawHits_h_
-#define _RawCalorimeterHit_factory_HcalEndcapPRawHits_h_
+#pragma once
 
 #include <random>
 
@@ -40,7 +39,7 @@ public:
         u_eRes = {};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 1024;
-        m_dyRangeADC = 3.6 * dd4hep::GeV;
+        m_dyRangeADC = 3.6 * dd4hep::GeV ;
         m_pedMeanADC = 20;
         m_pedSigmaADC = 0.8;
         m_resolutionTDC = 10 * dd4hep::picosecond;
@@ -91,5 +90,3 @@ public:
     }
 
 };
-
-#endif // _RawCalorimeterHit_factory_HcalEndcapPRawHits_h_

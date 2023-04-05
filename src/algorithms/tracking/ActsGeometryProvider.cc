@@ -22,7 +22,7 @@
 
 
 #include <extensions/spdlog/SpdlogToActs.h>
-
+#include <extensions/spdlog/SpdlogFormatters.h>
 
 void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
                    const std::string &fname) {
@@ -198,5 +198,3 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
 
     m_init_log->info("ActsGeometryProvider initialization complete");
 }
-
-

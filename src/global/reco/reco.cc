@@ -12,6 +12,15 @@
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedParticles_factory.h"
+#include "ReconstructedParticleAssociations_factory.h"
+#include "InclusiveKinematicsElectron_factory.h"
+#include "InclusiveKinematicsTruth_factory.h"
+#include "InclusiveKinematicsJB_factory.h"
+#include "InclusiveKinematicsDA_factory.h"
+#include "InclusiveKinematicseSigma_factory.h"
+#include "InclusiveKinematicsSigma_factory.h"
+#include "GeneratedJets_factory.h"
+#include "ReconstructedJets_factory.h"
 
 //
 extern "C" {
@@ -26,12 +35,43 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"}, "GeneratedParticles", smearing_default_config));
 
     app->Add(new JChainFactoryGeneratorT<MatchClusters_factory>(
-            {"EcalEndcapNClusters", "EcalBarrelSciGlassClusters"}, "ReconstructedParticlesWithAssoc"));
+        {
+            "EcalEndcapNClusters",
+            "EcalEndcapPClusters",
+         },
+        "ReconstructedParticlesWithAssoc"
+    ));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
-                     {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
+            {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
 
+    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
+            {"ChargedParticlesWithAssociations"},
+            "ReconstructedParticleAssociations"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsElectron"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsTruth"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsJB_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsJB"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsDA_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsDA"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicseSigma"));
+
+    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsSigma"));
+
+    app->Add(new JChainFactoryGeneratorT<GeneratedJets_factory>(
+            {"MCParticles"}, "GeneratedJets"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedJets_factory>(
+            {"ReconstructedParticles"}, "ReconstructedJets"));
 
 }
 } // extern "C"
-

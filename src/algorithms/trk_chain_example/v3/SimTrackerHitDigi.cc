@@ -8,5 +8,3 @@ void SimTrackerHitDigi::execute() {
         hits.push_back( new_RawTrackerHit(1, 2, 3) );  // (values would be smeared forms of simhit)
     }
 }
-
-

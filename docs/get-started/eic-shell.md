@@ -1,7 +1,7 @@
 # Using EICrecon with `eic-shell`
 
 
-The EIC environment `eic-shell` is a singularity/docker container with a 
+The EIC environment `eic-shell` is a singularity/docker container with a
 curated selection of software components. It is the recommended way to use
 `eicrecon` as it already has all of the dependencies compiled with matching
 version numbers. This requires either singularity or docker to be installed
@@ -15,13 +15,9 @@ cd ~/eic
 
 curl --location https://get.epic-eic.org | bash
 ./eic-shell
-
-# or, if /cvmfs is available:
-
-singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly eic-shell
 ~~~~
 
-_n.b. if on the JLab CUE you should do module load singularity/3.9.5 first_ 
+_n.b. if on the JLab CUE you should do module load singularity/3.9.5 first_
 
 Full tutorials on setting up you environment with `eic-shell` can be found here:
 - [EIC Tutorial: Setting Up Your Environment](https://eic.github.io/tutorial-setting-up-environment/index.html)
@@ -78,5 +74,3 @@ Example:
 
 At this point, you can [create your own user plugin](/howto/make_plugin.md) or
 [add a new factory (i.e. algorithm)](/howto/add_factory.md).
-
-

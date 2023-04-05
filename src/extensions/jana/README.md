@@ -1,5 +1,5 @@
 
-We have a chain that looks like this: 
+We have a chain that looks like this:
 
 ```mermaid
 flowchart TB
@@ -9,21 +9,21 @@ flowchart TB
     tracker_endcap_collections(Endcap trk:<br />TrackerEndcapHits1<br/>TrackerEndcapHits2<br/>TrackerEndcapHits3<br/><strong>edm4hep::SimHit</strong>)
     tracker_barrel_collections(Endcap trk:<br />TrackerBarrelHits1<br/>TrackerBarrelHits2<br/>TrackerBarrelHits3<br/><strong>edm4hep::SimHit</strong>)
   end
-  
+
   tracker_barrel_collections --> TrackerDigi[TrackerDigi]:::alg
   TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
-    
+
   tracker_endcap_collections --> TrackerDigi2[TrackerDigi]:::alg
   TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
-  
+
   TrackerSourceLinker[SomeReconstruction]:::alg
-  
+
   TrackerBarrelRawHits --> TrackerSourceLinker
-  TrackerEndcapRawHits --> TrackerSourceLinker  
+  TrackerEndcapRawHits --> TrackerSourceLinker
 ```
 
 
-The proposed solution: 
+The proposed solution:
 
 ```
 JChainFactoryGeneratorT.h
@@ -38,32 +38,32 @@ Requirements satisfied
 - Can be raplaced by other plugin
 
 
-To simplify lets look at one chain: 
+To simplify lets look at one chain:
 
 
 ```mermaid
 flowchart TB
   classDef alg fill:#f96;
-  
+
   tracker_barrel_collections(Endcap trk:<br />TrackerBarrelHits1<br/>TrackerBarrelHits2<br/>TrackerBarrelHits3<br/><strong>SimHit</strong>)
-  
+
   tracker_barrel_collections --> TrackerDigi[TrackerDigi<br /><strong>SimHit</strong> to <strong>RawTrackerHit</strong>]:::alg
   TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits<br/><strong>edm4eic::RawTrackingHit</strong>)
-    
-  TrackerSourceLinker[SomeReconstruction<br /><strong>RawTrackerHit</strong> to <strong>RecoParticle</strong>]:::alg  
+
+  TrackerSourceLinker[SomeReconstruction<br /><strong>RawTrackerHit</strong> to <strong>RecoParticle</strong>]:::alg
   TrackerBarrelRawHits --> TrackerSourceLinker
 ```
 
 
-How it works: 
+How it works:
 
-1- JChainFactoryT is a JFactoryT, that have just one additional property: 
+1- JChainFactoryT is a JFactoryT, that have just one additional property:
 
 ```c++
 std::vector<std::string> m_default_input_tags;
 ```
-  
-2- JChainFactoryGeneratorT allows to construct JChainFactoryT with default input tags and output tag name: 
+
+2- JChainFactoryGeneratorT allows to construct JChainFactoryT with default input tags and output tag name:
 
  ```c++
  extern "C" {
@@ -80,17 +80,17 @@ std::vector<std::string> m_default_input_tags;
       // ...
 ```
 
-3- On factory level we allow users to change input tags and (maybe) even output tag and check if default or overriden values to be used: 
+3- On factory level we allow users to change input tags and (maybe) even output tag and check if default or overriden values to be used:
 
 ```C++
 
 // Declared in SiliconTrackerDigi_factory
-std::vector<std::string> m_input_tags;          
+std::vector<std::string> m_input_tags;
 
 void eicrecon::SiliconTrackerDigi_factory::Init() {
     // Parameters names is defined by factory tag
     std::string param_prefix = "SiTrkDigi_" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
-    
+
     // ...
     pm->SetDefaultParameter(param_prefix + ":input_tags", m_input_tags, "Input data tag names");
 }
@@ -113,8 +113,8 @@ void eicrecon::SiliconTrackerDigi_factory::Process(const std::shared_ptr<const J
 }
 ```
 
-Now everything is wired by default. But users can replace wiring by: 
+Now everything is wired by default. But users can replace wiring by:
 
 ```sh
-eicrecon ... -PSiTrkDigi_BarrelTrackerRawHit:input_tags=AnotherSource1,AnotherHitSource2 
+eicrecon ... -PSiTrkDigi_BarrelTrackerRawHit:input_tags=AnotherSource1,AnotherHitSource2
 ```

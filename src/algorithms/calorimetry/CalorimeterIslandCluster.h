@@ -4,8 +4,7 @@
 //  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef _CalorimeterIslandCluster_h_
-#define _CalorimeterIslandCluster_h_
+#pragma once
 
 #include <random>
 
@@ -23,6 +22,10 @@
 #include <spdlog/spdlog.h>
 
 using CaloHit = edm4eic::CalorimeterHit;
+
+static double Phi_mpi_pi(double phi) {
+  return std::remainder(phi, 2 * M_PI);
+}
 
 //TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
 static edm4hep::Vector2f localDistXY(const CaloHit *h1, const CaloHit *h2) {
@@ -65,7 +68,7 @@ static edm4hep::Vector2f globalDistRPhi(const CaloHit *h1, const CaloHit *h2) {
       edm4eic::magnitude(h1->getPosition()) - edm4eic::magnitude(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition()))
     )
   };
 }
@@ -77,7 +80,7 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit *h1,
       edm4eic::eta(h1->getPosition()) - edm4eic::eta(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition()))
     )
   };
 }
@@ -102,6 +105,11 @@ public:
     double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
     double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
+    // geometry service to get ids
+    std::string m_geoSvcName; //{this, "geoServiceName", "GeoSvc"};
+    std::string m_readout; //{this, "readoutClass", ""};
+    std::string u_adjacencyMatrix; //{this, "adjacencyMatrix", ""};
+
     // neighbour checking distances
     double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
     std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
@@ -110,19 +118,24 @@ public:
     std::vector<double> u_globalDistRPhi;//{this, "globalDistRPhi", {}};
     std::vector<double> u_globalDistEtaPhi;//{this, "globalDistEtaPhi", {}};
     std::vector<double> u_dimScaledLocalDistXY;//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
-  // neighbor checking function
+    // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
-  // unitless counterparts of the input parameters
-    double minClusterHitEdep, minClusterCenterEdep, sectorDist;
+    // helper function to group hits
+    std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
+
+    // unitless counterparts of the input parameters
     std::array<double, 2> neighbourDist;
+
+    // Pointer to the geometry service
+    std::shared_ptr<JDD4hep_service> m_geoSvc;
+    dd4hep::IDDescriptor m_idSpec;
 
     //-----------------------------------------------
 
     // unitless counterparts of inputs
-    double           dyRangeADC, stepTDC, tRes, eRes[3];
+    double           stepTDC, tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask, ref_mask;
 
     // inputs/outputs
@@ -133,25 +146,12 @@ private:
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
-    // helper function to group hits
-    inline bool is_neighbour(const CaloHit *h1, const CaloHit *h2) const {
-        // in the same sector
-        if (h1->getSector() == h2->getSector()) {
-          auto dist = hitsDist(h1, h2);
-          return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
-          // different sector, local coordinates do not work, using global coordinates
-        } else {
-          // sector may have rotation (barrel), so z is included
-          return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= sectorDist);
-        }
-   }
-
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
     void dfs_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, int idx,
                  std::vector<const CaloHit*> hits, std::vector<bool>& visits) const {
         // not a qualified hit to particpate clustering, stop here
-        if (hits[idx]->getEnergy() < minClusterHitEdep) {
+        if (hits[idx]->getEnergy() < m_minClusterHitEdep) {
             visits[idx] = true;
             return;
         }
@@ -180,7 +180,7 @@ private:
           mpos = i;
         }
       }
-      if (group[mpos].second->getEnergy() >= minClusterCenterEdep) {
+      if (group[mpos].second->getEnergy() >= m_minClusterCenterEdep) {
         maxima.push_back(group[mpos].second);
       }
       return maxima;
@@ -188,7 +188,7 @@ private:
 
     for (const auto& [idx, hit] : group) {
       // not a qualified center
-      if (hit->getEnergy() < minClusterCenterEdep) {
+      if (hit->getEnergy() < m_minClusterCenterEdep) {
         continue;
       }
 
@@ -198,7 +198,7 @@ private:
           continue;
         }
 
-        if (is_neighbour(hit, hit2) && hit2->getEnergy() > hit->getEnergy()) {
+        if (is_neighbour(hit, hit2) && (hit2->getEnergy() > hit->getEnergy())) {
           maximum = false;
           break;
         }
@@ -229,10 +229,7 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (m_log->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
-        //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-        m_log->trace("No maxima found, not building any clusters");
-      }
+      m_log->debug("No maxima found, not building any clusters");
       return;
     } else if (maxima.size() == 1) {
       edm4eic::MutableProtoCluster pcl;
@@ -246,7 +243,52 @@ private:
 
       return;
     }
-}
-};
 
-#endif // _CalorimeterHitDigi_h_
+    // split between maxima
+    // TODO, here we can implement iterations with profile, or even ML for better splits
+    std::vector<double> weights(maxima.size(), 1.);
+    std::vector<edm4eic::MutableProtoCluster> pcls;
+    for (size_t k = 0; k < maxima.size(); ++k) {
+      pcls.emplace_back();
+    }
+
+    size_t i = 0;
+    for (const auto& [idx, hit] : group) {
+      size_t j = 0;
+      // calculate weights for local maxima
+      for (const auto& chit : maxima) {
+        double dist_ref = chit->getDimension().x;
+        double energy   = chit->getEnergy();
+        double dist     = edm4eic::magnitude(hitsDist(chit, hit));
+        weights[j]      = std::exp(-dist / dist_ref) * energy;
+        j += 1;
+      }
+
+      // normalize weights
+      vec_normalize(weights);
+
+      // ignore small weights
+      for (auto& w : weights) {
+        if (w < 0.02) {
+          w = 0;
+        }
+      }
+      vec_normalize(weights);
+
+      // split energy between local maxima
+      for (size_t k = 0; k < maxima.size(); ++k) {
+        double weight = weights[k];
+        if (weight <= 1e-6) {
+          continue;
+        }
+        pcls[k].addToHits(*hit);
+        pcls[k].addToWeights(weight);
+      }
+      i += 1;
+    }
+    for (auto& pcl : pcls) {
+      proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
+    }
+    m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
+  }
+};

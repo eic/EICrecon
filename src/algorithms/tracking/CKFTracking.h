@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
 
-#ifndef JUGGLER_JUGRECO_CKFTracking_HH
-#define JUGGLER_JUGRECO_CKFTracking_HH
+#pragma once
 
 #include <functional>
 #include <random>
@@ -11,8 +10,6 @@
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-
-//#include "JugBase/DataHandle.h"
 
 #include "JugBase/BField/DD4hepBField.h"
 #include "JugTrack/GeometryContainers.hpp"
@@ -48,8 +45,11 @@ namespace eicrecon {
     public:
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
-        using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<eicrecon::IndexSourceLinkAccessor::Iterator>;
-        using TrackFinderResult = std::vector<Acts::Result<Acts::CombinatorialKalmanFilterResult>>;
+        using TrackFinderOptions =
+            Acts::CombinatorialKalmanFilterOptions<IndexSourceLinkAccessor::Iterator,
+                                                   Acts::VectorMultiTrajectory>;
+        using TrackFinderResult = std::vector<Acts::Result<
+            Acts::CombinatorialKalmanFilterResult<Acts::VectorMultiTrajectory>>>;
 
         /// Find function that takes the above parameters
         /// @note This is separated into a virtual interface to keep compilation units
@@ -91,5 +91,3 @@ namespace eicrecon {
     };
 
 } // namespace Jug::Reco
-
-#endif

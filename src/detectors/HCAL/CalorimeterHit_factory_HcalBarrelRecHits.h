@@ -1,6 +1,5 @@
 
-#ifndef CalorimeterHit_factory_HcalBarrelRecHits_h_
-#define CalorimeterHit_factory_HcalBarrelRecHits_h_
+#pragma once
 
 #include <JANA/JFactoryT.h>
 
@@ -26,26 +25,26 @@ public:
         m_input_tag = "HcalBarrelRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=8096; // best guess
-        m_dyRangeADC=50. * dd4hep::GeV; // best guess
-        m_pedMeanADC=10; // best guess
-        m_pedSigmaADC=2; // best guess
-        m_resolutionTDC=1 * dd4hep::nanosecond; // best guess
+        m_capADC=65536;
+        m_dyRangeADC=1.0 * dd4hep::GeV;
+        m_pedMeanADC=10;
+        m_pedSigmaADC=2.0;
+        m_resolutionTDC=1.0 * dd4hep::picosecond;
 
         // zero suppression values
         m_thresholdFactor=5.0;// from ATHENA's reconstruction.py
-        m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
+        m_thresholdValue=1.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
         m_sampFrac=0.033;  // average, from sPHENIX simulations
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="HcalBarrelHits";  
-        m_layerField="tower";      
-        m_sectorField="sector";      
+        m_readout="HcalBarrelHits";
+        m_layerField="tower";
+        m_sectorField="sector";
 
-        m_localDetElement="";         
+        m_localDetElement="";
         u_localDetFields={};
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
@@ -90,5 +89,3 @@ public:
 
     std::shared_ptr<spdlog::logger> m_log;
 };
-
-#endif // CalorimeterHit_factory_HcalBarrelRecHits_h_

@@ -6,9 +6,9 @@
     box-sizing: border-box;
     border-collapse: collapse;
     margin: 25px 0;
-    min-width: 400px; 
+    min-width: 400px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    
+
 }
 .table_flags thead th{
     background-color: #009879;
@@ -24,13 +24,13 @@
 
 
 #myInput {
-    background-image: url('search.png'); 
-    background-position: 5px 6px; 
-    background-repeat: no-repeat; 
+    background-image: url('search.png');
+    background-position: 5px 6px;
+    background-repeat: no-repeat;
     background-size: 28px;
     width: 100%;
-    font-size: 16px; 
-    padding: 12px 20px 12px 40px; 
+    font-size: 16px;
+    padding: 12px 20px 12px 40px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
@@ -58,28 +58,28 @@
 .tab-title {
     background: #009879;
     color: #ffffff;
-    padding: 5px 10px; 
+    padding: 5px 10px;
     border: 1px solid gray;
     border-radius: 5px;
     box-sizing: border-box;
     margin-right: 2px;
-    font-size: 17px;    
+    font-size: 17px;
 }
 .tab-content {
-    position: absolute; 
-    left: 0; 
-    width: calc(100% - 0px); 
-    display: none; 
+    position: absolute;
+    left: 0;
+    width: calc(100% - 0px);
+    display: none;
 }
 .tab :checked + .tab-title {
-    position: relative; 
+    position: relative;
     color: black;
-    background: #ffffff; 
-    z-index: 1; 
+    background: #ffffff;
+    z-index: 1;
     box-shadow: inset 0px -1px 0px #009879;
 }
 .tab :checked ~ .tab-content {
-    display: block; 
+    display: block;
 }
 .inactiveMixin {
     content: "";

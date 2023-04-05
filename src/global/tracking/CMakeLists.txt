@@ -44,7 +44,6 @@ plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking
 ## Add libraries (works same as target_include_directories)
 #plugin_link_libraries(${PLUGIN_NAME}
 #        ${ROOT_LIBRARIES}
-#        dd4hep_library
 #        algorithms_tracking_library
 #        EDM4HEP::edm4hep
 #        EDM4EIC::edm4eic

@@ -26,7 +26,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 
     // Create a directory for this plugin. And subdirectories for series of histograms
     m_dir_main = file->mkdir(plugin_name.c_str());
-    
+
     auto phi_limit_min = 0;
     auto phi_limit_max = 6.29;
     auto z_limit_min = -1250;
@@ -38,7 +38,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
     m_th2_ftof_rphi = new TH2F("ftof_rphi", "Hit position for Forward TOF", 100, r_limit_min, r_limit_max, 100, phi_limit_min, phi_limit_max);
     m_th2_btof_phiz->SetDirectory(m_dir_main);
     m_th2_ftof_rphi->SetDirectory(m_dir_main);
-    
+
     m_tntuple_track = new TNtuple("track","track with tof","det:proj_x:proj_y:proj_z:proj_pathlength:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca");
     m_tntuple_track->SetDirectory(m_dir_main);
 }
@@ -136,9 +136,8 @@ int TofEfficiency_processor::IsTOFHit(float x, float y, float z) {
     const float ftof_zmax=1940;
 
     float r=sqrt(x*x+y*y);
-    
+
     if(r>btof_rmin&&r<btof_rmax&&z>btof_zmin&&z<btof_zmax) return 1;
     else if(r>ftof_rmin&&r<ftof_rmax&&z>ftof_zmin&&z<ftof_zmax) return 2;
     else return 0;
 }
-

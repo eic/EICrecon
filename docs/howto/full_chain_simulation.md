@@ -29,7 +29,7 @@ The input format should be in HepMC format. If the conversion is needed:
 Select a detector
 
 ``` {.bash}
-# Detectors live in 
+# Detectors live in
 # /opt/detectors
 # one can select particular configuration as
 # source /opt/detector/athena-deathvalley-1.5T/setup.sh
@@ -63,7 +63,7 @@ Using npsim (wrapper around ddsim) command line:
 ``` {.bash}
 # Assumed to run from the root of Athena detector repo
 # no spread
-npsim --compactFile=athena.xml --runType=run -G -N=2 --outputFile=test_gun.root --gun.position "0.0 0.0 1.0*cm" --gun.direction "1.0 0.0 1.0" --gun.energy 100*GeV --part.userParticleHandler='' 
+npsim --compactFile=athena.xml --runType=run -G -N=2 --outputFile=test_gun.root --gun.position "0.0 0.0 1.0*cm" --gun.direction "1.0 0.0 1.0" --gun.energy 100*GeV --part.userParticleHandler=''
 
 # uniform spread inside an angle:
 npsim --compactFile=athena.xml -N=2 --random.seed 1 --enableGun --gun.energy 2*GeV --gun.thetaMin 0*deg --gun.thetaMax 90*deg --gun.distribution uniform --outputFile test.root

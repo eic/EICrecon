@@ -39,7 +39,7 @@ public:
         u_eRes = {0.0,0.02,0.0};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
-        m_dyRangeADC = 1 * dd4hep::GeV;
+        m_dyRangeADC = 20 * dd4hep::GeV;
         m_pedMeanADC = 100;
         m_pedSigmaADC = 1;
         m_resolutionTDC = 1e-11;
@@ -48,9 +48,9 @@ public:
         u_refs={};
         m_geoSvcName = "";
         m_readout = "";
-        
+
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
-        
+
 
         // This is another option for exposing the data members as JANA configuration parameters.
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:input_tag",        m_input_tag, "Name of input collection to use");
@@ -92,4 +92,3 @@ public:
     }
 
 };
-

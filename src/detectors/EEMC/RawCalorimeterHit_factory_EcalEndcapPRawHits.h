@@ -36,16 +36,16 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapPHits";
-        u_eRes = {};
+        u_eRes = {3.16 * dd4hep::MeV, 1.5 * dd4hep::MeV, 0.0 * dd4hep::MeV};
         m_tRes = 0.0 * dd4hep::ns;
-        m_capADC = 8096;
-        m_dyRangeADC = 100 * dd4hep::MeV;
-        m_pedMeanADC = 400;
-        m_pedSigmaADC = 3.2;
+        m_capADC = 16384;
+        m_dyRangeADC = 3 * dd4hep::GeV;
+        m_pedMeanADC = 100;
+        m_pedSigmaADC = 0.7;
         m_resolutionTDC = 10 * dd4hep::picosecond;
-        m_corrMeanScale = 1.0;
+        m_corrMeanScale = 0.03;
         u_fields={};
-        u_refs={};
+        u_refs={1, 1};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -91,4 +91,3 @@ public:
     }
 
 };
-

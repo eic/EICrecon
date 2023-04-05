@@ -74,7 +74,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // All tracking hits combined
             "CentralTrackingRecHits",
-
+	"CentralTrackSeedingResults",
             // Si tracker hits
             "SiBarrelTrackerRecHits",
             "SiBarrelVertexRecHits",
@@ -94,7 +94,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
 
             //
-            "ForwardRomanPotParticles",
+            "ForwardRomanPotRecParticles",
             "SmearedFarForwardParticles",
 
             // Reconstructed data
@@ -103,6 +103,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticlesAssociations",
             "CentralTrackSegments",
+            "InclusiveKinematicsDA",
+            "InclusiveKinematicsJB",
+            "InclusiveKinematicsSigma",
+            "InclusiveKinematicseSigma",
+            "InclusiveKinematicsElectron",
+            "InclusiveKinematicsTruth",
+            "GeneratedJets",
+            "ReconstructedJets",
 
             // Ecal stuff
             "EcalEndcapNRawHits",
@@ -110,25 +118,25 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapNTruthClusters",
             "EcalEndcapNClusters",
             "EcalEndcapNMergedClusters",
-            "EcalEndcapNTruthClustersAssociations",
-            "EcalEndcapNClustersAssociations",
-            "EcalEndcapNMergedClustersAssociations",
+            "EcalEndcapNTruthClusterAssociations",
+            "EcalEndcapNClusterAssociations",
+            "EcalEndcapNMergedClusterAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
             "EcalEndcapPTruthClusters",
             "EcalEndcapPClusters",
             "EcalEndcapPMergedClusters",
-            "EcalEndcapPTruthClustersAssociations",
-            "EcalEndcapPClustersAssociations",
-            "EcalEndcapPMergedClustersAssociations",
+            "EcalEndcapPTruthClusterAssociations",
+            "EcalEndcapPClusterAssociations",
+            "EcalEndcapPMergedClusterAssociations",
             "EcalEndcapPInsertRawHits",
             "EcalEndcapPInsertRecHits",
             "EcalEndcapPInsertTruthClusters",
             "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertMergedClusters",
-            "EcalEndcapPInsertTruthClustersAssociations",
-            "EcalEndcapPInsertClustersAssociations",
-            "EcalEndcapPInsertMergedClustersAssociations",
+            "EcalEndcapPInsertTruthClusterAssociations",
+            "EcalEndcapPInsertClusterAssociations",
+            "EcalEndcapPInsertMergedClusterAssociations",
             "EcalBarrelSciGlassRawHits",
             "EcalBarrelSciGlassRecHits",
             "EcalBarrelSciGlassClusters",
@@ -151,6 +159,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapPRecHits",
             "HcalEndcapPMergedHits",
             "HcalEndcapPClusters",
+            "HcalEndcapPTruthClusterAssociations",
+            "HcalEndcapPClusterAssociations",
+            "HcalEndcapPMergedClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -317,7 +328,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             }
             auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
 
-            if (result == std::nullopt) { 
+            if (result == std::nullopt) {
                 m_log->warn("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
             }
             else {
@@ -329,7 +340,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
             }
         }
-        catch(std::exception &e) {
+        catch(const JException &e) {
             // Limit printing warning to just once per factory
             std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
             failing_factories.insert(fac_name);
@@ -344,4 +355,3 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 void JEventProcessorPODIO::Finish() {
     m_writer->finish();
 }
-

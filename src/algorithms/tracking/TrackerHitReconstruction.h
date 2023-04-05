@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKERHITRECONSTRUCTION_H
-#define EICRECON_TRACKERHITRECONSTRUCTION_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -53,7 +52,3 @@ namespace eicrecon {
         std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
     };
 }
-
-
-
-#endif //EICRECON_TRACKERHITRECONSTRUCTION_H

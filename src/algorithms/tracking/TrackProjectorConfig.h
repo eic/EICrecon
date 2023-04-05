@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef EICRECON_TRACKPROJECTORCONFIG_H
-#define EICRECON_TRACKPROJECTORCONFIG_H
+#pragma once
 
 #include <string>
 
@@ -18,5 +17,3 @@ namespace eicrecon {
     };
 
 } // eicrecon
-
-#endif //EICRECON_TRACKPROJECTORCONFIG_H

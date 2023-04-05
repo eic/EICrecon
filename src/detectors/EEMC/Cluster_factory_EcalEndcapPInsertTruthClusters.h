@@ -15,13 +15,13 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapPInsertTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapPInsertTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapPInsertTruthClustersAssociations(){
-        SetTag("EcalEndcapPInsertTruthClustersAssociations");
+    Association_factory_EcalEndcapPInsertTruthClusterAssociations(){
+        SetTag("EcalEndcapPInsertTruthClusterAssociations");
     }
 };
 
@@ -44,16 +44,16 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalEndcapPInsertHits";
         m_input_protoclust_tag="EcalEndcapPInsertTruthProtoClusters";
-    
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
-        m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
+        m_logWeightBase=6.2;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
         m_moduleDimZName="";//{this, "moduleDimZName", ""};
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
         // for endcaps.
-        m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
+        m_enableEtaBounds=true;//{this, "enableEtaBounds", false};
 
 
         app->SetDefaultParameter("EEMC:EcalEndcapPInsertTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
@@ -79,10 +79,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -92,9 +92,8 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPInsertTruthClustersAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPInsertTruthClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
 };
-

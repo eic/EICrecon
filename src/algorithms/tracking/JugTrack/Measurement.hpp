@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
 
-#ifndef JugTrack_Measurement_HH
-#define JugTrack_Measurement_HH
+#pragma once
 
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/SourceLink.hpp"
+#include "Acts/EventData/VectorMultiTrajectory.hpp"
 #include "IndexSourceLink.hpp"
 
 #include <cassert>
@@ -37,8 +37,10 @@ namespace eicrecon {
     /// @tparam parameters_t Track parameters type
     /// @param gctx The geometry context (unused)
     /// @param trackState The track state to calibrate
-    void calibrate(const Acts::GeometryContext& /*gctx*/,
-                   Acts::MultiTrajectory::TrackStateProxy trackState) const {
+    void calibrate(
+        const Acts::GeometryContext& /*gctx*/,
+        Acts::MultiTrajectory<Acts::VectorMultiTrajectory>::TrackStateProxy
+            trackState) const {
       const auto& sourceLink =
           static_cast<const IndexSourceLink&>(trackState.uncalibrated());
 
@@ -53,5 +55,3 @@ namespace eicrecon {
   };
 
 } // namespace Jug
-
-#endif

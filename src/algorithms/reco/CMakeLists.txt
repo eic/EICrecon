@@ -17,6 +17,7 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
+plugin_add_fastjet(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
@@ -58,7 +59,6 @@ plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking
 ## Add libraries (works same as target_include_directories)
 #plugin_link_libraries(${PLUGIN_NAME}
 #        ${ROOT_LIBRARIES}
-#        dd4hep_library      # This is dd4hep service
 #        EDM4HEP::edm4hep
 #        EDM4EIC::edm4eic
 #        spdlog::spdlog

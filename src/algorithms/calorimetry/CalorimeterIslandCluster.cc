@@ -1,13 +1,17 @@
 // Copyright 2022, David Lawrence
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-//  Sections Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten
+//  Sections Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "CalorimeterIslandCluster.h"
 
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
+
+// Expression evaluator from DD4hep
+#include <Evaluator/Evaluator.h>
+#include <Evaluator/detail/Evaluator.h>
 
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -52,11 +56,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 
 
     m_log=logger;
-    // unitless conversion, keep consistency with juggler internal units (dd4hep::GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-    // n.b. JANA reco_parms.py uses units of dd4hep::MeV and dd4hep::mm and so convert to this into internal units here
-    minClusterHitEdep    = m_minClusterHitEdep * dd4hep::MeV;
-    minClusterCenterEdep = m_minClusterCenterEdep * dd4hep::MeV;
-    sectorDist           = m_sectorDist * dd4hep::mm;
 
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>
@@ -74,9 +73,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
       }
       auto& [method, units] = distMethods[uprop.first];
       if (uprop.second.size() != units.size()) {
-        //LOG_INFO(default_cout_logger) << units.size() << LOG_END;
-        m_log->info("units.size() = {}", units.size());
-        //LOG_WARN(default_cout_logger) << fmt::format("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size())  << LOG_END;
         m_log->warn("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size());
         return false;
       } else {
@@ -84,7 +80,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
           neighbourDist[i] = uprop.second[i] / units[i];
         }
         hitsDist = method;
-        //LOG_INFO(default_cout_logger) << fmt::format("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ",")) << LOG_END;
         m_log->info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
       }
       return true;
@@ -100,32 +95,74 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
             {"dimScaledLocalDistXY", u_dimScaledLocalDistXY}
     };
 
-//    std::vector<std::vector<double>> uprops{
-//        u_localDistXY,
-//        u_localDistXZ,
-//        u_localDistYZ,
-//        u_globalDistRPhi,
-//        u_globalDistEtaPhi,
-//        // default one should be the last one
-//        u_dimScaledLocalDistXY,
-//    };
-
     bool method_found = false;
-    for (auto& uprop : uprops) {
-      if (set_dist_method(uprop)) {
-        method_found = true;
-        break;
+
+    // Adjacency matrix methods
+    if (u_adjacencyMatrix != "") {
+      // sanity checks
+      if (!m_geoSvc) {
+        m_log->error("Unable to locate Geometry Service. ",
+                     "Make sure you have GeoSvc and SimSvc",
+                     "in the right order in the configuration.");
+        return;
+      }
+      if (m_readout.empty()) {
+        m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
+      }
+      m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
+
+      is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
+        dd4hep::tools::Evaluator::Object evaluator;
+        for(const auto &p : m_idSpec.fields()) {
+          const std::string &name = p.first;
+          const dd4hep::IDDescriptor::Field* field = p.second;
+          evaluator.setVariable((name + "_1").c_str(), field->value(h1->getCellID()));
+          evaluator.setVariable((name + "_2").c_str(), field->value(h2->getCellID()));
+          m_log->trace("setVariable(\"{}_1\", {});", name, field->value(h1->getCellID()));
+          m_log->trace("setVariable(\"{}_2\", {});", name, field->value(h2->getCellID()));
+        }
+        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
+        if (eval.status()) {
+          std::stringstream sstr;
+          eval.print_error(sstr);
+          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: ", sstr.str()));
+        }
+        m_log->debug("result = {}", eval.result());
+        return eval.result();
+      };
+      method_found = true;
+    }
+
+    // Coordinate distance methods
+    if (not method_found) {
+      for (auto& uprop : uprops) {
+        if (set_dist_method(uprop)) {
+          method_found = true;
+
+          is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
+            // in the same sector
+            if (h1->getSector() == h2->getSector()) {
+              auto dist = hitsDist(h1, h2);
+              return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
+              // different sector, local coordinates do not work, using global coordinates
+            } else {
+              // sector may have rotation (barrel), so z is included
+              // (EDM4hep units are mm, so convert sectorDist to mm)
+              return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm);
+            }
+          };
+
+          m_log->info("Using clustering method: {}", uprop.first);
+          break;
+        }
       }
     }
+
     if (not method_found) {
-        //LOG_ERROR(default_cerr_logger) << "Cannot determine the clustering coordinates" << LOG_END;
-        m_log->error("Cannot determine the clustering coordinates");
-        japp->Quit();
-        return;
+        throw std::runtime_error("Cannot determine the clustering coordinates");
     }
 
     return;
-    
 }
 
 //------------------------
@@ -156,10 +193,9 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
     //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
 
-      if (m_log->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
+      {
         const auto& hit = hits[i];
-        //LOG_INFO(default_cout_logger) << fmt::format("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z) << LOG_END;
-        m_log->info("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
+        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
       }
       // already in a group
       if (visits[i]) {
@@ -176,12 +212,8 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       }
       auto maxima = find_maxima(group, !m_splitCluster);
       split_group(group, maxima, protoClusters);
-      //TODO: use proper logger
 
-      if (m_log->level() <=spdlog::level::debug){//msgLevel(MSG::DEBUG)) {
-        //LOG_INFO(default_cout_logger) << "hits in a group: " << group.size() << ", " << "local maxima: " << maxima.size() << LOG_END;
-        m_log->info("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
-      }
+      m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
 
     return;

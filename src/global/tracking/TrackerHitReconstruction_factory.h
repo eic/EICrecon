@@ -1,5 +1,4 @@
-#ifndef EICRECON_TRACKER_HIT_RECONSTRUCTION_FACTORY_H
-#define EICRECON_TRACKER_HIT_RECONSTRUCTION_FACTORY_H
+#pragma once
 
 #include <random>
 
@@ -47,6 +46,3 @@ private:
 
     eicrecon::TrackerHitReconstruction m_reco_algo;     /// The reconstruction algorithm
 };
-
-
-#endif //EICRECON_TRACKER_HIT_RECONSTRUCTION_FACTORY_H

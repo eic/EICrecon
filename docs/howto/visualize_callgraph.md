@@ -2,7 +2,7 @@
 
 ## Overview
 JANA2 has a built-in feature to help visualize the callgraph of a job.
-This is most easily activated by adding the `janadot` plugin to the 
+This is most easily activated by adding the `janadot` plugin to the
 job. It will automatically turn on JANA's call stack recording which
 keeps track of the call dependencies between factories, processors, and
 sources in the event. It also times how long it takes each factory
@@ -20,7 +20,7 @@ eicrecon -Pplugins=janadot sim_file.edm4hep.root
 ~~~
 
 This will create a file at the end of the job called "jana.dot"
-which contains the relevant information in a form that the 
+which contains the relevant information in a form that the
 *dot* program can read. (*dot comes in the graphviz package
 on most Linux distributions*). At the end of the job, a
 message like the following is printed:
@@ -36,7 +36,7 @@ from this, use the dot program. For example, to make a PDF file do the following
 This should give you a file named "jana.pdf".
 ~~~
 
-You can use dot to make either a PDF or PNG formatted file. To make a PNG file 
+You can use dot to make either a PDF or PNG formatted file. To make a PNG file
 you would run:
 
 ~~~bash
@@ -51,7 +51,7 @@ To activate for a specific factory, you can specify the relevant output
 collection using the `podio:output_include_collections` parameter.
 Here is an example for the *EcalEndcapN*:
 
-~~~bash 
+~~~bash
 eicrecon -Pplugins=janadot \
    -Ppodio:output_include_collections=EcalEndcapNMergedClusters \
    sim_file.edm4hep.root
@@ -97,22 +97,22 @@ ddsim --compactFile $DETECTOR_PATH/epic_arches.xml --numberOfEvents 100 --inputF
 Note that in these examples a relatively small number of events was processed
 and the startup time which included reading in the geometry from DD4Hep is
 included. Thus, it is often the case that the factory indicating the largest
-time is just the first place where the geometry was read in. 
+time is just the first place where the geometry was read in.
 
 | Example images                                                                                 |
 |------------------------------------------------------------------------------------------------|
-| ![All Factories](callgraphs/all.png)                                                           |                                                          
-| ![B0ECalClusters](callgraphs/B0ECalClusters.png)                                               |                                               
-| ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) | 
-| ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |             
-| ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |                         
-| ![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)             |             
-| ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |                         
-| ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |                           
-| ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |                                       
-| ![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)                                     |                                     
-| ![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)                         |                         
-| ![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)                                     |                                     
-| ![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)                 |                 
-| ![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)                       |                       
-| ![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)                                 |                                 
+| ![All Factories](callgraphs/all.png)                                                           |
+| ![B0ECalClusters](callgraphs/B0ECalClusters.png)                                               |
+| ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) |
+| ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |
+| ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |
+| ![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)             |
+| ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |
+| ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |
+| ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |
+| ![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)                                     |
+| ![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)                         |
+| ![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)                                     |
+| ![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)                 |
+| ![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)                       |
+| ![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)                                 |

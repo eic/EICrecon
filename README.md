@@ -13,6 +13,5 @@ If you are new to EIC software then you should start with the tutorials which
 can be found here:
 [https://indico.bnl.gov/category/443/](https://indico.bnl.gov/category/443/)
 
-A preliminary tutorial on JANA2 
+A preliminary tutorial on JANA2
 [is being developed here](https://eic.github.io/EICrecon/#/tutorial/01-introduction)
-

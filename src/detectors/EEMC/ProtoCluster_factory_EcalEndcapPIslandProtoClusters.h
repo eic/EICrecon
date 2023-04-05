@@ -29,30 +29,41 @@ public:
         m_input_tag = "EcalEndcapPRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=0.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+
+        // adjacency matrix
+        m_geoSvcName = "GeoSvc";
+        u_adjacencyMatrix = "";
+        u_adjacencyMatrix.erase(
+          std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
+          u_adjacencyMatrix.end());
+        m_readout = "";
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
-        u_localDistXY={};     //{this, "localDistXY", {}};
+        u_localDistXY={10.0 * dd4hep::cm, 10.0 * dd4hep::cm};     //{this, "localDistXY", {}};
         u_localDistXZ={};     //{this, "localDistXZ", {}};
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
+        u_dimScaledLocalDistXY={1.5,1.5};// from ATHENA reconstruction.py
 
 
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:sectorDist",   m_sectorDist);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistXY",   u_localDistXY);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistXZ",   u_localDistXZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:localDistYZ",  u_localDistYZ);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:globalDistRPhi",    u_globalDistRPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
-        app->SetDefaultParameter("EEMC:EcalEndcapPClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:splitCluster",             m_splitCluster);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:sectorDist",   m_sectorDist);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:localDistXY",   u_localDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:localDistXZ",   u_localDistXZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:localDistYZ",  u_localDistYZ);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:globalDistRPhi",    u_globalDistRPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapPIslandProtoClusters:readoutClass", m_readout);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
@@ -78,4 +89,3 @@ public:
         protoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 };
-

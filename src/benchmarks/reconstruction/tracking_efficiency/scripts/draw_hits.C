@@ -1,4 +1,5 @@
-///////////// code for checking the basic things works in ALICE and also in PANDA of particles by shyam kumar
+// Hits distribuition of detectors
+// Shyam Kumar:INFN Bari, shyam.kumar@ba.infn.it; shyam055119@gmail.com
 
 #include "TGraphErrors.h"
 #include "TF1.h"
@@ -7,7 +8,7 @@
 #include "TLegend.h"
 #include "TMath.h"
 
-void draw_hits(Int_t nevent=-1)
+void draw_hits()
 {
 
 //==========Style of the plot============
@@ -19,119 +20,201 @@ void draw_hits(Int_t nevent=-1)
    gStyle->SetHistLineWidth(2);
    gStyle->SetOptFit(1);
    gStyle->SetOptStat(0);
-     
+
 //=======Reading the root file DD4HEP===========
-   TFile* file = new TFile("tracking_test_gun.edm4eic.root"); // Tree with tracks and hits
-		// Create the tree reader and its data containers
-   TTreeReader myReader("events", file); // name of tree and file
-		
-   TTreeReaderArray<Float_t> charge(myReader, "MCParticles.charge"); 
-   TTreeReaderArray<Double_t> vx_mc(myReader, "MCParticles.vertex.x"); 
-   TTreeReaderArray<Double_t> vy_mc(myReader, "MCParticles.vertex.y"); 
-   TTreeReaderArray<Double_t> vz_mc(myReader, "MCParticles.vertex.z"); 
-   TTreeReaderArray<Float_t> px_mc(myReader, "MCParticles.momentum.x"); 
-   TTreeReaderArray<Float_t> py_mc(myReader, "MCParticles.momentum.y"); 
-   TTreeReaderArray<Float_t> pz_mc(myReader, "MCParticles.momentum.z"); 
-   TTreeReaderArray<Int_t> status(myReader, "MCParticles.generatorStatus"); 
-   TTreeReaderArray<Int_t> pdg(myReader, "MCParticles.PDG"); 
-    
-   TTreeReaderArray<Float_t> px_rec(myReader, "ReconstructedChargedParticles.momentum.x");
-   TTreeReaderArray<Float_t> py_rec(myReader, "ReconstructedChargedParticles.momentum.y");
-   TTreeReaderArray<Float_t> pz_rec(myReader, "ReconstructedChargedParticles.momentum.z");
- 
-  
- TCanvas * c[5]; 
- for (int i =0; i<5; ++i){
- c[i] = new TCanvas(Form("c%d",i),Form("c%d",i),1200,1000);
- c[i]->SetMargin(0.09, 0.1 ,0.1,0.06);
- }
+ TFile *f = TFile::Open("sim.edm4hep.root");
+ TTree *sim = (TTree*)f->Get("events");
 
+ TCanvas * c1 = new TCanvas("c1","coutput",1200,1000);
+ c1->SetMargin(0.09, 0.03 ,0.1,0.06);
+
+ TCanvas * c2 = new TCanvas("c2","coutput",1200,1000);
+ c2->SetMargin(0.09, 0.03 ,0.1,0.06);
  // X-Y Hits
+ Int_t nbins = 320;
+ Double_t x= 100., y = 100.;
+ TH2D *h1 = new TH2D("h1","h1",nbins,-x,x,nbins,-y,y);
+ TH2D *h2 = new TH2D("h2","h2",nbins,-x,x,nbins,-y,y);
+ TH2D *h3 = new TH2D("h3","h3",nbins,-x,x,nbins,-y,y);
+ TH2D *h4 = new TH2D("h4","h4",nbins,-x,x,nbins,-y,y);
+ TH2D *h5 = new TH2D("h5","h5",nbins,-x,x,nbins,-y,y);
 
- Int_t nbins = 200;
- Double_t x= 4.0;  
- TH2D *hetavspmc = new TH2D("hetavspmc","hetavspmc",100,0.,10.,nbins,-x,x);
- TH2D *hetavsprec = new TH2D("hetavsprec","hetavsprec",100,0.,10.,nbins,-x,x);
- 
- TH2D *hetavsptmc = new TH2D("hetavsptmc","hetavsptmc",100,0.,10.,nbins,-x,x);
- TH2D *hetavsptrec = new TH2D("hetavsptrec","hetavsptrec",100,0.,10.,nbins,-x,x);
- 
- TH1D *hpresol = new TH1D("hpresol","hpresol",200,-1.0,1.0);
- 
- hetavspmc->GetXaxis()->SetTitle("p_{mc} (GeV/c)");
- hetavspmc->GetYaxis()->SetTitle("#eta_{mc}");
- hetavspmc->GetXaxis()->CenterTitle();
- hetavspmc->GetYaxis()->CenterTitle();
- 
- hetavsptmc->GetXaxis()->SetTitle("pt_{mc} (GeV/c)");
- hetavsptmc->GetYaxis()->SetTitle("#eta_{mc}");
- hetavsptmc->GetXaxis()->CenterTitle();
- hetavsptmc->GetYaxis()->CenterTitle();
- 
- hetavsprec->GetXaxis()->SetTitle("p_{rec} (GeV/c)");
- hetavsprec->GetYaxis()->SetTitle("#eta_{rec}");
- hetavsprec->GetXaxis()->CenterTitle();
- hetavsprec->GetYaxis()->CenterTitle();
- 
- hetavsptrec->GetXaxis()->SetTitle("pt_{rec} (GeV/c)");
- hetavsptrec->GetYaxis()->SetTitle("#eta_{rec}");
- hetavsptrec->GetXaxis()->CenterTitle();
- hetavsptrec->GetYaxis()->CenterTitle();
- 
- hpresol->GetXaxis()->SetTitle("dp/p");
- hpresol->GetYaxis()->SetTitle("Entries (a.u.)");
- hpresol->GetXaxis()->CenterTitle();
- hpresol->GetYaxis()->CenterTitle();
+ // Y-Z Hits
+ Int_t nbinsx = 400, nbinsy=180.;
+ x= 200.; y = 90.;
+ double xmin = -200.;
+ TH2D *h1_1 = new TH2D("h1_1","h1_1",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h2_1 = new TH2D("h2_1","h2_1",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h3_1 = new TH2D("h3_1","h3_1",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h4_1 = new TH2D("h4_1","h4_1",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h5_1 = new TH2D("h5_1","h5_1",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h6_1 = new TH2D("h6_1","h6_1",nbinsx,xmin,x,nbinsy,-y,y);
+
+ TH2D *h1_2 = new TH2D("h1_2","h1_2",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h2_2 = new TH2D("h2_2","h2_2",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h3_2 = new TH2D("h3_2","h3_2",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h4_2 = new TH2D("h4_2","h4_2",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h5_2 = new TH2D("h5_2","h5_2",nbinsx,xmin,x,nbinsy,-y,y);
+ TH2D *h6_2 = new TH2D("h6_2","h6_2",nbinsx,xmin,x,nbinsy,-y,y);
+
 
 
 //////////////////////////////////////////////////////////////////////
- int count = 0;
-  while (myReader.Next()) 
-  {
-   if (nevent>0 && count>nevent) continue;
- //  cout<<"=====Event No. "<<count<<"============="<<endl;
-     Double_t pmc = 0;
-   // MC Particle
-     for (int iParticle = 0; iParticle < charge.GetSize(); ++iParticle){
-   //  cout<<" PDG: "<<pdg[iParticle]<<" Status: "<<status[iParticle]<<" Pt: "<<sqrt(px_mc[iParticle]*px_mc[iParticle]+py_mc[iParticle]*py_mc[iParticle])<<endl;
-     if (status[iParticle] ==1){
-     pmc = sqrt(px_mc[iParticle]*px_mc[iParticle]+py_mc[iParticle]*py_mc[iParticle]+pz_mc[iParticle]*pz_mc[iParticle]);
-     Double_t ptmc = sqrt(px_mc[iParticle]*px_mc[iParticle]+py_mc[iParticle]*py_mc[iParticle]);
-     Double_t etamc = -1.0*TMath::Log(TMath::Tan((TMath::ACos(pz_mc[iParticle]/pmc))/2)); 
-     hetavspmc->Fill(pmc,etamc);
-     hetavsptmc->Fill(ptmc,etamc);
-     }
-     }
-     
-    // Rec Particle
-     for (int iRecParticle = 0; iRecParticle < px_rec.GetSize(); ++iRecParticle){
-     Double_t prec = sqrt(px_rec[iRecParticle]*px_rec[iRecParticle]+py_rec[iRecParticle]*py_rec[iRecParticle]+pz_rec[iRecParticle]*pz_rec[iRecParticle]);
-     Double_t ptrec = sqrt(px_rec[iRecParticle]*px_rec[iRecParticle]+py_rec[iRecParticle]*py_rec[iRecParticle]);
-     Double_t etarec = -1.0*TMath::Log(TMath::Tan((TMath::ACos(pz_rec[iRecParticle]/prec))/2)); 
-     hetavsprec->Fill(prec,etarec);
-     hetavsptrec->Fill(ptrec,etarec);
-     hpresol->Fill((prec-pmc)/pmc);
-     
-     }
-     
-    count++;
-    
-  }
-  
-     c[0]->cd();
-     hetavspmc->Draw("colz");
-     c[0]->SaveAs("eta_mcvspmc.png");
-     c[1]->cd();
-     hetavsprec->Draw("colz");
-     c[1]->SaveAs("eta_mcvsprec.png");
-     c[2]->cd();
-     hetavsptmc->Draw("colz");
-     c[2]->SaveAs("eta_mcvsptmc.png");
-     c[3]->cd();
-     hetavsptrec->Draw("colz");
-     c[3]->SaveAs("eta_mcvsptrec.png");
-     
-     c[4]->cd();
-     hpresol->Draw("hist");
-     c[4]->SaveAs("ptresol.png");
+	c1->cd();
+	sim->Draw("VertexBarrelHits.position.y*0.1:VertexBarrelHits.position.x*0.1>>h1","",""); // Multiply by 0.1 for cm
+	sim->Draw("SiBarrelHits.position.y*0.1:SiBarrelHits.position.x*0.1>>h2","","");
+	sim->Draw("MPGDBarrelHits.position.y*0.1:MPGDBarrelHits.position.x*0.1>>h3","","");
+	sim->Draw("TOFBarrelHits.position.y*0.1:TOFBarrelHits.position.x*0.1>>h4","","");
+	//sim->Draw("TrackerEndcapHits.position.y*0.1:TrackerEndcapHits.position.x*0.1>>h5","","");
+	h1->SetMarkerStyle(31);
+	h1->SetTitle("Hit Points");
+	h1->SetMarkerColor(kBlack);
+	h1->SetMarkerSize(0.1);
+	h1->SetLineColor(kBlack);
+	h1->GetXaxis()->SetTitle("X [cm]");
+	h1->GetYaxis()->SetTitle("Y [cm]");
+	h1->GetXaxis()->CenterTitle();
+	h1->GetYaxis()->CenterTitle();
+	h1->Draw();
+
+     h2->SetMarkerStyle(20);
+	h2->SetMarkerSize(0.1);
+	h2->SetMarkerColor(kMagenta);
+	h2->SetLineColor(kMagenta);
+	h2->Draw("same");
+
+     h3->SetMarkerStyle(20);
+	h3->SetMarkerSize(0.1);
+	h3->SetMarkerColor(kBlue);
+	h3->SetLineColor(kBlue);
+	h3->Draw("same");
+
+     h4->SetMarkerStyle(20);
+	h4->SetMarkerSize(0.1);
+	h4->SetMarkerColor(kGreen);
+	h4->SetLineColor(kGreen);
+	h4->Draw("same");
+
+	h5->SetMarkerStyle(20);
+	h5->SetMarkerSize(0.1);
+	h5->SetMarkerColor(kRed);
+	h5->SetLineColor(kRed);
+	h5->Draw("same");
+
+ TLegend *l= new TLegend(0.65,0.85,0.90,1.0);
+ l->SetTextSize(0.03);
+ l->SetBorderSize(0);
+ l->AddEntry(h1,"VertexBarrelHits");
+ l->AddEntry(h2,"SiBarrelHits");
+ l->AddEntry(h3,"MPGDBarrelHits");
+ l->AddEntry(h4,"TOFBarrelHits");
+// l->AddEntry(h5,"DIRC Hits");
+ c1->cd();
+ l->Draw();
+
+     c2->cd();
+	sim->Draw("sqrt(VertexBarrelHits.position.x*0.1*VertexBarrelHits.position.x*0.1+VertexBarrelHits.position.y*0.1*VertexBarrelHits.position.y*0.1):VertexBarrelHits.position.z*0.1>>h1_1","VertexBarrelHits.position.y>0",""); // Multiply by 0.1 for cm
+	sim->Draw("sqrt(SiBarrelHits.position.x*0.1*SiBarrelHits.position.x*0.1+SiBarrelHits.position.y*0.1*SiBarrelHits.position.y*0.1):SiBarrelHits.position.z*0.1>>h2_1","SiBarrelHits.position.y>0","");
+	sim->Draw("sqrt(MPGDBarrelHits.position.x*0.1*MPGDBarrelHits.position.x*0.1+MPGDBarrelHits.position.y*0.1*MPGDBarrelHits.position.y*0.1):MPGDBarrelHits.position.z*0.1>>h3_1","MPGDBarrelHits.position.y>0","");
+	sim->Draw("sqrt(TOFBarrelHits.position.x*0.1*TOFBarrelHits.position.x*0.1+TOFBarrelHits.position.y*0.1*TOFBarrelHits.position.y*0.1):TOFBarrelHits.position.z*0.1>>h4_1","TOFBarrelHits.position.y>0","");
+	sim->Draw("sqrt(TrackerEndcapHits.position.x*0.1*TrackerEndcapHits.position.x*0.1+TrackerEndcapHits.position.y*0.1*TrackerEndcapHits.position.y*0.1):TrackerEndcapHits.position.z*0.1>>h5_1","TrackerEndcapHits.position.y>0","");
+	sim->Draw("sqrt(TOFEndcapHits.position.x*0.1*TOFEndcapHits.position.x*0.1+TOFEndcapHits.position.y*0.1*TOFEndcapHits.position.y*0.1):TOFEndcapHits.position.z*0.1>>h6_1","TOFEndcapHits.position.y>0","");
+
+     sim->Draw("-1.0*sqrt(VertexBarrelHits.position.x*0.1*VertexBarrelHits.position.x*0.1+VertexBarrelHits.position.y*0.1*VertexBarrelHits.position.y*0.1):VertexBarrelHits.position.z*0.1>>h1_2","VertexBarrelHits.position.y<0",""); // Multiply by 0.1 for cm
+	sim->Draw("-1.0*sqrt(SiBarrelHits.position.x*0.1*SiBarrelHits.position.x*0.1+SiBarrelHits.position.y*0.1*SiBarrelHits.position.y*0.1):SiBarrelHits.position.z*0.1>>h2_2","SiBarrelHits.position.y<0","");
+	sim->Draw("-1.0*sqrt(MPGDBarrelHits.position.x*0.1*MPGDBarrelHits.position.x*0.1+MPGDBarrelHits.position.y*0.1*MPGDBarrelHits.position.y*0.1):MPGDBarrelHits.position.z*0.1>>h3_2","MPGDBarrelHits.position.y<0","");
+	sim->Draw("-1.0*sqrt(TOFBarrelHits.position.x*0.1*TOFBarrelHits.position.x*0.1+TOFBarrelHits.position.y*0.1*TOFBarrelHits.position.y*0.1):TOFBarrelHits.position.z*0.1>>h4_2","TOFBarrelHits.position.y<0","");
+	sim->Draw("-1.0*sqrt(TrackerEndcapHits.position.x*0.1*TrackerEndcapHits.position.x*0.1+TrackerEndcapHits.position.y*0.1*TrackerEndcapHits.position.y*0.1):TrackerEndcapHits.position.z*0.1>>h5_2","TrackerEndcapHits.position.y<0","");
+	sim->Draw("-1.0*sqrt(TOFEndcapHits.position.x*0.1*TOFEndcapHits.position.x*0.1+TOFEndcapHits.position.y*0.1*TOFEndcapHits.position.y*0.1):TOFEndcapHits.position.z*0.1>>h6_2","TOFEndcapHits.position.y<0","");
+
+	h1_1->SetMarkerStyle(31);
+	h1_1->SetTitle("Hit Points");
+	h1_1->SetMarkerSize(0.1);
+	h1_1->SetLineColor(kBlack);
+	h1_1->SetMarkerColor(kBlack);
+	h1_1->GetXaxis()->SetTitle("Z [cm]");
+	h1_1->GetYaxis()->SetTitle("R [cm]");
+	h1_1->GetXaxis()->CenterTitle();
+	h1_1->GetYaxis()->CenterTitle();
+	h1_1->Draw();
+     h1_2->SetMarkerSize(0.1);
+	h1_2->SetLineColor(kBlack);
+	h1_2->SetMarkerColor(kBlack);
+	h1_2->Draw("same");
+
+
+	h2_1->SetMarkerStyle(20);
+	h2_1->SetMarkerSize(0.1);
+	h2_1->SetMarkerColor(kMagenta);
+	h2_1->SetLineColor(kMagenta);
+	h2_1->Draw("same");
+
+     h2_2->SetMarkerSize(0.1);
+	h2_2->SetLineColor(kMagenta);
+	h2_2->SetMarkerColor(kMagenta);
+	h2_2->Draw("same");
+
+
+	h3_1->SetMarkerStyle(20);
+	h3_1->SetMarkerSize(0.1);
+	h3_1->SetLineColor(kBlue);
+	h3_1->SetMarkerColor(kBlue);
+	h3_1->Draw("same");
+
+	h3_2->SetMarkerSize(0.1);
+	h3_2->SetLineColor(kBlue);
+	h3_2->SetMarkerColor(kBlue);
+	h3_2->Draw("same");
+
+
+	h4_1->SetMarkerStyle(20);
+	h4_1->SetMarkerSize(0.1);
+	h4_1->SetLineColor(kGreen);
+	h4_1->SetMarkerColor(kGreen);
+	h4_1->Draw("same");
+
+	h4_2->SetMarkerSize(0.1);
+	h4_2->SetLineColor(kGreen);
+	h4_2->SetMarkerColor(kGreen);
+	h4_2->Draw("same");
+
+     h5_1->SetMarkerStyle(20);
+	h5_1->SetMarkerSize(0.1);
+	h5_1->SetMarkerColor(kRed);
+	h5_1->SetLineColor(kRed);
+	h5_1->Draw("same");
+
+     h5_2->SetMarkerSize(0.1);
+	h5_2->SetLineColor(kRed);
+	h5_2->SetMarkerColor(kRed);
+	h5_2->Draw("same");
+
+	h6_1->SetMarkerStyle(20);
+	h6_1->SetMarkerSize(0.1);
+	h6_1->SetMarkerColor(kCyan);
+	h6_1->SetLineColor(kCyan);
+	h6_1->Draw("same");
+
+     h6_2->SetMarkerSize(0.1);
+	h6_2->SetLineColor(kCyan);
+	h6_2->SetMarkerColor(kCyan);
+	h6_2->Draw("same");
+
+
+ l= new TLegend(0.64,0.87,0.85,1.0);
+ l->SetTextSize(0.03);
+ l->SetBorderSize(0);
+ l->AddEntry(h1_1,"VertexBarrelHits");
+ l->AddEntry(h2_1,"SiBarrelHits");
+ l->AddEntry(h3_1,"MPGDBarrelHits");
+ l->AddEntry(h4_1,"TOFBarrelHits");
+ l->AddEntry(h5_1,"TrackerEndcapHits");
+ l->AddEntry(h6_1,"TOFEndcapHits");
+ c2->cd();
+ l->Draw();
+
+ c1->SaveAs("hitsxy_dd4hep.png");
+ c2->SaveAs("hitsrz_dd4hep.png");
+
+
 }

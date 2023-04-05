@@ -11,7 +11,7 @@ access to a read-only `EICrecon` build, you can still use it to make a plugin
 that can install to a directory you do have write access to.
 
 ## EICrecon_MY
-The `EICrecon_MY` environment variable is useful for building plugins outside 
+The `EICrecon_MY` environment variable is useful for building plugins outside
 the `EICrecon` source tree. Set this to a directory where you have write
 permission. The build instructions below will install the plugin to that
 directory. When `eicrecon` is run, it will also look for plugins in the
@@ -47,17 +47,17 @@ eicrecon -Pplugins=DaveTest,JTest -Pjana:nevents=10
     <summary>Click here to see full output of above command</summary>
 
 ~~~
-     ____      _     ___      ___       _               
-     `MM'     dM.    `MM\     `M'      dM.              
-      MM     ,MMb     MMM\     M      ,MMb              
-      MM     d'YM.    M\MM\    M      d'YM.      ____   
-      MM    ,P `Mb    M \MM\   M     ,P `Mb     6MMMMb  
-      MM    d'  YM.   M  \MM\  M     d'  YM.   MM'  `Mb 
-      MM   ,P   `Mb   M   \MM\ M    ,P   `Mb        ,MM 
-      MM   d'    YM.  M    \MM\M    d'    YM.      ,MM' 
-(8)   MM  ,MMMMMMMMb  M     \MMM   ,MMMMMMMMb    ,M'    
-((   ,M9  d'      YM. M      \MM   d'      YM. ,M'      
- YMMMM9 _dM_     _dMM_M_      \M _dM_     _dMM_MMMMMMMM 
+     ____      _     ___      ___       _
+     `MM'     dM.    `MM\     `M'      dM.
+      MM     ,MMb     MMM\     M      ,MMb
+      MM     d'YM.    M\MM\    M      d'YM.      ____
+      MM    ,P `Mb    M \MM\   M     ,P `Mb     6MMMMb
+      MM    d'  YM.   M  \MM\  M     d'  YM.   MM'  `Mb
+      MM   ,P   `Mb   M   \MM\ M    ,P   `Mb        ,MM
+      MM   d'    YM.  M    \MM\M    d'    YM.      ,MM'
+(8)   MM  ,MMMMMMMMb  M     \MMM   ,MMMMMMMMb    ,M'
+((   ,M9  d'      YM. M      \MM   d'      YM. ,M'
+ YMMMM9 _dM_     _dMM_M_      \M _dM_     _dMM_MMMMMMMM
 
 [INFO] Creating pipe named "/tmp/jana_status" for status info.
 [INFO] Setting signal handlers
@@ -162,42 +162,42 @@ eicrecon -Pplugins=DaveTest,JTest -Pjana:nevents=10
 
 [INFO] Configuration Parameters
   ----------------------------
-      Name          Value       
-  ------------  --------------  
-  csv:dest_dir  .               
-  jana:nevents  10              
-       plugins  DaveTest,JTest  
+      Name          Value
+  ------------  --------------
+  csv:dest_dir  .
+  jana:nevents  10
+       plugins  DaveTest,JTest
   ----------------------------
 
 [INFO] Component Summary
 
   SOURCES
   -----------------------------------
-   Plugin      Name         Source     
-  --------  -----------  ------------  
-  JTest.so  JTestParser  dummy_source  
+   Plugin      Name         Source
+  --------  -----------  ------------
+  JTest.so  JTestParser  dummy_source
   -----------------------------------
   PROCESSORS
   ---------------------------------------
-    Plugin                Name             
-  -----------  --------------------------  
-  DaveTest.so  DaveTestProcessor           
-  JTest.so     JTestPlotter                
-  JTest.so     JCsvWriter<JTestTrackData>  
+    Plugin                Name
+  -----------  --------------------------
+  DaveTest.so  DaveTestProcessor
+  JTest.so     JTestPlotter
+  JTest.so     JCsvWriter<JTestTrackData>
   ---------------------------------------
   FACTORIES
   --------------------------------------------------------------------
-   Plugin          Object name                       Tag                
-  --------  --------------------------  ------------------------------  
-  JTest.so  JTestEventData                                              
-  JTest.so  JTestTrackData                                              
-  EEMC.so   edm4eic::ProtoCluster       EcalEndcapNIslandProtoClusters  
-  EEMC.so   edm4eic::ProtoCluster       EcalEndcapNTruthProtoClusters   
-  EEMC.so   edm4eic::CalorimeterHit     EcalEndcapNRecHits              
-  EEMC.so   edm4eic::Cluster            EcalEndcapNClusters             
-  EEMC.so   edm4eic::Cluster            EcalEndcapNMergedClusters       
-  BEMC.so   edm4hep::RawCalorimeterHit  EcalBarrelNRawHits              
-  EEMC.so   edm4hep::RawCalorimeterHit  EcalEndcapNRawHits              
+   Plugin          Object name                       Tag
+  --------  --------------------------  ------------------------------
+  JTest.so  JTestEventData
+  JTest.so  JTestTrackData
+  EEMC.so   edm4eic::ProtoCluster       EcalEndcapNIslandProtoClusters
+  EEMC.so   edm4eic::ProtoCluster       EcalEndcapNTruthProtoClusters
+  EEMC.so   edm4eic::CalorimeterHit     EcalEndcapNRecHits
+  EEMC.so   edm4eic::Cluster            EcalEndcapNClusters
+  EEMC.so   edm4eic::Cluster            EcalEndcapNMergedClusters
+  BEMC.so   edm4hep::RawCalorimeterHit  EcalBarrelNRawHits
+  EEMC.so   edm4hep::RawCalorimeterHit  EcalEndcapNRawHits
   --------------------------------------------------------------------
 
 [INFO] Starting processing with 1 threads requested...
@@ -233,8 +233,8 @@ eicrecon -Pplugins=DaveTest,JTest -Pjana:nevents=10
   | processors               | Finished   | Sink   |  T  |       0 |     1 |     80 |       0 |          10 |
   +--------------------------+------------+--------+-----+---------+-------+--------+---------+-------------+
   +--------------------------+-------------+--------------+----------------+--------------+----------------+
-  |           Name           | Avg latency | Inst latency | Queue latency  | Queue visits | Queue overhead | 
-  |                          | [ms/event]  |  [ms/event]  |   [ms/visit]   |    [count]   |     [0..1]     | 
+  |           Name           | Avg latency | Inst latency | Queue latency  | Queue visits | Queue overhead |
+  |                          | [ms/event]  |  [ms/event]  |   [ms/visit]   |    [count]   |     [0..1]     |
   +--------------------------+-------------+--------------+----------------+--------------+----------------+
   | dummy_source             |        4.73 |         3.16 |       0.000174 |           11 |       4.05e-05 |
   | processors               |        82.8 |         88.4 |       0.000324 |           50 |       1.96e-05 |
@@ -249,7 +249,7 @@ eicrecon -Pplugins=DaveTest,JTest -Pjana:nevents=10
 ~~~
 </details>
 
-Note that in the above command, a second plugin _JTest_ which supplies dummy events and 
+Note that in the above command, a second plugin _JTest_ which supplies dummy events and
 the _jana_nevents_ configuration parameter is set to only process 10 events.
 
 For the plugin to be useful, you will need to edit the files in the `DaveTest`
@@ -277,7 +277,7 @@ private:
 
 public:
     DaveTestProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void InitWithGlobalRootLock() override;
     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
     void FinishWithGlobalRootLock() override;
@@ -414,4 +414,3 @@ plugin_link_libraries(${PLUGIN_NAME} ${JANA_LIB})
 
 There are `plugin_...` macros that are slim wrappers trying to minimize an amount of boilerplate
 code of each plugin cmake scripts. Macros mimic CMake functions like `target_link_libraries` => `plugin_link_libraries`.
-

@@ -1,5 +1,4 @@
-#ifndef EIC_PODIO_EVENTSTORE_H
-#define EIC_PODIO_EVENTSTORE_H
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -114,8 +113,8 @@ private:
   bool doGet(const std::string& name, podio::CollectionBase*& collection, bool setReferences = true) const;
   /// check if a collection of given name already exists
   bool collectionRegistered(const std::string& name) const;
-  void setCollectionIDTable(podio::CollectionIDTable* table) {
-    m_table.reset(table);
+  void setCollectionIDTable(std::shared_ptr<podio::CollectionIDTable> table) {
+    m_table = std::move(table);
   }
 
   // members
@@ -123,7 +122,7 @@ private:
   mutable CollContainer m_collections{};
   mutable std::vector<podio::CollectionBase*> m_cachedCollections{};
   podio::IReader* m_reader{nullptr};
-  std::unique_ptr<podio::CollectionIDTable> m_table;
+  std::shared_ptr<podio::CollectionIDTable> m_table;
 
   podio::GenericParameters m_evtMD{};
   RunMDMap m_runMDMap{};
@@ -164,4 +163,3 @@ T& EventStore::get(const std::string& name) {
 }
 
 } // namespace podio
-#endif

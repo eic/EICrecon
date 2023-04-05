@@ -11,13 +11,14 @@
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawPMTHit.h>
+#include <edm4eic/RawTrackerHit.h>
 
 // algorithms
 #include <algorithms/digi/PhotoMultiplierHitDigi.h>
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 
 // services
+#include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -28,13 +29,13 @@ namespace eicrecon {
     class PhotoMultiplierHitDigi;
 
     class PhotoMultiplierHitDigi_factory :
-            public JChainFactoryT<edm4eic::RawPMTHit, PhotoMultiplierHitDigiConfig>,
+            public JChainFactoryT<edm4eic::RawTrackerHit, PhotoMultiplierHitDigiConfig>,
             public SpdlogMixin<PhotoMultiplierHitDigi_factory> {
 
     public:
 
-        explicit PhotoMultiplierHitDigi_factory(const std::vector<std::string> &default_input_tags, PhotoMultiplierHitDigiConfig cfg)
-            : JChainFactoryT(default_input_tags, cfg) {}
+        explicit PhotoMultiplierHitDigi_factory(std::vector<std::string> default_input_tags, PhotoMultiplierHitDigiConfig cfg) :
+            JChainFactoryT<edm4eic::RawTrackerHit, PhotoMultiplierHitDigiConfig>(std::move(default_input_tags), cfg) {}
 
         /** One time initialization **/
         void Init() override;

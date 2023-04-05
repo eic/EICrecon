@@ -1,6 +1,5 @@
 
-#ifndef CalorimeterHit_factory_ZDCEcalRecHits_h_
-#define CalorimeterHit_factory_ZDCEcalRecHits_h_
+#pragma once
 
 #include <JANA/JFactoryT.h>
 
@@ -37,7 +36,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
@@ -89,5 +88,3 @@ public:
     }
 
 };
-
-#endif // CalorimeterHit_factory_ZDCEcalRecHits_h_

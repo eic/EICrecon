@@ -2,8 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#ifndef _Cluster_factory_ZDCEcalClusters_h_
-#define _Cluster_factory_ZDCEcalClusters_h_
+#pragma once
 
 #include <random>
 
@@ -32,9 +31,9 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="ZDCEcalHits";
         m_input_protoclust_tag="ZDCEcalIslandProtoClusters";
-    
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
-        m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
+        m_logWeightBase=6.2;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
         m_moduleDimZName="";//{this, "moduleDimZName", ""};
@@ -68,10 +67,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -86,5 +85,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-
-#endif // _Cluster_factory_ZDCEcalClusters_h_
