@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig dirc_digi_default_cfg;
-    barrel_digi_default_cfg.threshold = 0;
+    barrel_digi_default_cfg.threshold = 0 * dd4hep::keV;
     barrel_digi_default_cfg.timeResolution = 8;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDDIRCHits"}, "MPGDDIRCDigiHits", dirc_digi_default_cfg));
 
