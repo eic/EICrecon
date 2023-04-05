@@ -72,5 +72,5 @@ void eicrecon::ReconstructedParticleWithParticleID_factory::Process(const std::s
 
   // output
   Set(std::move(result.particles));
-  // event->Insert(std::move(result.pids)); // FIXME: cannot seem to persistify 1-N relation targets
+  // event->Insert(std::move(result.pids), GetTag() + "_PIDs"); // FIXME: cannot seem to persistify 1-N relation targets
 }

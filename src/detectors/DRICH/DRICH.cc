@@ -165,7 +165,7 @@ extern "C" {
 
     // link reconstructed particles
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticleWithParticleID_factory>(
-          {"DRICHMergedCherenkovParticleID", "ReconstructedChargedParticles"},
+          {"DRICHMergedCherenkovParticleID", "ReconstructedParticles"},
           "ReconstructedParticlesWithDRICHParticleID",
           link_cfg
           ));

@@ -38,8 +38,22 @@ eicrecon::LinkParticleIDResult eicrecon::LinkParticleID::AlgorithmProcess(
     const edm4eic::CherenkovParticleID *pid;
   };
 
+  // handle reconstructed particles which are skipped
+  auto SkipParticle = [&out_result] (const edm4eic::ReconstructedParticle *part) {
+    /* FIXME: need `const object*` inputs, but non-const `object*` for the output;
+     * need a better fix than this workaround of making a new pointer...
+     */ 
+    out_result.particles.push_back(new edm4eic::ReconstructedParticle(*part));
+  };
+
   // loop over input reconstructed particles
   for(auto& in_particle : in_particles) {
+
+    // skip this particle, if neutral
+    if(std::abs(in_particle->getCharge()) < 0.001) {
+      SkipParticle(in_particle);
+      continue;
+    }
 
     // list of candidate matches
     std::vector<ProxMatch> prox_match_list;
@@ -101,7 +115,10 @@ eicrecon::LinkParticleIDResult eicrecon::LinkParticleID::AlgorithmProcess(
     } // end loop over input PID objects
 
     // if no match, proceed to next particle
-    if(prox_match_list.size() == 0) continue;
+    if(prox_match_list.size() == 0) {
+      SkipParticle(in_particle);
+      continue;
+    }
 
     // choose the closest matching PID object corresponding to this input reconstructed particle
     auto closest_prox_match = *std::min_element(
@@ -116,6 +133,7 @@ eicrecon::LinkParticleIDResult eicrecon::LinkParticleID::AlgorithmProcess(
     auto out_pids = ConvertParticleID::ConvertToParticleIDs(*in_pid_matched, true);
     if(out_pids.size()==0) {
       m_log->error("found CherenkovParticleID object with no hypotheses");
+      SkipParticle(in_particle);
       continue;
     }
 
