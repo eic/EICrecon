@@ -50,17 +50,20 @@ flowchart TB
   subgraph Particle Identification Algorithms
     IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
     IRTPID(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
-
-    Merge[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
-    MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 
-  ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
-  subgraph Tracking Plugin Algorithms
-    ReconAssocs(<strong>ChargedParticlesWithAssociations</strong><br/>eicrecon::ParticlesWithAssociation):::col
+  subgraph Particle Identification Linking
+    Merge[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
+    MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    
+    ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
     ReconAssocsPID(<strong>ChargedParticlesWithAssociationsAndPID</strong><br/>eicrecon::ParticlesWithAssociation):::col
-    ReconAssocsFinal(<strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
-    ReconFinal(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  end
+
+  subgraph Tracking Plugin Algorithms
+    direction TB
+    ReconAssocs(<strong>ChargedParticlesWithAssociations</strong><br/>eicrecon::ParticlesWithAssociation):::col
+    ReconFinal(<strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation<br/><br/><strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
   end
 
   %%-----------------
@@ -95,7 +98,6 @@ flowchart TB
   MergePID --> ProxMatch
   ReconAssocs --> ProxMatch
   ProxMatch --> ReconAssocsPID
-  ReconAssocsPID --> ReconAssocsFinal
   ReconAssocsPID --> ReconFinal
 ```
 
