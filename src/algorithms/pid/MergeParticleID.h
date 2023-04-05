@@ -7,6 +7,7 @@
 
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
 
 // EICrecon
 #include "MergeParticleIDConfig.h"

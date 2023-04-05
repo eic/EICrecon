@@ -5,6 +5,9 @@
 
 #pragma once
 
+// general
+#include <algorithm>
+
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -16,11 +19,20 @@
 
 // EICrecon
 #include "LinkParticleIDConfig.h"
+#include "ConvertParticleID.h"
+#include "Tools.h"
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
 
+  // output collections
+  struct LinkParticleIDResult {
+    std::vector<edm4eic::ReconstructedParticle*> particles;
+    std::vector<edm4hep::ParticleID*>            pids;
+  };
+
+  // algorithm
   class LinkParticleID : public WithPodConfig<LinkParticleIDConfig> {
 
     public:
@@ -32,7 +44,7 @@ namespace eicrecon {
 
       // AlgorithmProcess
       // - overload this function to support different collections from other PID subsystems
-      std::vector<edm4eic::ReconstructedParticle*> AlgorithmProcess(
+      LinkParticleIDResult AlgorithmProcess(
           std::vector<const edm4eic::ReconstructedParticle*>& in_particles,
           std::vector<const edm4eic::CherenkovParticleID*>& in_pids
           );

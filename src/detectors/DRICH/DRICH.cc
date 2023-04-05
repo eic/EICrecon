@@ -107,9 +107,8 @@ extern "C" {
     // Proximity matching to ReconstructedParticles
     // NOTE: cf. ParticlesWithTruthPIDConfig settings
     LinkParticleIDConfig link_cfg;
-    link_cfg.momentumRelativeTolerance = 100.0;
-    link_cfg.phiTolerance              = 0.1; // [rad]
-    link_cfg.etaTolerance              = 0.2;
+    link_cfg.phiTolerance = 0.1; // [rad]
+    link_cfg.etaTolerance = 0.2;
 
 
     // wiring between factories and data ///////////////////////////////////////

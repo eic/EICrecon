@@ -27,9 +27,8 @@ void eicrecon::ReconstructedParticleWithParticleID_factory::Init() {
     name = param_prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
-  set_param("momentumRelativeTolerance", cfg.momentumRelativeTolerance, "");
-  set_param("phiTolerance",              cfg.phiTolerance,              "");
-  set_param("etaTolerance",              cfg.etaTolerance,              "");
+  set_param("phiTolerance", cfg.phiTolerance, "");
+  set_param("etaTolerance", cfg.etaTolerance, "");
 
   // initialize underlying algorithm
   m_algo.applyConfig(cfg);
@@ -69,8 +68,9 @@ void eicrecon::ReconstructedParticleWithParticleID_factory::Process(const std::s
   }
 
   // call the LinkParticleID algorithm
-  auto out_particles = m_algo.AlgorithmProcess(reconstructed_particles,reconstructed_pids);
+  auto result = m_algo.AlgorithmProcess(reconstructed_particles,reconstructed_pids);
 
   // output
-  Set(std::move(out_particles));
+  Set(std::move(result.particles));
+  // event->Insert(std::move(result.pids)); // FIXME: cannot seem to persistify 1-N relation targets
 }
