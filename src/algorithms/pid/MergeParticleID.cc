@@ -62,7 +62,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::MergeParticleID::AlgorithmP
       0.0, // length
       0.0  // lengthError (not used)
     };
-      
+
     // local lists, to support output
     std::unordered_map< // map of PDG to a merged output hypothesis
       decltype(edm4eic::CherenkovParticleIDHypothesis::PDG),
