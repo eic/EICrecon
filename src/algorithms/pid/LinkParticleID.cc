@@ -42,7 +42,7 @@ eicrecon::LinkParticleIDResult eicrecon::LinkParticleID::AlgorithmProcess(
   auto SkipParticle = [&out_result] (const edm4eic::ReconstructedParticle *part) {
     /* FIXME: need `const object*` inputs, but non-const `object*` for the output;
      * need a better fix than this workaround of making a new pointer...
-     */ 
+     */
     out_result.particles.push_back(new edm4eic::ReconstructedParticle(*part));
   };
 
