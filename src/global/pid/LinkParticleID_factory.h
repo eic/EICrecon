@@ -1,7 +1,7 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-// Link ParticleID objects with ReconstructedParticles
+// Link ParticleID objects with reconstructed particles
 
 #pragma once
 
@@ -11,7 +11,7 @@
 
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
+#include <algorithms/reco/ParticlesWithAssociation.h>
 
 // algorithms
 #include <algorithms/pid/LinkParticleID.h>
@@ -25,14 +25,14 @@
 namespace eicrecon {
   class LinkParticleID;
   class LinkParticleID_factory :
-    public JChainFactoryT<edm4eic::ReconstructedParticle, LinkParticleIDConfig>,
+    public JChainFactoryT<eicrecon::ParticlesWithAssociation, LinkParticleIDConfig>,
     public SpdlogMixin<LinkParticleID_factory>
   {
 
     public:
 
       explicit LinkParticleID_factory(std::vector<std::string> default_input_tags, LinkParticleIDConfig cfg) :
-        JChainFactoryT<edm4eic::ReconstructedParticle, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
+        JChainFactoryT<eicrecon::ParticlesWithAssociation, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/
       void Init() override;

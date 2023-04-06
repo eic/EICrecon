@@ -75,11 +75,11 @@ void InitPlugin(JApplication *app) {
             "ChargedParticlesWithAssociations"));   // eicrecon::ParticlesWithAssociation
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
-            {"ChargedParticlesWithAssociations"},
+            {"ChargedParticlesWithAssociationsAndPID"},
             "ReconstructedChargedParticles"));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
-            {"ChargedParticlesWithAssociations"},
+            {"ChargedParticlesWithAssociationsAndPID"},
             "ReconstructedChargedParticlesAssociations"));
 
 

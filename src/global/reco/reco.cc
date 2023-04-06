@@ -44,7 +44,7 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedParticlesWithAssoc"}, "ReconstructedParticles"));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
-            {"ChargedParticlesWithAssociations"},
+            {"ChargedParticlesWithAssociationsAndPID"},
             "ReconstructedParticleAssociations"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(

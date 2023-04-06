@@ -14,7 +14,7 @@ void eicrecon::LinkParticleID_factory::Init() {
 
   // services
   InitLogger(param_prefix, "info");
-  m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
+  m_log->critical("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
 
   // print list of input collections
   m_log->debug("input collections:");
@@ -47,12 +47,12 @@ void eicrecon::LinkParticleID_factory::Process(const std::shared_ptr<const JEven
   // - if `input_tag` contains `Reconstructed`, add to `reconstructed_particles`
   // - otherwise, if `input_tag` contains `ParticleID`, add to `reconstructed_pids`
   //   - FIXME: generalize for other ParticleID-type inputs, beyond CherenkovParticleID
-  std::vector<const edm4eic::ReconstructedParticle*> reconstructed_particles;
-  std::vector<const edm4eic::CherenkovParticleID*>   reconstructed_pids;
+  std::vector<const eicrecon::ParticlesWithAssociation*> reconstructed_particles;
+  std::vector<const edm4eic::CherenkovParticleID*>       reconstructed_pids;
   for(const auto &input_tag : GetInputTags()) {
     try {
-      if(input_tag.find("Reconstructed") != std::string::npos) {
-        auto in = event->Get<edm4eic::ReconstructedParticle>(input_tag);
+      if(input_tag.find("Reconstructed") != std::string::npos || input_tag.find("Association") != std::string::npos) {
+        auto in = event->Get<eicrecon::ParticlesWithAssociation>(input_tag);
         reconstructed_particles.insert(reconstructed_particles.end(), in.begin(), in.end());
       }
       else if(input_tag.find("ParticleID") != std::string::npos) {
@@ -71,6 +71,5 @@ void eicrecon::LinkParticleID_factory::Process(const std::shared_ptr<const JEven
   auto result = m_algo.AlgorithmProcess(reconstructed_particles,reconstructed_pids);
 
   // output
-  Set(std::move(result.particles));
-  // event->Insert(std::move(result.pids), GetTag() + "_PIDs"); // FIXME: cannot seem to persistify 1-N relation targets
+  Set(std::move(result));
 }
