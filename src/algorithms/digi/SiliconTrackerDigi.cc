@@ -22,7 +22,6 @@ void eicrecon::SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger)
 std::vector<edm4eic::RawTrackerHit *>
 eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits) {
     /** Event by event processing **/
-    namespace units = TGeoUnit;
 
     // A map of unique cellIDs with temporary structure RawHit
     struct RawHit {
@@ -52,8 +51,8 @@ eicrecon::SiliconTrackerDigi::produce(const std::vector<const edm4hep::SimTracke
 
 
         double edep = sim_hit->getEDep();
-        if (edep * units::keV < m_cfg.threshold) {
-            m_log->debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / units::keV);
+        if (edep < m_cfg.threshold) {
+            m_log->debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
             continue;
         }
 

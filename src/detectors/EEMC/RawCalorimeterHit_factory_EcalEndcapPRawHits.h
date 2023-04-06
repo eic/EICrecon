@@ -36,7 +36,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapPHits";
-        u_eRes = {3.16 * dd4hep::MeV, 1.5 * dd4hep::MeV, 0.0 * dd4hep::MeV};
+        u_eRes = {0.00316, 0.0015, 0.0}; // (0.316% / sqrt(E)) \oplus 0.15%
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 3 * dd4hep::GeV;
