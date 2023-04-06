@@ -17,6 +17,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+
 using namespace edm4eic;
 
 //
@@ -110,7 +111,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
-
       is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
         dd4hep::tools::Evaluator::Object evaluator;
         for(const auto &p : m_idSpec.fields()) {
@@ -185,7 +185,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
 
     // group neighboring hits
     std::vector<std::vector<std::pair<uint32_t, const CaloHit*>>> groups;
-
+     
     //FIXME: protocluster collection to this?
     std::vector<edm4eic::ProtoCluster> proto;
 

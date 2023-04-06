@@ -25,7 +25,8 @@ public:
         m_input_tag = "EcalEndcapPRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=16384;//{this, "capacityADC", 8096};
+//         m_capADC=16384;//{this, "capacityADC", 8096}; old
+        m_capADC=65536;//2^16
         m_dyRangeADC=3. * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
         m_pedMeanADC=100;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.7;//{this, "pedestalSigma", 3.2};
