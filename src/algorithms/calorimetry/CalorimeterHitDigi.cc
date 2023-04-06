@@ -167,7 +167,7 @@ void CalorimeterHitDigi::single_hits_digi(){
             }
         }
         if (time > m_capTime) continue;
-        
+
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 //         if (eDep> 1.e-3)std::cout << "E sim "<< eDep << "\t adc: " << adc << "\t time: "<< time << "\t maxtime: " << m_capTime << "\t tdc: " <<  tdc  << "\t cell ID" << ahit->getCellID() << std::endl;
         auto rawhit = new edm4hep::RawCalorimeterHit(
@@ -189,10 +189,10 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
     for (auto ahit : simhits) {
         int64_t hid = (ahit->getCellID() & id_mask) | ref_mask;
-        
+
 //         m_log->info("org cell ID in {:s}: {:#064b}", m_readout, ahit->getCellID());
 //         m_log->info("new cell ID in {:s}: {:#064b}", m_readout, hid);
-        
+
         auto    it  = merge_map.find(hid);
 
         if (it == merge_map.end()) {
@@ -255,7 +255,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
 //         if (edep> 1.e-3)std::cout << "E sim "<< edep << "\t adc: " << adc << "\t time: "<< time << "\t maxtime: " << m_capTime << "\t tdc: " <<  tdc  << "\t cell ID" << id << std::endl;
-        
+
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 mid,
                 (adc > m_capADC ? m_capADC : adc),

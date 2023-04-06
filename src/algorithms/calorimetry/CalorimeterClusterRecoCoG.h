@@ -138,7 +138,7 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
       timeWeighted = timeWeighted+ (hit.getTime()*w);
       timeErrorWeighted = timeErrorWeighted+ (hit.getTimeError()*w);
     }
-    
+
     if (tw == 0.) {
       m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
     }

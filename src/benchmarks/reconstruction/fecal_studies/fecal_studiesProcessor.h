@@ -42,7 +42,7 @@
 class fecal_studiesProcessor: public JEventProcessor {
 public:
     fecal_studiesProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void Init() override;
 //     void InitWithGlobalRootLock() override;
     void Process(const std::shared_ptr<const JEvent>& event) override;
@@ -108,5 +108,5 @@ public:
     std::string nameProtoClusters   = "EcalEndcapPIslandProtoClusters";
     short iLx;
     short iLy;
-    
+
 };
