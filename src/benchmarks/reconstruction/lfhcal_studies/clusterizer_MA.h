@@ -59,10 +59,10 @@ clustersStrct findMACluster(
     tempstructC.cluster_trueID = input_towers_temp.at(0).tower_trueID; // TODO save all MC labels?
     cluster_towers_temp.push_back(input_towers_temp.at(0));
 //     clslabels_temp.push_back(input_towers_temp.at(0).tower_trueID);
-//     std::cout  << "seed: "<<  input_towers_temp.at(0).cellIDx << "\t" << input_towers_temp.at(0).cellIDy 
+//     std::cout  << "seed: "<<  input_towers_temp.at(0).cellIDx << "\t" << input_towers_temp.at(0).cellIDy
 //                   << "\t" << input_towers_temp.at(0).cellIDz << "\t E:"<< tempstructC.cluster_E << std::endl;
-    
-    
+
+
     // remove seed tower from sample
     input_towers_temp.erase(input_towers_temp.begin());
     for (int tit = 0; tit < (int)cluster_towers_temp.size(); tit++){
@@ -75,17 +75,17 @@ clustersStrct findMACluster(
         int iEtaTwrAgg = input_towers_temp.at(ait).cellIDx;
         int iPhiTwrAgg = input_towers_temp.at(ait).cellIDy;
         int iLTwrAgg   = input_towers_temp.at(ait).cellIDz;
-                
+
         int deltaL    = TMath::Abs(iLTwrAgg-iLTwr) ;
         int deltaPhi  = TMath::Abs(iPhiTwrAgg-iPhiTwr) ;
         int deltaEta  = TMath::Abs(iEtaTwrAgg-iEtaTwr) ;
         bool neighbor = (deltaL+deltaPhi+deltaEta == 1);
-        bool corner2D = (deltaL == 0 && deltaPhi == 1 && deltaEta == 1) || (deltaL == 1 && deltaPhi == 0 && deltaEta == 1) || (deltaL == 1 && deltaPhi == 1 && deltaEta == 0);          
+        bool corner2D = (deltaL == 0 && deltaPhi == 1 && deltaEta == 1) || (deltaL == 1 && deltaPhi == 0 && deltaEta == 1) || (deltaL == 1 && deltaPhi == 1 && deltaEta == 0);
 //         first condition asks for V3-like neighbors, while second condition also checks diagonally attached towers
         if(neighbor || corner2D ){
 
           // only aggregate towers with lower energy than current tower
-          
+
           if(input_towers_temp.at(ait).energy >= (cluster_towers_temp.at(tit).energy + aggMargin)) continue;
           tempstructC.cluster_E+=input_towers_temp.at(ait).energy;
           tempstructC.cluster_NTowers++;
@@ -102,7 +102,7 @@ clustersStrct findMACluster(
         }
       }
     }
-  } 
+  }
   return tempstructC;
 }
 
@@ -116,7 +116,7 @@ float * CalculateM02andWeightedPosition(std::vector<towersStrct> cluster_towers,
     TVector3 vecTwrTmp;
     float zHC     = 1;
     float w_0     = weight0;
-    
+
     vecTwr = {0.,0.,0.};
     //calculation of weights and weighted position vector
     int Nweighted = 0;
@@ -129,7 +129,7 @@ float * CalculateM02andWeightedPosition(std::vector<towersStrct> cluster_towers,
           vecTwr += w_i.at(cellI)*vecTwrTmp;
         }
     }
-    // correct Eta position for average shift in calo 
+    // correct Eta position for average shift in calo
     returnVariables[2]= vecTwr.Eta();
     returnVariables[3]= vecTwr.Phi(); //(vecTwr.Phi()<0 ? vecTwr.Phi()+TMath::Pi() : vecTwr.Phi()-TMath::Pi());
     vecTwr*=1./w_tot;
@@ -143,7 +143,7 @@ float * CalculateM02andWeightedPosition(std::vector<towersStrct> cluster_towers,
     float delta_eta_eta[4] = {0};
     float delta_eta_phi[4] = {0};
     float dispersion = 0;
-    
+
     for(int cellI=0; cellI<(int)cluster_towers.size(); cellI++){
       int iphi=cluster_towers.at(cellI).cellIDy;
       int ieta=cluster_towers.at(cellI).cellIDx;

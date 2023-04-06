@@ -145,7 +145,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
             continue;
         }
 
-        // convert ADC to energy        
+        // convert ADC to energy
         float energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
                 m_sampFrac;
         if (m_readout == "LFHCALHits" && m_sampFracLayer[0] != 0.){

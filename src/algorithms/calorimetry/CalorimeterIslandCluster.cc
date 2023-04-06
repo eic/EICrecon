@@ -185,7 +185,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
 
     // group neighboring hits
     std::vector<std::vector<std::pair<uint32_t, const CaloHit*>>> groups;
-     
+
     //FIXME: protocluster collection to this?
     std::vector<edm4eic::ProtoCluster> proto;
 

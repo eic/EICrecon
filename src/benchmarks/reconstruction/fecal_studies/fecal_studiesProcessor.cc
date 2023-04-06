@@ -79,33 +79,33 @@ void fecal_studiesProcessor::Init() {
 
   // ===============================================================================================
   // Simulations hists
-  // ===============================================================================================  
+  // ===============================================================================================
   hMCEnergyVsEta        = new TH2D("hMCEnergyVsEta", "; E (GeV); #eta", 1500, 0., 150., 500, 0, 5);
   hMCEnergyVsEta->SetDirectory(m_dir_main);
 
   // ===============================================================================================
   // Sum cell clusters rec histos
   // ===============================================================================================
-  hClusterEcalib_E_eta  = new TH3D("hClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #eta", 
+  hClusterEcalib_E_eta  = new TH3D("hClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #eta",
                                     1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hClusterNCells_E_eta  = new TH3D("hClusterNCells_E_eta", "; E_{MC} (GeV); N_{cells}; #eta",  
+  hClusterNCells_E_eta  = new TH3D("hClusterNCells_E_eta", "; E_{MC} (GeV); N_{cells}; #eta",
                                     1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
-  hClusterEcalib_E_phi  = new TH3D("hClusterEcalib_E_phi", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #varphi (rad)", 
+  hClusterEcalib_E_phi  = new TH3D("hClusterEcalib_E_phi", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #varphi (rad)",
                                     1500, 0., 150.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
   hPosCaloHitsXY        = new TH2D("hPosCaloHitsXY", "; X (cm); Y (cm)", 400, -400., 400., 400, -400., 400.);
   hClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hClusterNCells_E_eta->SetDirectory(m_dir_main);
   hClusterEcalib_E_phi->SetDirectory(m_dir_main);
   hPosCaloHitsXY->SetDirectory(m_dir_main);
-  
+
   // ===============================================================================================
   // Sum cell clusters sim histos
   // ===============================================================================================
-  hClusterESimcalib_E_eta = new TH3D("hClusterESimcalib_E_eta", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #eta" , 
+  hClusterESimcalib_E_eta = new TH3D("hClusterESimcalib_E_eta", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #eta" ,
                                       1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hClusterSimNCells_E_eta = new TH3D("hClusterSimNCells_E_eta", "; E_{MC} (GeV); N_{cells, sim}; #eta", 
+  hClusterSimNCells_E_eta = new TH3D("hClusterSimNCells_E_eta", "; E_{MC} (GeV); N_{cells, sim}; #eta",
                                       1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
-  hClusterESimcalib_E_phi = new TH3D("hClusterESimcalib_E_phi", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #varphi (rad)" , 
+  hClusterESimcalib_E_phi = new TH3D("hClusterESimcalib_E_phi", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #varphi (rad)" ,
                                       1500, 0., 150.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
   hCellESim_layerX        = new TH2D("hCellESim_layerX", "; #cell ID X; E_{rec,sim hit} (GeV)" , 500, -0.5, 499.5, 5000, 0, 1);
   hCellESim_layerY        = new TH2D("hCellESim_layerY", "; #cell ID Y; E_{rec,sim hit} (GeV)" , 500, -0.5, 499.5, 5000, 0, 1);
@@ -118,54 +118,54 @@ void fecal_studiesProcessor::Init() {
   hCellESim_layerY->SetDirectory(m_dir_main);
   hCellTSim_layerX->SetDirectory(m_dir_main);
   hPosCaloSimHitsXY->SetDirectory(m_dir_main);
-  
+
   // ===============================================================================================
   // rec cluster MA clusters histos
   // ===============================================================================================
-  hRecClusterEcalib_E_eta     = new TH3D("hRecClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec clus}/E_{MC}; #eta", 
+  hRecClusterEcalib_E_eta     = new TH3D("hRecClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec clus}/E_{MC}; #eta",
                                           1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecNClusters_E_eta         = new TH3D("hRecNClusters_E_eta", "; E_{MC} (GeV); N_{rec cl.}; #eta",  
+  hRecNClusters_E_eta         = new TH3D("hRecNClusters_E_eta", "; E_{MC} (GeV); N_{rec cl.}; #eta",
                                           1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
-  // rec cluster highest 
-  hRecClusterEcalib_Ehigh_eta = new TH3D("hRecClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,rec clus high.}/E_{MC}; #eta", 
+  // rec cluster highest
+  hRecClusterEcalib_Ehigh_eta = new TH3D("hRecClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,rec clus high.}/E_{MC}; #eta",
                                           1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecClusterNCells_Ehigh_eta = new TH3D("hRecClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec cl., high.}; #eta", 
+  hRecClusterNCells_Ehigh_eta = new TH3D("hRecClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec cl., high.}; #eta",
                                           1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
   hRecClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hRecNClusters_E_eta->SetDirectory(m_dir_main);
   hRecClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
   hRecClusterNCells_Ehigh_eta->SetDirectory(m_dir_main);
-  
+
   // ===============================================================================================
   // rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta", 
+  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",  
+  hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
                                             1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
-  // rec cluster framework highest 
-  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta", 
+  // rec cluster framework highest
+  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta", 
+  hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
                                             1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
   hRecFClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hRecFNClusters_E_eta->SetDirectory(m_dir_main);
   hRecFClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
   hRecFClusterNCells_Ehigh_eta->SetDirectory(m_dir_main);
-  
+
   // ===============================================================================================
   // Sampling fraction
   // ===============================================================================================
   hSamplingFractionEta    = new TH2D("hSamplingFractionEta", "; #eta; f", 400, 1., 5., 500, 0., 0.2);
-  hSamplingFractionEta->SetDirectory(m_dir_main);  
-  
+  hSamplingFractionEta->SetDirectory(m_dir_main);
+
   // ===============================================================================================
   // Tree for clusterizer studies
   // ===============================================================================================
   if (enableTree){
     event_tree                = new TTree("event_tree", "event_tree");
     event_tree->SetDirectory(m_dir_main);
-  
+
     t_fECal_towers_cellE       = new float[maxNTowers];
     t_fECal_towers_cellT       = new float[maxNTowers];
     t_fECal_towers_cellIDx     = new short[maxNTowers];
@@ -187,7 +187,7 @@ void fecal_studiesProcessor::Init() {
 
   // ===============================================================================================
   // Tree for cluster studies
-  // ===============================================================================================  
+  // ===============================================================================================
   if (enableTreeCluster){
     cluster_tree          = new TTree("cluster_tree", "cluster_tree");
     cluster_tree->SetDirectory(m_dir_main);
@@ -199,7 +199,7 @@ void fecal_studiesProcessor::Init() {
     t_fECal_cluster_NCells = new int[maxNCluster];
     t_fECal_cluster_Phi    = new float[maxNCluster];
     t_fECal_cluster_Eta    = new float[maxNCluster];
-          
+
     // MC particles
     cluster_tree->Branch("mc_N", &t_mc_N, "mc_N/I");
     cluster_tree->Branch("mc_E", t_mc_E, "mc_E[mc_N]/F");
@@ -212,13 +212,13 @@ void fecal_studiesProcessor::Init() {
     cluster_tree->Branch("cluster_FECAL_Eta", t_fECal_cluster_Eta, "cluster_FECAL_Eta[cluster_FECAL_N]/F");
     cluster_tree->Branch("cluster_FECAL_Phi", t_fECal_cluster_Phi, "cluster_FECAL_Phi[cluster_FECAL_N]/F");
   }
-  
+
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
   dd4hep::Detector& detector = dd4hep::Detector::getInstance();
   dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-  
+
     m_decoder         = detector.readout("EcalEndcapPHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
 //     iLx = m_decoder->index("towerx");
@@ -236,7 +236,7 @@ void fecal_studiesProcessor::Init() {
 //       iLx = m_decoder->index("layerx");
 //       iLy = m_decoder->index("layery");
 //       std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
-//       
+//
 //       nameSimHits         = "GFHCALHits";
 //       nameRecHits         = "GFHCALRecHits";
 //       nameClusters        = "GFHCALClusters";
@@ -247,7 +247,7 @@ void fecal_studiesProcessor::Init() {
       throw std::runtime_error("readoutClass not in the output.");
   }
 //   }
-  
+
 }
 
 //******************************************************************************************
@@ -279,9 +279,9 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     // determine mc momentum
     mcp = sqrt(mom.x * mom.x + mom.y * mom.y + mom.z * mom.z);
 //     std::cout << "MC particle: " << mom.x << " " << mom.y << " " << mom.z << "\ttotmom: " <<
-//     mcp << "\t phi: "<< mcphi << "\t eta:" <<  mceta << std::endl; 
+//     mcp << "\t phi: "<< mcphi << "\t eta:" <<  mceta << std::endl;
     hMCEnergyVsEta->Fill(mcp,mceta);
-    
+
     if (enableTreeCluster){
       if (iMC < maxNMC){
         t_mc_E[iMC]   = mcenergy;
@@ -291,8 +291,8 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     }
     iMC++;
   }
-  if (enableTreeCluster) t_mc_N = iMC;  
-  // ===============================================================================================  
+  if (enableTreeCluster) t_mc_N = iMC;
+  // ===============================================================================================
   // process sim hits
   // ===============================================================================================
   std::vector<towersStrct> input_tower_sim;
@@ -312,8 +312,8 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
             time = c.getTime();
         }
     }
-    
-    auto detector_layer_x = floor((x+246)/2.5); 
+
+    auto detector_layer_x = floor((x+246)/2.5);
     auto detector_layer_y = floor((y+246)/2.5);
     auto detector_passive = 0;
     if(detector_passive == 0) {
@@ -321,19 +321,19 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     } else {
       sumPassiveCaloEnergy += energy;
     }
-    
-    if (detector_passive > 0) continue;    
+
+    if (detector_passive > 0) continue;
     // calc cell IDs
     int cellIDx = detector_layer_x;
     int cellIDy = detector_layer_y;
     int cellIDz = 0;
     nCaloHitsSim++;
-    
+
     hPosCaloSimHitsXY->Fill(x, y);
     hCellESim_layerX->Fill(cellIDx, energy);
     hCellESim_layerY->Fill(cellIDy, energy);
     hCellTSim_layerX->Fill(cellIDx, time);
-    
+
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_sim) {
@@ -346,10 +346,10 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     if (!found) {
       towersStrct tempstructT;
       tempstructT.energy        = energy;
-      tempstructT.time          = time; 
-      tempstructT.posx          = x; 
-      tempstructT.posy          = y; 
-      tempstructT.posz          = z; 
+      tempstructT.time          = time;
+      tempstructT.posx          = x;
+      tempstructT.posy          = y;
+      tempstructT.posz          = z;
       tempstructT.cellID        = cellID;
       tempstructT.cellIDx       = cellIDx;
       tempstructT.cellIDy       = cellIDy;
@@ -361,8 +361,8 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
 
   // ===============================================================================================
   // read rec hits & fill structs
-  // ===============================================================================================  
-  auto recHits = event -> Get<edm4eic::CalorimeterHit>(nameRecHits.data());  
+  // ===============================================================================================
+  auto recHits = event -> Get<edm4eic::CalorimeterHit>(nameRecHits.data());
   int nCaloHitsRec = 0;
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
@@ -376,7 +376,7 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     float time      = caloHit->getTime();
 
     auto detector_passive = 0;
-    auto detector_layer_x = floor((x+246)/2.5); 
+    auto detector_layer_x = floor((x+246)/2.5);
     auto detector_layer_y = floor((y+246)/2.5);
     if (detector_passive > 0) continue;
 
@@ -384,10 +384,10 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     int cellIDx = detector_layer_x;
     int cellIDy = detector_layer_y;
     int cellIDz = 0;
-         
+
     hPosCaloHitsXY->Fill(x, y);
     nCaloHitsRec++;
-    
+
     //loop over input_tower_rec and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_rec) {
@@ -399,11 +399,11 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     }
     if (!found) {
       towersStrct tempstructT;
-      tempstructT.energy        = energy; 
-      tempstructT.time          = time; 
-      tempstructT.posx          = x; 
-      tempstructT.posy          = y; 
-      tempstructT.posz          = z; 
+      tempstructT.energy        = energy;
+      tempstructT.time          = time;
+      tempstructT.posx          = x;
+      tempstructT.posy          = y;
+      tempstructT.posz          = z;
       tempstructT.cellID        = cellID;
       tempstructT.cellIDx       = cellIDx;
       tempstructT.cellIDy       = cellIDy;
@@ -414,14 +414,14 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
   }
 //   cout << "FECAL mod: nCaloHits sim " << nCaloHitsSim << "\t rec " << nCaloHitsRec << endl;
   if (nCaloHitsRec > 0) nEventsWithCaloHits++;
-  
+
   // ===============================================================================================
   // sort tower arrays
   // ===============================================================================================
-  hSamplingFractionEta->Fill(mceta, sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy));  
-  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare); 
-  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare); 
-  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare); 
+  hSamplingFractionEta->Fill(mceta, sumActiveCaloEnergy / (sumActiveCaloEnergy+sumPassiveCaloEnergy));
+  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
+  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare);
+  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
 
   // ===============================================================================================
   // calculated summed hit energy for rec and sim hits
@@ -442,35 +442,35 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
     tot_energySimHit += tower.energy;
   }
 //   std::cout << "Mc E: " << mcenergy << "\t eta: " << mceta << "\t sim E rec: " << tot_energySimHit << "\t rec E rec: " <<  tot_energyRecHit << std::endl;
-  
+
   // ===============================================================================================
   // Fill summed hits histos
   // ===============================================================================================
   // rec hits
-  hClusterNCells_E_eta->Fill(mcenergy, nCaloHitsRec, mceta); 
-  hClusterEcalib_E_eta->Fill(mcenergy, tot_energyRecHit/mcenergy, mceta); 
-  hClusterEcalib_E_phi->Fill(mcenergy, tot_energyRecHit/mcenergy, mcphi); 
+  hClusterNCells_E_eta->Fill(mcenergy, nCaloHitsRec, mceta);
+  hClusterEcalib_E_eta->Fill(mcenergy, tot_energyRecHit/mcenergy, mceta);
+  hClusterEcalib_E_phi->Fill(mcenergy, tot_energyRecHit/mcenergy, mcphi);
   // sim hits
-  hClusterSimNCells_E_eta->Fill(mcenergy, nCaloHitsSim, mceta);   
-  hClusterESimcalib_E_eta->Fill(mcenergy, tot_energySimHit/mcenergy, mceta);   
-  hClusterESimcalib_E_phi->Fill(mcenergy, tot_energySimHit/mcenergy, mcphi);   
-  
+  hClusterSimNCells_E_eta->Fill(mcenergy, nCaloHitsSim, mceta);
+  hClusterESimcalib_E_eta->Fill(mcenergy, tot_energySimHit/mcenergy, mceta);
+  hClusterESimcalib_E_phi->Fill(mcenergy, tot_energySimHit/mcenergy, mcphi);
+
   // ===============================================================================================
   // MA clusterization
   // ===============================================================================================
   int removedCells  = 0;
   float minAggE     = 0.001;
   float seedE       = 0.20;
-  
+
   if (input_tower_rec.size()> 0){
-    
+
     // clean up rec array for clusterization
     while (input_tower_rec.at(input_tower_rec.size()-1).energy < minAggE ){
       input_tower_rec.pop_back();
       removedCells++;
     }
 //     std::cout << "removed " << removedCells << " with E < "  << minAggE << "GeV" << std::endl;
-    
+
     int nclusters = 0;
     // vector of clusters
     std::vector<clustersStrct> clusters_calo;
@@ -495,10 +495,10 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
         tempstructC.cluster_Z = showershape_eta_phi[6];
         tempstructC.cluster_towers = cluster_towers;
 //         std::cout <<  "---------> \t " << nclusters << "\tcluster with E = " << tempstructC.cluster_E << "\tEta: " << tempstructC.cluster_Eta<< "\tPhi: " << tempstructC.cluster_Phi
-//                                 << "\tX: " << tempstructC.cluster_X<< "\tY: " << tempstructC.cluster_Y<< "\tZ: " << tempstructC.cluster_Z<< "\tntowers: " << tempstructC.cluster_NTowers 
-//                                 << "\ttrueID: " << tempstructC.cluster_trueID << std::endl;      
+//                                 << "\tX: " << tempstructC.cluster_X<< "\tY: " << tempstructC.cluster_Y<< "\tZ: " << tempstructC.cluster_Z<< "\tntowers: " << tempstructC.cluster_NTowers
+//                                 << "\ttrueID: " << tempstructC.cluster_trueID << std::endl;
         clusters_calo.push_back(tempstructC);
-        
+
         nclusters++;
       } else {
 //         std::cout<< "remaining: "<< (int)input_tower_rec.size() << " largest:" << input_tower_rec.at(0).energy << "\t" << input_tower_rec.at(0).cellIDx <<  "\t" << input_tower_rec.at(0).cellIDy<<  "\t" << input_tower_rec.at(0).cellIDz<< std::endl;
@@ -506,16 +506,16 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
 //           std::cout<< input_tower_rec.at(ait).energy << "\t" << input_tower_rec.at(ait).cellIDx <<  "\t" << input_tower_rec.at(ait).cellIDy <<   "\t" << input_tower_rec.at(0).cellIDz << std::endl;
   //         h_clusterizer_nonagg_towers[caloEnum][clusterizerEnum]->Fill(input_tower_rec.size(),input_tower_rec.at(ait).tower_E);
 //         }
-        input_tower_rec.clear();      
+        input_tower_rec.clear();
       }
     }
-     
+
     // -----------------------------------------------------------------------------------------------
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
-    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);    
-//     std::cout << "-----> found " << clusters_calo.size() << " clusters" << std::endl; 
-    hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);  
+    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
+//     std::cout << "-----> found " << clusters_calo.size() << " clusters" << std::endl;
+    hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
     for (auto& cluster : clusters_calo) {
       if (iCl < maxNCluster && enableTreeCluster){
@@ -531,19 +531,19 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
         if (cluster.cluster_towers.at(iCell).cellID == input_tower_recSav.at(pSav).cellID)
           input_tower_recSav.at(pSav).tower_clusterIDA = iCl;
       }
-      
+
       if (iCl == 0){
-        hRecClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);  
-        hRecClusterNCells_Ehigh_eta->Fill(mcenergy, cluster.cluster_NTowers, mceta);  
+        hRecClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);
+        hRecClusterNCells_Ehigh_eta->Fill(mcenergy, cluster.cluster_NTowers, mceta);
       }
       iCl++;
 //       std::cout <<"MA cluster " << iCl << ":\t" << cluster.cluster_E << "\t"<< cluster.cluster_NTowers <<std::endl;
     }
     if (iCl < maxNCluster && enableTreeCluster) t_fECal_clusters_N = (int)iCl;
-    
+
     clusters_calo.clear();
   } else {
-    hRecNClusters_E_eta->Fill(mcenergy, 0., mceta);  
+    hRecNClusters_E_eta->Fill(mcenergy, 0., mceta);
     if (enableTreeCluster) t_fECal_clusters_N = 0;
   }
 
@@ -553,15 +553,15 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
   int iClF          = 0;
   float highestEFr  = 0;
   int iClFHigh      = 0;
-  
-  auto fecalClustersF = event -> Get<edm4eic::Cluster>(nameClusters.data());  
+
+  auto fecalClustersF = event -> Get<edm4eic::Cluster>(nameClusters.data());
   for (auto& cluster : fecalClustersF) {
     if (cluster->getEnergy() > highestEFr){
       iClFHigh    = iClF;
       highestEFr  = cluster->getEnergy();
     }
-    hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);        
-    
+    hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+
 //     std::cout << "Island cluster "<< iClF << ":\t" << cluster->getEnergy()  << "\t"<< cluster->getNhits()  << std::endl;
 //     for (auto& protocluster : fecalProtoClustersF()) {
     for (auto& hit: cluster->getHits()){
@@ -574,13 +574,13 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
 //     }
     iClF++;
   }
-  hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);  
+  hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);
   // fill hists for highest Island cluster
   iClF          = 0;
   for (auto& cluster : fecalClustersF) {
     if (iClF == iClFHigh){
-      hRecFClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);  
-      hRecFClusterNCells_Ehigh_eta->Fill(mcenergy, cluster->getNhits(), mceta);  
+      hRecFClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+      hRecFClusterNCells_Ehigh_eta->Fill(mcenergy, cluster->getNhits(), mceta);
     }
     iClF++;
   }
@@ -591,9 +591,9 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
   if (enableTree){
     t_fECal_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-  //  std::cout << input_tower_recSav.at(iCell).cellIDx << "\t" << input_tower_recSav.at(iCell).cellIDy << "\t" << input_tower_recSav.at(iCell).cellIDz 
+  //  std::cout << input_tower_recSav.at(iCell).cellIDx << "\t" << input_tower_recSav.at(iCell).cellIDy << "\t" << input_tower_recSav.at(iCell).cellIDz
   //            << "\t" << input_tower_recSav.at(iCell).energy << "\t" << input_tower_recSav.at(iCell).tower_clusterIDA << "\t" << input_tower_recSav.at(iCell).tower_clusterIDB << std::endl;
-      
+
       t_fECal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_fECal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
       t_fECal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
@@ -602,9 +602,9 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
       t_fECal_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
       t_fECal_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
     }
-    
+
     event_tree->Fill();
-    
+
     t_fECal_towers_N = 0;
     for (Int_t itow = 0; itow < maxNTowers; itow++){
       t_fECal_towers_cellE[itow]       = 0;
@@ -616,13 +616,13 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
       t_fECal_towers_cellTrueID[itow]  = 0;
     }
   }
-  
+
   // ===============================================================================================
   // Write cluster tree & clean-up variables
   // ===============================================================================================
   if (enableTreeCluster){
     cluster_tree->Fill();
-    
+
     t_mc_N                = 0;
     t_fECal_clusters_N   = 0;
     t_fECal_clusters_N    = 0;
@@ -636,9 +636,9 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
       t_fECal_cluster_NCells[iCl]  = 0;
       t_fECal_cluster_Eta[iCl]     = 0;
       t_fECal_cluster_Phi[iCl]     = 0;
-    } 
+    }
   }
-  
+
 }
 
 

@@ -43,12 +43,12 @@ public:
         for (int i = 1; i < 13; i++) m_sampFracLayer[i]=0.037;
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
-        m_readout="LFHCALHits";       
-        m_layerField="";              
-        m_sectorField="";             
+        m_readout="LFHCALHits";
+        m_layerField="";
+        m_sectorField="";
 
-        m_localDetElement="";         
-        u_localDetFields={};          
+        m_localDetElement="";
+        u_localDetFields={};
 
 //        app->SetDefaultParameter("HCAL:tag",              m_input_tag);
         app->SetDefaultParameter("HCAL:LFHCALRecHits:capacityADC",      m_capADC);

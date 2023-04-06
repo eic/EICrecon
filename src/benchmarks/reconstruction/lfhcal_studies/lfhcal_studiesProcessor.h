@@ -42,7 +42,7 @@
 class lfhcal_studiesProcessor: public JEventProcessor {
 public:
     lfhcal_studiesProcessor() { SetTypeName(NAME_OF_THIS); }
-    
+
     void Init() override;
 //     void InitWithGlobalRootLock() override;
 //     void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
@@ -113,7 +113,7 @@ public:
     float*  t_fECal_cluster_Phi;
     float*  t_fECal_cluster_Eta;
 
-    
+
     int nEventsWithCaloHits = 0;
     bool isLFHCal = true;
     std::shared_ptr<spdlog::logger> m_log;
@@ -134,5 +134,5 @@ public:
     short iLx;
     short iLy;
     short iLz;
-    
+
 };

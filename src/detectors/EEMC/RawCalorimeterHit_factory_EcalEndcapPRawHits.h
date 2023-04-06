@@ -53,8 +53,8 @@ public:
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        
-        
+
+
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
         app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:input_tag",        m_input_tag, "Name of input collection to use");

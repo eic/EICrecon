@@ -83,13 +83,13 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPInsertClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPInsertTruthClusters>());
-                
+
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_LFHCALRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_LFHCALRecHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_LFHCALClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_LFHCALTruthClusters>());
-              
+
     }
 }

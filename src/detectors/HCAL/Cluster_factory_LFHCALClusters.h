@@ -42,7 +42,7 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="LFHCALHits";
         m_input_protoclust_tag="LFHCALIslandProtoClusters";
-    
+
         m_sampFrac=1.;
         m_logWeightBase=4.5;
         m_depthCorrection=0.0;
@@ -77,10 +77,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -95,4 +95,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-
