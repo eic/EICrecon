@@ -13,8 +13,6 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MutableRawTrackerHit.h>
 
-#include <TGeoSystemOfUnits.h>
-#include <TRandomGen.h>
 #include <edm4eic/MutableTrackerHit.h>
 
 #include <algorithms/tracking/TrackerHitReconstructionConfig.h>
