@@ -8,7 +8,6 @@
 
 #include "RawCalorimeterHit_factory_HcalBarrelRawHits.h"
 #include "CalorimeterHit_factory_HcalBarrelRecHits.h"
-#include "CalorimeterHit_factory_HcalBarrelMergedHits.h"
 #include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 #include "Cluster_factory_HcalBarrelClusters.h"
@@ -45,7 +44,6 @@ extern "C" {
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelMergedHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalBarrelClusters>());
