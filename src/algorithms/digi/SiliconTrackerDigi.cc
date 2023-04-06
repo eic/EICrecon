@@ -3,7 +3,6 @@
 //
 
 #include <spdlog/spdlog.h>
-#include <TGeoSystemOfUnits.h>
 #include <edm4hep/MCParticle.h>
 #include "SiliconTrackerDigi.h"
 
