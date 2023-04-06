@@ -45,12 +45,14 @@ std::vector<eicrecon::ParticlesWithAssociation*> eicrecon::LinkParticleID::Algor
       m_log->warn("input ParticleWithAssociations has {} particles != {} associations", in_recparts.size(), in_assocs.size());
 
     // loop over `in_recparts`
+    m_log->trace("{:-^70}"," Loop over reconstructed particles ");
     for(auto& in_recpart : in_recparts) {
       auto out_recpart = LinkParticle(*in_recpart, in_pids);
       out_recparts.push_back(new edm4eic::ReconstructedParticle(out_recpart));
     }
 
     // loop over `in_assocs`
+    m_log->trace("{:-^70}"," Loop over reconstructed particle associations ");
     for(auto& in_assoc : in_assocs) {
       auto in_recpart = in_assoc->getRec();
       auto in_simpart = in_assoc->getSim();
@@ -77,8 +79,9 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
     std::vector<const edm4eic::CherenkovParticleID*>& in_pids
     )
 {
-  // make a mutable copy
+  // make a mutable copy, and reset its stored PID info
   auto out_particle = in_particle.clone();
+  out_particle.setGoodnessOfPID(0);
 
   // skip this particle, if neutral
   if(std::abs(in_particle.getCharge()) < 0.001)
@@ -158,7 +161,7 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
       [] (ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; }
       );
   auto in_pid_matched = closest_prox_match.pid;
-  m_log->trace("  => best match: match_dist = {:<10.8}", closest_prox_match.match_dist);
+  m_log->trace("  => best match: match_dist = {:<5.4}", closest_prox_match.match_dist);
 
   // convert PID hypotheses to edm4hep::ParticleID objects, sorted by likelihood
   auto out_pids = ConvertParticleID::ConvertToParticleIDs(*in_pid_matched, true);
@@ -168,12 +171,12 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
   }
 
   // update reconstructed particle
-  out_particle.setGoodnessOfPID(1); // FIXME: not used yet
+  out_particle.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
   out_particle.setParticleIDUsed(out_pids.at(0)); // highest likelihood is the first
   // for(auto& out_pid : out_pids) out_particle.addToParticleIDs(out_pid); // FIXME: cannot persistify 1-N relation?
 
   // logging
-  m_log->trace("    {:-^50}"," PID result ");
+  m_log->trace("    {:.^50}"," PID result ");
   m_log->trace("      PID PDG vs. true PDG: {:>10} vs. {:<10}",
       out_particle.getParticleIDUsed().isAvailable() ? out_particle.getParticleIDUsed().getPDG() : 0,
       out_particle.getPDG()
@@ -182,7 +185,7 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
   Tools::PrintHypothesisTableHead(m_log, 8);
   for(auto out_pid : out_pids) // FIXME: loop through `out_particle.getParticleIDs()` (cf. 1-N persistify FIXME above)
     Tools::PrintHypothesisTableLine(m_log, out_pid, 8);
-  m_log->trace("    {:-^50}","");
+  m_log->trace("    {:'^50}","");
 
   return out_particle;
 

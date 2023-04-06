@@ -14,7 +14,7 @@ void eicrecon::LinkParticleID_factory::Init() {
 
   // services
   InitLogger(param_prefix, "info");
-  m_log->critical("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
+  m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
 
   // print list of input collections
   m_log->debug("input collections:");
