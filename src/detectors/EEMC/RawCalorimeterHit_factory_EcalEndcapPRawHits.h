@@ -37,19 +37,24 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapPHits";
         u_eRes = {0.00316, 0.0015, 0.0}; // (0.316% / sqrt(E)) \oplus 0.15%
-        m_tRes = 0.0 * dd4hep::ns;
+        m_tRes = 0.0 ;
         m_capADC = 16384;
+        m_capTime = 100 ; // given in ns
+        m_capADC=65536;//2^16  (approximate HGCROC resolution) old 16384
         m_dyRangeADC = 3 * dd4hep::GeV;
         m_pedMeanADC = 100;
         m_pedSigmaADC = 0.7;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 0.03;
         u_fields={};
-        u_refs={1, 1};
+//         u_refs={1, 1};
+        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
+        
+        
         // This is another option for exposing the data members as JANA configuration parameters.
 //        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
         app->SetDefaultParameter("EEMC:EcalEndcapPRawHits:input_tag",        m_input_tag, "Name of input collection to use");
