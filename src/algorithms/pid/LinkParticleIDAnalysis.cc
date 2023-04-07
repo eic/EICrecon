@@ -67,6 +67,13 @@ void eicrecon::LinkParticleIDAnalysis::AlgorithmProcess(
 
   } // end loop over input associations
 
+}
+
+
+// AlgorithmFinish
+//---------------------------------------------------------------------------
+void eicrecon::LinkParticleIDAnalysis::AlgorithmFinish() {
+
   // compute fraction of correct PDG for each x-axis bin
   for(int bx=1; bx<=m_correct_vs_p_transient->GetNbinsX(); bx++) {
     auto n_wrong  = m_correct_vs_p_transient->GetBinContent(bx,1);
@@ -79,14 +86,9 @@ void eicrecon::LinkParticleIDAnalysis::AlgorithmProcess(
     }
   }
 
-}
-
-
-// AlgorithmFinish
-//---------------------------------------------------------------------------
-void eicrecon::LinkParticleIDAnalysis::AlgorithmFinish() {
   // delete transient histograms, so they don't get written
   delete m_correct_vs_p_transient;
+
   // write objects which are not automatically saved (`AlgorithmFinish` must be called by a "GlobalRootLock" method)
   m_correct_vs_p->Write();
 }
