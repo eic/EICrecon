@@ -39,8 +39,11 @@ namespace eicrecon {
 
     // Particles for jet reconstrution
     std::vector<PseudoJet> particles;
-    for (const auto &mom : momenta)
-      particles.push_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
+    for (const auto &mom : momenta) {
+      double partPt = std::sqrt(mom->px()*mom->px() + mom->py()*mom->py());
+      if(partPt > m_minCstPt && partPt < m_maxCstPt) // Only cluster particles within the given pt Range
+        particles.push_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
+    }
 
     // Choose jet and area definitions
     JetDefinition jet_def(m_jetAlgo, m_rJet);
@@ -69,20 +72,18 @@ namespace eicrecon {
       for (unsigned j = 0; j < csts.size(); j++) {
         const double cst_pt = csts[j].pt();
         m_log->trace("    constituent {}'s pt: {}", j, cst_pt);
-        // Only consider constituents in the momentum range
-        if ((cst_pt > m_minCstPt) && (cst_pt < m_maxCstPt)) {
-          edm4eic::MutableReconstructedParticle cst_edm;
-          // Type = 0 for jets, Type = 1 for constituents
-          // Use PDG values to match jets and constituents
-          cst_edm.setType(1);
-          cst_edm.setPDG(i);
-          cst_edm.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
-          cst_edm.setEnergy(csts[j].e());
-          cst_edm.setMass(csts[j].m());
-          //jet_edm.addToParticles(cst_edm);  // FIXME: global issue with podio reference
-          // Store constituents in jets due to the above issue
-          jets_edm.push_back(new edm4eic::ReconstructedParticle(cst_edm));
-        }
+        
+        edm4eic::MutableReconstructedParticle cst_edm;
+        // Type = 0 for jets, Type = 1 for constituents
+        // Use PDG values to match jets and constituents
+        cst_edm.setType(1);
+        cst_edm.setPDG(i);
+        cst_edm.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
+        cst_edm.setEnergy(csts[j].e());
+        cst_edm.setMass(csts[j].m());
+        //jet_edm.addToParticles(cst_edm);  // FIXME: global issue with podio reference
+        // Store constituents in jets due to the above issue
+        jets_edm.push_back(new edm4eic::ReconstructedParticle(cst_edm));
       } // for constituent j
 
       jets_edm.push_back(new edm4eic::ReconstructedParticle(jet_edm));
