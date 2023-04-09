@@ -72,7 +72,7 @@ namespace eicrecon {
       for (unsigned j = 0; j < csts.size(); j++) {
         const double cst_pt = csts[j].pt();
         m_log->trace("    constituent {}'s pt: {}", j, cst_pt);
-        
+
         edm4eic::MutableReconstructedParticle cst_edm;
         // Type = 0 for jets, Type = 1 for constituents
         // Use PDG values to match jets and constituents
