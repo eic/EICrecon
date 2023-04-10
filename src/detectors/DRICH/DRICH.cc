@@ -24,7 +24,7 @@ extern "C" {
 
     // Digitization
     PhotoMultiplierHitDigiConfig digi_cfg;
-    digi_cfg.seed            = 0;
+    digi_cfg.seed            = 37;
     digi_cfg.hitTimeWindow   = 20.0; // [ns]
     digi_cfg.timeStep        = 0.0625; // [ns]
     digi_cfg.speMean         = 80.0;
@@ -34,6 +34,9 @@ extern "C" {
     digi_cfg.enablePixelGaps = true;
     digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
+    digi_cfg.enableNoise     = true;
+    digi_cfg.noiseRate       = 20000; // [Hz]
+    digi_cfg.noiseTimeWindow = 20.0; // [ns]
     digi_cfg.quantumEfficiency.clear();
     digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
     digi_cfg.quantumEfficiency.push_back({340, 0.10});

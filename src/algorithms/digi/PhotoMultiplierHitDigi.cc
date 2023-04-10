@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng
+// Copyright (C) 2023 Chao Peng, Christopher Dilks, Luigi Dello Stritto
 
 /*  General PhotoMultiplier Digitization
  *
@@ -146,47 +146,23 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
             }
         }
 
-        if (m_cfg.noiseInjection) {
-          //build noise raw hits
+        //build noise raw hits
+        if (m_cfg.enableNoise) {
+          m_log->trace("{:=^70}"," BEGIN NOISE INJECTION ");
           std::unordered_map<uint64_t, std::vector<HitData>> hit_groups_noise;
 
-          const auto& readoutCoder = *m_detector->readout("DRICHHits").idSpec().decoder();
-          auto m_detRICH = m_detector->detector("DRICH");
-          auto systemID = m_detRICH.id();
-          auto m_posRICH = m_detRICH.placement().position();
-          auto nSectors = m_detector->constant<int>("DRICH_num_sectors");
-          auto num_px = m_detector->constant<int>("DRICH_num_px");
-
-          for (int isec = 0; isec < nSectors; isec++) {
-            std::string secName = "sec" + std::to_string(isec);
-
-            for(auto const& [de_name, detSensor] : m_detRICH.children()) {
-              if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
-                // get sensors info
-                auto imodsec = detSensor.id();
-                uint64_t x_encoded = 0;
-
-                for (uint64_t x = 0; x < num_px; x++){
-                  x_encoded = ( x << readoutCoder["x"].offset() )  & readoutCoder["x"].mask();
-                  uint64_t y_encoded = 0;
-                  for (uint64_t y = 0; y < num_px; y++){
-                    y_encoded = ( y << readoutCoder["y"].offset() ) & readoutCoder["y"].mask();
-                    auto cellID = systemID + imodsec + x_encoded + y_encoded;
-                    auto it = hit_groups.find(cellID);
-                    if (Noise_Digits(m_cfg.noiseRate, m_cfg.timeWindow)){
-                      // cell time, signal amplitude
-                      double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-                      double time = m_cfg.timeWindow*m_rngUni();
-                      dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
-                      dd4hep::Position pos_hit = {0,0,0}; // unused
-                      hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
-                    }
-                    else continue;
-                  }
-                }
-              }
+          auto cellID_action = [this,&hit_groups,&hit_groups_noise] (auto cellID) {
+            auto it = hit_groups.find(cellID);
+            if (Noise_Digits(m_cfg.noiseRate, m_cfg.noiseTimeWindow)){
+              // cell time, signal amplitude
+              double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+              double time = m_cfg.noiseTimeWindow*m_rngUni();
+              dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
+              dd4hep::Position pos_hit = {0,0,0}; // unused
+              hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
             }
-          }
+          };
+          m_readoutGeo->ReadoutPixelLoop(cellID_action);
 
           for (auto &it : hit_groups_noise) {
             for (auto &data : it.second) {

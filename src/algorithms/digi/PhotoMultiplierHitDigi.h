@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng
+// Copyright (C) 2023 Chao Peng, Christopher Dilks, Luigi Dello Stritto
 
 /*  General PhotoMultiplier Digitization
  *
@@ -15,6 +15,7 @@
 #pragma once
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <services/geometry/richgeo/RichGeo_service.h>
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -58,10 +59,14 @@ public:
       return dd4hep::Position( v.x*dd4hep::mm, v.y*dd4hep::mm, v.z*dd4hep::mm );
     }
 
+    // set readout info
+    void SetReadoutGeo(richgeo::ReadoutGeo *readout) { m_readoutGeo = readout; };
 
 private:
 
-    dd4hep::Detector* m_detector = nullptr;
+    dd4hep::Detector    *m_detector   = nullptr;
+    richgeo::ReadoutGeo *m_readoutGeo = nullptr;
+
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
