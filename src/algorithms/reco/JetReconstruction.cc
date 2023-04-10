@@ -40,9 +40,10 @@ namespace eicrecon {
     // Particles for jet reconstrution
     std::vector<PseudoJet> particles;
     for (const auto &mom : momenta) {
-      double partPt = std::sqrt(mom->px()*mom->px() + mom->py()*mom->py());
-      if(partPt > m_minCstPt && partPt < m_maxCstPt) // Only cluster particles within the given pt Range
+      // Only cluster particles within the given pt Range
+      if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
         particles.push_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
+      }
     }
 
     // Choose jet and area definitions
