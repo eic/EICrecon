@@ -4,10 +4,10 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
+#include <TVector3.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <services/rootfile/RootFile_service.h>
 #include <spdlog/spdlog.h>
-#include <TVector3.h>
 
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -32,7 +32,7 @@ void InitPlugin(JApplication* app) {
 void tracking_studiesProcessor::InitWithGlobalRootLock() {
   std::string plugin_name = ("tracking_studies");
 
-    // InitLogger(plugin_name);
+  // InitLogger(plugin_name);
 
   // InitLogger(plugin_name);
   // Get JANA application
@@ -49,11 +49,10 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   m_propagation_algo.init(acts_service->actsGeoProvider(), m_log);
 
   m_geoSvc = GetApplication()->GetService<JDD4hep_service>();
-  if(!m_geoSvc) {
+  if (!m_geoSvc) {
     std::cout << "No JDD4hep_service found" << std::endl;
     throw std::runtime_error("No JDD4hep_service found");
   }
-
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
@@ -87,10 +86,8 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   nHitsTrackVsEtaVsP->SetDirectory(m_dir_main);
   nHitsEventVsEtaVsP->SetDirectory(m_dir_main);
 
-  hThetaResoVsEtaVsP =
-      new TH3D("hThetaResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
-  hPhiResoVsEtaVsP =
-      new TH3D("hPhiResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
+  hThetaResoVsEtaVsP = new TH3D("hThetaResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
+  hPhiResoVsEtaVsP   = new TH3D("hPhiResoVsEtaVsP", "", 400, -4, 4, 500, -0.1, 0.1, 400, 0, 20);
   hThetaResoVsEtaVsP->SetDirectory(m_dir_main);
   hPhiResoVsEtaVsP->SetDirectory(m_dir_main);
 
@@ -108,7 +105,7 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
       Acts::Surface::makeShared<Acts::DiscSurface>(mRICH_center_Trf, mRICH_center_Bounds);
 
   // make a reference disk to mimic center of dRICH
-  const auto dRICH_center_Z    = 1815. /*directly behind tof*/ + 50.; // entrance of detector
+  const auto dRICH_center_Z = 1815. /*directly behind tof*/ + 50.; // entrance of detector
   // const auto dRICH_center_Z    = 1950. + 60.; // center of detector
   const auto dRICH_center_MinR = 84.0;
   const auto dRICH_center_MaxR = 1100. + (1212.82 - 1100.) * (60. / 120.);
@@ -119,16 +116,16 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
       Acts::Surface::makeShared<Acts::DiscSurface>(dRICH_center_Trf, dRICH_center_Bounds);
 
   // make a reference cylinder to mimic center of DIRC
-  const auto DIRC_R = 700.0; //minr dirc
+  const auto DIRC_R     = 700.0; // minr dirc
   const auto DIRC_halfz = 1700.;
   // auto DIRC_center_Bounds =
-      // std::make_shared<Acts::RadialBounds>(DIRC_center_MinR, DIRC_center_MaxR);
+  // std::make_shared<Acts::RadialBounds>(DIRC_center_MinR, DIRC_center_MaxR);
   auto DIRC_center_Trf = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
   m_DIRC_center_surface =
       Acts::Surface::makeShared<Acts::CylinderSurface>(DIRC_center_Trf, DIRC_R, DIRC_halfz);
 
-// Acts::Surface::makeShared<Acts::CylinderSurface>(
-//         Acts::Transform3::Identity(), radius, halfz);
+  // Acts::Surface::makeShared<Acts::CylinderSurface>(
+  //         Acts::Transform3::Identity(), radius, halfz);
 
   // //DIRC
   // zmin = 0;
@@ -206,21 +203,21 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
     {
       edm4eic::TrackPoint* projection_point_DIRC;
       try {
-          // >>> try to propagate to surface <<<
-          projection_point_DIRC = m_propagation_algo.propagate(traj, m_DIRC_center_surface);
-      }
-      catch(std::exception &e) {
-          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
-          // cout << "Exception in underlying algorithm: " << e.what() << ". Trajectory is
-          // skipped" << endl;
+        // >>> try to propagate to surface <<<
+        projection_point_DIRC = m_propagation_algo.propagate(traj, m_DIRC_center_surface);
+      } catch (std::exception& e) {
+        m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+        // cout << "Exception in underlying algorithm: " << e.what() << ". Trajectory is
+        // skipped" << endl;
       }
 
-      if(!projection_point_DIRC) {
-          m_log->trace("   could not propagate to DIRC!");
-          if(verbose) cout << "   could not propagate to DIRC!" << endl;
-          // continue;
+      if (!projection_point_DIRC) {
+        m_log->trace("   could not propagate to DIRC!");
+        if (verbose)
+          cout << "   could not propagate to DIRC!" << endl;
+        // continue;
       } else {
-          
+
         auto proj_pos    = projection_point_DIRC->position;
         auto proj_length = projection_point_DIRC->pathlength;
         auto proj_mom    = projection_point_DIRC->momentum;
@@ -228,12 +225,14 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
         // TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
         // m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x,
         // pos.y, pos.z, length);
-        if(verbose) cout << "\tDIRC_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z << " " << proj_length << endl;
+        if (verbose)
+          cout << "\tDIRC_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z
+               << " " << proj_length << endl;
         // cout << "\t\t mom: " << proj_mom.x << " " << proj_mom.y << " " << proj_mom.z << endl;
 
         // loop over dRICH hits
         bool hit_found = false;
-        double mindR = 1000;
+        double mindR   = 1000;
         TVector3 hit_pos_closest;
         TVector3 hit_mom_closest;
 
@@ -241,25 +240,26 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
           auto hit_pos = hit->getPosition();
           auto hit_mom = hit->getMomentum();
-          if(verbose) cout << "\tDIRC_hit pos: " << hit_pos.x << " " << hit_pos.y << " " << hit_pos.z << endl;
+          if (verbose)
+            cout << "\tDIRC_hit pos: " << hit_pos.x << " " << hit_pos.y << " " << hit_pos.z << endl;
           // cout << "\t\t mom: " << hit_mom.x << " " << hit_mom.y << " " << hit_mom.z << endl;
-          hit_found = true;
+          hit_found     = true;
           double deltaR = sqrt((hit_pos.x - proj_pos.x) * (hit_pos.x - proj_pos.x) +
-                        (hit_pos.y - proj_pos.y) * (hit_pos.y - proj_pos.y) +
-                        (hit_pos.z - proj_pos.z) * (hit_pos.z - proj_pos.z));
-          if(deltaR < mindR) {
-            mindR = deltaR;
+                               (hit_pos.y - proj_pos.y) * (hit_pos.y - proj_pos.y) +
+                               (hit_pos.z - proj_pos.z) * (hit_pos.z - proj_pos.z));
+          if (deltaR < mindR) {
+            mindR           = deltaR;
             hit_pos_closest = TVector3(hit_pos.x, hit_pos.y, hit_pos.z);
             hit_mom_closest = TVector3(hit_mom.x, hit_mom.y, hit_mom.z);
           }
         }
 
         if (hit_found) {
-          hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(),mcp);
+          hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
           hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
           hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
 
-          hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(),mcp);
+          hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(), mcp);
           hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
           hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
         }
@@ -277,7 +277,8 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
       if (!projection_point_dRICH) {
         m_log->trace("   could not propagate to dRICH!");
-        if(verbose) cout << "   could not propagate to dRICH!" << endl;
+        if (verbose)
+          cout << "   could not propagate to dRICH!" << endl;
         // continue;
       } else {
         // Now go through reconstructed tracks points
@@ -289,12 +290,14 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
         // TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
         // m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x,
         // pos.y, pos.z, length);
-        if(verbose) cout << "\tdRICH_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z << " " << proj_length    << endl;
+        if (verbose)
+          cout << "\tdRICH_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z
+               << " " << proj_length << endl;
         // cout << "\t\t mom: " << proj_mom.x << " " << proj_mom.y << " " << proj_mom.z << endl;
 
         // loop over dRICH hits
         bool hit_found = false;
-        double mindR = 1000;
+        double mindR   = 1000;
         TVector3 hit_pos_closest;
         TVector3 hit_mom_closest;
 
@@ -302,25 +305,27 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
           auto hit_pos = hit->getPosition();
           auto hit_mom = hit->getMomentum();
-          if(verbose) cout << "\tdRICH_hit pos: " << hit_pos.x << " " << hit_pos.y << " " << hit_pos.z << endl;
+          if (verbose)
+            cout << "\tdRICH_hit pos: " << hit_pos.x << " " << hit_pos.y << " " << hit_pos.z
+                 << endl;
           // cout << "\t\t mom: " << hit_mom.x << " " << hit_mom.y << " " << hit_mom.z << endl;
-          hit_found = true;
+          hit_found     = true;
           double deltaR = sqrt((hit_pos.x - proj_pos.x) * (hit_pos.x - proj_pos.x) +
-                        (hit_pos.y - proj_pos.y) * (hit_pos.y - proj_pos.y) +
-                        (hit_pos.z - proj_pos.z) * (hit_pos.z - proj_pos.z));
-          if(deltaR < mindR) {
-            mindR = deltaR;
+                               (hit_pos.y - proj_pos.y) * (hit_pos.y - proj_pos.y) +
+                               (hit_pos.z - proj_pos.z) * (hit_pos.z - proj_pos.z));
+          if (deltaR < mindR) {
+            mindR           = deltaR;
             hit_pos_closest = TVector3(hit_pos.x, hit_pos.y, hit_pos.z);
             hit_mom_closest = TVector3(hit_mom.x, hit_mom.y, hit_mom.z);
           }
         }
 
         if (hit_found) {
-          hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(),mcp);
+          hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
           hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
           hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
 
-          hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(),mcp);
+          hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(), mcp);
           hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
           hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
         }
@@ -361,7 +366,8 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       //     trajState.chi2Sum);
     }
     bool trackstateVerbosity = false;
-    if(trackstateVerbosity) cout << "\n\nnew event" << endl;
+    if (trackstateVerbosity)
+      cout << "\n\nnew event" << endl;
     // // visit the track points
     mj.visitBackwards(trackTip, [&](auto&& trackstate) {
       // get volume info
@@ -369,28 +375,32 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       auto volume = geoID.volume();
       auto layer  = geoID.layer();
       auto module = geoID.sensitive();
-      if(trackstateVerbosity) cout << "surfname: " << trackstate.referenceSurface().name() << endl;
-      auto detEl = trackstate.referenceSurface().associatedDetectorElement();
-      const auto *det_element =
-                    dynamic_cast<const Acts::DD4hepDetectorElement *>(detEl);
+      if (trackstateVerbosity)
+        cout << "surfname: " << trackstate.referenceSurface().name() << endl;
+      auto detEl              = trackstate.referenceSurface().associatedDetectorElement();
+      const auto* det_element = dynamic_cast<const Acts::DD4hepDetectorElement*>(detEl);
       // cout << "detEl: " << det_element->identifier() << endl;
 
       auto volman = m_geoSvc->detector()->volumeManager();
 
-      if(det_element == nullptr) {
-        if(trackstateVerbosity) cout << "\tdet_element is null" << endl;
+      if (det_element == nullptr) {
+        if (trackstateVerbosity)
+          cout << "\tdet_element is null" << endl;
       } else {
-        auto *vol_ctx = volman.lookupContext(det_element->identifier());
-        if(vol_ctx == nullptr) {
-          if(trackstateVerbosity) cout << "\tvol_ctx is null" << endl;
+        auto* vol_ctx = volman.lookupContext(det_element->identifier());
+        if (vol_ctx == nullptr) {
+          if (trackstateVerbosity)
+            cout << "\tvol_ctx is null" << endl;
         } else {
           auto de = vol_ctx->element;
-          if(trackstateVerbosity) cout << "\t" << de.path() << endl;
-          if(trackstateVerbosity) cout << "\t" << de.placementPath() << endl;
+          if (trackstateVerbosity)
+            cout << "\t" << de.path() << endl;
+          if (trackstateVerbosity)
+            cout << "\t" << de.placementPath() << endl;
         }
       }
-          // m_init_log->debug("  de.path          = {}", de.path());
-          // m_init_log->debug("  de.placementPath = {}", de.placementPath());
+      // m_init_log->debug("  de.path          = {}", de.path());
+      // m_init_log->debug("  de.placementPath = {}", de.placementPath());
       // print detEl name
       // cout << "volume: " << volume << endl;
       // auto volName = geoID.volume().volumeName();
@@ -406,7 +416,7 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       // }
 
       // get track state parameters and their covariances
-      const auto& parameter  = trackstate.predicted();
+      const auto& parameter = trackstate.predicted();
       // cout << "track parameters: " << parameter << endl;
       const auto& covariance = trackstate.predictedCovariance();
 
@@ -419,8 +429,10 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
                                                              static_cast<float>(global.y()),
                                                              static_cast<float>(global.z())};
       // if(position.z/10>160.)
-      if(trackstateVerbosity) cout << "\t\ttrack point: " << position << endl;
-      hPosTestRZ->Fill(position.z/10., sqrt(position.x * position.x + position.y * position.y)/10.);
+      if (trackstateVerbosity)
+        cout << "\t\ttrack point: " << position << endl;
+      hPosTestRZ->Fill(position.z / 10.,
+                       sqrt(position.x * position.x + position.y * position.y) / 10.);
       const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
           static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
           static_cast<float>(parameter[Acts::eBoundTheta]),
@@ -441,16 +453,16 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       "TOFBarrelHits",     // Barrel TOF
       // "DRICHHits",        // Barrel TOF
       "MPGDDIRCHits", // Barrel TOF
-                      "DIRCBarHits"
-                      // ,        // Barrel TOF
-                      // "MRICHHits",        // Barrel TOF
+      "DIRCBarHits"
+      // ,        // Barrel TOF
+      // "MRICHHits",        // Barrel TOF
   };
 
   int nHitsTrackers = 0;
   for (size_t name_index = 0; name_index < m_data_names.size(); name_index++) {
     string data_name = m_data_names[name_index];
     auto hits        = event->Get<edm4hep::SimTrackerHit>(data_name);
-    if(hits.size() == 0) {
+    if (hits.size() == 0) {
       // cout << "no hits for " << data_name << endl;
       continue;
     }
@@ -517,3 +529,26 @@ void tracking_studiesProcessor::FinishWithGlobalRootLock() {
         // }); // make sure you don't forget to close the lambda function and also close the
    visitBackwards function call
 */
+
+// auto diskbounds    = std::make_shared<Acts::RadialBounds>(minR, maxR);
+// auto disktransform = transform * Acts::Translation3(Acts::Vector3(0, 0, posZ));
+// std::shared_ptr<Acts::DiscSurface> disk_surface =
+//     Acts::Surface::makeShared<Acts::DiscSurface>(disktransform, diskbounds);
+
+// auto acts_results = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+// // loop over trajectories
+// for (const auto& traj : acts_results) {
+//   edm4eic::TrackPoint* projection_point_disk;
+//   // try projection to disk surface
+//   try {
+//     projection_point_disk = m_propagation_algo.propagate(traj, disk_surface);
+//   } catch (std::exception& e) {
+//   }
+
+//   if (projection_point_disk) {
+//     auto proj_pos = projection_point_disk->position;
+//     // loop below over clusters to find matches
+//   }
+// }
+
+
