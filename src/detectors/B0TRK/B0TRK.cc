@@ -19,7 +19,10 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"B0TrackerHits"}, "B0TrackerRawHits"));
+    SiliconTrackerDigiConfig digi_default_cfg;
+    digi_default_cfg.threshold = 0 * dd4hep::keV;
+    digi_default_cfg.timeResolution = 8;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"B0TrackerHits"}, "B0TrackerHitRawHit", digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"B0TrackerRawHits"},"B0TrackerRecHits"));

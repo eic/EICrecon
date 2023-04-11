@@ -56,8 +56,12 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
     // set energy resolution numbers
     m_log=logger;
-    for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
-        eRes[i] = u_eRes[i];
+
+    if (u_eRes.size() == 0) {
+      u_eRes.resize(3);
+    } else if (u_eRes.size() != 3) {
+      m_log->error("Invalid u_eRes.size()");
+      throw std::runtime_error("Invalid u_eRes.size()");
     }
 
     // using juggler internal units (GeV, mm, radian, ns)
@@ -98,7 +102,6 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
             return;
         }
         id_mask = ~id_mask;
-        //LOG_INFO(default_cout_logger) << fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask) << LOG_END;
         m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
         // all checks passed
         merge_hits = true;
@@ -146,14 +149,14 @@ void CalorimeterHitDigi::single_hits_digi(){
         // apply additional calorimeter noise to corrected energy deposit
         const double eResRel = (eDep > m_threshold)
                                ? m_normDist(generator) * std::sqrt(
-                                    std::pow(eRes[0] / std::sqrt(eDep), 2) +
-                                    std::pow(eRes[1], 2) +
-                                    std::pow(eRes[2] / (eDep), 2)
+                                    std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
+                                    std::pow(u_eRes[1], 2) +
+                                    std::pow(u_eRes[2] / (eDep), 2)
                 )
                                : 0;
 //       const double eResRel = (eDep > 1e-6)
-//                               ? m_normDist(generator) * std::sqrt(std::pow(eRes[0] / std::sqrt(eDep), 2) +
-//                                                          std::pow(eRes[1], 2) + std::pow(eRes[2] / (eDep), 2))
+//                               ? m_normDist(generator) * std::sqrt(std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
+//                                                          std::pow(u_eRes[1], 2) + std::pow(u_eRes[2] / (eDep), 2))
 //                               : 0;
 
         const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
@@ -218,14 +221,14 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
 //        double eResRel = 0.;
         // safety check
         const double eResRel = (edep > m_threshold)
-                ? m_normDist(generator) * eRes[0] / std::sqrt(edep) +
-                  m_normDist(generator) * eRes[1] +
-                  m_normDist(generator) * eRes[2] / edep
+                ? m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
+                  m_normDist(generator) * u_eRes[1] +
+                  m_normDist(generator) * u_eRes[2] / edep
                   : 0;
 //        if (edep > 1e-6) {
-//            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep) +
-//                      m_normDist(generator) * eRes[1] +
-//                      m_normDist(generator) * eRes[2] / edep;
+//            eResRel = m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
+//                      m_normDist(generator) * u_eRes[1] +
+//                      m_normDist(generator) * u_eRes[2] / edep;
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);

@@ -11,16 +11,25 @@
 namespace eicrecon {
 
 
-    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag("ForwardRomanPotRecParticles"); }
+    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag(m_output_tag); }
 
     void RomanPotsReconstruction_factory::Init() {
 
-        auto app = GetApplication();
+	std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+	std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
 
-	m_log = app->GetService<Log_service>()->logger("ForwardRomanPotRecParticles");
+	auto app = GetApplication();
 
-	/*
-        auto id_spec = detector->readout(m_readout).idSpec();
+	m_log = app->GetService<Log_service>()->logger(m_output_tag);
+
+	m_readout = m_input_tag;
+
+	app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
+	m_geoSvc = app->GetService<JDD4hep_service>();
+
+	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
+
+        auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
         try {
             id_dec = id_spec.decoder();
             if (!m_sectorField.empty()) {
@@ -35,6 +44,9 @@ namespace eicrecon {
             m_log->error("Failed to load ID decoder for {}", m_readout);
             throw JException("Failed to load ID decoder");
         }
+
+
+	m_log->info("RP Decoding complete...");
 
         // local detector name has higher priority
         if (!m_localDetElement.empty()) {
@@ -60,7 +72,7 @@ namespace eicrecon {
             //                      fmt::join(fields, ", "))
             //        << endmsg;
         }
-	*/
+
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
         if (det == 0) {
@@ -89,15 +101,10 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
+
 	std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
 
-    	// See Wouter's example to extract local coordinates CalorimeterHitReco.cpp
-    	// includes DDRec/CellIDPositionConverter.here
-    	// See tutorial
-    	// auto converter = m_GeoSvc ....
-    	// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp - line 200
-    	// include the Eigen libraries, used in ACTS, for the linear algebra.
-
+	auto converter = m_geoSvc->cellIDPositionConverter();
 
 	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 
@@ -118,33 +125,35 @@ namespace eicrecon {
 
         for (const auto h: rawhits) {
 
-            // auto cellID = h->getCellID();
-            // The actual hit position in Global Coordinates
-            auto pos0 = h->getPosition();
+            auto cellID = h->getCellID();
 
-	    //TODO: this code is for the local coordinates conversion -- next PR
-            //auto gpos = converter->position(cellID);
-            // local positions
+	    //global --> local begins here -----
+
+            auto gpos = converter->position(cellID);
+
+	    // local positions
             //if (m_localDetElement.empty()) {
-            //    auto volman = detector->volumeManager();
-            //    local = volman.lookupDetElement(cellID);
-            //}
-            //auto pos0 = local.nominal().worldToLocal(
-            //        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
+            auto volman = m_geoSvc->detector()->volumeManager();
+            local = volman.lookupDetElement(cellID);
+	    //}
 
-	    if(!goodHit2 && pos0.z > 27099.0 && pos0.z < 28022.0){
+            auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-		goodHitX[1] = pos0.x;
-		goodHitY[1] = pos0.y;
-		goodHitZ[1] = pos0.z;
+	    //information is stored in cm, we need mm - divide by dd4hep::mm
+
+	    if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
+
+		goodHitX[1] = pos0.x()/dd4hep::mm;
+		goodHitY[1] = pos0.y()/dd4hep::mm;
+		goodHitZ[1] = gpos.z()/dd4hep::mm;
 	    	goodHit2 = true;
 
 	    }
-	    if(!goodHit1 && pos0.z > 25099.0 && pos0.z < 26022.0){
+	    if(!goodHit1 && gpos.z()/dd4hep::mm > 25099.0 && gpos.z()/dd4hep::mm < 26022.0){
 
-		goodHitX[0] = pos0.x;
-		goodHitY[0] = pos0.y;
-		goodHitZ[0] = pos0.z;
+		goodHitX[0] = pos0.x()/dd4hep::mm;
+		goodHitY[0] = pos0.y()/dd4hep::mm;
+		goodHitZ[0] = gpos.z()/dd4hep::mm;
 		goodHit1 = true;
 
 	    }
@@ -160,7 +169,7 @@ namespace eicrecon {
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
 	    //
-            double XL[2] = {goodHitX[0] - local_x_offset_station_1, goodHitX[1] - local_x_offset_station_2};
+            double XL[2] = {goodHitX[0], goodHitX[1]};
             double YL[2] = {goodHitY[0], goodHitY[1]};
 
             double base = goodHitZ[1] - goodHitZ[0];
