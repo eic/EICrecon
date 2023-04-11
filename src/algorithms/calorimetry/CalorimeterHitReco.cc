@@ -150,7 +150,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
                 m_sampFrac;
         if (m_readout == "LFHCALHits" && m_sampFracLayer[0] != 0.){
           energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
-                    m_sampFracLayer[decoder->get(cellID, 7)];
+                    m_sampFracLayer[decoder->get(cellID, 7)]; // use readout layer depth information from decoder
         }
 
         const float time = rh->getTimeStamp() / stepTDC;
