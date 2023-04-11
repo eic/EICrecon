@@ -27,24 +27,6 @@
 
 namespace eicrecon {
 
-
-  // local PDG mass database
-  // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
-  // have a proper PDG database service, we hard-code the masses we need;
-  // use Tools::GetPDGMass for access
-  const std::unordered_map<int,double> g_pdg_db_for_pid {
-    { -11,  0.000510999 },
-    { 211,  0.13957     },
-    { 321,  0.493677    },
-    { 2212, 0.938272    }
-  };
-
-  const std::unordered_map<int,std::string> g_radiator_ids {
-    { 0, "Aerogel" },
-    { 1, "Gas" }
-  };
-
-
   // Tools class, filled with miscellanous helper functions
   class Tools {
     public:
@@ -57,34 +39,57 @@ namespace eicrecon {
 
       // -------------------------------------------------------------------------------------
       // Radiator IDs
+
+      static std::unordered_map<int,std::string> GetRadiatorIDs() {
+        return std::unordered_map<int,std::string>{
+          { 0, "Aerogel" },
+          { 1, "Gas" }
+        };
+      }
+
       static std::string GetRadiatorName(int id) {
         std::string name;
-        try { name = g_radiator_ids.at(id); }
+        try { name = GetRadiatorIDs().at(id); }
         catch(const std::out_of_range& e) {
           throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown radiator ID={} in algorithms/pid/Tools::GetRadiatorName",id));
         }
         return name;
       }
+
       static int GetRadiatorID(std::string name) {
-        for(auto& [id,name_tmp] : g_radiator_ids)
+        for(auto& [id,name_tmp] : GetRadiatorIDs())
           if(name==name_tmp) return id;
         throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown radiator '{}' in algorithms/pid/Tools::GetRadiatorID",name));
         return -1;
       }
-      static std::unordered_map<int,std::string> GetRadiatorIDs() { return g_radiator_ids; };
 
 
       // -------------------------------------------------------------------------------------
       // PDG mass lookup
+
+      // local PDG mass database
+      // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
+      // have a proper PDG database service, we hard-code the masses we need;
+      // use Tools::GetPDGMass for access
+      static std::unordered_map<int,double> GetPDGMasses() {
+        return std::unordered_map<int,double>{
+          { 11,   0.000510999 },
+          { 211,  0.13957     },
+          { 321,  0.493677    },
+          { 2212, 0.938272    }
+        };
+      }
+
       static double GetPDGMass(int pdg) {
         double mass;
-        try { mass = g_pdg_db_for_pid.at(pdg); }
+        try { mass = GetPDGMasses().at(std::abs(pdg)); }
         catch(const std::out_of_range& e) {
           throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown PDG={} in algorithms/pid/Tools::GetPDGMass",pdg));
         }
         return mass;
       }
-      static int GetNumPDGs() { return g_pdg_db_for_pid.size(); };
+
+      static int GetNumPDGs() { return GetPDGMasses().size(); };
 
 
       // -------------------------------------------------------------------------------------

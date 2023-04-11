@@ -34,7 +34,7 @@ namespace eicrecon {
       std::map <std::string,RadiatorConfig> radiators;
 
       /* list of PDG codes to identify with this PID algorithm
-       * example: std::vector<int> pdgList = { -11, 211, 321, 2212 };
+       * example: std::vector<int> pdgList = { 11, 211, 321, 2212 };
        */
       std::vector<int> pdgList;
 
