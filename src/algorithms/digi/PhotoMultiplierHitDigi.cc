@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Chao Peng, Christopher Dilks
+// Copyright (C) 2023 Chao Peng, Thomas Britton, Christopher Dilks
 
 /*  General PhotoMultiplier Digitization
  *
@@ -8,9 +8,9 @@
  *
  *  Author: Chao Peng (ANL)
  *  Date: 10/02/2020
+ *
+ *  Ported from Juggler by Thomas Britton (JLab)
  */
-
-//Ported by Thomas Britton (JLab)
 
 
 #include "PhotoMultiplierHitDigi.h"
