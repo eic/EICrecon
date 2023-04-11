@@ -6,20 +6,9 @@
 
 Eic image require singularity \> 3.0
 
-The [oficial installation instructions](https://sylabs.io/guides/3.0/user-guide/installation.html) have many steps.
+If you use Debian sid, you may be able to install `singularity-container`. If you use Ubuntu or Red Hat, the `deb` and `rpm` packages at https://github.com/sylabs/singularity/releases/ may be useful.
 
-If you use ubuntu (mint, whatever compatible), there is a
-[debian repo with 3.10.3 version](https://packages.debian.org/source/sid/singularity-container),
-which works pretty nicely (You will have to install dependencies, it will print them\...)
-
-```bash
-sudo apt install containernetworking-plugins
-wget http://ftp.fi.debian.org/debian/pool/main/s/singularity-container/singularity-container_3.10.3+ds1-1_amd64.deb
-sudo dpkg -i singularity-container_3.10.3+ds1-1_amd64.deb
-```
-
-Please don\'t install NeuroDebian repo (first in google search) as its singularity v2.6
-and eic image require singularity \> 3.0.
+The [official installation instructions](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html#quick-installation-steps) may be useful for other operating systems.
 
 ## Install work environment
 
@@ -31,10 +20,10 @@ laptops). It also creates eic\_shell with the right environment setup,
 prepares the current dir to work with detector or etc.
 
 ```bash
-curl https://eicweb.phy.anl.gov/containers/eic_container/-/raw/master/install.sh | bash
+curl -L https://get.epic-eic.org | bash
 ```
 
-**install.sh** checks if it is run on BNL or JLab farms, so existing
+This checks if it is run on BNL or JLab farms, so existing
 CVMFS images are used and installation is almost instant. On local
 systems singularity images will be downloaded.
 
@@ -43,7 +32,7 @@ singularity images are being copied, disable CVMFS behaviour, and other
 parameters:
 
 ```bash
-curl https://eicweb.phy.anl.gov/containers/eic_container/-/raw/master/install.sh
+curl -L https://get.epic-eic.org > install.sh
 chmod +x install.sh
 ./install.sh --help
 ```
