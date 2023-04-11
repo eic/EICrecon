@@ -38,9 +38,11 @@ public:
         //   32 - number of sectors
         //   2  - number of rows per sector
         //   24 - number of towers per row
+        //   5  - number of tiles per tower
         u_adjacencyMatrix =
           "("
-          "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+          "  abs(fmod(tile_1, 5) - fmod(tile_2, 5))"
+          "  + abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
           "  + min("
           "      abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24)),"
           "      32 * 2 - abs((sector_1 - sector_2) * 2 + floor(tower_1 / 24) - floor(tower_2 / 24))"
