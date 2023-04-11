@@ -34,7 +34,7 @@ extern "C" {
     digi_cfg.enablePixelGaps = true;
     digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
-    digi_cfg.enableNoise     = true;
+    digi_cfg.enableNoise     = false;
     digi_cfg.noiseRate       = 20000; // [Hz]
     digi_cfg.noiseTimeWindow = 20.0; // [ns]
     digi_cfg.quantumEfficiency.clear();
