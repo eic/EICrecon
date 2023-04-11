@@ -74,7 +74,7 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if(m_detName=="DRICH") {
+  else if(m_detName=="PFRICH") {
     m_log.PrintError("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 

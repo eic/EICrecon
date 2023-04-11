@@ -19,6 +19,7 @@
 
 // services
 #include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <services/geometry/richgeo/RichGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -49,6 +50,7 @@ namespace eicrecon {
     private:
 
         eicrecon::PhotoMultiplierHitDigi m_digi_algo;       /// Actual digitisation algorithm
+        richgeo::ReadoutGeo              *m_readoutGeo = nullptr;
     };
 
 }
