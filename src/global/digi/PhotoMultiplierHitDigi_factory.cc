@@ -4,20 +4,19 @@
 //
 
 #include "PhotoMultiplierHitDigi_factory.h"
-#include <fmt/format.h>
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   using namespace eicrecon::str;
 
   auto app = GetApplication();
 
-  std::string plugin_name = ReplaceAll(GetPluginName(), ".so", "");
+  m_plugin_name = ReplaceAll(GetPluginName(), ".so", "");
 
   // We will use plugin name to get parameters for correct factory
   // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
   //    "BTRK:parameter" or "FarForward:parameter"
   // That has limitations but the convenient in the most of the cases
-  std::string param_prefix = plugin_name + ":" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
+  std::string param_prefix = m_plugin_name + ":" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
 
   // Set input tags
   InitDataTags(param_prefix);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng
+// Copyright (C) 2023 Chao Peng, Christopher Dilks
 
 /*  General PhotoMultiplier Digitization
  *
@@ -63,23 +63,25 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-std::vector<edm4eic::RawTrackerHit*>
-eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits) {
-
+std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
+    std::vector<const edm4hep::SimTrackerHit*>& sim_hits
+    )
+{
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
         struct HitData {
           uint32_t npe;
           double signal;
-          double time;
+          decltype(edm4hep::SimTrackerHitData::time) time;
           dd4hep::Position pos;
+          std::vector<const edm4hep::SimTrackerHit*> mc_hits;
         };
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        for(const auto& ahit : sim_hits) {
+        for(auto &ahit : sim_hits) {
             auto edep_eV = ahit->getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
-            // m_log->trace("{:-<60}","Simulation Hit");
-            // m_log->trace("  {:>20}: {}\n", "EDep", edep_eV);
+            auto id      = ahit->getCellID();
+            m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
 
             // overall safety factor
             if (m_rngUni() > m_cfg.safetyFactor) continue;
@@ -89,7 +91,6 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
 
             // pixel gap cuts
             // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
-            auto id = ahit->getCellID();
             dd4hep::Position pos_pixel, pos_hit;
             if(m_cfg.enablePixelGaps) {
               pos_pixel = get_sensor_local_position( id, m_cellid_converter->position(id) );
@@ -99,59 +100,85 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 ) continue;
             }
 
-            // cell time, signal amplitude
-            double time = ahit->getTime();//ahit->getMCParticle().getTime();
-            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            // cell time, signal amplitude, truth photon
+            auto   time = ahit->getTime();
+            double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
             // group hits
             auto it = hit_groups.find(id);
             if (it != hit_groups.end()) {
                 size_t i = 0;
-                for (auto git = it->second.begin(); git != it->second.end(); ++git, ++i) {
-                    if (std::abs(time - git->time) <= (m_cfg.hitTimeWindow)) {
-                        git->npe += 1;
-                        git->signal += amp;
+                for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
+                    if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
+                        // hit group found, update npe, signal, and list of mc_hits
+                        ghit->npe += 1;
+                        ghit->signal += amp;
+                        ghit->mc_hits.push_back(ahit);
+                        m_log->trace(" -> add to group @ {:#X}: signal={}", id, ghit->signal);
                         break;
                     }
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    it->second.emplace_back(HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit});
+                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+                    it->second.emplace_back(HitData{1, sig, time, pos_hit, {ahit}});
+                    m_log->trace(" -> no group found,");
+                    m_log->trace("    so new group @ {:#X}: signal={}", id, sig);
                 }
             } else {
-                hit_groups[id] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit}};
+                auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+                hit_groups[id] = {HitData{1, sig, time, pos_hit, {ahit}}};
+                m_log->trace(" -> new group @ {:#X}: signal={}", id, sig);
             }
         }
 
         // print `hit_groups`
-        if(m_log->level() <= spdlog::level::trace)
+        if(m_log->level() <= spdlog::level::trace) {
           for(auto &[id,hitVec] : hit_groups)
-            for(auto &hit : hitVec)
-              m_log->trace("hit_group: pixel id={:#018x} -> npe={} signal={:<5g} time={:<5g}", id, hit.npe, hit.signal, hit.time);
-
-        // build raw hits
-        std::vector<edm4eic::RawTrackerHit*> raw_hits;
-        for (auto &it : hit_groups) {
-            for (auto &data : it.second) {
-                edm4eic::RawTrackerHit* hit = new edm4eic::RawTrackerHit{
-                  it.first,
-                  static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal),
-                  static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(data.time/m_cfg.timeStep)
-                  //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
-                };
-                raw_hits.push_back(hit);
+            for(auto &hit : hitVec) {
+              m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
+              for(auto &mc_hit : hit.mc_hits)
+                m_log->trace("           - photon: EDep = {}", mc_hit->getEDep());
             }
         }
-        return raw_hits;
 
+        // build output `MCRecoTrackerHitAssociation`
+        std::vector<edm4eic::MCRecoTrackerHitAssociation*> hit_assocs;
+        for (auto &it : hit_groups) {
+            for (auto &data : it.second) {
+
+                // build `RawTrackerHit`
+                edm4eic::MutableRawTrackerHit raw_hit;
+                raw_hit.setCellID(it.first);
+                raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)              );
+                raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time*m_cfg.timeStep) );
+                // raw_hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; FIXME: requires member `edm4hep::Vector3d position`
+                                                          // in data model datatype, think of a better way
+                m_log->trace("raw_hit: cellID={:#X} -> charge={} timeStamp={}",
+                    raw_hit.getCellID(),
+                    raw_hit.getCharge(),
+                    raw_hit.getTimeStamp()
+                    );
+
+                // build `MCRecoTrackerHitAssociation`
+                edm4eic::MutableMCRecoTrackerHitAssociation hit_assoc;
+                hit_assoc.setWeight(1.0); // not used
+                hit_assoc.setRawHit(raw_hit);
+                for(auto &mc_hit : data.mc_hits)
+                  hit_assoc.addToSimHits(*mc_hit);
+                hit_assocs.push_back(new edm4eic::MCRecoTrackerHitAssociation(hit_assoc)); // force immutable
+            }
+        }
+        return hit_assocs;
 }
 
 void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 {
         // get quantum efficiency table
         qeff.clear();
+        auto hc = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::eV * dd4hep::nm); // [eV*nm]
         for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
-          qeff.push_back({ 1239.84 / wl, qe }); // convert wavelength [nm] -> energy [eV]
+          qeff.push_back({ hc / wl, qe }); // convert wavelength [nm] -> energy [eV]
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),
@@ -262,6 +289,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   pos_transformed.SetCoordinates(pv_l);
 
   // trace log
+  /*
   if(m_log->level() <= spdlog::level::trace) {
     m_log->trace("pixel hit on cellID={:#018x}",id);
     auto print_pos = [&] (std::string name, dd4hep::Position p) {
@@ -274,6 +302,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
     // for (size_t j = 0; j < std::size(dim); ++j)
     //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
   }
+  */
 
   return pos_transformed;
 }
