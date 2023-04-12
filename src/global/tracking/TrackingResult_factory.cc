@@ -9,19 +9,14 @@
 #include <JANA/JEvent.h>
 
 void TrackingResult_factory::Init() {
-    // This prefix will be used for parameters
-    std::string param_prefix = GetDefaultParameterPrefix();
-
-    // Set input data tags properly
-    InitDataTags(param_prefix);
 
     // SpdlogMixin logger initialization, sets m_log
-    InitLogger(param_prefix, "info");
+    InitLogger(GetPrefix(), "info");
 
     m_particle_maker_algo.init(m_log);
 }
 
-void TrackingResult_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void TrackingResult_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
 
 }
 
@@ -33,7 +28,8 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
         // Collect all hits
         auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
         auto result = m_particle_maker_algo.execute(trajectories);
-        Insert(result);
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(result.first));
+        SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(result.second));
     }
     catch(std::exception &e) {
         m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
