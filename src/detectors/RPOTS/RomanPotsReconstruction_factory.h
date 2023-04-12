@@ -28,7 +28,7 @@
 
 namespace eicrecon {
 
-    class RomanPotsReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
+    class RomanPotsReconstruction_factory : public JFactoryPodioTFixed<edm4eic::ReconstructedParticle>{
 
     public:
 

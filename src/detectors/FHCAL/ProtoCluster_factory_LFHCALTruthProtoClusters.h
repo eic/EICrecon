@@ -7,13 +7,14 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
 
 
-class ProtoCluster_factory_LFHCALTruthProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_LFHCALTruthProtoClusters : public JFactoryPodioTFixed<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------

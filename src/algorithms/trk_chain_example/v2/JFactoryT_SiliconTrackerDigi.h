@@ -4,14 +4,15 @@
 
 #include <fmt/core.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 
 #include <edm4hep/SimTrackerHit.h>
 
 #include "algorithms/digi/RawTrackerHit.h"
 
 template <typename InputT, typename OutputT>
-class SiliconTrackerDigi_factoryT : public JFactoryT<OutputT> {
+class SiliconTrackerDigi_factoryT : public JFactoryPodioTFixed<OutputT> {
 
 public:
     SiliconTrackerDigi_factoryT() {

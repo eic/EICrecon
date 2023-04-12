@@ -5,7 +5,8 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -13,7 +14,7 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_LFHCALTruthClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_LFHCALTruthClustersAssociations : public JFactoryPodioTFixed<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
