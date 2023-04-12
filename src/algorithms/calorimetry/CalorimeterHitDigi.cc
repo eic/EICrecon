@@ -187,7 +187,6 @@ void CalorimeterHitDigi::single_hits_digi(){
 //------------------------
 void CalorimeterHitDigi::signal_sum_digi( void ){
 
-    auto decoder = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
     for (auto ahit : simhits) {
@@ -213,7 +212,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
         double max_edep = 0;
         auto   mid      = hits[0]->getCellID();
         // sum energy, take time from the most energetic hit
-//         std::cout << id << "\t" << edep << std::endl;
+        m_log->trace("id: {} \t {}", id, edep);
         for (size_t i = 0; i < hits.size(); ++i) {
 
             double timeC = std::numeric_limits<double>::max();

@@ -1,3 +1,5 @@
+// Copyright 2023, Friederike Bock
+// Subject to the terms in the LICENSE file found in the top-level directory.
 
 #ifndef CalorimeterHit_factory_LFHCALRecHits_h_
 #define CalorimeterHit_factory_LFHCALRecHits_h_
