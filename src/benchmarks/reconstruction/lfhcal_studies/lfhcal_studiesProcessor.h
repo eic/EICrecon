@@ -81,7 +81,7 @@ public:
     TH3D* hRecFEmClusterEcalib_Ehigh_eta;
     TH2D* hSamplingFractionEta;
 
-    bool enableTree       = false;
+    bool enableTree       = true;
     TTree* event_tree;
     const int maxNTowers  = 65000;
     int     t_lFHCal_towers_N;
@@ -95,6 +95,7 @@ public:
     int*    t_lFHCal_towers_cellTrueID;
 
     bool enableTreeCluster  = true;
+    bool enableECalCluster  = true;
     TTree* cluster_tree;
     const int maxNCluster   = 50;
     const int maxNMC        = 50;
@@ -107,11 +108,11 @@ public:
     int*    t_lFHCal_cluster_NCells;
     float*  t_lFHCal_cluster_Phi;
     float*  t_lFHCal_cluster_Eta;
-    int     t_fECal_clusters_N;
-    float*  t_fECal_cluster_E;
-    int*    t_fECal_cluster_NCells;
-    float*  t_fECal_cluster_Phi;
-    float*  t_fECal_cluster_Eta;
+    int     t_fEMC_clusters_N;
+    float*  t_fEMC_cluster_E;
+    int*    t_fEMC_cluster_NCells;
+    float*  t_fEMC_cluster_Phi;
+    float*  t_fEMC_cluster_Eta;
 
 
     int nEventsWithCaloHits = 0;

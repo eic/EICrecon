@@ -39,7 +39,6 @@
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 
 #include "clusterizer_MA.h"
-// #include <extensions/spdlog/SpdlogMixin.h>
 
 // The following just makes this a JANA plugin
 extern "C" {
@@ -53,7 +52,6 @@ extern "C" {
 //******************************************************************************************
 // InitWithGlobalRootLock
 //******************************************************************************************
-// void lfhcal_studiesProcessor::InitWithGlobalRootLock() {
 void lfhcal_studiesProcessor::Init() {
   std::string plugin_name = ("lfhcal_studies");
 
@@ -232,10 +230,10 @@ void lfhcal_studiesProcessor::Init() {
     t_lFHCal_cluster_NCells = new int[maxNCluster];
     t_lFHCal_cluster_Phi    = new float[maxNCluster];
     t_lFHCal_cluster_Eta    = new float[maxNCluster];
-    t_fECal_cluster_E       = new float[maxNCluster];
-    t_fECal_cluster_NCells  = new int[maxNCluster];
-    t_fECal_cluster_Eta     = new float[maxNCluster];
-    t_fECal_cluster_Phi     = new float[maxNCluster];
+    t_fEMC_cluster_E       = new float[maxNCluster];
+    t_fEMC_cluster_NCells  = new int[maxNCluster];
+    t_fEMC_cluster_Eta     = new float[maxNCluster];
+    t_fEMC_cluster_Phi     = new float[maxNCluster];
 
     // MC particles
     cluster_tree->Branch("mc_N", &t_mc_N, "mc_N/I");
@@ -249,11 +247,11 @@ void lfhcal_studiesProcessor::Init() {
     cluster_tree->Branch("cluster_LFHCAL_Eta", t_lFHCal_cluster_Eta, "cluster_LFHCAL_Eta[cluster_LFHCAL_N]/F");
     cluster_tree->Branch("cluster_LFHCAL_Phi", t_lFHCal_cluster_Phi, "cluster_LFHCAL_Phi[cluster_LFHCAL_N]/F");
     // clusters FECal
-    cluster_tree->Branch("cluster_FECAL_N", &t_fECal_clusters_N, "cluster_FECAL_N/I");
-    cluster_tree->Branch("cluster_FECAL_E", t_fECal_cluster_E, "cluster_FECAL_E[cluster_FECAL_N]/F");
-    cluster_tree->Branch("cluster_FECAL_Ncells", t_fECal_cluster_NCells, "cluster_FECAL_Ncells[cluster_FECAL_N]/I");
-    cluster_tree->Branch("cluster_FECAL_Eta", t_fECal_cluster_Eta, "cluster_FECAL_Eta[cluster_FECAL_N]/F");
-    cluster_tree->Branch("cluster_FECAL_Phi", t_fECal_cluster_Phi, "cluster_FECAL_Phi[cluster_FECAL_N]/F");
+    cluster_tree->Branch("cluster_FECAL_N", &t_fEMC_clusters_N, "cluster_FECAL_N/I");
+    cluster_tree->Branch("cluster_FECAL_E", t_fEMC_cluster_E, "cluster_FECAL_E[cluster_FECAL_N]/F");
+    cluster_tree->Branch("cluster_FECAL_Ncells", t_fEMC_cluster_NCells, "cluster_FECAL_Ncells[cluster_FECAL_N]/I");
+    cluster_tree->Branch("cluster_FECAL_Eta", t_fEMC_cluster_Eta, "cluster_FECAL_Eta[cluster_FECAL_N]/F");
+    cluster_tree->Branch("cluster_FECAL_Phi", t_fEMC_cluster_Phi, "cluster_FECAL_Phi[cluster_FECAL_N]/F");
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
@@ -261,7 +259,6 @@ void lfhcal_studiesProcessor::Init() {
   dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-
     m_decoder         = detector.readout("LFHCALHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
     auto module_index_x = m_decoder->index("moduleIDx");
@@ -272,30 +269,11 @@ void lfhcal_studiesProcessor::Init() {
     auto rlayer_index_z = m_decoder->index("rlayerz");
     iPassive = m_decoder->index("passive");
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
-//   } catch (...) {
-//     isLFHCal = false;
-//     std::cout <<"1st: "<< m_decoder << std::endl;
-//     try {
-//       m_decoder         = detector.readout("GFHCALHits").idSpec().decoder();
-//       std::cout <<"2nd: "  << m_decoder << std::endl;
-//       auto module_index_x = m_decoder->index("modulex");
-//       auto module_index_y = m_decoder->index("moduley");
-//       iPassive = m_decoder->index("passive");
-//       iLx = m_decoder->index("layerx");
-//       iLy = m_decoder->index("layery");
-//       iLz = m_decoder->index("layerz");
-//       std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
-//
-//       nameSimHits         = "GFHCALHits";
-//       nameRecHits         = "GFHCALRecHits";
-//       nameClusters        = "GFHCALClusters";
-//       nameProtoClusters   = "GFHCALIslandProtoClusters";
   } catch (...) {
       std::cout <<"2nd: "  << m_decoder << std::endl;
       m_log->error("readoutClass not in the output");
       throw std::runtime_error("readoutClass not in the output.");
   }
-//   }
 
 }
 
@@ -327,8 +305,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     mcphi = atan2(mom.y, mom.x);
     // determine mc momentum
     mcp = sqrt(mom.x * mom.x + mom.y * mom.y + mom.z * mom.z);
-//     std::cout << "MC particle: " << mom.x << " " << mom.y << " " << mom.z << "\ttotmom: " <<
-//     mcp << "\t phi: "<< mcphi << "\t eta:" <<  mceta << std::endl;
+    m_log->trace("MC particle:{} \t {} \t {} \t totmom: {} phi {} eta {}", mom.x, mom.y, mom.z, mcp, mcphi, mceta);
     hMCEnergyVsEta->Fill(mcp,mceta);
 
     if (enableTreeCluster){
@@ -497,7 +474,8 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       input_tower_recSav.push_back(tempstructT);
     }
   }
-//   cout << "nCaloHits sim " << nCaloHitsSim << "\t rec " << nCaloHitsRec << endl;
+  m_log->trace("LFHCal mod: nCaloHits sim  {}\t rec {}", nCaloHitsSim, nCaloHitsRec);
+
   if (nCaloHitsRec > 0) nEventsWithCaloHits++;
 
   // ===============================================================================================
@@ -520,8 +498,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   }
 
   double samplingFractionFe = 0.037;
-//   double samplingFractionW  = 0.019;
-  double samplingFractionW  = 0.037;
+  double samplingFractionW  = 0.019; 
   int minCellIDzDiffSamp    = 5;
   // sim hits
   double tot_energySimHit = 0;
@@ -532,7 +509,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       tower.energy = tower.energy/samplingFractionFe; // calibrate
     tot_energySimHit += tower.energy;
   }
-//   std::cout << "Mc E: " << mcenergy << "\t eta: " << mceta << "\t sim E rec: " << tot_energySimHit << "\t rec E rec: " <<  tot_energyRecHit << std::endl;
+  m_log->trace("Mc E: {} \t eta: {} \t sim E rec: {}\t rec E rec: {}", mcenergy, mceta, tot_energySimHit, tot_energyRecHit);
 
   // ===============================================================================================
   // Fill summed hits histos
@@ -560,7 +537,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       input_tower_rec.pop_back();
       removedCells++;
     }
-//     std::cout << "removed " << removedCells << " with E < "  << minAggE << "GeV" << std::endl;
+    m_log->trace("removed {} with E < {} GeV", removedCells, minAggE);
 
     int nclusters = 0;
     // vector of clusters
@@ -572,7 +549,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       clustersStrct tempstructC;
       // always start with highest energetic tower
       if(input_tower_rec.at(0).energy > seedE){
-//         std::cout<< "seed: " << input_tower_rec.at(0).energy << "\t" << input_tower_rec.at(0).cellIDx <<  "\t" << input_tower_rec.at(0).cellIDy<<  "\t" << input_tower_rec.at(0).cellIDz<< std::endl;
+        m_log->trace("seed: {}\t {} \t {}", input_tower_rec.at(0).energy, input_tower_rec.at(0).cellIDx, input_tower_rec.at(0).cellIDy,  input_tower_rec.at(0).cellIDz);
         tempstructC = findMACluster(seedE, minAggE, input_tower_rec, cluster_towers);
 
         // determine remaining cluster properties from its towers
@@ -585,18 +562,14 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         tempstructC.cluster_Y = showershape_eta_phi[5];
         tempstructC.cluster_Z = showershape_eta_phi[6];
         tempstructC.cluster_towers = cluster_towers;
-//         std::cout <<  "---------> \t " << nclusters << "\tcluster with E = " << tempstructC.cluster_E << "\tEta: " << tempstructC.cluster_Eta<< "\tPhi: " << tempstructC.cluster_Phi
-//                                 << "\tX: " << tempstructC.cluster_X<< "\tY: " << tempstructC.cluster_Y<< "\tZ: " << tempstructC.cluster_Z<< "\tntowers: " << tempstructC.cluster_NTowers
-//                                 << "\ttrueID: " << tempstructC.cluster_trueID << std::endl;
+        m_log->trace("---------> \t {} \tcluster with E = {} \tEta: {} \tPhi: {} \tX: {} \tY: {} \tZ: {} \tntowers: {} \ttrueID: {}", nclusters, tempstructC.cluster_E, tempstructC.cluster_Eta, tempstructC.cluster_Phi, tempstructC.cluster_X, tempstructC.cluster_Y, tempstructC.cluster_Z, tempstructC.cluster_NTowers, tempstructC.cluster_trueID );
+        clusters_calo.push_back(tempstructC);
+
         clusters_calo.push_back(tempstructC);
 
         nclusters++;
       } else {
-//         std::cout<< "remaining: "<< (int)input_tower_rec.size() << " largest:" << input_tower_rec.at(0).energy << "\t" << input_tower_rec.at(0).cellIDx <<  "\t" << input_tower_rec.at(0).cellIDy<<  "\t" << input_tower_rec.at(0).cellIDz<< std::endl;
-//         for (int ait = 0; ait < (int)input_tower_rec.size(); ait++){
-//           std::cout<< input_tower_rec.at(ait).energy << "\t" << input_tower_rec.at(ait).cellIDx <<  "\t" << input_tower_rec.at(ait).cellIDy <<   "\t" << input_tower_rec.at(0).cellIDz << std::endl;
-  //         h_clusterizer_nonagg_towers[caloEnum][clusterizerEnum]->Fill(input_tower_rec.size(),input_tower_rec.at(ait).tower_E);
-//         }
+        m_log->trace("remaining: {} largest: {} \t {}  \t {}  \t {}", (int)input_tower_rec.size(), input_tower_rec.at(0).energy, input_tower_rec.at(0).cellIDx, input_tower_rec.at(0).cellIDy,  input_tower_rec.at(0).cellIDz);
         input_tower_rec.clear();
       }
     }
@@ -605,7 +578,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
     std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
-//     std::cout << "-----> found " << clusters_calo.size() << " clusters" << std::endl;
+    m_log->info("-----> found {} clusters" , clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
     for (auto& cluster : clusters_calo) {
@@ -628,7 +601,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         hRecClusterNCells_Ehigh_eta->Fill(mcenergy, cluster.cluster_NTowers, mceta);
       }
       iCl++;
-//       std::cout <<"MA cluster " << iCl << ":\t" << cluster.cluster_E << "\t"<< cluster.cluster_NTowers <<std::endl;
+      m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
     if (iCl < maxNCluster && enableTreeCluster) t_lFHCal_clusters_N = (int)iCl;
 
@@ -652,17 +625,13 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       highestEFr  = cluster->getEnergy();
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
-
-//     std::cout << "Island cluster "<< iClF << ":\t" << cluster->getEnergy()  << "\t"<< cluster->getNhits()  << std::endl;
-//     for (auto& protocluster : lfhcalProtoClustersF()) {
+    m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
     for (auto& hit: cluster->getHits()){
-//       for (int iCell = 0;  iCell < (int)cluster->getHits().size(); iCell++){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)
         input_tower_recSav.at(pSav).tower_clusterIDB = iClF;
     }
-//     }
     iClF++;
   }
   hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);
@@ -684,44 +653,49 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   float highestEEmCl  = 0;
   int iEClHigh        = 0;
 
-  auto fEcalClustersF = event->Get<edm4eic::Cluster>("EcalEndcapPClusters");
-//   cout << "fEcalClustersF: " << fEcalClustersF.size() << endl;
-  for (auto& cluster : fEcalClustersF) {
-    if (iECl < maxNCluster && enableTreeCluster){
-        t_fECal_cluster_E[iECl]       = (float)cluster->getEnergy();
-        t_fECal_cluster_NCells[iECl]  = (int)cluster->getNhits();
-        t_fECal_cluster_Eta[iECl]     = (-1.) * std::log(std::atan((float)cluster->getIntrinsicTheta() / 2.));
-        t_fECal_cluster_Phi[iECl]     = (float)cluster->getIntrinsicPhi();
-    }
+  if (enableECalCluster){
+    try {
+      auto fEMCClustersF = event->Get<edm4eic::Cluster>("EcalEndcapPClusters");
+      m_log->info("-----> found fEMCClustersF:" , fEMCClustersF.size());
+      for (auto& cluster : fEMCClustersF) {
+        if (iECl < maxNCluster && enableTreeCluster){
+            t_fEMC_cluster_E[iECl]       = (float)cluster->getEnergy();
+            t_fEMC_cluster_NCells[iECl]  = (int)cluster->getNhits();
+            t_fEMC_cluster_Eta[iECl]     = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            t_fEMC_cluster_Phi[iECl]     = (float)cluster->getIntrinsicPhi();
+        }
 
-    if (cluster->getEnergy() > highestEEmCl){
-      iEClHigh      = iECl;
-      highestEEmCl  = cluster->getEnergy();
+        if (cluster->getEnergy() > highestEEmCl){
+          iEClHigh      = iECl;
+          highestEEmCl  = cluster->getEnergy();
+        }
+        hRecFEmClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+        iECl++;
+      }
+      t_fEMC_clusters_N  = iECl;
+      hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
+
+      // fill hists for highest Island cluster
+      iECl          = 0;
+      for (auto& cluster : fEMCClustersF) {
+        if (iECl == iEClHigh){
+          hRecFEmClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+        }
+        iECl++;
+      }
+    } catch (...){
+      std::cout << "ECal clusters not in output" << std::endl; 
+      enableECalCluster = false;
     }
-    hRecFEmClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
-    iECl++;
   }
-  t_fECal_clusters_N  = iECl;
-  hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
-
-  // fill hists for highest Island cluster
-  iECl          = 0;
-  for (auto& cluster : fEcalClustersF) {
-    if (iECl == iEClHigh){
-      hRecFEmClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
-    }
-    iECl++;
-  }
-
   // ===============================================================================================
   // Write clusterizer tree & clean-up variables
   // ===============================================================================================
   if (enableTree){
     t_lFHCal_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-  //  std::cout << input_tower_recSav.at(iCell).cellIDx << "\t" << input_tower_recSav.at(iCell).cellIDy << "\t" << input_tower_recSav.at(iCell).cellIDz
-  //            << "\t" << input_tower_recSav.at(iCell).energy << "\t" << input_tower_recSav.at(iCell).tower_clusterIDA << "\t" << input_tower_recSav.at(iCell).tower_clusterIDB << std::endl;
-
+      m_log->trace("{} \t {} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy, input_tower_recSav.at(iCell).cellIDz , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
+      
       t_lFHCal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_lFHCal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
       t_lFHCal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
@@ -755,7 +729,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
 
     t_mc_N                = 0;
     t_lFHCal_clusters_N   = 0;
-    t_fECal_clusters_N    = 0;
+    t_fEMC_clusters_N    = 0;
     for (Int_t iMC = 0; iMC < maxNMC; iMC++){
       t_mc_E[iMC]                   = 0;
       t_mc_Phi[iMC]                 = 0;
@@ -766,10 +740,10 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       t_lFHCal_cluster_NCells[iCl]  = 0;
       t_lFHCal_cluster_Eta[iCl]     = 0;
       t_lFHCal_cluster_Phi[iCl]     = 0;
-      t_fECal_cluster_E[iCl]        = 0;
-      t_fECal_cluster_NCells[iCl]   = 0;
-      t_fECal_cluster_Eta[iCl]      = 0;
-      t_fECal_cluster_Phi[iCl]      = 0;
+      t_fEMC_cluster_E[iCl]        = 0;
+      t_fEMC_cluster_NCells[iCl]   = 0;
+      t_fEMC_cluster_Eta[iCl]      = 0;
+      t_fEMC_cluster_Phi[iCl]      = 0;
     }
   }
 
@@ -779,14 +753,6 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
 // Finish
 //******************************************************************************************
 void lfhcal_studiesProcessor::Finish() {
-  std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
+  std::cout << "------> LFHCal " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   // Do any final calculations here.
 }
-
-// //******************************************************************************************
-// // FinishWithGlobalRootLock
-// //******************************************************************************************
-// void lfhcal_studiesProcessor::FinishWithGlobalRootLock() {
-//   std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
-//   // Do any final calculations here.
-// }

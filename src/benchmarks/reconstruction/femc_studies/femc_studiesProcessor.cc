@@ -53,7 +53,6 @@ extern "C" {
 // InitWithGlobalRootLock
 //******************************************************************************************
 void femc_studiesProcessor::Init() {
-// void femc_studiesProcessor::InitWithGlobalRootLock() {
   std::string plugin_name = ("femc_studies");
 
   // InitLogger(plugin_name);
@@ -172,23 +171,23 @@ void femc_studiesProcessor::Init() {
     event_tree                = new TTree("event_tree", "event_tree");
     event_tree->SetDirectory(m_dir_main);
 
-    t_fECal_towers_cellE       = new float[maxNTowers];
-    t_fECal_towers_cellT       = new float[maxNTowers];
-    t_fECal_towers_cellIDx     = new short[maxNTowers];
-    t_fECal_towers_cellIDy     = new short[maxNTowers];
-    t_fECal_towers_clusterIDA  = new short[maxNTowers];
-    t_fECal_towers_clusterIDB  = new short[maxNTowers];
-    t_fECal_towers_cellTrueID  = new int[maxNTowers];
+    t_fEMC_towers_cellE       = new float[maxNTowers];
+    t_fEMC_towers_cellT       = new float[maxNTowers];
+    t_fEMC_towers_cellIDx     = new short[maxNTowers];
+    t_fEMC_towers_cellIDy     = new short[maxNTowers];
+    t_fEMC_towers_clusterIDA  = new short[maxNTowers];
+    t_fEMC_towers_clusterIDB  = new short[maxNTowers];
+    t_fEMC_towers_cellTrueID  = new int[maxNTowers];
 
-    // towers FECAL
-    event_tree->Branch("tower_FECAL_N", &t_fECal_towers_N, "tower_FECAL_N/I");
-    event_tree->Branch("tower_FECAL_E", t_fECal_towers_cellE, "tower_FECAL_E[tower_FECAL_N]/F");
-    event_tree->Branch("tower_FECAL_T", t_fECal_towers_cellT, "tower_FECAL_T[tower_FECAL_N]/F");
-    event_tree->Branch("tower_FECAL_ix", t_fECal_towers_cellIDx, "tower_FECAL_ix[tower_FECAL_N]/S");
-    event_tree->Branch("tower_FECAL_iy", t_fECal_towers_cellIDy, "tower_FECAL_iy[tower_FECAL_N]/S");
-    event_tree->Branch("tower_FECAL_clusIDA", t_fECal_towers_clusterIDA, "tower_FECAL_clusIDA[tower_FECAL_N]/S");
-    event_tree->Branch("tower_FECAL_clusIDB", t_fECal_towers_clusterIDB, "tower_FECAL_clusIDB[tower_FECAL_N]/S");
-    event_tree->Branch("tower_FECAL_trueID", t_fECal_towers_cellTrueID, "tower_FECAL_trueID[tower_FECAL_N]/I");
+    // towers FEMC
+    event_tree->Branch("tower_FEMC_N", &t_fEMC_towers_N, "tower_FEMC_N/I");
+    event_tree->Branch("tower_FEMC_E", t_fEMC_towers_cellE, "tower_FEMC_E[tower_FEMC_N]/F");
+    event_tree->Branch("tower_FEMC_T", t_fEMC_towers_cellT, "tower_FEMC_T[tower_FEMC_N]/F");
+    event_tree->Branch("tower_FEMC_ix", t_fEMC_towers_cellIDx, "tower_FEMC_ix[tower_FEMC_N]/S");
+    event_tree->Branch("tower_FEMC_iy", t_fEMC_towers_cellIDy, "tower_FEMC_iy[tower_FEMC_N]/S");
+    event_tree->Branch("tower_FEMC_clusIDA", t_fEMC_towers_clusterIDA, "tower_FEMC_clusIDA[tower_FEMC_N]/S");
+    event_tree->Branch("tower_FEMC_clusIDB", t_fEMC_towers_clusterIDB, "tower_FEMC_clusIDB[tower_FEMC_N]/S");
+    event_tree->Branch("tower_FEMC_trueID", t_fEMC_towers_cellTrueID, "tower_FEMC_trueID[tower_FEMC_N]/I");
   }
 
   // ===============================================================================================
@@ -201,10 +200,10 @@ void femc_studiesProcessor::Init() {
     t_mc_E                  = new float[maxNMC];
     t_mc_Phi                = new float[maxNMC];
     t_mc_Eta                = new float[maxNMC];
-    t_fECal_cluster_E      = new float[maxNCluster];
-    t_fECal_cluster_NCells = new int[maxNCluster];
-    t_fECal_cluster_Phi    = new float[maxNCluster];
-    t_fECal_cluster_Eta    = new float[maxNCluster];
+    t_fEMC_cluster_E      = new float[maxNCluster];
+    t_fEMC_cluster_NCells = new int[maxNCluster];
+    t_fEMC_cluster_Phi    = new float[maxNCluster];
+    t_fEMC_cluster_Eta    = new float[maxNCluster];
 
     // MC particles
     cluster_tree->Branch("mc_N", &t_mc_N, "mc_N/I");
@@ -212,11 +211,11 @@ void femc_studiesProcessor::Init() {
     cluster_tree->Branch("mc_Phi", t_mc_Phi, "mc_Phi[mc_N]/F");
     cluster_tree->Branch("mc_Eta", t_mc_Eta, "mc_Eta[mc_N]/F");
     // clusters FECal
-    cluster_tree->Branch("cluster_FECAL_N", &t_fECal_clusters_N, "cluster_FECAL_N/I");
-    cluster_tree->Branch("cluster_FECAL_E", t_fECal_cluster_E, "cluster_FECAL_E[cluster_FECAL_N]/F");
-    cluster_tree->Branch("cluster_FECAL_Ncells", t_fECal_cluster_NCells, "cluster_FECAL_Ncells[cluster_FECAL_N]/I");
-    cluster_tree->Branch("cluster_FECAL_Eta", t_fECal_cluster_Eta, "cluster_FECAL_Eta[cluster_FECAL_N]/F");
-    cluster_tree->Branch("cluster_FECAL_Phi", t_fECal_cluster_Phi, "cluster_FECAL_Phi[cluster_FECAL_N]/F");
+    cluster_tree->Branch("cluster_FEMC_N", &t_fEMC_clusters_N, "cluster_FEMC_N/I");
+    cluster_tree->Branch("cluster_FEMC_E", t_fEMC_cluster_E, "cluster_FEMC_E[cluster_FEMC_N]/F");
+    cluster_tree->Branch("cluster_FEMC_Ncells", t_fEMC_cluster_NCells, "cluster_FEMC_Ncells[cluster_FEMC_N]/I");
+    cluster_tree->Branch("cluster_FEMC_Eta", t_fEMC_cluster_Eta, "cluster_FEMC_Eta[cluster_FEMC_N]/F");
+    cluster_tree->Branch("cluster_FEMC_Phi", t_fEMC_cluster_Phi, "cluster_FEMC_Phi[cluster_FEMC_N]/F");
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
@@ -224,35 +223,14 @@ void femc_studiesProcessor::Init() {
   dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-
     m_decoder         = detector.readout("EcalEndcapPHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
-//     iLx = m_decoder->index("towerx");
-//     iLy = m_decoder->index("towery");
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
-//   } catch (...) {
-//     isLFHCal = false;
-//     std::cout <<"1st: "<< m_decoder << std::endl;
-//     try {
-//       m_decoder         = detector.readout("GFHCALHits").idSpec().decoder();
-//       std::cout <<"2nd: "  << m_decoder << std::endl;
-//       auto module_index_x = m_decoder->index("modulex");
-//       auto module_index_y = m_decoder->index("moduley");
-//       iPassive = m_decoder->index("passive");
-//       iLx = m_decoder->index("layerx");
-//       iLy = m_decoder->index("layery");
-//       std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
-//
-//       nameSimHits         = "GFHCALHits";
-//       nameRecHits         = "GFHCALRecHits";
-//       nameClusters        = "GFHCALClusters";
-//       nameProtoClusters   = "GFHCALIslandProtoClusters";
   } catch (...) {
       std::cout <<"2nd: "  << m_decoder << std::endl;
       m_log->error("readoutClass not in the output");
       throw std::runtime_error("readoutClass not in the output.");
   }
-//   }
 
 }
 
@@ -284,8 +262,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     mcphi = atan2(mom.y, mom.x);
     // determine mc momentum
     mcp = sqrt(mom.x * mom.x + mom.y * mom.y + mom.z * mom.z);
-//     std::cout << "MC particle: " << mom.x << " " << mom.y << " " << mom.z << "\ttotmom: " <<
-//     mcp << "\t phi: "<< mcphi << "\t eta:" <<  mceta << std::endl;
+    m_log->trace("MC particle:{} \t {} \t {} \t totmom: {} phi {} eta {}", mom.x, mom.y, mom.z, mcp, mcphi, mceta);
     hMCEnergyVsEta->Fill(mcp,mceta);
 
     if (enableTreeCluster){
@@ -418,7 +395,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       input_tower_recSav.push_back(tempstructT);
     }
   }
-//   cout << "FECAL mod: nCaloHits sim " << nCaloHitsSim << "\t rec " << nCaloHitsRec << endl;
+  m_log->trace("FEMC mod: nCaloHits sim  {}\t rec {}", nCaloHitsSim, nCaloHitsRec);
   if (nCaloHitsRec > 0) nEventsWithCaloHits++;
 
   // ===============================================================================================
@@ -447,7 +424,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     tower.energy = tower.energy/samplingFraction; // calibrate
     tot_energySimHit += tower.energy;
   }
-//   std::cout << "Mc E: " << mcenergy << "\t eta: " << mceta << "\t sim E rec: " << tot_energySimHit << "\t rec E rec: " <<  tot_energyRecHit << std::endl;
+  m_log->trace("Mc E: {} \t eta: {} \t sim E rec: {}\t rec E rec: {}", mcenergy, mceta, tot_energySimHit, tot_energyRecHit);
 
   // ===============================================================================================
   // Fill summed hits histos
@@ -475,7 +452,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       input_tower_rec.pop_back();
       removedCells++;
     }
-//     std::cout << "removed " << removedCells << " with E < "  << minAggE << "GeV" << std::endl;
+    m_log->trace("removed {} with E < {} GeV", removedCells, minAggE);
 
     int nclusters = 0;
     // vector of clusters
@@ -487,7 +464,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       clustersStrct tempstructC;
       // always start with highest energetic tower
       if(input_tower_rec.at(0).energy > seedE){
-//         std::cout<< "seed: " << input_tower_rec.at(0).energy << "\t" << input_tower_rec.at(0).cellIDx <<  "\t" << input_tower_rec.at(0).cellIDy<<  "\t" << input_tower_rec.at(0).cellIDz<< std::endl;
+        m_log->trace("seed: {}\t {} \t {}", input_tower_rec.at(0).energy, input_tower_rec.at(0).cellIDx, input_tower_rec.at(0).cellIDy );
         tempstructC = findMACluster(seedE, minAggE, input_tower_rec, cluster_towers, 0.1);
 
         // determine remaining cluster properties from its towers
@@ -500,18 +477,12 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         tempstructC.cluster_Y = showershape_eta_phi[5];
         tempstructC.cluster_Z = showershape_eta_phi[6];
         tempstructC.cluster_towers = cluster_towers;
-//         std::cout <<  "---------> \t " << nclusters << "\tcluster with E = " << tempstructC.cluster_E << "\tEta: " << tempstructC.cluster_Eta<< "\tPhi: " << tempstructC.cluster_Phi
-//                                 << "\tX: " << tempstructC.cluster_X<< "\tY: " << tempstructC.cluster_Y<< "\tZ: " << tempstructC.cluster_Z<< "\tntowers: " << tempstructC.cluster_NTowers
-//                                 << "\ttrueID: " << tempstructC.cluster_trueID << std::endl;
+        m_log->trace("---------> \t {} \tcluster with E = {} \tEta: {} \tPhi: {} \tX: {} \tY: {} \tZ: {} \tntowers: {} \ttrueID: {}", nclusters, tempstructC.cluster_E, tempstructC.cluster_Eta, tempstructC.cluster_Phi, tempstructC.cluster_X, tempstructC.cluster_Y, tempstructC.cluster_Z, tempstructC.cluster_NTowers, tempstructC.cluster_trueID );
         clusters_calo.push_back(tempstructC);
 
         nclusters++;
       } else {
-//         std::cout<< "remaining: "<< (int)input_tower_rec.size() << " largest:" << input_tower_rec.at(0).energy << "\t" << input_tower_rec.at(0).cellIDx <<  "\t" << input_tower_rec.at(0).cellIDy<<  "\t" << input_tower_rec.at(0).cellIDz<< std::endl;
-//         for (int ait = 0; ait < (int)input_tower_rec.size(); ait++){
-//           std::cout<< input_tower_rec.at(ait).energy << "\t" << input_tower_rec.at(ait).cellIDx <<  "\t" << input_tower_rec.at(ait).cellIDy <<   "\t" << input_tower_rec.at(0).cellIDz << std::endl;
-  //         h_clusterizer_nonagg_towers[caloEnum][clusterizerEnum]->Fill(input_tower_rec.size(),input_tower_rec.at(ait).tower_E);
-//         }
+        m_log->trace("remaining: {} largest: {} \t {}  \t {}  \t {}", (int)input_tower_rec.size(), input_tower_rec.at(0).energy, input_tower_rec.at(0).cellIDx, input_tower_rec.at(0).cellIDy,  input_tower_rec.at(0).cellIDz);
         input_tower_rec.clear();
       }
     }
@@ -520,15 +491,15 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
     std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
-//     std::cout << "-----> found " << clusters_calo.size() << " clusters" << std::endl;
+    m_log->info("-----> found {} clusters" , clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
     for (auto& cluster : clusters_calo) {
       if (iCl < maxNCluster && enableTreeCluster){
-        t_fECal_cluster_E[iCl]       = (float)cluster.cluster_E;
-        t_fECal_cluster_NCells[iCl]  = (int)cluster.cluster_NTowers;
-        t_fECal_cluster_Eta[iCl]     = (float)cluster.cluster_Eta;
-        t_fECal_cluster_Phi[iCl]     = (float)cluster.cluster_Phi;
+        t_fEMC_cluster_E[iCl]       = (float)cluster.cluster_E;
+        t_fEMC_cluster_NCells[iCl]  = (int)cluster.cluster_NTowers;
+        t_fEMC_cluster_Eta[iCl]     = (float)cluster.cluster_Eta;
+        t_fEMC_cluster_Phi[iCl]     = (float)cluster.cluster_Phi;
       }
       hRecClusterEcalib_E_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);
       for (int iCell = 0; iCell < (int)cluster.cluster_towers.size(); iCell++){
@@ -543,14 +514,14 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         hRecClusterNCells_Ehigh_eta->Fill(mcenergy, cluster.cluster_NTowers, mceta);
       }
       iCl++;
-//       std::cout <<"MA cluster " << iCl << ":\t" << cluster.cluster_E << "\t"<< cluster.cluster_NTowers <<std::endl;
+      m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
-    if (iCl < maxNCluster && enableTreeCluster) t_fECal_clusters_N = (int)iCl;
+    if (iCl < maxNCluster && enableTreeCluster) t_fEMC_clusters_N = (int)iCl;
 
     clusters_calo.clear();
   } else {
     hRecNClusters_E_eta->Fill(mcenergy, 0., mceta);
-    if (enableTreeCluster) t_fECal_clusters_N = 0;
+    if (enableTreeCluster) t_fEMC_clusters_N = 0;
   }
 
   // ===============================================================================================
@@ -567,17 +538,14 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       highestEFr  = cluster->getEnergy();
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+    m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
 
-//     std::cout << "Island cluster "<< iClF << ":\t" << cluster->getEnergy()  << "\t"<< cluster->getNhits()  << std::endl;
-//     for (auto& protocluster : fecalProtoClustersF()) {
     for (auto& hit: cluster->getHits()){
-//       for (int iCell = 0;  iCell < (int)cluster->getHits().size(); iCell++){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)
         input_tower_recSav.at(pSav).tower_clusterIDB = iClF;
     }
-//     }
     iClF++;
   }
   hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);
@@ -595,31 +563,30 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // Write clusterizer tree & clean-up variables
   // ===============================================================================================
   if (enableTree){
-    t_fECal_towers_N = (int)input_tower_recSav.size();
+    t_fEMC_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-  //  std::cout << input_tower_recSav.at(iCell).cellIDx << "\t" << input_tower_recSav.at(iCell).cellIDy << "\t" << input_tower_recSav.at(iCell).cellIDz
-  //            << "\t" << input_tower_recSav.at(iCell).energy << "\t" << input_tower_recSav.at(iCell).tower_clusterIDA << "\t" << input_tower_recSav.at(iCell).tower_clusterIDB << std::endl;
+      m_log->trace("{} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
 
-      t_fECal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
-      t_fECal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
-      t_fECal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
-      t_fECal_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
-      t_fECal_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
-      t_fECal_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
-      t_fECal_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
+      t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
+      t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
+      t_fEMC_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
+      t_fEMC_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
+      t_fEMC_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
+      t_fEMC_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
+      t_fEMC_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
     }
 
     event_tree->Fill();
 
-    t_fECal_towers_N = 0;
+    t_fEMC_towers_N = 0;
     for (Int_t itow = 0; itow < maxNTowers; itow++){
-      t_fECal_towers_cellE[itow]       = 0;
-      t_fECal_towers_cellT[itow]       = 0;
-      t_fECal_towers_cellIDx[itow]     = 0;
-      t_fECal_towers_cellIDy[itow]     = 0;
-      t_fECal_towers_clusterIDA[itow]  = 0;
-      t_fECal_towers_clusterIDB[itow]  = 0;
-      t_fECal_towers_cellTrueID[itow]  = 0;
+      t_fEMC_towers_cellE[itow]       = 0;
+      t_fEMC_towers_cellT[itow]       = 0;
+      t_fEMC_towers_cellIDx[itow]     = 0;
+      t_fEMC_towers_cellIDy[itow]     = 0;
+      t_fEMC_towers_clusterIDA[itow]  = 0;
+      t_fEMC_towers_clusterIDB[itow]  = 0;
+      t_fEMC_towers_cellTrueID[itow]  = 0;
     }
   }
 
@@ -630,18 +597,18 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     cluster_tree->Fill();
 
     t_mc_N                = 0;
-    t_fECal_clusters_N   = 0;
-    t_fECal_clusters_N    = 0;
+    t_fEMC_clusters_N   = 0;
+    t_fEMC_clusters_N    = 0;
     for (Int_t iMC = 0; iMC < maxNMC; iMC++){
       t_mc_E[iMC]                   = 0;
       t_mc_Phi[iMC]                 = 0;
       t_mc_Eta[iMC]                 = 0;
     }
     for (Int_t iCl = 0; iCl < maxNCluster; iCl++){
-      t_fECal_cluster_E[iCl]       = 0;
-      t_fECal_cluster_NCells[iCl]  = 0;
-      t_fECal_cluster_Eta[iCl]     = 0;
-      t_fECal_cluster_Phi[iCl]     = 0;
+      t_fEMC_cluster_E[iCl]       = 0;
+      t_fEMC_cluster_NCells[iCl]  = 0;
+      t_fEMC_cluster_Eta[iCl]     = 0;
+      t_fEMC_cluster_Phi[iCl]     = 0;
     }
   }
 
@@ -652,16 +619,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
 // FinishWithGlobalRootLock
 //******************************************************************************************
 void femc_studiesProcessor::Finish() {
-  std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
+  std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();
   // Do any final calculations here.
 }
-
-// //******************************************************************************************
-// // FinishWithGlobalRootLock
-// //******************************************************************************************
-// void femc_studiesProcessor::FinishWithGlobalRootLock() {
-//   std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
-//   if (enableTreeCluster) cluster_tree->Write();
-//   // Do any final calculations here.
-// }

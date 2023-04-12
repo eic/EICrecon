@@ -76,14 +76,14 @@ public:
     bool enableTree       = false;
     TTree* event_tree;
     const int maxNTowers  = 65000;
-    int     t_fECal_towers_N;
-    short*  t_fECal_towers_cellIDx;
-    short*  t_fECal_towers_cellIDy;
-    short*  t_fECal_towers_clusterIDA;
-    short*  t_fECal_towers_clusterIDB;
-    float*  t_fECal_towers_cellE;
-    float*  t_fECal_towers_cellT;
-    int*    t_fECal_towers_cellTrueID;
+    int     t_fEMC_towers_N;
+    short*  t_fEMC_towers_cellIDx;
+    short*  t_fEMC_towers_cellIDy;
+    short*  t_fEMC_towers_clusterIDA;
+    short*  t_fEMC_towers_clusterIDB;
+    float*  t_fEMC_towers_cellE;
+    float*  t_fEMC_towers_cellT;
+    int*    t_fEMC_towers_cellTrueID;
 
     bool enableTreeCluster  = false;
     TTree* cluster_tree;
@@ -93,11 +93,11 @@ public:
     float*  t_mc_E;
     float*  t_mc_Phi;
     float*  t_mc_Eta;
-    int     t_fECal_clusters_N;
-    float*  t_fECal_cluster_E;
-    int*    t_fECal_cluster_NCells;
-    float*  t_fECal_cluster_Phi;
-    float*  t_fECal_cluster_Eta;
+    int     t_fEMC_clusters_N;
+    float*  t_fEMC_cluster_E;
+    int*    t_fEMC_cluster_NCells;
+    float*  t_fEMC_cluster_Phi;
+    float*  t_fEMC_cluster_Eta;
 
     int nEventsWithCaloHits = 0;
     std::shared_ptr<spdlog::logger> m_log;

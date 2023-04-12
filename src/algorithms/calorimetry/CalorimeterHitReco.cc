@@ -154,7 +154,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
         }
 
         const float time = rh->getTimeStamp() / stepTDC;
-//         std::cout << "cellID:" << cellID << "\t energy: " << energy << "\t TDC: " <<rh->getTimeStamp() << "\t time: " << time << std::endl;
+        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh->getTimeStamp(), time);
 //        #pragma GCC diagnostic pop
 
         const int lid =

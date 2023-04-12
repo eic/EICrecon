@@ -27,19 +27,18 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=65536;//2^16
-        m_dyRangeADC=1 * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
-        m_pedMeanADC=20;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=0.8;//{this, "pedestalSigma", 3.2};
-        m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+        m_dyRangeADC=1 * dd4hep::GeV;
+        m_pedMeanADC=20;
+        m_pedSigmaADC=0.8;
+        m_resolutionTDC=10 * dd4hep::picosecond;
 
         // zero suppression values
-        m_thresholdFactor=1.0;//{this, "thresholdFactor", 0.0};
-        m_thresholdValue=3.0;//{this, "thresholdValue", 0.0};
+        m_thresholdFactor=1.0;
+        m_thresholdValue=3.0;
 
         // energy correction with sampling fraction
-        m_sampFrac=0.033;//{this, "samplingFraction", 1.0};
-//         m_sampFracLayer[0]=0.019;
-        m_sampFracLayer[0]=0.037;
+        m_sampFrac=0.033; 
+        m_sampFracLayer[0]=0.019; // 0.037
         for (int i = 1; i < 13; i++) m_sampFracLayer[i]=0.037;
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";

@@ -46,8 +46,6 @@ public:
         m_pedSigmaADC = 0.8;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
-//         u_fields={"rlayerz","layerz"};
-//         u_refs={1, 0};
         u_fields={"layerz"};
         u_refs={0};
         m_geoSvcName = "geoServiceName";
