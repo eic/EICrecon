@@ -142,14 +142,15 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
         m_log->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
         m_log->debug("corresponding mc hit energy {} at index {}", (*mchit)->getEnergy(), (*mchit)->getObjectID().index);
         m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
-
+	m_log->debug("creating cluster/particle association  recID={}, simID={}",((uint64_t)cl&0xFFFFFFFF),mcp.getObjectID().index);
+	
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
 //        clusterassoc->setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
         clusterassoc->setRecID((uint32_t)((uint64_t)cl&0xFFFFFFFF)); // mask lower 32 bits of cluster pointer as unique ID FIXME:
         clusterassoc->setSimID(mcp.getObjectID().index);
         clusterassoc->setWeight(1.0);
-        clusterassoc->setRec(*cl);
+        //clusterassoc->setRec(*cl);
         //clusterassoc.setSim(mcp);
         edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
         m_outputAssociations.push_back(cassoc);

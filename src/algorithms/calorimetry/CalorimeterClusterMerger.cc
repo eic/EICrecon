@@ -62,7 +62,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         ca->setRecID(new_clus->getObjectID().index);
         ca->setSimID(mcID);
         ca->setWeight(1.0);
-        ca->setRec(*new_clus);
+        //ca->setRec(*new_clus);
         edm4eic::MCRecoClusterParticleAssociation* toadd = new edm4eic::MCRecoClusterParticleAssociation(*ca);
         delete ca;
         assoc2.push_back(toadd);
@@ -97,7 +97,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setSimID(mcID);
         ca->setWeight(1.0);
-        ca->setRec(edm4eic::Cluster(new_clus));
+        //ca->setRec(edm4eic::Cluster(new_clus));
         edm4eic::MCRecoClusterParticleAssociation* toadd = new edm4eic::MCRecoClusterParticleAssociation(*ca);
         assoc2.push_back(toadd);
       }
