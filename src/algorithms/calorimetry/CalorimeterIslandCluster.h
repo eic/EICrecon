@@ -21,8 +21,6 @@
 #include <edm4eic/MutableProtoCluster.h>
 #include <spdlog/spdlog.h>
 
-#include "DDRec/CellIDPositionConverter.h"
-
 using CaloHit = edm4eic::CalorimeterHit;
 
 static double Phi_mpi_pi(double phi) {

@@ -135,15 +135,15 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
       float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
       tw += w;
       v = v + (hit.getPosition() * w);
-      timeWeighted = timeWeighted+ (hit.getTime()*w);
-      timeErrorWeighted = timeErrorWeighted+ (hit.getTimeError()*w);
+      timeWeighted = timeWeighted + hit.getTime() * w;
+      timeErrorWeighted = timeErrorWeighted + hit.getTimeError() * w;
     }
 
     if (tw == 0.) {
       m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
     }
     cl.setPosition(v / tw);
-    cl.setTime(time/tw);
+    cl.setTime(time / tw);
     cl.setTimeError(timeError / tw);
 
     cl.setPositionError({}); // @TODO: Covariance matrix

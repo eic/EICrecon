@@ -17,8 +17,6 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
-#include "DDRec/CellIDPositionConverter.h"
-
 using namespace dd4hep;
 
 //
