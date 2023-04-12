@@ -116,7 +116,6 @@ set(EICRECON_VERBOSE_CMAKE OFF)
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
-include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
@@ -133,14 +132,6 @@ add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
-
-
-
-# Print what we had built
-print_header("CMake processed subdirectories:")
-print_subdirectory_tree()
-message(STATUS "\n-------------------------------")
-
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
