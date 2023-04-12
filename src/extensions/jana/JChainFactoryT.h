@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/datamodel_glue.h>
+#include <services/io/podio/JFactoryPodioTFixed.h>
 #include "extensions/string/StringHelpers.h"
 
 
@@ -23,8 +24,8 @@
 struct NoConfig {
 };
 
-template <typename OutT, typename ConfigT = NoConfig>
-class JChainFactoryT : public JFactoryT<OutT> {
+template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = JFactoryPodioTFixed>
+class JChainFactoryT : public BaseT<OutT> {
 public:
 
     using OutputType = OutT;
