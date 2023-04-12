@@ -44,8 +44,8 @@ public:
         m_pedSigmaADC = 2.0;
         m_resolutionTDC = 1.0 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
-        u_fields={"tile"};
-        u_refs={0};
+        u_fields={};
+        u_refs={};
         m_geoSvcName = "geoServiceName";
         m_readout = "HcalBarrelHits";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
