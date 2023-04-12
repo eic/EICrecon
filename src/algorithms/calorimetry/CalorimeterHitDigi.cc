@@ -256,7 +256,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit->getCellID());
+        if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_capTime, tdc);
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 mid,
                 (adc > m_capADC ? m_capADC : adc),
