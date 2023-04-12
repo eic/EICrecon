@@ -120,9 +120,6 @@ include(cmake/jana_plugin.cmake)                            # Add common setting
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 
-# ------------------------------------------------------------------
-print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
-# ------------------------------------------------------------------
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
