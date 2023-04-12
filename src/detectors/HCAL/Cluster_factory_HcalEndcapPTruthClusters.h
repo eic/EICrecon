@@ -21,6 +21,12 @@ public:
     Association_factory_HcalEndcapPTruthClusterAssociations(){
         SetTag("HcalEndcapPTruthClusterAssociations");
     }
+
+    // advice from N. Brei to make sure the truth clusters have been created when this factory is invoked
+  void Process(const std::shared_ptr<const JEvent> &event) override {
+    event->Get<edm4eic::Cluster>("HcalEndcapPTruthClusters");
+  }
+  
 };
 
 class Cluster_factory_HcalEndcapPTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {

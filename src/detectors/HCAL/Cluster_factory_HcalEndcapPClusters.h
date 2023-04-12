@@ -11,17 +11,20 @@
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
-
-
 // Dummy factory for JFactoryGeneratorT
 class Association_factory_HcalEndcapPClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
-    //------------------------------------------
-    // Constructor
-    Association_factory_HcalEndcapPClusterAssociations(){
-        SetTag("HcalEndcapPClusterAssociations");
-    }
+  //------------------------------------------
+  // Constructor
+  Association_factory_HcalEndcapPClusterAssociations(){
+    SetTag("HcalEndcapPClusterAssociations");
+  }
+
+  // advice from N. Brei to make sure the clusters have been created when this factory is invoked
+  void Process(const std::shared_ptr<const JEvent> &event) override {
+    event->Get<edm4eic::Cluster>("HcalEndcapPClusters");
+  }
 };
 
 

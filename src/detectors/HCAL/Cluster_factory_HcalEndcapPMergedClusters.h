@@ -23,6 +23,11 @@ public:
     Association_factory_HcalEndcapPMergedClusterAssociations(){
         SetTag("HcalEndcapPMergedClusterAssociations");
     }
+
+    void Process(const std::shared_ptr<const JEvent> &event) override {
+      event->Get<edm4eic::Cluster>("HcalEndcapPMergedClusters");
+    }
+
 };
 
 
