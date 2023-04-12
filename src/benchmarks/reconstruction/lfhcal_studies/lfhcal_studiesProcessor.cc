@@ -498,7 +498,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   }
 
   double samplingFractionFe = 0.037;
-  double samplingFractionW  = 0.019; 
+  double samplingFractionW  = 0.019;
   int minCellIDzDiffSamp    = 5;
   // sim hits
   double tot_energySimHit = 0;
@@ -684,7 +684,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         iECl++;
       }
     } catch (...){
-      std::cout << "ECal clusters not in output" << std::endl; 
+      std::cout << "ECal clusters not in output" << std::endl;
       enableECalCluster = false;
     }
   }
@@ -695,7 +695,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     t_lFHCal_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
       m_log->trace("{} \t {} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy, input_tower_recSav.at(iCell).cellIDz , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
-      
+
       t_lFHCal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_lFHCal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
       t_lFHCal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;

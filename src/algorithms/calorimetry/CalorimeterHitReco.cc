@@ -155,7 +155,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
 
         const float time = rh->getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh->getTimeStamp(), time);
-        
+
         const int lid =
                 id_dec != nullptr && !m_layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
         const int sid =

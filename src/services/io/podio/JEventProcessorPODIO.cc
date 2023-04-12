@@ -166,7 +166,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
             "HcalEndcapPInsertClusters",
-            "LFHCALRawHits",   
+            "LFHCALRawHits",
             "LFHCALRecHits",
             "LFHCALClusters",
             "HcalBarrelRawHits",

@@ -25,6 +25,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>());
-              
+
     }
 }

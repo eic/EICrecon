@@ -22,6 +22,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalBarrelClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalBarrelTruthClusters>());              
+        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalBarrelTruthClusters>());
     }
 }

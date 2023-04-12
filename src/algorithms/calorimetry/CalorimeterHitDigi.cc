@@ -171,7 +171,7 @@ void CalorimeterHitDigi::single_hits_digi(){
         if (time > m_capTime) continue;
 
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
-        
+
         if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit->getCellID());
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 ahit->getCellID(),
