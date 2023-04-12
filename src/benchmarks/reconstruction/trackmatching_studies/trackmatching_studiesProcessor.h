@@ -56,6 +56,24 @@ public:
 
     TH2D* hMCEnergyVsEta;
 
+    TH2D* hFEMC_dEta_dPhi;
+    TH2D* hEEMC_dEta_dPhi;
+    TH2D* hBEMC_dEta_dPhi;
+    TH2D* hLFHCAL_dEta_dPhi;
+    TH2D* hOHCAL_dEta_dPhi;
+    TH2D* hEHCAL_dEta_dPhi;
+
+    TH1D* hECalib_FEMC_matched;
+    TH1D* hECalib_EEMC_matched;
+    TH1D* hECalib_BEMC_matched;
+    TH1D* hECalib_LFHCAL_matched;
+    TH1D* hECalib_OHCAL_matched;
+    TH1D* hECalib_EHCAL_matched;
+
+    TH1D* hECalib_forward_matched;
+    TH1D* hECalib_barrel_matched;
+    TH1D* hECalib_backwards_matched;
+
     int nEventsWithCaloHits = 0;
     std::shared_ptr<spdlog::logger> m_log;
     // Acts::GeometryContext geoContext;
@@ -68,6 +86,8 @@ public:
     std::shared_ptr<Acts::DiscSurface> m_FEMC_prop_surface;
     std::shared_ptr<Acts::DiscSurface> m_EEMC_prop_surface;
     std::shared_ptr<Acts::CylinderSurface> m_BEMC_prop_surface;
+    std::shared_ptr<Acts::CylinderSurface> m_OHCAL_prop_surface;
+    std::shared_ptr<Acts::DiscSurface> m_EHCAL_prop_surface;
     
 
     std::string nameSimHits         = "LFHCALHits";

@@ -31,7 +31,7 @@
 #include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 
-#include "clusterizer_MA.h"
+// #include "clusterizer_MA.h"
 // #include <extensions/spdlog/SpdlogMixin.h>
 
 // The following just makes this a JANA plugin
@@ -84,6 +84,51 @@ void trackmatching_studiesProcessor::Init() {
   hMCEnergyVsEta = new TH2D("hMCEnergyVsEta", "; E (GeV); #eta", 1500, 0., 150., 500, 0, 5);
   hMCEnergyVsEta->SetDirectory(m_dir_main);
 
+  hFEMC_dEta_dPhi =
+      new TH2D("hFEMC_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hFEMC_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hEEMC_dEta_dPhi =
+      new TH2D("hEEMC_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hEEMC_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hEHCAL_dEta_dPhi =
+      new TH2D("hEHCAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hEHCAL_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hLFHCAL_dEta_dPhi =
+      new TH2D("hLFHCAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hLFHCAL_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hBEMC_dEta_dPhi =
+      new TH2D("hBEMC_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hBEMC_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hOHCAL_dEta_dPhi =
+      new TH2D("hOHCAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hOHCAL_dEta_dPhi->SetDirectory(m_dir_main);
+
+  hECalib_FEMC_matched = new TH1D("hECalib_FEMC_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_FEMC_matched->SetDirectory(m_dir_main);
+  hECalib_EEMC_matched = new TH1D("hECalib_EEMC_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_EEMC_matched->SetDirectory(m_dir_main);
+  hECalib_BEMC_matched = new TH1D("hECalib_BEMC_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_BEMC_matched->SetDirectory(m_dir_main);
+  hECalib_LFHCAL_matched = new TH1D("hECalib_LFHCAL_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_LFHCAL_matched->SetDirectory(m_dir_main);
+  hECalib_OHCAL_matched = new TH1D("hECalib_OHCAL_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_OHCAL_matched->SetDirectory(m_dir_main);
+  hECalib_EHCAL_matched = new TH1D("hECalib_EHCAL_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_EHCAL_matched->SetDirectory(m_dir_main);
+
+  hECalib_forward_matched = new TH1D("hECalib_forward_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_forward_matched->SetDirectory(m_dir_main);
+  hECalib_barrel_matched = new TH1D("hECalib_barrel_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_barrel_matched->SetDirectory(m_dir_main);
+  hECalib_backwards_matched =
+      new TH1D("hECalib_backwards_matched", "; E_{rec}/E_{true}", 100, 0., 2.);
+  hECalib_backwards_matched->SetDirectory(m_dir_main);
+
   std::cout << "trackmatching_studiesProcessor::Init() done" << std::endl;
 
   auto transform = Acts::Transform3::Identity();
@@ -113,12 +158,26 @@ void trackmatching_studiesProcessor::Init() {
   m_EEMC_prop_surface  = Acts::Surface::makeShared<Acts::DiscSurface>(EEMC_Trf, EEMC_Bounds);
 
   // Create propagation surface for BEMC
-  const auto BEMC_R = 785.0;
-  +50;                            // 78.5 cm to 140 cm
-  const auto BEMC_halfz = 3300.0; // -330 to 195 cm
+  const auto BEMC_R     = 785.0 + 50; // 78.5 cm to 140 cm
+  const auto BEMC_halfz = 3300.0;     // -330 to 195 cm
   auto BEMC_Trf         = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
   m_BEMC_prop_surface =
       Acts::Surface::makeShared<Acts::CylinderSurface>(BEMC_Trf, BEMC_R, BEMC_halfz);
+
+  // Create propagation surface for OHCAL
+  const auto OHCAL_R     = 1770.0 + 300; // 177 or 190 to 270 cm
+  const auto OHCAL_halfz = 6390.0;       //
+  auto OHCAL_Trf         = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
+  m_OHCAL_prop_surface =
+      Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R, OHCAL_halfz);
+
+  // Create propagation surface for EHCAL
+  const auto EHCAL_Z    = -3300;   //
+  const auto EHCAL_MinR = 0.0;     // 19.9431 cm
+  const auto EHCAL_MaxR = 2514.44; // 251.444 cm
+  auto EHCAL_Bounds     = std::make_shared<Acts::RadialBounds>(EHCAL_MinR, EHCAL_MaxR);
+  auto EHCAL_Trf        = transform * Acts::Translation3(Acts::Vector3(0, 0, EHCAL_Z));
+  m_EHCAL_prop_surface  = Acts::Surface::makeShared<Acts::DiscSurface>(EHCAL_Trf, EHCAL_Bounds);
 }
 
 //******************************************************************************************
@@ -171,7 +230,8 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
     }
 
     // projection to LFHCAL surface
-    {
+    float highMatchedE_LFHCAL = 0;
+    if(mceta > 1) {
       edm4eic::TrackPoint* projection_point_LFHCAL = nullptr;
       try {
         // >>> try to propagate to surface <<<
@@ -189,35 +249,32 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         auto proj_pos    = projection_point_LFHCAL->position;
         auto proj_length = projection_point_LFHCAL->pathlength;
         auto proj_mom    = projection_point_LFHCAL->momentum;
-        TVector3 proj_mom_vec(proj_mom.x, proj_mom.y, proj_mom.z);
-        if (verbose)
-          cout << "\tLFHCAL_projection pos: " << proj_pos.x << " " << proj_pos.y << " "
-               << proj_pos.z << " " << proj_length << endl;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
 
         // loop over LFHCAL clusters
-        int iClF         = 0;
-        float highestEFr = 0;
-        int iClFHigh     = 0;
+        int iClF     = 0;
+        int iClFHigh = 0;
 
         auto lfhcalClustersF = event->Get<edm4eic::Cluster>(nameClusters.data());
         for (auto& cluster : lfhcalClustersF) {
-          if (cluster->getEnergy() > highestEFr) {
-            iClFHigh   = iClF;
-            highestEFr = cluster->getEnergy();
-          }
-          // hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2    = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   std::log(std::tan(std::sqrt(clus_position.x * clus_position.x +
+          //                                               clus_position.y * clus_position.y) /
+          //                                     abs(clus_position.z) / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hLFHCAL_dEta_dPhi->Fill(dEta, dPhi);
 
-          //     std::cout << "Island cluster "<< iClF << ":\t" << cluster->getEnergy()  << "\t"<<
-          //     cluster->getNhits()  << std::endl; for (auto& protocluster :
-          //     lfhcalProtoClustersF()) { for (auto& hit: cluster->getHits()){
-          // //       for (int iCell = 0;  iCell < (int)cluster->getHits().size(); iCell++){
-          //       int pSav = 0;
-          //       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav <
-          //       (int)input_tower_recSav.size() ) pSav++; if (hit.getCellID() ==
-          //       input_tower_recSav.at(pSav).cellID)
-          //         input_tower_recSav.at(pSav).tower_clusterIDB = iClF;
-          //     }
-          //     }
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_LFHCAL_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_LFHCAL) {
+              highMatchedE_LFHCAL = cluster->getEnergy();
+            }
+          }
+
           iClF++;
         }
         cout << "LFHCAL clusters: " << iClF << endl;
@@ -225,7 +282,8 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
     }
 
     // projection to FEMC surface
-    {
+    float highMatchedE_FEMC = 0;
+    if(mceta > 1) {
       edm4eic::TrackPoint* projection_point_FEMC = nullptr;
       try {
         // >>> try to propagate to surface <<<
@@ -243,40 +301,39 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         auto proj_pos    = projection_point_FEMC->position;
         auto proj_length = projection_point_FEMC->pathlength;
         auto proj_mom    = projection_point_FEMC->momentum;
-        TVector3 proj_mom_vec(proj_mom.x, proj_mom.y, proj_mom.z);
-        if (verbose)
-          cout << "\tFEMC_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z
-               << " " << proj_length << endl;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
 
         // loop over FEMC clusters
-        int iECl           = 0;
-        float highestEEmCl = 0;
-        int iEClHigh       = 0;
+        int iECl     = 0;
+        int iEClHigh = 0;
 
         auto FEMC_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapPClusters");
-        //   cout << "FEMC_Clusters: " << FEMC_Clusters.size() << endl;
         for (auto& cluster : FEMC_Clusters) {
-          // if (iECl < maxNCluster && enableTreeCluster){
-          //     t_fECal_cluster_E[iECl]       = (float)cluster->getEnergy();
-          //     t_fECal_cluster_NCells[iECl]  = (int)cluster->getNhits();
-          //     t_fECal_cluster_Eta[iECl]     = (-1.) *
-          //     std::log(std::atan((float)cluster->getIntrinsicTheta() / 2.));
-          //     t_fECal_cluster_Phi[iECl] = (float)cluster->getIntrinsicPhi();
-          // }
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2 = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   std::log(std::tan(std::sqrt(clus_position.x * clus_position.x +
+          //                                               clus_position.y * clus_position.y) /
+          //                                     abs(clus_position.z) / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hFEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (cluster->getEnergy() > highestEEmCl) {
-            iEClHigh     = iECl;
-            highestEEmCl = cluster->getEnergy();
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_FEMC_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_FEMC) {
+              highMatchedE_FEMC = cluster->getEnergy();
+            }
           }
-          // hRecFEmClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
           iECl++;
         }
-        // hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
         cout << "FEMC clusters: " << iECl << endl;
       }
     }
     // projection to EEMC surface
-    {
+    float highMatchedE_EEMC = 0;
+    if(mceta < 1) {
       edm4eic::TrackPoint* projection_point_EEMC = nullptr;
       try {
         // >>> try to propagate to surface <<<
@@ -294,41 +351,38 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         auto proj_pos    = projection_point_EEMC->position;
         auto proj_length = projection_point_EEMC->pathlength;
         auto proj_mom    = projection_point_EEMC->momentum;
-        TVector3 proj_mom_vec(proj_mom.x, proj_mom.y, proj_mom.z);
-        if (verbose)
-          cout << "\tEEMC_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z
-               << " " << proj_length << endl;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
 
-        // loop over EEMC clusters
-        int iECl           = 0;
-        float highestEEmCl = 0;
-        int iEClHigh       = 0;
+        int iECl = 0;
 
         auto EEMC_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapNClusters");
-        //   cout << "EEMC_Clusters: " << EEMC_Clusters.size() << endl;
         for (auto& cluster : EEMC_Clusters) {
-          // if (iECl < maxNCluster && enableTreeCluster){
-          //     t_fECal_cluster_E[iECl]       = (float)cluster->getEnergy();
-          //     t_fECal_cluster_NCells[iECl]  = (int)cluster->getNhits();
-          //     t_fECal_cluster_Eta[iECl]     = (-1.) *
-          //     std::log(std::atan((float)cluster->getIntrinsicTheta() / 2.));
-          //     t_fECal_cluster_Phi[iECl] = (float)cluster->getIntrinsicPhi();
-          // }
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2    = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   std::log(std::tan(std::sqrt(clus_position.x * clus_position.x +
+          //                                               clus_position.y * clus_position.y) /
+          //                                     abs(clus_position.z) / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hEEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (cluster->getEnergy() > highestEEmCl) {
-            iEClHigh     = iECl;
-            highestEEmCl = cluster->getEnergy();
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_EEMC_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_EEMC) {
+              highMatchedE_EEMC = cluster->getEnergy();
+            }
           }
-          // hRecEEMClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
           iECl++;
         }
-        // hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
         cout << "EEMC clusters: " << iECl << endl;
       }
     }
 
     // projection to BEMC surface
-    {
+    float highMatchedE_BEMC = 0;
+    if(abs(mceta) < 1.5) {
       edm4eic::TrackPoint* projection_point_BEMC = nullptr;
       try {
         // >>> try to propagate to surface <<<
@@ -346,30 +400,32 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         auto proj_pos    = projection_point_BEMC->position;
         auto proj_length = projection_point_BEMC->pathlength;
         auto proj_mom    = projection_point_BEMC->momentum;
-        TVector3 proj_mom_vec(proj_mom.x, proj_mom.y, proj_mom.z);
-        if (verbose)
-          cout << "\tBEMC_projection pos: " << proj_pos.x << " " << proj_pos.y << " " << proj_pos.z
-               << " " << proj_length << endl;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
 
         // loop over BEMC clusters
-        int iECl           = 0;
-        float highestBEMCl = 0;
-        int iEClHigh       = 0;
+        int iECl = 0;
 
         auto BEMC_Clusters = event->Get<edm4eic::Cluster>("EcalBarrelSciGlassClusters");
-        //   cout << "BEMC_Clusters: " << BEMC_Clusters.size() << endl;
         for (auto& cluster : BEMC_Clusters) {
-          // if (iECl < maxNCluster && enableTreeCluster){
-          //     t_fECal_cluster_E[iECl]       = (float)cluster->getEnergy();
-          //     t_fECal_cluster_NCells[iECl]  = (int)cluster->getNhits();
-          //     t_fECal_cluster_Eta[iECl]     = (-1.) *
-          //     std::log(std::atan((float)cluster->getIntrinsicTheta() / 2.));
-          //     t_fECal_cluster_Phi[iECl] = (float)cluster->getIntrinsicPhi();
-          // }
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2    = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   TMath::Log(TMath::Tan(TMath::ATan2(TMath::Sqrt(clus_position.x *
+          //                   clus_position.x +
+          //                                               clus_position.y *
+          //                                               clus_position.y),abs(clus_position.z))
+          //                                               / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          // std::cout << "BEMC clus eta: " << clus_eta << " vs " << clus_eta2 << std::endl;
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hBEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (cluster->getEnergy() > highestBEMCl) {
-            iEClHigh     = iECl;
-            highestBEMCl = cluster->getEnergy();
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_BEMC_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_BEMC) {
+              highMatchedE_BEMC = cluster->getEnergy();
+            }
           }
           // hRecBEMClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
           iECl++;
@@ -378,8 +434,127 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         cout << "BEMC clusters: " << iECl << endl;
       }
     }
-  }
-}
+
+    // projection to OHCAL surface
+    float highMatchedE_OHCAL = 0;
+    if(abs(mceta) < 1.5) {
+      edm4eic::TrackPoint* projection_point_OHCAL = nullptr;
+      try {
+        // >>> try to propagate to surface <<<
+        projection_point_OHCAL = m_propagation_algo.propagate(traj, m_OHCAL_prop_surface);
+      } catch (std::exception& e) {
+        m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+      }
+
+      if (!projection_point_OHCAL) {
+        m_log->trace("   could not propagate to OHCAL!");
+        if (verbose)
+          cout << "   could not propagate to OHCAL!" << endl;
+      } else {
+
+        auto proj_pos    = projection_point_OHCAL->position;
+        auto proj_length = projection_point_OHCAL->pathlength;
+        auto proj_mom    = projection_point_OHCAL->momentum;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
+
+        // loop over OHCAL clusters
+        int iECl            = 0;
+        auto OHCAL_Clusters = event->Get<edm4eic::Cluster>("HcalBarrelClusters");
+        for (auto& cluster : OHCAL_Clusters) {
+
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2    = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   TMath::Log(TMath::Tan(TMath::ATan2(TMath::Sqrt(clus_position.x *
+          //                   clus_position.x +
+          //                                               clus_position.y *
+          //                                               clus_position.y),abs(clus_position.z))
+          //                                               / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          // std::cout << "OHCAL clus eta: " << clus_eta << " vs " << clus_eta2 << std::endl;
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hOHCAL_dEta_dPhi->Fill(dEta, dPhi);
+
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_OHCAL_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_OHCAL) {
+              highMatchedE_OHCAL = cluster->getEnergy();
+            }
+          }
+          // hRecOHCALlusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+          iECl++;
+        }
+        // hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
+        cout << "OHCAL clusters: " << iECl << endl;
+      }
+    }
+
+    float highMatchedE_EHCAL = 0;
+    // projection to EHCAL surface
+    if(abs(mceta) < 1.){
+      edm4eic::TrackPoint* projection_point_EHCAL = nullptr;
+      try {
+        // >>> try to propagate to surface <<<
+        projection_point_EHCAL = m_propagation_algo.propagate(traj, m_EHCAL_prop_surface);
+      } catch (std::exception& e) {
+        m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+      }
+
+      if (!projection_point_EHCAL) {
+        m_log->trace("   could not propagate to EHCAL!");
+        if (verbose)
+          cout << "   could not propagate to EHCAL!" << endl;
+      } else {
+
+        auto proj_pos    = projection_point_EHCAL->position;
+        auto proj_length = projection_point_EHCAL->pathlength;
+        auto proj_mom    = projection_point_EHCAL->momentum;
+        TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
+
+        // loop over EHCAL clusters
+        int iECl = 0;
+
+        auto EHCAL_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapNClusters");
+        for (auto& cluster : EHCAL_Clusters) {
+          // auto clus_position = cluster->getPosition();
+          // float clus_eta2    = (clus_position.z < 0 ? 1.0 : -1.) *
+          //                   TMath::Log(TMath::Tan(TMath::ATan2(TMath::Sqrt(clus_position.x *
+          //                   clus_position.x +
+          //                                               clus_position.y *
+          //                                               clus_position.y),abs(clus_position.z))
+          //                                               / 2.));
+          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+          // std::cout << "EHCAL clus eta: " << clus_eta << " vs " << clus_eta2 << std::endl;
+          float clus_phi = (float)cluster->getIntrinsicPhi();
+          float dEta     = proj_pos_vec.Eta() - clus_eta;
+          float dPhi     = proj_pos_vec.Phi() - clus_phi;
+          hEHCAL_dEta_dPhi->Fill(dEta, dPhi);
+
+          if (dEta < 0.1 && dPhi < 0.1) {
+            hECalib_EHCAL_matched->Fill(cluster->getEnergy() / mcenergy);
+            if (cluster->getEnergy() > highMatchedE_EHCAL) {
+              highMatchedE_EHCAL = cluster->getEnergy();
+            }
+          }
+          // hRecEHCALlusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+          iECl++;
+        } // end loop over EHCAL clusters
+        cout << "EHCAL clusters: " << iECl << endl;
+      } // end if projection to EHCAL surface
+    }   // end projection to EHCAL surface
+
+    if (highMatchedE_OHCAL > 0 && highMatchedE_BEMC > 0) {
+      hECalib_barrel_matched->Fill((highMatchedE_OHCAL + highMatchedE_BEMC) / mcenergy);
+    }
+    if (highMatchedE_EEMC > 0 && highMatchedE_EHCAL > 0) {
+      hECalib_backwards_matched->Fill((highMatchedE_EEMC + highMatchedE_EHCAL) / mcenergy);
+    }
+    if (highMatchedE_FEMC > 0 && highMatchedE_LFHCAL > 0) {
+      hECalib_forward_matched->Fill((highMatchedE_FEMC + highMatchedE_LFHCAL) / mcenergy);
+    }
+  } // end loop over tracks
+} // end process
 
 //******************************************************************************************
 // Finish
