@@ -1,3 +1,10 @@
+// Copyright 2023, Friederike Bock
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+//  Sections Copyright (C) 2023 Friederike Bock
+//  under SPDX-License-Identifier: LGPL-3.0-or-later
+
+
 #include "lfhcal_studiesProcessor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "edm4eic/vector_utils.h"

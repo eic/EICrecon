@@ -39,9 +39,9 @@
 #include <algorithms/tracking/TrackPropagation.h>
 #include <spdlog/spdlog.h>
 
-class fecal_studiesProcessor: public JEventProcessor {
+class femc_studiesProcessor: public JEventProcessor {
 public:
-    fecal_studiesProcessor() { SetTypeName(NAME_OF_THIS); }
+    femc_studiesProcessor() { SetTypeName(NAME_OF_THIS); }
 
     void Init() override;
 //     void InitWithGlobalRootLock() override;

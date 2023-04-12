@@ -1,3 +1,9 @@
+// Copyright 2023, Friederike Bock
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+//  Sections Copyright (C) 2023 Friederike Bock
+//  under SPDX-License-Identifier: LGPL-3.0-or-later
+
 struct towersStrct{
   towersStrct(): energy(0), time (0), posx(0), posy(0), posz(0),  cellID(0), cellIDx(-1), cellIDy(-1), cellIDz(-1), tower_trueID(-10000), tower_clusterIDA(-1), tower_clusterIDB(-1) {}
   float energy;

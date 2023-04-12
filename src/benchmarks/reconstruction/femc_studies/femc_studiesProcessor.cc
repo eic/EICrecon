@@ -1,4 +1,10 @@
-#include "fecal_studiesProcessor.h"
+// Copyright 2023, Friederike Bock
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+//  Sections Copyright (C) 2023 Friederike Bock
+//  under SPDX-License-Identifier: LGPL-3.0-or-later
+
+#include "femc_studiesProcessor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "edm4eic/vector_utils.h"
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
@@ -38,7 +44,7 @@
 extern "C" {
   void InitPlugin(JApplication* app) {
     InitJANAPlugin(app);
-    app->Add(new fecal_studiesProcessor());
+    app->Add(new femc_studiesProcessor());
   }
 }
 
@@ -46,9 +52,9 @@ extern "C" {
 //******************************************************************************************
 // InitWithGlobalRootLock
 //******************************************************************************************
-void fecal_studiesProcessor::Init() {
-// void fecal_studiesProcessor::InitWithGlobalRootLock() {
-  std::string plugin_name = ("fecal_studies");
+void femc_studiesProcessor::Init() {
+// void femc_studiesProcessor::InitWithGlobalRootLock() {
+  std::string plugin_name = ("femc_studies");
 
   // InitLogger(plugin_name);
   // ===============================================================================================
@@ -253,8 +259,8 @@ void fecal_studiesProcessor::Init() {
 //******************************************************************************************
 // ProcessSequential
 //******************************************************************************************
-void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
-// void fecal_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
+// void femc_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
   using namespace std;
 
   // ===============================================================================================
@@ -645,7 +651,7 @@ void fecal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event)
 //******************************************************************************************
 // FinishWithGlobalRootLock
 //******************************************************************************************
-void fecal_studiesProcessor::Finish() {
+void femc_studiesProcessor::Finish() {
   std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();
   // Do any final calculations here.
@@ -654,7 +660,7 @@ void fecal_studiesProcessor::Finish() {
 // //******************************************************************************************
 // // FinishWithGlobalRootLock
 // //******************************************************************************************
-// void fecal_studiesProcessor::FinishWithGlobalRootLock() {
+// void femc_studiesProcessor::FinishWithGlobalRootLock() {
 //   std::cout << "------> " << nEventsWithCaloHits << " with calo info present"<< std::endl;
 //   if (enableTreeCluster) cluster_tree->Write();
 //   // Do any final calculations here.
