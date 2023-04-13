@@ -81,10 +81,10 @@ namespace eicrecon {
 	m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
       m_seedFinderConfig.maxScatteringAngle2 =
 	maxScatteringAngle * maxScatteringAngle;
-      // helix radius in homogeneous magnetic field. Units are Kilotesla, MeV and
-      // millimeter
-      m_seedFinderConfig.pTPerHelixRadius =
-	300. * m_seedFinderConfig.bFieldInZ;
+
+      // Helix radius in homogeneous magnetic field
+      // in ACTS Units are GeV, mm, and GeV/(e*mm)
+      m_seedFinderConfig.pTPerHelixRadius = m_seedFinderConfig.bFieldInZ;
       m_seedFinderConfig.minHelixDiameter2 =
 	std::pow(m_seedFinderConfig.minPt * 2 /
 		 m_seedFinderConfig.pTPerHelixRadius,
