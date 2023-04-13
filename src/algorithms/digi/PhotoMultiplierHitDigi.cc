@@ -79,7 +79,7 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        for(auto &ahit : sim_hits) {
+        for(const auto& ahit : sim_hits) {
             auto edep_eV = ahit->getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = ahit->getCellID();
             m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
