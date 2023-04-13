@@ -25,7 +25,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   InitLogger(param_prefix, "info");
 
   // get readout info (if a RICH)
-  if(plugin_name.find("RICH") != std::string::npos) {
+  if(plugin_name=="DRICH" || plugin_name=="PFRICH") {
     auto richGeoSvc = app->GetService<RichGeo_service>();
     m_readoutGeo    = richGeoSvc->GetReadoutGeo(plugin_name);
   }
