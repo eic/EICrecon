@@ -1,7 +1,5 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #pragma once
 
@@ -30,6 +28,9 @@ class RichGeo_service : public JService {
     RichGeo_service(JApplication *app) : m_app(app) {}
     virtual ~RichGeo_service();
 
+    // return pointer to the main DD4hep Detector
+    dd4hep::Detector *GetDD4hepGeo() { return m_dd4hepGeo; };
+
     // return pointers to geometry bindings; initializes the bindings upon the first time called
     virtual richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
     virtual richgeo::ActsGeo *GetActsGeo(std::string detector_name);
@@ -46,5 +47,4 @@ class RichGeo_service : public JService {
     richgeo::ActsGeo *m_actsGeo   = nullptr;
 
     std::shared_ptr<spdlog::logger> m_log;
-    bool m_verbose;
 };

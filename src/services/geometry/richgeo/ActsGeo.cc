@@ -1,10 +1,38 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "ActsGeo.h"
 
+// constructor
+richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
+  : m_detName(detName_), m_det(det_), m_log(log_)
+{
+  // capitalize m_detName
+  std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
+
+  // set `WithinRadiator`
+  if(m_detName=="DRICH") {
+    auto zmax             = m_det->constant<double>("DRICH_zmax")  / dd4hep::mm;
+    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos")      / dd4hep::mm;
+    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness") / dd4hep::mm;
+    WithinRadiator[richgeo::kAerogel] = [this,aerogelZpos,aerogelThickness] (double x, double y, double z) {
+      auto zmin = aerogelZpos - aerogelThickness/2.0;
+      auto zmax = aerogelZpos + aerogelThickness/2.0;
+      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
+      return z >= zmin && z <= zmax;
+    };
+    WithinRadiator[richgeo::kGas] = [this,aerogelZpos,aerogelThickness,zmax] (double x, double y, double z) {
+      auto zmin = aerogelZpos + aerogelThickness/2.0;
+      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
+      return z >= zmin && z <= zmax;
+    };
+  }
+  else if(m_detName=="PFRICH") {
+    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
+  }
+}
+
+// generate list ACTS disc surfaces, for a given radiator
 std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
 
   // output list of surfaces
@@ -14,21 +42,21 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
   if(m_detName=="DRICH") {
 
     // vessel constants
-    auto zmin  = m_det->constant<double>("DRICH_zmin");
-    auto zmax  = m_det->constant<double>("DRICH_zmax");
-    auto rmin0 = m_det->constant<double>("DRICH_rmin0");
-    auto rmin1 = m_det->constant<double>("DRICH_rmin1");
-    auto rmax0 = m_det->constant<double>("DRICH_rmax0");
-    auto rmax1 = m_det->constant<double>("DRICH_rmax1");
-    auto rmax2 = m_det->constant<double>("DRICH_rmax2");
+    auto zmin  = m_det->constant<double>("DRICH_zmin")  / dd4hep::mm;
+    auto zmax  = m_det->constant<double>("DRICH_zmax")  / dd4hep::mm;
+    auto rmin0 = m_det->constant<double>("DRICH_rmin0") / dd4hep::mm;
+    auto rmin1 = m_det->constant<double>("DRICH_rmin1") / dd4hep::mm;
+    auto rmax0 = m_det->constant<double>("DRICH_rmax0") / dd4hep::mm;
+    auto rmax1 = m_det->constant<double>("DRICH_rmax1") / dd4hep::mm;
+    auto rmax2 = m_det->constant<double>("DRICH_rmax2") / dd4hep::mm;
 
     // radiator constants
-    auto snoutLength      = m_det->constant<double>("DRICH_snout_length");
-    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos");
-    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness");
-    auto filterZpos       = m_det->constant<double>("DRICH_filter_zpos");
-    auto filterThickness  = m_det->constant<double>("DRICH_filter_thickness");
-    auto window_thickness = m_det->constant<double>("DRICH_window_thickness");
+    auto snoutLength      = m_det->constant<double>("DRICH_snout_length")      / dd4hep::mm;
+    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos")      / dd4hep::mm;
+    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness") / dd4hep::mm;
+    auto filterZpos       = m_det->constant<double>("DRICH_filter_zpos")       / dd4hep::mm;
+    auto filterThickness  = m_det->constant<double>("DRICH_filter_thickness")  / dd4hep::mm;
+    auto window_thickness = m_det->constant<double>("DRICH_window_thickness")  / dd4hep::mm;
 
     // radial wall slopes
     auto boreSlope  = (rmin1 - rmin0) / (zmax - zmin);
@@ -53,13 +81,13 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
         };
         break;
       default:
-        m_log.PrintError("unknown radiator number {}",numPlanes);
+        m_log->error("unknown radiator number {}",numPlanes);
         return discs;
     }
     trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
     // define discs
-    m_log.PrintLog("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
+    m_log->debug("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
         RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
     double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
     for(int i=0; i<numPlanes; i++) {
@@ -69,16 +97,16 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
       auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
       auto transform = Acts::Transform3(Acts::Translation3(Acts::Vector3(0, 0, z)));
       discs.push_back(Acts::Surface::makeShared<Acts::DiscSurface>(transform, rbounds));
-      m_log.PrintLog("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
+      m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if(m_detName=="DRICH") {
-    m_log.PrintError("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
+  else if(m_detName=="PFRICH") {
+    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 
   // ------------------------------------------------------------------------------------------------
-  else m_log.PrintError("ActsGeo is not defined for detector '{}'",m_detName);
+  else m_log->error("ActsGeo is not defined for detector '{}'",m_detName);
   return discs;
 }
