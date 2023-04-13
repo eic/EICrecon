@@ -63,16 +63,16 @@ public:
     TH2D* hOHCAL_dEta_dPhi;
     TH2D* hEHCAL_dEta_dPhi;
 
-    TH1D* hECalib_FEMC_matched;
-    TH1D* hECalib_EEMC_matched;
-    TH1D* hECalib_BEMC_matched;
-    TH1D* hECalib_LFHCAL_matched;
-    TH1D* hECalib_OHCAL_matched;
-    TH1D* hECalib_EHCAL_matched;
+    TH3D* hECalibEtaE_FEMC_matched;
+    TH3D* hECalibEtaE_EEMC_matched;
+    TH3D* hECalibEtaE_BEMC_matched;
+    TH3D* hECalibEtaE_LFHCAL_matched;
+    TH3D* hECalibEtaE_OHCAL_matched;
+    TH3D* hECalibEtaE_EHCAL_matched;
 
-    TH1D* hECalib_forward_matched;
-    TH1D* hECalib_barrel_matched;
-    TH1D* hECalib_backwards_matched;
+    TH3D* hECalibEtaE_forward_matched;
+    TH3D* hECalibEtaE_barrel_matched;
+    TH3D* hECalibEtaE_backward_matched;
 
     int nEventsWithCaloHits = 0;
     std::shared_ptr<spdlog::logger> m_log;
