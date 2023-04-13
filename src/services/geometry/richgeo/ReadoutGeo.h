@@ -27,7 +27,7 @@ namespace richgeo {
       ~ReadoutGeo() {}
 
       // loop over readout pixels, executing `lambda(cellID)` on each
-      void ReadoutPixelLoop(std::function<void(uint64_t)> lambda) { m_loopCellIDs(lambda); }
+      void VisitAllReadoutPixels(std::function<void(uint64_t)> lambda) { m_loopCellIDs(lambda); }
 
     protected:
 
@@ -40,7 +40,7 @@ namespace richgeo {
       int                    m_systemID;
       int                    m_num_px;
 
-      // local function to loop over cellIDs; defined in initialization and called by `ReadoutPixelLoop`
+      // local function to loop over cellIDs; defined in initialization and called by `VisitAllReadoutPixels`
       std::function< void(std::function<void(uint64_t)>) > m_loopCellIDs;
 
     private:

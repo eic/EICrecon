@@ -28,7 +28,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
 
     // define cellID looper
     m_loopCellIDs = [this] (std::function<void(uint64_t)> lambda) {
-      m_log.PrintLog("call ReadoutPixelLoop for systemID = {} = {}", m_systemID, m_detName);
+      m_log.PrintLog("call VisitAllReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
 
       // loop over sensors (for all sectors)
       for(auto const& [deName, detSensor] : m_detRich.children()) {
