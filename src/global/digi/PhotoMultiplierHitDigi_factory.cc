@@ -31,7 +31,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   };
   set_param("seed",            cfg.seed,            "random number generator seed");
   set_param("hitTimeWindow",   cfg.hitTimeWindow,   "");
-  set_param("timeStep",        cfg.timeStep,        "");
+  set_param("timeResolution",  cfg.timeResolution,  "");
   set_param("speMean",         cfg.speMean,         "");
   set_param("speError",        cfg.speError,        "");
   set_param("pedMean",         cfg.pedMean,         "");

@@ -15,12 +15,12 @@ namespace eicrecon {
       unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering
-      double hitTimeWindow = 20.0;  // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
-      double timeStep      = 16.0;  // number of TDC counts per unit time // [ns^-1]
-      double speMean       = 80.0;  // mean ADC counts for a single photon
-      double speError      = 16.0;  // sigma of ADC counts for a single photon
-      double pedMean       = 200.0; // mean ADC counts for the pedestal
-      double pedError      = 3.0;   // sigma of ADC counts for the pedestal
+      double hitTimeWindow  = 20.0;   // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
+      double timeResolution = 1/16.0; // time resolution (= 1 / TDC counts per unit time) // [ns]
+      double speMean        = 80.0;   // mean ADC counts for a single photon
+      double speError       = 16.0;   // sigma of ADC counts for a single photon
+      double pedMean        = 200.0;  // mean ADC counts for the pedestal
+      double pedError       = 3.0;    // sigma of ADC counts for the pedestal
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
@@ -71,7 +71,7 @@ namespace eicrecon {
         };
         puts("seed",seed);
         puts("hitTimeWindow",hitTimeWindow);
-        puts("timeStep",timeStep);
+        puts("timeResolution",timeResolution);
         puts("speMean",speMean);
         puts("speError",speError);
         puts("pedMean",pedMean);
