@@ -11,7 +11,8 @@ namespace eicrecon {
 
       // random number generator seed
       // FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
-      unsigned long seed = 0; // seed for RNG (note: `0` might mean "unique" seed)
+      // FIXME: a warning will be printed if 0 is used; remove this warning when a better RNG is used
+      unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering
       double hitTimeWindow = 20.0;  // time gate in which 2 input hits will be grouped to 1 output hit // [ns]

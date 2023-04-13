@@ -30,6 +30,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     m_cfg.Print(m_log, spdlog::level::debug);
 
     // random number generators
+    if(m_cfg.seed==0) m_log->warn("using seed=0 may cause thread-unsafe behavior of TRandom"); // FIXME: remove when resolved
     m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
