@@ -65,7 +65,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
 // AlgorithmProcess
 //------------------------
 std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
-    std::vector<const edm4hep::SimTrackerHit*>& sim_hits
+    const std::vector<const edm4hep::SimTrackerHit*>& sim_hits
     )
 {
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
