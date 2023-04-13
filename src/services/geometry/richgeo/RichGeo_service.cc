@@ -87,8 +87,8 @@ RichGeo_service::~RichGeo_service(){
   try {
     if(m_dd4hepGeo) m_dd4hepGeo->destroyInstance();
     m_dd4hepGeo = nullptr;
-    if(m_irtGeo) delete m_irtGeo;
-    if(m_actsGeo) delete m_actsGeo;
-    if(m_readoutGeo) delete m_readoutGeo;
+    delete m_irtGeo;
+    delete m_actsGeo;
+    delete m_readoutGeo;
   } catch (...) {}
 }
