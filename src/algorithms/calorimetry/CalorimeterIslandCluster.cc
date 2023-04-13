@@ -143,7 +143,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
             // in the same sector
             if (h1->getSector() == h2->getSector()) {
               auto dist = hitsDist(h1, h2);
-              return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
+              return (fabs(dist.a) <= neighbourDist[0]) && (fabs(dist.b) <= neighbourDist[1]);
               // different sector, local coordinates do not work, using global coordinates
             } else {
               // sector may have rotation (barrel), so z is included
