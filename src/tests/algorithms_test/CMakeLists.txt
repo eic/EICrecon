@@ -31,7 +31,7 @@ find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO)
 find_package(Catch2 3 REQUIRED)
 # These tests can use the Catch2-provided main
 add_executable(${DIRECOTRY_NAME} algorithms_test.cc)
-target_link_libraries(${DIRECOTRY_NAME} PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(${DIRECOTRY_NAME} PRIVATE Catch2::Catch2WithMain algorithms_calorimetry_library)
 
 # These tests need their own main
 #add_executable(custom-main-tests test.cpp test-main.cpp)
