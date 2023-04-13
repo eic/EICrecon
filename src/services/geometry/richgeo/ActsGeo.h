@@ -37,7 +37,7 @@ namespace richgeo {
     protected:
 
       std::string                     m_detName;
-      dd4hep::Detector*               m_det;
+      dd4hep::Detector                *m_det;
       std::shared_ptr<spdlog::logger> m_log;
 
     private:
