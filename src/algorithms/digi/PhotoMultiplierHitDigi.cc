@@ -70,7 +70,7 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
 {
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
         struct HitData {
-          int npe;
+          uint32_t npe;
           double signal;
           decltype(edm4hep::SimTrackerHitData::time) time;
           dd4hep::Position pos;
@@ -79,7 +79,7 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        for(auto &ahit : sim_hits) {
+        for(const auto& ahit : sim_hits) {
             auto edep_eV = ahit->getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = ahit->getCellID();
             m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
@@ -189,7 +189,7 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 
         // print the table
         m_log->debug("{:-^60}"," Quantum Efficiency vs. Energy ");
-        for(auto &[en,qe] : qeff)
+        for(auto& [en,qe] : qeff)
           m_log->debug("  {:>10.4} {:<}",en,qe);
         m_log->trace("{:=^60}","");
 
