@@ -14,13 +14,26 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+// Dummy factory for JFactoryGeneratorT
+class Association_factory_EcalEndcapPTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelSciGlassClusters(){
-        SetTag("EcalBarrelSciGlassClusters");
+    Association_factory_EcalEndcapPTruthClusterAssociations(){
+        SetTag("EcalEndcapPTruthClusterAssociations");
+    }
+};
+
+
+
+class Cluster_factory_EcalEndcapPTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+
+public:
+    //------------------------------------------
+    // Constructor
+    Cluster_factory_EcalEndcapPTruthClusters(){
+        SetTag("EcalEndcapPTruthClusters");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -29,10 +42,10 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalBarrelSciGlassHits";
-        m_input_protoclust_tag="EcalBarrelSciGlassProtoClusters";
+        m_input_simhit_tag="EcalEndcapPHits";
+        m_input_protoclust_tag="EcalEndcapPTruthProtoClusters";
 
-        m_sampFrac = 0.92; // average energy correction for electron/gamma clusters
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=6.2;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
@@ -43,15 +56,13 @@ public:
         m_enableEtaBounds=true;//{this, "enableEtaBounds", false};
 
 
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:input_protoclust_tag",        m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:input_simhit_tag", m_input_simhit_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:input_protoclust_tag", m_input_protoclust_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("FEMC:EcalEndcapPTruthClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -81,7 +92,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelClusterAssociations");
+        event->Insert(m_outputAssociations, "EcalEndcapPTruthClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
