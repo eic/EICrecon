@@ -1,7 +1,5 @@
-// Created by Christopher Dilks
-// Based on SiliconTrackerDigi_factory
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023, Christopher Dilks
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
@@ -33,7 +31,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   };
   set_param("seed",            cfg.seed,            "random number generator seed");
   set_param("hitTimeWindow",   cfg.hitTimeWindow,   "");
-  set_param("timeStep",        cfg.timeStep,        "");
+  set_param("timeResolution",  cfg.timeResolution,  "");
   set_param("speMean",         cfg.speMean,         "");
   set_param("speError",        cfg.speError,        "");
   set_param("pedMean",         cfg.pedMean,         "");

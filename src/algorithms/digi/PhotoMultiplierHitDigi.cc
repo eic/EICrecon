@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Chao Peng, Christopher Dilks
+// Copyright (C) 2022, 2023, Chao Peng, Thomas Britton, Christopher Dilks
 
 /*  General PhotoMultiplier Digitization
  *
@@ -8,9 +8,9 @@
  *
  *  Author: Chao Peng (ANL)
  *  Date: 10/02/2020
+ *
+ *  Ported from Juggler by Thomas Britton (JLab)
  */
-
-//Ported by Thomas Britton (JLab)
 
 
 #include "PhotoMultiplierHitDigi.h"
@@ -30,6 +30,7 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     m_cfg.Print(m_log, spdlog::level::debug);
 
     // random number generators
+    if(m_cfg.seed==0) m_log->warn("using seed=0 may cause thread-unsafe behavior of TRandom"); // FIXME: remove when resolved
     m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
@@ -102,7 +103,7 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
 
             // cell time, signal amplitude, truth photon
             auto   time = ahit->getTime();
-            double amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
             // group hits
             auto it = hit_groups.find(id);
@@ -120,13 +121,13 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
                 }
                 // no hits group found
                 if (i >= it->second.size()) {
-                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm();
+                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
                     it->second.emplace_back(HitData{1, sig, time, pos_hit, {ahit}});
                     m_log->trace(" -> no group found,");
                     m_log->trace("    so new group @ {:#X}: signal={}", id, sig);
                 }
             } else {
-                auto sig = amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm();
+                auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
                 hit_groups[id] = {HitData{1, sig, time, pos_hit, {ahit}}};
                 m_log->trace(" -> new group @ {:#X}: signal={}", id, sig);
             }
@@ -150,8 +151,8 @@ std::vector<edm4eic::MCRecoTrackerHitAssociation*> eicrecon::PhotoMultiplierHitD
                 // build `RawTrackerHit`
                 edm4eic::MutableRawTrackerHit raw_hit;
                 raw_hit.setCellID(it.first);
-                raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)              );
-                raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time*m_cfg.timeStep) );
+                raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)                    );
+                raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time/m_cfg.timeResolution) );
                 // raw_hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; FIXME: requires member `edm4hep::Vector3d position`
                                                           // in data model datatype, think of a better way
                 m_log->trace("raw_hit: cellID={:#X} -> charge={} timeStamp={}",
