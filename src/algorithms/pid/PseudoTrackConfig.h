@@ -26,10 +26,10 @@ namespace eicrecon {
           )
       {
         m_log->log(lvl, "{:=^60}"," PseudoTrackConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("numPoints",numPoints);
+        print_param("numPoints",numPoints);
         m_log->log(lvl, "{:=^60}","");
       }
 

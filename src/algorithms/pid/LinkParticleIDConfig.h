@@ -28,11 +28,11 @@ namespace eicrecon {
           )
       {
         m_log->log(lvl, "{:=^60}"," LinkParticleIDConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("phiTolerance",phiTolerance);
-        puts("etaTolerance",etaTolerance);
+        print_param("phiTolerance",phiTolerance);
+        print_param("etaTolerance",etaTolerance);
         m_log->log(lvl, "{:=^60}","");
       }
 

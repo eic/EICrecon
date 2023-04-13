@@ -54,12 +54,12 @@ namespace eicrecon {
           bool printAll=false
           )
       {
-        auto puts = [&m_log, &lvl, &printAll] (auto name, bool val, auto desc) {
+        auto print_param = [&m_log, &lvl, &printAll] (auto name, bool val, auto desc) {
           if(printAll) m_log->log(lvl, "  {:>20} = {:<}", name, val);
           else if(val) m_log->warn("CHEAT MODE '{}' ENABLED: {}", name, desc);
         };
-        puts("cheatPhotonVertex",  cheatPhotonVertex,  "use MC photon vertex, wavelength, refractive index");
-        puts("cheatTrueRadiator",  cheatTrueRadiator,  "use MC truth to obtain true radiator");
+        print_param("cheatPhotonVertex",  cheatPhotonVertex,  "use MC photon vertex, wavelength, refractive index");
+        print_param("cheatTrueRadiator",  cheatTrueRadiator,  "use MC truth to obtain true radiator");
       }
 
       // boolean: true if any cheat mode is enabled
@@ -74,20 +74,20 @@ namespace eicrecon {
           )
       {
         m_log->log(lvl, "{:=^60}"," IrtCherenkovParticleIDConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("numRIndexBins",numRIndexBins);
+        print_param("numRIndexBins",numRIndexBins);
         PrintCheats(m_log, lvl, true);
         m_log->log(lvl, "pdgList:");
         for(const auto& pdg : pdgList) m_log->log(lvl, "  {}", pdg);
         for(const auto& [name,rad] : radiators) {
           m_log->log(lvl, "{:-<60}", fmt::format("--- {} config ",name));
-          puts("smearingMode",    rad.smearingMode);
-          puts("smearing",        rad.smearing);
-          puts("referenceRIndex", rad.referenceRIndex);
-          puts("attenuation",     rad.attenuation);
-          puts("zbins",           rad.zbins);
+          print_param("smearingMode",    rad.smearingMode);
+          print_param("smearing",        rad.smearing);
+          print_param("referenceRIndex", rad.referenceRIndex);
+          print_param("attenuation",     rad.attenuation);
+          print_param("zbins",           rad.zbins);
         }
         m_log->log(lvl, "{:=^60}","");
       }
