@@ -1,7 +1,8 @@
-
+// Copyright 2023, Friederike Bock
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Template for this file generated with eicmkplugin.py
-//
+//  Sections Copyright (C) 2023 Friederike Bock
+//  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
