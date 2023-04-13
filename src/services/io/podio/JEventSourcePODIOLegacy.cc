@@ -8,7 +8,7 @@
 // This uses the podio supplied RootReader and EventStore classes. Thus,
 // it is limited to processing only a single event at a time.
 
-#include "JEventSourcePODIO.h"
+#include "JEventSourcePODIOLegacy.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -19,7 +19,6 @@
 
 // podio specific includes
 #include <podio/podioVersion.h>
-#include <TFile.h>
 
 #include <fmt/format.h>
 
@@ -60,7 +59,7 @@ struct InsertingVisitor {
 /// \param resource_name  Name of root file to open (n.b. file is not opened until Open() is called)
 /// \param app            JApplication
 //------------------------------------------------------------------------------
-JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app) : JEventSource(resource_name, app) {
+JEventSourcePODIOLegacy::JEventSourcePODIOLegacy(std::string resource_name, JApplication* app) : JEventSource(resource_name, app) {
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
 
     // Tell JANA that we want it to call the FinishEvent() method.
@@ -103,7 +102,7 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-JEventSourcePODIO::~JEventSourcePODIO() {
+JEventSourcePODIOLegacy::~JEventSourcePODIOLegacy() {
     LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
 }
 
@@ -112,7 +111,7 @@ JEventSourcePODIO::~JEventSourcePODIO() {
 //
 /// Open the root file and read in metadata.
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::Open() {
+void JEventSourcePODIOLegacy::Open() {
 
     bool print_type_table = GetApplication()->GetParameterValue<bool>("podio:print_type_table");
     // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
@@ -132,6 +131,8 @@ void JEventSourcePODIO::Open() {
             std::_Exit(EXIT_FAILURE);
         }
 
+
+        // Have PODIO reader open file and get the number of events from it.
         m_reader.openFile( GetResourceName() );
 
         auto version = m_reader.currentFileVersion();
@@ -147,7 +148,7 @@ void JEventSourcePODIO::Open() {
         LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version << ")" << LOG_END;
 
         Nevents_in_file = m_reader.getEntries("events");
-        LOG << "Opened PODIO Frame file \"" << GetResourceName() << "\" with " << Nevents_in_file << " events" << LOG_END;
+        LOG << "Opened PODIO legacy file \"" << GetResourceName() << "\" with " << Nevents_in_file << " events" << LOG_END;
 
         if( print_type_table ) PrintCollectionTypeTable();
 
@@ -165,7 +166,7 @@ void JEventSourcePODIO::Open() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::Close() {
+void JEventSourcePODIOLegacy::Close() {
     // m_reader.close();
     // TODO: ROOTFrameReader does not appear to have a close() method.
 }
@@ -178,7 +179,7 @@ void JEventSourcePODIO::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
+void JEventSourcePODIOLegacy::GetEvent(std::shared_ptr<JEvent> event) {
 
     /// Calls to GetEvent are synchronized with each other, which means they can
     /// read and write state on the JEventSource without causing race conditions.
@@ -219,10 +220,10 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
 //------------------------------------------------------------------------------
 // GetDescription
 //------------------------------------------------------------------------------
-std::string JEventSourcePODIO::GetDescription() {
+std::string JEventSourcePODIOLegacy::GetDescription() {
 
     /// GetDescription() helps JANA explain to the user what is going on
-    return "PODIO root file (Frames, podio >= v0.16.3)";
+    return "PODIO root file (EventStore, podio < v0.16.3)";
 }
 
 //------------------------------------------------------------------------------
@@ -238,22 +239,11 @@ std::string JEventSourcePODIO::GetDescription() {
 /// \return              value from 0-1 indicating confidence that this source can open the given file
 //------------------------------------------------------------------------------
 template <>
-double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string resource_name) {
+double JEventSourceGeneratorT<JEventSourcePODIOLegacy>::CheckOpenable(std::string resource_name) {
 
-    // PODIO Frame reader gets slightly higher precedence than PODIO Legacy reader, but only if the file
-    // contains a 'podio_metadata' TTree. If the file doesn't exist, this will return 0. The "file not found"
-    // error will hopefully be generated by the PODIO legacy reader instead.
-    if (resource_name.find(".root") == std::string::npos ) return 0.0;
-
-    // PODIO FrameReader segfaults on legacy input files, so we use ROOT to validate beforehand. Of course,
-    // we can't validate if ROOT can't read the file.
-    std::unique_ptr<TFile> file = std::make_unique<TFile>(resource_name.c_str());
-    if (!file || file->IsZombie()) return 0.0;
-
-    // We test the format the same way that PODIO's python API does. See python/podio/reading.py
-    TObject* tree = file->Get("podio_metadata");
-    if (tree == nullptr) return 0.0;
-    return 0.03;
+    // If source is a root file, given minimal probability of success so we're chosen
+    // only if no other ROOT file sources exist.
+    return (resource_name.find(".root") != std::string::npos ) ? 0.02 : 0.0;
 }
 
 //------------------------------------------------------------------------------
@@ -263,7 +253,7 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
 /// with their types. This will be called automatically when the file is
 /// open if the PODIO:PRINT_TYPE_TABLE variable is set to a non-zero value
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::PrintCollectionTypeTable(void) {
+void JEventSourcePODIOLegacy::PrintCollectionTypeTable(void) {
 
     // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
     auto frame_data = m_reader.readEntry("events", 0);
