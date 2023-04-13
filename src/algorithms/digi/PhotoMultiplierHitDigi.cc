@@ -153,7 +153,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
 
           auto cellID_action = [this,&hit_groups,&hit_groups_noise] (auto cellID) {
             auto it = hit_groups.find(cellID);
-            if (Noise_Digits(m_cfg.noiseRate, m_cfg.noiseTimeWindow)){
+            if (has_noise_digits(m_cfg.noiseRate, m_cfg.noiseTimeWindow)){
               // cell time, signal amplitude
               double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
               double time = m_cfg.noiseTimeWindow*m_rngUni();
@@ -311,7 +311,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   return pos_transformed;
 }
 
-bool  eicrecon::PhotoMultiplierHitDigi::Noise_Digits(float noiseRate, int timeWindow) const
+bool  eicrecon::PhotoMultiplierHitDigi::has_noise_digits(float noiseRate, int timeWindow) const
 {
   return (m_rngUni() < (noiseRate*timeWindow*dd4hep::ns));
 }

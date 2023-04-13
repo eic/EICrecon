@@ -76,6 +76,6 @@ private:
     void qe_init();
     template<class RndmIter, typename T, class Compare> RndmIter interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const;
     bool qe_pass(double ev, double rand) const;
-    bool Noise_Digits(float noiseRate, int timeWindows) const;
+    bool has_noise_digits(float noiseRate, int timeWindows) const;
 };
 }
