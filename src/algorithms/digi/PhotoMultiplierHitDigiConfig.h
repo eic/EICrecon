@@ -66,19 +66,19 @@ namespace eicrecon {
       // print all parameters
       void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
         m_log->log(lvl, "{:=^60}"," PhotoMultiplierHitDigiConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("seed",seed);
-        puts("hitTimeWindow",hitTimeWindow);
-        puts("timeResolution",timeResolution);
-        puts("speMean",speMean);
-        puts("speError",speError);
-        puts("pedMean",pedMean);
-        puts("pedError",pedError);
-        puts("enablePixelGaps",enablePixelGaps);
-        puts("pixelSize",pixelSize);
-        puts("safetyFactor",safetyFactor);
+        print_param("seed",seed);
+        print_param("hitTimeWindow",hitTimeWindow);
+        print_param("timeResolution",timeResolution);
+        print_param("speMean",speMean);
+        print_param("speError",speError);
+        print_param("pedMean",pedMean);
+        print_param("pedError",pedError);
+        print_param("enablePixelGaps",enablePixelGaps);
+        print_param("pixelSize",pixelSize);
+        print_param("safetyFactor",safetyFactor);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);
