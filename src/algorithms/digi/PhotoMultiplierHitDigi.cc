@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Chao Peng, Christopher Dilks, Luigi Dello Stritto
+// Copyright (C) 2022, 2023, Chao Peng, Christopher Dilks, Luigi Dello Stritto
 
 /*  General PhotoMultiplier Digitization
  *
