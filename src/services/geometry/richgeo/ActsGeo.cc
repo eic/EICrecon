@@ -50,11 +50,6 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
     auto rmax1 = m_det->constant<double>("DRICH_rmax1") / dd4hep::mm;
     auto rmax2 = m_det->constant<double>("DRICH_rmax2") / dd4hep::mm;
 
-    //// TEST: move the planes inward a bit
-    // auto nn = zmax-zmin;
-    // zmin += (0.030)*nn;
-    // zmax -= (0.030)*nn;
-
     // radiator constants
     auto snoutLength      = m_det->constant<double>("DRICH_snout_length")      / dd4hep::mm;
     auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos")      / dd4hep::mm;
