@@ -72,7 +72,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
           uint32_t npe;
           double signal;
           double time;
-          dd4hep::Position pos;
+          dd4hep::Position pos_local;
           dd4hep::Position pos_global;
         };
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
@@ -140,7 +140,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                   it.first,
                   static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal),
                   static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(data.time/m_cfg.timeStep)
-                  //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
+                  //,pos2vec(data.pos_local) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
                 };
                 raw_hits.push_back(hit);
             }
@@ -170,7 +170,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
                 it.first,
                 static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal),
                 static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(data.time/m_cfg.timeStep)
-                //,pos2vec(data.pos) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
+                //,pos2vec(data.pos_local) // TEST gap cuts; requires member `edm4hep::Vector3d position` in data model datatype
               };
               raw_hits.push_back(hit);
             }
