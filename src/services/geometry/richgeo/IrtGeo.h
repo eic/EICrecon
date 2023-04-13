@@ -1,13 +1,11 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
 #include <string>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 // DD4Hep
 #include "DD4hep/Detector.h"
@@ -29,9 +27,9 @@ namespace richgeo {
     public:
 
       // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-      IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false);
+      IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
       // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-      IrtGeo(std::string detName_, std::string compactFile_="", bool verbose_=false);
+      IrtGeo(std::string detName_, std::string compactFile_, std::shared_ptr<spdlog::logger> log_);
       virtual ~IrtGeo();
 
       // access the full IRT geometry
@@ -60,7 +58,7 @@ namespace richgeo {
       CherenkovDetector           *m_irtDetector;
 
       // logger
-      Logger& m_log;
+      std::shared_ptr<spdlog::logger> m_log;
 
     private:
 

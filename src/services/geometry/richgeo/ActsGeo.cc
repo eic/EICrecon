@@ -1,13 +1,11 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "ActsGeo.h"
 
 // constructor
-richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_)
-  : m_detName(detName_), m_det(det_), m_log(Logger::Instance(verbose_))
+richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
+  : m_detName(detName_), m_det(det_), m_log(log_)
 {
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
@@ -20,17 +18,17 @@ richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, bool ver
     WithinRadiator[richgeo::kAerogel] = [this,aerogelZpos,aerogelThickness] (double x, double y, double z) {
       auto zmin = aerogelZpos - aerogelThickness/2.0;
       auto zmax = aerogelZpos + aerogelThickness/2.0;
-      // m_log.PrintLog("check if z={} within ({}, {})?", z, zmin, zmax);
+      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
       return z >= zmin && z <= zmax;
     };
     WithinRadiator[richgeo::kGas] = [this,aerogelZpos,aerogelThickness,zmax] (double x, double y, double z) {
       auto zmin = aerogelZpos + aerogelThickness/2.0;
-      // m_log.PrintLog("check if z={} within ({}, {})?", z, zmin, zmax);
+      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
       return z >= zmin && z <= zmax;
     };
   }
   else if(m_detName=="PFRICH") {
-    m_log.PrintError("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
+    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 }
 
@@ -88,13 +86,13 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
         };
         break;
       default:
-        m_log.PrintError("unknown radiator number {}",numPlanes);
+        m_log->error("unknown radiator number {}",numPlanes);
         return discs;
     }
     trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
     // define discs
-    m_log.PrintLog("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
+    m_log->debug("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
         RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
     double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
     for(int i=0; i<numPlanes; i++) {
@@ -104,16 +102,16 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
       auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
       auto transform = Acts::Transform3(Acts::Translation3(Acts::Vector3(0, 0, z)));
       discs.push_back(Acts::Surface::makeShared<Acts::DiscSurface>(transform, rbounds));
-      m_log.PrintLog("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
+      m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
   else if(m_detName=="PFRICH") {
-    m_log.PrintError("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
+    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 
   // ------------------------------------------------------------------------------------------------
-  else m_log.PrintError("ActsGeo is not defined for detector '{}'",m_detName);
+  else m_log->error("ActsGeo is not defined for detector '{}'",m_detName);
   return discs;
 }

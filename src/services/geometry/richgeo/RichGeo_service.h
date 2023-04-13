@@ -1,7 +1,5 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #pragma once
 
@@ -49,5 +47,4 @@ class RichGeo_service : public JService {
     richgeo::ActsGeo *m_actsGeo   = nullptr;
 
     std::shared_ptr<spdlog::logger> m_log;
-    bool m_verbose;
 };

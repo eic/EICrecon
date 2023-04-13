@@ -1,14 +1,12 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
 #include <string>
 #include <functional>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 // DD4Hep
 #include "DD4hep/Detector.h"
@@ -27,7 +25,7 @@ namespace richgeo {
     public:
 
       // constructor and destructor
-      ActsGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false);
+      ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
       ~ActsGeo() {}
 
       // generate list ACTS disc surfaces, for a given radiator
@@ -38,9 +36,9 @@ namespace richgeo {
 
     protected:
 
-      std::string m_detName;
-      dd4hep::Detector *m_det;
-      Logger& m_log;
+      std::string                     m_detName;
+      dd4hep::Detector*               m_det;
+      std::shared_ptr<spdlog::logger> m_log;
 
     private:
 

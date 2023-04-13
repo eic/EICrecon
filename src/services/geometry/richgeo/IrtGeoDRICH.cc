@@ -1,7 +1,5 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "IrtGeoDRICH.h"
 
@@ -42,7 +40,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
       );
-  m_log.PrintLog("cellMask = {:#X}", cellMask);
+  m_log->debug("cellMask = {:#X}", cellMask);
 
   // aerogel + filter
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
@@ -80,10 +78,10 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
     filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
   }
-  m_log.PrintLog("aerogelZpos = {:f} mm", aerogelZpos);
-  m_log.PrintLog("filterZpos  = {:f} mm", filterZpos);
-  m_log.PrintLog("aerogel thickness = {:f} mm", aerogelThickness);
-  m_log.PrintLog("filter thickness  = {:f} mm", filterThickness);
+  m_log->debug("aerogelZpos = {:f} mm", aerogelZpos);
+  m_log->debug("filterZpos  = {:f} mm", filterZpos);
+  m_log->debug("aerogel thickness = {:f} mm", aerogelThickness);
+  m_log->debug("filter thickness  = {:f} mm", filterThickness);
 
   // sector loop
   for (int isec = 0; isec < nSectors; isec++) {
@@ -103,12 +101,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         false                              // bool refractive
         );
     m_irtDetector->AddOpticalBoundary(isec, mirrorOpticalBoundary);
-    m_log.PrintLog("");
-    m_log.PrintLog("  SECTOR {:d} MIRROR:", isec);
-    m_log.PrintLog("    mirror x = {:f} mm", mirrorCenter.x());
-    m_log.PrintLog("    mirror y = {:f} mm", mirrorCenter.y());
-    m_log.PrintLog("    mirror z = {:f} mm", mirrorCenter.z());
-    m_log.PrintLog("    mirror R = {:f} mm", mirrorRadius);
+    m_log->debug("");
+    m_log->debug("  SECTOR {:d} MIRROR:", isec);
+    m_log->debug("    mirror x = {:f} mm", mirrorCenter.x());
+    m_log->debug("    mirror y = {:f} mm", mirrorCenter.y());
+    m_log->debug("    mirror z = {:f} mm", mirrorCenter.z());
+    m_log->debug("    mirror R = {:f} mm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
     m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = mirrorSphericalSurface;
@@ -122,11 +120,11 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
       m_det->constant<double>("DRICH_sensor_sph_center_y_"+secName) / dd4hep::mm,
       m_det->constant<double>("DRICH_sensor_sph_center_z_"+secName) / dd4hep::mm
       );
-    m_log.PrintLog("  SECTOR {:d} SENSOR SPHERE:", isec);
-    m_log.PrintLog("    sphere x = {:f} mm", sensorSphCenter.x());
-    m_log.PrintLog("    sphere y = {:f} mm", sensorSphCenter.y());
-    m_log.PrintLog("    sphere z = {:f} mm", sensorSphCenter.z());
-    m_log.PrintLog("    sphere R = {:f} mm", sensorSphRadius);
+    m_log->debug("  SECTOR {:d} SENSOR SPHERE:", isec);
+    m_log->debug("    sphere x = {:f} mm", sensorSphCenter.x());
+    m_log->debug("    sphere y = {:f} mm", sensorSphCenter.y());
+    m_log->debug("    sphere z = {:f} mm", sensorSphCenter.z());
+    m_log->debug("    sphere R = {:f} mm", sensorSphRadius);
 
     // sensor modules: search the detector tree for sensors for this sector
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
@@ -163,7 +161,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
         auto testRadial = radialDir.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is parallel to sensor sphere radius
         if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-          m_log.PrintError(
+          m_log->error(
               "sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
               testOrtho,
               testRadial
@@ -174,7 +172,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         auto distSensor2center = sqrt((posSensorSurface-sensorSphCenter).Mag2()); // distance between sensor sphere center and sensor surface position
         auto testDist          = abs(distSensor2center-sensorSphRadius);          // should be zero, if sensor position w.r.t. sensor sphere center is correct
         if(abs(testDist)>1e-5) {
-          m_log.PrintError(
+          m_log->error(
               "sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
               distSensor2center,
               sensorSphRadius,
@@ -197,7 +195,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
             imodsec,           // copy number
             sensorFlatSurface  // surface
             );
-        m_log.PrintLog(
+        m_log->trace(
             "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
             imodsec,
             posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),

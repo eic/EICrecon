@@ -1,7 +1,5 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "IrtGeoPFRICH.h"
 
@@ -39,7 +37,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
       );
-  m_log.PrintLog("cellMask = {:#X}", cellMask);
+  m_log->debug("cellMask = {:#X}", cellMask);
 
   // aerogel + filter
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
@@ -73,10 +71,10 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       );
   aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
   filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
-  m_log.PrintLog("aerogelZpos = {:f} mm", aerogelZpos);
-  m_log.PrintLog("filterZpos  = {:f} mm", filterZpos);
-  m_log.PrintLog("aerogel thickness = {:f} mm", aerogelThickness);
-  m_log.PrintLog("filter thickness  = {:f} mm", filterThickness);
+  m_log->debug("aerogelZpos = {:f} mm", aerogelZpos);
+  m_log->debug("filterZpos  = {:f} mm", filterZpos);
+  m_log->debug("aerogel thickness = {:f} mm", aerogelThickness);
+  m_log->debug("filter thickness  = {:f} mm", filterThickness);
 
   // sensor modules: search the detector tree for sensors
   auto sensorThickness  = m_det->constant<double>("PFRICH_sensor_thickness") / dd4hep::mm;
@@ -116,7 +114,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is as expected
       if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-        m_log.PrintError(
+        m_log->error(
             "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho,
             testRadial
@@ -136,7 +134,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
           imod,              // copy number
           sensorFlatSurface  // surface
           );
-      m_log.PrintLog(
+      m_log->trace(
           "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
           imod,
           posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),

@@ -1,36 +1,22 @@
 // Copyright 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "IrtGeo.h"
 
 // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-richgeo::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_) :
-  m_detName(detName_), m_det(det_), m_log(Logger::Instance(verbose_))
+richgeo::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_) :
+  m_detName(detName_), m_det(det_), m_log(log_)
 {
   Bind();
 }
 
 // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-richgeo::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, bool verbose_) :
-  m_detName(detName_), m_log(Logger::Instance(verbose_))
+richgeo::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, std::shared_ptr<spdlog::logger> log_) :
+  m_detName(detName_), m_log(log_)
 {
-  // compact file name; if it's not been specified, try to find the default one
-  std::string compactFile;
-  if(compactFile_=="") {
-    std::string DETECTOR_PATH(getenv("DETECTOR_PATH"));
-    std::string DETECTOR_CONFIG(getenv("DETECTOR_CONFIG"));
-    if(DETECTOR_PATH.empty() || DETECTOR_CONFIG.empty()) {
-      m_log.PrintError("cannot find default compact file, since env vars DETECTOR_PATH and DETECTOR_CONFIG are not set");
-      return;
-    }
-    compactFile = DETECTOR_PATH + "/" + DETECTOR_CONFIG + ".xml";
-  } else compactFile = compactFile_;
-
   // build DD4hep detector from compact file
   m_det = &dd4hep::Detector::getInstance();
-  m_det->fromXML(compactFile);
+  m_det->fromXML(compactFile_);
 
   // set IRT and DD4hep geometry handles
   Bind();
@@ -59,7 +45,7 @@ void richgeo::IrtGeo::Bind() {
     // get sensor info
     auto sensor_info_it = m_sensor.find(sensor_id);
     if(sensor_info_it == m_sensor.end()) {
-      m_log.PrintWarning("cannot find sensor ID {} in IrtGeo; using pixel volume centroid instead",sensor_id);
+      m_log->warn("cannot find sensor ID {} in IrtGeo; using pixel volume centroid instead",sensor_id);
       return TVector3( pixel_volume_centroid.x(), pixel_volume_centroid.y(), pixel_volume_centroid.z());
     }
     auto sensor_info = sensor_info_it->second;
@@ -68,7 +54,7 @@ void richgeo::IrtGeo::Bind() {
     // cross check: make sure pixel and sensor surface centroids are close enough
     auto dist = sqrt((pixel_surface_centroid - sensor_info.surface_centroid).Mag2());
     if( dist > sensor_info.size / sqrt(2) )
-      m_log.PrintWarning("dist(pixel,sensor) is too large: {} mm",dist);
+      m_log->warn("dist(pixel,sensor) is too large: {} mm",dist);
     return TVector3( pixel_surface_centroid.x(), pixel_surface_centroid.y(), pixel_surface_centroid.z());
   };
 
@@ -77,15 +63,15 @@ void richgeo::IrtGeo::Bind() {
 
 // fill table of refractive indices
 void richgeo::IrtGeo::SetRefractiveIndexTable() {
-  m_log.PrintLog("{:-^60}"," Refractive Index Tables ");
+  m_log->debug("{:-^60}"," Refractive Index Tables ");
   for(auto rad_obj : m_irtDetector->Radiators()) {
-    m_log.PrintLog("{}:", rad_obj.first);
+    m_log->debug("{}:", rad_obj.first);
     const auto rad = rad_obj.second;
     auto rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
     for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
       auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
       auto rindex = rindex_matrix->Get(row,1);
-      m_log.PrintLog("  {:>5} eV   {:<}", energy, rindex);
+      m_log->debug("  {:>5} eV   {:<}", energy, rindex);
       rad->m_ri_lookup_table.push_back({energy,rindex});
     }
   }
