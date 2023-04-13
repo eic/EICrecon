@@ -59,7 +59,7 @@ public:
     std::string m_input_protoclust_tag;
 
     double m_sampFrac         = 1.;//{this, "samplingFraction", 1.0};
-    double m_logWeightBase    = 1.;//{this, "logWeightBase", 3.6};
+    double m_logWeightBase = 3.6;
     double m_depthCorrection  = 0.;//{this, "depthCorrection", 0.0};
     std::string m_energyWeight;//{this, "energyWeight", "log"};
     std::string m_moduleDimZName;//{this, "moduleDimZName", ""};
