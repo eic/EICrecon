@@ -34,7 +34,7 @@ plugin_glob_all(${PLUGIN_NAME})
 # but that never really worked quite right. Thus, we just force-run it
 # whenever cmake is run.
 execute_process (
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${PROJECT_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${PROJECT_SOURCE_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
 )
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without

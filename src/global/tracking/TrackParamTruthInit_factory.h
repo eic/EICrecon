@@ -15,12 +15,12 @@
 namespace eicrecon {
 
 class TrackParamTruthInit_factory :
-        public JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig>,
+        public JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig, JFactoryT>,
         public SpdlogMixin<TrackParamTruthInit_factory>  {
 
     public:
         TrackParamTruthInit_factory( std::vector<std::string> default_input_tags, TrackParamTruthInitConfig cfg):
-                JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig>(std::move(default_input_tags), cfg ) {
+                JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig, JFactoryT>(std::move(default_input_tags), cfg ) {
         }
 
         /** One time initialization **/

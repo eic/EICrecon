@@ -87,6 +87,9 @@ find_package(JANA REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
+add_compile_definitions(HAVE_PODIO)
+# TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
+# TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(podio REQUIRED)
