@@ -1,4 +1,4 @@
-// Copyright 2022, Thomas Britton
+// Copyright 2023, Friederike Bock
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
@@ -13,27 +13,25 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
-
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapNTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_LFHCALClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalEndcapNTruthClusterAssociations(){
-        SetTag("EcalEndcapNTruthClusterAssociations");
+    Association_factory_LFHCALClustersAssociations(){
+        SetTag("LFHCALClustersAssociations");
     }
 };
 
 
-
-class Cluster_factory_EcalEndcapNTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_LFHCALClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalEndcapNTruthClusters(){
-        SetTag("EcalEndcapNTruthClusters");
+    Cluster_factory_LFHCALClusters(){
+        SetTag("LFHCALClusters");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -42,27 +40,27 @@ public:
     void Init() override{
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
-        m_input_simhit_tag="EcalEndcapNHits";
-        m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
+        m_input_simhit_tag="LFHCALHits";
+        m_input_protoclust_tag="LFHCALIslandProtoClusters";
 
-        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
-        m_logWeightBase=4.6;//{this, "logWeightBase", 3.6};
-        m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
-        m_energyWeight="log";//{this, "energyWeight", "log"};
-        m_moduleDimZName="";//{this, "moduleDimZName", ""};
+        m_sampFrac=1.;
+        m_logWeightBase=4.5;
+        m_depthCorrection=0.0;
+        m_energyWeight="log";
+        m_moduleDimZName="";
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
         // for endcaps.
-        m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
+        m_enableEtaBounds=false;
 
-
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:input_protoclust_tag",    m_input_protoclust_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:samplingFraction",             m_sampFrac);
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:logWeightBase",  m_logWeightBase);
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:depthCorrection",     m_depthCorrection);
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:energyWeight",   m_energyWeight);
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:moduleDimZName",   m_moduleDimZName);
-        app->SetDefaultParameter("EEMC:EcalEndcapNTruthClusters:enableEtaBounds",   m_enableEtaBounds);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:samplingFraction",             m_sampFrac);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:logWeightBase",  m_logWeightBase);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:depthCorrection",     m_depthCorrection);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:input_simhit_tag", m_input_simhit_tag);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:input_protoclust_tag", m_input_protoclust_tag);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:energyWeight",   m_energyWeight);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:moduleDimZName",   m_moduleDimZName);
+        app->SetDefaultParameter("FHCAL:LFHCALClusters:enableEtaBounds",   m_enableEtaBounds);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
@@ -92,7 +90,7 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapNTruthClusterAssociations");
+        event->Insert(m_outputAssociations, "LFHCALClusterAssociations");
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
