@@ -6,28 +6,32 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include <spdlog/spdlog.h>
 
-#include <edm4eic/TrackParameters.h>
-#include <edm4hep/MCParticle.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 
-#include <algorithms/reco/ParticlesWithAssociation.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 #include "ParticlesWithTruthPIDConfig.h"
 
 
-
 namespace eicrecon {
+
+    using ParticlesWithAssociationNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>, std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>>;
+
     class ParticlesWithTruthPID : public WithPodConfig<ParticlesWithTruthPIDConfig> {
 
     public:
 
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        ParticlesWithAssociation *process(
-                const std::vector<const edm4hep::MCParticle *> &mc_particles,
-                const std::vector<const edm4eic::TrackParameters*> &track_params);
+        ParticlesWithAssociationNew process(
+                const edm4hep::MCParticleCollection* mc_particles,
+                const edm4eic::TrackParametersCollection* track_params);
 
     private:
 

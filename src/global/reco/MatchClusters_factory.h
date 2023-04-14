@@ -5,29 +5,35 @@
 #pragma once
 
 #include <edm4eic/ReconstructedParticle.h>
-#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/jana/JChainMultifactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
 #include <algorithms/reco/MatchClusters.h>
-#include <algorithms/reco/ParticlesWithAssociation.h>
+
 
 
 namespace eicrecon {
 
     class MatchClusters_factory :
-            public JChainFactoryT<ParticlesWithAssociation>,
+            public JChainMultifactoryT<NoConfig>,
             public SpdlogMixin<MatchClusters_factory> {
 
     public:
-        explicit MatchClusters_factory(std::vector<std::string> default_input_tags):
-            JChainFactoryT<ParticlesWithAssociation>( std::move(default_input_tags)) {
+        explicit MatchClusters_factory(std::string tag,
+                                       const std::vector<std::string>& input_tags,
+                                       const std::vector<std::string>& output_tags):
+                JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+
+            // TODO: NWB: object ownership is set to false because right now we populate the collections without doing any matching
+            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0], false);
+            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], false);
         }
 
         /** One time initialization **/
         void Init() override;
 
         /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+        void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
