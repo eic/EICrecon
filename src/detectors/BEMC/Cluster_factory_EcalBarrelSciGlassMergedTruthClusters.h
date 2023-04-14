@@ -5,8 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterMerger.h>
 #include <services/log/Log_service.h>
@@ -14,7 +13,7 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public JFactoryPodioTFixed<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------

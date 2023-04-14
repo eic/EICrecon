@@ -7,8 +7,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -19,7 +18,7 @@
 
 
 
-class RawCalorimeterHit_factory_EcalEndcapPInsertRawHits : public JFactoryPodioTFixed<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalEndcapPInsertRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 

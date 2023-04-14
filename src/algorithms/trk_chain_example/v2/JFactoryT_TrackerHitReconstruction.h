@@ -3,14 +3,13 @@
 
 #include <fmt/core.h>
 
-#include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <edm4hep/TrackerHit.h>
 
 
 
 template <typename OutputType>
-class JFactoryT_TrackerHitReconstruction : public JFactoryPodioTFixed<OutputType> {
+class JFactoryT_TrackerHitReconstruction : public eicrecon::JFactoryPodioT<OutputType> {
 
 public:
     JFactoryT_TrackerHitReconstruction() {

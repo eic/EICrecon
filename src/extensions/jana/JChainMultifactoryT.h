@@ -19,9 +19,8 @@
 #include <string>
 #include <vector>
 
-#include <JANA/JMultifactory.h>
 #include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <JANA/JMultifactory.h>
 #include <extensions/jana/JChainFactoryT.h>  // Just to pull in struct NoConfig
 #include "extensions/string/StringHelpers.h"
 

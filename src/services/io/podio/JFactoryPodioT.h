@@ -7,14 +7,14 @@
 
 #include <JANA/JFactoryT.h>
 #include <JANA/JEvent.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
 #include <podio/Frame.h>
+#include "datamodel_glue.h"
 
 
-
+namespace eicrecon {
 
 template <typename T>
-class JFactoryPodioTFixed : public JFactoryT<T>, public JFactoryPodio {
+class JFactoryPodioT : public JFactoryT<T>, public JFactoryPodio {
 public:
     using CollectionT = typename PodioTypeMap<T>::collection_t;
 private:
@@ -24,8 +24,8 @@ private:
     // This factory owns these value objects.
 
 public:
-    explicit JFactoryPodioTFixed();
-    ~JFactoryPodioTFixed() override;
+    explicit JFactoryPodioT();
+    ~JFactoryPodioT() override;
 
     void Init() override {}
     void BeginRun(const std::shared_ptr<const JEvent>&) override {}
@@ -56,16 +56,16 @@ private:
 
 
 template <typename T>
-JFactoryPodioTFixed<T>::JFactoryPodioTFixed() = default;
+JFactoryPodioT<T>::JFactoryPodioT() = default;
 
 template <typename T>
-JFactoryPodioTFixed<T>::~JFactoryPodioTFixed() {
+JFactoryPodioT<T>::~JFactoryPodioT() {
     // Ownership of mData, mCollection, and mFrame is complicated, so we always handle it via ClearData()
     ClearData();
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::SetCollection(typename PodioTypeMap<T>::collection_t&& collection) {
+void JFactoryPodioT<T>::SetCollection(typename PodioTypeMap<T>::collection_t&& collection) {
     /// Provide a PODIO collection. Note that PODIO assumes ownership of this collection, and the
     /// collection pointer should be assumed to be invalid after this call
 
@@ -85,7 +85,7 @@ void JFactoryPodioTFixed<T>::SetCollection(typename PodioTypeMap<T>::collection_
 
 
 template <typename T>
-void JFactoryPodioTFixed<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::collection_t> collection) {
+void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::collection_t> collection) {
     /// Provide a PODIO collection. Note that PODIO assumes ownership of this collection, and the
     /// collection pointer should be assumed to be invalid after this call
 
@@ -106,7 +106,7 @@ void JFactoryPodioTFixed<T>::SetCollection(std::unique_ptr<typename PodioTypeMap
 
 
 template <typename T>
-void JFactoryPodioTFixed<T>::ClearData() {
+void JFactoryPodioT<T>::ClearData() {
     for (auto p : this->mData) delete p;
     this->mData.clear();
     this->mCollection = nullptr;  // Collection is owned by the Frame, so we ignore here
@@ -119,7 +119,7 @@ void JFactoryPodioTFixed<T>::ClearData() {
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::SetCollectionAlreadyInFrame(const CollectionT* collection) {
+void JFactoryPodioT<T>::SetCollectionAlreadyInFrame(const CollectionT* collection) {
     for (const T& item : *collection) {
         T* clone = new T(item);
         this->mData.push_back(clone);
@@ -130,7 +130,7 @@ void JFactoryPodioTFixed<T>::SetCollectionAlreadyInFrame(const CollectionT* coll
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::Create(const std::shared_ptr<const JEvent>& event) {
+void JFactoryPodioT<T>::Create(const std::shared_ptr<const JEvent>& event) {
     mFrame = GetOrCreateFrame(event);
     if (this->mApp == nullptr) this->mApp = event->GetJApplication();
     auto run_number = event->GetRunNumber();
@@ -187,7 +187,7 @@ void JFactoryPodioTFixed<T>::Create(const std::shared_ptr<const JEvent>& event) 
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::Set(const std::vector<T*>& aData) {
+void JFactoryPodioT<T>::Set(const std::vector<T*>& aData) {
     typename PodioTypeMap<T>::collection_t collection;
     if (mIsSubsetCollection) collection.setSubsetCollection(true);
     for (T* item : aData) {
@@ -197,7 +197,7 @@ void JFactoryPodioTFixed<T>::Set(const std::vector<T*>& aData) {
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::Set(std::vector<T*>&& aData) {
+void JFactoryPodioT<T>::Set(std::vector<T*>&& aData) {
     typename PodioTypeMap<T>::collection_t collection;
     if (mIsSubsetCollection) collection.setSubsetCollection(true);
     for (T* item : aData) {
@@ -207,9 +207,11 @@ void JFactoryPodioTFixed<T>::Set(std::vector<T*>&& aData) {
 }
 
 template <typename T>
-void JFactoryPodioTFixed<T>::Insert(T* aDatum) {
+void JFactoryPodioT<T>::Insert(T* aDatum) {
     typename PodioTypeMap<T>::collection_t collection;
     if (mIsSubsetCollection) collection->setSubsetCollection(true);
     collection->push_back(*aDatum);
     SetCollection(std::move(collection));
 }
+
+} // namespace eicrecon

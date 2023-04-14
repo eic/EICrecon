@@ -13,8 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include "extensions/string/StringHelpers.h"
 
 
@@ -24,7 +23,7 @@
 struct NoConfig {
 };
 
-template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = JFactoryPodioTFixed>
+template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
 class JChainFactoryT : public BaseT<OutT> {
 public:
 

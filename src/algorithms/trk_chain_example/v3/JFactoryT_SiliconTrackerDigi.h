@@ -4,8 +4,7 @@
 
 #include <fmt/core.h>
 
-#include <services/io/podio/datamodel_glue.h>
-#include <services/io/podio/JFactoryPodioTFixed.h>
+#include <services/io/podio/JFactoryPodioT.h>
 
 #include <edm4hep/SimTrackerHit.h>
 
@@ -13,7 +12,7 @@
 #include "SimTrackerHitDigi.h"
 
 template <typename InputT, typename OutputT>
-class JFactoryT_SiliconTrackerDigi : public JFactoryPodioTFixed<OutputT>, SimTrackerHitDigi {
+class JFactoryT_SiliconTrackerDigi : public eicrecon::JFactoryPodioT<OutputT>, SimTrackerHitDigi {
 
 public:
     JFactoryT_SiliconTrackerDigi() {
