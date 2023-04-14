@@ -7,14 +7,14 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 
-#include <podio/ROOTFrameReader.h>
+#include <podio/ROOTLegacyReader.h>
 
-class JEventSourcePODIO : public JEventSource {
+class JEventSourcePODIOLegacy : public JEventSource {
 
 public:
-    JEventSourcePODIO(std::string resource_name, JApplication* app);
+    JEventSourcePODIOLegacy(std::string resource_name, JApplication* app);
 
-    virtual ~JEventSourcePODIO();
+    virtual ~JEventSourcePODIOLegacy();
 
     void Open() override;
 
@@ -27,7 +27,7 @@ public:
     void PrintCollectionTypeTable(void);
 
 protected:
-    podio::ROOTFrameReader m_reader;
+    podio::ROOTLegacyReader m_reader;
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;
 
@@ -40,4 +40,4 @@ protected:
 };
 
 template <>
-double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
+double JEventSourceGeneratorT<JEventSourcePODIOLegacy>::CheckOpenable(std::string);
