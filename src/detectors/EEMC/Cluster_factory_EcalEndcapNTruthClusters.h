@@ -45,7 +45,7 @@ public:
         m_input_simhit_tag="EcalEndcapNHits";
         m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
 
-        m_sampFrac=0.03;//{this, "samplingFraction", 1.0};
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=4.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
