@@ -28,6 +28,11 @@
 
 namespace eicrecon {
 
+struct PhotoMultiplierHitDigiResult {
+  std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
+  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
+};
+
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
 public:
@@ -35,8 +40,8 @@ public:
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::MCRecoTrackerHitAssociation*> AlgorithmProcess(
-        const std::vector<const edm4hep::SimTrackerHit*>& sim_hits
+    PhotoMultiplierHitDigiResult AlgorithmProcess(
+        const edm4hep::SimTrackerHitCollection* sim_hits
         );
 
     // transform global position `pos` to sensor `id` frame position
