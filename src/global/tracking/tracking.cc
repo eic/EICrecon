@@ -9,20 +9,16 @@
 #include <JANA/JEvent.h>
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
+#include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackingResult_factory.h"
-#include "TrackerReconstructedParticle_factory.h"
-#include "TrackParameters_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerHitCollector_factory.h"
-#include "TrackParameters_factory.h"
 #include "TrackProjector_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
-#include <global/reco/ReconstructedParticles_factory.h>
-#include <global/reco/ReconstructedParticleAssociations_factory.h>
 
 //
 extern "C" {
@@ -62,28 +58,22 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackSegments"));
 
-    app->Add(new JChainFactoryGeneratorT<TrackingResult_factory>(
-            {"CentralCKFTrajectories"}, "CentralTrackingParticles"));
+    app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
+            "CentralTrackingParticles",                       // Tag name for multifactory
+            {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
+            {"outputParticles",                               // edm4eic::ReconstructedParticle
+             "outputTrackParameters"},                        // edm4eic::TrackParameters
+            app));
 
-    app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
-            {"CentralTrackingParticles"}, "outputParticles"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
-            {"CentralTrackingParticles"}, "outputTrackParameters"));
-
-    app->Add(new JChainFactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            {"MCParticles",                         // Tag for edm4hep::MCParticle
-            "outputTrackParameters"},               // Tag for edm4eic::TrackParameters
-            "ChargedParticlesWithAssociations"));   // eicrecon::ParticlesWithAssociation
-
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
-            {"ChargedParticlesWithAssociations"},
-            "ReconstructedChargedParticles"));
-
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
-            {"ChargedParticlesWithAssociations"},
-            "ReconstructedChargedParticlesAssociations"));
-
+    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
+            "ChargedParticlesWithAssociations",                // Tag name for multifactory
+            {"MCParticles",                                    // edm4hep::MCParticle
+            "outputTrackParameters"},                          // edm4eic::TrackParameters
+            {"ReconstructedChargedParticles",                  //
+             "ReconstructedChargedParticlesAssociations"       // edm4eic::MCRecoParticleAssociation
+            },
+            app  // TODO: Remove me once fixed
+            ));
 
 }
 } // extern "C"

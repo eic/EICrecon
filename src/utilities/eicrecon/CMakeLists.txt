@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-print_header(">>>>   E X E C U T A B L E :   eicrecon    <<<<")       # Fancy printing
 
 project(eicrecon_project)
 
