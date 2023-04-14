@@ -131,6 +131,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
+    auto decoder = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
     if (NcellIDerrors >= MaxCellIDerrors) return;
 
     auto converter = m_geoSvc->cellIDPositionConverter();
@@ -139,19 +140,22 @@ void CalorimeterHitReco::AlgorithmProcess() {
 //        #pragma GCC diagnostic error "-Wsign-converstion"
 
         //did not pass the zero-suppresion threshold
+        const auto cellID = rh->getCellID();
         if (rh->getAmplitude() < m_pedMeanADC + thresholdADC) {
             continue;
         }
 
         // convert ADC to energy
-        const float energy =
-                (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
+        float energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
                 m_sampFrac;
+        if (m_readout == "LFHCALHits" && m_sampFracLayer[0] != 0.){
+          energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
+                    m_sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
+        }
+
         const float time = rh->getTimeStamp() / stepTDC;
+        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh->getTimeStamp(), time);
 
-//        #pragma GCC diagnostic pop
-
-        const auto cellID = rh->getCellID();
         const int lid =
                 id_dec != nullptr && !m_layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
         const int sid =
