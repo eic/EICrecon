@@ -34,11 +34,11 @@ public:
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "";
+        u_adjacencyMatrix = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1";
         u_adjacencyMatrix.erase(
           std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
           u_adjacencyMatrix.end());
-        m_readout = "";
+        m_readout = "EcalEndcapNHits";
 
         // neighbour checking distances
         m_sectorDist=5.0 * dd4hep::cm;             // from ATHENA reconstruction.py
@@ -47,7 +47,7 @@ public:
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
+        u_dimScaledLocalDistXY={};
 
 
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
