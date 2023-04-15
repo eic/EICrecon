@@ -48,6 +48,7 @@ public:
 
     // digitization settings
     unsigned int             m_capADC;
+    double                   m_capTime = 1000.;
     double                   m_dyRangeADC;
     unsigned int             m_pedMeanADC;
     double                   m_pedSigmaADC;
@@ -72,7 +73,7 @@ public:
     //-----------------------------------------------
 
     // unitless counterparts of inputs
-    double           dyRangeADC{0}, stepTDC{0}, tRes{0}, eRes[3] = {0., 0., 0.};
+    double           dyRangeADC{0}, stepTDC{0}, tRes{0};
     // variables for merging at digitization step
     bool             merge_hits = false;
     std::shared_ptr<JDD4hep_service> m_geoSvc;

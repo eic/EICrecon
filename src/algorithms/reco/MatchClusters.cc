@@ -25,7 +25,7 @@
 #include "edm4eic/TrackParametersCollection.h"
 #include "edm4eic/vector_utils.h"
 
-#include "ParticlesWithAssociation.h"
+
 
 namespace eicrecon {
 
@@ -33,7 +33,7 @@ namespace eicrecon {
         m_log = logger;
     }
 
-    ParticlesWithAssociation *MatchClusters::execute(
+    std::tuple<edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*> MatchClusters::execute(
             std::vector<const edm4hep::MCParticle *> mcparticles,
             std::vector<edm4eic::ReconstructedParticle *> inparts,
             std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
@@ -42,16 +42,11 @@ namespace eicrecon {
 
         m_log->debug("Processing cluster info for new event");
 
-
-        // Resulting reconstructed particles
-        std::vector<edm4eic::ReconstructedParticle *> outparts;
-
-        // Resulting associations
-        std::vector<edm4eic::MCRecoParticleAssociation *> outpartsassoc;
-
+        // Resulting reconstructed particles and associations
+        edm4eic::ReconstructedParticleCollection* outparts = new edm4eic::ReconstructedParticleCollection();
+        edm4eic::MCRecoParticleAssociationCollection* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
 
         m_log->debug("Step 0/2: Getting indexed list of clusters...");
-
 
         // get an indexed map of all clusters
         auto clusterMap = indexedClusters(cluster_collections, cluster_assoc_collections);
@@ -64,8 +59,7 @@ namespace eicrecon {
             m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart->getObjectID().index,
                          inpart->getPDG(), inpart->getEnergy());
 
-            auto outpart = new edm4eic::ReconstructedParticle(*inpart);
-            outparts.push_back(outpart);
+            auto outpart = outparts->create();
 
             int mcID = -1;
 
@@ -91,13 +85,12 @@ namespace eicrecon {
             }
 
             // create truth associations
-            auto assoc = edm4eic::MutableMCRecoParticleAssociation();
-            assoc.setRecID(outpart->getObjectID().index);
+            auto assoc = outpartsassoc->create();
+            assoc.setRecID(outpart.getObjectID().index);
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
-            assoc.setRec(*outpart);
-            //assoc.setSim(mcparticles[mcID]);
-            outpartsassoc.push_back(new edm4eic::MCRecoParticleAssociation(assoc));
+            assoc.setRec(outpart);
+            assoc.setRec(outpart);
         }
 
         // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
@@ -125,7 +118,7 @@ namespace eicrecon {
             m_log->debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
                          outpart.getEnergy());
 
-            outparts.push_back(new edm4eic::ReconstructedParticle(outpart));
+            outparts->push_back(outpart);
 
             // Create truth associations
             auto assoc = edm4eic::MutableMCRecoParticleAssociation();
@@ -135,7 +128,8 @@ namespace eicrecon {
             assoc.setRec(outpart);
             //assoc.setSim(mcparticles[mcID]);
         }
-        return new ParticlesWithAssociation(std::move(outparts), std::move(outpartsassoc));
+
+        return {outparts, outpartsassoc};
     }
 
 
