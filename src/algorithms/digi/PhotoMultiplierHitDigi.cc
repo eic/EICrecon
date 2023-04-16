@@ -74,13 +74,12 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
           double signal;
           decltype(edm4hep::SimTrackerHitData::time) time;
           dd4hep::Position pos;
-          std::vector<size_t> sim_hit_indices;
+          std::vector<const edm4hep::SimTrackerHit*> mc_hits;
         };
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        for(size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
-            const auto& sim_hit = sim_hits->at(sim_hit_index);
+        for(const auto& sim_hit : *sim_hits) {
             auto edep_eV = sim_hit.getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = sim_hit.getCellID();
             m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
@@ -112,10 +111,10 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 size_t i = 0;
                 for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
                     if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
-                        // hit group found, update npe, signal, and list of sim_hit_indices
+                        // hit group found, update npe, signal, and list of mc_hits
                         ghit->npe += 1;
                         ghit->signal += amp;
-                        ghit->sim_hit_indices.push_back(sim_hit_index);
+                        ghit->mc_hits.push_back(&sim_hit);
                         m_log->trace(" -> add to group @ {:#X}: signal={}", id, ghit->signal);
                         break;
                     }
@@ -123,13 +122,13 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 // no hits group found
                 if (i >= it->second.size()) {
                     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {sim_hit_index}}} });
+                    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {&sim_hit}}} });
                     m_log->trace(" -> no group found,");
                     m_log->trace("    so new group @ {:#X}: signal={}", id, sig);
                 }
             } else {
                 auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {sim_hit_index}}} });
+                hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {&sim_hit}}} });
                 m_log->trace(" -> new group @ {:#X}: signal={}", id, sig);
             }
         }
@@ -139,8 +138,8 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec) {
               m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
-              for(auto i : hit.sim_hit_indices)
-                m_log->trace("           - photon: EDep = {}", sim_hits->at(i).getEDep());
+              for(auto &mc_hit : hit.mc_hits)
+                m_log->trace("           - photon: EDep = {}", mc_hit->getEDep());
             }
         }
 
@@ -168,8 +167,8 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 auto hit_assoc = result.hit_assocs->create();
                 hit_assoc.setWeight(1.0); // not used
                 hit_assoc.setRawHit(raw_hit);
-                for(auto i : data.sim_hit_indices)
-                  hit_assoc.addToSimHits(sim_hits->at(i));
+                for(auto &mc_hit : data.mc_hits)
+                  hit_assoc.addToSimHits(*mc_hit);
             }
         }
         return std::move(result);
