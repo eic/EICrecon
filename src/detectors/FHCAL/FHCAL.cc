@@ -13,7 +13,6 @@
 #include "ProtoCluster_factory_HcalEndcapPIslandProtoClusters.h"
 #include "Cluster_factory_HcalEndcapPClusters.h"
 #include "Cluster_factory_HcalEndcapPTruthClusters.h"
-#include "Cluster_factory_HcalEndcapPMergedClusters.h"
 
 #include "RawCalorimeterHit_factory_HcalEndcapPInsertRawHits.h"
 #include "CalorimeterHit_factory_HcalEndcapPInsertRecHits.h"
@@ -41,10 +40,8 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapPMergedClusters>());
         app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPTruthClusterAssociations>());
         app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPClusterAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_HcalEndcapPMergedClusterAssociations>());
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPInsertRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>());
