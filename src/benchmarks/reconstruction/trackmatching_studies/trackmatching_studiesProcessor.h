@@ -62,6 +62,7 @@ public:
     TH2D* hLFHCAL_dEta_dPhi;
     TH2D* hOHCAL_dEta_dPhi;
     TH2D* hEHCAL_dEta_dPhi;
+    TH2D* hBICAL_dEta_dPhi;
 
     TH3D* hECalibEtaE_FEMC_matched;
     TH3D* hECalibEtaE_EEMC_matched;
@@ -69,6 +70,7 @@ public:
     TH3D* hECalibEtaE_LFHCAL_matched;
     TH3D* hECalibEtaE_OHCAL_matched;
     TH3D* hECalibEtaE_EHCAL_matched;
+    TH3D* hECalibEtaE_BICAL_matched;
 
     TH3D* hECalibEtaE_forward_matched;
     TH3D* hECalibEtaE_barrel_matched;
@@ -89,10 +91,5 @@ public:
     std::shared_ptr<Acts::CylinderSurface> m_OHCAL_prop_surface;
     std::shared_ptr<Acts::DiscSurface> m_EHCAL_prop_surface;
     
-
-    std::string nameSimHits         = "LFHCALHits";
-    std::string nameRecHits         = "LFHCALRecHits";
-    std::string nameClusters        = "LFHCALClusters";
-    std::string nameProtoClusters   = "LFHCALIslandProtoClusters";
 
 };

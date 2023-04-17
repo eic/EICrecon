@@ -87,6 +87,8 @@ void trackmatching_studiesProcessor::Init() {
       new TH2D("hEEMC_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
   hEHCAL_dEta_dPhi =
       new TH2D("hEHCAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
+  hBICAL_dEta_dPhi =
+      new TH2D("hBICAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
   hLFHCAL_dEta_dPhi =
       new TH2D("hLFHCAL_dEta_dPhi", "; #Delta#eta; #Delta#phi", 200, -0.2, 0.2, 200, -0.2, 0.2);
   hBEMC_dEta_dPhi =
@@ -96,36 +98,41 @@ void trackmatching_studiesProcessor::Init() {
   hFEMC_dEta_dPhi->SetDirectory(m_dir_main);
   hEEMC_dEta_dPhi->SetDirectory(m_dir_main);
   hEHCAL_dEta_dPhi->SetDirectory(m_dir_main);
+  hBICAL_dEta_dPhi->SetDirectory(m_dir_main);
   hLFHCAL_dEta_dPhi->SetDirectory(m_dir_main);
   hBEMC_dEta_dPhi->SetDirectory(m_dir_main);
   hOHCAL_dEta_dPhi->SetDirectory(m_dir_main);
-  
+
   // possibly vs phi as well 0.01 binning for barrel
-  hECalibEtaE_FEMC_matched =
-      new TH3D("hECalibEtaE_FEMC_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_EEMC_matched =
-      new TH3D("hECalibEtaE_EEMC_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_BEMC_matched =
-      new TH3D("hECalibEtaE_BEMC_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_LFHCAL_matched =
-      new TH3D("hECalibEtaE_LFHCAL_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_OHCAL_matched =
-      new TH3D("hECalibEtaE_OHCAL_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_EHCAL_matched =
-      new TH3D("hECalibEtaE_EHCAL_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_EHCAL_matched->SetDirectory(m_dir_main);
+  hECalibEtaE_FEMC_matched = new TH3D("hECalibEtaE_FEMC_matched", "; E_{rec}/E_{true} ; #eta", 100,
+                                      0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_EEMC_matched = new TH3D("hECalibEtaE_EEMC_matched", "; E_{rec}/E_{true} ; #eta", 100,
+                                      0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_BEMC_matched = new TH3D("hECalibEtaE_BEMC_matched", "; E_{rec}/E_{true} ; #eta", 100,
+                                      0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_LFHCAL_matched = new TH3D("hECalibEtaE_LFHCAL_matched", "; E_{rec}/E_{true} ; #eta",
+                                        100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_OHCAL_matched  = new TH3D("hECalibEtaE_OHCAL_matched", "; E_{rec}/E_{true} ; #eta",
+                                        100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_EHCAL_matched  = new TH3D("hECalibEtaE_EHCAL_matched", "; E_{rec}/E_{true} ; #eta",
+                                        100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_BICAL_matched  = new TH3D("hECalibEtaE_BICAL_matched", "; E_{rec}/E_{true} ; #eta",
+                                        100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
   hECalibEtaE_FEMC_matched->SetDirectory(m_dir_main);
   hECalibEtaE_EEMC_matched->SetDirectory(m_dir_main);
   hECalibEtaE_BEMC_matched->SetDirectory(m_dir_main);
   hECalibEtaE_LFHCAL_matched->SetDirectory(m_dir_main);
   hECalibEtaE_OHCAL_matched->SetDirectory(m_dir_main);
+  hECalibEtaE_EHCAL_matched->SetDirectory(m_dir_main);
+  hECalibEtaE_BICAL_matched->SetDirectory(m_dir_main);
 
-  hECalibEtaE_forward_matched =
-      new TH3D("hECalibEtaE_forward_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
-  hECalibEtaE_barrel_matched =
-      new TH3D("hECalibEtaE_barrel_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_forward_matched = new TH3D("hECalibEtaE_forward_matched", "; E_{rec}/E_{true} ; #eta",
+                                         100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+  hECalibEtaE_barrel_matched  = new TH3D("hECalibEtaE_barrel_matched", "; E_{rec}/E_{true} ; #eta",
+                                         100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
   hECalibEtaE_backward_matched =
-      new TH3D("hECalibEtaE_backward_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0, 4.0, 300, 0., 30.);
+      new TH3D("hECalibEtaE_backward_matched", "; E_{rec}/E_{true} ; #eta", 100, 0., 2., 32, -4.0,
+               4.0, 300, 0., 30.);
   hECalibEtaE_forward_matched->SetDirectory(m_dir_main);
   hECalibEtaE_barrel_matched->SetDirectory(m_dir_main);
   hECalibEtaE_backward_matched->SetDirectory(m_dir_main);
@@ -246,27 +253,30 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
 
         // loop over LFHCAL clusters
         int iClF = 0;
+        try{
+        auto lfhcalClustersF = event->Get<edm4eic::Cluster>("LFHCALClusters");
+          for (auto& cluster : lfhcalClustersF) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hLFHCAL_dEta_dPhi->Fill(dEta, dPhi);
 
-        auto lfhcalClustersF = event->Get<edm4eic::Cluster>(nameClusters.data());
-        for (auto& cluster : lfhcalClustersF) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hLFHCAL_dEta_dPhi->Fill(dEta, dPhi);
-
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_LFHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_LFHCAL) {
-              highMatchedE_LFHCAL = cluster->getEnergy();
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_LFHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_LFHCAL) {
+                highMatchedE_LFHCAL = cluster->getEnergy();
+              }
             }
-          }
 
-          iClF++;
+            iClF++;
+          }
+          cout << "LFHCAL clusters: " << iClF << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
-        cout << "LFHCAL clusters: " << iClF << endl;
-      } // end projection to LFHCAL surface
-    }   // end LFHCAL acceptance requirement
+      }
+    } // end LFHCAL acceptance requirement
 
     // projection to FEMC surface
     float highMatchedE_FEMC = 0;
@@ -290,24 +300,27 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
 
         // loop over FEMC clusters
         int iECl = 0;
-
+        try{
         auto FEMC_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapPClusters");
-        for (auto& cluster : FEMC_Clusters) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hFEMC_dEta_dPhi->Fill(dEta, dPhi);
+          for (auto& cluster : FEMC_Clusters) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hFEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_FEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_FEMC) {
-              highMatchedE_FEMC = cluster->getEnergy();
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_FEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_FEMC) {
+                highMatchedE_FEMC = cluster->getEnergy();
+              }
             }
+            iECl++;
           }
-          iECl++;
+          cout << "FEMC clusters: " << iECl << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
-        cout << "FEMC clusters: " << iECl << endl;
       } // end FEMC projection
     }   // end FEMC acceptance requirement
 
@@ -333,28 +346,33 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
 
         int iECl = 0;
 
+        try{
         auto EEMC_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapNClusters");
-        for (auto& cluster : EEMC_Clusters) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hEEMC_dEta_dPhi->Fill(dEta, dPhi);
+          for (auto& cluster : EEMC_Clusters) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hEEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_EEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_EEMC) {
-              highMatchedE_EEMC = cluster->getEnergy();
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_EEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_EEMC) {
+                highMatchedE_EEMC = cluster->getEnergy();
+              }
             }
+            iECl++;
           }
-          iECl++;
+          cout << "EEMC clusters: " << iECl << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
-        cout << "EEMC clusters: " << iECl << endl;
       } // end of EEMC projection
     }   // end of EEMC acceptance requirement
 
     // projection to BEMC surface
-    float highMatchedE_BEMC = 0;
+    float highMatchedE_BEMC  = 0;
+    float highMatchedE_BICAL = 0;
     if (abs(mceta) < 1.5) { // acceptance requirement
       edm4eic::TrackPoint* projection_point_BEMC = nullptr;
       try {
@@ -374,25 +392,53 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
         TVector3 proj_pos_vec(proj_pos.x, proj_pos.y, proj_pos.z);
 
         // loop over BEMC clusters
-        int iECl = 0;
+        int iECl_BEMC = 0;
 
-        auto BEMC_Clusters = event->Get<edm4eic::Cluster>("EcalBarrelSciGlassClusters");
-        for (auto& cluster : BEMC_Clusters) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hBEMC_dEta_dPhi->Fill(dEta, dPhi);
+        try {
+          auto BEMC_Clusters = event->Get<edm4eic::Cluster>("EcalBarrelSciGlassClusters");
+            for (auto& cluster : BEMC_Clusters) {
+              float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+              float clus_phi = (float)cluster->getIntrinsicPhi();
+              float dEta     = proj_pos_vec.Eta() - clus_eta;
+              float dPhi     = proj_pos_vec.Phi() - clus_phi;
+              hBEMC_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_BEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_BEMC) {
-              highMatchedE_BEMC = cluster->getEnergy();
+              if (dEta < 0.1 && dPhi < 0.1) {
+                hECalibEtaE_BEMC_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+                if (cluster->getEnergy() > highMatchedE_BEMC) {
+                  highMatchedE_BEMC = cluster->getEnergy();
+                }
+              }
+              iECl_BEMC++;
             }
-          }
-          iECl++;
+            cout << "BEMC clusters: " << iECl_BEMC << endl;
+        } catch (std::exception& e) {
+          // m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
-        cout << "BEMC clusters: " << iECl << endl;
+
+        // loop over BICAL clusters
+        int iECl_BICAL = 0;
+        try{
+        auto BICAL_Clusters = event->Get<edm4eic::Cluster>("EcalBarrelImagingClusters");
+          for (auto& cluster : BICAL_Clusters) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hBICAL_dEta_dPhi->Fill(dEta, dPhi);
+
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_BICAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_BICAL) {
+                highMatchedE_BICAL = cluster->getEnergy();
+              }
+            }
+            iECl_BICAL++;
+          } // end loop over BICAL clusters
+          cout << "BICAL clusters: " << iECl_BICAL << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+        }
       } // end of BEMC projection
     }   // end of BEMC acceptance requirement
 
@@ -418,23 +464,27 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
 
         // loop over OHCAL clusters
         int iECl            = 0;
+        try{
         auto OHCAL_Clusters = event->Get<edm4eic::Cluster>("HcalBarrelClusters");
-        for (auto& cluster : OHCAL_Clusters) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hOHCAL_dEta_dPhi->Fill(dEta, dPhi);
+          for (auto& cluster : OHCAL_Clusters) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hOHCAL_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_OHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_OHCAL) {
-              highMatchedE_OHCAL = cluster->getEnergy();
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_OHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_OHCAL) {
+                highMatchedE_OHCAL = cluster->getEnergy();
+              }
             }
+            iECl++;
           }
-          iECl++;
+          cout << "OHCAL clusters: " << iECl << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
         }
-        cout << "OHCAL clusters: " << iECl << endl;
       } // end of OHCAL projection
     }   // end of OHCAL acceptance requirement
 
@@ -460,35 +510,41 @@ void trackmatching_studiesProcessor::Process(const std::shared_ptr<const JEvent>
 
         // loop over EHCAL clusters
         int iECl = 0;
-
+        try{
         auto EHCAL_Clusters = event->Get<edm4eic::Cluster>("EcalEndcapNClusters");
-        for (auto& cluster : EHCAL_Clusters) {
-          float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
-          float clus_phi = (float)cluster->getIntrinsicPhi();
-          float dEta     = proj_pos_vec.Eta() - clus_eta;
-          float dPhi     = proj_pos_vec.Phi() - clus_phi;
-          hEHCAL_dEta_dPhi->Fill(dEta, dPhi);
+          for (auto& cluster : EHCAL_Clusters) {
+            float clus_eta = (-1.) * std::log(std::tan((float)cluster->getIntrinsicTheta() / 2.));
+            float clus_phi = (float)cluster->getIntrinsicPhi();
+            float dEta     = proj_pos_vec.Eta() - clus_eta;
+            float dPhi     = proj_pos_vec.Phi() - clus_phi;
+            hEHCAL_dEta_dPhi->Fill(dEta, dPhi);
 
-          if (dEta < 0.1 && dPhi < 0.1) {
-            hECalibEtaE_EHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
-            if (cluster->getEnergy() > highMatchedE_EHCAL) {
-              highMatchedE_EHCAL = cluster->getEnergy();
+            if (dEta < 0.1 && dPhi < 0.1) {
+              hECalibEtaE_EHCAL_matched->Fill(cluster->getEnergy() / mcenergy, mceta, mcenergy);
+              if (cluster->getEnergy() > highMatchedE_EHCAL) {
+                highMatchedE_EHCAL = cluster->getEnergy();
+              }
             }
-          }
-          iECl++;
-        } // end loop over EHCAL clusters
-        cout << "EHCAL clusters: " << iECl << endl;
+            iECl++;
+          } // end loop over EHCAL clusters
+          cout << "EHCAL clusters: " << iECl << endl;
+        } catch (std::exception& e) {
+          m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+        }
       } // end if projection to EHCAL surface
     }   // end projection to EHCAL surface
 
-    if (highMatchedE_OHCAL > 0 && highMatchedE_BEMC > 0) {
-      hECalibEtaE_barrel_matched->Fill((highMatchedE_OHCAL + highMatchedE_BEMC) / mcenergy, mceta, mcenergy);
+    if (highMatchedE_OHCAL > 0 && (highMatchedE_BEMC > 0 || highMatchedE_BICAL > 0)) {
+      hECalibEtaE_barrel_matched->Fill((highMatchedE_OHCAL + highMatchedE_BEMC) / mcenergy, mceta,
+                                       mcenergy);
     }
     if (highMatchedE_EEMC > 0 && highMatchedE_EHCAL > 0) {
-      hECalibEtaE_backward_matched->Fill((highMatchedE_EEMC + highMatchedE_EHCAL) / mcenergy, mceta, mcenergy);
+      hECalibEtaE_backward_matched->Fill((highMatchedE_EEMC + highMatchedE_EHCAL) / mcenergy, mceta,
+                                         mcenergy);
     }
     if (highMatchedE_FEMC > 0 && highMatchedE_LFHCAL > 0) {
-      hECalibEtaE_forward_matched->Fill((highMatchedE_FEMC + highMatchedE_LFHCAL) / mcenergy, mceta, mcenergy);
+      hECalibEtaE_forward_matched->Fill((highMatchedE_FEMC + highMatchedE_LFHCAL) / mcenergy, mceta,
+                                        mcenergy);
     }
   } // end loop over tracks
 } // end process
