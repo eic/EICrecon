@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 #include <extensions/jana/JChainFactoryGeneratorT.h>
+#include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
@@ -115,10 +116,12 @@ extern "C" {
     // clang-format off
 
     // digitization
-    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+          "DRICHRawHits",
           {"DRICHHits"},
-          "DRICHRawHitsAssociations",
-          digi_cfg
+          {"DRICHRawHits", "DRICHRawHitsAssociations"},
+          digi_cfg,
+          app
           ));
 
     // charged particle tracks
