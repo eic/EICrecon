@@ -67,7 +67,7 @@ class CalorimeterClusterRecoCoG {
                                  // the eta of the contributing hits. This is useful to avoid edge effects
                                  // for endcaps.
     bool m_enableEtaBounds;//{this, "enableEtaBounds", false};
-    bool m_xyClusterProfiling;//{this, "xyClusterProfiling, false};
+    bool m_xyClusterProfiling = false;//{this, "xyClusterProfiling, false};
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
 
