@@ -149,13 +149,6 @@ macro(plugin_glob_all _name)
         message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
     endif()
 
-    # To somehow control GLOB lets at least PRINT files we are going to compile:
-    message(STATUS "Source files:")
-    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
-    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
-    message(STATUS "Header files:")
-    print_file_names("  " ${HEADER_FILES})  # Prints header files
-
 endmacro()
 
 

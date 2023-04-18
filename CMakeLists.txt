@@ -87,6 +87,9 @@ find_package(JANA REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
+add_compile_definitions(HAVE_PODIO)
+# TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
+# TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(podio REQUIRED)
@@ -116,14 +119,10 @@ set(EICRECON_VERBOSE_CMAKE OFF)
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
-include(cmake/print_subdirectory_tree.cmake)                # Prints processed subdirectories
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
 
-# ------------------------------------------------------------------
-print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
-# ------------------------------------------------------------------
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
@@ -133,14 +132,6 @@ add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
 add_subdirectory( src/utilities )
-
-
-
-# Print what we had built
-print_header("CMake processed subdirectories:")
-print_subdirectory_tree()
-message(STATUS "\n-------------------------------")
-
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)

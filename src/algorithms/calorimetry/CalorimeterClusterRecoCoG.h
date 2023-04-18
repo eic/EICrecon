@@ -58,15 +58,15 @@ public:
     std::string m_input_simhit_tag;
     std::string m_input_protoclust_tag;
 
-    double m_sampFrac;//{this, "samplingFraction", 1.0};
-    double m_logWeightBase;//{this, "logWeightBase", 3.6};
-    double m_depthCorrection;//{this, "depthCorrection", 0.0};
+    double m_sampFrac         = 1.;//{this, "samplingFraction", 1.0};
+    double m_logWeightBase = 3.6;
+    double m_depthCorrection  = 0.;//{this, "depthCorrection", 0.0};
     std::string m_energyWeight;//{this, "energyWeight", "log"};
     std::string m_moduleDimZName;//{this, "moduleDimZName", ""};
     // Constrain the cluster position eta to be within
     // the eta of the contributing hits. This is useful to avoid edge effects
     // for endcaps.
-    bool m_enableEtaBounds;//{this, "enableEtaBounds", false};
+    bool m_enableEtaBounds    = false;//{this, "enableEtaBounds", false};
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
 
@@ -122,11 +122,11 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
     }
     cl.setEnergy(totalE / m_sampFrac);
     cl.setEnergyError(0.);
-    cl.setTime(time);
-    cl.setTimeError(timeError);
 
     // center of gravity with logarithmic weighting
     float tw = 0.;
+    float timeWeighted = 0.;
+    float timeErrorWeighted = 0.;
     auto v   = cl.getPosition();
     for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
       const auto& hit   = pcl->getHits()[i];
@@ -135,11 +135,17 @@ edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const {
       float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
       tw += w;
       v = v + (hit.getPosition() * w);
+      timeWeighted = timeWeighted + hit.getTime() * w;
+      timeErrorWeighted = timeErrorWeighted + hit.getTimeError() * w;
     }
+
     if (tw == 0.) {
       m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
     }
     cl.setPosition(v / tw);
+    cl.setTime(time / tw);
+    cl.setTimeError(timeError / tw);
+
     cl.setPositionError({}); // @TODO: Covariance matrix
 
     // Optionally constrain the cluster to the hit eta values

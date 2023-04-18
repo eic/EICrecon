@@ -2,44 +2,10 @@
 #include "JEventProcessorPODIO.h"
 #include <services/log/Log_service.h>
 #include <JANA/Services/JComponentManager.h>
+#include <podio/Frame.h>
 
 #include <datamodel_glue.h>
 #include <algorithm>
-
-
-template <typename PodioT, typename PodioCollectionT>
-struct TestIfPodioType {
-    bool operator() () {
-        return true;
-    }
-};
-
-template <typename PodioT, typename PodioCollectionT>
-struct InsertFacIntoStore {
-    size_t operator() (JFactory* fac, eic::EventStore* store, bool create) {
-        std::string collection_name = fac->GetTag();
-        if (create) {
-            store->create<PodioCollectionT>(collection_name);
-        }
-        auto& collection = store->get<PodioCollectionT>(collection_name);
-        auto tobjs = fac->GetAs<PodioT>();
-        for (auto t : tobjs) {
-            collection.push_back( t->clone() );
-        }
-        return tobjs.size();
-    }
-};
-
-/// This is used to activate the factory using the standard JEvent::Get
-/// call. It is done this way so that the factory call stack recording
-/// mechanism can work properly.
-template <typename PodioT, typename PodioCollectionT>
-struct GetFactoryObjects {
-    size_t operator() (const std::shared_ptr<const JEvent> &event, JFactory* fac) {
-        auto objs = event->Get<PodioT>( fac->GetTag() );
-        return objs.size();
-    }
-};
 
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -74,7 +40,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // All tracking hits combined
             "CentralTrackingRecHits",
-	"CentralTrackSeedingResults",
+            "CentralTrackSeedingResults",
+
             // Si tracker hits
             "SiBarrelTrackerRecHits",
             "SiBarrelVertexRecHits",
@@ -117,32 +84,24 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapNRecHits",
             "EcalEndcapNTruthClusters",
             "EcalEndcapNClusters",
-            "EcalEndcapNMergedClusters",
             "EcalEndcapNTruthClusterAssociations",
             "EcalEndcapNClusterAssociations",
-            "EcalEndcapNMergedClusterAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
             "EcalEndcapPTruthClusters",
             "EcalEndcapPClusters",
-            "EcalEndcapPMergedClusters",
             "EcalEndcapPTruthClusterAssociations",
             "EcalEndcapPClusterAssociations",
-            "EcalEndcapPMergedClusterAssociations",
             "EcalEndcapPInsertRawHits",
             "EcalEndcapPInsertRecHits",
             "EcalEndcapPInsertTruthClusters",
             "EcalEndcapPInsertClusters",
-            "EcalEndcapPInsertMergedClusters",
             "EcalEndcapPInsertTruthClusterAssociations",
             "EcalEndcapPInsertClusterAssociations",
-            "EcalEndcapPInsertMergedClusterAssociations",
             "EcalBarrelSciGlassRawHits",
             "EcalBarrelSciGlassRecHits",
             "EcalBarrelSciGlassClusters",
-            "EcalBarrelSciGlassMergedClusters",
             "EcalBarrelSciGlassTruthClusters",
-            "EcalBarrelSciGlassMergedTruthClusters",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
@@ -161,11 +120,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapPClusters",
             "HcalEndcapPTruthClusterAssociations",
             "HcalEndcapPClusterAssociations",
-            "HcalEndcapPMergedClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
             "HcalEndcapPInsertClusters",
+            "LFHCALRawHits",
+            "LFHCALRecHits",
+            "LFHCALClusters",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",
@@ -175,7 +136,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ZDCEcalRawHits",
             "ZDCEcalRecHits",
             "ZDCEcalClusters",
-            "ZDCEcalMergedClusters",
             "HcalEndcapNTruthClusters",
 //            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
             "HcalBarrelTruthClusters",
@@ -194,6 +154,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             output_exclude_collections,
             "Comma separated list of collection names to not write out."
     );
+    japp->SetDefaultParameter(
+            "podio:print_collections",
+            m_collections_to_print,
+            "Comma separated list of collection names to print to screen, e.g. for debugging."
+    );
 
     m_output_include_collections = std::set<std::string>(output_include_collections.begin(),
                                                          output_include_collections.end());
@@ -208,90 +173,79 @@ void JEventProcessorPODIO::Init() {
     auto app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
-    m_store = new eic::EventStore();
-    m_writer = std::make_shared<eic::ROOTWriter>(m_output_file, m_store, m_log);
+    m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_file);
+    // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
+    //       I definitely don't trust PODIO to do this for me.
 
 }
 
 
-void JEventProcessorPODIO::FindCollectionsToWrite(const std::vector<JFactory*>& factories) {
+void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event) {
 
     // Set up the set of collections_to_write.
-    std::map<std::string, std::string> all_collections_to_types;
-    for (auto fac : factories) {
-        const auto& colname = fac->GetTag();
-        if (colname.empty()) {
-            m_log->debug("Factory producing type '{}' has an empty collection name, omitting.", fac->GetObjectName());
-        }
-        else if (all_collections_to_types.count(colname) != 0) {
-            throw JException("Collection name collision: Collection '%s' provided by factories producing types '%s' and '%s'.",
-                             colname, all_collections_to_types[colname], fac->GetObjectName());
-        }
-        else {
-            all_collections_to_types[fac->GetTag()] = fac->GetObjectName();
-        }
-    }
-    std::map<std::string, std::string> collections_to_include;
+    std::vector<std::string> all_collections = event->GetAllCollectionNames();
 
     if (m_output_include_collections.empty()) {
-        // User has not specified an include list, so we include _all_ JFactories present in first event.
-        // (Non-PODIO types will be ignored later)
-        m_log->debug("Persisting full set of valid podio types");
-        collections_to_include = all_collections_to_types;
+        // User has not specified an include list, so we include _all_ PODIO collections present in the first event.
+        for (const std::string& col : all_collections) {
+            if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
+                m_collections_to_write.push_back(col);
+                m_log->info("Persisting collection '{}'", col);
+            }
+        }
     }
     else {
         m_log->debug("Persisting podio types from includes list");
         m_user_included_collections = true;
-        // We match up the include list with what is actually present in the JFactorySet
+
+        // We match up the include list with what is actually present in the event
+        std::set<std::string> all_collections_set = std::set<std::string>(all_collections.begin(), all_collections.end());
+
         for (const auto& col : m_output_include_collections) {
-            auto it = all_collections_to_types.find(col);
-            if (it != all_collections_to_types.end()) {
-                collections_to_include[it->first] = it->second;
-            }
-            else {
-                m_log->warn("Explicitly included collection '{}' not present in JFactorySet, omitting.", col);
+            if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
+                // Included and not excluded
+                if (all_collections_set.find(col) == all_collections_set.end()) {
+                    // Included, but not a valid PODIO type
+                    m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.", col);
+                }
+                else {
+                    // Included, not excluded, and a valid PODIO type
+                    m_collections_to_write.push_back(col);
+                    m_log->info("Persisting collection '{}'", col);
+                }
             }
         }
     }
 
-    // We remove any collections on the exclude list
-    // (whether it be from the include list or the list of all factories)
-    for (const auto& col : m_output_exclude_collections) {
-        m_log->info("Excluding collection '{}'", col);
-        collections_to_include.erase(col);
-    }
-
-    // If any of these collections are not PODIO types, remove from collections_to_write and inform the user right away.
-    for (const auto& pair : collections_to_include) {
-        const auto& col = pair.first;
-        const auto& coltype = pair.second;
-
-        if (CallWithPODIOType<TestIfPodioType, bool>(coltype) == std::nullopt) {
-            // Severity of the log message depends on whether the user explicitly included the collection or not
-            if (m_output_include_collections.empty()) {
-                m_log->info("Collection '{}' has non-PODIO type '{}', omitting.", col, coltype);
-            }
-            else {
-                m_log->warn("Explicitly included collection '{}' has non-PODIO type '{}', omitting.", col, coltype);
-            }
-        }
-        else {
-            // This IS a PODIO type, and should be included.
-            m_collections_to_write[col] = coltype;
-            m_log->info("Writing collection '{}'", pair.first);
-        }
-    }
 }
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     std::lock_guard<std::mutex> lock(m_mutex);
     if (m_is_first_event) {
-        FindCollectionsToWrite(event->GetAllFactories());
+        FindCollectionsToWrite(event);
+    }
+
+    // Print the contents of some collections, just for debugging purposes
+    // Do this before writing just in case writing crashes
+    if (!m_collections_to_print.empty()) {
+        LOG << "========================================" << LOG_END;
+        LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+    }
+    for (const auto& coll_name : m_collections_to_print) {
+        LOG << "------------------------------" << LOG_END;
+        LOG << coll_name << LOG_END;
+        event->GetCollectionBase(coll_name)->print();
     }
 
     m_log->trace("==================================");
     m_log->trace("Event #{}", event->GetEventNumber());
+
+
+    // Make sure that all factories get called that need to be written into the frame.
+    // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
+    // Note that all collections need to be present in the first event, as podio::RootFrameWriter constrains us to write one event at a time, so there
+    // is no way to add a new branch after the first event.
 
     // If we get an exception below while trying to add a factory for any
     // reason then mark that factory as bad and don't try running it again.
@@ -300,56 +254,58 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // always throw an exception, but DD4hep also prints its own error message.
     // Thus, to prevent that error message every event, we must avoid calling
     // it.
-    static std::set<std::string> failing_factories;
 
-    // Loop over all collections/factories to write
-    for( const auto& pair : (m_collections_to_write) ){
-        JFactory* fac = event->GetFactory(pair.second, pair.first); // Object name, tag name=collection name
-
-        // See not above on flagging certain factories not to be run.
-        std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
-        if (failing_factories.count(fac_name)) continue;
-
-        // Attempt to put data from all factories into the store.
-        // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
-        // This is because podio::RootWriter constrains us to write one event at a time, so there
-        // is no way to add a new branch after the first event.
-        // This is called even for ones whose data classes don't inherit from
-        // an edm4hep class. Those cases just silently do nothing here and return
-        // an empty string. Note that this relies on the JFactory::EnableAs mechanism
-        // so that needs to have been called in the factory constructor.
+    // Activate factories.
+    // TODO: NWB: For now we run every factory every time, swallowing exceptions if necessary.
+    //            We do this so that we always have the same collections created in the same order.
+    //            This means that the collection IDs are stable so the writer doesn't segfault.
+    //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
+    // std::vector<std::string> successful_collections;  // TODO: NWB: Re-enable me
+    static std::set<std::string> failed_collections;
+    for (const std::string& coll : m_collections_to_write) {
         try {
-            if (m_user_included_collections) {
-                // If the user specified some collections to include, we make sure that the corresponding factory
-                // actually ran. If the user didn't specify any collections in the include list, we don't: For factories
-                // that had not already been triggered by an EventProcessor, we simply write out zero objects.
-                m_log->trace("Ensuring factory '{}:{}' has been called.", fac->GetObjectName(), fac->GetTag());
-                auto result = CallWithPODIOType<GetFactoryObjects, size_t, decltype(event), decltype(fac)>(fac->GetObjectName(), event, fac);
-            }
-            auto result = CallWithPODIOType<InsertFacIntoStore, size_t, JFactory*, eic::EventStore*, bool>(fac->GetObjectName(), fac, m_store, m_is_first_event);
-
-            if (result == std::nullopt) {
-                m_log->warn("Unrecognized PODIO type '{}:{}', ignoring.", fac->GetObjectName(), fac->GetTag());
-            }
-            else {
-                m_log->trace("Added PODIO type '{}:{}' for writing.", fac->GetObjectName(), fac->GetTag());
-                if (m_is_first_event) {
-                    // We only want to register for write once.
-                    // If we register the same collection multiple times, PODIO will segfault.
-                    m_writer->registerForWrite(fac->GetTag());
+            m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
+            const auto* coll_ptr = event->GetCollectionBase(coll);
+            if (coll_ptr == nullptr) {
+                // If a collection is missing from the frame, the podio root writer will segfault.
+                // To avoid this, we treat this as a failing collection and omit from this point onwards.
+                // However, this code path is expected to be unreachable because any missing collection will be
+                // replaced with an empty collection in JFactoryPodioTFixed::Create.
+                if (failed_collections.count(coll) == 0) {
+                    m_log->error("Omitting PODIO collection '{}' because it is null", coll);
+                    failed_collections.insert(coll);
                 }
             }
+            else {
+                // successful_collections.push_back(coll); // TODO: NWB: Re-enable me
+            }
         }
-        catch(const JException &e) {
+        catch(std::exception &e) {
             // Limit printing warning to just once per factory
-            std::string fac_name = fac->GetObjectName() + ":" + fac->GetTag();
-            failing_factories.insert(fac_name);
-            m_log->warn("Exception adding PODIO type '{}:{}': {}.", fac->GetObjectName(), fac->GetTag(), e.what());
+            if (failed_collections.count(coll) == 0) {
+                m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
+                failed_collections.insert(coll);
+            }
         }
     }
-    m_writer->writeEvent();
-    m_store->clearCollections();
+    // m_collections_to_write = successful_collections; // TODO: NWB: Re-enable me
+
+    // Frame will contain data from all Podio factories that have been triggered,
+    // including by the `event->GetCollectionBase(coll);` above.
+    // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
+    auto* frame = event->GetSingle<podio::Frame>();
+
+    // TODO: NWB: We need to actively stabilize podio collections. Until then, keep this around in case
+    //            the writer starts segfaulting, so we can quickly see whether the problem is unstable collection IDs.
+    /*
+    m_log->info("Event {}: Writing {} collections", event->GetEventNumber(), m_collections_to_write.size());
+    for (const std::string& collname : m_collections_to_write) {
+        m_log->info("Writing collection '{}' with id {}", collname, frame->get(collname)->getID());
+    }
+    */
+    m_writer->writeFrame(*frame, "events", m_collections_to_write);
     m_is_first_event = false;
+
 }
 
 void JEventProcessorPODIO::Finish() {

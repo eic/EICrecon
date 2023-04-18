@@ -2,30 +2,22 @@
 #include "TrackingTest_processor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "algorithms/reco/ParticlesWithAssociation.h"
+
+#include "services/io/podio/datamodel_glue.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
 #include <fmt/core.h>
 
-#include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
 #include <Math/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/ReconstructedParticle.h>
 
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/JugTrack/Track.hpp>
 #include <services/rootfile/RootFile_service.h>
@@ -78,9 +70,7 @@ void TrackingTest_processor::Init()
 //------------------
 void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
-    using namespace ROOT;
-
-    m_log->debug("----------- TrackingTest_processor {}-----------", event->GetEventNumber());
+    m_log->debug("---- TrackingTest_processor {} ----", event->GetEventNumber());
 
     ProcessTrackingMatching(event);
 }
@@ -96,12 +86,10 @@ void TrackingTest_processor::Finish()
 }
 
 void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const JEvent> &event) {
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
-    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
+    auto reco_particles = event->GetCollection<edm4eic::ReconstructedParticle>("outputParticles");
+
+    m_log->debug("Tracking reconstructed particles N={}: ", reco_particles->size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
-
-
-    auto reco_particles = trk_result->particles();
 
     for(size_t i=0; i < reco_particles->size(); i++) {
         auto particle = (*reco_particles)[i];
@@ -141,33 +129,36 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
 void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const JEvent> &event) {
     m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
-    auto prt_with_assoc = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
+    // auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
+
+    auto particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+    auto associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticlesAssociations");
 
 
-    for(auto assoc: prt_with_assoc->associations()) {
 
-        auto sim = assoc->getSim();
-        auto rec = assoc->getRec();
+    for(auto assoc: *associations) {
+        auto sim = assoc.getSim();
+        auto rec = assoc.getRec();
 
-        m_log->debug("  {:<6} {:<6} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", assoc->getSimID(), assoc->getRecID(), sim.getPDG(), rec.getPDG());
+        m_log->debug("  {:<6} {:<6} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", assoc.getSimID(), assoc.getRecID(), sim.getPDG(), rec.getPDG());
     }
 
-    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
-    for(auto part: prt_with_assoc->particles()) {
-
-        // auto sim = assoc->getSim();
-        // auto rec = assoc->getRec();
-
-        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
-
-    }
-
-
-    m_log->debug("ReconstructedChargedParticles [objID] [PDG] [charge] [energy]");
-    auto reco_charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-    for(auto part: reco_charged_particles) {
-        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
-    }
+//    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
+//    for(auto part: prt_with_assoc->particles()) {
+//
+//        // auto sim = assoc->getSim();
+//        // auto rec = assoc->getRec();
+//
+//        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+//
+//    }
+//
+//
+//    m_log->debug("ReconstructedChargedParticles [objID] [PDG] [charge] [energy]");
+//    auto reco_charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+//    for(auto part: reco_charged_particles) {
+//        m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
+//    }
 
 }
 
