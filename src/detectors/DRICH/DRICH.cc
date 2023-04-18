@@ -155,6 +155,7 @@ extern "C" {
           {
             useReconstructedTracks ? "DRICHAerogelTracks" : "DRICHAerogelPseudoTracks",
             useReconstructedTracks ? "DRICHGasTracks"     : "DRICHGasPseudoTracks",
+            "DRICHRawHits",
             "DRICHRawHitsAssociations"
           },
           "DRICHIrtCherenkovParticleID",

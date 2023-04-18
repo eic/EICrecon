@@ -30,7 +30,8 @@ flowchart TB
 
   subgraph Digitization
     DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
-    RawHits(<strong>DRICHRawHitsAssociations</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
+    RawHits(<strong>DRICHRawHits</strong><br/>edm4eic::RawTrackerHit):::col
+    HitAssocs(<strong>DRICHRawHitsAssociations</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
   end
 
   subgraph Charged Particles
@@ -73,6 +74,7 @@ flowchart TB
   %% digitization
   SimHits --> DigiAlg
   DigiAlg --> RawHits
+  DigiAlg --> HitAssocs
 
   %% tracking
   SimHits --> PseudoTracksAlg
@@ -87,6 +89,7 @@ flowchart TB
 
   %% PID
   RawHits --> IRT
+  HitAssocs --> IRT
   TrackOR --> IRT
   Reflections --> IRT
   IRT --> IRTPID

@@ -8,7 +8,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
 
   // get plugin name and tag
   auto app = GetApplication();
-  m_detector_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
+  m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
   std::string param_prefix = m_detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
 
@@ -51,42 +51,37 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::IrtCherenkovParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::IrtCherenkovParticleID_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
   m_irt_algo.AlgorithmChangeRun();
 }
 
 //-----------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // accumulate input collections
-  // - if `input_tag` contains `Hits`, add to `raw_hit_assocs`
-  // - if `input_tag` contains `Tracks`, add to `charged_particles`
-  std::vector<const edm4eic::MCRecoTrackerHitAssociation*> raw_hit_assocs;
-  std::map<std::string,std::vector<const edm4eic::TrackSegment*>> charged_particles; // map : radiator_name -> list of TrackSegments
-  for(const auto &input_tag : GetInputTags()) {
-    try {
-      if(input_tag.find("Hits") != std::string::npos) {
-        auto in = event->Get<edm4eic::MCRecoTrackerHitAssociation>(input_tag);
-        raw_hit_assocs.insert(raw_hit_assocs.end(), in.begin(), in.end());
-      }
-      else {
-        auto radiator_id = richgeo::ParseRadiatorName(input_tag);
-        if(radiator_id>=0) {
-          auto in = event->Get<edm4eic::TrackSegment>(input_tag);
-          charged_particles.insert({ richgeo::RadiatorName(radiator_id), in });
-        }
-        else
-          m_log->error("Unknown input collection '{}'", input_tag);
-      }
-    } catch(std::exception &e) {
-      m_log->critical(e.what());
-      throw JException(e.what());
-    }
+  // get input track projection collections
+  std::map<std::string, const edm4eic::TrackSegmentCollection*> charged_particles; // map : radiator_name -> collection of TrackSegments
+  int tag_num = 0;
+  while(tag_num < richgeo::nRadiators) {
+    auto input_tag   = GetInputTags()[tag_num++];
+    auto radiator_id = richgeo::ParseRadiatorName(input_tag);
+    if(radiator_id >= 0 && radiator_id < richgeo::nRadiators)
+      charged_particles.insert({
+          richgeo::RadiatorName(radiator_id),
+          static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag))
+          });
+    else m_log->error("Unknown input RICH track collection '{}'", input_tag);
   }
 
-  // call the IrtCherenkovParticleID algorithm
-  auto cherenkov_pids = m_irt_algo.AlgorithmProcess( raw_hit_assocs, charged_particles );
+  // get input hit collections
+  auto raw_hits   = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
+  auto hit_assocs = static_cast<const edm4eic::MCRecoTrackerHitAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
 
-  // output
-  Set(std::move(cherenkov_pids));
+  // run the IrtCherenkovParticleID algorithm
+  try {
+    auto cherenkov_pids = m_irt_algo.AlgorithmProcess(charged_particles, raw_hits, hit_assocs);
+    SetCollection(std::move(cherenkov_pids));
+  }
+  catch(std::exception &e) {
+    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+  }
 }

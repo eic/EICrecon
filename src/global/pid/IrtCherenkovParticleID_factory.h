@@ -8,8 +8,9 @@
 #include <JANA/JEvent.h>
 
 // data model
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 
 // algorithms
@@ -38,7 +39,7 @@ namespace eicrecon {
       void Init() override;
 
       /** On run change preparations **/
-      void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;

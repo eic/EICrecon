@@ -98,27 +98,29 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmChangeRun() {
 
 // AlgorithmProcess
 //---------------------------------------------------------------------------
-std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
-    std::vector<const edm4eic::MCRecoTrackerHitAssociation*>& in_hit_assocs,
-    std::map<std::string,std::vector<const edm4eic::TrackSegment*>>& in_charged_particles
+std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
+    std::map<std::string, const edm4eic::TrackSegmentCollection*>& in_charged_particles,
+    const edm4eic::RawTrackerHitCollection*                        in_raw_hits,
+    const edm4eic::MCRecoTrackerHitAssociationCollection*          in_hit_assocs
     )
 {
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
-  m_log->trace("number of raw sensor hits: {}", in_hit_assocs.size());
+  m_log->trace("number of raw sensor hits: {}", in_raw_hits->size());
+  m_log->trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
 
   // start output collections
-  std::vector<edm4eic::CherenkovParticleID*> out_cherenkov_pids;
+  auto out_cherenkov_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
   if(m_init_failed) return out_cherenkov_pids;
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   long num_charged_particles = -1;
   for(const auto& [rad_name,charged_particle_list] : in_charged_particles) {
     if(num_charged_particles<0) {
-      num_charged_particles = charged_particle_list.size();
-      m_log->trace("number of reconstructed charged particles: {}", charged_particle_list.size());
+      num_charged_particles = charged_particle_list->size();
+      m_log->trace("number of reconstructed charged particles: {}", charged_particle_list->size());
     }
-    else if(num_charged_particles != charged_particle_list.size()) {
+    else if(num_charged_particles != charged_particle_list->size()) {
       m_log->error("radiators have differing numbers of TrackSegments");
       return out_cherenkov_pids;
     }
@@ -147,13 +149,13 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         continue;
       }
       auto charged_particle_list = charged_particle_list_it->second;
-      auto charged_particle      = charged_particle_list.at(i);
-      out_charged_particles.insert({ irt_rad, charged_particle });
+      auto charged_particle      = charged_particle_list->at(i);
+      out_charged_particles.insert({ irt_rad, &charged_particle });
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
       irt_rad->ResetLocations();
       m_log->trace("TrackPoints in '{}' radiator:",rad_name);
-      for(const auto& point : charged_particle->getPoints()) {
+      for(const auto& point : charged_particle.getPoints()) {
         TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
         irt_rad->AddLocation(position,momentum);
@@ -164,27 +166,36 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
 
       // loop over raw hits ***************************************************
       m_log->trace("{:#<70}","### SENSOR HITS ");
-      for(const auto& hit_assoc : in_hit_assocs) {
-
-        // get the raw hit
-        auto raw_hit = hit_assoc->getRawHit();
+      for(const auto& raw_hit : *in_raw_hits) {
 
         // get MC photon(s), typically only used by cheat modes or trace logging
+        // - loop over `in_hit_assocs`, searching for the matching hit association
+        // - will not exist for noise hits
         edm4hep::MCParticle mc_photon;
-        if(hit_assoc->simHits_size() == 0) {
-          if(m_cfg.CheatModeEnabled())
-            m_log->error("cheat mode enabled, but no MC photons provided");
-        }
-        else {
-          // FIXME: occasionally there will be more than one photon associated with a hit;
-          // for now let's just take the first one...
-          mc_photon = hit_assoc->getSimHits(0).getMCParticle();
-          if(mc_photon.getPDG() != -22)
-            m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+        bool mc_photon_found = false;
+        if(m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
+          for(const auto& hit_assoc : *in_hit_assocs) {
+            if(hit_assoc.getRawHit().isAvailable()) {
+              if(hit_assoc.getRawHit().id() == raw_hit.id()) {
+                // hit association found, get the MC photon and break the loop
+                // FIXME: occasionally there will be more than one photon associated with a hit;
+                // for now let's just take the first one...
+                if(hit_assoc.simHits_size() > 0) {
+                  mc_photon = hit_assoc.getSimHits(0).getMCParticle();
+                  mc_photon_found = true;
+                  if(mc_photon.getPDG() != -22)
+                    m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+                }
+                else if(m_cfg.CheatModeEnabled())
+                  m_log->error("cheat mode enabled, but no MC photons provided");
+                break;
+              }
+            }
+          }
         }
 
         // cheat mode, for testing only: use MC photon to get the actual radiator
-        if(m_cfg.cheatTrueRadiator) {
+        if(m_cfg.cheatTrueRadiator && mc_photon_found) {
           auto vtx = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
           auto mc_rad = m_irt_det->GuessRadiator(vtx,vtx); // FIXME: assumes IP is at (0,0,0)
           if(mc_rad != irt_rad) continue; // skip this photon, if not from radiator `irt_rad`
@@ -196,13 +207,17 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         auto     cell_id   = raw_hit.getCellID();
         uint64_t sensor_id = cell_id & m_cell_mask;
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
+
+        // trace logging
         if(m_log->level() <= spdlog::level::trace) {
           m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
           Tools::PrintTVector3(m_log, "pixel position", pixel_pos);
-          //// FIXME: photons go through the sensors, ending on a vessel wall
-          // TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
-          // Tools::PrintTVector3(m_log, "photon endpoint", mc_endpoint);
-          // m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
+          if(mc_photon_found) {
+            TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
+            Tools::PrintTVector3(m_log, "photon endpoint", mc_endpoint);
+            m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
+          }
+          else m_log->trace("  no MC photon found; probably a noise hit");
         }
 
         // start new IRT photon
@@ -214,7 +229,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
         irt_photon->SetDetected(true);
 
         // cheat mode: get photon vertex info from MC truth
-        if(m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
+        if((m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) && mc_photon_found) {
           irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
           irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
         }
@@ -317,7 +332,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       // fill output collections -----------------------------------------------
 
       // fill Cherenkov angle estimate
-      edm4eic::MutableCherenkovParticleID out_cherenkov_pid;
+      auto out_cherenkov_pid = out_cherenkov_pids->create();
       out_cherenkov_pid.setRadiator(        static_cast<decltype(edm4eic::CherenkovParticleIDData::radiator)>        (irt_rad->m_ID) );
       out_cherenkov_pid.setNpe(             static_cast<decltype(edm4eic::CherenkovParticleIDData::npe)>             (npe)           );
       out_cherenkov_pid.setRefractiveIndex( static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)> (rindex_ave)    );
@@ -354,12 +369,8 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::IrtCherenkovParticleID::Alg
       out_cherenkov_pid.setChargedParticle(out_charged_particle);
 
       // relate hit associations
-      // FIXME: throws warning 'Trying to persistify untracked object'; not yet used downstream, so disable for now
-      // for(const auto& hit_assoc : in_hit_assocs)
-      //   out_cherenkov_pid.addToRawHitAssociations(*hit_assoc);
-
-      // append
-      out_cherenkov_pids.push_back(new edm4eic::CherenkovParticleID(out_cherenkov_pid)); // force immutable
+      for(const auto& hit_assoc : *in_hit_assocs)
+        out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
 
     } // end radiator loop
 
