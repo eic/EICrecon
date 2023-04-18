@@ -87,7 +87,7 @@ public:
     std::vector<edm4eic::MCRecoClusterParticleAssociation*> m_outputAssociations;
 
 private:
-    
+
     edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const;
-   
+
 };
