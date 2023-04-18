@@ -5,7 +5,8 @@
  *  Reconstruct the cluster with Center of Gravity method
  *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
  *
- *  Author: Chao Peng (ANL), 09/27/2020
+ *  Author: Chao Peng (ANL) 09/27/2020,
+            Dhevan Gangadharan (UH): cluster profiling from Eigenvalues   
  */
 #include "CalorimeterClusterRecoCoG.h"
 
@@ -44,7 +45,7 @@ void CalorimeterClusterRecoCoG::AlgorithmInit(std::shared_ptr<spdlog::logger>& l
     }
     weightFunc = it->second;
     // info() << "z_length " << depth << endmsg;
-
+   
     return;
 }
 
@@ -69,7 +70,6 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
     // Optional output associations
     //associations removed in favor of referencing underlying vector m_outputAssociations
     //std::vector<edm4eic::MCRecoClusterParticleAssociation*> associations = m_outputAssociations;
-
 
     for (const auto& pcl : proto) {
       auto cl = reconstruct(pcl);
@@ -160,4 +160,163 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
     }
 
     return;
+} 
+
+//------------------------------------------------------------------------
+edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster* pcl) const {
+  edm4eic::MutableCluster cl;
+  cl.setNhits(pcl->hits_size());
+
+  m_log->debug("hit size = {}", pcl->hits_size());
+
+  // no hits
+  if (pcl->hits_size() == 0) {
+    return nullptr;
+  }
+
+  // calculate total energy, find the cell with the maximum energy deposit
+  float totalE = 0.;
+  float maxE   = 0.;
+  // Used to optionally constrain the cluster eta to those of the contributing hits
+  float minHitEta = std::numeric_limits<float>::max();
+  float maxHitEta = std::numeric_limits<float>::min();
+  auto time       = pcl->getHits()[0].getTime();
+  auto timeError  = pcl->getHits()[0].getTimeError();
+  for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
+    const auto& hit   = pcl->getHits()[i];
+    const auto weight = pcl->getWeights()[i];
+    m_log->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
+    auto energy = hit.getEnergy() * weight;
+    totalE += energy;
+    if (energy > maxE) {
+    }
+    const float eta = edm4eic::eta(hit.getPosition());
+    if (eta < minHitEta) {
+      minHitEta = eta;
+    }
+    if (eta > maxHitEta) {
+      maxHitEta = eta;
+    }
+  }
+  cl.setEnergy(totalE / m_sampFrac);
+  cl.setEnergyError(0.);
+  cl.setTime(time);
+  cl.setTimeError(timeError);
+
+  // center of gravity with logarithmic weighting
+  float tw = 0.;
+  auto v   = cl.getPosition();
+  for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
+    const auto& hit   = pcl->getHits()[i];
+    const auto weight = pcl->getWeights()[i];
+    //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
+    float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
+    tw += w;
+    v = v + (hit.getPosition() * w);
+  }
+  if (tw == 0.) {
+    m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
+  }
+  cl.setPosition(v / tw);
+  cl.setPositionError({}); // @TODO: Covariance matrix
+
+  // Optionally constrain the cluster to the hit eta values
+  if (m_enableEtaBounds) {
+    const bool overflow  = (edm4eic::eta(cl.getPosition()) > maxHitEta);
+    const bool underflow = (edm4eic::eta(cl.getPosition()) < minHitEta);
+    if (overflow || underflow) {
+      const double newEta   = overflow ? maxHitEta : minHitEta;
+      const double newTheta = edm4eic::etaToAngle(newEta);
+      const double newR     = edm4eic::magnitude(cl.getPosition());
+      const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
+      cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
+      m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
+    }
+  }
+
+  // Additional convenience variables
+
+  // best estimate on the cluster direction is the cluster position
+  // for simple 2D CoG clustering
+  cl.setIntrinsicTheta(edm4eic::anglePolar(cl.getPosition()));
+  cl.setIntrinsicPhi(edm4eic::angleAzimuthal(cl.getPosition()));
+  // TODO errors
+
+  //_______________________________________
+  // Calculate cluster profile:
+  //    radius, 
+  //   	dispersion (energy weighted radius),
+  //   	sigma_long
+  //   	sigma_short
+  //   	sigma_z
+  double radius = 0, dispersion = 0, lambda_1 = 0, lambda_2 = 0, lambda_3 = 0;
+  double w_sum = 0;
+  double sum_11 = 0, sum_22 = 0, sum_33 = 0;
+  double sum_12 = 0, sum_13 = 0, sum_23 = 0;
+  double sum_1 = 0, sum_2 = 0, sum_3 = 0;
+
+  if (cl.getNhits() > 1) {
+
+    for (const auto& hit : pcl->getHits()) {
+
+      const auto delta = cl.getPosition() - hit.getPosition();
+      radius += delta * delta;
+
+      double w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
+      w_sum += w;
+      dispersion += delta * delta * w;
+
+      double pos_1 = edm4eic::anglePolar( hit.getPosition() );
+      double pos_2 = edm4eic::angleAzimuthal( hit.getPosition() );
+      double pos_3 = hit.getPosition().z;
+
+      if( m_xyClusterProfiling ) {
+        pos_1 = hit.getPosition().x;
+        pos_2 = hit.getPosition().y;
+      }
+      sum_11 += w * pos_1 * pos_1;
+      sum_22 += w * pos_2 * pos_2;
+      sum_33 += w * pos_3 * pos_3;
+      sum_12 += w * pos_1 * pos_2;
+      sum_13 += w * pos_1 * pos_3;
+      sum_23 += w * pos_2 * pos_3;
+      sum_1  += w * pos_1; 
+      sum_2  += w * pos_2;
+      sum_3  += w * pos_3;
+    }
+
+    if( w_sum > 0 ) {
+      radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
+      dispersion = sqrt( dispersion / w_sum );
+
+      // variances and covariances 
+      double sigma_11 = sum_11 / w_sum - (sum_1/w_sum) * (sum_1/w_sum);
+      double sigma_22 = sum_22 / w_sum - (sum_2/w_sum) * (sum_2/w_sum);
+      double sigma_33 = sum_33 / w_sum - (sum_3/w_sum) * (sum_3/w_sum);
+      double sigma_12 = sum_12 / w_sum - (sum_1/w_sum) * (sum_2/w_sum);
+      double sigma_13 = sum_13 / w_sum - (sum_1/w_sum) * (sum_3/w_sum);
+      double sigma_23 = sum_23 / w_sum - (sum_2/w_sum) * (sum_3/w_sum);
+
+      // covariance matrix
+      Eigen::MatrixXd cov3(3,3);
+      cov3(0,0) = sigma_11;  cov3(1,1) = sigma_22;  cov3(2,2) = sigma_33;
+      cov3(0,1) = sigma_12;  cov3(0,2) = sigma_13;  cov3(1,2) = sigma_23;
+      cov3(1,0) = cov3(0,1); cov3(2,0) = cov3(0,2); cov3(2,1) = cov3(1,2);
+
+      // Eigenvalues correspond to cluster's 2nd moments (sigma_long, sigma_short, sigma_z)
+      Eigen::EigenSolver<Eigen::MatrixXd> es(cov3, false); // set to true for eigenvector calculation
+      auto eigenValues = es.eigenvalues();
+      lambda_1 = eigenValues[0].real(); // imaginary parts correspond to unphysical roots
+      lambda_2 = eigenValues[1].real();
+      lambda_3 = eigenValues[2].real();
+    }
+  } 
+
+  cl.addToShapeParameters( radius );
+  cl.addToShapeParameters( dispersion );
+  cl.addToShapeParameters( lambda_1 );
+  cl.addToShapeParameters( lambda_2 );
+  cl.addToShapeParameters( lambda_3 );
+
+  return new edm4eic::Cluster(cl);
 }

@@ -13,7 +13,6 @@
 #include "ProtoCluster_factory_EcalLumiSpecIslandProtoClusters.h"
 #include "Cluster_factory_EcalLumiSpecTruthClusters.h"
 #include "Cluster_factory_EcalLumiSpecClusters.h"
-#include "Cluster_factory_EcalLumiSpecMergedClusters.h"
 
 
 
@@ -26,10 +25,8 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalLumiSpecTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalLumiSpecClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalLumiSpecMergedClusters>());
         app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecTruthClustersAssociations>());
         app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecMergedClustersAssociations>());
     }
 }
     
