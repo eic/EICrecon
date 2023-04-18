@@ -50,7 +50,8 @@ flowchart TB
 
   subgraph Particle Identification Algorithms
     IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
-    IRTPID(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    IRTPIDAerogel(<strong>DRICHAerogelIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    IRTPIDGas(<strong>DRICHGasIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 
   subgraph Particle Identification Linking
@@ -92,8 +93,10 @@ flowchart TB
   HitAssocs --> IRT
   TrackOR --> IRT
   Reflections --> IRT
-  IRT --> IRTPID
-  IRTPID --> Merge
+  IRT --> IRTPIDAerogel
+  IRT --> IRTPIDGas
+  IRTPIDAerogel --> Merge
+  IRTPIDGas --> Merge
   Merge --> MergePID
 
   %% linking
