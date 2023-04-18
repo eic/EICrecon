@@ -79,10 +79,11 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
+        m_log->trace("{:-<70}","Loop over simulated hits ");
         for(const auto& sim_hit : *sim_hits) {
             auto edep_eV = sim_hit.getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = sim_hit.getCellID();
-            m_log->trace("hit: pixel id={:#X}  edep = {} eV", id, edep_eV);
+            m_log->trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
             // overall safety factor
             if (m_rngUni() > m_cfg.safetyFactor) continue;
@@ -102,6 +103,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             }
 
             // cell time, signal amplitude, truth photon
+            m_log->trace(" -> hit accepted");
             auto   time = sim_hit.getTime();
             double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
@@ -115,7 +117,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                         ghit->npe += 1;
                         ghit->signal += amp;
                         ghit->mc_hits.push_back(&sim_hit);
-                        m_log->trace(" -> add to group @ {:#X}: signal={}", id, ghit->signal);
+                        m_log->trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
                         break;
                     }
                 }
@@ -124,26 +126,28 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
                     hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {&sim_hit}}} });
                     m_log->trace(" -> no group found,");
-                    m_log->trace("    so new group @ {:#X}: signal={}", id, sig);
+                    m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
                 }
             } else {
                 auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
                 hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, {&sim_hit}}} });
-                m_log->trace(" -> new group @ {:#X}: signal={}", id, sig);
+                m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
             }
         }
 
         // print `hit_groups`
         if(m_log->level() <= spdlog::level::trace) {
+          m_log->trace("{:-<70}","Accepted hit groups ");
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec) {
-              m_log->trace("hit_group: pixel id={:#X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
+              m_log->trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
               for(auto &mc_hit : hit.mc_hits)
-                m_log->trace("           - photon: EDep = {}", mc_hit->getEDep());
+                m_log->trace(" - MC hit: EDep={}, id={}", mc_hit->getEDep(), mc_hit->id());
             }
         }
 
         // build output `MCRecoTrackerHitAssociation`
+        m_log->trace("{:-<70}","Digitized raw hits ");
         PhotoMultiplierHitDigiResult result;
         result.raw_hits   = std::make_unique<edm4eic::RawTrackerHitCollection>();
         result.hit_assocs = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
@@ -157,7 +161,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time/m_cfg.timeResolution) );
                 // raw_hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; FIXME: requires member `edm4hep::Vector3d position`
                                                           // in data model datatype, think of a better way
-                m_log->trace("raw_hit: cellID={:#X} -> charge={} timeStamp={}",
+                m_log->trace("raw_hit: cellID={:#018X} -> charge={} timeStamp={}",
                     raw_hit.getCellID(),
                     raw_hit.getCharge(),
                     raw_hit.getTimeStamp()
