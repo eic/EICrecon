@@ -177,7 +177,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                   hit_assoc.addToSimHits(sim_hits->at(i));
             }
         }
-        return std::move(result);
+        return result;
 }
 
 void  eicrecon::PhotoMultiplierHitDigi::qe_init()
