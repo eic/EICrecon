@@ -215,7 +215,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovPa
           if(mc_photon_found) {
             TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
             Tools::PrintTVector3(m_log, "photon endpoint", mc_endpoint);
-            m_log->trace("  dist( pixel,  photon ) = {}", (pixel_pos  - mc_endpoint).Mag());
+            m_log->trace("{:>30} = {}", "dist( pixel,  photon )", (pixel_pos  - mc_endpoint).Mag());
           }
           else m_log->trace("  no MC photon found; probably a noise hit");
         }
