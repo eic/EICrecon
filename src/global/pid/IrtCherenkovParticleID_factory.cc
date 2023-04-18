@@ -9,8 +9,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
   // get plugin name and tag
   auto app = GetApplication();
   m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
-  std::string param_prefix = m_detector_name + ":" + GetTag();
-  InitDataTags(param_prefix);
+  auto param_prefix = m_detector_name + GetPrefix();
 
   // services
   InitLogger(param_prefix, "info");
@@ -76,10 +75,16 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   auto raw_hits   = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
   auto hit_assocs = static_cast<const edm4eic::MCRecoTrackerHitAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
 
-  // run the IrtCherenkovParticleID algorithm
   try {
-    auto cherenkov_pids = m_irt_algo.AlgorithmProcess(charged_particles, raw_hits, hit_assocs);
-    SetCollection(std::move(cherenkov_pids));
+    // run the IrtCherenkovParticleID algorithm
+    auto result = m_irt_algo.AlgorithmProcess(charged_particles, raw_hits, hit_assocs);
+    // set output collections, matching radiator name to corresponding output tag
+    for(auto& [rad_name, coll] : result) {
+      for(auto& output_tag : GetOutputTags()) {
+        if(output_tag.find(rad_name) != std::string::npos)
+          SetCollection<edm4eic::CherenkovParticleID>(output_tag, std::move(coll));
+      }
+    }
   }
   catch(std::exception &e) {
     m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());

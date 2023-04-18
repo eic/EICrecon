@@ -8,7 +8,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
 
   // get plugin name and tag
   auto app = GetApplication();
-  m_detector_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
+  m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
   std::string param_prefix = m_detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
 
@@ -30,16 +30,17 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::MergeCherenkovParticleID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::MergeCherenkovParticleID_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
   m_algo.AlgorithmChangeRun();
 }
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // accumulate input collections
+  // get input collections
   // FIXME: generalize this when we have differing input tag types
   std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids;
+
   for(const auto& input_tag : GetInputTags()) {
     try {
       for(const auto cherenkov_pid : event->Get<edm4eic::CherenkovParticleID>(input_tag))

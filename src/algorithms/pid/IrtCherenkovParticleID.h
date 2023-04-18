@@ -44,8 +44,8 @@ namespace eicrecon {
       //   noise hits are not included since there is no associated simulated photon
       // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
       //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
-      // - the output is a collection of particle ID objects
-      std::unique_ptr<edm4eic::CherenkovParticleIDCollection> AlgorithmProcess(
+      // - the output is a map: radiator name -> collection of particle ID objects
+      std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> AlgorithmProcess(
           std::map<std::string, const edm4eic::TrackSegmentCollection*>& in_charged_particles,
           const edm4eic::RawTrackerHitCollection*                        in_raw_hits,
           const edm4eic::MCRecoTrackerHitAssociationCollection*          in_hit_assocs

@@ -98,7 +98,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmChangeRun() {
 
 // AlgorithmProcess
 //---------------------------------------------------------------------------
-std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
+std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
     std::map<std::string, const edm4eic::TrackSegmentCollection*>& in_charged_particles,
     const edm4eic::RawTrackerHitCollection*                        in_raw_hits,
     const edm4eic::MCRecoTrackerHitAssociationCollection*          in_hit_assocs
@@ -110,8 +110,10 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovPa
   m_log->trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
 
   // start output collections
-  auto out_cherenkov_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
-  if(m_init_failed) return out_cherenkov_pids;
+  std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> result;
+  for(auto& [rad_name,irt_rad] : m_pid_radiators)
+    result.insert({rad_name, std::make_unique<edm4eic::CherenkovParticleIDCollection>()});
+  if(m_init_failed) return result;
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   long num_charged_particles = -1;
@@ -122,7 +124,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovPa
     }
     else if(num_charged_particles != charged_particle_list->size()) {
       m_log->error("radiators have differing numbers of TrackSegments");
-      return out_cherenkov_pids;
+      return result;
     }
   }
 
@@ -332,8 +334,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovPa
       // fill output collections -----------------------------------------------
 
       // fill Cherenkov angle estimate
-      auto out_cherenkov_pid = out_cherenkov_pids->create();
-      out_cherenkov_pid.setRadiator(        static_cast<decltype(edm4eic::CherenkovParticleIDData::radiator)>        (irt_rad->m_ID) );
+      auto out_cherenkov_pid = result.at(rad_name)->create();
       out_cherenkov_pid.setNpe(             static_cast<decltype(edm4eic::CherenkovParticleIDData::npe)>             (npe)           );
       out_cherenkov_pid.setRefractiveIndex( static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)> (rindex_ave)    );
       out_cherenkov_pid.setPhotonEnergy(    static_cast<decltype(edm4eic::CherenkovParticleIDData::photonEnergy)>    (energy_ave)    );
@@ -381,5 +382,5 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::IrtCherenkovPa
 
   } // end `in_charged_particles` loop
 
-  return out_cherenkov_pids;
+  return result;
 }

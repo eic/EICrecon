@@ -151,23 +151,27 @@ extern "C" {
     }
 
     // PID algorithm
-    app->Add(new JChainFactoryGeneratorT<IrtCherenkovParticleID_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
+          "DRICHIrtCherenkovParticleID",
           {
             useReconstructedTracks ? "DRICHAerogelTracks" : "DRICHAerogelPseudoTracks",
             useReconstructedTracks ? "DRICHGasTracks"     : "DRICHGasPseudoTracks",
             "DRICHRawHits",
             "DRICHRawHitsAssociations"
           },
-          "DRICHIrtCherenkovParticleID",
-          irt_cfg
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          irt_cfg,
+          app
           ));
 
     // merge aerogel and gas PID results
+    /*
     app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
           {"DRICHIrtCherenkovParticleID"},
           "DRICHMergedCherenkovParticleID",
           merge_cfg
           ));
+          */
 
     // link reconstructed particles
     /*

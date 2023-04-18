@@ -6,7 +6,7 @@
 
 // RadiatorAnalysis constructor: defines histograms for a radiator
 //---------------------------------------------------------------------------
-eicrecon::RadiatorAnalysis::RadiatorAnalysis(TString rad_name) : m_rad_name(rad_name) {
+eicrecon::RadiatorAnalysis::RadiatorAnalysis(std::string rad_name) : m_rad_name(TString(rad_name)) {
 
   // distributions
   m_npe_dist = new TH1D(
@@ -85,7 +85,7 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spd
 
   // initialize histograms for each radiator
   for(auto& [id,rad_name] : Tools::GetRadiatorIDs())
-    m_radiator_histos.insert({id,std::make_shared<RadiatorAnalysis>(TString(rad_name))});
+    m_radiator_histos.insert({rad_name, std::make_shared<RadiatorAnalysis>(rad_name)});
 
   // initialize common histograms
   m_nphot_vs_p = new TH2D("nphot_vs_p", "N_{photons} vs. Thrown Momentum;p [GeV];N_{photons}",
@@ -103,9 +103,9 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spd
 // AlgorithmProcess
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
-    std::vector<const edm4hep::MCParticle*>          mc_parts,
-    std::vector<const edm4hep::SimTrackerHit*>       sim_hits,
-    std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids
+    std::vector<const edm4hep::MCParticle*>    mc_parts,
+    std::vector<const edm4hep::SimTrackerHit*> sim_hits,
+    std::map<std::string, std::vector<const edm4eic::CherenkovParticleID*>> cherenkov_pids
     )
 {
   m_log->trace("{:=^70}"," call IrtCherenkovParticleIDAnalysis::AlgorithmProcess ");
@@ -147,91 +147,93 @@ void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmProcess(
   // - clear `m_nphot_vs_p__transient` to be ready for the next event
   m_nphot_vs_p__transient->Reset();
 
-  // loop over `CherenkovParticleID` objects
-  for(const auto& pid : cherenkov_pids) {
-
-    // skip if NPE==0
-    if(pid->getNpe() == 0) {
-      m_log->warn("Event found with NPE=0");
-      continue;
-    }
+  // loop over radiators
+  for(auto& [rad_name, pids] : cherenkov_pids) {
 
     // get the histograms for this radiator
+    m_log->trace("-> {} Radiator:", rad_name);
     std::shared_ptr<RadiatorAnalysis> radiator_histos;
-    TString rad_name;
     try {
-      radiator_histos = m_radiator_histos.at(pid->getRadiator());
-      rad_name = radiator_histos->GetRadiatorName();
+      radiator_histos = m_radiator_histos.at(rad_name);
     }
     catch(const std::out_of_range& e) {
-      m_log->error("Invalid radiator number {}", pid->getRadiator());
+      m_log->error("Invalid radiator {}", rad_name);
       continue;
     }
-    m_log->trace("-> {} Radiator (ID={}):", rad_name, pid->getRadiator());
 
-    // estimate the charged particle momentum using the momentum of the first TrackPoint at this radiator's entrance
-    /*
-    auto charged_particle = pid->getChargedParticle();
-    if(!charged_particle.isAvailable())   { m_log->warn("Charged particle not available in this radiator");      continue; }
-    if(charged_particle.points_size()==0) { m_log->warn("Charged particle has no TrackPoints in this radiator"); continue; }
-    auto charged_particle_momentum = edm4hep::utils::magnitude( charged_particle.getPoints(0).momentum );
-    m_log->trace("  Charged Particle p = {} GeV at radiator entrance", charged_particle_momentum);
-    m_log->trace("  If it is a pion, E = {} GeV", std::hypot(charged_particle_momentum, Tools::GetPDGMass(211)));
-    */
-    // alternatively: use `thrown_momentum` (FIXME: will not work for multi-track events)
-    auto charged_particle_momentum = thrown_momentum;
-    auto charged_particle_pdg      = thrown_pdg;
-    auto charged_particle_mass     = Tools::GetPDGMass(charged_particle_pdg);
-    m_log->trace("  Charged Particle PDG={}, mass={} GeV, p={} GeV from truth",
-        charged_particle_pdg, charged_particle_mass, charged_particle_momentum);
+    // loop over `CherenkovParticleID` objects in `pids`
+    for(const auto& pid : pids) {
 
-    // get average Cherenkov angle: `theta_rec`
-    double theta_rec = 0.0;
-    for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
-      theta_rec += theta;
-    theta_rec /= pid->getNpe();
-
-    // calculate expected Cherenkov angle `theta_exp` and residual `theta_resid`,
-    // using refractive index from MC truth
-    auto mc_rindex = pid->getRefractiveIndex(); // average refractive index for photons used in this `pid`
-    auto theta_exp = TMath::ACos(
-        TMath::Hypot( charged_particle_momentum, charged_particle_mass ) /
-        ( mc_rindex * charged_particle_momentum )
-        );
-    auto theta_resid = theta_rec - theta_exp;
-
-    // logging
-    Tools::PrintCherenkovEstimate(m_log, *pid);
-
-    // fill PID histograms
-    radiator_histos->m_npe_dist->Fill(pid->getNpe());
-    radiator_histos->m_npe_vs_p->Fill(charged_particle_momentum,pid->getNpe());
-    radiator_histos->m_theta_dist->Fill(theta_rec*1e3); // [rad] -> [mrad]
-    radiator_histos->m_theta_vs_p->Fill(charged_particle_momentum,theta_rec*1e3); // [rad] -> [mrad]
-    radiator_histos->m_thetaResid_dist->Fill(theta_resid*1e3); // [rad] -> [mrad]
-    radiator_histos->m_thetaResid_vs_p->Fill(charged_particle_momentum,theta_resid*1e3); // [rad] -> [mrad]
-    for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
-      radiator_histos->m_photonTheta_vs_photonPhi->Fill(phi,theta*1e3); // [rad] -> [mrad]
-    radiator_histos->m_mcWavelength_dist->Fill( Tools::HC / pid->getPhotonEnergy() ); // energy [GeV] -> wavelength [nm]
-    radiator_histos->m_mcRindex_dist->Fill(mc_rindex);
-
-    // find the PDG hypothesis with the highest weight
-    float max_weight     = -1000;
-    int   pdg_max_weight = 0;
-    for(const auto& hyp : pid->getHypotheses()) {
-      if(hyp.weight > max_weight) {
-        max_weight     = hyp.weight;
-        pdg_max_weight = hyp.PDG;
+      // skip if NPE==0
+      if(pid->getNpe() == 0) {
+        m_log->warn("Event found with NPE=0");
+        continue;
       }
-    }
-    std::string pdg_max_weight_str = "UNKNOWN";
-    if(pdg_max_weight!=0 && !std::isnan(pdg_max_weight))
-      pdg_max_weight_str = std::to_string(pdg_max_weight);
-    m_log->trace(" Highest weight is {} for PDG {} (string='{}')", max_weight, pdg_max_weight, pdg_max_weight_str);
-    radiator_histos->m_highestWeight_dist->Fill(pdg_max_weight_str.c_str(), 1);
-    radiator_histos->m_highestWeight_vs_p->Fill(charged_particle_momentum, pdg_max_weight_str.c_str(), 1);
 
-  }
+      // estimate the charged particle momentum using the momentum of the first TrackPoint at this radiator's entrance
+      /*
+      auto charged_particle = pid->getChargedParticle();
+      if(!charged_particle.isAvailable())   { m_log->warn("Charged particle not available in this radiator");      continue; }
+      if(charged_particle.points_size()==0) { m_log->warn("Charged particle has no TrackPoints in this radiator"); continue; }
+      auto charged_particle_momentum = edm4hep::utils::magnitude( charged_particle.getPoints(0).momentum );
+      m_log->trace("  Charged Particle p = {} GeV at radiator entrance", charged_particle_momentum);
+      m_log->trace("  If it is a pion, E = {} GeV", std::hypot(charged_particle_momentum, Tools::GetPDGMass(211)));
+      */
+      // alternatively: use `thrown_momentum` (FIXME: will not work for multi-track events)
+      auto charged_particle_momentum = thrown_momentum;
+      auto charged_particle_pdg      = thrown_pdg;
+      auto charged_particle_mass     = Tools::GetPDGMass(charged_particle_pdg);
+      m_log->trace("  Charged Particle PDG={}, mass={} GeV, p={} GeV from truth",
+          charged_particle_pdg, charged_particle_mass, charged_particle_momentum);
+
+      // get average Cherenkov angle: `theta_rec`
+      double theta_rec = 0.0;
+      for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
+        theta_rec += theta;
+      theta_rec /= pid->getNpe();
+
+      // calculate expected Cherenkov angle `theta_exp` and residual `theta_resid`,
+      // using refractive index from MC truth
+      auto mc_rindex = pid->getRefractiveIndex(); // average refractive index for photons used in this `pid`
+      auto theta_exp = TMath::ACos(
+          TMath::Hypot( charged_particle_momentum, charged_particle_mass ) /
+          ( mc_rindex * charged_particle_momentum )
+          );
+      auto theta_resid = theta_rec - theta_exp;
+
+      // logging
+      Tools::PrintCherenkovEstimate(m_log, *pid);
+
+      // fill PID histograms
+      radiator_histos->m_npe_dist->Fill(pid->getNpe());
+      radiator_histos->m_npe_vs_p->Fill(charged_particle_momentum,pid->getNpe());
+      radiator_histos->m_theta_dist->Fill(theta_rec*1e3); // [rad] -> [mrad]
+      radiator_histos->m_theta_vs_p->Fill(charged_particle_momentum,theta_rec*1e3); // [rad] -> [mrad]
+      radiator_histos->m_thetaResid_dist->Fill(theta_resid*1e3); // [rad] -> [mrad]
+      radiator_histos->m_thetaResid_vs_p->Fill(charged_particle_momentum,theta_resid*1e3); // [rad] -> [mrad]
+      for(const auto& [theta,phi] : pid->getThetaPhiPhotons())
+        radiator_histos->m_photonTheta_vs_photonPhi->Fill(phi,theta*1e3); // [rad] -> [mrad]
+      radiator_histos->m_mcWavelength_dist->Fill( Tools::HC / pid->getPhotonEnergy() ); // energy [GeV] -> wavelength [nm]
+      radiator_histos->m_mcRindex_dist->Fill(mc_rindex);
+
+      // find the PDG hypothesis with the highest weight
+      float max_weight     = -1000;
+      int   pdg_max_weight = 0;
+      for(const auto& hyp : pid->getHypotheses()) {
+        if(hyp.weight > max_weight) {
+          max_weight     = hyp.weight;
+          pdg_max_weight = hyp.PDG;
+        }
+      }
+      std::string pdg_max_weight_str = "UNKNOWN";
+      if(pdg_max_weight!=0 && !std::isnan(pdg_max_weight))
+        pdg_max_weight_str = std::to_string(pdg_max_weight);
+      m_log->trace(" Highest weight is {} for PDG {} (string='{}')", max_weight, pdg_max_weight, pdg_max_weight_str);
+      radiator_histos->m_highestWeight_dist->Fill(pdg_max_weight_str.c_str(), 1);
+      radiator_histos->m_highestWeight_vs_p->Fill(charged_particle_momentum, pdg_max_weight_str.c_str(), 1);
+
+    } // end loop over `CherenkovParticleID` objects in this radiator's `pids`
+  } // end loop over radiators
 }
 
 

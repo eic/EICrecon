@@ -53,7 +53,6 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::MergeParticleID::AlgorithmP
 
     // create mutable output objects
     edm4eic::MutableCherenkovParticleID out_pid{
-      0,   // radiator (not used)
       0.0, // npe
       0.0, // refractiveIndex (not used, since radiator-dependent)
       0.0  // photonEnergy
@@ -74,7 +73,7 @@ std::vector<edm4eic::CherenkovParticleID*> eicrecon::MergeParticleID::AlgorithmP
     for(auto in_pid : in_particle_pids) {
 
       // logging
-      m_log->trace("    radiator {} hypothesis weights:", in_pid->getRadiator());
+      // m_log->trace("    radiator {} hypothesis weights:", in_pid->getRadiator()); // FIXME
       Tools::PrintHypothesisTableHead(m_log,6);
 
       // merge scalar members from each radiator

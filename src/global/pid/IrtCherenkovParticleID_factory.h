@@ -4,7 +4,7 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/jana/JChainMultifactoryT.h>
 #include <JANA/JEvent.h>
 
 // data model
@@ -24,16 +24,26 @@
 #include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
+
   class IrtCherenkovParticleID;
+
   class IrtCherenkovParticleID_factory :
-    public JChainFactoryT<edm4eic::CherenkovParticleID, IrtCherenkovParticleIDConfig>,
+    public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,
     public SpdlogMixin<IrtCherenkovParticleID_factory>
   {
 
     public:
 
-      explicit IrtCherenkovParticleID_factory(std::vector<std::string> default_input_tags, IrtCherenkovParticleIDConfig cfg) :
-        JChainFactoryT<edm4eic::CherenkovParticleID, IrtCherenkovParticleIDConfig>(std::move(default_input_tags), cfg) {}
+      explicit IrtCherenkovParticleID_factory(
+          std::string tag,
+          const std::vector<std::string>& input_tags,
+          const std::vector<std::string>& output_tags,
+          IrtCherenkovParticleIDConfig cfg
+          ):
+        JChainMultifactoryT<IrtCherenkovParticleIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
+          for(auto& output_tag : GetOutputTags())
+            DeclarePodioOutput<edm4eic::CherenkovParticleID>(output_tag);
+        }
 
       /** One time initialization **/
       void Init() override;
@@ -45,6 +55,7 @@ namespace eicrecon {
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
+
       eicrecon::IrtCherenkovParticleID m_irt_algo;
       std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;

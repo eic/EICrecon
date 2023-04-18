@@ -31,10 +31,11 @@ namespace eicrecon {
 
     private:
 
-      // input collections // FIXME: generalize for other RICHes
-      PrefetchT<edm4hep::MCParticle>          m_mc_parts       = {this, "MCParticles"};
-      PrefetchT<edm4hep::SimTrackerHit>       m_sim_hits       = {this, "DRICHHits"};
-      PrefetchT<edm4eic::CherenkovParticleID> m_cherenkov_pids = {this, "DRICHIrtCherenkovParticleID"};
+      // input collections // FIXME: generalize 
+      PrefetchT<edm4hep::MCParticle>          m_mc_parts     = {this, "MCParticles"};
+      PrefetchT<edm4hep::SimTrackerHit>       m_sim_hits     = {this, "DRICHHits"};
+      PrefetchT<edm4eic::CherenkovParticleID> m_aerogel_pids = {this, "DRICHAerogelIrtCherenkovParticleID"};
+      PrefetchT<edm4eic::CherenkovParticleID> m_gas_pids     = {this, "DRICHGasIrtCherenkovParticleID"};
 
       // underlying algorithms
       eicrecon::IrtCherenkovParticleIDAnalysis m_analysis_algo;
