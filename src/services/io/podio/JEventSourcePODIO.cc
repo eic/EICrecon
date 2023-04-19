@@ -277,10 +277,10 @@ void JEventSourcePODIO::PrintCollectionTypeTable(void) {
     // Record the maximum length of both strings so that we can print nicely aligned columns.
     for (const std::string& name : frame->getAvailableCollections()) {
         const podio::CollectionBase* coll = frame->get(name);
-        const std::string& type = coll->getTypeName();
+        const auto type = coll->getTypeName();
         max_name_len = std::max(max_name_len, name.length());
         max_type_len = std::max(max_type_len, type.length());
-        collectionNames[name] = type;
+        collectionNames[name] = std::string(type);
     }
 
     // Print table
