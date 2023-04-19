@@ -22,7 +22,10 @@ void eicrecon::IrtCherenkovParticleID_processor::InitWithGlobalRootLock() {
   rootfile->mkdir("pid_irt")->cd();
 
   // initialize underlying algorithms
-  m_analysis_algo.AlgorithmInit(m_log);
+  m_analysis_algo.AlgorithmInit(
+      { "Aerogel", "Gas", "Merged Aerogel+Gas"},
+      m_log
+      );
 }
 
 //-------------------------------------------
@@ -30,8 +33,9 @@ void eicrecon::IrtCherenkovParticleID_processor::InitWithGlobalRootLock() {
 //-------------------------------------------
 void eicrecon::IrtCherenkovParticleID_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
   std::map<std::string, std::vector<const edm4eic::CherenkovParticleID*>> cherenkov_pids = { // FIXME: generalize
-    { "Aerogel", m_aerogel_pids() },
-    { "Gas",     m_gas_pids()     }
+    { "Aerogel",            m_aerogel_pids() },
+    { "Gas",                m_gas_pids()     },
+    { "Merged Aerogel+Gas", m_merged_pids()  }
   };
   m_analysis_algo.AlgorithmProcess(m_mc_parts(), m_sim_hits(), cherenkov_pids);
 }

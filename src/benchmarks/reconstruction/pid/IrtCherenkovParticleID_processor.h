@@ -36,6 +36,7 @@ namespace eicrecon {
       PrefetchT<edm4hep::SimTrackerHit>       m_sim_hits     = {this, "DRICHHits"};
       PrefetchT<edm4eic::CherenkovParticleID> m_aerogel_pids = {this, "DRICHAerogelIrtCherenkovParticleID"};
       PrefetchT<edm4eic::CherenkovParticleID> m_gas_pids     = {this, "DRICHGasIrtCherenkovParticleID"};
+      PrefetchT<edm4eic::CherenkovParticleID> m_merged_pids  = {this, "DRICHMergedCherenkovParticleID"};
 
       // underlying algorithms
       eicrecon::IrtCherenkovParticleIDAnalysis m_analysis_algo;

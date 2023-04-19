@@ -7,6 +7,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TMath.h>
+#include <TRegexp.h>
 
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
@@ -70,7 +71,10 @@ namespace eicrecon {
       ~IrtCherenkovParticleIDAnalysis() {}
 
       // algorithm methods
-      void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+      void AlgorithmInit(
+          std::vector<std::string>         radiator_list,
+          std::shared_ptr<spdlog::logger>& logger
+          );
       void AlgorithmProcess(
           std::vector<const edm4hep::MCParticle*>    mc_parts,
           std::vector<const edm4hep::SimTrackerHit*> sim_hits,

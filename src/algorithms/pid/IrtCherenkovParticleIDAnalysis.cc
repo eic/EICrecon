@@ -8,24 +8,28 @@
 //---------------------------------------------------------------------------
 eicrecon::RadiatorAnalysis::RadiatorAnalysis(std::string rad_name) : m_rad_name(TString(rad_name)) {
 
+  // truncate `m_rad_name` (for object names)
+  auto rad_name_trun = m_rad_name;
+  rad_name_trun(TRegexp(" .*")) = "";
+
   // distributions
   m_npe_dist = new TH1D(
-      "npe_dist_"+m_rad_name,
+      "npe_dist_"+rad_name_trun,
       "Overall NPE for "+m_rad_name+";NPE",
       npe_bins, 0, npe_max
       );
   m_theta_dist = new TH1D(
-      "theta_dist_"+m_rad_name,
+      "theta_dist_"+rad_name_trun,
       "Estimated Cherenkov Angle for "+m_rad_name+";#theta [mrad]",
       theta_bins, 0, theta_max
       );
   m_thetaResid_dist = new TH1D(
-      "thetaResid_dist_"+m_rad_name,
+      "thetaResid_dist_"+rad_name_trun,
       "Estimated Cherenkov Angle Residual for "+m_rad_name+";#Delta#theta [mrad]",
       theta_bins, -thetaResid_max, thetaResid_max
       );
   m_photonTheta_vs_photonPhi = new TH2D(
-      "photonTheta_vs_photonPhi_"+m_rad_name,
+      "photonTheta_vs_photonPhi_"+rad_name_trun,
       "Estimated Photon #theta vs #phi for "+m_rad_name+";#phi [rad];#theta [mrad]",
       phi_bins, -TMath::Pi(), TMath::Pi(),
       theta_bins, 0, theta_max
@@ -33,44 +37,44 @@ eicrecon::RadiatorAnalysis::RadiatorAnalysis(std::string rad_name) : m_rad_name(
 
   // truth
   m_mcWavelength_dist = new TH1D(
-      "mcWavelength_"+m_rad_name,
+      "mcWavelength_"+rad_name_trun,
       "MC Photon Wavelength for "+m_rad_name+";#lambda [nm]",
       n_bins, 0, 1000
       );
   m_mcRindex_dist = new TH1D(
-      "mcRindex_"+m_rad_name,
+      "mcRindex_"+rad_name_trun,
       "MC Refractive Index for "+m_rad_name+";n",
       10*n_bins, 0.99, 1.03
       );
 
   // PID
   m_highestWeight_dist = new TH1D(
-      "highestWeight_dist_"+m_rad_name,
+      "highestWeight_dist_"+rad_name_trun,
       "Highest PDG Weight for "+m_rad_name+";PDG",
       pdg_bins(), 0, pdg_bins()
       );
 
   // momentum scans
   m_npe_vs_p = new TH2D(
-      "npe_vs_p_"+m_rad_name,
+      "npe_vs_p_"+rad_name_trun,
       "Overall NPE vs. Particle Momentum for "+m_rad_name+";p [GeV];NPE",
       momentum_bins, 0, momentum_max,
       npe_bins, 0, npe_max
       );
   m_theta_vs_p = new TH2D(
-      "theta_vs_p_"+m_rad_name,
+      "theta_vs_p_"+rad_name_trun,
       "Estimated Cherenkov Angle vs. Particle Momentum for "+m_rad_name+";p [GeV];#theta [mrad]",
       momentum_bins, 0, momentum_max,
       theta_bins, 0, theta_max
       );
   m_thetaResid_vs_p = new TH2D(
-      "thetaResid_vs_p_"+m_rad_name,
+      "thetaResid_vs_p_"+rad_name_trun,
       "Estimated Cherenkov Angle Residual vs. Particle Momentum for "+m_rad_name+";p [GeV];#Delta#theta [mrad]",
       momentum_bins, 0, momentum_max,
       theta_bins, -thetaResid_max, thetaResid_max
       );
   m_highestWeight_vs_p = new TH2D(
-      "highestWeight_vs_p_"+m_rad_name,
+      "highestWeight_vs_p_"+rad_name_trun,
       "Highest PDG Weight vs. Particle Momentum for "+m_rad_name+";p [GeV]",
       momentum_bins, 0, momentum_max,
       pdg_bins(), 0, pdg_bins()
@@ -80,11 +84,15 @@ eicrecon::RadiatorAnalysis::RadiatorAnalysis(std::string rad_name) : m_rad_name(
 
 // AlgorithmInit
 //---------------------------------------------------------------------------
-void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
+void eicrecon::IrtCherenkovParticleIDAnalysis::AlgorithmInit(
+    std::vector<std::string>         radiator_list,
+    std::shared_ptr<spdlog::logger>& logger
+    )
+{
   m_log = logger;
 
   // initialize histograms for each radiator
-  for(auto& [id,rad_name] : Tools::GetRadiatorIDs())
+  for(auto& rad_name : radiator_list)
     m_radiator_histos.insert({rad_name, std::make_shared<RadiatorAnalysis>(rad_name)});
 
   // initialize common histograms
