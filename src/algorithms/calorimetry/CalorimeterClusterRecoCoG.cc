@@ -269,10 +269,10 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
         pos_1 = hit.getPosition().x;
         pos_2 = hit.getPosition().y;
       }
-     
+
       const auto delta = cl.getPosition() - hit.getPosition();
-      Eigen::Vector3f pos(pos_1, pos_2, pos_3); 
-      
+      Eigen::Vector3f pos(pos_1, pos_2, pos_3);
+
       radius += delta * delta;
 
       dispersion += delta * delta * w;
@@ -289,17 +289,17 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
     if( w_sum > 0 ) {
       radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
- 
+
       // normalize matrix and vector
       sum2 /= w_sum;
       sum1 /= w_sum;
-      
+
       // 3D covariance matrix
       Eigen::Matrix3f cov3 = sum2 - sum1 * sum1.transpose();
 
       // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (sigma_long, sigma_short, sigma_z)
       Eigen::EigenSolver<Eigen::Matrix3f> es(cov3, false); // set to true for eigenvector calculation
-      
+
       auto eigenValues = es.eigenvalues(); // eigenvalues of symmetric real matrix are always real
       lambda_1 = eigenValues[0].real();
       lambda_2 = eigenValues[1].real();
