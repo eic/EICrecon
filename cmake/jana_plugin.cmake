@@ -107,9 +107,9 @@ endmacro()
 macro(plugin_glob_all _name)
 
     # But... GLOB here makes this file just hot pluggable
-    file(GLOB LIB_SRC_FILES *.cc *.cpp *.c)
-    file(GLOB PLUGIN_SRC_FILES *.cc *.cpp *.c)
-    file(GLOB HEADER_FILES *.h *.hh *.hpp)
+    file(GLOB LIB_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
     string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
@@ -148,13 +148,6 @@ macro(plugin_glob_all _name)
         message(STATUS "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
         message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
     endif()
-
-    # To somehow control GLOB lets at least PRINT files we are going to compile:
-    message(STATUS "Source files:")
-    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
-    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
-    message(STATUS "Header files:")
-    print_file_names("  " ${HEADER_FILES})  # Prints header files
 
 endmacro()
 
@@ -199,7 +192,6 @@ endmacro()
 macro(plugin_add_irt _name)
     if(NOT IRT_FOUND)
         find_package(IRT REQUIRED)
-        set(IRT_INCLUDE_DIR ${IRT_DIR}/../../include)
     endif()
     plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
     plugin_link_libraries(${PLUGIN_NAME} IRT)
@@ -248,4 +240,20 @@ macro(plugin_add_cern_root _name)
     # Add libraries
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
     plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
+endmacro()
+
+
+# Adds FastJet for a plugin
+macro(plugin_add_fastjet _name)
+
+    if(NOT FASTJET_FOUND)
+        find_package(FastJet REQUIRED)
+    endif()
+
+    # Add include directories
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS} )
+
+    # Add libraries
+    plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
+
 endmacro()

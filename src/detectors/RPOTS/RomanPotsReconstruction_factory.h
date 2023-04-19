@@ -9,10 +9,11 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include "DD4hep/Detector.h"
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
-
+#include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
@@ -27,7 +28,7 @@
 
 namespace eicrecon {
 
-    class RomanPotsReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
+    class RomanPotsReconstruction_factory : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>{
 
     public:
 
@@ -44,8 +45,8 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 
-	const double local_x_offset_station_1 = -833.3878326;
-	const double local_x_offset_station_2 = -924.342804;
+	//const double local_x_offset_station_1 = -833.3878326;
+	//const double local_x_offset_station_2 = -924.342804;
 	const double local_x_slope_offset = -0.00622147;
 	const double local_y_slope_offset = -0.0451035;
 	const double crossingAngle = -0.025;
@@ -54,17 +55,18 @@ namespace eicrecon {
 	std::string m_readout;
 	std::string m_layerField;
 	std::string m_sectorField;
+	std::string m_geoSvcName;
 
 	dd4hep::BitFieldCoder *id_dec = nullptr;
 	size_t sector_idx{0}, layer_idx{0};
 
+	std::shared_ptr<JDD4hep_service> m_geoSvc;
 	std::string m_localDetElement;
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
 	size_t local_mask = ~0;
 	dd4hep::Detector *detector = nullptr;
-	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
 	const double aXRP[2][2] = {{2.102403743, 29.11067626},
 	                           {0.186640381, 0.192604619}};
@@ -80,6 +82,8 @@ namespace eicrecon {
 
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+		std::string m_input_tag  = "ForwardRomanPotHits";
+		std::string m_output_tag = "ForwardRomanPotRecParticles";
 
     };
 

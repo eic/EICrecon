@@ -31,8 +31,8 @@ namespace eicrecon {
     float m_cotThetaMax = 16;
     float m_sigmaScattering = 5;
     float m_radLengthPerSeed = 0.1;
-    float m_minPt = 100.; // MeV
-    float m_bFieldInZ = 0.0017; //kTesla
+    float m_minPt = 100. * Acts::UnitConstants::MeV; // MeV
+    float m_bFieldInZ = 1.7 * Acts::UnitConstants::T; // T in Acts units of GeV/(e*mm)
     float m_beamPosX = 0;
     float m_beamPosY = 0;
 
@@ -81,10 +81,10 @@ namespace eicrecon {
 	m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
       m_seedFinderConfig.maxScatteringAngle2 =
 	maxScatteringAngle * maxScatteringAngle;
-      // helix radius in homogeneous magnetic field. Units are Kilotesla, MeV and
-      // millimeter
-      m_seedFinderConfig.pTPerHelixRadius =
-	300. * m_seedFinderConfig.bFieldInZ;
+
+      // Helix radius in homogeneous magnetic field
+      // in ACTS Units are GeV, mm, and GeV/(e*mm)
+      m_seedFinderConfig.pTPerHelixRadius = m_seedFinderConfig.bFieldInZ;
       m_seedFinderConfig.minHelixDiameter2 =
 	std::pow(m_seedFinderConfig.minPt * 2 /
 		 m_seedFinderConfig.pTPerHelixRadius,

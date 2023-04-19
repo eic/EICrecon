@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-print_header(">>>>   E X E C U T A B L E :   eicrecon    <<<<")       # Fancy printing
 
 project(eicrecon_project)
 
@@ -14,7 +13,7 @@ find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 file(GLOB SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
 
 set( INCLUDE_DIRS  ${PROJECT_BINARY_DIR} ${EICRECON_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
-set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${CMAKE_DL_LIBS} Threads::Threads )
+set( LINK_LIBRARIES ${JANA_LIB} ${ROOT_LIBRARIES} ${CMAKE_DL_LIBS} Threads::Threads podio::podio podio::podioRootIO)
 
 # Define executable
 add_executable( eicrecon ${SOURCES} )

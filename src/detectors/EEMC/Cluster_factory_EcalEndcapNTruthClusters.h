@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -15,7 +15,7 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapNTruthClusterAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalEndcapNTruthClusterAssociations : public eicrecon::JFactoryPodioT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
@@ -27,7 +27,7 @@ public:
 
 
 
-class Cluster_factory_EcalEndcapNTruthClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalEndcapNTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
@@ -45,7 +45,7 @@ public:
         m_input_simhit_tag="EcalEndcapNHits";
         m_input_protoclust_tag="EcalEndcapNTruthProtoClusters";
 
-        m_sampFrac=0.03;//{this, "samplingFraction", 1.0};
+        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=4.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
         m_energyWeight="log";//{this, "energyWeight", "log"};
