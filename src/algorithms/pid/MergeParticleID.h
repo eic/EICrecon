@@ -27,9 +27,13 @@ namespace eicrecon {
       void AlgorithmChangeRun();
 
       // AlgorithmProcess
+      // - input: a list of particle ID collections, which we want to merge together
+      // - output: the merged particle ID collection
       // - overload this function to support different collections from other PID subsystems, or to support
       //   merging PID results from overlapping subsystems
-      std::vector<edm4eic::CherenkovParticleID*> AlgorithmProcess(std::vector<const edm4eic::CherenkovParticleID*>& in_pids);
+      std::unique_ptr<edm4eic::CherenkovParticleIDCollection> AlgorithmProcess(
+          std::vector<const edm4eic::CherenkovParticleIDCollection*> in_pid_collections_list
+          );
 
     private:
       std::shared_ptr<spdlog::logger> m_log;

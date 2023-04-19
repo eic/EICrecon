@@ -38,22 +38,18 @@ void eicrecon::MergeCherenkovParticleID_factory::BeginRun(const std::shared_ptr<
 void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // get input collections
-  // FIXME: generalize this when we have differing input tag types
-  std::vector<const edm4eic::CherenkovParticleID*> cherenkov_pids;
-
-  for(const auto& input_tag : GetInputTags()) {
-    try {
-      for(const auto cherenkov_pid : event->Get<edm4eic::CherenkovParticleID>(input_tag))
-        cherenkov_pids.push_back(cherenkov_pid);
-    } catch(std::exception &e) {
-      m_log->critical(e.what());
-      throw JException(e.what());
-    }
-  }
+  std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids;
+  for(auto& input_tag : GetInputTags())
+    cherenkov_pids.push_back(
+        static_cast<const edm4eic::CherenkovParticleIDCollection*>(event->GetCollectionBase(input_tag))
+        );
 
   // call the MergeParticleID algorithm
-  auto global_pids = m_algo.AlgorithmProcess(cherenkov_pids);
-
-  // output
-  Set(std::move(global_pids));
+  try {
+    auto merged_pids = m_algo.AlgorithmProcess(cherenkov_pids);
+    SetCollection(std::move(merged_pids));
+  }
+  catch(std::exception &e) {
+    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+  }
 }

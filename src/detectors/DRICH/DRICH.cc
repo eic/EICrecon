@@ -165,13 +165,11 @@ extern "C" {
           ));
 
     // merge aerogel and gas PID results
-    /*
     app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-          {"DRICHIrtCherenkovParticleID"},
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
           "DRICHMergedCherenkovParticleID",
           merge_cfg
           ));
-          */
 
     // link reconstructed particles
     /*

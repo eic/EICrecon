@@ -49,9 +49,13 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   }
 
   // build `m_pid_radiators`, the list of radiators to use for PID
-  for(auto [rad_name,irt_rad] : m_irt_det->Radiators())
-    if(rad_name!="Filter")
+  m_log->debug("Obtain List of Radiators:");
+  for(auto [rad_name,irt_rad] : m_irt_det->Radiators()) {
+    if(rad_name!="Filter") {
       m_pid_radiators.insert({ std::string(rad_name), irt_rad });
+      m_log->debug("- {}", rad_name);
+    }
+  }
 
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for(auto [rad_name,irt_rad] : m_pid_radiators) {
@@ -133,9 +137,17 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
   for(long i=0; i<num_charged_particles; i++) {
     m_log->trace("{:-<70}",fmt::format("--- charged particle #{} ",i));
 
-    // start an `irt_particle` and a local map of `irt_rad` -> charged particle object (for output)
+    // start an `irt_particle`, for `IRT`
     auto irt_particle = std::make_unique<ChargedParticle>();
-    std::unordered_map<CherenkovRadiator*, const edm4eic::TrackSegment*> out_charged_particles;
+
+    // define `out_charged_particle`, which will be linked to the output PID object, with merged
+    // track points from all radiators; these track points will be sorted by time in `out_track_points`
+    // so that it does not matter which radiator is first
+    edm4eic::MutableTrackSegment out_charged_particle{
+      0.0, // length
+      0.0  // lengthError (not used)
+    };
+    std::vector<edm4eic::TrackPoint> out_track_points;
 
     // loop over radiators
     for(auto [rad_name,irt_rad] : m_pid_radiators) {
@@ -152,7 +164,11 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       }
       auto charged_particle_list = charged_particle_list_it->second;
       auto charged_particle      = charged_particle_list->at(i);
-      out_charged_particles.insert({ irt_rad, &charged_particle });
+
+      // append this `charged_particle` to `out_charged_particle` and its points to `out_track_points`
+      out_charged_particle.setLength(out_charged_particle.getLength() + charged_particle.getLength());
+      for(auto point : charged_particle.getPoints())
+        out_track_points.push_back(point);
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
       irt_rad->ResetLocations();
@@ -365,8 +381,14 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       // logging
       Tools::PrintCherenkovEstimate(m_log, out_cherenkov_pid);
 
-      // relate charged particle
-      auto out_charged_particle = *out_charged_particles.at(irt_rad);
+      // relate `out_charged_particle`, time-sorting its TrackPoints beforehand
+      std::sort(
+          out_track_points.begin(),
+          out_track_points.end(),
+          [] (edm4eic::TrackPoint& a, edm4eic::TrackPoint& b) { return a.time < b.time; }
+          );
+      for(auto point : out_track_points)
+        out_charged_particle.addToPoints(point);
       out_cherenkov_pid.setChargedParticle(out_charged_particle);
 
       // relate hit associations
