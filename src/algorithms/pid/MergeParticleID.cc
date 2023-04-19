@@ -43,9 +43,9 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
    *   associated to it
    *   - the 1st index of the pair is that of the input std::vector `in_pid_collections_list`
    *   - the 2nd index is that of the corresponding CherenkovParticleIDCollection
-   * 
+   *
    * EXAMPLE for merging dRICH aerogel and gas PID objects:
-   * 
+   *
    * - INPUT std::vector: `in_pid_collections_list`
    *   0. CherenkovParticleIDCollection: aerogel pids
    *      0. aerogel PID for charged particle A
@@ -54,7 +54,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
    *      0. gas PID for charged particle A
    *      1. gas PID for charged particle B
    *      2. gas PID for charged particle C  // outside aerogel acceptance, but within gas acceptance
-   * 
+   *
    * - OUTPUT std::unordered_map: `particle_pids` (integer => std::vector<pair of integers>)
    *   - ID of charged particle A => { (0, 0), (1, 0) }
    *   - ID of charged particle B => { (0, 1), (1, 1) }
