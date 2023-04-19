@@ -191,8 +191,8 @@ The _EPIC_ reference detector design is in a repository
 located [here](https://github.com/eic/epic). This requires at least _ACTS_
 and the _{fmt}_ package the latter of which is built in the instructions here.
 
-Note: These instructions turn off the requirement of the DDG4 component in both the
-_ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
+Note: These instructions turn off the requirement of the DDG4 component in the
+_epic_ geometry since it requires GEANT4 which is not needed here.
 
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
@@ -253,7 +253,6 @@ export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
-source ${EICTOPDIR}/detectors/ip6/setup.sh
 source ${EICTOPDIR}/detectors/epic/setup.sh
 
 export JANA_PLUGIN_PATH=${EICTOPDIR}/EICrecon/plugins
