@@ -198,15 +198,8 @@ _ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
 
-export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-git clone https://github.com/eic/ip6.git ${IP6_DD4HEP_HOME}
-cmake -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
-cmake --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
-
 export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
 git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
-ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
-ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
 cmake -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
 cmake --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
 ~~~
