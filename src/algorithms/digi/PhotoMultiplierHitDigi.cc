@@ -150,19 +150,17 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         if (m_cfg.enableNoise) {
           m_log->trace("{:=^70}"," BEGIN NOISE INJECTION ");
           std::unordered_map<uint64_t, std::vector<HitData>> hit_groups_noise;
-
+          float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow*dd4hep::ns;
           auto cellID_action = [this,&hit_groups,&hit_groups_noise] (auto cellID) {
             auto it = hit_groups.find(cellID);
-            if (has_noise_digits(m_cfg.noiseRate, m_cfg.noiseTimeWindow)){
-              // cell time, signal amplitude
-              double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-              double time = m_cfg.noiseTimeWindow*m_rngUni();
-              dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
-              dd4hep::Position pos_hit = {0,0,0}; // unused
-              hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
-            }
+            // cell time, signal amplitude
+            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            double time = m_cfg.noiseTimeWindow*m_rngUni();
+            dd4hep::Position pos_hit_global = m_cellid_converter->position(cellID);
+            dd4hep::Position pos_hit = {0,0,0}; // unused
+            hit_groups_noise[cellID] = {HitData{1, amp + m_cfg.pedMean + m_cfg.pedError*m_rngNorm(), time, pos_hit, pos_hit_global}};
           };
-          m_readoutGeo->VisitAllReadoutPixels(cellID_action);
+          m_readoutGeo->VisitAllRngPixels(cellID_action, p);
 
           for (auto &it : hit_groups_noise) {
             for (auto &data : it.second) {
