@@ -16,7 +16,6 @@ flowchart LR
 flowchart TB
   classDef alg fill:#ff8888,color:black
   classDef col fill:#00aaaa,color:black
-  classDef op fill:#00aa00,color:black
 
   %%-----------------
   %% Nodes
@@ -35,14 +34,11 @@ flowchart TB
   end
 
   subgraph Charged Particles
-    PseudoTracksAlg[<strong>MC Cherenkov Photon Vertices</strong><br/>PseudoTrack<br><i>PseudoTrack_factory</i>]:::alg
-    PseudoTracks(<strong>DRICHAerogelPseudoTracks</strong><br/><strong>DRICHGasPseudoTracks</strong><br/>edm4eic::TrackSegment):::col
 
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br><i>RichTrack_factory</i>]:::alg
-    Tracks(<strong>DRICHAerogelTracks</strong><br/><strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
+    AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
+    GasTracks(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
     MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
-
-    TrackOR{OR}:::op
 
     ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br><i>RichTrackReflection_factory</i>]:::alg
     Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
@@ -78,20 +74,18 @@ flowchart TB
   DigiAlg --> HitAssocs
 
   %% tracking
-  SimHits --> PseudoTracksAlg
-  PseudoTracksAlg --> PseudoTracks
   Trajectories --> PropagatorAlg
-  PropagatorAlg --> Tracks
+  PropagatorAlg --> AerogelTracks
+  PropagatorAlg --> GasTracks
   PropagatorAlg --> MirrorTracks
-  PseudoTracks --> TrackOR
-  Tracks --> TrackOR
   MirrorTracks --> ReflectionsAlg
   ReflectionsAlg --> Reflections
 
   %% PID
   RawHits --> IRT
   HitAssocs --> IRT
-  TrackOR --> IRT
+  AerogelTracks --> IRT
+  GasTracks --> IRT
   Reflections --> IRT
   IRT --> IRTPIDAerogel
   IRT --> IRTPIDGas

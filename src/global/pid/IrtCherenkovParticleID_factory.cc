@@ -17,15 +17,6 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
   m_irt_det_coll = m_richGeoSvc->GetIrtGeo(m_detector_name)->GetIrtDetectorCollection();
   m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
 
-  // print list of input collections, and inform the user if the charged
-  // particle tracks were determined from MC photons
-  m_log->debug("input collections:");
-  for(const auto &input_tag : GetInputTags()) {
-    m_log->debug(" - {}", input_tag);
-    if(input_tag.find("PseudoTrack") != std::string::npos)
-      m_log->warn("CHEAT MODE '{}' ENABLED: use photon emission points as tracks", input_tag);
-  }
-
   // config
   auto cfg = GetDefaultConfig();
   auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
