@@ -13,8 +13,6 @@
 
 #include <random>
 
-#include <Eigen/Dense>
-
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4eic/ProtoCluster.h>

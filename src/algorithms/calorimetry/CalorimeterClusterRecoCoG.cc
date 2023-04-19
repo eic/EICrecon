@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
+// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan
 
 /*
  *  Reconstruct the cluster with Center of Gravity method
  *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
  *
  *  Author: Chao Peng (ANL), 09/27/2020
-            Dhevan Gangadharan (UH): cluster profiling from Eigenvalues
  */
-#include "CalorimeterClusterRecoCoG.h"
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <fmt/format.h>
+#include <map>
+#include <Eigen/Dense>
 
 #include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
-#include <map>
-
-#include <boost/algorithm/string/join.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <edm4hep/MCParticle.h>
 
+#include "CalorimeterClusterRecoCoG.h"
 
 using namespace dd4hep;
 
@@ -252,62 +251,57 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   //   	sigma_z
   double radius = 0, dispersion = 0, lambda_1 = 0, lambda_2 = 0, lambda_3 = 0;
   double w_sum = 0;
-  double sum_11 = 0, sum_22 = 0, sum_33 = 0;
-  double sum_12 = 0, sum_13 = 0, sum_23 = 0;
-  double sum_1 = 0, sum_2 = 0, sum_3 = 0;
+
+  Eigen::Matrix3f sum2 = Eigen::Matrix3f::Zero();
+  Eigen::Vector3f sum1 = Eigen::Vector3f::Zero();
 
   if (cl.getNhits() > 1) {
 
     for (const auto& hit : pcl->getHits()) {
 
-      const auto delta = cl.getPosition() - hit.getPosition();
-      radius += delta * delta;
+      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
 
-      double w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
-      w_sum += w;
-      dispersion += delta * delta * w;
-
-      double pos_1 = edm4eic::anglePolar( hit.getPosition() );
-      double pos_2 = edm4eic::angleAzimuthal( hit.getPosition() );
-      double pos_3 = hit.getPosition().z;
+      float pos_1 = edm4eic::anglePolar( hit.getPosition() );
+      float pos_2 = edm4eic::angleAzimuthal( hit.getPosition() );
+      float pos_3 = hit.getPosition().z;
 
       if( m_xyClusterProfiling ) {
         pos_1 = hit.getPosition().x;
         pos_2 = hit.getPosition().y;
       }
-      sum_11 += w * pos_1 * pos_1;
-      sum_22 += w * pos_2 * pos_2;
-      sum_33 += w * pos_3 * pos_3;
-      sum_12 += w * pos_1 * pos_2;
-      sum_13 += w * pos_1 * pos_3;
-      sum_23 += w * pos_2 * pos_3;
-      sum_1  += w * pos_1;
-      sum_2  += w * pos_2;
-      sum_3  += w * pos_3;
+     
+      const auto delta = cl.getPosition() - hit.getPosition();
+      Eigen::Vector3f pos(pos_1, pos_2, pos_3); 
+      
+      radius += delta * delta;
+
+      dispersion += delta * delta * w;
+
+      // Weighted Sum x*x, x*y, x*z, y*y, etc.
+      sum2 += w * pos * pos.transpose();
+
+      // Weighted Sum x, y, z
+      sum1 += w * pos;
+
+      w_sum += w;
     }
 
     if( w_sum > 0 ) {
       radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
+ 
+      // normalize matrix and vector
+      sum2 /= w_sum;
+      sum1 /= w_sum;
+      
+      // 3D covariance matrix
+      Eigen::Matrix3f cov3 = sum2 - sum1 * sum1.transpose();
 
-      // variances and covariances
-      double sigma_11 = sum_11 / w_sum - (sum_1/w_sum) * (sum_1/w_sum);
-      double sigma_22 = sum_22 / w_sum - (sum_2/w_sum) * (sum_2/w_sum);
-      double sigma_33 = sum_33 / w_sum - (sum_3/w_sum) * (sum_3/w_sum);
-      double sigma_12 = sum_12 / w_sum - (sum_1/w_sum) * (sum_2/w_sum);
-      double sigma_13 = sum_13 / w_sum - (sum_1/w_sum) * (sum_3/w_sum);
-      double sigma_23 = sum_23 / w_sum - (sum_2/w_sum) * (sum_3/w_sum);
-
-      // covariance matrix
-      Eigen::MatrixXd cov3(3,3);
-      cov3(0,0) = sigma_11;  cov3(1,1) = sigma_22;  cov3(2,2) = sigma_33;
-      cov3(0,1) = sigma_12;  cov3(0,2) = sigma_13;  cov3(1,2) = sigma_23;
-      cov3(1,0) = cov3(0,1); cov3(2,0) = cov3(0,2); cov3(2,1) = cov3(1,2);
-
-      // Eigenvalues correspond to cluster's 2nd moments (sigma_long, sigma_short, sigma_z)
-      Eigen::EigenSolver<Eigen::MatrixXd> es(cov3, false); // set to true for eigenvector calculation
-      auto eigenValues = es.eigenvalues();
-      lambda_1 = eigenValues[0].real(); // imaginary parts correspond to unphysical roots
+      // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (sigma_long, sigma_short, sigma_z)
+      Eigen::EigenSolver<Eigen::Matrix3f> es(cov3, false); // set to true for eigenvector calculation
+      
+      auto eigenValues = es.eigenvalues(); // eigenvalues of symmetric real matrix are always real
+      lambda_1 = eigenValues[0].real();
       lambda_2 = eigenValues[1].real();
       lambda_3 = eigenValues[2].real();
     }
