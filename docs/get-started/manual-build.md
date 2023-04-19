@@ -1,7 +1,6 @@
 # EICrecon manual compiling
 These are instructions for building `EICrecon` and all of its dependencies manually.
 These are a last resort. Please see [instructions for `eic-shell`](Use_with_eic_shell.md).
-You can also look at using [EDPM](EDPM.md) to build these for you.
 
 ### Let's go!
 
