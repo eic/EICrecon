@@ -7,7 +7,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -18,7 +18,7 @@
 
 
 
-class RawCalorimeterHit_factory_EcalEndcapNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalEndcapNRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
@@ -36,7 +36,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapNHits";
-        u_eRes = {0.0 * dd4hep::MeV, 20 * dd4hep::MeV, 0.0 * dd4hep::MeV};
+        u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}; // flat 2%
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 20 * dd4hep::GeV;

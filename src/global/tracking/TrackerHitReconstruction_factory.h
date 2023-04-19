@@ -4,7 +4,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <JANA/JFactoryT.h>
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>
