@@ -1,10 +1,24 @@
+option(USE_SYSTEM_CATCH2 "Use system Catch2 v3 otherwise build it locally" ON)
 
-# Check if catch2 exists and unit tests can be built
-find_package(Catch2 3)
-if(Catch2_FOUND)
-    add_subdirectory(algorithms_test)
+if(USE_SYSTEM_CATCH2)
+  find_package(Catch2 3 REQUIRED)
 else()
-    message(STATUS "Catch2 is not found. Skipping algorithms_test...")
+  include(FetchContent)
+  FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v3.3.2
+  )
+  FetchContent_MakeAvailable(Catch2)
+  list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+endif()
+
+if(Catch2_FOUND)
+  include(CTest)
+  include(Catch)
+  add_subdirectory(algorithms_test)
+else()
+  message(STATUS "Catch2 is not found. Skipping algorithms_test...")
 endif()
 
 add_subdirectory(pyjano)
