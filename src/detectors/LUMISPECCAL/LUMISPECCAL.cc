@@ -29,4 +29,3 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecClusterAssociations>());
     }
 }
-
