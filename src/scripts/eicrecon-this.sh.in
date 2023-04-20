@@ -69,10 +69,7 @@ if [[ -d @fmt_DIR@/../../.. ]] ; then
     fi
 fi
 
-#----------------- ip6,epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
-# if [[ -f @BEAMLINE_PATH@/../../setup.sh ]]; then
-#     source @BEAMLINE_PATH@/../../setup.sh
-# fi
+#----------------- epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
 # if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
 #     source @DETECTOR_PATH@/../../setup.sh
 # fi
