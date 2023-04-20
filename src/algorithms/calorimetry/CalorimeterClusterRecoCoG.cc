@@ -246,7 +246,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   // Calculate cluster profile:
   //    radius,
   //   	dispersion (energy weighted radius),
-  //    eta-phi cluster widths (2D)
+  //    theta-phi cluster widths (2D)
   //   	x-y-z cluster widths (3D)
   float radius = 0, dispersion = 0, w_sum = 0;
 
@@ -309,8 +309,8 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
 
   cl.addToShapeParameters( radius );
   cl.addToShapeParameters( dispersion );
-  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D eta-phi cluster width 1
-  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D eta-phi cluster width 2
+  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D theta-phi cluster width 1
+  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D theta-phi cluster width 2
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
