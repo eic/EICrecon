@@ -246,14 +246,16 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   // Calculate cluster profile:
   //    radius,
   //   	dispersion (energy weighted radius),
-  //   	sigma_long
-  //   	sigma_short
-  //   	sigma_z
-  double radius = 0, dispersion = 0, lambda_1 = 0, lambda_2 = 0, lambda_3 = 0;
-  double w_sum = 0;
+  //    eta-phi cluster widths (2D)
+  //   	x-y-z cluster widths (3D)
+  float radius = 0, dispersion = 0, w_sum = 0;
 
-  Eigen::Matrix3f sum2 = Eigen::Matrix3f::Zero();
-  Eigen::Vector3f sum1 = Eigen::Vector3f::Zero();
+  Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
+  Eigen::Matrix3f sum2_3D = Eigen::Matrix3f::Zero();
+  Eigen::Vector2f sum1_2D = Eigen::Vector2f::Zero();
+  Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
+  Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
+  Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
 
   if (cl.getNhits() > 1) {
 
@@ -261,57 +263,57 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
 
       float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
 
-      float pos_1 = edm4eic::anglePolar( hit.getPosition() );
-      float pos_2 = edm4eic::angleAzimuthal( hit.getPosition() );
-      float pos_3 = hit.getPosition().z;
-
-      if( m_xyClusterProfiling ) {
-        pos_1 = hit.getPosition().x;
-        pos_2 = hit.getPosition().y;
-      }
+      // theta, phi
+      Eigen::Vector2f pos2D( edm4eic::anglePolar( hit.getPosition() ), edm4eic::angleAzimuthal( hit.getPosition() ) );
+      // x, y, z
+      Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
 
       const auto delta = cl.getPosition() - hit.getPosition();
-      Eigen::Vector3f pos(pos_1, pos_2, pos_3);
-
-      radius += delta * delta;
-
-      dispersion += delta * delta * w;
+      radius          += delta * delta;
+      dispersion      += delta * delta * w;
 
       // Weighted Sum x*x, x*y, x*z, y*y, etc.
-      sum2 += w * pos * pos.transpose();
+      sum2_2D += w * pos2D * pos2D.transpose();
+      sum2_3D += w * pos3D * pos3D.transpose();
 
       // Weighted Sum x, y, z
-      sum1 += w * pos;
+      sum1_2D += w * pos2D;
+      sum1_3D += w * pos3D;
 
       w_sum += w;
     }
 
     if( w_sum > 0 ) {
-      radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
+      radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
 
-      // normalize matrix and vector
-      sum2 /= w_sum;
-      sum1 /= w_sum;
+      // normalize matrices
+      sum2_2D /= w_sum;
+      sum2_3D /= w_sum;
+      sum1_2D /= w_sum;
+      sum1_3D /= w_sum;
 
-      // 3D covariance matrix
-      Eigen::Matrix3f cov3 = sum2 - sum1 * sum1.transpose();
+      // 2D and 3D covariance matrices
+      Eigen::Matrix2f cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
+      Eigen::Matrix3f cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
 
-      // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (sigma_long, sigma_short, sigma_z)
-      Eigen::EigenSolver<Eigen::Matrix3f> es(cov3, false); // set to true for eigenvector calculation
+      // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
+      Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, false); // set to true for eigenvector calculation
 
-      auto eigenValues = es.eigenvalues(); // eigenvalues of symmetric real matrix are always real
-      lambda_1 = eigenValues[0].real();
-      lambda_2 = eigenValues[1].real();
-      lambda_3 = eigenValues[2].real();
+      // eigenvalues of symmetric real matrix are always real
+      eigenValues_2D = es_2D.eigenvalues();
+      eigenValues_3D = es_3D.eigenvalues();
     }
   }
 
   cl.addToShapeParameters( radius );
   cl.addToShapeParameters( dispersion );
-  cl.addToShapeParameters( lambda_1 );
-  cl.addToShapeParameters( lambda_2 );
-  cl.addToShapeParameters( lambda_3 );
+  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D eta-phi cluster width 1
+  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D eta-phi cluster width 2
+  cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
+  cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
+  cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
 
   return new edm4eic::Cluster(cl);
 }
