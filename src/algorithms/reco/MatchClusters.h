@@ -24,7 +24,6 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/vector_utils.h>
 
-#include "ParticlesWithAssociation.h"
 
 namespace eicrecon {
 
@@ -33,26 +32,26 @@ namespace eicrecon {
 
     public:
 
+        using MatchingResults = std::tuple<edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*>;
+
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        ParticlesWithAssociation *execute(
-                std::vector<const edm4hep::MCParticle *> mcparticles,
-                std::vector<edm4eic::ReconstructedParticle *> inparts,            // TODO fix const
-                std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,   // TODO fix const
-                const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-                const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections);
+        MatchingResults execute(
+            std::vector<const edm4hep::MCParticle *> mcparticles,
+            std::vector<edm4eic::ReconstructedParticle *> inparts,            // TODO fix const
+            std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,   // TODO fix const
+            const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
+            const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections);
 
     private:
 
         std::shared_ptr<spdlog::logger> m_log;
-
 
         // get a map of mcID --> cluster
         // input: cluster_collections --> list of handles to all cluster collections
         std::map<int, const edm4eic::Cluster*> indexedClusters(
                 const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
                 const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &associations_collections);
-
 
         // reconstruct a neutral cluster
         // (for now assuming the vertex is at (0,0,0))

@@ -3,74 +3,36 @@
 //
 
 #include <JANA/JEvent.h>
-
-#include <edm4hep/MCParticle.h>
-#include <edm4hep/MCParticleObj.h>
 #include <edm4eic/TrackParameters.h>
-#include <edm4eic/TrackParametersObj.h>
-
-#include "ParticlesWithTruthPID_factory.h"
 #include "extensions/string/StringHelpers.h"
-#include <algorithms/reco/ParticlesWithAssociation.h>
+#include "ParticlesWithTruthPID_factory.h"
 
-#include <extensions/podio_access/accessor.h>
 
-using MCParticleObjPtr = edm4hep::MCParticleObj*;
-using TrackParametersObjPtr = edm4eic::TrackParametersObj*;
-ALLOW_ACCESS(edm4hep::MCParticle, m_obj, MCParticleObjPtr);
-ALLOW_ACCESS(edm4eic::TrackParameters, m_obj, TrackParametersObjPtr);
+void eicrecon::ParticlesWithTruthPID_factory::Init() {
+    auto app = GetApplication();
 
-namespace eicrecon {
-    void ParticlesWithTruthPID_factory::Init() {
-        auto app = GetApplication();
+    // This prefix will be used for parameters
+    std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string param_prefix = plugin_name + ":" + GetTag();
 
-        // This prefix will be used for parameters
-        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-        std::string param_prefix = plugin_name+ ":" + GetTag();
+    // SpdlogMixin logger initialization, sets m_log
+    InitLogger(GetPrefix(), "info");
+    m_matching_algo.init(m_log);
+}
 
-        // Set input data tags properly
-        InitDataTags(param_prefix);
+void eicrecon::ParticlesWithTruthPID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    // TODO: NWB: We are using GetCollectionBase because GetCollection is temporarily out of commission due to JFactoryPodioTFixed
+    // auto mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
+    // auto track_params = event->GetCollection<edm4eic::TrackParameters>(GetInputTags()[1]);
+    auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto track_params = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
-        // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
-
-        m_matching_algo.init(logger());
+    try {
+        auto prt_with_assoc = m_matching_algo.process(mc_particles, track_params);
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(prt_with_assoc.first));
+        SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::move(prt_with_assoc.second));
     }
-
-    void ParticlesWithTruthPID_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        // Nothing to do here
+    catch(std::exception &e) {
+        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
     }
-
-    void ParticlesWithTruthPID_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        auto mc_particles = event->Get<edm4hep::MCParticle>(GetInputTags()[0]);
-        auto track_params = event->Get<edm4eic::TrackParameters>(GetInputTags()[1]);
-
-        try {
-            // Set indexes for MCParticles. Evil, Evil, Evil is here. TODO remove ASAP
-            for (size_t i = 0; i < mc_particles.size(); i++) {
-                // Dirty hacks begun! Mutate army of mutant particles because of PODIO mudagen
-                auto *mc_particle = const_cast<edm4hep::MCParticle *>(mc_particles[i]);
-
-                // Nothing is private in this world anymore!
-                auto obj = ACCESS(*mc_particle, m_obj);
-                obj->id.index = (int) i;     // Change!
-            }
-
-            // Set indexes for TrackParameters. Evil, Evil, Evil is here. TODO remove ASAP
-            for (size_t i = 0; i < track_params.size(); i++) {
-                // Dirty hacks begun! Mutate army of mutant tracks because of PODIO mudagen
-                auto *track_param = const_cast<edm4eic::TrackParameters *>(track_params[i]);
-
-                // Nothing is private in this world anymore!
-                auto obj = ACCESS(*track_param, m_obj);
-                obj->id.index = (int) i;     // Change!
-            }
-
-            auto result = m_matching_algo.process(mc_particles, track_params);
-            Insert(result);
-        }
-        catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
-        }
-    }
-} // eicrecon
+}
