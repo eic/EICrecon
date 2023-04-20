@@ -22,20 +22,20 @@ Flags explained:
 #This flag lists plugins(submodules) needed to run tracking reconstruction and analysis
 -Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
 
-# Number of parallel threads. Currently only 1 works. 
-# It is a limitation of an event model IO and will be fixed later 
+# Number of parallel threads. Currently only 1 works.
+# It is a limitation of an event model IO and will be fixed later
 -Pnthreads=1
 
-# Write exactly what happens when plugins are loading. Good during debugging time.  
+# Write exactly what happens when plugins are loading. Good during debugging time.
 -Pjana:debug_plugin_loading=1
 
-# Removes self "hang" watchdog. 
+# Removes self "hang" watchdog.
 # Needed during debugging if you pause code execution with breakpoints
 -Pjana:timeout=0
 
 
-# Number of events to process. 
-# (If events needs to be skipped there is also -Pjana:nskip flag) 
+# Number of events to process.
+# (If events needs to be skipped there is also -Pjana:nskip flag)
 -Pjana:nevents=100
 
 # xxx:LogLevel - various plugins/factories logging levels
@@ -46,18 +46,18 @@ Flags explained:
 # warning  - something that needs attention but results are likely usable
 # error    - something bad that makes results probably unusable
 # critical - imminent software failure and termination
-# Logging explained here: 
+# Logging explained here:
 https://github.com/eic/EICrecon/blob/main/docs/Logging.md
 
 
-# DD4Hep xml file for the detector describing the geometry. 
+# DD4Hep xml file for the detector describing the geometry.
 # Can be set by this flag or env. variables combinations: ${DETECTOR_PATH}/${DETECTOR}.xml
 -Pdd4hep:xml_files=...
 
 # Example 1: full path to detector.xml
 -Pdd4hep:xml_files=/path/to/dd4hep/epic/epic_tracking_only.xml
 
-# Example2: DETECTOR_PATH env var is set in eic_shell, so it could be 
+# Example2: DETECTOR_PATH env var is set in eic_shell, so it could be
 -Pdd4hep:xml_files=${DETECTOR_PATH}/epic_tracking_only.xml
 
 
@@ -95,12 +95,11 @@ One can see the list of data names, when eicrecon is running:
 ```
   FACTORIES
   ----------------------------------------------------------------------------------
-    Plugin                Object name                               Tag                
-  -----------  -------------------------------------  ------------------------------  
-  ...            
-  tracking.so  edm4eic::TrackParameters               TrackParameters                 
-  tracking.so  edm4eic::ReconstructedParticle         ReconstructedParticles          
+    Plugin                Object name                               Tag
+  -----------  -------------------------------------  ------------------------------
+  ...
+  tracking.so  edm4eic::TrackParameters               TrackParameters
+  tracking.so  edm4eic::ReconstructedParticle         ReconstructedParticles
   ...                                                 ^
                                                       this name
 ```
-

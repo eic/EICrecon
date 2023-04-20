@@ -6,7 +6,7 @@
  *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
  *
  *  Author: Chao Peng (ANL) 09/27/2020,
-            Dhevan Gangadharan (UH): cluster profiling from Eigenvalues   
+            Dhevan Gangadharan (UH): cluster profiling from Eigenvalues
  */
 #include "CalorimeterClusterRecoCoG.h"
 
@@ -45,7 +45,7 @@ void CalorimeterClusterRecoCoG::AlgorithmInit(std::shared_ptr<spdlog::logger>& l
     }
     weightFunc = it->second;
     // info() << "z_length " << depth << endmsg;
-   
+
     return;
 }
 
@@ -160,7 +160,7 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
     }
 
     return;
-} 
+}
 
 //------------------------------------------------------------------------
 edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster* pcl) const {
@@ -244,7 +244,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
 
   //_______________________________________
   // Calculate cluster profile:
-  //    radius, 
+  //    radius,
   //   	dispersion (energy weighted radius),
   //   	sigma_long
   //   	sigma_short
@@ -280,7 +280,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
       sum_12 += w * pos_1 * pos_2;
       sum_13 += w * pos_1 * pos_3;
       sum_23 += w * pos_2 * pos_3;
-      sum_1  += w * pos_1; 
+      sum_1  += w * pos_1;
       sum_2  += w * pos_2;
       sum_3  += w * pos_3;
     }
@@ -289,7 +289,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
       radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
 
-      // variances and covariances 
+      // variances and covariances
       double sigma_11 = sum_11 / w_sum - (sum_1/w_sum) * (sum_1/w_sum);
       double sigma_22 = sum_22 / w_sum - (sum_2/w_sum) * (sum_2/w_sum);
       double sigma_33 = sum_33 / w_sum - (sum_3/w_sum) * (sum_3/w_sum);
@@ -310,7 +310,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
       lambda_2 = eigenValues[1].real();
       lambda_3 = eigenValues[2].real();
     }
-  } 
+  }
 
   cl.addToShapeParameters( radius );
   cl.addToShapeParameters( dispersion );
