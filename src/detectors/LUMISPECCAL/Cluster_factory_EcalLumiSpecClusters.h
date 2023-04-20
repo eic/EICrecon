@@ -7,7 +7,7 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -16,19 +16,19 @@
 
 
 // Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalLumiSpecClustersAssociations : public JFactoryT<edm4eic::MCRecoClusterParticleAssociation> {
+class Association_factory_EcalLumiSpecClusterAssociations : public eicrecon::JFactoryPodioT<edm4eic::MCRecoClusterParticleAssociation> {
 
 public:
     //------------------------------------------
     // Constructor
-    Association_factory_EcalLumiSpecClustersAssociations(){
-        SetTag("EcalLumiSpecClustersAssociations");
+    Association_factory_EcalLumiSpecClusterAssociations(){
+        SetTag("EcalLumiSpecClusterAssociations");
     }
 };
 
 
 
-class Cluster_factory_EcalLumiSpecClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalLumiSpecClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
@@ -45,17 +45,17 @@ public:
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="LumiSpecCALHits";
         m_input_protoclust_tag="EcalLumiSpecIslandProtoClusters";
-    
+
         m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
         m_logWeightBase=3.6;//{this, "logWeightBase", 3.6};
         m_depthCorrection=0.0;//{this, "depthCorrection", 0.0};
-        m_energyWeight="log";//{this, "energyWeight", "log"}; none, linear, log
+        m_energyWeight="log";//{this, "energyWeight", "log"};
         m_moduleDimZName="";//{this, "moduleDimZName", ""};
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
         // for endcaps.
         m_enableEtaBounds=false;//{this, "enableEtaBounds", false};
-        m_xyClusterProfiling = true;
+
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecClusters:input_protoclust_tag",  m_input_protoclust_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecClusters:samplingFraction",             m_sampFrac);
@@ -80,10 +80,10 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-        
+
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag); 
+        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -98,4 +98,3 @@ public:
         m_outputAssociations.clear();
     }
 };
-

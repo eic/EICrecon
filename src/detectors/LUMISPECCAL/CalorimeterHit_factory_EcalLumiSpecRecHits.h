@@ -2,13 +2,13 @@
 #pragma once
 
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalLumiSpecRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalLumiSpecRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
@@ -37,7 +37,7 @@ public:
         m_thresholdValue=3.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=1.0;//{this, "samplingFraction", 1.0};
+        m_sampFrac=0.998;//{this, "samplingFraction", 1.0};
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
@@ -48,7 +48,6 @@ public:
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-//        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:dynamicRangeADC",  m_dyRangeADC);
@@ -90,4 +89,3 @@ public:
     }
 
 };
-

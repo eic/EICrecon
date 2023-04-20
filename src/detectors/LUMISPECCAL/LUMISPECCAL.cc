@@ -25,8 +25,8 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalLumiSpecTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalLumiSpecClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecTruthClustersAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecClustersAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecTruthClusterAssociations>());
+        app->Add(new JFactoryGeneratorT<Association_factory_EcalLumiSpecClusterAssociations>());
     }
 }
     
