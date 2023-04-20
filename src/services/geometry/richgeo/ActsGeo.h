@@ -31,9 +31,6 @@ namespace richgeo {
       // generate list ACTS disc surfaces, for a given radiator
       std::vector<std::shared_ptr<Acts::Surface>> TrackingPlanes(int radiator, int numPlanes);
 
-      // lambdas to tell us if a point is within a radiator
-      std::function<bool(double,double,double)> WithinRadiator[nRadiators];
-
     protected:
 
       std::string                     m_detName;

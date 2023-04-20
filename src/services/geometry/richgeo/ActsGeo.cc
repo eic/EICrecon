@@ -9,27 +9,6 @@ richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::sha
 {
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
-
-  // set `WithinRadiator`
-  if(m_detName=="DRICH") {
-    auto zmax             = m_det->constant<double>("DRICH_zmax")  / dd4hep::mm;
-    auto aerogelZpos      = m_det->constant<double>("DRICH_aerogel_zpos")      / dd4hep::mm;
-    auto aerogelThickness = m_det->constant<double>("DRICH_aerogel_thickness") / dd4hep::mm;
-    WithinRadiator[richgeo::kAerogel] = [this,aerogelZpos,aerogelThickness] (double x, double y, double z) {
-      auto zmin = aerogelZpos - aerogelThickness/2.0;
-      auto zmax = aerogelZpos + aerogelThickness/2.0;
-      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
-      return z >= zmin && z <= zmax;
-    };
-    WithinRadiator[richgeo::kGas] = [this,aerogelZpos,aerogelThickness,zmax] (double x, double y, double z) {
-      auto zmin = aerogelZpos + aerogelThickness/2.0;
-      // m_log->debug("check if z={} within ({}, {})?", z, zmin, zmax);
-      return z >= zmin && z <= zmax;
-    };
-  }
-  else if(m_detName=="PFRICH") {
-    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
-  }
 }
 
 // generate list ACTS disc surfaces, for a given radiator
