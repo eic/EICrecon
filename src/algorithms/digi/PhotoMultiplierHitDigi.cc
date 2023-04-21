@@ -74,13 +74,13 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
           double signal;
           decltype(edm4hep::SimTrackerHitData::time) time;
           dd4hep::Position pos;
-          std::vector<size_t> sim_hit_indices;
+          std::vector<std::size_t> sim_hit_indices;
         };
         std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         m_log->trace("{:-<70}","Loop over simulated hits ");
-        for(size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
+        for(std::size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
             const auto& sim_hit = sim_hits->at(sim_hit_index);
             auto edep_eV = sim_hit.getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = sim_hit.getCellID();
@@ -112,7 +112,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             // group hits
             auto it = hit_groups.find(id);
             if (it != hit_groups.end()) {
-                size_t i = 0;
+                std::size_t i = 0;
                 for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
                     if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
                         // hit group found, update npe, signal, and list of MC hits
@@ -307,7 +307,7 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
     print_pos("sensor position", pos_sensor);
     print_pos("output position", pos_transformed);
     // auto dim = m_cellid_converter->cellDimensions(id);
-    // for (size_t j = 0; j < std::size(dim); ++j)
+    // for (std::size_t j = 0; j < std::size(dim); ++j)
     //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
   }
   */

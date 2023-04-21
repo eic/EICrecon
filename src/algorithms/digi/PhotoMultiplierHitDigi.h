@@ -22,6 +22,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <cstddef>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include <algorithms/interfaces/WithPodConfig.h>
