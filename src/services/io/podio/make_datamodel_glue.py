@@ -112,7 +112,7 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n')
     f.write('\ntemplate <typename Visitor> struct VisitPodioCollection {')
     f.write('\n    void operator()(Visitor& visitor, const podio::CollectionBase& collection) {')
-    f.write('\n        std::string podio_typename = collection.getTypeName();\n')
+    f.write('\n        auto podio_typename = collection.getTypeName();\n')
     f.write('\n'.join(visitor))
     f.write('\n        throw std::runtime_error("Unrecognized podio typename!");')
     f.write('\n    }')
