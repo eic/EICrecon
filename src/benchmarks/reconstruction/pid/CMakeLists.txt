@@ -1,5 +1,4 @@
 set(PLUGIN_NAME "benchmarks_pid")
-print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
