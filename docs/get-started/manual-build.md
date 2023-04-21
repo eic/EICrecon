@@ -1,7 +1,6 @@
 # EICrecon manual compiling
 These are instructions for building `EICrecon` and all of its dependencies manually.
 These are a last resort. Please see [instructions for `eic-shell`](Use_with_eic_shell.md).
-You can also look at using [EDPM](EDPM.md) to build these for you.
 
 ### Let's go!
 
@@ -191,24 +190,17 @@ The _EPIC_ reference detector design is in a repository
 located [here](https://github.com/eic/epic). This requires at least _ACTS_
 and the _{fmt}_ package the latter of which is built in the instructions here.
 
-Note: These instructions turn off the requirement of the DDG4 component in both the
-_ip6_ and _epic_ geometries since it requires GEANT4 which is not needed here.
+Note: These instructions turn off the requirement of the DDG4 component in the
+_epic_ geometry since it requires GEANT4 which is not needed here.
 
 ~~~
 mkdir -p ${EICTOPDIR}/detectors
 cd ${EICTOPDIR}/detectors
 
-export IP6_DD4HEP_HOME=${EICTOPDIR}/detectors/ip6
-git clone https://github.com/eic/ip6.git ${IP6_DD4HEP_HOME}
-cmake -S ${IP6_DD4HEP_HOME} -B ${IP6_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${IP6_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
-cmake --build ${IP6_DD4HEP_HOME}/build --target install -- -j8
-
-export EIC_DD4HEP_HOME=${EICTOPDIR}/detectors/epic
-git clone https://github.com/eic/epic.git ${EIC_DD4HEP_HOME}
-ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/ip6
-ln -s ${IP6_DD4HEP_HOME}/ip6 ${EIC_DD4HEP_HOME}/share/epic/ip6
-cmake -S ${EIC_DD4HEP_HOME} -B ${EIC_DD4HEP_HOME}/build -DCMAKE_INSTALL_PREFIX=${EIC_DD4HEP_HOME} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
-cmake --build ${EIC_DD4HEP_HOME}/build --target install -- -j8
+export DETECTOR_PATH=${EICTOPDIR}/detectors/epic
+git clone https://github.com/eic/epic.git ${DETECTOR_PATH}
+cmake -S ${DETECTOR_PATH} -B ${DETECTOR_PATH}/build -DCMAKE_INSTALL_PREFIX=${DETECTOR_PATH} -DCMAKE_CXX_STANDARD=17 -DUSE_DDG4=OFF
+cmake --build ${DETECTOR_PATH}/build --target install -- -j8
 ~~~
 
 ### Capture environment
@@ -260,7 +252,6 @@ export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
 source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
 export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
 export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
-source ${EICTOPDIR}/detectors/ip6/setup.sh
 source ${EICTOPDIR}/detectors/epic/setup.sh
 
 export JANA_PLUGIN_PATH=${EICTOPDIR}/EICrecon/plugins
