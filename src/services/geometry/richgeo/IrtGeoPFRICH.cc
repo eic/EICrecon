@@ -92,12 +92,12 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       dd4hep::Direction sensorNorm(0,0,1); // FIXME: generalize; this assumes planar layout, with norm along +z axis (toward IP)
       auto surfaceOffset = sensorNorm.Unit() * (0.5*sensorThickness);
       auto posSensorSurface = posSensor + surfaceOffset;
-      // - add to `m_sensor` map
+      // - add to `m_sensor_info` map
       richgeo::Sensor sensor_info;
       sensor_info.size             = sensorSize;
       sensor_info.surface_centroid = posSensorSurface;
       sensor_info.surface_offset   = surfaceOffset;
-      m_sensor.insert({ imod, sensor_info });
+      m_sensor_info.insert({ imod, sensor_info });
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
@@ -166,4 +166,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // set refractive index table
   SetRefractiveIndexTable();
+
+  // define the `cell ID -> pixel position` converter
+  SetReadoutIDToPositionLambda();
 }
