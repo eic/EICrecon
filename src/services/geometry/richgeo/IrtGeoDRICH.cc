@@ -139,12 +139,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         dd4hep::Direction radialDir = posSensor - sensorSphCenter; // sensor sphere radius direction
         auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
         auto posSensorSurface = posSensor + surfaceOffset;
-        // - add to `m_sensor` map
+        // - add to `m_sensor_info` map
         richgeo::Sensor sensor_info;
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensorSurface;
         sensor_info.surface_offset   = surfaceOffset;
-        m_sensor.insert({ imodsec, sensor_info });
+        m_sensor_info.insert({ imodsec, sensor_info });
         // - get surface normal and in-plane vectors
         double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
         double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
@@ -220,4 +220,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // set refractive index table
   SetRefractiveIndexTable();
+
+  // define the `cell ID -> pixel position` converter
+  SetReadoutIDToPositionLambda();
 }

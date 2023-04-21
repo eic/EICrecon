@@ -38,8 +38,9 @@ namespace richgeo {
     protected:
 
       // protected methods
-      virtual void DD4hep_to_IRT() = 0; // given DD4hep geometry, produce IRT geometry
-      void SetRefractiveIndexTable();   // fill table of refractive indices
+      virtual void DD4hep_to_IRT() = 0;    // given DD4hep geometry, produce IRT geometry
+      void SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
+      void SetRefractiveIndexTable();      // fill table of refractive indices
 
       // inputs
       std::string m_detName;
@@ -51,7 +52,7 @@ namespace richgeo {
 
       // cell ID conversion
       std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
-      std::unordered_map<int,richgeo::Sensor> m_sensor; // sensor ID -> sensor info
+      std::unordered_map<int,richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
 
       // IRT geometry handles
       CherenkovDetectorCollection *m_irtDetectorCollection;

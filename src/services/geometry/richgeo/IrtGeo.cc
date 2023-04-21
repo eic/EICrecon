@@ -35,16 +35,25 @@ void richgeo::IrtGeo::Bind() {
 
   // cellID conversion
   m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_det);
+}
+// ------------------------------------------------
 
-  // define the `cell ID -> pixel position` converter, correcting the returned
-  // `Position` to be at the sensor surface
-  m_irtDetector->m_ReadoutIDToPosition = [this] (auto cell_id) {
+// define the `cell ID -> pixel position` converter, correcting to sensor surface
+void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
+
+  m_irtDetector->m_ReadoutIDToPosition = [
+    &m_log = this->m_log, // capture logger by reference
+    // capture instance members by value, so those owned by `this` are not mutable here
+    cell_mask        = this->m_irtDetector->GetReadoutCellMask(),
+    cellid_converter = this->m_cellid_converter,
+    sensor_info      = this->m_sensor_info
+  ] (auto cell_id) {
     // decode cell ID to get the sensor ID and pixel volume centroid
-    auto sensor_id = cell_id & m_irtDetector->GetReadoutCellMask();
-    auto pixel_volume_centroid = (1/dd4hep::mm) * m_cellid_converter->position(cell_id);
+    auto sensor_id = cell_id & cell_mask;
+    auto pixel_volume_centroid = (1/dd4hep::mm) * cellid_converter->position(cell_id);
     // get sensor info
-    auto sensor_info_it = m_sensor.find(sensor_id);
-    if(sensor_info_it == m_sensor.end()) {
+    auto sensor_info_it = sensor_info.find(sensor_id);
+    if(sensor_info_it == sensor_info.end()) {
       m_log->warn("cannot find sensor ID {} in IrtGeo; using pixel volume centroid instead",sensor_id);
       return TVector3( pixel_volume_centroid.x(), pixel_volume_centroid.y(), pixel_volume_centroid.z());
     }
