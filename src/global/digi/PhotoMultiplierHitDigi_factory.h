@@ -1,7 +1,5 @@
-// Created by Christopher Dilks
-// Based on SiliconTrackerDigi_factory
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023, Christopher Dilks
 
 #pragma once
 
@@ -19,6 +17,7 @@
 
 // services
 #include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <services/geometry/richgeo/RichGeo_service.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -49,6 +48,7 @@ namespace eicrecon {
     private:
 
         eicrecon::PhotoMultiplierHitDigi m_digi_algo;       /// Actual digitisation algorithm
+        richgeo::ReadoutGeo              *m_readoutGeo = nullptr;
     };
 
 }

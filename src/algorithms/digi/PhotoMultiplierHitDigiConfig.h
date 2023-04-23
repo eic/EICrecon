@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
+
 #pragma once
 
 #include <spdlog/spdlog.h>
@@ -7,7 +10,7 @@ namespace eicrecon {
     public:
 
       // random number generator seed
-      unsigned long seed = 37;
+      unsigned long seed = 0;
 
       // triggering
       double hitTimeWindow = 20.0;   // [ns]
@@ -16,6 +19,11 @@ namespace eicrecon {
       double speError      = 16.0;
       double pedMean       = 200.0;
       double pedError      = 3.0;
+
+      // noise
+      bool enableNoise       = false;
+      double noiseRate       = 20000; // [Hz]
+      double noiseTimeWindow = 20.0;  // [ns]
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
@@ -50,11 +58,6 @@ namespace eicrecon {
         {900, 0.04}
       };
 
-      // noise
-      bool noiseInjection = false;
-      double noiseRate = 20000; // [Hz]
-      double timeWindow = 20.;  // [ns]
-
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
          {325, 1.00},
@@ -67,22 +70,22 @@ namespace eicrecon {
       // print all parameters
       void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
         m_log->log(lvl, "{:=^60}"," PhotoMultiplierHitDigiConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("seed",seed);
-        puts("hitTimeWindow",hitTimeWindow);
-        puts("timeStep",timeStep);
-        puts("speMean",speMean);
-        puts("speError",speError);
-        puts("pedMean",pedMean);
-        puts("pedError",pedError);
-        puts("enablePixelGaps",enablePixelGaps);
-        puts("pixelSize",pixelSize);
-        puts("safetyFactor",safetyFactor);
-        puts("noiseInjection",noiseInjection);
-        puts("noiseRate",noiseRate);
-        puts("timeWindow",timeWindow);
+        print_param("seed",seed);
+        print_param("hitTimeWindow",hitTimeWindow);
+        print_param("timeStep",timeStep);
+        print_param("speMean",speMean);
+        print_param("speError",speError);
+        print_param("pedMean",pedMean);
+        print_param("pedError",pedError);
+        print_param("enablePixelGaps",enablePixelGaps);
+        print_param("pixelSize",pixelSize);
+        print_param("safetyFactor",safetyFactor);
+        print_param("enableNoise",enableNoise);
+        print_param("noiseRate",noiseRate);
+        print_param("noiseTimeWindow",noiseTimeWindow);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);

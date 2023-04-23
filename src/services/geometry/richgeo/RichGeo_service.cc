@@ -1,4 +1,4 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -65,12 +65,30 @@ richgeo::ActsGeo *RichGeo_service::GetActsGeo(std::string detector_name) {
   return m_actsGeo;
 }
 
+// ReadoutGeo -----------------------------------------------------------
+richgeo::ReadoutGeo *RichGeo_service::GetReadoutGeo(std::string detector_name) {
+  // initialize, if not yet initialized
+  try {
+    m_log->debug("Call RichGeo_service::GetReadoutGeo initializer");
+    auto initialize = [this,&detector_name] () {
+      if(!m_dd4hepGeo) throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
+      m_readoutGeo = new richgeo::ReadoutGeo(detector_name, m_dd4hepGeo, m_verbose);
+    };
+    std::call_once(m_init_readout, initialize);
+  }
+  catch (std::exception &ex) {
+    throw JException(ex.what());
+  }
+  return m_readoutGeo;
+}
+
 // Destructor --------------------------------------------------------
 RichGeo_service::~RichGeo_service(){
   try {
     if(m_dd4hepGeo) m_dd4hepGeo->destroyInstance();
     m_dd4hepGeo = nullptr;
-    if(m_irtGeo) delete m_irtGeo;
-    if(m_actsGeo) delete m_actsGeo;
+    delete m_irtGeo;
+    delete m_actsGeo;
+    delete m_readoutGeo;
   } catch (...) {}
 }
