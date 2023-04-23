@@ -27,8 +27,20 @@ namespace richgeo {
       ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false);
       ~ReadoutGeo() {}
 
-      // random number generators
-      TRandomMixMax m_random;
+      // define cellID encoding
+      uint64_t cellIDEncoding(int isec, int imod, int x, int y)
+      {
+	// encode cellID
+	dd4hep::long64 cellID_dd4hep;
+	m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
+	m_readoutCoder->set(cellID_dd4hep, "sector", isec);
+	m_readoutCoder->set(cellID_dd4hep, "module", imod);
+	m_readoutCoder->set(cellID_dd4hep, "x",      x);
+	m_readoutCoder->set(cellID_dd4hep, "y",      y);
+	uint64_t cellID(cellID_dd4hep); // DD4hep uses `dd4hep::long64`, but EDM4hep uses `uint64_t`
+	return cellID;
+	// m_log.PrintLog("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
+      }
 
       // loop over readout pixels, executing `lambda(cellID)` on each
       void VisitAllReadoutPixels(std::function<void(uint64_t)> lambda) { m_loopCellIDs(lambda); }
@@ -56,6 +68,9 @@ namespace richgeo {
       std::function< void(std::function<void(uint64_t)>, float) > m_rngCellIDs;
 
     private:
+
+      // random number generators
+      TRandomMixMax m_random;
 
   };
 }

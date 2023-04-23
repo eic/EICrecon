@@ -51,19 +51,10 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
           for (int x = 0; x < m_num_px; x++) {
             for (int y = 0; y < m_num_px; y++) {
 
-              // encode cellID
-              dd4hep::long64 cellID_dd4hep;
-              m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
-              m_readoutCoder->set(cellID_dd4hep, "sector", isec);
-              m_readoutCoder->set(cellID_dd4hep, "module", imod);
-              m_readoutCoder->set(cellID_dd4hep, "x",      x);
-              m_readoutCoder->set(cellID_dd4hep, "y",      y);
-              uint64_t cellID(cellID_dd4hep); // DD4hep uses `dd4hep::long64`, but EDM4hep uses `uint64_t`
-              // m_log.PrintLog("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
+              auto cellID = cellIDEncoding(isec, imod, x, y);
 
               // then execute the user's lambda function
               lambda(cellID);
-
             }
           } // end xy-segmentation loop
         }
@@ -82,16 +73,8 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
 	int x = m_random.Uniform(0., m_num_px);
 	int y = m_random.Uniform(0., m_num_px);
 
-	// encode cellID
-	dd4hep::long64 cellID_dd4hep;
-	m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
-	m_readoutCoder->set(cellID_dd4hep, "sector", isec);
-	m_readoutCoder->set(cellID_dd4hep, "module", imod);
-	m_readoutCoder->set(cellID_dd4hep, "x",      x);
-	m_readoutCoder->set(cellID_dd4hep, "y",      y);
-	uint64_t cellID(cellID_dd4hep); // DD4hep uses `dd4hep::long64`, but EDM4hep uses `uint64_t`
+	auto cellID = cellIDEncoding(isec, imod, x, y);
 
-	// then execute the user's lambda function
 	lambda(cellID);
       }
     };
