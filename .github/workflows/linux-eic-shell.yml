@@ -22,12 +22,16 @@ jobs:
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Release
+            BUILD_TESTING: ON
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
+            # Catch2 won't work with clang in the current container
+            BUILD_TESTING: OFF
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Debug
+            BUILD_TESTING: ON
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -57,7 +61,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # install this repo
-          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }}
+          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DBUILD_TESTING=${{ matrix.BUILD_TESTING }}
           cmake --build build -- -j 2 install
     - uses: actions/upload-artifact@v3
       with:
