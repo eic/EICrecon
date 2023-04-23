@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
+// Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan
 
 /*
  *  Reconstruct the cluster with Center of Gravity method
@@ -7,17 +7,17 @@
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
-#include "CalorimeterClusterRecoCoG.h"
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <fmt/format.h>
+#include <map>
+#include <Eigen/Dense>
 
 #include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
-#include <map>
-
-#include <boost/algorithm/string/join.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <edm4hep/MCParticle.h>
 
+#include "CalorimeterClusterRecoCoG.h"
 
 using namespace dd4hep;
 
@@ -160,4 +160,160 @@ void CalorimeterClusterRecoCoG::AlgorithmProcess() {
     }
 
     return;
+}
+
+//------------------------------------------------------------------------
+edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster* pcl) const {
+  edm4eic::MutableCluster cl;
+  cl.setNhits(pcl->hits_size());
+
+  m_log->debug("hit size = {}", pcl->hits_size());
+
+  // no hits
+  if (pcl->hits_size() == 0) {
+    return nullptr;
+  }
+
+  // calculate total energy, find the cell with the maximum energy deposit
+  float totalE = 0.;
+  float maxE   = 0.;
+  // Used to optionally constrain the cluster eta to those of the contributing hits
+  float minHitEta = std::numeric_limits<float>::max();
+  float maxHitEta = std::numeric_limits<float>::min();
+  auto time       = pcl->getHits()[0].getTime();
+  auto timeError  = pcl->getHits()[0].getTimeError();
+  for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
+    const auto& hit   = pcl->getHits()[i];
+    const auto weight = pcl->getWeights()[i];
+    m_log->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
+    auto energy = hit.getEnergy() * weight;
+    totalE += energy;
+    if (energy > maxE) {
+    }
+    const float eta = edm4eic::eta(hit.getPosition());
+    if (eta < minHitEta) {
+      minHitEta = eta;
+    }
+    if (eta > maxHitEta) {
+      maxHitEta = eta;
+    }
+  }
+  cl.setEnergy(totalE / m_sampFrac);
+  cl.setEnergyError(0.);
+  cl.setTime(time);
+  cl.setTimeError(timeError);
+
+  // center of gravity with logarithmic weighting
+  float tw = 0.;
+  auto v   = cl.getPosition();
+  for (unsigned i = 0; i < pcl->getHits().size(); ++i) {
+    const auto& hit   = pcl->getHits()[i];
+    const auto weight = pcl->getWeights()[i];
+    //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
+    float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
+    tw += w;
+    v = v + (hit.getPosition() * w);
+  }
+  if (tw == 0.) {
+    m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
+  }
+  cl.setPosition(v / tw);
+  cl.setPositionError({}); // @TODO: Covariance matrix
+
+  // Optionally constrain the cluster to the hit eta values
+  if (m_enableEtaBounds) {
+    const bool overflow  = (edm4eic::eta(cl.getPosition()) > maxHitEta);
+    const bool underflow = (edm4eic::eta(cl.getPosition()) < minHitEta);
+    if (overflow || underflow) {
+      const double newEta   = overflow ? maxHitEta : minHitEta;
+      const double newTheta = edm4eic::etaToAngle(newEta);
+      const double newR     = edm4eic::magnitude(cl.getPosition());
+      const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
+      cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
+      m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
+    }
+  }
+
+  // Additional convenience variables
+
+  // best estimate on the cluster direction is the cluster position
+  // for simple 2D CoG clustering
+  cl.setIntrinsicTheta(edm4eic::anglePolar(cl.getPosition()));
+  cl.setIntrinsicPhi(edm4eic::angleAzimuthal(cl.getPosition()));
+  // TODO errors
+
+  //_______________________________________
+  // Calculate cluster profile:
+  //    radius,
+  //   	dispersion (energy weighted radius),
+  //    theta-phi cluster widths (2D)
+  //   	x-y-z cluster widths (3D)
+  float radius = 0, dispersion = 0, w_sum = 0;
+
+  Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
+  Eigen::Matrix3f sum2_3D = Eigen::Matrix3f::Zero();
+  Eigen::Vector2f sum1_2D = Eigen::Vector2f::Zero();
+  Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
+  Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
+  Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
+
+  if (cl.getNhits() > 1) {
+
+    for (const auto& hit : pcl->getHits()) {
+
+      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
+
+      // theta, phi
+      Eigen::Vector2f pos2D( edm4eic::anglePolar( hit.getPosition() ), edm4eic::angleAzimuthal( hit.getPosition() ) );
+      // x, y, z
+      Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
+
+      const auto delta = cl.getPosition() - hit.getPosition();
+      radius          += delta * delta;
+      dispersion      += delta * delta * w;
+
+      // Weighted Sum x*x, x*y, x*z, y*y, etc.
+      sum2_2D += w * pos2D * pos2D.transpose();
+      sum2_3D += w * pos3D * pos3D.transpose();
+
+      // Weighted Sum x, y, z
+      sum1_2D += w * pos2D;
+      sum1_3D += w * pos3D;
+
+      w_sum += w;
+    }
+
+    if( w_sum > 0 ) {
+      radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
+      dispersion = sqrt( dispersion / w_sum );
+
+      // normalize matrices
+      sum2_2D /= w_sum;
+      sum2_3D /= w_sum;
+      sum1_2D /= w_sum;
+      sum1_3D /= w_sum;
+
+      // 2D and 3D covariance matrices
+      Eigen::Matrix2f cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
+      Eigen::Matrix3f cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
+
+      // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
+      Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, false); // set to true for eigenvector calculation
+
+      // eigenvalues of symmetric real matrix are always real
+      eigenValues_2D = es_2D.eigenvalues();
+      eigenValues_3D = es_3D.eigenvalues();
+    }
+  }
+
+  cl.addToShapeParameters( radius );
+  cl.addToShapeParameters( dispersion );
+  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D theta-phi cluster width 1
+  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D theta-phi cluster width 2
+  cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
+  cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
+  cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
+
+  return new edm4eic::Cluster(cl);
 }
