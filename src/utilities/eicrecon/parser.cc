@@ -15,9 +15,23 @@ namespace jana::parser {
     // Decide which unit system to use for parsing
     // -------------------------------------------
 
+    // EDM4hep default system
+    // 1 = millimeter = GeV = nanosecond = radian
+    m_eval = std::make_unique<dd4hep::tools::Evaluator::Object>(
+        1.e+3,                   // millimeter (per meter)
+        1./1.60217733e-25/1.e+3, // GeV (per kilogram); cf. Geant4 unit system below
+        1.e+9,                   // nanosecond (per second)
+        1./1.60217733e-10,       // nanoampere, via e+ charge (per ampere); cf. Geant4 unit system below
+        1.0,                     // kelvin
+        1.0,                     // mole
+        1.0,                     // candela
+        1.0                      // radian
+        );
+
     // DD4hep default system
     // 1 = centimeter = GeV = second = nanoampere = kelvin = mole = candela = radian = steradian
-    // NOTE: may differ from above depending on how DD4hep is configured, thus we use the `dd4hep::` names here
+    // NOTE: use the `dd4hep::` names here to be DD4hep-build-configuration invariant
+    /*
     m_eval = std::make_unique<dd4hep::tools::Evaluator::Object>(
         dd4hep::meter,
         dd4hep::kilogram,
@@ -28,13 +42,23 @@ namespace jana::parser {
         dd4hep::candela,
         dd4hep::radian
         );
+    */
 
     // Geant4 unit system
     // 1 = millimeter = MeV = nanosecond = nanoampere (via e+ charge) = kelvin = mole = candela = radian = steradian
+    // reference: <https://github.com/AIDASoft/DD4hep/blob/f6f3f7fc59fcec334aff7ee215c23287c11c54db/DDParsers/include/Evaluator/detail/Evaluator.h#L95-L99>
     /*
     m_eval = std::make_unique<dd4hep::tools::Evaluator::Object>(
-        1.e+3, 1./1.60217733e-25, 1.e+9, 1./1.60217733e-10, 1.0, 1.0, 1.0);
-        */
+        1.e+3,             // millimeter (per meter)
+        1./1.60217733e-25, // MeV (per kilogram)
+        1.e+9,             // nanosecond (per second)
+        1./1.60217733e-10, // nanoampere, via e+ charge (per ampere)
+        1.0,               // kelvin
+        1.0,               // mole
+        1.0,               // candela
+        1.0                // radian
+        );
+    */
 
   }
 
