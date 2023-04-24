@@ -15,6 +15,7 @@
 class RandomGenerator{
     protected:
         RandomGenerator()=default;
+        virtual ~RandomGenerator();
 
     public:
     static RandomGenerator* Make(std::string gen_name, std::string dist_type, std::vector<double> dist_params);
@@ -53,7 +54,7 @@ public:
         return m_gen_name;
     }
 
-    ~RandomGeneratorT()=default;
+    virtual ~RandomGeneratorT()=default;
 private:
     std::string m_dist_name;
     std::string m_gen_name;

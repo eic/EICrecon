@@ -1,5 +1,10 @@
 #include "randomGenerator.h"
 
+// Virtual destructor implementation to pin vtable and typeinfo to this
+// translation unit
+~RandomGenerator::RandomGenerator() {};
+
+
 RandomGenerator::RandomGenerator(std::string gen_name,std::string distribution_name, std::vector <double> distribution_params )
 {
     m_dist_name = distribution_name;
