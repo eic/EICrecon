@@ -139,6 +139,38 @@ jobs:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error
 
+  ddsim-gun-LumiSpecCAL:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        particle: [e]
+        detector_config: [ip6_extended]
+    steps:
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Get detector info
+      id: detector_info
+      run: |
+        grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+    - name: Retrieve simulation files
+      id: retrieve_simulation_files
+      uses: actions/cache@v3
+      with:
+        path: sim_${{ matrix.particle }}_LumiPSCAL_${{ matrix.detector_config }}.edm4hep.root
+        key: sim_${{ matrix.particle }}_LumiPSCAL_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
+    - name: Produce simulation files
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "10*GeV" --gun.momentumMax "10*GeV" --gun.direction "(0, 0, -1)" --gun.position "(0.0, 150.0, -64000.0)" -N 100 --outputFile sim_${{ matrix.particle }}_LumiPSCAL_${{ matrix.detector_config }}.edm4hep.root
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sim_${{ matrix.particle }}_LumiPSCAL_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_${{ matrix.particle }}_LumiPSCAL_${{ matrix.detector_config }}.edm4hep.root
+        if-no-files-found: error
+
   ddsim-dis:
     runs-on: ubuntu-latest
     strategy:
