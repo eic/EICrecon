@@ -3,7 +3,7 @@
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
-#include "services/io/podio/datamodel_glue.h"
+#include <datamodel_glue.h>
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>

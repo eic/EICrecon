@@ -8,7 +8,7 @@
 #include <JANA/JFactoryT.h>
 #include <JANA/JEvent.h>
 #include <podio/Frame.h>
-#include "datamodel_glue.h"
+#include <datamodel_glue.h>
 
 
 namespace eicrecon {
