@@ -7,7 +7,6 @@
 #include <memory>
 
 // DD4Hep
-#include <DD4hep/DD4hepUnits.h>
 #include <Evaluator/Evaluator.h>
 #include <Evaluator/detail/Evaluator.h>
 
