@@ -9,6 +9,11 @@
 
 #include "parser.h"
 
+// settings
+// ---------------------------------------------
+const int    PRECISION      = 9;
+const double DIFF_THRESHOLD = std::pow(10, -PRECISION);
+
 // common methods
 // ---------------------------------------------
 
@@ -48,22 +53,37 @@ TEST_CASE("Parameter Parsing", "[param_parser]" ) {
   auto m_parser = std::make_shared<jana::parser::Parser>();
 
   // --------------------------------------------
+  SECTION("unit system is EDM4hep") {
+    REQUIRE(std::abs( m_parser->units("mm")     - 1.0 ) < DIFF_THRESHOLD );
+    REQUIRE(std::abs( m_parser->units("GeV")    - 1.0 ) < DIFF_THRESHOLD );
+    REQUIRE(std::abs( m_parser->units("ns")     - 1.0 ) < DIFF_THRESHOLD );
+    REQUIRE(std::abs( m_parser->units("radian") - 1.0 ) < DIFF_THRESHOLD );
+  }
+
+  // --------------------------------------------
+  SECTION("unit conversions from EDM4hep to specified units") {
+    REQUIRE(std::abs( 1.0          / m_parser->units("GeV")   - 1.0    ) < DIFF_THRESHOLD ); // [GeV] -> [GeV]
+    REQUIRE(std::abs( 1.0          / m_parser->units("keV")   - 1.0e+6 ) < DIFF_THRESHOLD ); // [GeV] -> [keV]
+    REQUIRE(std::abs( 1.0          / m_parser->units("s")     - 1.0e-9 ) < DIFF_THRESHOLD ); // [ns] -> [s]
+    REQUIRE(std::abs( 1.0          / m_parser->units("nm")    - 1.0e+6 ) < DIFF_THRESHOLD ); // [mm] -> [nm]
+    REQUIRE(std::abs( 1240/1e9/1e6 / m_parser->units("eV*nm") - 1240.0 ) < DIFF_THRESHOLD ); // [GeV*mm] -> [eV*nm]
+  }
+
+  // --------------------------------------------
   SECTION("parse numbers, units, and math") {
 
     // implementation: check if difference between parsed number and expected number is less than a threshold
-    int    precision      = 15;
-    double diff_threshold = std::pow(10, -precision);
     int    i              = 1;
     auto test_number = [&] (std::string val_in, double val_exp) {
       std::stringstream val_exp_stream;
-      val_exp_stream << std::setprecision(precision) << val_exp;
+      val_exp_stream << std::setprecision(PRECISION) << val_exp;
       auto val_exp_str = val_exp_stream.str();
       return RunTest(
           m_parser,
           KeyName(i, "test:param:number"),
           val_in,
           val_exp_str,
-          [&] (std::string a, std::string b) { return std::abs( std::stod(a) - std::stod(b) ) < diff_threshold; }
+          [&] (std::string a, std::string b) { return std::abs(std::stod(a) - std::stod(b)) < DIFF_THRESHOLD; }
           );
     };
 
@@ -110,7 +130,6 @@ TEST_CASE("Parameter Parsing", "[param_parser]" ) {
 
     // implementation: check if the numerical value difference of each list element is less than threshold
     int    i              = 1;
-    double diff_threshold = 1e-15;
     auto test_list = [&] (std::string val_in, std::string val_exp) {
       auto compare_lists = [&] (std::string a, std::string b) {
         auto tokenize = [] (std::string str) {
@@ -129,7 +148,7 @@ TEST_CASE("Parameter Parsing", "[param_parser]" ) {
         }
         for(unsigned k=0; k<a_vals.size(); k++) {
           fmt::print("  compare element {}: {} vs. {}\n", k, a_vals.at(k), b_vals.at(k));
-          if( std::abs(a_vals.at(k) - b_vals.at(k)) > diff_threshold )
+          if( std::abs(a_vals.at(k) - b_vals.at(k)) > DIFF_THRESHOLD )
             return false;
         }
         return true;
@@ -148,4 +167,5 @@ TEST_CASE("Parameter Parsing", "[param_parser]" ) {
     REQUIRE(test_list( "5e+3*MeV,8*s,6*7,11", "5,8e+9,42,11" ));
 
   }
+
 }

@@ -128,4 +128,18 @@ namespace jana::parser {
     parsed.print_error();
     return { false, expr };
   }
+
+  //-----------------------------------------------------------------------------
+
+  // get a constant from the internal dictionary, viz. for unit conversion
+  double Parser::units(const std::string& expr) {
+    auto parsed = m_eval->evaluate(expr.c_str());
+    if(parsed.status() == dd4hep::tools::Evaluator::OK)
+      return parsed.result();
+    else {
+      fmt::print(stderr,"ERROR: cannot evaluate expression {}\n",expr);
+      return 1.0;
+    }
+  }
 }
+
