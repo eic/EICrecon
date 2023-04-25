@@ -55,13 +55,12 @@ flowchart TB
     MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
 
     ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
-    ReconAssocsPID(<strong>ChargedParticlesWithAssociationsAndPID</strong><br/>eicrecon::ParticlesWithAssociation):::col
+    ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticlesAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   end
 
   subgraph Tracking Plugin Algorithms
     direction TB
-    ReconAssocs(<strong>ChargedParticlesWithAssociations</strong><br/>eicrecon::ParticlesWithAssociation):::col
-    ReconFinal(<strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation<br/><br/><strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   end
 
   %%-----------------
@@ -94,11 +93,10 @@ flowchart TB
   Merge --> MergePID
 
   %% linking
-  Trajectories --> ReconAssocs
+  Trajectories --> ReconParts
   MergePID --> ProxMatch
-  ReconAssocs --> ProxMatch
-  ProxMatch --> ReconAssocsPID
-  ReconAssocsPID --> ReconFinal
+  ReconParts --> ProxMatch
+  ProxMatch --> ReconPartsWithPID
 ```
 
 ## Data Model
