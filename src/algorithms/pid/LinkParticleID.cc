@@ -18,56 +18,53 @@ void eicrecon::LinkParticleID::AlgorithmChangeRun() {
 }
 
 
-// AlgorithmProcess
+// AlgorithmProcess: for ReconstructedParticleCollection
 //---------------------------------------------------------------------------
-std::vector<eicrecon::ParticlesWithAssociation*> eicrecon::LinkParticleID::AlgorithmProcess(
-    std::vector<const eicrecon::ParticlesWithAssociation*>& in_particles,
-    std::vector<const edm4eic::CherenkovParticleID*>&       in_pids
+std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::LinkParticleID::AlgorithmProcess(
+    const edm4eic::CherenkovParticleIDCollection*   in_pids,
+    const edm4eic::ReconstructedParticleCollection* in_particles
     )
 {
   // logging
-  m_log->trace("{:=^70}"," call LinkParticleID::AlgorithmProcess ");
+  m_log->trace("{:=^70}"," call LinkParticleID::AlgorithmProcess for ReconstructedParticleCollection ");
 
-  // start output collections
-  std::vector<eicrecon::ParticlesWithAssociation*> out_particles;
+  // start output collection
+  auto out_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
-  // loop over `in_particles`
-  for(auto& in_particle_with_assoc : in_particles) {
-
-    // inputs and outputs
-    auto in_recparts             = in_particle_with_assoc->particles();
-    auto in_assocs               = in_particle_with_assoc->associations();
-    std::vector<edm4eic::ReconstructedParticle*>     out_recparts;
-    std::vector<edm4eic::MCRecoParticleAssociation*> out_assocs;
-
-    // sanity check
-    if(in_recparts.size() != in_assocs.size())
-      m_log->warn("input ParticleWithAssociations has {} particles != {} associations", in_recparts.size(), in_assocs.size());
-
-    // loop over `in_recparts`
-    m_log->trace("{:-^70}"," Loop over reconstructed particles ");
-    for(auto& in_recpart : in_recparts) {
-      auto out_recpart = LinkParticle(*in_recpart, in_pids);
-      out_recparts.push_back(new edm4eic::ReconstructedParticle(out_recpart));
-    }
-
-    // loop over `in_assocs`
-    m_log->trace("{:-^70}"," Loop over reconstructed particle associations ");
-    for(auto& in_assoc : in_assocs) {
-      auto in_recpart = in_assoc->getRec();
-      auto in_simpart = in_assoc->getSim();
-      auto out_assoc  = in_assoc->clone(); // mutable copy
-      auto out_recpart = LinkParticle(in_recpart, in_pids);
-      out_assoc.setSim(in_simpart);
-      out_assoc.setRec(out_recpart);
-      out_assocs.push_back(new edm4eic::MCRecoParticleAssociation(out_assoc));
-    }
-
-    // append to output
-    out_particles.push_back(new eicrecon::ParticlesWithAssociation(out_recparts,out_assocs));
+  // loop over input particles, calling LinkParticle on each to link PID
+  m_log->trace("{:-^70}"," Loop over reconstructed particles ");
+  for(const auto& in_particle : *in_particles) {
+    auto out_particle = LinkParticle(in_pids, in_particle);
+    out_particles->push_back(out_particle);
   }
 
   return out_particles;
+}
+
+
+// AlgorithmProcess: for MCRecoParticleAssociationCollection
+//---------------------------------------------------------------------------
+std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection> eicrecon::LinkParticleID::AlgorithmProcess(
+    const edm4eic::CherenkovParticleIDCollection*       in_pids,
+    const edm4eic::MCRecoParticleAssociationCollection* in_assocs
+    )
+{
+  // logging
+  m_log->trace("{:=^70}"," call LinkParticleID::AlgorithmProcess for MCRecoParticleAssociationCollection ");
+
+  // start output collection
+  auto out_assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+
+  // loop over input associations, calling LinkParticle on each to link PID
+  m_log->trace("{:-^70}"," Loop over reconstructed particle associations ");
+  for(const auto& in_assoc : *in_assocs) {
+    auto out_assoc   = in_assoc.clone();
+    auto out_recpart = LinkParticle(in_pids, in_assoc.getRec());
+    out_assoc.setRec(out_recpart);
+    out_assocs->push_back(out_assoc);
+  }
+
+  return out_assocs;
 }
 
 
@@ -75,8 +72,8 @@ std::vector<eicrecon::ParticlesWithAssociation*> eicrecon::LinkParticleID::Algor
 // returns a modified `ReconstructedParticle` that includes the `ParticleID` relations
 //---------------------------------------------------------------------------
 edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
-    edm4eic::ReconstructedParticle                    in_particle,
-    std::vector<const edm4eic::CherenkovParticleID*>& in_pids
+    const edm4eic::CherenkovParticleIDCollection* in_pids,
+    edm4eic::ReconstructedParticle                in_particle
     )
 {
   // make a mutable copy, and reset its stored PID info
@@ -89,8 +86,8 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
 
   // list of candidate matches
   struct ProxMatch {
-    double match_dist;
-    const edm4eic::CherenkovParticleID *pid;
+    double      match_dist;
+    std::size_t pid_idx;
   };
   std::vector<ProxMatch> prox_match_list;
 
@@ -105,10 +102,11 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
       );
 
   // loop over input PID objects
-  for(auto& in_pid : in_pids) {
+  for(std::size_t in_pid_idx = 0; in_pid_idx < in_pids->size(); in_pid_idx++) {
+    auto in_pid = in_pids->at(in_pid_idx);
 
     // get associated track's momentum angle
-    auto in_track_segment = in_pid->getChargedParticle();
+    auto in_track_segment = in_pid.getChargedParticle();
     if(in_track_segment.isAvailable()) {
       m_log->trace("Candidate tracks with PID:");
       decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
@@ -131,7 +129,7 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
           std::abs(in_particle_eta - in_track_eta) < m_cfg.etaTolerance &&
           std::abs(in_particle_phi - in_track_phi) < m_cfg.phiTolerance;
         if(match_is_close)
-          prox_match_list.push_back(ProxMatch{match_dist, in_pid});
+          prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
 
         // logging
         m_log->trace("  - (eta,phi) = ( {:>5.4}, {:>5.4} deg ),  match_dist = {:<5.4}{}",
@@ -160,20 +158,21 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
       prox_match_list.end(),
       [] (ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; }
       );
-  auto in_pid_matched = closest_prox_match.pid;
+  auto in_pid_matched = in_pids->at(closest_prox_match.pid_idx);
   m_log->trace("  => best match: match_dist = {:<5.4}", closest_prox_match.match_dist);
 
   // convert PID hypotheses to edm4hep::ParticleID objects, sorted by likelihood
-  auto out_pids = ConvertParticleID::ConvertToParticleIDs(*in_pid_matched, true);
+  auto out_pids = ConvertParticleID::ConvertToParticleIDs(in_pid_matched, true);
   if(out_pids.size()==0) {
     m_log->error("found CherenkovParticleID object with no hypotheses");
     return out_particle;
   }
 
-  // update reconstructed particle
+  // relate matched ParticleID objects to output particle
+  for(auto& out_pid : out_pids)
+    out_particle.addToParticleIDs(out_pid);
+  out_particle.setParticleIDUsed(out_pids.at(0)); // highest likelihood is the first // FIXME: any consensus that this is what we want?
   out_particle.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
-  out_particle.setParticleIDUsed(out_pids.at(0)); // highest likelihood is the first
-  // for(auto& out_pid : out_pids) out_particle.addToParticleIDs(out_pid); // FIXME: cannot persistify 1-N relation?
 
   // logging
   m_log->trace("    {:.^50}"," PID result ");
@@ -183,7 +182,7 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
       );
   m_log->trace("      Hypotheses (sorted):");
   Tools::PrintHypothesisTableHead(m_log, 8);
-  for(auto out_pid : out_pids) // FIXME: loop through `out_particle.getParticleIDs()` (cf. 1-N persistify FIXME above)
+  for(auto out_pid : out_particle.getParticleIDs())
     Tools::PrintHypothesisTableLine(m_log, out_pid, 8);
   m_log->trace("    {:'^50}","");
 

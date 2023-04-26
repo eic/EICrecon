@@ -10,8 +10,9 @@
 #include <JANA/JEvent.h>
 
 // data model
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <algorithms/reco/ParticlesWithAssociation.h>
 
 // algorithms
 #include <algorithms/pid/LinkParticleID.h>
@@ -22,28 +23,40 @@
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <extensions/string/StringHelpers.h>
 
+// other
+#include <type_traits>
+
 namespace eicrecon {
+
   class LinkParticleID;
+
+  // NOTE: this is a template, to support an arbitrary particle datatype `ParticleDatatype`, such
+  // as `edm4*::ReconstructedParticle` or `edm4*::MCRecoParticleAssociation`
+  template<class ParticleDatatype>
   class LinkParticleID_factory :
-    public JChainFactoryT<eicrecon::ParticlesWithAssociation, LinkParticleIDConfig>,
-    public SpdlogMixin<LinkParticleID_factory>
+    public JChainFactoryT<ParticleDatatype, LinkParticleIDConfig>,
+    public SpdlogMixin<LinkParticleID_factory<ParticleDatatype>>
   {
 
     public:
 
-      explicit LinkParticleID_factory(std::vector<std::string> default_input_tags, LinkParticleIDConfig cfg) :
-        JChainFactoryT<eicrecon::ParticlesWithAssociation, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
+      explicit LinkParticleID_factory(
+          std::vector<std::string> default_input_tags,
+          LinkParticleIDConfig cfg
+          ):
+        JChainFactoryT<ParticleDatatype, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/
       void Init() override;
 
       /** On run change preparations **/
-      void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
+
       eicrecon::LinkParticleID m_algo;
       std::string              m_detector_name;
 

@@ -9,7 +9,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
   // get plugin name and tag
   auto app = GetApplication();
   m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
-  std::string param_prefix = m_detector_name + ":" + GetTag();
+  auto param_prefix = m_detector_name + ":" + GetTag();
   InitDataTags(param_prefix);
 
   // services

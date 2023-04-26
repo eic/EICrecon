@@ -22,7 +22,9 @@
 #include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
+
   class MergeParticleID;
+
   class MergeCherenkovParticleID_factory :
     public JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>,
     public SpdlogMixin<MergeCherenkovParticleID_factory>
@@ -30,7 +32,10 @@ namespace eicrecon {
 
     public:
 
-      explicit MergeCherenkovParticleID_factory(std::vector<std::string> default_input_tags, MergeParticleIDConfig cfg) :
+      explicit MergeCherenkovParticleID_factory(
+          std::vector<std::string> default_input_tags,
+          MergeParticleIDConfig cfg
+          ):
         JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
       /** One time initialization **/

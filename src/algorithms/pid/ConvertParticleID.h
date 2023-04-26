@@ -7,8 +7,8 @@
 #pragma once
 
 // data model
-#include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleID.h>
+#include <edm4hep/ParticleID.h>
 
 namespace eicrecon {
 
