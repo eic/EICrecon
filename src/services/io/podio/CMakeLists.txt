@@ -35,14 +35,12 @@ add_custom_command(
         COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${podio_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
 )
 
-set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
-
 # Add include directories (works same as target_include_directories)
 message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${EICRECON_SOURCE_DIR}/src)
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} ${LINK_LIBRARIES})
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.
