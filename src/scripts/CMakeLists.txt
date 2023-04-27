@@ -1,6 +1,7 @@
 
 find_package(ROOT)
 find_package(podio)
+find_package(IRT)
 
 if(DEFINED ENV{DETECTOR_PATH})
     set(DETECTOR_PATH $ENV{DETECTOR_PATH})

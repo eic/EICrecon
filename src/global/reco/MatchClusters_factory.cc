@@ -12,29 +12,24 @@
 
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/Cluster.h>
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include "algorithms/reco/ParticlesWithAssociation.h"
+
 
 namespace eicrecon {
 
     void MatchClusters_factory::Init() {
 
-        // This prefix will be used for parameters
-        std::string param_prefix = "reco:" + GetTag();
-
-        // Set input data tags properly
-        InitDataTags(param_prefix);
-
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
+        InitLogger(GetPrefix(), "info");
 
         m_match_algo.init(m_log);
     }
 
-    void MatchClusters_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void MatchClusters_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
         // Nothing to do here
     }
 
@@ -46,9 +41,13 @@ namespace eicrecon {
 
         // TODO make input tags changable
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-        auto charged_prt_with_assoc = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
 
-        auto tracking_data = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
+        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
+        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticlesAssociations"));
+        // TODO: NWB: Switch to GetCollection<T> once JANA v2.1.1 is in
+
+        // TODO: NWB: tracking_data is going away. Also it is redundant with charged_particles, charged_particle_assocs.
+        // auto tracking_data = event->GetSingle<eicrecon::ParticlesWithAssociation>("ChargedParticlesWithAssociations");
         std::vector<ClustersVector> input_cluster_vectors;//{"OutputClusters", Gaudi::DataHandle::Writer, this};
         std::vector<ClustersAssocVector> input_cluster_assoc;//{"OutputAssociations", Gaudi::DataHandle::Writer, this};
 
@@ -75,8 +74,8 @@ namespace eicrecon {
 
 
 //        auto result = m_match_algo.execute(mc_particles,
-//                                           charged_prt_with_assoc->particles(),
-//                                           charged_prt_with_assoc->associations(),
+//                                           charged_particles,
+//                                           charged_particle_assocs,
 //                                           input_cluster_vectors,
 //                                           input_cluster_assoc);
 
@@ -85,6 +84,20 @@ namespace eicrecon {
 //            auto particle = (*tracking_data->particles())[i];
 //            result.push_back(new edm4eic::ReconstructedParticle(particle));
 //        }
-        Insert(new ParticlesWithAssociation(charged_prt_with_assoc->particles(), charged_prt_with_assoc->associations()));
+
+        edm4eic::ReconstructedParticleCollection reconstructed_particles;
+        reconstructed_particles.setSubsetCollection(true);
+        for (auto part : *charged_particles) {
+            reconstructed_particles.push_back(part);
+        }
+
+        edm4eic::MCRecoParticleAssociationCollection reconstructed_particle_assocs;
+        reconstructed_particle_assocs.setSubsetCollection(true);
+        for (auto assoc : *charged_particle_assocs) {
+            reconstructed_particle_assocs.push_back(assoc);
+        }
+
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(reconstructed_particles));
+        SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::move(reconstructed_particle_assocs));
     }
 } // eicrecon

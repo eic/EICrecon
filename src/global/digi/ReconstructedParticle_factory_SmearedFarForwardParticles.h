@@ -6,13 +6,13 @@
 
 #include <spdlog/spdlog.h>
 #include "extensions/spdlog/SpdlogMixin.h"
-
+#include <services/io/podio/JFactoryPodioT.h>
 #include <algorithms/digi/SmearedFarForwardParticles.h>
 
 
 namespace eicrecon {
 
-class ReconstructedParticle_factory_SmearedFarForwardParticles : public JFactoryT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>, SmearedFarForwardParticles {
+class ReconstructedParticle_factory_SmearedFarForwardParticles : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>, SmearedFarForwardParticles {
 
 public:
 

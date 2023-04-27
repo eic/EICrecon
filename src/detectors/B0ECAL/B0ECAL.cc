@@ -12,7 +12,6 @@
 #include "ProtoCluster_factory_B0ECalTruthProtoClusters.h"
 #include "ProtoCluster_factory_B0ECalIslandProtoClusters.h"
 #include "Cluster_factory_B0ECalClusters.h"
-#include "Cluster_factory_B0ECalMergedClusters.h"
 #include "TruthCluster_factory_B0ECalTruthProtoClusters.h"
 
 
@@ -24,7 +23,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_B0ECalClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_B0ECalMergedClusters>());
         app->Add(new JFactoryGeneratorT<TruthCluster_factory_B0ECalTruthProtoClusters>());
     }
 }

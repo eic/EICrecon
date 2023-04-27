@@ -1,6 +1,9 @@
 add_subdirectory(BEMC)
 add_subdirectory(EEMC)
-add_subdirectory(HCAL)
+add_subdirectory(FEMC)
+add_subdirectory(EHCAL)
+add_subdirectory(BHCAL)
+add_subdirectory(FHCAL)
 add_subdirectory(ZDC)
 add_subdirectory(B0ECAL)
 

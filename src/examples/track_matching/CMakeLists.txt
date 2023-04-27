@@ -18,19 +18,6 @@ endif()
 # Add CMake additional functionality:
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
-
-# ------------------------------------------------------------------
-print_grand_header("    B U I L D   E I C R E C O N   P A R T S    ")
-# ------------------------------------------------------------------
-
-
-# Print what we had built
-print_header("CMake processed subdirectories:")
-print_subdirectory_tree()
-message(STATUS "\n-------------------------------")
-
-
-
 # include logging by default
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)

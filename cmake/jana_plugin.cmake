@@ -149,13 +149,6 @@ macro(plugin_glob_all _name)
         message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
     endif()
 
-    # To somehow control GLOB lets at least PRINT files we are going to compile:
-    message(STATUS "Source files:")
-    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
-    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
-    message(STATUS "Header files:")
-    print_file_names("  " ${HEADER_FILES})  # Prints header files
-
 endmacro()
 
 
@@ -222,7 +215,8 @@ macro(plugin_add_event_model _name)
 
     # Add include directories
     # (same as target_include_directories but for both plugin and library)
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR})
+    # ${podio_BINARY_DIR} is an include path to datamodel_glue.h
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${podio_BINARY_DIR})
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
