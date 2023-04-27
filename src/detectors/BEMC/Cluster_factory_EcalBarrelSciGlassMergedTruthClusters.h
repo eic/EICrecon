@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterMerger.h>
 #include <services/log/Log_service.h>
@@ -13,26 +13,26 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public JMultifactory, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(){
-        SetTag("EcalBarrelSciGlassMergedTruthClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("EcalBarrelSciGlassMergedTruthClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("EcalBarrelMergedClusterAssociations");
+        // TODO: NWB: Inconsistent collection naming
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("EcalBarrelSciGlassMergedTruthClusters");
+
         //-------- Configuration Parameters ------------
         m_input_tag="EcalBarrelSciGlassTruthClusters";
         m_inputAssociations_tag="EcalBarrelSciGlassTruthClusterAssociations";
-
-        std::string tag=this->GetTag();
-        std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
         app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:inputAssociations_tag", m_inputAssociations_tag);
@@ -42,14 +42,13 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-
 
         // Prefill inputs
         m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
@@ -58,10 +57,10 @@ public:
         // Call Process for generic algorithm
         AlgorithmProcess();
 
-        //outputs
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
+        SetData("EcalBarrelSciGlassMergedTruthClusters", m_outputClusters);
+        SetData("EcalBarrelMergedClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

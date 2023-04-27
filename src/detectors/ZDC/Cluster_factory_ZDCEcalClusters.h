@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -14,20 +14,22 @@
 
 
 
-class Cluster_factory_ZDCEcalClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_ZDCEcalClusters : public JMultifactory, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_ZDCEcalClusters(){
-        SetTag("ZDCEcalClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("ZDCEcalClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("ZDCEcalClusterAssociations");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("ZDCEcalClusters");
+
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="ZDCEcalHits";
         m_input_protoclust_tag="ZDCEcalIslandProtoClusters";
@@ -59,7 +61,7 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
@@ -75,12 +77,10 @@ public:
         // Call Process for generic algorithm
         AlgorithmProcess();
 
-
-        //outputs
-
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "ZDCEcalClusterAssociations");
+        SetData("ZDCEcalClusters", m_outputClusters);
+        SetData("ZDCEcalClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

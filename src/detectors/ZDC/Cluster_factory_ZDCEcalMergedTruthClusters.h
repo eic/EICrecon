@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterMerger.h>
 #include <services/log/Log_service.h>
@@ -13,20 +13,22 @@
 
 
 
-class Cluster_factory_ZDCEcalMergedTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_ZDCEcalMergedTruthClusters : public JMultifactory, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_ZDCEcalMergedTruthClusters(){
-        SetTag("ZDCEcalMergedTruthClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("ZDCEcalMergedTruthClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("ZDCEcalMergedTruthClusterAssociations");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("ZDCEcalMergedTruthClusters");
+
         //-------- Configuration Parameters ------------
         m_input_tag="ZDCEcalTruthClusters";
         m_inputAssociations_tag="ZDCEcalTruthClusterAssociations";
@@ -36,7 +38,7 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
@@ -51,11 +53,10 @@ public:
 
         // Call Process for generic algorithm
         AlgorithmProcess();
-
-        //outputs
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "ZDCEcalMergedClusterAssociations");
+        SetData("ZDCEcalMergedClusters", m_outputClusters);
+        SetData("ZDCEcalMergedClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

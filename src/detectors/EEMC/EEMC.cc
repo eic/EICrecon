@@ -23,7 +23,5 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNTruthClusterAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapNClusterAssociations>());
     }
 }

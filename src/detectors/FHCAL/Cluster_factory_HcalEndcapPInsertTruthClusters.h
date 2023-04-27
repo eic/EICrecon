@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -13,20 +13,22 @@
 
 
 
-class Cluster_factory_HcalEndcapPInsertTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_HcalEndcapPInsertTruthClusters : public JMultifactory, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_HcalEndcapPInsertTruthClusters(){
-        SetTag("HcalEndcapPInsertTruthClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("HcalEndcapPInsertTruthClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("HcalEndcapPInsertTruthClusterAssociations");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("HcalEndcapPInsertTruthClusters");
+
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="HcalEndcapPInsertHits";
         m_input_protoclust_tag="HcalEndcapPInsertTruthProtoClusters";
@@ -58,7 +60,7 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
@@ -75,11 +77,10 @@ public:
         AlgorithmProcess();
 
 
-        //outputs
-
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "HcalEndcapPInsertTruthClusterAssociations");
+        SetData("HcalEndcapPInsertTruthClusters", m_outputClusters);
+        SetData("HcalEndcapPInsertTruthClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

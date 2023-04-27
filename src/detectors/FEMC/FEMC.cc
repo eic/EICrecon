@@ -29,8 +29,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPTruthClusterAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPClusterAssociations>());
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPInsertRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPInsertRecHits>());
@@ -38,7 +36,5 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertTruthClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalEndcapPInsertClusters>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertTruthClusterAssociations>());
-        app->Add(new JFactoryGeneratorT<Association_factory_EcalEndcapPInsertClusterAssociations>());
     }
 }

@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -14,33 +14,22 @@
 
 
 
-// Dummy factory for JFactoryGeneratorT
-class Association_factory_EcalEndcapPInsertTruthClusterAssociations : public eicrecon::JFactoryPodioT<edm4eic::MCRecoClusterParticleAssociation> {
-
-public:
-    //------------------------------------------
-    // Constructor
-    Association_factory_EcalEndcapPInsertTruthClusterAssociations(){
-        SetTag("EcalEndcapPInsertTruthClusterAssociations");
-    }
-};
-
-
-
-class Cluster_factory_EcalEndcapPInsertTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalEndcapPInsertTruthClusters : public JMultifactory, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_EcalEndcapPInsertTruthClusters(){
-        SetTag("EcalEndcapPInsertTruthClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("EcalEndcapPInsertTruthClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("EcalEndcapPInsertTruthClusterAssociations");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("EcalEndcapPInsertTruthClusters");
+
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalEndcapPInsertHits";
         m_input_protoclust_tag="EcalEndcapPInsertTruthProtoClusters";
@@ -71,14 +60,13 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-
 
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
@@ -87,12 +75,10 @@ public:
         // Call Process for generic algorithm
         AlgorithmProcess();
 
-
-        //outputs
-
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalEndcapPInsertTruthClusterAssociations");
+        SetData("EcalEndcapPInsertTruthClusters", m_outputClusters);
+        SetData("EcalEndcapPInsertTruthClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

@@ -5,27 +5,29 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/TruthEnergyPositionClusterMerger.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
-class Cluster_factory_EcalBarrelImagingMergedClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, TruthEnergyPositionClusterMerger {
+class Cluster_factory_EcalBarrelImagingMergedClusters : public JMultifactory, TruthEnergyPositionClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_EcalBarrelImagingMergedClusters(){
-        SetTag("EcalBarrelImagingMergedClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("EcalBarrelImagingMergedClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("EcalBarrelImagingMergedClustersAssoc");
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("EcalBarrelImagingMergedClusters");
+
         //-------- Configuration Parameters ------------
         m_inputMCParticles_tag = "MCParticles";
         m_energyClusters_tag = "EcalBarrelScFiClusters";
@@ -58,8 +60,9 @@ public:
         execute();
 
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelImagingMergedClustersAssoc");
+        SetData("EcalBarrelImagingMergedClusters", m_outputClusters);
+        SetData("EcalBarrelImagingMergedClustersAssoc", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }

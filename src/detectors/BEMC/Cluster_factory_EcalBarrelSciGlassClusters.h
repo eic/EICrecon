@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <JANA/JMultifactory.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -14,20 +14,23 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_EcalBarrelSciGlassClusters : public JMultifactory, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------
     // Constructor
     Cluster_factory_EcalBarrelSciGlassClusters(){
-        SetTag("EcalBarrelSciGlassClusters");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        DeclarePodioOutput<edm4eic::Cluster>("EcalBarrelSciGlassClusters");
+        DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>("EcalBarrelClusterAssociations");
+        // TODO: NWB: Collection naming convention not followed here
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        auto app = japp; // GetApplication(); // TODO: NWB: FIXME after JANA2 v2.1.1
+        m_log = app->GetService<Log_service>()->logger("EcalBarrelSciGlassClusters");
+
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalBarrelSciGlassHits";
         m_input_protoclust_tag="EcalBarrelSciGlassProtoClusters";
@@ -60,14 +63,13 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override{
         AlgorithmChangeRun();
     }
 
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-
 
         // Prefill inputs
         m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
@@ -76,12 +78,10 @@ public:
         // Call Process for generic algorithm
         AlgorithmProcess();
 
-
-        //outputs
-
         // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelClusterAssociations");
+        SetData("EcalBarrelSciGlassClusters", m_outputClusters);
+        SetData("EcalBarrelClusterAssociations", m_outputAssociations);
+
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
