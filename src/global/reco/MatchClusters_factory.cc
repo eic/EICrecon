@@ -52,8 +52,7 @@ namespace eicrecon {
         // TODO make input tags changable
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
         auto charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-        auto charged_particle_assocs = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticlesAssociations");
-        // TODO: NWB: Inconsistent plurals in collection names: "ReconstructedChargedParticlesAssociations" vs "EcalEndcapNClusterAssociations"
+        auto charged_particle_assocs = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
 
         using ClustersVector = std::vector<const edm4eic::Cluster*>;
         using ClustersAssocVector = std::vector<const edm4eic::MCRecoClusterParticleAssociation*>;
