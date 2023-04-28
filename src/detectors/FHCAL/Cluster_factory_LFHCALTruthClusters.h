@@ -19,7 +19,7 @@ public:
     //------------------------------------------
     // Constructor
     Association_factory_LFHCALTruthClustersAssociations(){
-        SetTag("LFHCALTruthClustersAssociations");
+        SetTag("LFHCALTruthClusterAssociations");
     }
 };
 
