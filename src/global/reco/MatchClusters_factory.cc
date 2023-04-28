@@ -30,8 +30,16 @@ namespace eicrecon {
 
         // Set up association tags
         for (const std::string& input_tag : GetInputTags()) {
-            // "EcalEndcapNClusters" => "EcalEndcapNClusterAssociations". Sadly we need to strip the 's' at the end
-            m_input_assoc_tags.push_back(input_tag.substr(0, input_tag.size()-1) + "Associations");
+            // "EcalEndcapNClusters" => "EcalEndcapNClusterAssociations"
+            auto pos = input_tag.find("Clusters");
+
+            // Validate that our input collection names conform to this convention
+            if (pos == std::string::npos) {
+                throw std::runtime_error(fmt::format("input_tag=\"{}\" doesn't end with \"Clusters\"", input_tag));
+            }
+            std::string output_tag = input_tag;
+            output_tag.replace(pos, 8, "ClusterAssociations");
+            m_input_assoc_tags.push_back(output_tag);
         }
     }
 
