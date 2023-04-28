@@ -23,7 +23,6 @@
 # ==============================================================
 
 
-
 cmake_minimum_required(VERSION 3.16)
 
 project(EICRecon)
@@ -36,6 +35,7 @@ set_git_version(CMAKE_PROJECT_VERSION)
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
 endif()
+message(STATUS "${CMAKE_PROJECT_NAME}: CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
 
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -137,3 +137,4 @@ configure_package_config_file(cmake/EICreconConfig.cmake.in cmake/EICreconConfig
 # install(FILES ${CMAKE_BINARY_DIR}/cmake/EICreconConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)  # why is this needed?
 # file(GLOB EICRECON_CMAKE_FILES cmake/*.cmake)
 # install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
+

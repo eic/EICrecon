@@ -65,14 +65,27 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
-
         // Prefill inputs
-        m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
+        try {
+            m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get edm4hep::SimCalorimeterHit with tag: {}. Error: {} Skipping event ", m_input_simhit_tag, e.what());
+            return;
+        }
+
+        try {
+            m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get edm4eic::ProtoCluster with tag: {}. Error: {} Skipping event ", m_input_protoclust_tag, e.what());
+            return;
+        }
 
         // Call Process for generic algorithm
         AlgorithmProcess();
-
 
         //outputs
 

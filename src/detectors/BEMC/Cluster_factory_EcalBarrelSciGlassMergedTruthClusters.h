@@ -50,20 +50,25 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
+        try {
+            // Prefill inputs
+            m_inputClusters = event->Get<edm4eic::Cluster>(m_input_tag);
+            m_inputAssociations = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
 
-        // Prefill inputs
-        m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
+            // Call Process for generic algorithm
+            AlgorithmProcess();
 
-        // Call Process for generic algorithm
-        AlgorithmProcess();
-
-        //outputs
-        // Hand owner of algorithm objects over to JANA
-        Set(m_outputClusters);
-        event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
-        m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
-        m_outputAssociations.clear();
+            //outputs
+            // Hand owner of algorithm objects over to JANA
+            Set(m_outputClusters);
+            event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
+            m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
+            m_outputAssociations.clear();
+        }
+        catch(std::exception &e) {
+            m_log->trace("Error during algorithm execution: {} Skipping event ", e.what());
+            return;
+        }
     }
 
 private:
