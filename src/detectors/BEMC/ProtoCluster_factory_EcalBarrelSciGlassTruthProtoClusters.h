@@ -44,8 +44,15 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
-        m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
+        try {
+            m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
+            m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get input data. Error: {} Skipping event ", e.what());
+            return;
+        }
 
         // Call Process for generic algorithm
         AlgorithmProcess();

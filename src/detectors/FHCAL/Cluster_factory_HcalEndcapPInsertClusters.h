@@ -59,18 +59,25 @@ public:
 
     //------------------------------------------
     // ChangeRun
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override{
+    void ChangeRun(const std::shared_ptr<const JEvent> &event) override {
         AlgorithmChangeRun();
     }
 
     //------------------------------------------
     // Process
-    void Process(const std::shared_ptr<const JEvent> &event) override{
+    void Process(const std::shared_ptr<const JEvent> &event) override {
 
 
         // Prefill inputs
-        m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
-        m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
+        try{
+            m_inputSimhits=event->Get<edm4hep::SimCalorimeterHit>(m_input_simhit_tag);
+            m_inputProto=event->Get<edm4eic::ProtoCluster>(m_input_protoclust_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get input data. Error: {} Skipping event ", e.what());
+            return;
+        }
 
         // Call Process for generic algorithm
         AlgorithmProcess();

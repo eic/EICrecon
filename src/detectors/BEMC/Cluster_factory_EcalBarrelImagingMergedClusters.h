@@ -48,11 +48,19 @@ public:
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
         // Prefill inputs
-        m_inputMCParticles     = event->Get<edm4hep::MCParticle>(m_inputMCParticles_tag);;
-        m_energyClusters       = event->Get<edm4eic::Cluster>(m_energyClusters_tag);;
-        m_energyAssociations   = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_energyAssociation_tag);;
-        m_positionClusters     = event->Get<edm4eic::Cluster>(m_positionClusters_tag);;
-        m_positionAssociations = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_positionAssociations_tag);;
+        try{
+            m_inputMCParticles     = event->Get<edm4hep::MCParticle>(m_inputMCParticles_tag);
+            m_energyClusters       = event->Get<edm4eic::Cluster>(m_energyClusters_tag);
+            m_energyAssociations   = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_energyAssociation_tag);
+            m_positionClusters     = event->Get<edm4eic::Cluster>(m_positionClusters_tag);
+            m_positionAssociations = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_positionAssociations_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get input data. Error: {} Skipping event ", e.what());
+            return;
+        }
+
 
         // Call Process for generic algorithm
         execute();

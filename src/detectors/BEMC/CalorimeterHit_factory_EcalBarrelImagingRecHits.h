@@ -18,7 +18,7 @@ public:
     // Constructor
     CalorimeterHit_factory_EcalBarrelImagingRecHits(){
         SetTag("EcalBarrelImagingRecHits");
-        m_log = japp->GetService<Log_service>()->logger(GetTag());
+        m_log = japp->GetService<Log_service>()->logger(GetPluginName() + ":" + GetTag());
     }
 
     //------------------------------------------
@@ -59,7 +59,15 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
+        try {
+            m_inputHits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
+        }
+        catch(std::exception &e)
+        {
+            m_log->trace("Could not get edm4hep::RawCalorimeterHit with tag: {}. Error: {} Skipping event ", m_input_tag, e.what());
+            return;
+        }
+
 
         // Call Process for generic algorithm
         execute();
@@ -68,5 +76,4 @@ public:
         Set(m_outputHits);
         m_outputHits.clear(); // not really needed, but better to not leave dangling pointers around
     }
-
 };

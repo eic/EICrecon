@@ -87,7 +87,7 @@ public:
         }
         catch(std::exception &e)
         {
-            m_log->trace("Could not get edm4eic::ProtoCluster with tag: {}. Error: {} Skipping event ", m_input_tag, e.what());
+            m_log->trace("Could not get edm4eic::SimCalorimeterHit with tag: {}. Error: {} Skipping event ", m_input_tag, e.what());
             return;
         }
 
