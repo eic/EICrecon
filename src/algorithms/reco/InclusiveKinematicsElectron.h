@@ -17,8 +17,6 @@
 #include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/InclusiveKinematicsCollection.h"
 
-#include "ParticlesWithAssociation.h"
-
 namespace eicrecon {
 
     class InclusiveKinematicsElectron {

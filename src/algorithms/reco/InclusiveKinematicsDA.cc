@@ -15,9 +15,8 @@ using ROOT::Math::PxPyPzEVector;
 // Event Model related classes
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/InclusiveKinematicsCollection.h"
-#include "ParticlesWithAssociation.h"
+
 
 namespace eicrecon {
 

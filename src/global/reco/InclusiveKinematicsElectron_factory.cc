@@ -11,11 +11,7 @@
 
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/InclusiveKinematics.h>
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include "algorithms/reco/ParticlesWithAssociation.h"
+
 
 namespace eicrecon {
 

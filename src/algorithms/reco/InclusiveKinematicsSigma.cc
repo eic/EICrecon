@@ -17,7 +17,7 @@ using ROOT::Math::PxPyPzEVector;
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
 #include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/InclusiveKinematicsCollection.h"
-#include "ParticlesWithAssociation.h"
+
 
 namespace eicrecon {
 

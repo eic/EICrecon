@@ -2,7 +2,7 @@
 #include "GlobalReconstructionTest_processor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "algorithms/reco/ParticlesWithAssociation.h"
+
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
