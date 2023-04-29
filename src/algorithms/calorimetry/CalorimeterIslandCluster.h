@@ -101,9 +101,6 @@ public:
     std::shared_ptr<spdlog::logger> m_log;
 
     std::string m_input_tag;
-    bool m_splitCluster;//{this, "splitCluster", true};
-    double m_minClusterHitEdep;//{this, "minClusterHitEdep", 0.};
-    double m_minClusterCenterEdep;//{this, "minClusterCenterEdep", 50.0 * dd4hep::MeV};
 
     // geometry service to get ids
     std::string m_geoSvcName; //{this, "geoServiceName", "GeoSvc"};
@@ -120,6 +117,10 @@ public:
     std::vector<double> u_dimScaledLocalDistXY;//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
     // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
+
+    bool m_splitCluster;
+    double m_minClusterHitEdep;
+    double m_minClusterCenterEdep;
 
     // helper function to group hits
     std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
