@@ -121,6 +121,9 @@ public:
     bool m_splitCluster;
     double m_minClusterHitEdep;
     double m_minClusterCenterEdep;
+    std::string u_transverseEnergyProfileMetric;
+    std::function<edm4hep::Vector2f(const CaloHit* h1, const CaloHit* h2)> transverseEnergyProfileMetric;
+    double u_transverseEnergyProfileScale;
 
     // helper function to group hits
     std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
@@ -258,10 +261,9 @@ private:
       size_t j = 0;
       // calculate weights for local maxima
       for (const auto& chit : maxima) {
-        double dist_ref = chit->getDimension().x;
         double energy   = chit->getEnergy();
-        double dist     = edm4eic::magnitude(hitsDist(chit, hit));
-        weights[j]      = std::exp(-dist / dist_ref) * energy;
+        double dist     = edm4eic::magnitude(transverseEnergyProfileMetric(chit, hit));
+        weights[j]      = std::exp(-dist / u_transverseEnergyProfileScale) * energy;
         j += 1;
       }
 

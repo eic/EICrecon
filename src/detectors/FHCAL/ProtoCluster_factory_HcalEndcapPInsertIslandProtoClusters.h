@@ -48,6 +48,8 @@ public:
         m_splitCluster=true;
         m_minClusterHitEdep=0.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:readoutClass", m_readout);
@@ -62,6 +64,8 @@ public:
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:splitCluster", m_splitCluster);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

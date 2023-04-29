@@ -59,6 +59,8 @@ public:
         m_splitCluster=false;
         m_minClusterHitEdep=1.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:geoServiceName", m_geoSvcName);
@@ -74,6 +76,8 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:splitCluster", m_splitCluster);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

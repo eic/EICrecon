@@ -48,6 +48,8 @@ public:
         m_splitCluster=true;
         m_minClusterHitEdep=0.1 * dd4hep::MeV;
         m_minClusterCenterEdep=3.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
         //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:inputHitCollection", m_inputHitCollection);
         //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:outputProtoClusterCollection",    m_outputProtoCollection);
@@ -64,6 +66,8 @@ public:
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:splitCluster", m_splitCluster);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

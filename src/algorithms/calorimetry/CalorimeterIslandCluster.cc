@@ -162,6 +162,12 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         throw std::runtime_error("Cannot determine the clustering coordinates");
     }
 
+    auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return u_transverseEnergyProfileMetric == p.first; });
+    if (transverseEnergyProfileMetric_it == distMethods.end()) {
+        throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", u_transverseEnergyProfileMetric));
+    }
+    transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
+
     return;
 }
 

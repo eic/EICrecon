@@ -48,6 +48,8 @@ public:
         m_splitCluster=false;
         m_minClusterHitEdep=0.0 * dd4hep::MeV;
         m_minClusterCenterEdep=10.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
@@ -63,6 +65,8 @@ public:
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:splitCluster", m_splitCluster);
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
