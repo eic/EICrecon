@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 #include <functional>
+#include <iostream>
 
 //class to provide random numbers from a given distribution via the () operator
 //initiated with a random number generator and a distribution and distribution parameters

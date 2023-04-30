@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-#compile RandGen_driver
-project("RandGen_driver")
+project("randomgenerator")
 
-add_executable("${PROJECT_NAME}" "RandGen_driver.cpp")
+add_executable("${PROJECT_NAME}" "randomGenerator.cc")
 
 install(TARGETS "${PROJECT_NAME}" DESTINATION "${CMAKE_SOURCE_DIR}/tests")
-#install(FILES RandGen_driver.cpp DESTINATION src)
