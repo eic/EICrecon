@@ -84,7 +84,7 @@ def AddCollections(datamodelName, collectionfiles):
         type_map.append('};')
 
         visitor.append('        if (podio_typename == "' + datamodelName + '::' + basename + 'Collection") {')
-        visitor.append('            return visitor(static_cast<const ' + datamodelName + '::' + basename + 'Collection& >(collection));')
+        visitor.append('            return visitor(*reinterpret_cast<const ' + datamodelName + '::' + basename + 'Collection*>(&collection));')
         visitor.append('        }')
 
 
