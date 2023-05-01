@@ -127,7 +127,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
           eval.print_error(sstr);
           throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: {}", sstr.str()));
         }
-        m_log->debug("result = {}", eval.result());
+        m_log->trace("Evaluated {} to {}", u_adjacencyMatrix, eval.result());
         return eval.result();
       };
       method_found = true;
