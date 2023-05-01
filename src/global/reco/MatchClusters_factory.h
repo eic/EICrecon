@@ -24,9 +24,8 @@ namespace eicrecon {
                                        const std::vector<std::string>& output_tags):
                 JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
 
-            // TODO: NWB: object ownership is set to false because right now we populate the collections without doing any matching
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0], false);
-            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], false);
+            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
+            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1]);
         }
 
         /** One time initialization **/
