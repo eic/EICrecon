@@ -150,7 +150,7 @@ eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(std::vector<const edm4hep::Si
         if (m_cfg.enableNoise) {
           m_log->trace("{:=^70}"," BEGIN NOISE INJECTION ");
           std::unordered_map<uint64_t, std::vector<HitData>> hit_groups_noise;
-          float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow*dd4hep::ns;
+          float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow;
           auto cellID_action = [this,&hit_groups,&hit_groups_noise] (auto cellID) {
             auto it = hit_groups.find(cellID);
             // cell time, signal amplitude

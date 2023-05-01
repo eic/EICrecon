@@ -12,6 +12,9 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
 
+  // random number generator
+  m_random.SetSeed(37);
+
   // default (empty) cellID looper
   m_loopCellIDs = [] (std::function<void(uint64_t)> lambda) { return; };
 
