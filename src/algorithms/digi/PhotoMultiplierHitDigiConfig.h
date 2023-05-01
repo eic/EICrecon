@@ -10,8 +10,10 @@ namespace eicrecon {
     public:
 
       // random number generator seed
-      // FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
-      // FIXME: a warning will be printed if 0 is used; remove this warning when a better RNG is used
+      /* FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
+       * FIXME: remove this warning when this issue is resolved:
+       *        https://github.com/eic/EICrecon/issues/539
+       */
       unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering
