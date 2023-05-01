@@ -26,14 +26,14 @@
 class RichGeo_service : public JService {
   public:
     RichGeo_service(JApplication *app) : m_app(app) {}
-    ~RichGeo_service();
+    virtual ~RichGeo_service();
 
     // return pointer to the main DD4hep Detector
     dd4hep::Detector *GetDD4hepGeo() { return m_dd4hepGeo; };
 
     // return pointers to geometry bindings; initializes the bindings upon the first time called
-    richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
-    richgeo::ActsGeo *GetActsGeo(std::string detector_name);
+    virtual richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
+    virtual richgeo::ActsGeo *GetActsGeo(std::string detector_name);
 
   private:
     RichGeo_service() = default;

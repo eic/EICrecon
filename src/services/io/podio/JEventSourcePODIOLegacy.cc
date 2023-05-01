@@ -23,7 +23,7 @@
 #include <fmt/format.h>
 
 // This file is generated automatically by make_datamodel_glue.py
-#include "datamodel_glue.h"
+#include <datamodel_glue.h>
 
 
 //------------------------------------------------------------------------------
