@@ -20,3 +20,4 @@ add_subdirectory(BTOF)      # Barrel TOF
 
 # PID detectors
 add_subdirectory(DRICH)
+add_subdirectory(DIRC)
