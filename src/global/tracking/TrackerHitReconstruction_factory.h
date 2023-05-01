@@ -7,12 +7,11 @@
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MutableRawTrackerHit.h>
-
 #include <edm4eic/MutableTrackerHit.h>
+#include <edm4eic/TrackerHitCollection.h>
 
 #include <algorithms/tracking/TrackerHitReconstructionConfig.h>
 #include <algorithms/tracking/TrackerHitReconstruction.h>
