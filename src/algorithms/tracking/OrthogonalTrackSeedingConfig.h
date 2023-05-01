@@ -30,7 +30,7 @@ namespace eicrecon {
     float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex
 
     float m_maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
-    float m_cotThetaMax = 27.29; // Cotangent of max theta angle (27.29 corresponds to eta = 4)
+    float m_cotThetaMax = 1.0 / tan(2. * atan(exp(-4.0)); // Cotangent of max theta angle (based on eta)
     float m_sigmaScattering = 5; // How many standard devs of scattering angles to consider
     float m_radLengthPerSeed = 0.1; // Average radiation lengths of material on the length of a seed
     float m_minPt = (100. * Acts::UnitConstants::MeV) / m_cotThetaMax; // MeV (in Acts units of GeV) - minimum transverse momentum
