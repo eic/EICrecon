@@ -103,7 +103,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       //Calculate phi at xypos
       auto xpos = xypos.first;
       auto ypos = xypos.second;
-      
+
       auto vxpos = -1.*charge*(ypos-Y0);
       auto vypos = charge*(xpos-X0);
 

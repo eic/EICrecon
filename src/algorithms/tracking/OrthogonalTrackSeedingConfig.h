@@ -27,7 +27,7 @@ namespace eicrecon {
     float m_deltaRMinBottomSP = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and bottom SP in one seed
     float m_deltaRMaxBottomSP = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and bottom SP in one seed
     float m_collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
-    float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex 
+    float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex
 
     float m_maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
     float m_cotThetaMax = 27.29; // Cotangent of max theta angle (27.29 corresponds to eta = 4)
@@ -152,11 +152,11 @@ namespace eicrecon {
         (1 + 0.038 * std::log(m_seedFinderConfig.radLengthPerSeed));
       float maxScatteringAngle = m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
       m_seedFinderConfig.maxScatteringAngle2 = maxScatteringAngle * maxScatteringAngle;
-    
+
       // Helix radius in homogeneous magnetic field
       // in ACTS Units of GeV, mm, and GeV/(e*mm)
       m_seedFinderConfig.pTPerHelixRadius = m_seedFinderConfig.bFieldInZ;
-    
+
       m_seedFinderConfig.minHelixDiameter2 =
         std::pow(m_seedFinderConfig.minPt * 2 / m_seedFinderConfig.pTPerHelixRadius,2);
 
