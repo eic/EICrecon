@@ -99,6 +99,16 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float qOverP = charge / p;
 
       const auto xypos = findRoot(RX0Y0);
+
+      //Calculate phi at xypos
+      auto xpos = xypos.first;
+      auto ypos = xypos.second;
+      
+      auto vxpos = -1.*charge*(ypos-Y0);
+      auto vypos = charge*(xpos-X0);
+
+      auto phi = atan2(vypos,vxpos);
+
       const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
       Acts::Vector3 global(xypos.first, xypos.second, z0);
@@ -116,14 +126,13 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 	-1, // type --> seed(-1)
 	{(float)localpos(0), (float)localpos(1)}, // 2d location on surface
 	{0.1,0.1}, //covariance of location
-	theta, //theta rad
-	atan2(xyHitPositions.at(0).second, xyHitPositions.at(0).first), // phi of first hit (rad)
+	theta, //theta [rad]
+	(float)phi, // phi [rad]
 	qOverP, // Q/p [e/GeV]
 	{0.05,0.05,0.05}, // covariance on theta/phi/q/p
 	10, // time in ns
 	0.1, // error on time
 	(float)charge // charge
-
       };
 
       trackparams.push_back(params);
