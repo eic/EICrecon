@@ -29,12 +29,12 @@
 class RichGeo_service : public JService {
   public:
     RichGeo_service(JApplication *app) : m_app(app) {}
-    ~RichGeo_service();
+    virtual ~RichGeo_service();
 
     // return pointers to geometry bindings; initializes the bindings upon the first time called
-    richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
-    richgeo::ActsGeo *GetActsGeo(std::string detector_name);
-    richgeo::ReadoutGeo *GetReadoutGeo(std::string detector_name);
+    virtual richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
+    virtual richgeo::ActsGeo *GetActsGeo(std::string detector_name);
+    virtual richgeo::ReadoutGeo *GetReadoutGeo(std::string detector_name);
 
   private:
     RichGeo_service() = default;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023, Chao Peng, Christopher Dilks, Luigi Dello Stritto
+// Copyright (C) 2022, 2023, Chao Peng, Thomas Britton, Christopher Dilks, Luigi Dello Stritto
 
 /*  General PhotoMultiplier Digitization
  *
@@ -8,42 +8,47 @@
  *
  *  Author: Chao Peng (ANL)
  *  Date: 10/02/2020
+ *
+ *  Ported from Juggler by Thomas Britton (JLab)
  */
 
-//Ported by Thomas Britton (JLab)
 
 #pragma once
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <services/geometry/richgeo/RichGeo_service.h>
 #include <TRandomGen.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <cstddef>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include <algorithms/interfaces/WithPodConfig.h>
 
 namespace eicrecon {
 
-class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
+struct PhotoMultiplierHitDigiResult {
+  std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
+  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
+};
 
-    // Insert any member variables here
+class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
 public:
     PhotoMultiplierHitDigi() = default;
     ~PhotoMultiplierHitDigi(){}
     void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
-    std::vector<edm4eic::RawTrackerHit*> AlgorithmProcess(std::vector<const edm4hep::SimTrackerHit*>& sim_hits);
+    PhotoMultiplierHitDigiResult AlgorithmProcess(
+        const edm4hep::SimTrackerHitCollection* sim_hits
+        );
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
     dd4hep::Position get_sensor_local_position(uint64_t id, dd4hep::Position pos);
-
-    //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_log;
 
     // random number generators
     TRandomMixMax m_random;
@@ -67,6 +72,7 @@ private:
     dd4hep::Detector    *m_detector   = nullptr;
     richgeo::ReadoutGeo *m_readoutGeo = nullptr;
 
+    std::shared_ptr<spdlog::logger> m_log;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
