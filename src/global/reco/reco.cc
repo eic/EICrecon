@@ -43,9 +43,6 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
-    // TODO: NWB: "ReconstructedParticleAssociations" used input "ChargedParticlesWithAssociations" instead of
-    //            "ReconstructedParticlesWithAssoc", which I'm pretty sure was wrong, given the mermaid diagrams and
-    //            naming conventions. However, I want someone else to verify this.
 
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
