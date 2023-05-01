@@ -2,8 +2,6 @@
 # ===================================================================================
 #    CMake flag       |  environment variable  |  Description
 # ===================================================================================
-# -DEIC_DD4HEP_HOME   | EIC_DD4HEP_HOME        |  DD4Hep Detector geometry install
-# -DIP6_DD4HEP_HOME   | IP6_DD4HEP_HOME        |  DD4Hep IP6 geometry install dir
 # -- (under review)   | EDM4HEP_ROOT           |  Edm4Hep  installation directory
 #------------------------------------------------------------------------------------
 # -DCMAKE_CXX_STANDARD      | 17 - standard for C++ compilation
@@ -95,7 +93,6 @@ add_compile_definitions(HAVE_PODIO)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)

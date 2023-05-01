@@ -52,7 +52,7 @@ namespace eicrecon {
 
     // Run the clustering, extract the jets
     ClusterSequenceArea clus_seq(particles, jet_def, area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets());
+    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_minJetPt));
 
     // Print out some infos
     m_log->trace("  Clustering with : {}", jet_def.description());
