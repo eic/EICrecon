@@ -29,8 +29,13 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector,
     // print the configuration parameters
     m_cfg.Print(m_log, spdlog::level::debug);
 
+    /* warn if using potentially thread-unsafe seed
+     * FIXME: remove this warning when this issue is resolved:
+     *        https://github.com/eic/EICrecon/issues/539
+     */
+    if(m_cfg.seed==0) m_log->warn("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
+
     // random number generators
-    if(m_cfg.seed==0) m_log->warn("using seed=0 may cause thread-unsafe behavior of TRandom"); // FIXME: remove when resolved
     m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
