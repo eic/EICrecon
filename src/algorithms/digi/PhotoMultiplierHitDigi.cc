@@ -75,15 +75,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
     )
 {
         m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
-        struct HitData {
-          uint32_t npe;
-          double signal;
-          decltype(edm4hep::SimTrackerHitData::time) time;
-          dd4hep::Position pos_local;
-          dd4hep::Position pos_global;
-          std::vector<std::size_t> sim_hit_indices;
-        };
-        std::unordered_map<decltype(edm4eic::RawTrackerHitData::cellID), std::vector<HitData>> hit_groups;
+        std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
         m_log->trace("{:-<70}","Loop over simulated hits ");
@@ -104,8 +96,8 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             dd4hep::Position pos_pixel, pos_hit, pos_hit_global;
             if(m_cfg.enablePixelGaps) {
               pos_hit_global =  m_cellid_converter->position(id);
-              pos_pixel = get_sensor_local_position( id, pos_hit_global );
-              pos_hit   = get_sensor_local_position( id, vec2pos(sim_hit.getPosition())     );
+              pos_pixel = get_sensor_local_position(id, pos_hit_global);
+              pos_hit   = get_sensor_local_position(id, vec2pos(sim_hit.getPosition()));
               if( std::abs( pos_hit.x()/dd4hep::mm - pos_pixel.x()/dd4hep::mm ) > m_cfg.pixelSize/2 ||
                   std::abs( pos_hit.y()/dd4hep::mm - pos_pixel.y()/dd4hep::mm ) > m_cfg.pixelSize/2
                 ) continue;
@@ -117,32 +109,16 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             auto   time = sim_hit.getTime();
             double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
-            // group hits
-            auto it = hit_groups.find(id);
-            if (it != hit_groups.end()) {
-                std::size_t i = 0;
-                for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
-                    if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
-                        // hit group found, update npe, signal, and list of MC hits
-                        ghit->npe += 1;
-                        ghit->signal += amp;
-                        ghit->sim_hit_indices.push_back(sim_hit_index);
-                        m_log->trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
-                        break;
-                    }
-                }
-                // no hits group found
-                if (i >= it->second.size()) {
-                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, pos_hit_global, {sim_hit_index}}} });
-                    m_log->trace(" -> no group found,");
-                    m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
-                }
-            } else {
-                auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, pos_hit_global, {sim_hit_index}}} });
-                m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
-            }
+            // insert hit to `hit_groups`
+            InsertHit(
+                hit_groups,
+                id,
+                amp,
+                time,
+                pos_hit,
+                pos_hit_global,
+                sim_hit_index
+                );
         }
 
         // print `hit_groups`
@@ -163,46 +139,25 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
-            double amp = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-            decltype(edm4hep::SimTrackerHitData::time) time = m_cfg.noiseTimeWindow*m_rngUni();
+            double   amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
+            TimeType time = m_cfg.noiseTimeWindow*m_rngUni();
             dd4hep::Position pos_hit_global = m_cellid_converter->position(id);
-            dd4hep::Position pos_hit = {0,0,0}; // unused
 
             // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
-            /*
-             * FIXME: the following insertion to `hit_groups` is repeated from above,
-             *        with the only difference being that we should NOT add
-             *        `sim_hit_index` to the new `HitData.sim_hit_indices`. Can we
-             *        make it its own function, to avoid repetition?
-             */
-            auto it = hit_groups.find(id);
-            if (it != hit_groups.end()) {
-                std::size_t i = 0;
-                for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
-                    if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
-                        // hit group found, update npe, signal, and list of MC hits
-                        ghit->npe += 1;
-                        ghit->signal += amp;
-                        m_log->trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
-                        break;
-                    }
-                }
-                // no hits group found
-                if (i >= it->second.size()) {
-                    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, pos_hit_global, {/* no sim_hit_index*/}}} });
-                    m_log->trace(" -> no group found,");
-                    m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
-                }
-            } else {
-                auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
-                hit_groups.insert({ id, {HitData{1, sig, time, pos_hit, pos_hit_global, {/* no sim_hit_index*/}}} });
-                m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
-            }
+            this->InsertHit(
+                hit_groups,
+                id,
+                amp,
+                time,
+                dd4hep::Position{0,0,0}, // not used
+                pos_hit_global,
+                0, // not used
+                true
+                );
 
           };
           m_readoutGeo->VisitAllRngPixels(cellID_action, p);
-	}
+        }
 
         // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections
         m_log->trace("{:-<70}","Digitized raw hits ");
@@ -225,12 +180,14 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                     raw_hit.getTimeStamp()
                     );
 
-                // build `MCRecoTrackerHitAssociation`
-                auto hit_assoc = result.hit_assocs->create();
-                hit_assoc.setWeight(1.0); // not used
-                hit_assoc.setRawHit(raw_hit);
-                for(auto i : data.sim_hit_indices)
-                  hit_assoc.addToSimHits(sim_hits->at(i));
+                // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
+                if(data.sim_hit_indices.size()>0) {
+                  auto hit_assoc = result.hit_assocs->create();
+                  hit_assoc.setWeight(1.0); // not used
+                  hit_assoc.setRawHit(raw_hit);
+                  for(auto i : data.sim_hit_indices)
+                    hit_assoc.addToSimHits(sim_hits->at(i));
+                }
             }
         }
         return result;
@@ -371,7 +328,52 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   return pos_transformed;
 }
 
+
 bool  eicrecon::PhotoMultiplierHitDigi::has_noise_digits(float noiseRate, int timeWindow) const
 {
   return (m_rngUni() < (noiseRate*timeWindow*dd4hep::ns));
+}
+
+
+// add a hit to local `hit_groups` data structure
+void eicrecon::PhotoMultiplierHitDigi::InsertHit(
+    std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
+    CellIDType       id,
+    double           amp,
+    TimeType         time,
+    dd4hep::Position pos_hit_local,
+    dd4hep::Position pos_hit_global,
+    std::size_t      sim_hit_index,
+    bool             is_noise_hit
+    )
+{
+  auto it = hit_groups.find(id);
+  if (it != hit_groups.end()) {
+    std::size_t i = 0;
+    for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
+      if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
+        // hit group found, update npe, signal, and list of MC hits
+        ghit->npe += 1;
+        ghit->signal += amp;
+        if(!is_noise_hit) ghit->sim_hit_indices.push_back(sim_hit_index);
+        m_log->trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
+        break;
+      }
+    }
+    // no hits group found
+    if (i >= it->second.size()) {
+      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+      decltype(HitData::sim_hit_indices) indices;
+      if(!is_noise_hit) indices.push_back(sim_hit_index);
+      hit_groups.insert({ id, {HitData{1, sig, time, pos_hit_local, pos_hit_global, indices}} });
+      m_log->trace(" -> no group found,");
+      m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
+    }
+  } else {
+    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+    decltype(HitData::sim_hit_indices) indices;
+    if(!is_noise_hit) indices.push_back(sim_hit_index);
+    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit_local, pos_hit_global, indices}} });
+    m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
+  }
 }

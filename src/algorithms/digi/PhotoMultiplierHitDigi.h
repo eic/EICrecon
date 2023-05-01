@@ -30,9 +30,21 @@
 
 namespace eicrecon {
 
+using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
+using TimeType   = decltype(edm4hep::SimTrackerHitData::time);
+
 struct PhotoMultiplierHitDigiResult {
   std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
   std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
+};
+
+struct HitData {
+  uint32_t         npe;
+  double           signal;
+  TimeType         time;
+  dd4hep::Position pos_local;
+  dd4hep::Position pos_global;
+  std::vector<std::size_t> sim_hit_indices;
 };
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
@@ -68,6 +80,18 @@ public:
     void SetReadoutGeo(richgeo::ReadoutGeo *readout) { m_readoutGeo = readout; };
 
 private:
+
+    // add a hit to local `hit_groups` data structure
+    void InsertHit(
+        std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
+        CellIDType       id,
+        double           amp,
+        TimeType         time,
+        dd4hep::Position pos_hit_local,
+        dd4hep::Position pos_hit_global,
+        std::size_t      sim_hit_index,
+        bool             is_noise_hit = false
+        );
 
     dd4hep::Detector    *m_detector   = nullptr;
     richgeo::ReadoutGeo *m_readoutGeo = nullptr;
