@@ -47,7 +47,7 @@ public:
         u_localDistYZ={};     //{this, "localDistYZ", {}};
         u_globalDistRPhi={};  //{this, "globalDistRPhi", {}};
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
-        u_dimScaledLocalDistXY={1.8, 1.8};
+        u_dimScaledLocalDistXY={};
 
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
