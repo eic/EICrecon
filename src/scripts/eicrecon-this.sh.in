@@ -97,7 +97,8 @@ if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
     export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}"
 fi
 
-# Add plugins to ROOT_INCLUDE_PATH if not already there
-if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
-    export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
+# Add plugin headers to ROOT_INCLUDE_PATH if not already there
+HEADERS_DIR=$( readlink -f ${EICrecon_ROOT}/include )
+if [[ ! ":ROOT_INCLUDE_PATH:" == *":$HEADERS_DIR:"* ]]; then
+    export ROOT_INCLUDE_PATH="${HEADERS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi
