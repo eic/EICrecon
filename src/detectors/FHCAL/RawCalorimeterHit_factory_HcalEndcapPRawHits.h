@@ -38,10 +38,10 @@ public:
         m_input_tag = "HcalEndcapPHits";
         u_eRes = {};
         m_tRes = 0.001 * dd4hep::ns;
-        m_capADC = 4096;
-        m_dyRangeADC = 50 * dd4hep::MeV;
-        m_pedMeanADC = 200  ;
-        m_pedSigmaADC = 3.2 ;
+        m_capADC = 65536;
+        m_dyRangeADC = 1 * dd4hep::GeV;
+        m_pedMeanADC = 20  ;
+        m_pedSigmaADC = 0.8 ;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};

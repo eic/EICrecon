@@ -25,18 +25,18 @@ public:
         m_input_tag = "HcalEndcapPRawHits";
 
         // digitization settings, must be consistent with digi class
-        m_capADC=4096;//{this, "capacityADC", 8096};
-        m_dyRangeADC=50 * dd4hep::MeV;
-        m_pedMeanADC=200;//{this, "pedestalMean", 400};
-        m_pedSigmaADC=3.2;//{this, "pedestalSigma", 3.2};
-        m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+        m_capADC=65536;
+        m_dyRangeADC=1 * dd4hep::GeV; // based on LFHCal (with 10 tiles vs. 1 here)
+        m_pedMeanADC=20;
+        m_pedSigmaADC=0.8;
+        m_resolutionTDC=10 * dd4hep::picosecond;/
 
         // zero suppression values
-        m_thresholdFactor=4.0;//{this, "thresholdFactor", 0.0};
-        m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
+        m_thresholdFactor=1.0;
+        m_thresholdValue=3.0;
 
         // energy correction with sampling fraction
-        m_sampFrac=1;
+        m_sampFrac=0.033;
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
