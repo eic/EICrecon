@@ -135,7 +135,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
         //build noise raw hits
         if (m_cfg.enableNoise) {
           m_log->trace("{:=^70}"," BEGIN NOISE INJECTION ");
-          float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow*dd4hep::ns;
+          float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow;
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
@@ -326,12 +326,6 @@ dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uin
   */
 
   return pos_transformed;
-}
-
-
-bool  eicrecon::PhotoMultiplierHitDigi::has_noise_digits(float noiseRate, int timeWindow) const
-{
-  return (m_rngUni() < (noiseRate*timeWindow*dd4hep::ns));
 }
 
 
