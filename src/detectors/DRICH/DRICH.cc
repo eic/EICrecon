@@ -1,4 +1,4 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -6,11 +6,11 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 #include <extensions/jana/JChainFactoryGeneratorT.h>
+#include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
-// #include <global/pid/IrtParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
@@ -22,11 +22,14 @@ extern "C" {
 
     using namespace eicrecon;
 
-    // Digitization
+    // configuration parameters ///////////////////////////////////////////////
+
+    // digitization
     PhotoMultiplierHitDigiConfig digi_cfg;
-    digi_cfg.seed            = 0;
+    digi_cfg.seed            = 5; // FIXME: set to 0 for a 'unique' seed, but
+                                  // that seems to delay the RNG from actually randomizing
     digi_cfg.hitTimeWindow   = 20.0; // [ns]
-    digi_cfg.timeStep        = 0.0625; // [ns]
+    digi_cfg.timeResolution  = 1/16.0; // [ns]
     digi_cfg.speMean         = 80.0;
     digi_cfg.speError        = 16.0;
     digi_cfg.pedMean         = 200.0;
@@ -50,18 +53,30 @@ extern "C" {
     digi_cfg.quantumEfficiency.push_back({800, 0.08});
     digi_cfg.quantumEfficiency.push_back({850, 0.06});
     digi_cfg.quantumEfficiency.push_back({900, 0.04});
-    app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DRICHHits"}, "DRICHRawHits", digi_cfg));
 
-    // Track Propagation to each radiator
-    // FIXME: algorithm configuration currently set in RichTrack factory; need to write independent RichTrack algorithm
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHAerogelTracks"));
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>({"CentralCKFTrajectories"}, "DRICHGasTracks"));
 
-    /* TODO: transform PhotoElectrons to Cherenkov Particle Identification
-     * - Run the Indirect Ray Tracing (IRT) algorithm
-     * - Cherenkov angle measurement
-     * - PID hypotheses
-     */
-    // app->Add(new JFactoryGeneratorT<IrtParticleID_factory>());
+    // wiring between factories and data ///////////////////////////////////////
+    // clang-format off
+
+    // digitization
+    app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+          "DRICHRawHits",
+          {"DRICHHits"},
+          {"DRICHRawHits", "DRICHRawHitsAssociations"},
+          digi_cfg,
+          app
+          ));
+
+    // charged particle tracks
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+          {"CentralCKFTrajectories"},
+          "DRICHAerogelTracks"
+          ));
+    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+          {"CentralCKFTrajectories"},
+          "DRICHGasTracks"
+          ));
+
+    // clang-format on
   }
 }
