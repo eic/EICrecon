@@ -68,7 +68,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "GeneratedParticles",
             "ReconstructedParticles",
             "ReconstructedChargedParticles",
-            "ReconstructedChargedParticlesAssociations",
+            "ReconstructedChargedParticleAssociations",
             "CentralTrackSegments",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",

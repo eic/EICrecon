@@ -93,7 +93,6 @@ add_compile_definitions(HAVE_PODIO)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
@@ -120,6 +119,7 @@ include(cmake/print_functions.cmake)                        # Helpers to print f
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
+enable_testing()
 
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
