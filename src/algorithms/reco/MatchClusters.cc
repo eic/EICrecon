@@ -35,8 +35,8 @@ namespace eicrecon {
 
     std::tuple<edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*> MatchClusters::execute(
             std::vector<const edm4hep::MCParticle *> mcparticles,
-            std::vector<edm4eic::ReconstructedParticle *> inparts,
-            std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,
+            std::vector<const edm4eic::ReconstructedParticle *> inparts,
+            std::vector<const edm4eic::MCRecoParticleAssociation *> inpartsassoc,
             const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
             const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections) {
 
