@@ -28,7 +28,7 @@ public:
         auto app = GetApplication();
         m_input_tag = "EcalLumiSpecRecHits";
 
-        m_splitCluster=true;               // from ATHENA reconstruction.py
+        m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
         m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
