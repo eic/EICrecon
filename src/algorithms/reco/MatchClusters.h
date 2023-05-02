@@ -38,8 +38,8 @@ namespace eicrecon {
 
         MatchingResults execute(
             std::vector<const edm4hep::MCParticle *> mcparticles,
-            std::vector<edm4eic::ReconstructedParticle *> inparts,            // TODO fix const
-            std::vector<edm4eic::MCRecoParticleAssociation *> inpartsassoc,   // TODO fix const
+            std::vector<const edm4eic::ReconstructedParticle *> inparts,
+            std::vector<const edm4eic::MCRecoParticleAssociation *> inpartsassoc,
             const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
             const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections);
 

@@ -93,7 +93,6 @@ add_compile_definitions(HAVE_PODIO)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
