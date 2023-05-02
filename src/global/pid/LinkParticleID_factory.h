@@ -30,12 +30,15 @@ namespace eicrecon {
 
   class LinkParticleID;
 
-  // NOTE: this is a template, to support an arbitrary particle datatype `ParticleDatatype`, such
-  // as `edm4*::ReconstructedParticle` or `edm4*::MCRecoParticleAssociation`
-  template<class ParticleDatatype>
+  /* NOTE: this factory is a template, to support an arbitrary particle
+   * datatype `ParticleDataT`, with corresponding collection type `CollectionT`
+   * - see the end of implementation (LinkParticleID_factory.cpp) for supported
+   *   datatypes, specified as expicit instantiations
+   */
+  template<class ParticleDataT, class ParticleCollectionT>
   class LinkParticleID_factory :
-    public JChainFactoryT<ParticleDatatype, LinkParticleIDConfig>,
-    public SpdlogMixin<LinkParticleID_factory<ParticleDatatype>>
+    public JChainFactoryT<ParticleDataT, LinkParticleIDConfig>,
+    public SpdlogMixin<LinkParticleID_factory<ParticleDataT,ParticleCollectionT>>
   {
 
     public:
@@ -44,15 +47,10 @@ namespace eicrecon {
           std::vector<std::string> default_input_tags,
           LinkParticleIDConfig cfg
           ):
-        JChainFactoryT<ParticleDatatype, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
+        JChainFactoryT<ParticleDataT, LinkParticleIDConfig>(std::move(default_input_tags), cfg) {}
 
-      /** One time initialization **/
       void Init() override;
-
-      /** On run change preparations **/
       void BeginRun(const std::shared_ptr<const JEvent> &event) override;
-
-      /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
@@ -61,4 +59,5 @@ namespace eicrecon {
       std::string              m_detector_name;
 
   };
+
 }

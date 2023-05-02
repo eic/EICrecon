@@ -151,13 +151,15 @@ extern "C" {
           ));
 
     // link reconstructed particles
-    app->Add(new JChainFactoryGeneratorT<LinkParticleID_factory<edm4eic::ReconstructedParticle>>(
-          {"DRICHMergedCherenkovParticleID" "ReconstructedChargedParticles"},
+    app->Add(new JChainFactoryGeneratorT<
+        LinkParticleID_factory<edm4eic::ReconstructedParticle, edm4eic::ReconstructedParticleCollection>
+        >(
+          {"DRICHMergedCherenkovParticleID", "ReconstructedChargedParticles"},
           "ReconstructedChargedParticlesWithDRICHPID",
           link_cfg
           ));
-    app->Add(new JChainFactoryGeneratorT<LinkParticleID_factory<edm4eic::MCRecoParticleAssociation>>(
-          {"DRICHMergedCherenkovParticleID" "ReconstructedChargedParticlesAssociations"},
+    app->Add(new JChainFactoryGeneratorT<LinkParticleID_factory<edm4eic::MCRecoParticleAssociation, edm4eic::MCRecoParticleAssociationCollection>>(
+          {"DRICHMergedCherenkovParticleID", "ReconstructedChargedParticlesAssociations"},
           "ReconstructedChargedParticlesAssociationsWithDRICHPID",
           link_cfg
           ));
