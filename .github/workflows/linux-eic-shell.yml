@@ -294,7 +294,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - build
-    - ddsim-gun-LumiSpecCAL
+    - ddsim-gun-EcalLumiSpec
     strategy:
       matrix:
         particle: [e]
