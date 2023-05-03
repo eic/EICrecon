@@ -119,6 +119,7 @@ include(cmake/print_functions.cmake)                        # Helpers to print f
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
+enable_testing()
 
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )

@@ -16,16 +16,17 @@
 class Log_service : public JService
 {
 public:
-    explicit Log_service(JApplication *app );
+    explicit Log_service(JApplication *app);
+    ~Log_service();
 
-    std::shared_ptr<spdlog::logger> logger(const std::string &name);
+    virtual std::shared_ptr<spdlog::logger> logger(const std::string &name);
 
     /** Gets the default level for all loggers
      * The log level is set from user parameters or is 'info'**/
-    spdlog::level::level_enum getDefaultLevel();
+    virtual spdlog::level::level_enum getDefaultLevel();
 
     /** Gets std::string version of the default log level **/
-    std::string getDefaultLevelStr();
+    virtual std::string getDefaultLevelStr();
 
 
 private:

@@ -68,7 +68,7 @@ void InitPlugin(JApplication *app) {
             {"MCParticles",                                    // edm4hep::MCParticle
             "outputTrackParameters"},                          // edm4eic::TrackParameters
             {"ReconstructedChargedParticles",                  //
-             "ReconstructedChargedParticlesAssociations"       // edm4eic::MCRecoParticleAssociation
+             "ReconstructedChargedParticleAssociations"       // edm4eic::MCRecoParticleAssociation
             },
             app  // TODO: Remove me once fixed
             ));
