@@ -6,9 +6,12 @@
 
 #pragma once
 
+#include <cstddef>
+
 // data model
 #include <edm4eic/CherenkovParticleID.h>
-#include <edm4hep/ParticleID.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 namespace eicrecon {
 
@@ -16,31 +19,48 @@ namespace eicrecon {
     public:
 
       // convert edm4eic::CherenkovParticleID hypotheses to list of edm4hep::ParticleID objects
-      static std::vector<edm4hep::ParticleID> ConvertToParticleIDs(
+      static std::unique_ptr<edm4hep::ParticleIDCollection> ConvertToParticleIDs(
           edm4eic::CherenkovParticleID in_pid,
           bool sort_by_likelihood = false
           ) {
-        std::vector<edm4hep::ParticleID> out_pids;
-        for(auto in_hyp : in_pid.getHypotheses()) {
-          // scalars
-          edm4hep::MutableParticleID out_pid{
-            static_cast<decltype(edm4hep::ParticleIDData::type)>          (0), // FIXME: not used yet
-            static_cast<decltype(edm4hep::ParticleIDData::PDG)>           (in_hyp.PDG),
-            static_cast<decltype(edm4hep::ParticleIDData::algorithmType)> (0), // FIXME: not used yet
-            static_cast<decltype(edm4hep::ParticleIDData::likelihood)>    (in_hyp.weight)
-          };
-          // parameters vector
-          out_pid.addToParameters(in_hyp.npe); // NPE for this hypothesis
-          // append
-          out_pids.push_back(edm4hep::ParticleID(out_pid));
-        }
-        // sort output PIDs by likelihood
+
+        // start output collection, to persistify objects
+        auto out_pids = std::make_unique<edm4hep::ParticleIDCollection>();
+
+        // build list of (hypothesis index, hypothesis weight)
+        using HypIndex = std::pair<std::size_t, decltype(edm4eic::CherenkovParticleIDHypothesis::weight)>;
+        std::vector<HypIndex> hyp_indices;
+        for(std::size_t hyp_index=0; hyp_index<in_pid.hypotheses_size(); hyp_index++)
+          hyp_indices.push_back(HypIndex{
+              hyp_index,
+              in_pid.getHypotheses(hyp_index).weight
+              });
+
+        // sort it by likelihood, if needed
         if(sort_by_likelihood)
           std::sort(
-              out_pids.begin(),
-              out_pids.end(),
-              [] (edm4hep::ParticleID& a, edm4hep::ParticleID&b) { return a.getLikelihood() > b.getLikelihood(); }
+              hyp_indices.begin(),
+              hyp_indices.end(),
+              [] (HypIndex& a, HypIndex& b) { return a.second > b.second; }
               );
+
+        // create and fill output objects
+        for(const auto& [hyp_index, hyp_weight] : hyp_indices) {
+
+          auto in_hyp  = in_pid.getHypotheses(hyp_index);
+          auto out_pid = out_pids->create();
+
+          // fill scalars
+          out_pid.setPDG(           static_cast<decltype(edm4hep::ParticleIDData::PDG)>           (in_hyp.PDG)    );
+          out_pid.setLikelihood(    static_cast<decltype(edm4hep::ParticleIDData::likelihood)>    (in_hyp.weight) );
+          out_pid.setType(          static_cast<decltype(edm4hep::ParticleIDData::type)>          (0)             ); // FIXME: not used yet
+          out_pid.setAlgorithmType( static_cast<decltype(edm4hep::ParticleIDData::algorithmType)> (0)             ); // FIXME: not used yet
+
+          // fill parameters vector
+          out_pid.addToParameters( static_cast<float> (in_hyp.npe) ); // NPE for this hypothesis
+
+        }
+
         return out_pids;
       }
 

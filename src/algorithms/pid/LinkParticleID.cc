@@ -163,15 +163,15 @@ edm4eic::MutableReconstructedParticle eicrecon::LinkParticleID::LinkParticle(
 
   // convert PID hypotheses to edm4hep::ParticleID objects, sorted by likelihood
   auto out_pids = ConvertParticleID::ConvertToParticleIDs(in_pid_matched, true);
-  if(out_pids.size()==0) {
+  if(out_pids->size()==0) {
     m_log->error("found CherenkovParticleID object with no hypotheses");
     return out_particle;
   }
 
   // relate matched ParticleID objects to output particle
-  for(auto& out_pid : out_pids)
+  for(const auto& out_pid : *out_pids)
     out_particle.addToParticleIDs(out_pid);
-  out_particle.setParticleIDUsed(out_pids.at(0)); // highest likelihood is the first // FIXME: any consensus that this is what we want?
+  out_particle.setParticleIDUsed(out_pids->at(0)); // highest likelihood is the first // FIXME: any consensus that this is what we want?
   out_particle.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
 
   // logging
