@@ -55,12 +55,12 @@ flowchart TB
     MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
 
     ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
-    ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticlesAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   end
 
   subgraph Tracking Plugin Algorithms
     direction TB
-    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticlesAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   end
 
   %%-----------------

@@ -32,7 +32,7 @@ namespace eicrecon {
     private:
 
       // input collections
-      PrefetchT<edm4eic::MCRecoParticleAssociation> m_assocs = {this, "ReconstructedChargedParticlesAssociations"};
+      PrefetchT<edm4eic::MCRecoParticleAssociation> m_assocs = {this, "ReconstructedChargedParticleAssociations"};
 
       // underlying algorithms
       eicrecon::LinkParticleIDAnalysis m_analysis_algo;
