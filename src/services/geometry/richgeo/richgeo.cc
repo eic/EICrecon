@@ -1,5 +1,7 @@
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2022, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
+//
+//
 
 #include "RichGeo_service.h"
 
