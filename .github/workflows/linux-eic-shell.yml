@@ -83,11 +83,6 @@ jobs:
         path: |
           build/
         if-no-files-found: error
-    - uses: actions/upload-artifact@v3
-      if: ${{ matrix.CXX == 'clang++' }}
-      with:
-        path: algorithms_test.profraw
-        if-no-files-found: error
 
   clang-tidy:
     runs-on: ubuntu-latest
