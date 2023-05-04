@@ -29,7 +29,7 @@ public:
         m_dyRangeADC=1 * dd4hep::GeV; // based on LFHCal (with 10 tiles vs. 1 here)
         m_pedMeanADC=20;
         m_pedSigmaADC=0.8;
-        m_resolutionTDC=10 * dd4hep::picosecond;/
+        m_resolutionTDC=10 * dd4hep::picosecond;
 
         // zero suppression values
         m_thresholdFactor=1.0;
