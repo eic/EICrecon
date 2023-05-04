@@ -139,9 +139,9 @@ jobs:
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
-        llvm-cov-15 export src/algorithms/calorimetry/algorithms_calorimetry.so \
+        COV_PERCENT=$(llvm-cov-15 export src/algorithms/calorimetry/algorithms_calorimetry.so \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
-          "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n" | read COV_PERCENT
+          "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
         curl --request POST \
           --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
           --header "Accept: application/vnd.github+json" \
