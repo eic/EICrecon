@@ -30,31 +30,26 @@ plugin_add(${PLUGIN_NAME} )
 plugin_glob_all(${PLUGIN_NAME})
 
 # Generate the datamodel header files.
-# This would be better served with the add_custom_command feature of cmake,
-# but that never really worked quite right. Thus, we just force-run it
-# whenever cmake is run.
-execute_process (
+add_custom_command(
+        OUTPUT ${podio_BINARY_DIR}/datamodel_glue.h ${podio_BINARY_DIR}/datamodel_includes.h
         COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${podio_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
+        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
-
-# Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
-# this, root will complain about not having a compiled CollectionProxy.
-include_directories( ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-root_generate_dictionary(G__datamodel_vectors datamodel_includes.h LINKDEF datamodel_LinkDef.h)
-target_sources(${PLUGIN_NAME}_plugin PRIVATE datamodel_includes.h G__datamodel_vectors.cxx)
-
-set(LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
 
 # Add include directories (works same as target_include_directories)
 message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${EICRECON_SOURCE_DIR}/src)
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} ${LINK_LIBRARIES})
+plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
+
+# Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
+# this, root will complain about not having a compiled CollectionProxy.
+root_generate_dictionary(G__datamodel_vectors ${podio_BINARY_DIR}/datamodel_includes.h MODULE ${PLUGIN_NAME}_plugin LINKDEF datamodel_LinkDef.h)
 
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
-        ${PROJECT_BINARY_DIR}/libdatamodel_vectors_rdict.pcm
-        ${PROJECT_BINARY_DIR}/libdatamodel_vectors.rootmap
+        ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin_rdict.pcm
+        ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin.rootmap
         )
 install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
