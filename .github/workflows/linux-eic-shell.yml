@@ -149,7 +149,7 @@ jobs:
           --header "X-GitHub-Api-Version: 2022-11-28" \
           --data '{
             "state": "success",
-            "context": "Code coverage (algorithms_calorimetry) - $COV_PERCENT%",
+            "context": "Code coverage (algorithms_calorimetry) - $COV_PERCENT%"
             }' \
           --fail-with-body
     - uses: actions/upload-artifact@v3
