@@ -143,13 +143,13 @@ jobs:
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n" | read COV_PERCENT
         curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
           --header "Accept: application/vnd.github+json" \
           --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           --header "X-GitHub-Api-Version: 2022-11-28" \
           --data '{
             "state": "success",
-            "context": "Code coverage (algorithms_calorimetry) - $COV_PERCENT%"
+            "context": "Code coverage (algorithms_calorimetry) - '$COV_PERCENT'%"
             }' \
           --fail-with-body
     - uses: actions/upload-artifact@v3
