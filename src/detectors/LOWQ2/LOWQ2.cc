@@ -11,84 +11,61 @@
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
+#include "LowQ2Filter_factory.h"
+#include "LowQ2Tracking_factory.h"
+#include "LowQ2Reconstruction_factory.h"
+
 #include <global/digi/SiliconTrackerDigi_factory.h>
 #include <global/tracking/TrackerHitReconstruction_factory.h>
 
-#include <global/tracking/TrackerSourceLinker_factory.h>
-#include <global/tracking/TrackParamTruthInit_factory.h>
-#include <global/tracking/TrackingResult_factory.h>
-#include <global/tracking/TrackerReconstructedParticle_factory.h>
-#include <global/tracking/TrackParameters_factory.h>
-#include <global/tracking/CKFTracking_factory.h>
-#include <global/tracking/TrackSeeding_factory.h>
-#include <global/tracking/TrackerHitCollector_factory.h>
-#include <global/tracking/TrackParameters_factory.h>
-#include <global/tracking/TrackProjector_factory.h>
-#include <global/tracking/ParticlesWithTruthPID_factory.h>
-#include <global/reco/ReconstructedParticles_factory.h>
-#include <global/reco/ReconstructedParticleAssociations_factory.h>
+// #include <global/tracking/TrackerSourceLinker_factory.h>
+// #include <global/tracking/TrackParamTruthInit_factory.h>
+// #include <global/tracking/TrackingResult_factory.h>
+// #include <global/tracking/TrackerReconstructedParticle_factory.h>
+// #include <global/tracking/TrackParameters_factory.h>
+// #include <global/tracking/CKFTracking_factory.h>
+// #include <global/tracking/TrackSeeding_factory.h>
+// #include <global/tracking/TrackerHitCollector_factory.h>
+// #include <global/tracking/TrackParameters_factory.h>
+// #include <global/tracking/TrackProjector_factory.h>
+// #include <global/tracking/ParticlesWithTruthPID_factory.h>
+// #include <global/reco/ReconstructedParticles_factory.h>
+// #include <global/reco/ReconstructedParticleAssociations_factory.h>
 
 extern "C" {
-void InitPlugin(JApplication *app) {
+  void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-
+    
     using namespace eicrecon;
+    
+    // For most basic reconstruction, remove all but the first hit in any layer and restrict to a single module
+    app->Add(new JFactoryGeneratorT<LowQ2Filter_factory>("TaggerTrackerHit"),"TaggerTrackerHit");
 
+    // -------------------------------
+    // To do - Parameterization of charge/signal sharing in detector.
+    // -------------------------------
 
     // Digitization
     SiliconTrackerDigiConfig digi_cfg;
     //digi_cfg.timeResolution = 2.5; // Change timing resolution.
     //Why isn't there the same for energy digitization, just std::llround(sim_hit->getEDep() * 1e6)? Whole Digi process isn't quite consistent.
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TaggerTrackerHits"}, "TaggerTrackerRawHit", digi_cfg));
-
+    
+    // -------------------------------
+    // To do - Clustering of hits.
+    // -------------------------------
+    
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
     // change default parameters like hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
 
+    // Very basic reconstrution of a single track
+    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");
 
+    // Initial electron reconstruction
+    app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>("LowQ2Tracks"),"LowQ2RecParticles");
 
-
-    // Source linker
-    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-            {"TaggerTrackingHits"}, "TaggerTrackerSourceLinker"));
-
-    app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
-            {"TaggerTrackerSourceLinker"}, "TaggerCKFTrajectories"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackSeeding_factory>(
-            {"TaggerTrackingRecHits"}, "TaggerTrackSeedingResults"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
-            {"TaggerCKFTrajectories"}, "TaggerTrackSegments"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackingResult_factory>(
-            {"TaggerCKFTrajectories"}, "TaggerTrackingParticles"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
-            {"TaggerTrackingParticles"}, "TaggerParticles"));
-
-    app->Add(new JChainFactoryGeneratorT<TrackParameters_factory>(
-            {"TaggerTrackingParticles"}, "TaggerTrackParameters"));
-
-    app->Add(new JChainFactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            {"MCParticles",                         // Tag for edm4hep::MCParticle
-            "TaggerTrackParameters"},               // Tag for edm4eic::TrackParameters
-            "TaggerParticlesWithAssociations"));   // eicrecon::ParticlesWithAssociation
-
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticles_factory>(
-            {"TaggerParticlesWithAssociations"},
-            "ReconstructedTaggerParticles"));
-
-    app->Add(new JChainFactoryGeneratorT<ReconstructedParticleAssociations_factory>(
-            {"TaggerParticlesWithAssociations"},
-            "ReconstructedTaggerParticlesAssociations"));
-
-
-
-
-//     app->Add(new JFactoryGeneratorT<RawTrackerHit_factory_ForwardRomanPotRawHits>());
-//     app->Add(new JFactoryGeneratorT<TrackerHit_factory_ForwardRomanPotRecHits>());
-//     app->Add(new JFactoryGeneratorT<ReconstructedParticle_factory_ForwardRomanPotParticles>());
-}
+  }
 }
 

@@ -18,6 +18,7 @@ add_subdirectory(RPOTS)     # Roman Pots
 add_subdirectory(ECTOF)     # Endcap TOF
 add_subdirectory(BTOF)      # Barrel TOF
 add_subdirectory(LOWQ2)     # LOWQ2 Tagger
+add_subdirectory(LUMISPECCAL)  # Lumi spectrometer calorimeter
 
 # PID detectors
 add_subdirectory(DRICH)
