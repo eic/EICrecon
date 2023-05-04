@@ -5,6 +5,8 @@
 // It converts digitized ADC/TDC values to energy/time, and looks for geometrical information of the
 // readout pixels Author: Chao Peng Date: 06/02/2021
 
+#pragma once
+
 #include <algorithm>
 #include <bitset>
 
