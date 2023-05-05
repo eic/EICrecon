@@ -11,7 +11,8 @@
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
-#include "LowQ2Filter_factory.h"
+#include "LowQ2ProtoCluster_factory.h"
+#include "LowQ2Cluster_factory.h"
 #include "LowQ2Tracking_factory.h"
 #include "LowQ2Reconstruction_factory.h"
 
@@ -38,9 +39,6 @@ extern "C" {
     
     using namespace eicrecon;
     
-    // For most basic reconstruction, remove all but the first hit in any layer and restrict to a single module
-    app->Add(new JFactoryGeneratorT<LowQ2Filter_factory>("TaggerTrackerHit"),"TaggerTrackerHit");
-
     // -------------------------------
     // To do - Parameterization of charge/signal sharing in detector.
     // -------------------------------
@@ -54,6 +52,9 @@ extern "C" {
     // -------------------------------
     // To do - Clustering of hits.
     // -------------------------------
+    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerProtoClusters"},    "TaggerTrackerRawHit"       ));
+
+    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerClusterPositions"}, "TaggerTrackerProtoClusters"));
     
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
@@ -61,10 +62,11 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
 
     // Very basic reconstrution of a single track
-    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");
+    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>());
+    //    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");
 
-    // Initial electron reconstruction
-    app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>("LowQ2Tracks"),"LowQ2RecParticles");
+//     // Initial electron reconstruction
+//     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>("LowQ2Tracks"),"LowQ2RecParticles");
 
   }
 }
