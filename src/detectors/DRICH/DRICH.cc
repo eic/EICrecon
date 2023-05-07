@@ -17,6 +17,7 @@
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include <global/pid/RichTrackConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 #include <algorithms/pid/MergeParticleIDConfig.h>
 #include <algorithms/pid/LinkParticleIDConfig.h>
@@ -67,11 +68,9 @@ extern "C" {
     digi_cfg.quantumEfficiency.push_back({900, 0.04});
 
     // track propagation to each radiator
-    /* FIXME: algorithm configuration currently set in RichTrack factory; need
-     *        to write independent RichTrack algorithm with a config class, then we
-     *        can move the user-level settings to here
-     * FIXME: set irt_cfg.radiators.at(*).zbins below to match RichTrack config
-     */
+    RichTrackConfig track_cfg;
+    track_cfg.numPlanes.insert({ "Aerogel", 5  });
+    track_cfg.numPlanes.insert({ "Gas",     10 });
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
@@ -79,14 +78,14 @@ extern "C" {
     irt_cfg.numRIndexBins = 100;
     // - aerogel
     irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
-    irt_cfg.radiators.at("Aerogel").zbins           = 5;
+    irt_cfg.radiators.at("Aerogel").zbins           = track_cfg.numPlanes.at("Aerogel");
     irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
     irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
     irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
     irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
     // - gas
     irt_cfg.radiators.insert({"Gas", RadiatorConfig{}});
-    irt_cfg.radiators.at("Gas").zbins           = 10;
+    irt_cfg.radiators.at("Gas").zbins           = track_cfg.numPlanes.at("Gas");
     irt_cfg.radiators.at("Gas").referenceRIndex = 1.00076;
     irt_cfg.radiators.at("Gas").attenuation     = 0; // [mm]
     irt_cfg.radiators.at("Gas").smearingMode    = "gaussian";
@@ -121,13 +120,12 @@ extern "C" {
           ));
 
     // charged particle tracks
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
+          "DRICHTracks",
           {"CentralCKFTrajectories"},
-          "DRICHAerogelTracks"
-          ));
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
-          {"CentralCKFTrajectories"},
-          "DRICHGasTracks"
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
+          track_cfg,
+          app
           ));
 
     // PID algorithm
