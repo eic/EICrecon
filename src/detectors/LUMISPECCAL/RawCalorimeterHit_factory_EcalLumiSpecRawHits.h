@@ -18,14 +18,14 @@
 
 
 
-class RawCalorimeterHit_factory_HcalEndcapPRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalLumiSpecRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_HcalEndcapPRawHits() {
-        SetTag("HcalEndcapPRawHits");
+    RawCalorimeterHit_factory_EcalLumiSpecRawHits() {
+        SetTag("EcalLumiSpecRawHits");
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -35,37 +35,38 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "HcalEndcapPHits";
-        u_eRes = {};
-        m_tRes = 0.001 * dd4hep::ns;
-        m_capADC = 65536;
-        m_dyRangeADC = 1 * dd4hep::GeV;
-        m_pedMeanADC = 20  ;
-        m_pedSigmaADC = 0.8 ;
+        m_input_tag = "LumiSpecCALHits";
+        u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}; // flat 2%
+        m_tRes = 0.0 * dd4hep::ns;
+        m_capADC = 16384;
+        m_dyRangeADC = 20 * dd4hep::GeV;
+        m_pedMeanADC = 100;
+        m_pedSigmaADC = 1;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
+
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
-        // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("FHCAL:tag",              m_input_tag);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:energyResolutions",u_eRes);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:timeResolution",   m_tRes);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:capacityADC",      m_capADC);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:dynamicRangeADC",  m_dyRangeADC);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:pedestalMean",     m_pedMeanADC);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:pedestalSigma",    m_pedSigmaADC);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:resolutionTDC",    m_resolutionTDC);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:scaleResponse",    m_corrMeanScale);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:fieldRefNumbers",  u_refs);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:geoServiceName",   m_geoSvcName);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPRawHits:readoutClass",     m_readout);
 
-        // Call Init for generic algorithm
+        // This is another option for exposing the data members as JANA configuration parameters.
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:input_tag",        m_input_tag, "Name of input collection to use");
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:energyResolutions",u_eRes);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:timeResolution",   m_tRes);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:capacityADC",      m_capADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:dynamicRangeADC",  m_dyRangeADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:pedestalMean",     m_pedMeanADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:pedestalSigma",    m_pedSigmaADC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:resolutionTDC",    m_resolutionTDC);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:scaleResponse",    m_corrMeanScale);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:signalSumFields",  u_fields);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:fieldRefNumbers",  u_refs);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:geoServiceName",   m_geoSvcName);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:readoutClass",     m_readout);
+
         AlgorithmInit(m_log);
     }
 

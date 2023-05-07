@@ -22,12 +22,16 @@ jobs:
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Release
-          - CC: clang
-            CXX: clang++
-            CMAKE_BUILD_TYPE: Release
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Debug
+          - CC: clang
+            CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+          - CC: clang
+            CXX: clang++
+            CMAKE_BUILD_TYPE: Debug
+            CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -57,7 +61,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # install this repo
-          CC=${{ matrix.CC }} CXX=${{ matrix.CXX }} cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }}
+          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }}
           cmake --build build -- -j 2 install
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -94,7 +98,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Release
+        name: build-clang-eic-shell-Debug
         path: build/
     - uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request'}}
@@ -112,6 +116,49 @@ jobs:
       with:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
+
+  llvm-cov:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      statuses: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/download-artifact@v3
+      with:
+        name: build-clang-eic-shell-Debug
+        path: build/
+    - run: sudo apt-get install -y llvm-15 jq
+    - name: llvm-cov
+      run: |
+        cd build
+        COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+')
+        llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
+          -o src/tests/algorithms_test/algorithms_test.profdata
+        llvm-cov-15 report src/algorithms/calorimetry/algorithms_calorimetry.so \
+          -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
+          "${COV_OPTIONS[@]}"
+        llvm-cov-15 show src/algorithms/calorimetry/algorithms_calorimetry.so \
+          -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
+          -output-dir=codecov_report -format=html \
+          "${COV_OPTIONS[@]}"
+        COV_PERCENT=$(llvm-cov-15 export src/algorithms/calorimetry/algorithms_calorimetry.so \
+          -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
+          "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
+        curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
+          --header "Accept: application/vnd.github+json" \
+          --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          --header "X-GitHub-Api-Version: 2022-11-28" \
+          --data '{
+            "state": "success",
+            "context": "Code coverage (algorithms_calorimetry) - '$COV_PERCENT'%"
+            }' \
+          --fail-with-body
+    - uses: actions/upload-artifact@v3
+      with:
+        name: codecov_report
+        path: build/codecov_report/
 
   ddsim-gun:
     runs-on: ubuntu-latest
@@ -143,6 +190,38 @@ jobs:
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+        if-no-files-found: error
+
+  ddsim-gun-EcalLumiSpec:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        particle: [e]
+        detector_config: [ip6_extended]
+    steps:
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Get detector info
+      id: detector_info
+      run: |
+        grep epic/nightly /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl\:nightly/etc/jug_info | sed 's/.*: .*-\(.*\)/hash=\1/g' >> $GITHUB_OUTPUT
+    - name: Retrieve simulation files
+      id: retrieve_simulation_files
+      uses: actions/cache@v3
+      with:
+        path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
+        key: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root-${{ steps.detector_info.outputs.hash }}
+    - name: Produce simulation files
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "10*GeV" --gun.momentumMax "10*GeV" --gun.direction "(0, 0, -1)" --gun.position "(0.0, 150.0, -64000.0)" -N 100 --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error
 
   ddsim-dis:
@@ -255,6 +334,49 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
+        path: jana.dot
+        if-no-files-found: error
+
+  eicrecon-gcc-gun-EcalLumiSpec:
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    - ddsim-gun-EcalLumiSpec
+    strategy:
+      matrix:
+        particle: [e]
+        detector_config: [ip6_extended]
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: install-gcc-eic-shell-Release
+    - uses: actions/download-artifact@v3
+      with:
+        name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Run EICrecon
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          chmod a+x bin/*
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+    - uses: actions/upload-artifact@v3
+      with:
+        name: eicrecon_rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+        path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v3
+      with:
+        name: eicrecon_rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
         path: jana.dot
         if-no-files-found: error
 
