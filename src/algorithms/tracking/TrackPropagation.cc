@@ -51,11 +51,11 @@ namespace eicrecon {
 
 
 
-    std::vector<edm4eic::TrackPoint *>
+    std::vector<std::unique_ptr<edm4eic::TrackPoint>>
     TrackPropagation::propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // output collection
-        std::vector<edm4eic::TrackPoint *> track_points;
+        std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
         m_log->trace("Track propagation evnet process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
@@ -67,7 +67,7 @@ namespace eicrecon {
             if(!result) continue;
 
             // Add to output collection
-            track_points.push_back(result);
+            track_points.push_back(std::move(result));
         }
 
         return track_points;
@@ -99,7 +99,7 @@ namespace eicrecon {
         for(const auto& targetSurf : targetSurfaces) {
 
           // project the trajectory `traj` to this surface
-          edm4eic::TrackPoint *point;
+          std::unique_ptr<edm4eic::TrackPoint> point;
           try {
             point = propagate(traj, targetSurf);
           } catch(std::exception &e) {
@@ -142,7 +142,7 @@ namespace eicrecon {
 
 
 
-    edm4eic::TrackPoint *TrackPropagation::propagate(const eicrecon::TrackingResultTrajectory *traj,
+    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const eicrecon::TrackingResultTrajectory *traj,
                                                      const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
@@ -279,7 +279,7 @@ namespace eicrecon {
           float pathlength{}; ///< Pathlength from the origin to this point
           float pathlengthError{}; ///< Error on the pathlenght
          */
-        return new edm4eic::TrackPoint({
+        return std::make_unique<edm4eic::TrackPoint>(edm4eic::TrackPoint{
                                                position,
                                                positionError,
                                                momentum,
