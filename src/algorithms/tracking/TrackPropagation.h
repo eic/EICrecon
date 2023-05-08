@@ -39,11 +39,11 @@ namespace eicrecon {
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
         /** Propagates a single trajectory to a given surface */
-        edm4eic::TrackPoint * propagate(const eicrecon::TrackingResultTrajectory *, const std::shared_ptr<const Acts::Surface>& targetSurf);
+        std::unique_ptr<edm4eic::TrackPoint> propagate(const eicrecon::TrackingResultTrajectory *, const std::shared_ptr<const Acts::Surface>& targetSurf);
 
         /** Propagates a collection of trajectories to a given surface
          * @remark: being a simple wrapper of propagate(...) this method is more sutable for factories */
-        std::vector<edm4eic::TrackPoint *> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
+        std::vector<std::unique_ptr<edm4eic::TrackPoint>> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
                                                          const std::shared_ptr<const Acts::Surface> &targetSurf);
 
         /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`
