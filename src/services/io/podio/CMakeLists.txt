@@ -33,6 +33,7 @@ plugin_glob_all(${PLUGIN_NAME})
 add_custom_command(
         OUTPUT ${podio_BINARY_DIR}/datamodel_glue.h ${podio_BINARY_DIR}/datamodel_includes.h
         COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${podio_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
+        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
 # Add include directories (works same as target_include_directories)
