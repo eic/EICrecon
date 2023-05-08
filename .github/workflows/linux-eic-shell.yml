@@ -146,7 +146,7 @@ jobs:
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
         curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
           --header "Accept: application/vnd.github+json" \
           --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           --header "X-GitHub-Api-Version: 2022-11-28" \
