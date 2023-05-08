@@ -38,7 +38,7 @@ public:
         m_pedSigmaADC=14; // {this, "pedestalSigma", 3.2};
         m_thresholdFactor=3.0; // {this, "thresholdFactor", 3.0};
         // Calibration!
-        m_sampFrac=0.006;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.00619766;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:layerField",       m_layerField);
