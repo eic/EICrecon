@@ -36,7 +36,7 @@ public:
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.10;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.10200085;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
