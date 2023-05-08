@@ -45,7 +45,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -61,7 +60,6 @@ public:
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("ZDC:ZDCEcalRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:readoutClass",     m_readout);
 

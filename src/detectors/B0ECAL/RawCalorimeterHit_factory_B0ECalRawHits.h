@@ -45,7 +45,6 @@ public:
         m_resolutionTDC = 1e-11;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "";
         m_readout = "";
 
@@ -63,7 +62,6 @@ public:
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("B0ECAL:B0ECalRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("B0ECAL:B0ECalRawHits:readoutClass",     m_readout);
 

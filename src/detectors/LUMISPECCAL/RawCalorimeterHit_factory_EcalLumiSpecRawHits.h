@@ -45,7 +45,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
 
@@ -63,7 +62,6 @@ public:
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:readoutClass",     m_readout);
 
