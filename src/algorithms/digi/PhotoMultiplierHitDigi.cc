@@ -140,7 +140,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
             // cell time, signal amplitude
             double   amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-            TimeType time = m_cfg.noiseTimeWindow*m_rngUni();
+            TimeType time = m_cfg.noiseTimeWindow*m_rngUni() / dd4hep::ns;
             dd4hep::Position pos_hit_global = m_cellid_converter->position(id);
 
             // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
