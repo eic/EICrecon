@@ -4,7 +4,9 @@
 
 #pragma once
 
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/spdlog.h>
+
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <services/io/podio/JFactoryPodioT.h>
 #include <algorithms/digi/SmearedFarForwardParticles.h>
