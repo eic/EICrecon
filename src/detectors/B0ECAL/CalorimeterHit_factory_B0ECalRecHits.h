@@ -2,8 +2,9 @@
 #pragma once
 
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 
+#include <services/io/podio/JFactoryPodioT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
