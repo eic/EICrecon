@@ -287,7 +287,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          valgrind --tool=memcheck --track-origins=yes --leak-check=full --log-file=valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log --suppressions=/usr/local/etc/root/valgrind-root.supp $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pjana:timeout=0 -Pjana:warmup_timeout=0 -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
+          valgrind --tool=memcheck --track-origins=yes --leak-check=full --log-file=valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log --suppressions=/usr/local/etc/root/valgrind-root.supp $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pjana:nevents=10 -Pjana:timeout=0 -Pjana:warmup_timeout=0 -Pdump_flags:json=${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v3
       with:
         name: valgrind-memcheck-eicrecon-${{ matrix.particle }}-${{ matrix.detector_config }}.log
