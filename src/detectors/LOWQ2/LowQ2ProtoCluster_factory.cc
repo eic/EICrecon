@@ -101,6 +101,7 @@ namespace eicrecon {
     while(ROOT::VecOps::Any(avaliable)){
 
       auto pCluster = new eicrecon::TrackerProtoCluster();
+      pCluster->associatedHits = new std::vector<edm4eic::RawTrackerHit>;
       //eicrecon::TrackerProtoCluster pCluster;
       
       //Cluster seed
@@ -124,13 +125,12 @@ namespace eicrecon {
 	
 	indexList.erase(indexList.begin());
 
-	//	const edm4eic::RawTrackerHit* hit = inputhits[index];
 	pCluster->associatedHits->push_back(*inputhits[index]);
-
+	
       }
       //seedNumber++;
 
-      std::cout << pCluster->associatedHits->size() << std::endl;
+      //std::cout << pCluster->associatedHits->size() << std::endl;
 
       outputProtoClusters.push_back(pCluster);
 

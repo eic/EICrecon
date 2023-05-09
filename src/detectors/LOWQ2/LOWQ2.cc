@@ -52,9 +52,9 @@ extern "C" {
     // -------------------------------
     // To do - Clustering of hits.
     // -------------------------------
-    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerProtoClusters"},    "TaggerTrackerRawHit"       ));
+    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters"       ));
 
-    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerClusterPositions"}, "TaggerTrackerProtoClusters"));
+    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));
     
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig hit_reco_cfg;
