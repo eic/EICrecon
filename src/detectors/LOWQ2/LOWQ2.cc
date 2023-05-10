@@ -64,6 +64,8 @@ extern "C" {
     // Very basic reconstrution of a single track
     app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>());
     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>());
+//     app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerClusterPositions"),"LowQ2Tracks");
+//     app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>("LowQ2Tracks"),"LowQ2Particles");
     //    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");
 
 //     // Initial electron reconstruction

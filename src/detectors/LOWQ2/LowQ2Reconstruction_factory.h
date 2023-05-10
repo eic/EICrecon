@@ -1,4 +1,4 @@
-// Created by Alex Jentsch
+// Created by Simon Gardner
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
@@ -53,13 +53,16 @@ namespace eicrecon {
 		std::string m_input_tag  = "LowQ2Tracks";
 		std::string m_output_tag = "LowQ2Particles";
 
+    
+		TMVA::Reader*     reader;
 		TMVA::MethodBase* method;
 		float* yP;
 		float* zP;
 		float* xV;
 		float* yV;
 		TString methodName = "DNN_CPU";
-
+		TString weightfile = "/home/simon/EIC/EICrecon/src/detectors/LOWQ2/qr_10x100_DNN_CPU.weights.xml";
+    
     };
 
 } // eicrecon

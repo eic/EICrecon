@@ -23,7 +23,7 @@ namespace eicrecon {
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
     
     
-    TMVA::Reader *reader = new TMVA::Reader( "!Color:!Silent" );
+    reader = new TMVA::Reader( "!Color:!Silent" );
     
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
@@ -39,12 +39,8 @@ namespace eicrecon {
     reader->AddSpectator( "eE",     &eE );
     reader->AddSpectator( "logQ2",  &logQ2 );
     
-    TString weightfile = "/home/simon/EIC/EICrecon/src/detectors/LOWQ2/qr_10x100_DNN_CPU.weights.xml";
     reader->BookMVA( methodName, weightfile );
-    TMVA::MethodBase* kl = dynamic_cast<TMVA::MethodBase*>(reader->FindMVA(methodName));
-    
-    
-    
+    //method = dynamic_cast<TMVA::MethodBase*>(reader->FindMVA(methodName));
     
   }
   
@@ -71,7 +67,7 @@ namespace eicrecon {
       *zP = pos.b;
       *xV = sin(trackphi);
       *yV = cos(trackphi);
-      auto values = method->GetRegressionValues();
+      auto values = reader->EvaluateRegression(methodName);
 
       auto origintheta = values[1];
       auto originphi   = atan2(values[3],values[2]);
