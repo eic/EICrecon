@@ -6,7 +6,6 @@
 #include "LowQ2Cluster_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include "ROOT/RVec.hxx"
 
 namespace eicrecon {
@@ -17,13 +16,11 @@ namespace eicrecon {
     auto app = GetApplication();
     
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
-      
     
-    m_geoSvc = app->GetService<JDD4hep_service>();
+    m_geoSvc  = app->GetService<JDD4hep_service>();
+    m_cellid_converter = m_geoSvc->cellIDPositionConverter();
     
-    
-    
-    m_log->info("RP Decoding complete...");
+    m_log->info("LowQ2 Tagger Clustering Prep complete...");
     
   }
   
@@ -34,15 +31,13 @@ namespace eicrecon {
   
   void LowQ2Cluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
     
-    auto converter = m_geoSvc->cellIDPositionConverter();
     auto inputclusters = event->Get<eicrecon::TrackerProtoCluster>(m_input_tag);
     
-    std::vector<TrackerClusterPoint*> outputClusterPoints;
+    std::vector<TrackerClusterPoint*> outputClusterPoints(inputclusters.size());
 
+    int iclust = 0;
     for(const auto protoCl: inputclusters ){
-      
-      auto clusterPoint = new eicrecon::TrackerClusterPoint();
-      
+            
       float esum = 0;
       float t0   = 0;
       float tE   = 0;
@@ -60,7 +55,7 @@ namespace eicrecon {
 	  t0=hitT;
 	esum += hitE;
 
-	auto pos = converter->position(id);
+	auto pos = m_cellid_converter->position(id);
 	
 	position+=ROOT::Math::XYZVector(pos.x(),pos.y(),pos.z())*hitE;
 
@@ -68,16 +63,18 @@ namespace eicrecon {
 
       position/=esum;
 
+      auto clusterPoint = new eicrecon::TrackerClusterPoint();
+      //      auto clusterPoint = new eicrecon::TrackerClusterPoint(esum,t0,0,edm4hep::Vector3f(position.x(),position.y(),position.z()),edm4eic::CovDiag3f(),protoCl);
       clusterPoint->chargeSum = esum;
       clusterPoint->time      = t0;
       clusterPoint->position  = edm4hep::Vector3f(position.x(),position.y(),position.z());
 
       clusterPoint->pCluster = protoCl;
-      outputClusterPoints.push_back(clusterPoint);
+      outputClusterPoints[iclust++] = clusterPoint;
 
     }
         
-    Set(outputClusterPoints);
+    Set(std::move(outputClusterPoints));
     
   }
 

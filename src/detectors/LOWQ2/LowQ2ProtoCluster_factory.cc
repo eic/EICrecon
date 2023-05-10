@@ -6,7 +6,6 @@
 #include "LowQ2ProtoCluster_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include "ROOT/RVec.hxx"
 
 namespace eicrecon {
@@ -17,14 +16,7 @@ namespace eicrecon {
     auto app = GetApplication();
     
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
-    
-    m_readout     = "TaggerTrackerHits";
-    m_moduleField = "module";
-    m_layerField  = "layer";
-    m_xField      = "x";
-    m_yField      = "y";
-    
-    
+            
     m_geoSvc = app->GetService<JDD4hep_service>();
     
     if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
@@ -54,7 +46,7 @@ namespace eicrecon {
     }
     
     
-    m_log->info("RP Decoding complete...");
+    m_log->info("LowQ2 Tagger Decoding complete...");
     
   }
   
@@ -88,7 +80,6 @@ namespace eicrecon {
 
     // Set up clustering variables
     ROOT::VecOps::RVec<bool> avaliable(module.size(),1);
-    //ROOT::VecOps::RVec<int>  clusterNo(module.size(),0);
     ROOT::VecOps::RVec<int>  indeces  (module.size());
 
     std::vector<TrackerProtoCluster*> outputProtoClusters;
@@ -96,31 +87,30 @@ namespace eicrecon {
     for(ulong i = 0; i<indeces.size(); i++)
       indeces[i] = i;
    
-    //int seedNumber = 0;
-
+    // Loop while hits haven't been clustered
     while(ROOT::VecOps::Any(avaliable)){
 
       auto pCluster = new eicrecon::TrackerProtoCluster();
       pCluster->associatedHits = new std::vector<edm4eic::RawTrackerHit>;
-      //eicrecon::TrackerProtoCluster pCluster;
       
-      //Cluster seed
       auto maxIndex = ROOT::VecOps::ArgMax(e*avaliable);
 
       avaliable[maxIndex] = 0;
-      //clusterNo[maxIndex] = seedNumber;
 
       ROOT::VecOps::RVec<ulong> indexList = {maxIndex};
       
       pCluster->module = module[maxIndex];
       pCluster->layer  = layer[maxIndex];
 
+      // Filter to make sure everything is on the same detector layer
+      auto layerFilter = (module==module[maxIndex])*(layer==layer[maxIndex]);
+
+      // Loop over hits, adding neighbouring hits as relevant
       while(indexList.size()){
 	
 	auto index = indexList[0];
-	auto filter = avaliable*(module==module[index])*(layer==layer[index])*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
+	auto filter = avaliable*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
 	avaliable = avaliable*(!filter);
-	//clusterNo += filter*seedNumber;
 	indexList = Concatenate(indexList,indeces[filter]);
 	
 	indexList.erase(indexList.begin());
@@ -128,15 +118,12 @@ namespace eicrecon {
 	pCluster->associatedHits->push_back(*inputhits[index]);
 	
       }
-      //seedNumber++;
-
-      //std::cout << pCluster->associatedHits->size() << std::endl;
 
       outputProtoClusters.push_back(pCluster);
 
     }    
     
-    Set(outputProtoClusters);
+    Set(std::move(outputProtoClusters));
     
   }
 

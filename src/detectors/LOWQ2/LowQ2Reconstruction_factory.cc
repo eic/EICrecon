@@ -6,7 +6,6 @@
 #include "LowQ2Reconstruction_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
   
@@ -15,33 +14,24 @@ namespace eicrecon {
   
   void LowQ2Reconstruction_factory::Init() {
     
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-    std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
-    
     auto app = GetApplication();
     
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
     
-    
-    reader = new TMVA::Reader( "!Color:!Silent" );
-    
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
-    Float_t yP, zP, xV, yV;
-    
-    reader->AddVariable( "real_cut[0].fCoordinates.fY",    &yP     );
-    reader->AddVariable( "real_cut[0].fCoordinates.fZ",    &zP     );
-    reader->AddVariable( "real_vector[0].fCoordinates.fX", &xV     );
-    reader->AddVariable( "real_vector[0].fCoordinates.fY", &yV     );
+    m_reader.AddVariable ( "real_cut[0].fCoordinates.fY",    &m_yP    );
+    m_reader.AddVariable ( "real_cut[0].fCoordinates.fZ",    &m_zP    );
+    m_reader.AddVariable ( "real_vector[0].fCoordinates.fX", &m_xV    );
+    m_reader.AddVariable ( "real_vector[0].fCoordinates.fY", &m_yV    );
     
     // Spectator variables declared in the training have to be added to the reader, too
-    Float_t  eE, logQ2;
-    reader->AddSpectator( "eE",     &eE );
-    reader->AddSpectator( "logQ2",  &logQ2 );
+    m_reader.AddSpectator( "eE",                             &m_eE    );
+    m_reader.AddSpectator( "logQ2",                          &m_logQ2 );
     
-    reader->BookMVA( methodName, weightfile );
-    //method = dynamic_cast<TMVA::MethodBase*>(reader->FindMVA(methodName));
-    
+    m_reader.BookMVA( m_method_name, m_weight_file );
+    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA(m_method_name));
+
   }
   
   
@@ -53,42 +43,49 @@ namespace eicrecon {
   
   void LowQ2Reconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
     
-    
-    std::vector<edm4eic::ReconstructedParticle*> outputLowQ2Particles;
+  
     
     auto inputtracks =  event->Get<edm4eic::TrackParameters>(m_input_tag);
     
+    //    std::vector<std::unique_ptr<edm4eic::ReconstructedParticle>> outputLowQ2Particles(inputtracks.size());
+    std::vector<edm4eic::ReconstructedParticle*> outputLowQ2Particles(inputtracks.size());
+
+    // Reconstructed particle members which don't change
+    std::int32_t type   = 0; // Check?
+    std::int32_t PDG    = -11;
+    float        charge = -1;
+
+    // Reconstructed particle members which don't change yet
+    float             goodnessOfPID = 1;
+    edm4hep::Vector3f referencePoint(0,0,0);
+    edm4eic::Cov4f    covMatrix;
+    float             mass = m_electron;
+
+    uint ipart = 0;
     for(auto track: inputtracks){
 
       auto pos      = track->getLoc();
       auto trackphi = track->getPhi();
 
-      *yP = pos.a;
-      *zP = pos.b;
-      *xV = sin(trackphi);
-      *yV = cos(trackphi);
-      auto values = reader->EvaluateRegression(methodName);
+      m_yP = pos.a;
+      m_zP = pos.b;
+      m_xV = sin(trackphi);
+      m_yV = cos(trackphi);
+      auto values = m_method->GetRegressionValues();
 
       auto origintheta = values[1];
       auto originphi   = atan2(values[3],values[2]);
             
-      std::int32_t type;
       float energy = values[0];
       edm4hep::Vector3f momentum(values[3],values[2],cos(values[1]));
-      edm4hep::Vector3f referencePoint;
-      float charge = -1;
-      float mass;
-      float goodnessOfPID = 1;
-      edm4eic::Cov4f covMatrix;
-      std::int32_t PDG = 11;
       
       auto particle = new edm4eic::ReconstructedParticle(type,energy,momentum,referencePoint,charge,mass,goodnessOfPID,covMatrix,PDG);
       
-      outputLowQ2Particles.push_back(particle);
+      outputLowQ2Particles[ipart++] = particle;
       
     }
     
-    Set(outputLowQ2Particles);
+    Set(std::move(outputLowQ2Particles));
     
   }
   

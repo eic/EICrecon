@@ -5,12 +5,12 @@
 #include <JANA/JEvent.h>
 #include "LowQ2Tracking_factory.h"
 #include "LowQ2Cluster_factory.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
-#include "ROOT/RVec.hxx"
-#include "TDecompSVD.h"
-#include "TMatrixD.h"
+#include <services/log/Log_service.h>
+#include <extensions/spdlog/SpdlogExtensions.h>
+#include <extensions/string/StringHelpers.h>
+#include <ROOT/RVec.hxx>
+#include <TDecompSVD.h>
+#include <TMatrixD.h>
 
 
 namespace eicrecon {
@@ -24,13 +24,7 @@ namespace eicrecon {
 
 	m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-
-
-	m_geoSvc = app->GetService<JDD4hep_service>();
-
-
-
-	m_log->info("RP Decoding complete...");
+	m_log->info("LowQ2 Tracking Built...");
 
     }
 
@@ -43,8 +37,6 @@ namespace eicrecon {
 
 
 	std::vector<edm4eic::TrackParameters*> outputTracks;
-
-	auto converter = m_geoSvc->cellIDPositionConverter();
 
 	auto inputhits = event->Get<eicrecon::TrackerClusterPoint>(m_input_tag);
 
@@ -69,6 +61,12 @@ namespace eicrecon {
 	  TMatrixD md(3,1);
 	  double layerWeights[4] = {1,1,1,1};
 	  double meanWeight = 1;
+
+	  //temporary limits before Kalman filtering implemented
+	  if( moduleHits.second[0].size()>4 ) break;
+	  if( moduleHits.second[1].size()>4 ) break;
+	  if( moduleHits.second[2].size()>4 ) break;
+	  if( moduleHits.second[3].size()>4 ) break;
 
 	  for ( auto hit0c : moduleHits.second[0] ) {
 	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);

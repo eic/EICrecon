@@ -3,23 +3,12 @@
 //
 
 #pragma once
-
-#include <algorithm>
-#include <cmath>
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "DD4hep/Detector.h"
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
 #include <edm4eic/TrackerHit.h>
-#include <edm4hep/TrackerHit.h>
-#include <edm4eic/vector_utils.h>
-#include <edm4hep/SimTrackerHit.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -31,7 +20,6 @@ namespace eicrecon {
     int layer;
     int module;
     std::vector<edm4eic::RawTrackerHit>* associatedHits;
-    //    std::vector<std::shared_ptr<edm4eic::RawTrackerHit>> assoiateHits;
   };
   
   class LowQ2ProtoCluster_factory : public JChainFactoryT<eicrecon::TrackerProtoCluster, NoConfig, JFactoryT>{
@@ -52,29 +40,23 @@ namespace eicrecon {
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
       
-      //----- Define constants here ------
+      //----- Define constants here ------      
+      std::string m_readout{"TaggerTrackerHits"};
+      std::string m_moduleField{"module"};
+      std::string m_layerField{"layer"};
+      std::string m_xField{"x"};
+      std::string m_yField{"y"};
       
-      std::string m_readout     = "TaggerTrackerHits";
-      std::string m_moduleField = "module";
-      std::string m_layerField  = "layer";
-      std::string m_xField      = "x";
-      std::string m_yField      = "y";
-      
-      dd4hep::BitFieldCoder *id_dec = nullptr;
+      dd4hep::BitFieldCoder *id_dec{nullptr};
       size_t module_idx{0}, layer_idx{0}, x_idx{0}, y_idx{0};
       
       std::shared_ptr<JDD4hep_service> m_geoSvc;
-      std::vector<std::string> u_localDetFields;
-      
-      dd4hep::DetElement local;
-      size_t local_mask = ~0;
-      dd4hep::Detector *detector = nullptr;
       
       
   private:
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-	std::string m_input_tag  = "TaggerTrackerRawHit";
-	std::string m_output_tag = "TaggerTrackerProtoClusters";
+	std::string m_input_tag {"TaggerTrackerRawHit"};
+	std::string m_output_tag{"TaggerTrackerProtoClusters"};
 	
   };
 

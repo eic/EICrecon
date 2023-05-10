@@ -19,19 +19,6 @@
 #include <global/digi/SiliconTrackerDigi_factory.h>
 #include <global/tracking/TrackerHitReconstruction_factory.h>
 
-// #include <global/tracking/TrackerSourceLinker_factory.h>
-// #include <global/tracking/TrackParamTruthInit_factory.h>
-// #include <global/tracking/TrackingResult_factory.h>
-// #include <global/tracking/TrackerReconstructedParticle_factory.h>
-// #include <global/tracking/TrackParameters_factory.h>
-// #include <global/tracking/CKFTracking_factory.h>
-// #include <global/tracking/TrackSeeding_factory.h>
-// #include <global/tracking/TrackerHitCollector_factory.h>
-// #include <global/tracking/TrackParameters_factory.h>
-// #include <global/tracking/TrackProjector_factory.h>
-// #include <global/tracking/ParticlesWithTruthPID_factory.h>
-// #include <global/reco/ReconstructedParticles_factory.h>
-// #include <global/reco/ReconstructedParticleAssociations_factory.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
