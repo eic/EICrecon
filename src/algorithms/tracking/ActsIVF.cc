@@ -31,12 +31,6 @@
 #include <TDatabasePDG.h>
 #include <tuple>
 
-namespace
-{
-  //! convenience square method
-  template<class T>
-    inline constexpr T square( const T& x ) { return x*x; }
-}
 
 void eicrecon::ActsIVF::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log) {
 
