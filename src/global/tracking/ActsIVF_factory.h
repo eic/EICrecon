@@ -22,7 +22,7 @@ namespace eicrecon {
             public SpdlogMixin<ActsIVF_factory> {
 
     public:
-        ActsIVF_factory( std::vector<std::string> default_input_tags, IVFConfig cfg):
+        explicit ActsIVF_factory( std::vector<std::string> default_input_tags, IVFConfig cfg):
                 JChainFactoryT<edm4eic::Vertex, IVFConfig>(std::move(default_input_tags), cfg ) {
         }
 
