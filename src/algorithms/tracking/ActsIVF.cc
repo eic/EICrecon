@@ -24,6 +24,8 @@
 #include "Acts/Vertexing/ZScanVertexFinder.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 
+#include <edm4eic/Vertex.h>
+#include <edm4eic/Cov3f.h>
 
 #include <extensions/spdlog/SpdlogToActs.h>
 #include <extensions/spdlog/SpdlogFormatters.h>
@@ -110,6 +112,28 @@ std::vector<edm4eic::Vertex*> eicrecon::ActsIVF::produce(std::vector<const eicre
     {
       std::cout << "Found vertex at " << vtx.fullPosition().transpose() << " with "
 		<< vtx.tracks().size() << " tracks" << std::endl;
+
+      edm4eic::Cov3f cov(vtx.covariance()(0,0),
+			 vtx.covariance()(1,1),
+			 vtx.covariance()(2,2),
+			 vtx.covariance()(0,1),
+			 vtx.covariance()(0,2),
+			 vtx.covariance()(1,2));
+      
+      edm4eic::Vertex *eicvertex = new edm4eic::Vertex{
+	1, // boolean flag if vertex is primary vertex of event
+	(float)vtx.fitQuality().first, // chi2
+	(float)vtx.fitQuality().second, // ndf
+	{(float)vtx.position().x(), 
+	 (float)vtx.position().y(), 
+	 (float)vtx.position().z()}, // vtxposition
+        cov, // covariance
+	1, // algorithmtype
+	(float)vtx.time(), // time
+      };
+
+      outputVertices.push_back(eicvertex);
+            
     }
 
   return outputVertices;
