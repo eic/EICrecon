@@ -8,9 +8,7 @@
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
-  
-  
-  LowQ2Reconstruction_factory::LowQ2Reconstruction_factory(){ SetTag(m_output_tag); }
+   
   
   void LowQ2Reconstruction_factory::Init() {
     
@@ -43,8 +41,6 @@ namespace eicrecon {
   
   void LowQ2Reconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
     
-  
-    
     auto inputtracks =  event->Get<edm4eic::TrackParameters>(m_input_tag);
     
     //    std::vector<std::unique_ptr<edm4eic::ReconstructedParticle>> outputLowQ2Particles(inputtracks.size());
@@ -72,17 +68,14 @@ namespace eicrecon {
       m_xV = sin(trackphi);
       m_yV = cos(trackphi);
       auto values = m_method->GetRegressionValues();
-
-      auto origintheta = values[1];
-      auto originphi   = atan2(values[3],values[2]);
-            
-      float energy = values[0];
-      edm4hep::Vector3f momentum(values[3],values[2],cos(values[1]));
+      
+      float energy = values[LowQ2NNIndex::Energy];
+      edm4hep::Vector3f momentum(values[LowQ2NNIndex::X],values[LowQ2NNIndex::Y],cos(values[LowQ2NNIndex::Theta]));
       
       auto particle = new edm4eic::ReconstructedParticle(type,energy,momentum,referencePoint,charge,mass,goodnessOfPID,covMatrix,PDG);
       
       outputLowQ2Particles[ipart++] = particle;
-      
+    
     }
     
     Set(std::move(outputLowQ2Particles));

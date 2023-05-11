@@ -21,9 +21,8 @@ namespace eicrecon {
     
     if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
     
-    auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
     try {
-      id_dec = id_spec.decoder();
+      id_dec = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
       if (!m_moduleField.empty()) {
 	module_idx = id_dec->index(m_moduleField);
 	m_log->info("Find module field {}, index = {}", m_moduleField, module_idx);
@@ -57,7 +56,6 @@ namespace eicrecon {
   
   void LowQ2ProtoCluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
     
-    auto converter = m_geoSvc->cellIDPositionConverter();
     auto inputhits = event->Get<edm4eic::RawTrackerHit>(m_input_tag);
         
     ROOT::VecOps::RVec<int>   module;

@@ -49,13 +49,11 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 	std::shared_ptr<JDD4hep_service> m_geoSvc;
-	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
-
 
 	private:
-		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-		  std::string m_input_tag{"TaggerTrackerProtoClusters"};
-		  std::string m_output_tag{"TaggerTrackerClusterPositions"};
+	  std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+	  std::string m_input_tag{"TaggerTrackerProtoClusters"};
+	  std::string m_output_tag{"TaggerTrackerClusterPositions"};
 
     };
 

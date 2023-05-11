@@ -16,8 +16,6 @@
 namespace eicrecon {
 
 
-    LowQ2Tracking_factory::LowQ2Tracking_factory(){ SetTag(m_output_tag); }
-
     void LowQ2Tracking_factory::Init() {
 
 	auto app = GetApplication();
@@ -117,7 +115,8 @@ namespace eicrecon {
 		  auto subAsArray  = subMat.GetMatrixArray();
 		  ROOT::VecOps::RVec<double> subAsVector(subAsArray,subAsArray+8);
 		  double outChi2 = Sum(subAsVector*subAsVector)/8;
-		  
+
+		  if(outChi2>0.0001) continue; // Optimise later or add as config
 		  
 		  // 	      lf->AssignData(maxLayer, 2, &v[0], &z[0]);  
 		  // 	      lf->Eval();

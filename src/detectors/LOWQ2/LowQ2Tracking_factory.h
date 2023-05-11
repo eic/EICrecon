@@ -14,9 +14,13 @@
 
 namespace eicrecon {
 
-    class LowQ2Tracking_factory : public eicrecon::JFactoryPodioT<edm4eic::TrackParameters>{
+    class LowQ2Tracking_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
 
     public:
+
+        LowQ2Tracking_factory( std::vector<std::string> default_input_tags):
+                JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
+        }
     
         LowQ2Tracking_factory(); //constructer
 

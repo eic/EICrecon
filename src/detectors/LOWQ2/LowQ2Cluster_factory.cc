@@ -18,7 +18,6 @@ namespace eicrecon {
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
     
     m_geoSvc  = app->GetService<JDD4hep_service>();
-    m_cellid_converter = m_geoSvc->cellIDPositionConverter();
     
     m_log->info("LowQ2 Tagger Clustering Prep complete...");
     
@@ -32,6 +31,7 @@ namespace eicrecon {
   void LowQ2Cluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
     
     auto inputclusters = event->Get<eicrecon::TrackerProtoCluster>(m_input_tag);
+    auto cellid_converter = m_geoSvc->cellIDPositionConverter();
     
     std::vector<TrackerClusterPoint*> outputClusterPoints(inputclusters.size());
 
@@ -55,7 +55,7 @@ namespace eicrecon {
 	  t0=hitT;
 	esum += hitE;
 
-	auto pos = m_cellid_converter->position(id);
+	auto pos = cellid_converter->position(id);
 	
 	position+=ROOT::Math::XYZVector(pos.x(),pos.y(),pos.z())*hitE;
 
@@ -64,7 +64,6 @@ namespace eicrecon {
       position/=esum;
 
       auto clusterPoint = new eicrecon::TrackerClusterPoint();
-      //      auto clusterPoint = new eicrecon::TrackerClusterPoint(esum,t0,0,edm4hep::Vector3f(position.x(),position.y(),position.z()),edm4eic::CovDiag3f(),protoCl);
       clusterPoint->chargeSum = esum;
       clusterPoint->time      = t0;
       clusterPoint->position  = edm4hep::Vector3f(position.x(),position.y(),position.z());

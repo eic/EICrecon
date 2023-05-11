@@ -75,6 +75,7 @@ private:
             "HCAL",
             "MPGD",
             "RPOTS",
+            "LOWQ2",
             "ZDC",
             "Tracking",
             "Reco",
