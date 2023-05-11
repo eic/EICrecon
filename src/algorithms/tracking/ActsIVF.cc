@@ -59,14 +59,14 @@ std::vector<edm4eic::Vertex*> eicrecon::ActsIVF::produce(std::vector<const eicre
   using VertexFinderOptions =
       Acts::VertexingOptions<Acts::BoundTrackParameters>;
 
-Acts::EigenStepper<> stepper(m_BField);
-auto propagator = std::make_shared<Propagator>(stepper);
-    auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+  Acts::EigenStepper<> stepper(m_BField);
+  auto propagator = std::make_shared<Propagator>(stepper);
+  auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
-Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
+  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
 
-// Setup the vertex fitter
+  // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
   VertexFitter vertexFitter(vertexFitterCfg);
   // Setup the track linearizer
@@ -92,6 +92,7 @@ Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()}
     {
       auto tips = trajectory->tips();
       if(tips.empty()) { continue; }
+      /// CKF can provide multiple track trajectories for a single input seed
       for(auto& tip : tips)
 	{
 	  inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));

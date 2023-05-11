@@ -11,6 +11,8 @@
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <extensions/jana/JChainFactoryT.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/Vertex.h>
+#include <edm4eic/VertexCollection.h>
 
 
 namespace eicrecon {
