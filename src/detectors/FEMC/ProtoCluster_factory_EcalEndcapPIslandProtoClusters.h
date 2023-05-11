@@ -49,7 +49,7 @@ public:
         m_minClusterHitEdep=0.0 * dd4hep::MeV;
         m_minClusterCenterEdep=10.0 * dd4hep::MeV;
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";
-        u_transverseEnergyProfileScale = 1.;
+        u_transverseEnergyProfileScale = 0.04;
 
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
