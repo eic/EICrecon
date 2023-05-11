@@ -60,7 +60,7 @@ public:
         m_minClusterHitEdep=1.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";
-        u_transverseEnergyProfileScale = 0.09;
+        u_transverseEnergyProfileScale = 0.06;
 
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:geoServiceName", m_geoSvcName);
