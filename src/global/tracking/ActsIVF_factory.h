@@ -8,37 +8,32 @@
 
 #include <algorithms/tracking/ActsIVF.h>
 
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainFactoryT.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/VertexCollection.h>
-
+#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
 
 namespace eicrecon {
 
-    class ActsIVF_factory :
-            public JChainFactoryT<edm4eic::Vertex, IVFConfig>,
-            public SpdlogMixin<ActsIVF_factory> {
+class ActsIVF_factory : public JChainFactoryT<edm4eic::Vertex, IVFConfig>,
+                        public SpdlogMixin<ActsIVF_factory> {
 
-    public:
-        explicit ActsIVF_factory( std::vector<std::string> default_input_tags, IVFConfig cfg):
-                JChainFactoryT<edm4eic::Vertex, IVFConfig>(std::move(default_input_tags), cfg ) {
-        }
+public:
+  explicit ActsIVF_factory(std::vector<std::string> default_input_tags, IVFConfig cfg)
+      : JChainFactoryT<edm4eic::Vertex, IVFConfig>(std::move(default_input_tags), cfg) {}
 
-        /** One time initialization **/
-        void Init() override;
+  /** One time initialization **/
+  void Init() override;
 
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+  /** On run change preparations **/
+  void ChangeRun(const std::shared_ptr<const JEvent>& event) override;
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+  /** Event by event processing **/
+  void Process(const std::shared_ptr<const JEvent>& event) override;
 
-    private:
+private:
+  eicrecon::ActsIVF m_vertexing_algo; /// Proxy tracking algorithm
+};
 
-        eicrecon::ActsIVF m_vertexing_algo;                      /// Proxy tracking algorithm
-
-    };
-
-} // eicrecon
+} // namespace eicrecon
