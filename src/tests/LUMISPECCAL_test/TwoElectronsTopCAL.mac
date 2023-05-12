@@ -1,0 +1,25 @@
+# source 1
+/gps/source/add 1.
+/gps/particle e-
+# starting position
+/gps/pos/type Point
+/gps/pos/centre 0 110 -64000 mm
+# direction
+/gps/direction 0 0 -1
+# energy distribution
+/gps/ene/type Mono
+/gps/ene/mono 10 GeV
+
+# source 2
+/gps/source/add 1.
+/gps/particle e-
+# starting postion
+/gps/pos/type Point
+/gps/pos/centre 0 180 -64000 mm
+# direction
+/gps/direction 0 0 -1
+# energy distribution
+/gps/ene/type Mono
+/gps/ene/mono 10 GeV
+
+/run/beamOn 100
