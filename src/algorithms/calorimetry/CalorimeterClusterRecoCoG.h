@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong
 
@@ -13,62 +12,52 @@
 
 #include <random>
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/Cluster.h>
-
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
-#include <edm4eic/MutableMCRecoClusterParticleAssociation.h>
-#include <edm4eic/MutableCluster.h>
+#include <DD4hep/Detector.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <map>
 #include <spdlog/spdlog.h>
 
-
+#include <algorithms/interfaces/WithPodConfig.h>
+#include "CalorimeterClusterRecoCoGConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
-    static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }
-    static double logWeight(double E, double tE, double base, int /*type*/) {
-      return std::max(0., base + std::log(E / tE));
-    }
+static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }
+static double logWeight(double E, double tE, double base, int /*type*/) {
+    return std::max(0., base + std::log(E / tE));
+}
 
-    static const std::map<std::string, std::function<double(double, double, double, int)>> weightMethods={
+static const std::map<std::string, std::function<double(double, double, double, int)>> weightMethods={
       {"none", constWeight},
       {"linear", linearWeight},
       {"log", logWeight},
-    };
+};
 
-class CalorimeterClusterRecoCoG {
+namespace eicrecon {
 
-    // Insert any member variables here
+  using ClustersWithAssociations = std::pair<
+    std::unique_ptr<edm4eic::ClusterCollection>,
+    std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>
+  >;
 
-public:
-    CalorimeterClusterRecoCoG() = default;
-    ~CalorimeterClusterRecoCoG(){} // better to use smart pointer?
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun() ;
-    virtual void AlgorithmProcess() ;
+  class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
-    //-------- Configuration Parameters ------------
-    //instantiate new spdlog logger
+  public:
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+
+    ClustersWithAssociations process(
+            const edm4eic::ProtoClusterCollection* proto,
+            const edm4hep::SimCalorimeterHitCollection* mchits);
+
+  private:
+    const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
-
 
     std::string m_input_simhit_tag;
     std::string m_input_protoclust_tag;
-
-    double m_sampFrac         = 1.;//{this, "samplingFraction", 1.0};
-    double m_logWeightBase = 3.6;
-    double m_depthCorrection  = 0.;//{this, "depthCorrection", 0.0};
-    std::string m_energyWeight;//{this, "energyWeight", "log"};
-    std::string m_moduleDimZName;//{this, "moduleDimZName", ""};
-    // Constrain the cluster position eta to be within
-    // the eta of the contributing hits. This is useful to avoid edge effects
-    // for endcaps.
-    bool m_enableEtaBounds    = false;//{this, "enableEtaBounds", false};
-
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
 
     std::function<double(double, double, double, int)> weightFunc;
 
@@ -83,8 +72,10 @@ public:
     std::vector<edm4eic::Cluster*> m_outputClusters;
     std::vector<edm4eic::MCRecoClusterParticleAssociation*> m_outputAssociations;
 
-private:
+  private:
 
-    edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster* pcl) const;
+    edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster& pcl) const;
 
-};
+  };
+
+} // eicrecon
