@@ -84,9 +84,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>(
-             "HcalEndcapPTruthClustersWithAssociations",
+             "HcalEndcapPTruthClusters",
             {"HcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "HcalEndcapPRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "HcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -103,9 +103,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPClusters>(
-             "HcalEndcapPClustersWithAssociations",
+             "HcalEndcapPClusters",
             {"HcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "HcalEndcapPRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "HcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPClusters",             // edm4eic::Cluster
              "HcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -128,9 +128,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>(
-             "HcalEndcapPInsertTruthClustersWithAssociations",
+             "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "HcalEndcapPInsertRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -147,9 +147,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPInsertClusters>(
-             "HcalEndcapPInsertClustersWithAssociations",
+             "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "HcalEndcapPInsertRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -171,9 +171,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_LFHCALTruthClusters>(
-             "LFHCALTruthClustersWithAssociations",
+             "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "LFHCALRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"LFHCALTruthClusters",             // edm4eic::Cluster
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -190,9 +190,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_LFHCALClusters>(
-             "LFHCALClustersWithAssociations",
+             "LFHCALClusters",
             {"LFHCALIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "LFHCALRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "LFHCALHits"},                // edm4hep::SimCalorimeterHitCollection
             {"LFHCALClusters",             // edm4eic::Cluster
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

@@ -61,9 +61,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPTruthClusters>(
-             "EcalEndcapPTruthClustersWithAssociations",
+             "EcalEndcapPTruthClusters",
             {"EcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalEndcapPRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "EcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"EcalEndcapPTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -80,9 +80,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPClusters>(
-             "EcalEndcapPClustersWithAssociations",
+             "EcalEndcapPClusters",
             {"EcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "EcalEndcapPRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "EcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalEndcapPClusters",             // edm4eic::Cluster
              "EcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -104,9 +104,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPInsertTruthClusters>(
-             "EcalEndcapPInsertTruthClustersWithAssociations",
+             "EcalEndcapPInsertTruthClusters",
             {"EcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalEndcapPInsertRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "EcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"EcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -123,9 +123,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPInsertClusters>(
-             "EcalEndcapPInsertClustersWithAssociations",
+             "EcalEndcapPInsertClusters",
             {"EcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "EcalEndcapPInsertRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "EcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalEndcapPInsertClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

@@ -42,7 +42,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalLumiSpecClusters>(
-             "EcalLumiSpecClustersWithAssociations",
+             "EcalLumiSpecClusters",
             {"EcalLumiSpecIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "EcalLumiSpecHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalLumiSpecClusters",             // edm4eic::Cluster
@@ -61,7 +61,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalLumiSpecTruthClusters>(
-             "EcalLumiSpecTruthClustersWithAssociations",
+             "EcalLumiSpecTruthClusters",
             {"EcalLumiSpecTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalLumiSpecHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"EcalLumiSpecTruthClusters",             // edm4eic::Cluster

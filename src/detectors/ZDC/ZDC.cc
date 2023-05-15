@@ -43,9 +43,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_ZDCEcalTruthClusters>(
-             "ZDCEcalTruthClustersWithAssociations",
+             "ZDCEcalTruthClusters",
             {"ZDCEcalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "ZDCEcalRawHits"},                  // edm4hep::SimCalorimeterHitCollection
+             "ZDCEcalHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"ZDCEcalTruthClusters",             // edm4eic::Cluster
              "ZDCEcalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -62,9 +62,9 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_ZDCEcalClusters>(
-             "ZDCEcalClustersWithAssociations",
+             "ZDCEcalClusters",
             {"ZDCEcalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "ZDCEcalRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "ZDCEcalHits"},                // edm4hep::SimCalorimeterHitCollection
             {"ZDCEcalClusters",             // edm4eic::Cluster
              "ZDCEcalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

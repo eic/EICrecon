@@ -61,9 +61,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>());
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassClusters>(
-             "EcalBarrelSciGlassClustersWithAssociations",
+             "EcalBarrelSciGlassClusters",
             {"EcalBarrelSciGlassProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "EcalBarrelSciGlassHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalBarrelSciGlassClusters",             // edm4eic::Cluster
              "EcalBarrelSciGlassClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -84,9 +84,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>());
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>(
-             "EcalBarrelScFiClustersWithAssociations",
+             "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelScFiRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalBarrelScFiClusters",             // edm4eic::Cluster
              "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {
@@ -115,9 +115,9 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>());
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(
-             "EcalBarrelSciGlassTruthClustersWithAssociations",
+             "EcalBarrelSciGlassTruthClusters",
             {"EcalBarrelSciGlassTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassTruthRawHits"},             // edm4hep::SimCalorimeterHitCollection
+             "EcalBarrelSciGlassHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"EcalBarrelSciGlassTruthClusters",             // edm4eic::Cluster
              "EcalBarrelSciGlassTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {

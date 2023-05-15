@@ -43,7 +43,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelClusters>(
-             "HcalBarrelClustersWithAssociations",
+             "HcalBarrelClusters",
             {"HcalBarrelIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalBarrelClusters",             // edm4eic::Cluster
@@ -62,7 +62,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelTruthClusters>(
-             "HcalBarrelTruthClustersWithAssociations",
+             "HcalBarrelTruthClusters",
             {"HcalBarrelTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"HcalBarrelTruthClusters",             // edm4eic::Cluster
