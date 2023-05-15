@@ -1,5 +1,4 @@
 # source 1
-/gps/source/add 1.
 /gps/particle e-
 # starting position
 /gps/pos/type Point
@@ -9,9 +8,9 @@
 # energy distribution
 /gps/ene/type Mono
 /gps/ene/mono 10 GeV
-
-# source 2
-/gps/source/add 1.
+#
+## source 2
+/gps/source/add 1
 /gps/particle e-
 # starting postion
 /gps/pos/type Point
@@ -21,5 +20,8 @@
 # energy distribution
 /gps/ene/type Mono
 /gps/ene/mono 10 GeV
-
+#
+/gps/source/multiplevertex true
+/gps/verbose 2
+#
 /run/beamOn 100
