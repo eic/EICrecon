@@ -50,13 +50,17 @@ class CalorimeterClusterRecoCoG_factoryT :
         SpdlogMixin<T>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
         m_algo.init(m_detector, logger());
 
-        app->SetDefaultParameter(param_prefix + ":samplingFraction", m_default_cfg.sampFrac);
-        app->SetDefaultParameter(param_prefix + ":logWeightBase", m_default_cfg.logWeightBase);
-        app->SetDefaultParameter(param_prefix + ":depthCorrection", m_default_cfg.depthCorrection);
-        app->SetDefaultParameter(param_prefix + ":energyWeight", m_default_cfg.energyWeight);
-        app->SetDefaultParameter(param_prefix + ":moduleDimZName", m_default_cfg.moduleDimZName);
-        app->SetDefaultParameter(param_prefix + ":enableEtaBounds", m_default_cfg.enableEtaBounds);
+        // Algorithm configuration
+        auto cfg = GetDefaultConfig();
 
+        app->SetDefaultParameter(param_prefix + ":samplingFraction", cfg.sampFrac);
+        app->SetDefaultParameter(param_prefix + ":logWeightBase", cfg.logWeightBase);
+        app->SetDefaultParameter(param_prefix + ":depthCorrection", cfg.depthCorrection);
+        app->SetDefaultParameter(param_prefix + ":energyWeight", cfg.energyWeight);
+        app->SetDefaultParameter(param_prefix + ":moduleDimZName", cfg.moduleDimZName);
+        app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
+
+        m_algo.applyConfig(cfg);
     }
 
     //------------------------------------------
