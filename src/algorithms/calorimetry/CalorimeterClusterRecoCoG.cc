@@ -58,7 +58,7 @@ namespace eicrecon {
       // skip null clusters
       if (cl == nullptr) continue;
 
-      m_log->info("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
+      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
       clusters->push_back(*cl);
 
       // If mcHits are available, associate cluster with MCParticle
@@ -118,10 +118,10 @@ namespace eicrecon {
         // 3. find mchit's MCParticle
         const auto& mcp = mchit->getContributions(0).getParticle();
 
-        m_log->info("cluster has largest energy in cellID: {}", pclhit->getCellID());
-        m_log->info("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
-        m_log->info("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
-        m_log->info("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
+        m_log->debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
+        m_log->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
+        m_log->debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
+        m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
 
         // set association
         edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
@@ -137,7 +137,7 @@ namespace eicrecon {
         m_outputAssociations.push_back(cassoc);
         delete clusterassoc;
       } else {
-        m_log->info("No mcHitCollection was provided, so no truth association will be performed.");
+        m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
     }
 
@@ -149,7 +149,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 
-  m_log->info("hit size = {}", pcl.hits_size());
+  m_log->debug("hit size = {}", pcl.hits_size());
 
   // no hits
   if (pcl.hits_size() == 0) {
@@ -167,7 +167,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
-    m_log->info("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
+    m_log->debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
     auto energy = hit.getEnergy() * weight;
     totalE += energy;
     if (energy > maxE) {
@@ -212,7 +212,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
       const double newR     = edm4eic::magnitude(cl.getPosition());
       const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
       cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
-      m_log->info("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
+      m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
     }
   }
 
