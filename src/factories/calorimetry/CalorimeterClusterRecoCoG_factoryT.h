@@ -48,7 +48,6 @@ class CalorimeterClusterRecoCoG_factoryT :
 
         // SpdlogMixin logger initialization, sets m_log
         SpdlogMixin<T>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
-        m_algo.init(m_detector, logger());
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();
@@ -61,6 +60,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
 
         m_algo.applyConfig(cfg);
+        m_algo.init(m_detector, logger());
     }
 
     //------------------------------------------
