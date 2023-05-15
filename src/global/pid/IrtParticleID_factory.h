@@ -17,6 +17,7 @@
 // data model
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/ParticleID.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 // services
 #include <services/geometry/richgeo/RichGeo_service.h>
