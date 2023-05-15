@@ -3,6 +3,8 @@
 //
 
 #include <JANA/JEvent.h>
+#include <edm4eic/TrackerHit.h>
+
 #include "LowQ2Cluster_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"

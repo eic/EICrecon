@@ -9,6 +9,7 @@
 
 // Event Model related classes
 #include <edm4eic/TrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>

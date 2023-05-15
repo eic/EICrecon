@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
+#include <edm4eic/TrackParametersCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>

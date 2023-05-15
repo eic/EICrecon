@@ -3,6 +3,11 @@
 //
 
 #include <JANA/JEvent.h>
+#include <edm4hep/Vector2f.h>
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4eic/TrackParametersCollection.h>
+
 #include "LowQ2Tracking_factory.h"
 #include "LowQ2Cluster_factory.h"
 #include <services/log/Log_service.h>
@@ -61,10 +66,10 @@ namespace eicrecon {
 	  double meanWeight = 1;
 
 	  //temporary limits before Kalman filtering implemented
-	  if( moduleHits.second[0].size()>4 ) break;
-	  if( moduleHits.second[1].size()>4 ) break;
-	  if( moduleHits.second[2].size()>4 ) break;
-	  if( moduleHits.second[3].size()>4 ) break;
+	  if( moduleHits.second[0].size()>2 ) break;
+	  if( moduleHits.second[1].size()>2 ) break;
+	  if( moduleHits.second[2].size()>2 ) break;
+	  if( moduleHits.second[3].size()>2 ) break;
 
 	  for ( auto hit0c : moduleHits.second[0] ) {
 	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);
@@ -140,7 +145,7 @@ namespace eicrecon {
 
 		  int type = 0;
 		  // Plane Point
-		  edm4hep::Vector2f loc(exitPos.y(),exitPos.z());
+		  edm4hep::Vector2f loc(exitPos.y()*10,exitPos.z()*10); //Temp unit transform
 		  // Point Error
 		  edm4eic::Cov2f locError;
 		  float theta = outVec.Unit().Theta();

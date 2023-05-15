@@ -7,17 +7,19 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
+#include <Evaluator/DD4hepUnits.h>
 
 namespace eicrecon {
 
-  enum LowQ2NNIndex{Energy,Theta,X,Y};
+  //  enum LowQ2NNIndex{Energy,Theta,X,Y};
+  enum LowQ2NNIndex{MomX,MomY,MomZ};
 
   class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
     
@@ -48,12 +50,13 @@ namespace eicrecon {
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
       
+      float beamE = 18*dd4hep::GeV; //Change when this is included in metadata/other location
       float m_yP{0};
       float m_zP{0};
       float m_xV{0};
       float m_yV{0};
-      float m_eE{0};
-      float m_logQ2{0};
+/*       float m_eE{0}; */
+/*       float m_logQ2{0}; */
       
       float m_electron{0.000510998928}; // Link to constant elsewhere?
       
