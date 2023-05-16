@@ -16,6 +16,10 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
+#include <common/unit_system.h>
+
+namespace unit = eicrecon::unit;
+
 
 
 class RawCalorimeterHit_factory_EcalBarrelScFiRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {

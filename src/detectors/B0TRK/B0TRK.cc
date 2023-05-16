@@ -15,6 +15,10 @@
 #include <algorithms/digi/SiliconTrackerDigiConfig.h>
 #include <algorithms/tracking/TrackerHitReconstructionConfig.h>
 
+#include <common/unit_system.h>
+
+namespace unit = eicrecon::unit;
+
 
 extern "C" {
 void InitPlugin(JApplication *app) {

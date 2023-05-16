@@ -9,6 +9,10 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
+#include <common/unit_system.h>
+
+namespace unit = eicrecon::unit;
+
 class CalorimeterHit_factory_B0ECalRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
