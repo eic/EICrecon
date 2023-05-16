@@ -1,9 +1,5 @@
 #pragma once
 
-#include <TH1F.h>
-#include <TH3F.h>
-#include <TH2F.h>
-
 #include <JANA/JEventProcessor.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 
