@@ -71,6 +71,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // Reconstructed data
             "GeneratedParticles",
             "ReconstructedParticles",
+            "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
             "ReconstructedChargedParticlesWithDRICHPID", // FIXME: overlaps with `ReconstructedChargedParticles`
