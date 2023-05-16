@@ -223,7 +223,6 @@ macro(plugin_add_event_model _name)
 
     if(NOT EDM4EIC_FOUND)
         find_package(EDM4EIC REQUIRED)
-        set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
     endif()
 
     # Add include directories

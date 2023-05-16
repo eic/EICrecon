@@ -16,7 +16,6 @@ if(NOT DD4hep_FOUND)
     find_package(DD4hep REQUIRED)
 endif()
 
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 set(INCLUDE_DIRS ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EDM4EIC_INCLUDE_DIR} ${fmt_INCLUDE_DIR})
 
