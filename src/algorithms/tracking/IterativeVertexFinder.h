@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ActsGeometryProvider.h"
-#include "IVFConfig.h"
+#include "IterativeVertexFinderConfig.h"
 #include <functional>
 #include <random>
 #include <stdexcept>
@@ -28,7 +28,8 @@
 #include <edm4hep/MCParticle.h>
 
 namespace eicrecon {
-class ActsIVF : public eicrecon::WithPodConfig<eicrecon::IVFConfig> {
+class IterativeVertexFinder
+    : public eicrecon::WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
@@ -42,6 +43,6 @@ private:
   std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::MagneticFieldContext m_fieldctx;
-  IVFConfig m_cfg;
+  IterativeVertexFinderConfig m_cfg;
 };
 } // namespace eicrecon

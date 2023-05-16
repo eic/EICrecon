@@ -5,14 +5,14 @@
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
 
-#include "ActsIVF_factory.h"
+#include "IterativeVertexFinder_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
-void eicrecon::ActsIVF_factory::Init() {
+void eicrecon::IterativeVertexFinder_factory::Init() {
   auto app = GetApplication();
 
   // This prefix will be used for parameters
@@ -43,11 +43,12 @@ void eicrecon::ActsIVF_factory::Init() {
   m_vertexing_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
-void eicrecon::ActsIVF_factory::ChangeRun(const std::shared_ptr<const JEvent>& event) {
+void eicrecon::IterativeVertexFinder_factory::ChangeRun(
+    const std::shared_ptr<const JEvent>& event) {
   JFactoryT::ChangeRun(event);
 }
 
-void eicrecon::ActsIVF_factory::Process(const std::shared_ptr<const JEvent>& event) {
+void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<const JEvent>& event) {
 
   std::string input_tag = GetInputTags()[0];
   auto trajectories     = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);

@@ -6,7 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/ActsIVF.h>
+#include <algorithms/tracking/IterativeVertexFinder.h>
 
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Vertex.h>
@@ -16,12 +16,15 @@
 
 namespace eicrecon {
 
-class ActsIVF_factory : public JChainFactoryT<edm4eic::Vertex, IVFConfig>,
-                        public SpdlogMixin<ActsIVF_factory> {
+class IterativeVertexFinder_factory
+    : public JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>,
+      public SpdlogMixin<IterativeVertexFinder_factory> {
 
 public:
-  explicit ActsIVF_factory(std::vector<std::string> default_input_tags, IVFConfig cfg)
-      : JChainFactoryT<edm4eic::Vertex, IVFConfig>(std::move(default_input_tags), cfg) {}
+  explicit IterativeVertexFinder_factory(std::vector<std::string> default_input_tags,
+                                         IterativeVertexFinderConfig cfg)
+      : JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>(std::move(default_input_tags),
+                                                                     cfg) {}
 
   /** One time initialization **/
   void Init() override;
@@ -33,7 +36,7 @@ public:
   void Process(const std::shared_ptr<const JEvent>& event) override;
 
 private:
-  eicrecon::ActsIVF m_vertexing_algo; /// Proxy tracking algorithm
+  eicrecon::IterativeVertexFinder m_vertexing_algo; /// Proxy vertexing algorithm
 };
 
 } // namespace eicrecon

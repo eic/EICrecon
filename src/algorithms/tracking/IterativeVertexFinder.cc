@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "ActsIVF.h"
+#include "IterativeVertexFinder.h"
 
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Definitions/Units.hpp"
@@ -32,8 +32,8 @@
 #include <TDatabasePDG.h>
 #include <tuple>
 
-void eicrecon::ActsIVF::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                             std::shared_ptr<spdlog::logger> log) {
+void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                                           std::shared_ptr<spdlog::logger> log) {
 
   m_log = log;
 
@@ -44,8 +44,8 @@ void eicrecon::ActsIVF::init(std::shared_ptr<const ActsGeometryProvider> geo_svc
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::vector<edm4eic::Vertex*>
-eicrecon::ActsIVF::produce(std::vector<const eicrecon::TrackingResultTrajectory*> trajectories) {
+std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
+    std::vector<const eicrecon::TrackingResultTrajectory*> trajectories) {
 
   std::vector<edm4eic::Vertex*> outputVertices;
 

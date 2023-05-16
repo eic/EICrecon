@@ -5,7 +5,7 @@
 
 namespace eicrecon {
 
-struct IVFConfig {
+struct IterativeVertexFinderConfig {
   int m_maxVertices                  = 10;
   bool m_reassignTracksAfterFirstFit = true;
 };
