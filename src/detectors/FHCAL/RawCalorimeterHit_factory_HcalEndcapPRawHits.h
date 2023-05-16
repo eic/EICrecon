@@ -6,13 +6,15 @@
 
 #include <random>
 
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
+
 #include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/RawCalorimeterHit.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
@@ -37,11 +39,11 @@ public:
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "HcalEndcapPHits";
         u_eRes = {};
-        m_tRes = 0.0 * dd4hep::ns;
-        m_capADC = 1024;
-        m_dyRangeADC = 3.6 * dd4hep::GeV ;
-        m_pedMeanADC = 20;
-        m_pedSigmaADC = 0.8;
+        m_tRes = 0.001 * dd4hep::ns;
+        m_capADC = 65536;
+        m_dyRangeADC = 1 * dd4hep::GeV;
+        m_pedMeanADC = 20  ;
+        m_pedSigmaADC = 0.8 ;
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
