@@ -16,7 +16,7 @@ z = -64000 # z position close to entrance of lumi Pair Spectrometer CALs in mm
 writer = HepMC3.WriterAscii( outfilename )
 
 for ix in range(100):
- 
+
     particle_in1 = HepMC3.GenParticle(HepMC3.FourVector(0, 0, pz, E))
     particle_in1.set_pdg_id(11)
     particle_in1.set_status(3)
@@ -34,7 +34,7 @@ for ix in range(100):
     vertex1 = HepMC3.GenVertex(HepMC3.FourVector(0., y1, z, 0.))
     vertex1.add_particle_in( particle_in1 )
     vertex1.add_particle_out( particle_out1 )
-    
+
     vertex2 = HepMC3.GenVertex(HepMC3.FourVector(0., y2, z, 0.))
     vertex2.add_particle_in( particle_in2 )
     vertex2.add_particle_out( particle_out2 )
