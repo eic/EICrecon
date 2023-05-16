@@ -21,6 +21,10 @@
 #include <edm4hep/RawCalorimeterHit.h>
 #include <spdlog/spdlog.h>
 
+#include <common/unit_system.h>
+
+namespace unit = eicrecon::unit;
+
 class CalorimeterHitDigi {
 
     // Insert any member variables here
@@ -48,7 +52,7 @@ public:
 
     // digitization settings
     unsigned int             m_capADC;
-    double                   m_capTime = 1000.;
+    double                   m_capTime = 1000. * unit::ns;
     double                   m_dyRangeADC;
     unsigned int             m_pedMeanADC;
     double                   m_pedSigmaADC;
