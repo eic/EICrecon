@@ -199,6 +199,7 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
+    - uses: actions/checkout@v3
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Get detector info
       id: detector_info
