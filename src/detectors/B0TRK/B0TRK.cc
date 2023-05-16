@@ -24,7 +24,7 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig digi_default_cfg;
-    digi_default_cfg.threshold = 0 * dd4hep::keV;
+    digi_default_cfg.threshold = 0 * unit::keV;
     digi_default_cfg.timeResolution = 8;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"B0TrackerHits"}, "B0TrackerHitRawHit", digi_default_cfg));
 

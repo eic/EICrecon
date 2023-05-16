@@ -41,7 +41,7 @@ public:
         m_tRes = 0.0; // in ns
         m_capTime = 100 ; // given in ns, 4 samples in HGCROC
         m_capADC=65536;//2^16
-        m_dyRangeADC=1 * dd4hep::GeV;
+        m_dyRangeADC=1 * unit::GeV;
         m_pedMeanADC=20;
         m_pedSigmaADC = 0.8;
         m_resolutionTDC = 10 * dd4hep::picosecond;

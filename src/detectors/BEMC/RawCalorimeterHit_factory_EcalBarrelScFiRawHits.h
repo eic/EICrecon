@@ -36,10 +36,10 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelScFiHits";
-        u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV};
+        u_eRes = {0.0 * sqrt(unit::GeV), 0.0, 0.0 * unit::GeV};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
-        m_dyRangeADC = 750 * dd4hep::MeV;
+        m_dyRangeADC = 750 * unit::MeV;
         m_pedMeanADC = 20;
         m_pedSigmaADC = 0.3;
         m_resolutionTDC = 10 * dd4hep::picosecond;

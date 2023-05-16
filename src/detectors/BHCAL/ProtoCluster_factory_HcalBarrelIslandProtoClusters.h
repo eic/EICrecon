@@ -29,8 +29,8 @@ public:
         m_input_tag = "HcalBarrelRecHits";
 
         m_splitCluster=false;              // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterHitEdep=3.0 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
+        m_minClusterHitEdep=3.0 * unit::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
+        m_minClusterCenterEdep=30.0 * unit::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";

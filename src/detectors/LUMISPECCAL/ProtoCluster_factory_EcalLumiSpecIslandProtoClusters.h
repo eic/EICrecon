@@ -29,8 +29,8 @@ public:
         m_input_tag = "EcalLumiSpecRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=1.0 * unit::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=30.0 * unit::MeV; // from ATHENA reconstruction.py
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";

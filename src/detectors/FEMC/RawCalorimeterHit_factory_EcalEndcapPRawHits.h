@@ -38,11 +38,11 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapPHits";
-        u_eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}; // (0.340% / sqrt(E)) \oplus 0.09%
+        u_eRes = {0.00340 * sqrt(unit::GeV), 0.0009, 0.0 * unit::GeV}; // (0.340% / sqrt(E)) \oplus 0.09%
         m_tRes = 0.0 ;
         m_capTime = 100 ; // given in ns, 4 samples in HGCROC
         m_capADC=65536;//2^16  (approximate HGCROC resolution) old 16384
-        m_dyRangeADC = 3 * dd4hep::GeV;
+        m_dyRangeADC = 3 * unit::GeV;
         m_pedMeanADC = 100;
         m_pedSigmaADC = 0.7;
         m_resolutionTDC = 10 * dd4hep::picosecond;

@@ -29,8 +29,8 @@ public:
         m_input_tag = "HcalEndcapPInsertMergedHits";
 
         m_splitCluster=true;              // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        m_minClusterHitEdep=0.0 * dd4hep::MeV;    // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA's reconstruction.py
+        m_minClusterHitEdep=0.0 * unit::MeV;    // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
+        m_minClusterCenterEdep=30.0 * unit::MeV; // from ATHENA's reconstruction.py
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";

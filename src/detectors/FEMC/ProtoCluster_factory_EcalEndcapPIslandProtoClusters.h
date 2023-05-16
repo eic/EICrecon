@@ -29,8 +29,8 @@ public:
         m_input_tag = "EcalEndcapPRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=0.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=10.0 * dd4hep::MeV; // from ATHENA reconstruction.py
+        m_minClusterHitEdep=0.0 * unit::MeV;    // from ATHENA reconstruction.py
+        m_minClusterCenterEdep=10.0 * unit::MeV; // from ATHENA reconstruction.py
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";

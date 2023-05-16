@@ -30,8 +30,8 @@ public:
         m_input_tag = "LFHCALRecHits";
 
         m_splitCluster=false;
-        m_minClusterHitEdep=1 * dd4hep::MeV;
-        m_minClusterCenterEdep=100.0 * dd4hep::MeV;
+        m_minClusterHitEdep=1 * unit::MeV;
+        m_minClusterCenterEdep=100.0 * unit::MeV;
 
         // neighbour checking distances
         m_sectorDist=0 * dd4hep::cm;

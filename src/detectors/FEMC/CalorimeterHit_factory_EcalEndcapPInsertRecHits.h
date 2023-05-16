@@ -26,7 +26,7 @@ public:
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
-        m_dyRangeADC=3. * dd4hep::GeV;//{this, "dynamicRangeADC", 100. * dd4hep::MeV};
+        m_dyRangeADC=3. * unit::GeV;//{this, "dynamicRangeADC", 100. * unit::MeV};
         m_pedMeanADC=100;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.7;//{this, "pedestalSigma", 3.2};
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};

@@ -41,7 +41,7 @@ public:
         u_eRes = {};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 65536;
-        m_dyRangeADC = 1.0 * dd4hep::GeV;
+        m_dyRangeADC = 1.0 * unit::GeV;
         m_pedMeanADC = 10;
         m_pedSigmaADC = 2.0;
         m_capTime = 100 ; // given in ns, 4 samples in HGCROC

@@ -34,7 +34,7 @@ public:
         // digitization parameters
         m_capADC=8192; // {this, "capacityADC", 8096};
         m_pedMeanADC=100; // {this, "pedestalMean", 400};
-        m_dyRangeADC=3 * dd4hep::MeV;   // {this, "dynamicRangeADC", 100 * MeV};
+        m_dyRangeADC=3 * unit::MeV;   // {this, "dynamicRangeADC", 100 * MeV};
         m_pedSigmaADC=14; // {this, "pedestalSigma", 3.2};
         m_thresholdFactor=3.0; // {this, "thresholdFactor", 3.0};
         // Calibration!

@@ -38,7 +38,7 @@ public:
         m_neighbourLayersRange = 2.0;                    //  # id diff for adjacent layer
         m_sectorDist           = 3.0 * dd4hep::cm;
         m_minClusterNhits      = 10; // From Maria Z. comment in PR
-        m_minClusterEdep       = 100 * dd4hep::MeV;
+        m_minClusterEdep       = 100 * unit::MeV;
         m_minClusterCenterEdep = 0;
         m_minClusterHitEdep    = 0;
 
