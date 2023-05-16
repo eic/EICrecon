@@ -5,7 +5,11 @@
 
 #include <edm4eic/vector_utils.h>
 
-
+#include <iostream>
+#include <iomanip>
+#include <limits>
+#include <numbers>
+ 
 
 namespace eicrecon {
 
@@ -73,18 +77,31 @@ namespace eicrecon {
                     continue;
                 }
 
-                const auto p_mag = std::hypot(p.x, p.y, p.z);
-                const auto p_phi = std::atan2(p.y, p.x);
-                const auto p_eta = std::atanh(p.z / p_mag);
+                const double p_mag = std::hypot((double)p.x, (double)p.y, (double)p.z);
+                const double p_phi = std::atan2(p.y, p.x);
+                const double p_eta = std::atanh(p.z / p_mag);
+// 		std::cout << std::setprecision(30) << p.x << " "<< p.z << " " << p_mag << " " << p.z / p_mag << " " << p_eta << std::endl;
                 const double dp_rel = std::abs((edm4eic::magnitude(mom) - p_mag) / p_mag);
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
                 const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(mom) - p_phi)));
-                const double deta = std::abs((edm4eic::eta(mom) - p_eta));
+                const double deta  = std::abs((edm4eic::eta(mom) - p_eta));
+		
+//  		std::cout << ip << std::endl;
+// 		std::cout << edm4eic::magnitude(mom)  << " " <<  p_mag  << " " <<(dp_rel < m_cfg.momentumRelativeTolerance) << std::endl;
+// 		std::cout << edm4eic::eta(mom) << " " << p_eta << " " << (deta < m_cfg.etaTolerance) << std::endl;
+// 		std::cout << (dsphi < sinPhiOver2Tolerance) << std::endl;
+		
 
-                bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance &&
-                                   deta < m_cfg.etaTolerance &&
-                                   dsphi < sinPhiOver2Tolerance;
+
+                bool is_matching = 1;
+//                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance  &&
+// 		  deta   < m_cfg.etaTolerance/(1+p_eta) &&
+// 		  dsphi  < sinPhiOver2Tolerance/(1+p_eta);
+
+//                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance &&
+//                                    deta   < m_cfg.etaTolerance &&
+//                                    dsphi  < sinPhiOver2Tolerance;
 
                 m_log->trace("    Decision: {}  dp: {:.4f} < {}  &&  d_eta: {:.6f} < {}  && d_sin_phi: {:.4e} < {:.4e} ",
                              is_matching? "Matching":"Ignoring",
@@ -96,6 +113,7 @@ namespace eicrecon {
                     const double delta =
                             std::hypot(dp_rel / m_cfg.momentumRelativeTolerance, deta / m_cfg.etaTolerance,
                                        dsphi / sinPhiOver2Tolerance);
+// 		    std::cout << delta << " " << best_delta << std::endl;
                     if (delta < best_delta) {
                         best_match = ip;
                         best_delta = delta;

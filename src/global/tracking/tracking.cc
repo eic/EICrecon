@@ -17,6 +17,7 @@
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerHitCollector_factory.h"
+#include "TrackerParticleCollector_factory.h"
 #include "TrackProjector_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
 
@@ -60,8 +61,16 @@ void InitPlugin(JApplication *app) {
             "CentralTrackingParticles",                       // Tag name for multifactory
             {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
             {"outputParticles",                               // edm4eic::ReconstructedParticle
-             "outputTrackParameters"},                        // edm4eic::TrackParameters
+             "outputTrackParametersT"},                        // edm4eic::TrackParameters
             app));
+
+    // Tracker hits collector
+    app->Add(new JChainFactoryGeneratorT<TrackerParticleCollector_factory>(
+                     {
+                         "outputTrackParametersT",           // MPGD
+                         "LowQ2Particles"},
+
+                      "outputTrackParameters"));    // Output collection name
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory

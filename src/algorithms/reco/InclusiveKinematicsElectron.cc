@@ -135,6 +135,7 @@ namespace eicrecon {
       m_log->debug("Truth scattered electron not in reconstructed particles");
       return kinematics;
     }
+      
     const auto ef_rc{(*ef_assoc)->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 

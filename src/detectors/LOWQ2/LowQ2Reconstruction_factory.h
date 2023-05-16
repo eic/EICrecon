@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
+#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
@@ -21,12 +22,13 @@ namespace eicrecon {
   //  enum LowQ2NNIndex{Energy,Theta,X,Y};
   enum LowQ2NNIndex{MomX,MomY,MomZ};
 
-  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
+  //  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
+  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
     
   public:
     
     LowQ2Reconstruction_factory( std::vector<std::string> default_input_tags):
-      JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>(std::move(default_input_tags) ) {
+      JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
     }
       
       LowQ2Reconstruction_factory(); //constructer

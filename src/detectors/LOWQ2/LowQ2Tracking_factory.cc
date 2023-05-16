@@ -66,10 +66,10 @@ namespace eicrecon {
 	  double meanWeight = 1;
 
 	  //temporary limits before Kalman filtering implemented
-	  if( moduleHits.second[0].size()>2 ) break;
-	  if( moduleHits.second[1].size()>2 ) break;
-	  if( moduleHits.second[2].size()>2 ) break;
-	  if( moduleHits.second[3].size()>2 ) break;
+	  if( moduleHits.second[0].size()>4 ) break;
+	  if( moduleHits.second[1].size()>4 ) break;
+	  if( moduleHits.second[2].size()>4 ) break;
+	  if( moduleHits.second[3].size()>4 ) break;
 
 	  for ( auto hit0c : moduleHits.second[0] ) {
 	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);
@@ -120,8 +120,8 @@ namespace eicrecon {
 		  auto subAsArray  = subMat.GetMatrixArray();
 		  ROOT::VecOps::RVec<double> subAsVector(subAsArray,subAsArray+8);
 		  double outChi2 = Sum(subAsVector*subAsVector)/8;
-
-		  if(outChi2>0.0001) continue; // Optimise later or add as config
+		  
+		  if(outChi2>0.001) continue; // Optimise later or add as config
 		  
 		  // 	      lf->AssignData(maxLayer, 2, &v[0], &z[0]);  
 		  // 	      lf->Eval();
