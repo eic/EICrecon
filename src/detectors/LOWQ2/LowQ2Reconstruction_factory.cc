@@ -30,7 +30,9 @@ namespace eicrecon {
     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &m_zP );
     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_xV );
     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );    
-    m_reader.BookMVA( m_method_name, m_weight_file );
+
+    TString weightName = std::getenv( m_location_path ) + m_file_path + m_weight_file;
+    m_reader.BookMVA( m_method_name, weightName );
     m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA(m_method_name));
 
   }

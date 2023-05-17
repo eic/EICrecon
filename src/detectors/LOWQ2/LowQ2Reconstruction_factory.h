@@ -52,20 +52,20 @@ namespace eicrecon {
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
       
-      float beamE = 18*dd4hep::GeV; //Change when this is included in metadata/other location
+      float beamE = 18*dd4hep::GeV; //TODO: Change when this is included in metadata/other location
       float m_yP{0};
       float m_zP{0};
       float m_xV{0};
       float m_yV{0};
-/*       float m_eE{0}; */
-/*       float m_logQ2{0}; */
       
-      float m_electron{0.000510998928}; // Link to constant elsewhere?
+      float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
       
       // Stuff to add to config
       TString m_method_name = "DNN_CPU";
-      TString m_weight_file = "/home/simon/EIC/EICrecon/src/detectors/LOWQ2/qr_18x275_DNN_CPU.weights.xml";
-      
+      //      TString m_weight_file = "_ROOT/home/simon/EIC/EICrecon/src/detectors/LOWQ2/qr_18x275_DNN_CPU.weights.xml";
+      TString m_weight_file   = "qr_18x275_DNN_CPU.weights.xml";
+      TString m_file_path     = "/src/detectors/LOWQ2/";
+      TString m_location_path = "EICrecon_ROOT";
   };
 
 } // eicrecon

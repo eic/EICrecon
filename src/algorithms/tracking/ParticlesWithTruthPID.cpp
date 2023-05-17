@@ -95,13 +95,13 @@ namespace eicrecon {
 
 
                 bool is_matching = 1;
-//                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance  &&
-// 		  deta   < m_cfg.etaTolerance/(1+p_eta) &&
-// 		  dsphi  < sinPhiOver2Tolerance/(1+p_eta);
+		// Matching kinematics with the static variables doesn't work at low angles and within beam divergence
+		if(p_eta<5 || edm4eic::eta(mom)<5){ 
+		  is_matching = dp_rel < m_cfg.momentumRelativeTolerance  &&
+		    deta   < m_cfg.etaTolerance &&
+		    dsphi  < sinPhiOver2Tolerance;
+		}
 
-//                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance &&
-//                                    deta   < m_cfg.etaTolerance &&
-//                                    dsphi  < sinPhiOver2Tolerance;
 
                 m_log->trace("    Decision: {}  dp: {:.4f} < {}  &&  d_eta: {:.6f} < {}  && d_sin_phi: {:.4e} < {:.4e} ",
                              is_matching? "Matching":"Ignoring",
