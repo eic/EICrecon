@@ -21,10 +21,10 @@ void eicrecon::RichTrack_factory::Init() {
   // get list of radiators
   std::map<int,std::string> radiator_list;
   for(auto& output_tag : GetOutputTags()) {
-    auto radiator_id = richgeo::ParseRadiatorName(output_tag/*, m_log*/); // FIXME: m_log argument requires PR #608
+    auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
     radiator_list.insert({
         radiator_id,
-        richgeo::RadiatorName(radiator_id/*, m_log*/) // FIXME: m_log argument requires PR #608
+        richgeo::RadiatorName(radiator_id, m_log)
         });
   }
 
