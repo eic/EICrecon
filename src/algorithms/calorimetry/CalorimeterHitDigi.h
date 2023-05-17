@@ -57,7 +57,6 @@ public:
 
     // signal sums
     std::vector<std::string> u_fields;
-    std::vector<int>         u_refs;
     std::string              m_geoSvcName;
     std::string              m_readout;
 
@@ -77,7 +76,7 @@ public:
     // variables for merging at digitization step
     bool             merge_hits = false;
     std::shared_ptr<JDD4hep_service> m_geoSvc;
-    uint64_t         id_mask{0}, ref_mask{0};
+    uint64_t         id_mask{0};
 
     // inputs/outputs
     std::vector<const edm4hep::SimCalorimeterHit*> simhits;
