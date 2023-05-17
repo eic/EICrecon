@@ -47,7 +47,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={"layerz"};
-        u_refs={0};
         m_geoSvcName = "geoServiceName";
         m_readout = "LFHCALHits";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -64,7 +63,6 @@ public:
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("FHCAL:LFHCALRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:readoutClass",     m_readout);
 
