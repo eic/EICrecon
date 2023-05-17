@@ -28,16 +28,16 @@ namespace eicrecon {
     // distance
     static constexpr double mm = 1.0; // millimeter
     static constexpr double cm = 1e1 * mm; // centimeter
-    static constexpr double micrometer = 1e-3 * mm; // micrometer
-    static constexpr double nm = 1e-6 * mm; // micrometer
+    static constexpr double um = 1e-3 * mm; // micrometer
+    static constexpr double nm = 1e-6 * mm; // nanometer
     static constexpr double m = 1e3 * mm; // meter
 
     // time
-    static constexpr double ns = 1.0; // nano second
-    static constexpr double second = 1e9 * ns; // second
-    static constexpr double milisecond = 1e6 * ns; // milisecond
-    static constexpr double microsecond = 1e3 * ns; // milisecond
-    static constexpr double picosecond = 1e-3 * ns; // pico second
+    static constexpr double ns = 1.0; // nanosecond
+    static constexpr double s = 1e9 * ns; // second
+    static constexpr double ms = 1e6 * ns; // milisecond
+    static constexpr double us = 1e3 * ns; // microsecond
+    static constexpr double ps = 1e-3 * ns; // picosecond
 
     // energy
     static constexpr double GeV = 1.0; // giga electron volt
