@@ -2,7 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <JANA/JEvent.h>
+
 #include "RomanPotsReconstruction_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"

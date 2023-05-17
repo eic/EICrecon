@@ -15,6 +15,7 @@
 
 #include <spdlog/spdlog.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/ReconstructedParticle.h>
 
