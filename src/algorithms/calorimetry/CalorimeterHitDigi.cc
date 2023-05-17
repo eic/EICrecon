@@ -64,9 +64,8 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
       throw std::runtime_error("Invalid u_eRes.size()");
     }
 
-    // using juggler internal units (GeV, mm, radian, ns)
-    tRes       = m_tRes / dd4hep::ns;
-    stepTDC    = dd4hep::ns / m_resolutionTDC;
+    tRes       = m_tRes / dd4hep::ns; // converting from DD4hep to EDM4eic units (GeV, mm, radian, ns)
+    frequencyTDC = 1 / m_resolutionTDC;
 
     // all these are for signal sum at digitization level
     merge_hits = false;
@@ -170,7 +169,7 @@ void CalorimeterHitDigi::single_hits_digi(){
         }
         if (time > m_capTime) continue;
 
-        const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
+        const long long tdc = std::llround((time + m_normDist(generator) * tRes) * frequencyTDC);
 
         if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit->getCellID());
         auto rawhit = new edm4hep::RawCalorimeterHit(
@@ -254,7 +253,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
-        unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
+        unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * frequencyTDC);
 
         if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_capTime, tdc);
         auto rawhit = new edm4hep::RawCalorimeterHit(

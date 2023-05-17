@@ -56,7 +56,7 @@ public:
 
   // unitless counterparts of the input parameters
   double thresholdADC{0};
-  double stepTDC{0};
+  double frequencyTDC{0};
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
   //DataHandle<edm4eic::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};

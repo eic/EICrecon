@@ -33,7 +33,7 @@ public:
         m_dyRangeADC=750. * unit::MeV;//{this, "dynamicRangeADC", 100. * unit::MeV};
         m_pedMeanADC=20;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.3;//{this, "pedestalSigma", 3.2};
-        m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+        m_resolutionTDC = 10 * unit::ps;
 
         // zero suppression values
         m_thresholdFactor=5.0;// from ATHENA's reconstruction.py

@@ -34,7 +34,7 @@ public:
         m_dyRangeADC=1.0 * unit::GeV;
         m_pedMeanADC=10;
         m_pedSigmaADC=2.0;
-        m_resolutionTDC=1.0 * dd4hep::picosecond;
+        m_resolutionTDC = 1.0 * unit::ps;
 
         // zero suppression values
         m_thresholdFactor=5.0;// from ATHENA's reconstruction.py

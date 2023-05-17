@@ -49,7 +49,7 @@ public:
         m_pedMeanADC = 10;
         m_pedSigmaADC = 2.0;
         m_capTime = 100 ; // given in ns, 4 samples in HGCROC
-        m_resolutionTDC = 1.0 * dd4hep::picosecond;
+        m_resolutionTDC = 1.0 * unit::ps;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};

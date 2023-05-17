@@ -48,7 +48,7 @@ public:
         m_dyRangeADC = 20 * unit::GeV;
         m_pedMeanADC = 100;
         m_pedSigmaADC = 1;
-        m_resolutionTDC = 1e-11;
+        m_resolutionTDC = 10 * unit::ps;
         m_corrMeanScale = 1.0;
         u_fields={};
         u_refs={};

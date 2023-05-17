@@ -134,7 +134,7 @@ public:
     //-----------------------------------------------
 
     // unitless counterparts of inputs
-    double           stepTDC, tRes, eRes[3];
+    double           tRes, eRes[3];
     //Rndm::Numbers    m_normDist;
     uint64_t         id_mask, ref_mask;
 

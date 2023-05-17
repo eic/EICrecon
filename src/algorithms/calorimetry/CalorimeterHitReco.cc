@@ -27,7 +27,7 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // threshold for firing
     thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
     // TDC channels to timing conversion
-    stepTDC = dd4hep::ns / m_resolutionTDC;
+    frequencyTDC = dd4hep::ns / m_resolutionTDC;
 
     // do not get the layer/sector ID if no readout class provided
     if (m_readout.empty()) {
@@ -153,7 +153,7 @@ void CalorimeterHitReco::AlgorithmProcess() {
                     m_sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
         }
 
-        const float time = rh->getTimeStamp() / stepTDC;
+        const float time = rh->getTimeStamp() / frequencyTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh->getTimeStamp(), time);
 
         const int lid =

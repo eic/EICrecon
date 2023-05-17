@@ -46,7 +46,7 @@ public:
         m_dyRangeADC = 750 * unit::MeV;
         m_pedMeanADC = 20;
         m_pedSigmaADC = 0.3;
-        m_resolutionTDC = 10 * dd4hep::picosecond;
+        m_resolutionTDC = 10 * unit::ps;
         m_corrMeanScale = 1.0;
         m_geoSvcName = "ActsGeometryProvider";
         m_readout="EcalBarrelScFiHits";

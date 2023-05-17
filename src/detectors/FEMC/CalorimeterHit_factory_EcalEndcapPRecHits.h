@@ -34,7 +34,7 @@ public:
         m_dyRangeADC=3. * unit::GeV;//{this, "dynamicRangeADC", 100. * unit::MeV};
         m_pedMeanADC=100;//{this, "pedestalMean", 400};
         m_pedSigmaADC=0.7;//{this, "pedestalSigma", 3.2};
-        m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
+        m_resolutionTDC = 10 * unit::ps;
 
         // zero suppression values
         m_thresholdFactor=5.0;//{this, "thresholdFactor", 0.0};
