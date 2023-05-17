@@ -53,8 +53,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // DRICH
             "DRICHRawHits",
-            "DRICHAerogelTracks",
-            "DRICHGasTracks",
+            //"DRICHAerogelTracks",
+            //"DRICHGasTracks",
 
             // MPGD
             "MPGDBarrelRecHits",
