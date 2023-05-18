@@ -24,46 +24,46 @@ namespace eicrecon {
 
   //  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
   class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
-    
+
   public:
-    
+
     LowQ2Reconstruction_factory( std::vector<std::string> default_input_tags):
       JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
     }
-      
+
       LowQ2Reconstruction_factory(); //constructer
-      
+
       /** One time initialization **/
       void Init() override;
-      
+
       /** On run change preparations **/
       void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
-      
+
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
-      
+
       //----- Define constants here ------
-      
+
   private:
       std::shared_ptr<spdlog::logger> m_log;              // Logger for this factory
       std::string m_input_tag{"LowQ2Tracks"};
       std::string m_output_tag{"LowQ2Particles"};
-      
+
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
-      
+
       float beamE = 18*dd4hep::GeV; //TODO: Change when this is included in metadata/other location
       float m_yP{0};
       float m_zP{0};
       float m_xV{0};
       float m_yV{0};
-      
+
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
-      
+
       // Stuff to add to config
       TString m_method_name = "DNN_CPU";
 
-      // How should the path to this best be described? 
+      // How should the path to this best be described?
       // $EICrecon_ROOT does not need to be set for usual running so possibly not appropriate
       TString m_weight_file   = "LowQ2_DNN_CPU.weights.xml";
       TString m_file_path     = "/src/detectors/LOWQ2/";
