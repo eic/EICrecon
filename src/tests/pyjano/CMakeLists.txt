@@ -1,5 +1,4 @@
 
-print_header(">>>>   P L U G I N :   pyjano (tests)    <<<<")       # Fancy printing
 
 project(pyjano_playroom)
 

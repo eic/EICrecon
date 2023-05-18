@@ -56,8 +56,12 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
     // set energy resolution numbers
     m_log=logger;
-    for (size_t i = 0; i < u_eRes.size() && i < 3; ++i) {
-        eRes[i] = u_eRes[i];
+
+    if (u_eRes.size() == 0) {
+      u_eRes.resize(3);
+    } else if (u_eRes.size() != 3) {
+      m_log->error("Invalid u_eRes.size()");
+      throw std::runtime_error("Invalid u_eRes.size()");
     }
 
     // using juggler internal units (GeV, mm, radian, ns)
@@ -81,15 +85,9 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         try {
             auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
             id_mask = 0;
-            std::vector<std::pair<std::string, int>> ref_fields;
             for (size_t i = 0; i < u_fields.size(); ++i) {
                 id_mask |= id_desc.field(u_fields[i])->mask();
-                // use the provided id number to find ref cell, or use 0
-                int ref = i < u_refs.size() ? u_refs[i] : 0;
-                ref_fields.emplace_back(u_fields[i], ref);
             }
-            ref_mask = id_desc.encode(ref_fields);
-            // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
             // TODO: it should be a fatal error to not cause unexpected analysis results
@@ -145,14 +143,14 @@ void CalorimeterHitDigi::single_hits_digi(){
         // apply additional calorimeter noise to corrected energy deposit
         const double eResRel = (eDep > m_threshold)
                                ? m_normDist(generator) * std::sqrt(
-                                    std::pow(eRes[0] / std::sqrt(eDep), 2) +
-                                    std::pow(eRes[1], 2) +
-                                    std::pow(eRes[2] / (eDep), 2)
+                                    std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
+                                    std::pow(u_eRes[1], 2) +
+                                    std::pow(u_eRes[2] / (eDep), 2)
                 )
                                : 0;
 //       const double eResRel = (eDep > 1e-6)
-//                               ? m_normDist(generator) * std::sqrt(std::pow(eRes[0] / std::sqrt(eDep), 2) +
-//                                                          std::pow(eRes[1], 2) + std::pow(eRes[2] / (eDep), 2))
+//                               ? m_normDist(generator) * std::sqrt(std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
+//                                                          std::pow(u_eRes[1], 2) + std::pow(u_eRes[2] / (eDep), 2))
 //                               : 0;
 
         const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
@@ -164,8 +162,11 @@ void CalorimeterHitDigi::single_hits_digi(){
                 time = c.getTime();
             }
         }
+        if (time > m_capTime) continue;
+
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
+        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit->getCellID());
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 ahit->getCellID(),
                 (adc > m_capADC ? m_capADC : adc),
@@ -183,7 +184,11 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
     for (auto ahit : simhits) {
-        int64_t hid = (ahit->getCellID() & id_mask) | ref_mask;
+        int64_t hid = ahit->getCellID() & id_mask;
+
+        m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit->getCellID());
+        m_log->trace("new cell ID in {:s}: {:#064b}", m_readout, hid);
+
         auto    it  = merge_map.find(hid);
 
         if (it == merge_map.end()) {
@@ -196,13 +201,25 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
     for (auto &[id, hits] : merge_map) {
-        double edep     = hits[0]->getEnergy();
-        double time     = hits[0]->getContributions(0).getTime();
-        double max_edep = hits[0]->getEnergy();
+        double edep     = 0;
+        double time     = std::numeric_limits<double>::max();
+        double max_edep = 0;
         auto   mid      = hits[0]->getCellID();
         // sum energy, take time from the most energetic hit
-        for (size_t i = 1; i < hits.size(); ++i) {
+        m_log->trace("id: {} \t {}", id, edep);
+        for (size_t i = 0; i < hits.size(); ++i) {
+
+            double timeC = std::numeric_limits<double>::max();
+            for (const auto& c : hits[i]->getContributions()) {
+                if (c.getTime() <= timeC) {
+                    timeC = c.getTime();
+                }
+            }
+            if (timeC > m_capTime) continue;
             edep += hits[i]->getEnergy();
+            m_log->trace("adding {} \t total: {}", hits[i]->getEnergy(), edep);
+
+            // change maximum hit energy & time if necessary
             if (hits[i]->getEnergy() > max_edep) {
                 max_edep = hits[i]->getEnergy();
                 mid = hits[i]->getCellID();
@@ -211,25 +228,29 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
                         time = c.getTime();
                     }
                 }
+                if (timeC <= time) {
+                    time = timeC;
+                }
             }
         }
 
 //        double eResRel = 0.;
         // safety check
         const double eResRel = (edep > m_threshold)
-                ? m_normDist(generator) * eRes[0] / std::sqrt(edep) +
-                  m_normDist(generator) * eRes[1] +
-                  m_normDist(generator) * eRes[2] / edep
+                ? m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
+                  m_normDist(generator) * u_eRes[1] +
+                  m_normDist(generator) * u_eRes[2] / edep
                   : 0;
 //        if (edep > 1e-6) {
-//            eResRel = m_normDist(generator) * eRes[0] / std::sqrt(edep) +
-//                      m_normDist(generator) * eRes[1] +
-//                      m_normDist(generator) * eRes[2] / edep;
+//            eResRel = m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
+//                      m_normDist(generator) * u_eRes[1] +
+//                      m_normDist(generator) * u_eRes[2] / edep;
 //        }
         double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
+        if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_capTime, tdc);
         auto rawhit = new edm4hep::RawCalorimeterHit(
                 mid,
                 (adc > m_capADC ? m_capADC : adc),

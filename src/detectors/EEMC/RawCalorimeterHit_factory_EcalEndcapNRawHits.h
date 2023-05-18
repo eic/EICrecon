@@ -6,19 +6,21 @@
 
 #include <random>
 
-#include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JEvent.h>
+
+#include <services/io/podio/JFactoryPodioT.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
 
-class RawCalorimeterHit_factory_EcalEndcapNRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalEndcapNRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
@@ -36,7 +38,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapNHits";
-        u_eRes = {0.0 * dd4hep::MeV, 20 * dd4hep::MeV, 0.0 * dd4hep::MeV};
+        u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}; // flat 2%
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 20 * dd4hep::GeV;
@@ -45,7 +47,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
 
@@ -64,7 +65,6 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:readoutClass",     m_readout);
 

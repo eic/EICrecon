@@ -149,13 +149,6 @@ macro(plugin_glob_all _name)
         message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
     endif()
 
-    # To somehow control GLOB lets at least PRINT files we are going to compile:
-    message(STATUS "Source files:")
-    print_file_names("  " ${PLUGIN_SRC_FILES})    # Prints source files
-    message(STATUS "Plugin-main file is: ${PLUGIN_CC_FILE}")
-    message(STATUS "Header files:")
-    print_file_names("  " ${HEADER_FILES})  # Prints header files
-
 endmacro()
 
 
@@ -168,6 +161,19 @@ macro(plugin_add_dd4hep _name)
 
     plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
     plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
+
+endmacro()
+
+
+# Adds Eigen3 for a plugin
+macro(plugin_add_eigen3 _name)
+
+    if(NOT Eigen3_FOUND)
+        find_package(Eigen3 REQUIRED)
+    endif()
+
+    plugin_include_directories(${_name} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
+    plugin_link_libraries(${_name} Eigen3::Eigen)
 
 endmacro()
 
@@ -222,7 +228,8 @@ macro(plugin_add_event_model _name)
 
     # Add include directories
     # (same as target_include_directories but for both plugin and library)
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR})
+    # ${podio_BINARY_DIR} is an include path to datamodel_glue.h
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${podio_BINARY_DIR})
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
@@ -247,4 +254,20 @@ macro(plugin_add_cern_root _name)
     # Add libraries
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
     plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
+endmacro()
+
+
+# Adds FastJet for a plugin
+macro(plugin_add_fastjet _name)
+
+    if(NOT FASTJET_FOUND)
+        find_package(FastJet REQUIRED)
+    endif()
+
+    # Add include directories
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS} )
+
+    # Add libraries
+    plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
+
 endmacro()
