@@ -118,7 +118,7 @@ public:
     // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)> hitsDist;
 
-    bool m_splitCluster;
+    bool m_splitCluster = false;
     double m_minClusterHitEdep;
     double m_minClusterCenterEdep;
     std::string u_transverseEnergyProfileMetric;
