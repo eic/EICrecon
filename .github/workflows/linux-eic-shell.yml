@@ -263,13 +263,14 @@ jobs:
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error
 
-  eicrecon-gcc-gun:
+  eicrecon-gun:
     runs-on: ubuntu-latest
     needs:
     - build
     - ddsim-gun
     strategy:
       matrix:
+        CC: [clang]
         particle: [pi, e]
         detector_config: [arches, brycecanyon]
     env:
@@ -277,7 +278,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: install-clang-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -308,19 +309,20 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  eicrecon-gcc-gun-EcalLumiSpec:
+  eicrecon-gun-EcalLumiSpec:
     runs-on: ubuntu-latest
     needs:
     - build
     - ddsim-gun-EcalLumiSpec
     strategy:
       matrix:
+        CC: [clang]
         particle: [e]
         detector_config: [ip6_extended]
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: install-gcc-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
@@ -351,13 +353,14 @@ jobs:
         path: jana.dot
         if-no-files-found: error
 
-  eicrecon-gcc-dis:
+  eicrecon-dis:
     runs-on: ubuntu-latest
     needs:
     - build
     - ddsim-dis
     strategy:
       matrix:
+        CC: [clang]
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
         detector_config: [arches, brycecanyon]
@@ -369,10 +372,10 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: install-clang-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release
     - uses: actions/download-artifact@v3
       with:
-        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
