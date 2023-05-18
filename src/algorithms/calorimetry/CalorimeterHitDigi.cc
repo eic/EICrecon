@@ -85,15 +85,9 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         try {
             auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
             id_mask = 0;
-            std::vector<std::pair<std::string, int>> ref_fields;
             for (size_t i = 0; i < u_fields.size(); ++i) {
                 id_mask |= id_desc.field(u_fields[i])->mask();
-                // use the provided id number to find ref cell, or use 0
-                int ref = i < u_refs.size() ? u_refs[i] : 0;
-                ref_fields.emplace_back(u_fields[i], ref);
             }
-            ref_mask = id_desc.encode(ref_fields);
-            // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
             // TODO: it should be a fatal error to not cause unexpected analysis results
@@ -190,7 +184,7 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
     for (auto ahit : simhits) {
-        int64_t hid = (ahit->getCellID() & id_mask) | ref_mask;
+        int64_t hid = ahit->getCellID() & id_mask;
 
         m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit->getCellID());
         m_log->trace("new cell ID in {:s}: {:#064b}", m_readout, hid);
