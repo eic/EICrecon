@@ -46,7 +46,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -65,7 +64,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:readoutClass",     m_readout);
 
