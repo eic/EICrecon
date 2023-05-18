@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <limits>
 #include <numbers>
- 
+
 
 namespace eicrecon {
 
@@ -85,13 +85,13 @@ namespace eicrecon {
                 // for phi rollovers
                 const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(mom) - p_phi)));
                 const double deta  = std::abs((edm4eic::eta(mom) - p_eta));
-		
+
 
 
                 bool is_matching = 1;
 		// Matching kinematics with the static variables doesn't work at low angles and within beam divergence
 		// Maybe reconsider variables used or divide into regions
-		if(p_eta>-5 || edm4eic::eta(mom)>-5){ 
+		if(p_eta>-5 || edm4eic::eta(mom)>-5){
 		  is_matching = dp_rel < m_cfg.momentumRelativeTolerance  &&
 		    deta   < m_cfg.etaTolerance &&
 		    dsphi  < sinPhiOver2Tolerance;

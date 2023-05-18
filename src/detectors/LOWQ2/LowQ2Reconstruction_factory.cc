@@ -16,38 +16,38 @@
 #include "Math/Vector3D.h"
 
 namespace eicrecon {
-   
-  
+
+
   void LowQ2Reconstruction_factory::Init() {
-    
+
     auto app = GetApplication();
-    
+
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
-    
+
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
     m_reader.AddVariable( "LowQ2Tracks[0].loc.a", &m_yP );
     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &m_zP );
     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_xV );
-    m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );    
+    m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );
 
     TString weightName = std::getenv( m_location_path ) + m_file_path + m_weight_file;
     m_reader.BookMVA( m_method_name, weightName );
     m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA(m_method_name));
 
   }
-  
-  
+
+
 
 
   void LowQ2Reconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     // Nothing to do here
   }
-  
+
   void LowQ2Reconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    
+
     auto inputtracks =  event->Get<edm4eic::TrackParameters>(m_input_tag);
-    
+
     //    std::vector<std::unique_ptr<edm4eic::ReconstructedParticle>> outputLowQ2Particles(inputtracks.size());
     std::vector<edm4eic::TrackParameters*> outputLowQ2Particles(inputtracks.size());
     //std::vector<edm4eic::ReconstructedParticle*> outputLowQ2Particles(inputtracks.size());
@@ -75,7 +75,7 @@ namespace eicrecon {
       m_xV = sin(trackphi)*sin(tracktheta);
       m_yV = cos(trackphi)*sin(tracktheta);
       auto values = m_method->GetRegressionValues();
-      
+
 //       float energy = values[LowQ2NNIndex::Energy]*beamE;
 //       edm4hep::Vector3f momentum(values[LowQ2NNIndex::X]*beamE,values[LowQ2NNIndex::Y]*beamE,cos(values[LowQ2NNIndex::Theta])*beamE);
       ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndex::MomX]*beamE,values[LowQ2NNIndex::MomY]*beamE,values[LowQ2NNIndex::MomZ]*beamE);
@@ -84,7 +84,7 @@ namespace eicrecon {
 			  values[LowQ2NNIndex::MomY]*beamE*values[LowQ2NNIndex::MomY]*beamE+
 			  values[LowQ2NNIndex::MomZ]*beamE*values[LowQ2NNIndex::MomZ]*beamE
 			  +mass*mass);
-      
+
       float momMag2 = values[LowQ2NNIndex::MomX]*beamE*values[LowQ2NNIndex::MomX]*beamE+
 	values[LowQ2NNIndex::MomY]*beamE*values[LowQ2NNIndex::MomY]*beamE+
 	values[LowQ2NNIndex::MomZ]*beamE*values[LowQ2NNIndex::MomZ]*beamE;
@@ -105,13 +105,13 @@ namespace eicrecon {
 
       //      auto particle = new edm4eic::ReconstructedParticle(type,energy,momentum,referencePoint,charge,mass,goodnessOfPID,covMatrix,PDG);
       auto particle = new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
-      
+
       outputLowQ2Particles[ipart++] = particle;
-    
+
     }
-    
+
     Set(std::move(outputLowQ2Particles));
-    
+
   }
-  
+
 }

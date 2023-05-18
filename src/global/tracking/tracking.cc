@@ -69,7 +69,7 @@ void InitPlugin(JApplication *app) {
                      {
 		       "outputTrackParametersT",           // MPGD
                          "LowQ2Particles"},
-		     
+
                       "outputTrackParameters"));    // Output collection name
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(

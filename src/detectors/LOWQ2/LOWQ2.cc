@@ -23,9 +23,9 @@
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    
+
     using namespace eicrecon;
-    
+
     // -------------------------------
     // To do - Parameterization of charge/signal sharing in detector.
     // -------------------------------
@@ -35,7 +35,7 @@ extern "C" {
     //digi_cfg.timeResolution = 2.5; // Change timing resolution.
     //Why isn't there the same for energy digitization, just std::llround(sim_hit->getEDep() * 1e6)? Whole Digi process isn't quite consistent.
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TaggerTrackerHits"},      "TaggerTrackerRawHit", digi_cfg));
-    
+
     // Clustering of hits
     app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters" ));
 
@@ -46,7 +46,7 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks"));
 
     // Initial particle reconstruction
-//     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>());    
+//     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>());
     app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
 
 
@@ -63,4 +63,3 @@ extern "C" {
 
   }
 }
-

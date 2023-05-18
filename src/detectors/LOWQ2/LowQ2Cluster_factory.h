@@ -20,7 +20,7 @@
 namespace eicrecon {
 
     struct TrackerClusterPoint {
-      float chargeSum{0};    
+      float chargeSum{0};
       float time{0};
       float timeError{0};
       edm4hep::Vector3f position;
@@ -31,7 +31,7 @@ namespace eicrecon {
     class LowQ2Cluster_factory : public JChainFactoryT<eicrecon::TrackerClusterPoint, NoConfig, JFactoryT>{
 
     public:
-    
+
         LowQ2Cluster_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<eicrecon::TrackerClusterPoint, NoConfig, JFactoryT>(std::move(default_input_tags) ) {
         }

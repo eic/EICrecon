@@ -22,7 +22,7 @@ namespace eicrecon {
         LowQ2Tracking_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
         }
-    
+
         LowQ2Tracking_factory(); //constructer
 
         /** One time initialization **/

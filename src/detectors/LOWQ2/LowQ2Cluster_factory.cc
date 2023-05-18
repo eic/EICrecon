@@ -11,41 +11,41 @@
 #include "ROOT/RVec.hxx"
 
 namespace eicrecon {
-  
-  
+
+
   void LowQ2Cluster_factory::Init() {
-    
+
     auto app = GetApplication();
-    
+
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
-    
+
     m_geoSvc  = app->GetService<JDD4hep_service>();
-    
+
     m_log->info("LowQ2 Tagger Clustering Prep complete...");
-    
+
   }
-  
-  
+
+
   void LowQ2Cluster_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     // Nothing to do here
   }
-  
+
   void LowQ2Cluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    
+
     auto inputclusters = event->Get<eicrecon::TrackerProtoCluster>(m_input_tag);
     auto cellid_converter = m_geoSvc->cellIDPositionConverter();
-    
+
     std::vector<TrackerClusterPoint*> outputClusterPoints(inputclusters.size());
 
     int iclust = 0;
     for(const auto protoCl: inputclusters ){
-            
+
       float esum = 0;
       float t0   = 0;
       float tE   = 0;
 
       ROOT::Math::XYZVector position(0,0,0);
-      
+
       auto hits = *protoCl->associatedHits;
 
       for(auto hit : hits){
@@ -58,7 +58,7 @@ namespace eicrecon {
 	esum += hitE;
 
 	auto pos = cellid_converter->position(id);
-	
+
 	position+=ROOT::Math::XYZVector(pos.x(),pos.y(),pos.z())*hitE;
 
       }
@@ -74,9 +74,9 @@ namespace eicrecon {
       outputClusterPoints[iclust++] = clusterPoint;
 
     }
-        
+
     Set(std::move(outputClusterPoints));
-    
+
   }
 
 }

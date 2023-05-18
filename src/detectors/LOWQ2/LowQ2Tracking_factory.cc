@@ -50,11 +50,11 @@ namespace eicrecon {
 	  auto layer  = hit->pCluster->layer;
 	  sortedHits[module][layer].push_back(*hit);
 	}
-	
+
 	for ( auto moduleHits : sortedHits ) {
 	  //std::cout << "mod " << moduleHits.first << " " << moduleHits.second.size() << "\n";
 	  if(moduleHits.second.size()<4) continue;
-	  
+
 	  ROOT::VecOps::RVec<float> x(4,0);
 	  ROOT::VecOps::RVec<float> y(4,0);
 	  ROOT::VecOps::RVec<float> z(4,0);
@@ -99,20 +99,20 @@ namespace eicrecon {
 		  ROOT::Math::XYZPoint((hit1-outPos)*layerWeights[1]).GetCoordinates(mb.GetMatrixArray());
 		  ROOT::Math::XYZPoint((hit2-outPos)*layerWeights[2]).GetCoordinates(mc.GetMatrixArray());
 		  ROOT::Math::XYZPoint((hit3-outPos)*layerWeights[3]).GetCoordinates(md.GetMatrixArray());
-		  
-		  
+
+
 		  TMatrixD vecMatrix(3,4);
 		  vecMatrix.SetSub(0,0,ma);
 		  vecMatrix.SetSub(0,1,mb);
 		  vecMatrix.SetSub(0,2,mc);
 		  vecMatrix.SetSub(0,3,md);
-		  
+
 		  TDecompSVD decomp(vecMatrix.T());
-		  
-		  decomp.Decompose();		  
-		  
+
+		  decomp.Decompose();
+
 		  auto decompVec = decomp.GetV().GetMatrixArray();
-		  
+
 		  auto varMatrix = vecMatrix*(decomp.GetV());
 		  //varMatrix.Print();
 		  auto subMat = varMatrix.GetSub(0,3,1,2);
@@ -120,10 +120,10 @@ namespace eicrecon {
 		  auto subAsArray  = subMat.GetMatrixArray();
 		  ROOT::VecOps::RVec<double> subAsVector(subAsArray,subAsArray+8);
 		  double outChi2 = Sum(subAsVector*subAsVector)/8;
-		  
+
 		  if(outChi2>0.001) continue; // Optimise later or add as config
-		  
-		  // 	      lf->AssignData(maxLayer, 2, &v[0], &z[0]);  
+
+		  // 	      lf->AssignData(maxLayer, 2, &v[0], &z[0]);
 		  // 	      lf->Eval();
 		  TVectorD params;
 		  TVectorD errors;
@@ -136,12 +136,12 @@ namespace eicrecon {
 		  ROOT::Math::XYZVector outVec(decompVec[0],decompVec[3],decompVec[6]);
 		  // 	      std::cout << outPos << std::endl;
 		  if(outVec.Z()>0) outVec*=-1;
-		  // 	      std::cout << outChi2 << std::endl<< std::endl;	      
+		  // 	      std::cout << outChi2 << std::endl<< std::endl;
 		  //track outTrack = {outPos,outVec.Unit(),outChi2,index};
-		  
+
 		  //Position vector crosses x axis, swap to z exit later
 		  auto exitPos = outPos-(outPos.x()/outVec.x())*outVec;
-		  //auto exitPos = 
+		  //auto exitPos =
 
 		  int type = 0;
 		  // Plane Point
@@ -155,22 +155,22 @@ namespace eicrecon {
 		  float time  = 0;
 		  float timeError = 0;
 		  float charge = 0;
- 
+
 		  edm4eic::TrackParameters* outTrack =
 		    new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 		  outputTracks.push_back(outTrack);
-		  
+
 		}
 	      }
 	    }
 	  }
-	  
+
 
 	}
 
 // 	outputTracks.push_back(new edm4eic::TrackParameters(track));
 
-        
+
 	Set(outputTracks);
 
     }

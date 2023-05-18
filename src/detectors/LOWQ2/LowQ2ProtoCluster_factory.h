@@ -22,43 +22,43 @@ namespace eicrecon {
     int module;
     std::vector<edm4eic::RawTrackerHit>* associatedHits;
   };
-  
+
   class LowQ2ProtoCluster_factory : public JChainFactoryT<eicrecon::TrackerProtoCluster, NoConfig, JFactoryT>{
-    
+
   public:
-      
+
     LowQ2ProtoCluster_factory( std::vector<std::string> default_input_tags):
       JChainFactoryT<eicrecon::TrackerProtoCluster, NoConfig, JFactoryT>(std::move(default_input_tags) ) {
     }
-      
-      
+
+
       /** One time initialization **/
       void Init() override;
-      
+
       /** On run change preparations **/
       void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
-      
+
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
-      
-      //----- Define constants here ------      
+
+      //----- Define constants here ------
       std::string m_readout{"TaggerTrackerHits"};
       std::string m_moduleField{"module"};
       std::string m_layerField{"layer"};
       std::string m_xField{"x"};
       std::string m_yField{"y"};
-      
+
       dd4hep::BitFieldCoder *id_dec{nullptr};
       size_t module_idx{0}, layer_idx{0}, x_idx{0}, y_idx{0};
-      
+
       std::shared_ptr<JDD4hep_service> m_geoSvc;
-      
-      
+
+
   private:
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 	std::string m_input_tag {"TaggerTrackerRawHit"};
 	std::string m_output_tag{"TaggerTrackerProtoClusters"};
-	
+
   };
 
 } // eicrecon
