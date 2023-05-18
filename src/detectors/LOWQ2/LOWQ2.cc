@@ -50,10 +50,10 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
 
 
-//     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-//     TrackerHitReconstructionConfig hit_reco_cfg;
-//     // change default parameters like hit_reco_cfg.time_resolution = 10;
-//     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig hit_reco_cfg;
+    // change default parameters like hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
 
 //     app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerClusterPositions"),"LowQ2Tracks");
     //    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");

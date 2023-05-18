@@ -67,9 +67,9 @@ void InitPlugin(JApplication *app) {
     // Tracker hits collector
     app->Add(new JChainFactoryGeneratorT<TrackerParticleCollector_factory>(
                      {
-                         "outputTrackParametersT",           // MPGD
+		       "outputTrackParametersT",           // MPGD
                          "LowQ2Particles"},
-
+		     
                       "outputTrackParameters"));    // Output collection name
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(

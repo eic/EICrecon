@@ -80,23 +80,18 @@ namespace eicrecon {
                 const double p_mag = std::hypot((double)p.x, (double)p.y, (double)p.z);
                 const double p_phi = std::atan2(p.y, p.x);
                 const double p_eta = std::atanh(p.z / p_mag);
-// 		std::cout << std::setprecision(30) << p.x << " "<< p.z << " " << p_mag << " " << p.z / p_mag << " " << p_eta << std::endl;
                 const double dp_rel = std::abs((edm4eic::magnitude(mom) - p_mag) / p_mag);
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
                 const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(mom) - p_phi)));
                 const double deta  = std::abs((edm4eic::eta(mom) - p_eta));
 		
-//  		std::cout << ip << std::endl;
-// 		std::cout << edm4eic::magnitude(mom)  << " " <<  p_mag  << " " <<(dp_rel < m_cfg.momentumRelativeTolerance) << std::endl;
-// 		std::cout << edm4eic::eta(mom) << " " << p_eta << " " << (deta < m_cfg.etaTolerance) << std::endl;
-// 		std::cout << (dsphi < sinPhiOver2Tolerance) << std::endl;
-		
 
 
                 bool is_matching = 1;
 		// Matching kinematics with the static variables doesn't work at low angles and within beam divergence
-		if(p_eta<5 || edm4eic::eta(mom)<5){ 
+		// Maybe reconsider variables used or divide into regions
+		if(p_eta>-5 || edm4eic::eta(mom)>-5){ 
 		  is_matching = dp_rel < m_cfg.momentumRelativeTolerance  &&
 		    deta   < m_cfg.etaTolerance &&
 		    dsphi  < sinPhiOver2Tolerance;
@@ -108,12 +103,10 @@ namespace eicrecon {
                              dp_rel, m_cfg.momentumRelativeTolerance,
                              deta, m_cfg.etaTolerance,
                              dsphi, sinPhiOver2Tolerance);
-
                 if (is_matching) {
                     const double delta =
                             std::hypot(dp_rel / m_cfg.momentumRelativeTolerance, deta / m_cfg.etaTolerance,
                                        dsphi / sinPhiOver2Tolerance);
-// 		    std::cout << delta << " " << best_delta << std::endl;
                     if (delta < best_delta) {
                         best_match = ip;
                         best_delta = delta;
