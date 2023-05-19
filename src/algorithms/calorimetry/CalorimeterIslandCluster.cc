@@ -168,6 +168,13 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
           throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", u_transverseEnergyProfileMetric));
       }
       transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
+      std::vector<double> &units = std::get<1>(transverseEnergyProfileMetric_it->second);
+      for (auto unit : units) {
+        if (unit != units[0]) {
+          throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units", u_transverseEnergyProfileMetric));
+        }
+      }
+      transverseEnergyProfileScaleUnits = units[0];
     }
 
     return;

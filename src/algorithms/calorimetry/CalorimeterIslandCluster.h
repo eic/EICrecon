@@ -124,6 +124,7 @@ public:
     std::string u_transverseEnergyProfileMetric;
     std::function<edm4hep::Vector2f(const CaloHit* h1, const CaloHit* h2)> transverseEnergyProfileMetric;
     double u_transverseEnergyProfileScale;
+    double transverseEnergyProfileScaleUnits;
 
     // helper function to group hits
     std::function<bool(const CaloHit* h1, const CaloHit* h2)> is_neighbour;
@@ -263,7 +264,7 @@ private:
       for (const auto& chit : maxima) {
         double energy   = chit->getEnergy();
         double dist     = edm4eic::magnitude(transverseEnergyProfileMetric(chit, hit));
-        weights[j]      = std::exp(-dist / u_transverseEnergyProfileScale) * energy;
+        weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / u_transverseEnergyProfileScale) * energy;
         j += 1;
       }
 

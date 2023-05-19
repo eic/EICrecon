@@ -49,7 +49,7 @@ public:
         m_minClusterHitEdep=1.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
         u_transverseEnergyProfileMetric = "localDistXY";
-        u_transverseEnergyProfileScale = 10.; // mm
+        u_transverseEnergyProfileScale = 10. * dd4hep::mm;
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:geoServiceName", m_geoSvcName);
