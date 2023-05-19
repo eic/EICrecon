@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Dmitry Kalinkin
+
 #include <catch2/catch_test_macros.hpp>
 #include <spdlog/logger.h>
 
