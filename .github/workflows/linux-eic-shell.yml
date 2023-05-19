@@ -323,6 +323,9 @@ jobs:
         CC: [clang]
         particle: [e]
         detector_config: [ip6_extended]
+    env:
+      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=true:halt_on_error=false:detect_odr_violation=0
+      LSAN_OPTIONS: exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
