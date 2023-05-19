@@ -49,6 +49,8 @@ namespace richgeo {
       // generated k rng cell IDs, executing `lambda(cellID)` on each
       void VisitAllRngPixels(std::function<void(uint64_t)> lambda, float p) { m_rngCellIDs(lambda, p); }
 
+// set RNG seed
+void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
 
     protected:
 
