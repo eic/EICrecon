@@ -45,11 +45,11 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={};
 
-        m_splitCluster=false;
+        m_splitCluster=true;
         m_minClusterHitEdep=1.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
-        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
-        u_transverseEnergyProfileScale = 1.;
+        u_transverseEnergyProfileMetric = "localDistXY";
+        u_transverseEnergyProfileScale = 10.; // mm
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:geoServiceName", m_geoSvcName);
