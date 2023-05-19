@@ -67,7 +67,7 @@ richgeo::ReadoutGeo *RichGeo_service::GetReadoutGeo(std::string detector_name) {
     m_log->debug("Call RichGeo_service::GetReadoutGeo initializer");
     auto initialize = [this,&detector_name] () {
       if(!m_dd4hepGeo) throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
-      m_readoutGeo = new richgeo::ReadoutGeo(detector_name, m_dd4hepGeo, m_verbose);
+      m_readoutGeo = new richgeo::ReadoutGeo(detector_name, m_dd4hepGeo, m_log);
     };
     std::call_once(m_init_readout, initialize);
   }

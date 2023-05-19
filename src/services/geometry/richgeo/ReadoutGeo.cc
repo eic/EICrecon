@@ -6,8 +6,8 @@
 #include "ReadoutGeo.h"
 
 // constructor
-richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_)
-  : m_detName(detName_), m_det(det_), m_log(Logger::Instance(verbose_))
+richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
+  : m_detName(detName_), m_det(det_), m_log(log_)
 {
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
@@ -38,7 +38,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
 
     // define cellID looper
     m_loopCellIDs = [this] (std::function<void(uint64_t)> lambda) {
-      m_log.PrintLog("call VisitAllReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
+      m_log->trace("call VisitAllReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
 
       // loop over sensors (for all sectors)
       for(auto const& [deName, detSensor] : m_detRich.children()) {
@@ -48,7 +48,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
           auto imodsec = detSensor.id();
           auto imod    = m_readoutCoder->get(imodsec, "module");
           auto isec    = m_readoutCoder->get(imodsec, "sector");
-          // m_log.PrintLog("  module: imodsec={:#018X} => imod={:<6} isec={:<2} name={}", imodsec, imod, isec, deName);
+          // m_log->trace("  module: imodsec={:#018X} => imod={:<6} isec={:<2} name={}", imodsec, imod, isec, deName);
 
           // loop over xy-segmentation
           for (int x = 0; x < m_num_px; x++) {
@@ -66,7 +66,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
 
     // define k random cell IDs generator
     m_rngCellIDs = [this] (std::function<void(uint64_t)> lambda, float p) {
-      m_log.PrintLog("call RngReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
+      m_log->trace("call RngReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
 
       int k = p*m_num_sec*m_num_mod*m_num_px*m_num_px;
 
@@ -85,10 +85,10 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bo
 
   // pfRICH readout --------------------------------------------------------------------
   else if(m_detName=="PFRICH") {
-    m_log.PrintError("TODO: pfRICH readout bindings have not yet been implemented");
+    m_log->error("TODO: pfRICH readout bindings have not yet been implemented");
   }
 
   // ------------------------------------------------------------------------------------------------
-  else m_log.PrintError("ReadoutGeo is not defined for detector '{}'",m_detName);
+  else m_log->error("ReadoutGeo is not defined for detector '{}'",m_detName);
 
 }

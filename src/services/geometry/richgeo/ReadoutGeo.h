@@ -9,6 +9,7 @@
 #include <string>
 #include <fmt/format.h>
 #include <functional>
+#include <spdlog/spdlog.h>
 #include <TRandomGen.h>
 
 // DD4Hep
@@ -24,7 +25,7 @@ namespace richgeo {
     public:
 
       // constructor
-      ReadoutGeo(std::string detName_, dd4hep::Detector *det_, bool verbose_=false);
+      ReadoutGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
       ~ReadoutGeo() {}
 
       // define cellID encoding
@@ -39,7 +40,7 @@ namespace richgeo {
 	m_readoutCoder->set(cellID_dd4hep, "y",      y);
 	uint64_t cellID(cellID_dd4hep); // DD4hep uses `dd4hep::long64`, but EDM4hep uses `uint64_t`
 	return cellID;
-	// m_log.PrintLog("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
+	// m_log->trace("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
       }
 
       // loop over readout pixels, executing `lambda(cellID)` on each
@@ -52,7 +53,7 @@ namespace richgeo {
     protected:
 
       // common objects
-      Logger&                m_log;
+      std::shared_ptr<spdlog::logger> m_log;
       std::string            m_detName;
       dd4hep::Detector*      m_det;
       dd4hep::DetElement     m_detRich;
