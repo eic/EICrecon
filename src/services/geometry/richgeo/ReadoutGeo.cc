@@ -13,7 +13,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
 
   // random number generators
-  m_random.SetSeed(37);
+  m_random.SetSeed(1); // default seed
 
   // default (empty) cellID looper
   m_loopCellIDs = [] (std::function<void(uint64_t)> lambda) { return; };
