@@ -65,7 +65,7 @@ namespace eicrecon {
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
-	size_t local_mask = ~0UL;
+	size_t local_mask = ~static_cast<size_t>(0);
 	dd4hep::Detector *detector = nullptr;
 
 	const double aXRP[2][2] = {{2.102403743, 29.11067626},
