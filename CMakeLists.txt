@@ -90,6 +90,7 @@ add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # PODIO, EDM4HEP, EDM4EIC event models
+find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
@@ -119,6 +120,7 @@ include(cmake/print_functions.cmake)                        # Helpers to print f
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
+enable_testing()
 
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
