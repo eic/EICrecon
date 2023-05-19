@@ -45,7 +45,7 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.5,1.5};// from ATHENA reconstruction.py
 
-        m_splitCluster=false;
+        m_splitCluster = true;
         m_minClusterHitEdep=0.0 * dd4hep::MeV;
         m_minClusterCenterEdep=10.0 * dd4hep::MeV;
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";

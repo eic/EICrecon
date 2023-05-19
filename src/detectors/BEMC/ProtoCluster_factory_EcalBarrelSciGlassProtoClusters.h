@@ -56,7 +56,7 @@ public:
         u_globalDistEtaPhi={}; //{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={}; // not used
 
-        m_splitCluster=false;
+        m_splitCluster = true;
         m_minClusterHitEdep=1.0 * dd4hep::MeV;
         m_minClusterCenterEdep=30.0 * dd4hep::MeV;
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";
