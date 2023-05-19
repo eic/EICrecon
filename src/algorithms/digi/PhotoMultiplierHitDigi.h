@@ -77,7 +77,10 @@ public:
     }
 
     // set readout info
-    void SetReadoutGeo(richgeo::ReadoutGeo *readout) { m_readoutGeo = readout; };
+    void SetReadoutGeo(richgeo::ReadoutGeo *readout) {
+      m_readoutGeo = readout;
+      m_readoutGeo.SetSeed(m_cfg.seed);
+    }
 
 private:
 
