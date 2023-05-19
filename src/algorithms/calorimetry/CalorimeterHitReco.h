@@ -79,7 +79,7 @@ public:
   std::string m_localDetElement="", m_maskPos="";
   std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
-  size_t local_mask = ~0U, gpos_mask = 0U;
+  size_t local_mask = ~0UL, gpos_mask = 0UL;
 
     std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
