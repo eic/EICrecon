@@ -52,7 +52,7 @@ flowchart TB
 
   subgraph Particle Identification Linking
     Merge[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
-    MergePID(<strong>DRICHMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    MergePID(<strong>DRICHIrtMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
 
     ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
     ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col

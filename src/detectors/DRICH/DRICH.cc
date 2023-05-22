@@ -144,20 +144,20 @@ extern "C" {
     // merge aerogel and gas PID results
     app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-          "DRICHMergedCherenkovParticleID",
+          "DRICHMergedIrtCherenkovParticleID",
           merge_cfg
           ));
 
     // link reconstructed particles
     app->Add(new JChainFactoryGeneratorT<
         LinkParticleID_factory<edm4eic::ReconstructedParticle, edm4eic::ReconstructedParticleCollection>>(
-          {"DRICHMergedCherenkovParticleID", "ReconstructedChargedParticles"},
+          {"DRICHMergedIrtCherenkovParticleID", "ReconstructedChargedParticles"},
           "ReconstructedChargedParticlesWithDRICHPID",
           link_cfg
           ));
     app->Add(new JChainFactoryGeneratorT<
         LinkParticleID_factory<edm4eic::MCRecoParticleAssociation, edm4eic::MCRecoParticleAssociationCollection>>(
-          {"DRICHMergedCherenkovParticleID", "ReconstructedChargedParticleAssociations"},
+          {"DRICHMergedIrtCherenkovParticleID", "ReconstructedChargedParticleAssociations"},
           "ReconstructedChargedParticleAssociationsWithDRICHPID",
           link_cfg
           ));
