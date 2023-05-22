@@ -16,6 +16,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterIslandCluster");
   logger->set_level(spdlog::level::trace);
 
+  algo.m_minClusterHitEdep = 0. * dd4hep::GeV;
+  algo.m_minClusterCenterEdep = 0. * dd4hep::GeV;
+
   SECTION( "without splitting" ) {
     algo.m_splitCluster = false;
     algo.u_localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
