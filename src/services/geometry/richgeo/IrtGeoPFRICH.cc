@@ -1,7 +1,5 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include "IrtGeoPFRICH.h"
 
@@ -14,11 +12,11 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
    * for all radiators will be assigned at the end by hand; FIXME: should assign it on
    * per-photon basis, at birth, like standalone GEANT code does;
    */
-  auto vesselZmin     = m_det->constant<double>("PFRICH_zmin");
+  auto vesselZmin     = m_det->constant<double>("PFRICH_zmin") / dd4hep::mm;
   auto gasvolMaterial = m_det->constant<std::string>("PFRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, 1, 0);
-  auto surfEntrance = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, vesselZmin), normX, normY);
+  auto surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
   auto cv = m_irtDetectorCollection->SetContainerVolume(
       m_irtDetector,              // Cherenkov detector
       RadiatorName(kGas).c_str(), // name
@@ -39,20 +37,20 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       nullptr,          // G4LogicalVolume (inaccessible?)
       irtPhotonDetector // photon detector
       );
-  m_log.PrintLog("cellMask = {:#X}", cellMask);
+  m_log->debug("cellMask = {:#X}", cellMask);
 
   // aerogel + filter
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
    * FIXME: should make a small gas gap at the upstream end of the gas volume;
    */
-  auto aerogelZpos        = m_det->constant<double>("PFRICH_aerogel_zpos");
-  auto aerogelThickness   = m_det->constant<double>("PFRICH_aerogel_thickness");
+  auto aerogelZpos        = m_det->constant<double>("PFRICH_aerogel_zpos") / dd4hep::mm;
+  auto aerogelThickness   = m_det->constant<double>("PFRICH_aerogel_thickness") / dd4hep::mm;
   auto aerogelMaterial    = m_det->constant<std::string>("PFRICH_aerogel_material");
-  auto filterZpos         = m_det->constant<double>("PFRICH_filter_zpos");
-  auto filterThickness    = m_det->constant<double>("PFRICH_filter_thickness");
+  auto filterZpos         = m_det->constant<double>("PFRICH_filter_zpos") / dd4hep::mm;
+  auto filterThickness    = m_det->constant<double>("PFRICH_filter_thickness") / dd4hep::mm;
   auto filterMaterial     = m_det->constant<std::string>("PFRICH_filter_material");
-  auto aerogelFlatSurface = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, aerogelZpos), normX, normY);
-  auto filterFlatSurface  = new FlatSurface((1 / dd4hep::mm) * TVector3(0, 0, filterZpos),  normX, normY);
+  auto aerogelFlatSurface = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
+  auto filterFlatSurface  = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
   auto aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,                  // Cherenkov detector
       RadiatorName(kAerogel).c_str(), // name
@@ -60,7 +58,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                        // G4RadiatorMaterial
       aerogelFlatSurface,             // surface
-      aerogelThickness / dd4hep::mm   // surface thickness
+      aerogelThickness                // surface thickness
       );
   auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,           // Cherenkov detector
@@ -69,17 +67,18 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
       filterFlatSurface,       // surface
-      filterThickness / dd4hep::mm // surface thickness
+      filterThickness          // surface thickness
       );
   aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
   filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
-  m_log.PrintLog("aerogelZpos = {:f} cm", aerogelZpos);
-  m_log.PrintLog("filterZpos  = {:f} cm", filterZpos);
-  m_log.PrintLog("aerogel thickness = {:f} cm", aerogelThickness);
-  m_log.PrintLog("filter thickness  = {:f} cm", filterThickness);
+  m_log->debug("aerogelZpos = {:f} mm", aerogelZpos);
+  m_log->debug("filterZpos  = {:f} mm", filterZpos);
+  m_log->debug("aerogel thickness = {:f} mm", aerogelThickness);
+  m_log->debug("filter thickness  = {:f} mm", filterThickness);
 
   // sensor modules: search the detector tree for sensors
-  auto sensorThickness  = m_det->constant<double>("PFRICH_sensor_thickness");
+  auto sensorThickness  = m_det->constant<double>("PFRICH_sensor_thickness") / dd4hep::mm;
+  auto sensorSize       = m_det->constant<double>("PFRICH_sensor_size") / dd4hep::mm;
   bool firstSensor = true;
   for(auto const& [de_name, detSensor] : m_detRich.children()) {
     if(de_name.find("sensor_de")!=std::string::npos) {
@@ -88,10 +87,17 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       auto imod = detSensor.id();
       // - get sensor centroid position
       auto pvSensor  = detSensor.placement();
-      auto posSensor = m_posRich + pvSensor.position();
+      auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());
       // - get sensor surface position
       dd4hep::Direction sensorNorm(0,0,1); // FIXME: generalize; this assumes planar layout, with norm along +z axis (toward IP)
-      auto posSensorSurface = posSensor + (sensorNorm.Unit() * (0.5*sensorThickness));
+      auto surfaceOffset = sensorNorm.Unit() * (0.5*sensorThickness);
+      auto posSensorSurface = posSensor + surfaceOffset;
+      // - add to `m_sensor_info` map
+      richgeo::Sensor sensor_info;
+      sensor_info.size             = sensorSize;
+      sensor_info.surface_centroid = posSensorSurface;
+      sensor_info.surface_offset   = surfaceOffset;
+      m_sensor_info.insert({ imod, sensor_info });
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
@@ -108,7 +114,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is as expected
       if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-        m_log.PrintError(
+        m_log->error(
             "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho,
             testRadial
@@ -118,7 +124,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
       // create the optical surface
       auto sensorFlatSurface = new FlatSurface(
-          (1 / dd4hep::mm) * TVector3(posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z()),
+          TVector3(posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z()),
           TVector3(sensorGlobalNormX),
           TVector3(sensorGlobalNormY)
           );
@@ -128,7 +134,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
           imod,              // copy number
           sensorFlatSurface  // surface
           );
-      m_log.PrintLog(
+      m_log->trace(
           "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
           imod,
           posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
@@ -147,8 +153,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
     } // if sensor found
   } // search for sensors
 
-  // set refractive indices
-  // FIXME: are these (weighted) averages? can we automate this? We should avoid hard-coded numbers here!
+  // set reference refractive indices // NOTE: numbers may be overridden externally
   std::map<const char*, double> rIndices;
   rIndices.insert({RadiatorName(kGas).c_str(),     1.0013});
   rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
@@ -158,4 +163,10 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }
+
+  // set refractive index table
+  SetRefractiveIndexTable();
+
+  // define the `cell ID -> pixel position` converter
+  SetReadoutIDToPositionLambda();
 }

@@ -59,7 +59,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:readoutClass",     m_readout);
 
