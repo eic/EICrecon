@@ -140,15 +140,6 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
     // start an `irt_particle`, for `IRT`
     auto irt_particle = std::make_unique<ChargedParticle>();
 
-    // define `out_charged_particle`, which will be linked to the output PID object, with merged
-    // track points from all radiators; these track points will be sorted by time in `out_track_points`
-    // so that it does not matter which radiator is first
-    edm4eic::MutableTrackSegment out_charged_particle{
-      0.0, // length
-      0.0  // lengthError (not used)
-    };
-    std::vector<edm4eic::TrackPoint> out_track_points;
-
     // loop over radiators
     for(auto [rad_name,irt_rad] : m_pid_radiators) {
 
@@ -164,11 +155,6 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       }
       auto charged_particle_list = charged_particle_list_it->second;
       auto charged_particle      = charged_particle_list->at(i);
-
-      // append this `charged_particle` to `out_charged_particle` and its points to `out_track_points`
-      out_charged_particle.setLength(out_charged_particle.getLength() + charged_particle.getLength());
-      for(auto point : charged_particle.getPoints())
-        out_track_points.push_back(point);
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
       irt_rad->ResetLocations();
@@ -381,15 +367,9 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       // logging
       Tools::PrintCherenkovEstimate(m_log, out_cherenkov_pid);
 
-      // relate `out_charged_particle`, time-sorting its TrackPoints beforehand
-      std::sort(
-          out_track_points.begin(),
-          out_track_points.end(),
-          [] (edm4eic::TrackPoint& a, edm4eic::TrackPoint& b) { return a.time < b.time; }
-          );
-      for(auto point : out_track_points)
-        out_charged_particle.addToPoints(point);
-      out_cherenkov_pid.setChargedParticle(out_charged_particle);
+      // relate charged particle projection
+      auto charged_particle = in_charged_particles.at(rad_name)->at(i); // (no need to error check again)
+      out_cherenkov_pid.setChargedParticle(charged_particle);
 
       // relate hit associations
       for(const auto& hit_assoc : *in_hit_assocs)
