@@ -73,19 +73,20 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   /* workaround (FIXME)
    * - this factory creates multiple track projections (`edm4eic::TrackSegment`)
    *   for a single input `eicrecon::TrackingResultTrajectory`, but downstream
-   *   needs a way to know which of these `edm4eic::TrackSegments` came from
+   *   code needs a way to know which of these `edm4eic::TrackSegments` came from
    *   the same input `eicrecon::TrackingResultTrajectory`
    * - `eicrecon::TrackingResultTrajectory` is not an `EDM4*` datatype, and
    *   therefore the `edm4eic::TrackSegment` objects this factory creates
    *   cannot link to them
    * - in the data model `edm4eic::TrackSegment` can have a 1-1 relation to
-   *   an `edm4hep::Track`
-   * - therefore, as a workaround, we generate a unique, empty `edm4hep::Track`
-   *   for each `eicrecon::TrackingResultTrajectory`, which can be used in this
+   *   an `edm4eic::Track`
+   * - therefore, as a workaround, we generate a unique, empty `edm4eic::Track`
+   *   for each input `eicrecon::TrackingResultTrajectory`, which can be used in this
    *   1-1 relation from `edm4eic::TrackSegment` as a unique identifier to encode
    *   which `edm4eic::TrackSegment`s came from the same input track
    * - finally, an additional 'TrackID' output tag is needed, to to guarantee
-   *   these related `edm4eic::Track` objects are accessible by downstream readers
+   *   these related `edm4eic::Track` objects have an owner are accessible by
+   *   downstream readers
    */
   auto track_coll = std::make_unique<edm4eic::TrackCollection>();
   for(const auto& traj : trajectories)
