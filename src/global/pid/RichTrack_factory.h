@@ -9,6 +9,7 @@
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackCollection.h>
 
 // algorithms
 #include <algorithms/tracking/TrackPropagation.h>
@@ -38,8 +39,12 @@ namespace eicrecon {
           RichTrackConfig cfg
           ):
         JChainMultifactoryT<RichTrackConfig>(std::move(tag), input_tags, output_tags, cfg) {
-          for(auto& output_tag : GetOutputTags())
-            DeclarePodioOutput<edm4eic::TrackSegment>(output_tag);
+          for(auto& output_tag : GetOutputTags()) {
+            if(output_tag.find("TrackID") == std::string::npos)
+              DeclarePodioOutput<edm4eic::TrackSegment>(output_tag);
+            else
+              DeclarePodioOutput<edm4eic::Track>(output_tag);
+          }
         }
 
       /** One time initialization **/
@@ -57,8 +62,11 @@ namespace eicrecon {
       std::shared_ptr<ACTSGeo_service> m_actsSvc;
       richgeo::ActsGeo *m_actsGeo;
 
-      // vector of radiators, each with a vector of xy-planes to project to
-      std::vector< std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
+      // map: output_tag name (for a radiator's track projections) -> a vector of xy-planes to project to
+      std::map< std::string, std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
+
+      // name of trackIDs output collection
+      std::string m_trackIDs_tag;
 
       // underlying algorithm
       eicrecon::TrackPropagation m_propagation_algo;
