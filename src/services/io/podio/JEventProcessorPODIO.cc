@@ -77,6 +77,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticlesWithDRICHPID", // FIXME: overlaps with `ReconstructedChargedParticles`
             "ReconstructedChargedParticleAssociationsWithDRICHPID", // FIXME: overlaps with `ReconstructedChargedParticleAssociations`
             "CentralTrackSegments",
+	    "CentralTrackVertices",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",

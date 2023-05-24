@@ -34,7 +34,7 @@ public:
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
-        u_adjacencyMatrix = "(sector_1 == sector_2) && ((abs(ceil(module_1 / 10) - ceil(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)";
+        u_adjacencyMatrix = "(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)";
         u_adjacencyMatrix.erase(
           std::remove_if(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ::isspace),
           u_adjacencyMatrix.end());
