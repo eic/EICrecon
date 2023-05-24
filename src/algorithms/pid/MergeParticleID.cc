@@ -63,7 +63,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
   // fill `particle_pids`
   // -------------------------------------------------------------------------------
-  std::unordered_map< decltype(edm4eic::CherenkovParticleID().id()), std::vector<std::pair<size_t,size_t>> > particle_pids;
+  std::unordered_map< unsigned int, std::vector<std::pair<size_t,size_t>> > particle_pids;
   m_log->trace("{:-<70}","Build `particle_pids` indexing data structure ");
 
   // loop over list of PID collections
@@ -76,11 +76,21 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
       // make the index pair
       const auto& in_pid = in_pid_collection->at(idx_pid);
-      auto id_particle   = in_pid.getChargedParticle().id();
-      auto idx_paired    = std::make_pair(idx_coll, idx_pid);
+      auto& charged_particle_track_segment = in_pid.getChargedParticle();
+      if(!charged_particle_track_segment.isAvailable()) {
+        m_log->error("PID object found with no charged particle");
+        continue;
+      }
+      auto& charged_particle_track = charged_particle_track_segment.getTrack();
+      if(!charged_particle_track.isAvailable()) {
+        m_log->error("Charged particle TrackSegment found for this PID, but no unique Track is linked");
+        continue;
+      }
+      auto id_particle = charged_particle_track.id();
+      auto idx_paired  = std::make_pair(idx_coll, idx_pid);
       m_log->trace("  idx_pid={}  id_particle={}", idx_pid, id_particle);
 
-      // insert in `particle_ids`
+      // insert in `particle_pids`
       auto it = particle_pids.find(id_particle);
       if(it == particle_pids.end())
         particle_pids.insert({id_particle, {idx_paired}});
