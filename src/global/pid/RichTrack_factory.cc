@@ -42,7 +42,7 @@ void eicrecon::RichTrack_factory::Init() {
     set_param(radiator_name+":numPlanes", cfg.numPlanes[radiator_name], "");
   cfg.Print(m_log, spdlog::level::debug);
 
-  // get RICH geometry for track projection, for each radiator
+  // get RICH geometry for track propagation, for each radiator
   m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
   for(auto& [radiator_id, radiator_name, output_tag] : radiator_list)
     m_tracking_planes.insert({
@@ -71,7 +71,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   }
 
   /* workaround (FIXME)
-   * - this factory creates multiple track projections (`edm4eic::TrackSegment`)
+   * - this factory creates multiple track propagations (`edm4eic::TrackSegment`)
    *   for a single input `eicrecon::TrackingResultTrajectory`, but downstream
    *   code needs a way to know which of these `edm4eic::TrackSegments` came from
    *   the same input `eicrecon::TrackingResultTrajectory`
@@ -95,12 +95,12 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   // run algorithm, for each radiator
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
-      // propgate trajectories to RICH planes (discs)
+      // propagate trajectories to RICH planes (discs)
       auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes);
       // 1-1 relation to unique tracks (see 'workaround' above)
       for(unsigned i_track=0; i_track<track_coll->size(); i_track++)
         result->at(i_track).setTrack(track_coll->at(i_track));
-      // set factory output projected tracks
+      // set factory output propagated tracks
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {
