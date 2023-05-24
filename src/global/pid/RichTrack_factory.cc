@@ -19,13 +19,17 @@ void eicrecon::RichTrack_factory::Init() {
   m_log->debug("detector_name='{}'  param_prefix='{}'", detector_name, param_prefix);
 
   // get list of radiators
-  std::map<int,std::string> radiator_list;
+  std::vector<std::tuple<int, std::string, std::string>> radiator_list; // < radiator_id, radiator_name, output_tag >
   for(auto& output_tag : GetOutputTags()) {
-    auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
-    radiator_list.insert({
-        radiator_id,
-        richgeo::RadiatorName(radiator_id, m_log)
-        });
+    if(output_tag.find("TrackID") == std::string::npos) {
+      auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
+      radiator_list.push_back({
+          radiator_id,
+          richgeo::RadiatorName(radiator_id, m_log),
+          output_tag
+          });
+    }
+    else m_trackIDs_tag = output_tag; // output TrackID tag name
   }
 
   // configuration parameters
@@ -34,16 +38,17 @@ void eicrecon::RichTrack_factory::Init() {
     name = param_prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
-  for(auto& [radiator_id, radiator_name] : radiator_list)
+  for(auto& [radiator_id, radiator_name, output_tag] : radiator_list)
     set_param(radiator_name+":numPlanes", cfg.numPlanes[radiator_name], "");
   cfg.Print(m_log, spdlog::level::debug);
 
   // get RICH geometry for track projection, for each radiator
   m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
-  for(auto& [radiator_id, radiator_name] : radiator_list)
-    m_tracking_planes.push_back(
+  for(auto& [radiator_id, radiator_name, output_tag] : radiator_list)
+    m_tracking_planes.insert({
+        output_tag,
         m_actsGeo->TrackingPlanes(radiator_id, cfg.numPlanes.at(radiator_name))
-        );
+        });
 }
 
 //-----------------------------------------------------------------------------
@@ -65,16 +70,43 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
+  /* workaround (FIXME)
+   * - this factory creates multiple track projections (`edm4eic::TrackSegment`)
+   *   for a single input `eicrecon::TrackingResultTrajectory`, but downstream
+   *   needs a way to know which of these `edm4eic::TrackSegments` came from
+   *   the same input `eicrecon::TrackingResultTrajectory`
+   * - `eicrecon::TrackingResultTrajectory` is not an `EDM4*` datatype, and
+   *   therefore the `edm4eic::TrackSegment` objects this factory creates
+   *   cannot link to them
+   * - in the data model `edm4eic::TrackSegment` can have a 1-1 relation to
+   *   an `edm4hep::Track`
+   * - therefore, as a workaround, we generate a unique, empty `edm4hep::Track`
+   *   for each `eicrecon::TrackingResultTrajectory`, which can be used in this
+   *   1-1 relation from `edm4eic::TrackSegment` as a unique identifier to encode
+   *   which `edm4eic::TrackSegment`s came from the same input track
+   * - finally, an additional 'TrackID' output tag is needed, to to guarantee
+   *   these related `edm4eic::Track` objects are accessible by downstream readers
+   */
+  auto track_coll = std::make_unique<edm4eic::TrackCollection>();
+  for(const auto& traj : trajectories)
+    track_coll->create();
+
   // run algorithm, for each radiator
-  for(unsigned i=0; i<m_tracking_planes.size(); i++) {
-    auto& radiator_tracking_planes = m_tracking_planes.at(i);
-    auto& out_collection_name      = GetOutputTags().at(i);
+  for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
+      // propgate trajectories to RICH planes (discs)
       auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes);
-      SetCollection<edm4eic::TrackSegment>(out_collection_name, std::move(result));
+      // 1-1 relation to unique tracks (see 'workaround' above)
+      for(unsigned i_track=0; i_track<track_coll->size(); i_track++)
+        result->at(i_track).setTrack(track_coll->at(i_track));
+      // set factory output projected tracks
+      SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {
       m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
     }
   }
+
+  // set factory output TrackIDs
+  SetCollection<edm4eic::Track>(m_trackIDs_tag, std::move(track_coll));
 }
