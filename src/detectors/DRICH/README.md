@@ -3,12 +3,13 @@
 ## Algorithms and Data Flowchart
 ### Legend
 ```mermaid
-flowchart LR
+flowchart TB
   classDef alg fill:#ff8888,color:black
   classDef col fill:#00aaaa,color:black
   Algorithm[<strong>Algorithm Description</strong><br/>Algorithm Name<br><i>Factory Name</i>]:::alg
-  Collection(<strong>Collection Name</strong><br/>Collection Datatype):::col
-  Algorithm --> Collection
+  InputCollection(<strong>Input Collection Name</strong><br/>Input Collection Datatype):::col
+  OutputCollection(<strong>Output Collection Name</strong><br/>Output Collection Datatype):::col
+  InputCollection --> Algorithm --> OutputCollection
 ```
 
 ### Flowchart
@@ -36,10 +37,12 @@ flowchart TB
   subgraph Charged Particles
 
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br><i>RichTrack_factory</i>]:::alg
+    MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTracks<br><i>RichTrack_factory</i>]:::alg
     AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
     GasTracks(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
-    MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
+    MergedTracks(<strong>DRICHMergedTracks</strong><br/>edm4eic::TrackSegment):::col
 
+    MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
     ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br><i>RichTrackReflection_factory</i>]:::alg
     Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
   end
@@ -73,30 +76,32 @@ flowchart TB
   DigiAlg --> HitAssocs
 
   %% tracking
-  Trajectories --> PropagatorAlg
-  PropagatorAlg --> AerogelTracks
-  PropagatorAlg --> GasTracks
-  PropagatorAlg --> MirrorTracks
-  MirrorTracks --> ReflectionsAlg
+  Trajectories   --> PropagatorAlg
+  PropagatorAlg  --> AerogelTracks --> MergeTracksAlg
+  PropagatorAlg  --> GasTracks     --> MergeTracksAlg
+  MergeTracksAlg --> MergeTracks
+  PropagatorAlg  --> MirrorTracks
+  MirrorTracks   --> ReflectionsAlg
   ReflectionsAlg --> Reflections
 
   %% PID
-  RawHits --> IRT
-  HitAssocs --> IRT
+  RawHits       --> IRT
+  HitAssocs     --> IRT
   AerogelTracks --> IRT
-  GasTracks --> IRT
-  Reflections --> IRT
-  IRT --> IRTPIDAerogel
-  IRT --> IRTPIDGas
+  GasTracks     --> IRT
+  MergeTracks   --> IRT
+  Reflections   --> IRT
+  IRT           --> IRTPIDAerogel
+  IRT           --> IRTPIDGas
   IRTPIDAerogel --> Merge
-  IRTPIDGas --> Merge
-  Merge --> MergePID
+  IRTPIDGas     --> Merge
+  Merge         --> MergePID
 
   %% linking
   Trajectories --> ReconParts
-  MergePID --> ProxMatch
-  ReconParts --> ProxMatch
-  ProxMatch --> ReconPartsWithPID
+  MergePID     --> ProxMatch
+  ReconParts   --> ProxMatch
+  ProxMatch    --> ReconPartsWithPID
 ```
 
 ## Data Model
