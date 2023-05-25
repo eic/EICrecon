@@ -123,7 +123,7 @@ extern "C" {
     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
           {"CentralCKFTrajectories"},
-          {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHTrackIDs"},
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app
           ));
