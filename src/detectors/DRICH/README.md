@@ -6,10 +6,10 @@
 flowchart TB
   classDef alg fill:#ff8888,color:black
   classDef col fill:#00aaaa,color:black
-  Algorithm[<strong>Algorithm Description</strong><br/>Algorithm Name<br><i>Factory Name</i>]:::alg
+  Algorithm[<strong>Algorithm Description</strong><br/>Algorithm Name<br/><i>Factory Name</i>]:::alg
   InputCollection(<strong>Input Collection Name</strong><br/>Input Collection Datatype):::col
   OutputCollection(<strong>Output Collection Name</strong><br/>Output Collection Datatype):::col
-  InputCollection --> Algorithm --> OutputCollection
+  InputCollection ==> Algorithm ==> OutputCollection
 ```
 
 ### Flowchart
@@ -17,6 +17,7 @@ flowchart TB
 flowchart TB
   classDef alg fill:#ff8888,color:black
   classDef col fill:#00aaaa,color:black
+  classDef misc fill:#ff88ff,color:black
 
   %%-----------------
   %% Nodes
@@ -24,196 +25,252 @@ flowchart TB
 
   subgraph Inputs
     direction LR
-    SimHits(<strong>DRICHHits</strong><br/>edm4hep::SimTrackerHit):::col
+    SimHits(<strong>DRICHHits</strong><br/>MC dRICH photon hits<br/>edm4hep::SimTrackerHit):::col
     Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
   end
 
   subgraph Digitization
-    DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br><i>PhotoMultiplierHitDigi_factory</i>]:::alg
-    RawHits(<strong>DRICHRawHits</strong><br/>edm4eic::RawTrackerHit):::col
-    HitAssocs(<strong>DRICHRawHitsAssociations</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
+    DigiAlg[<strong>Digitization</strong><br/>PhotoMultiplierHitDigi<br/><i>PhotoMultiplierHitDigi_factory</i>]:::alg
+    RawHits(<strong>DRICHRawHits</strong><br/>includes noise<br/>edm4eic::RawTrackerHit):::col
+    HitAssocs(<strong>DRICHRawHitsAssociations</strong><br/>no noise<br/>edm4eic::MCRecoTrackerHitAssociation):::col
   end
 
   subgraph Charged Particles
 
-    PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br><i>RichTrack_factory</i>]:::alg
-    MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTracks<br><i>RichTrack_factory</i>]:::alg
-    AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
-    GasTracks(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
+    PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br/><i>RichTrack_factory</i>]:::alg
+    subgraph rad1 [radiators]
+      AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
+      GasTracks(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
+    end
+    MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTrackSegments<br/><i>RichTrack_factory</i>]:::alg
     MergedTracks(<strong>DRICHMergedTracks</strong><br/>edm4eic::TrackSegment):::col
 
-    MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
-    ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br><i>RichTrackReflection_factory</i>]:::alg
-    Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
+    %% MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
+    %% ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br/><i>RichTrackReflection_factory</i>]:::alg
+    %% Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
   end
+
+  PIDInputs{{<strong>PID Algorithm Inputs</strong>}}:::misc
 
   subgraph Particle Identification Algorithms
-    IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br><i>IrtCherenkovParticleID_factory</i>]:::alg
-    IRTPIDAerogel(<strong>DRICHAerogelIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
-    IRTPIDGas(<strong>DRICHGasIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    IRT[<strong>IRT: Indirect Ray Tracing</strong><br/>IrtCherenkovParticleID<br/><i>IrtCherenkovParticleID_factory</i>]:::alg
+    subgraph rad2 [radiators]
+      IRTPIDAerogel(<strong>DRICHAerogelIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+      IRTPIDGas(<strong>DRICHGasIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    end
+
+    AlternatePIDAlgo[<strong>Alternate PID Algorithm</strong><br/>TODO]:::alg
+    AlternatePID(<strong>Alternate PID Output Collection<br/>TODO</strong><br/>edm4eic::CherenkovParticleID):::col
+
+    MergePID[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br/><i>MergeCherenkovParticleID_factory</i>]:::alg
+    IRTPIDMerged(<strong>DRICHIrtMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
   end
 
-  subgraph Particle Identification Linking
-    Merge[<strong>Combine PID from radiators</strong><br/>MergeParticleID<br><i>MergeCherenkovParticleID_factory</i>]:::alg
-    MergePID(<strong>DRICHIrtMergedCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+  PIDOutputs{{<strong>PID Algorithm Outputs</strong>}}:::misc
 
-    ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br><i>LinkParticleID_factory</i>]:::alg
+  TrackingAlgos[<strong>Tracking Algorithms, etc.</strong>]:::alg
+
+  subgraph Particle Identification Linking
+    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+
+    ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br/><i>LinkParticleID_factory</i>]:::alg
     ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   end
 
-  subgraph Tracking Plugin Algorithms
-    direction TB
-    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
-  end
+  MCParts(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
 
   %%-----------------
   %% Edges
   %%-----------------
 
   %% digitization
-  SimHits --> DigiAlg
-  DigiAlg --> RawHits
-  DigiAlg --> HitAssocs
+  SimHits ==> DigiAlg
+  DigiAlg ==> RawHits
+  DigiAlg ==> HitAssocs
+  SimHits -.association.- HitAssocs
 
   %% tracking
-  Trajectories   --> PropagatorAlg
-  PropagatorAlg  --> AerogelTracks --> MergeTracksAlg
-  PropagatorAlg  --> GasTracks     --> MergeTracksAlg
-  MergeTracksAlg --> MergeTracks
-  PropagatorAlg  --> MirrorTracks
-  MirrorTracks   --> ReflectionsAlg
-  ReflectionsAlg --> Reflections
+  Trajectories   ==> PropagatorAlg
+  PropagatorAlg  ==> AerogelTracks ==> MergeTracksAlg
+  PropagatorAlg  ==> GasTracks     ==> MergeTracksAlg
+  MergeTracksAlg ==> MergedTracks
+
+  %% track reflections
+  %% PropagatorAlg  ==> MirrorTracks
+  %% MirrorTracks   ==> ReflectionsAlg
+  %% ReflectionsAlg ==> Reflections
+  %% Reflections    ==> PIDInputs
 
   %% PID
-  RawHits       --> IRT
-  HitAssocs     --> IRT
-  AerogelTracks --> IRT
-  GasTracks     --> IRT
-  MergeTracks   --> IRT
-  Reflections   --> IRT
-  IRT           --> IRTPIDAerogel
-  IRT           --> IRTPIDGas
-  IRTPIDAerogel --> Merge
-  IRTPIDGas     --> Merge
-  Merge         --> MergePID
+  RawHits       ==> PIDInputs
+  HitAssocs     ==> PIDInputs
+  AerogelTracks ==> PIDInputs
+  GasTracks     ==> PIDInputs
+  MergedTracks  ==> PIDInputs
+  PIDInputs     ==> IRT
+  IRT           ==> IRTPIDAerogel    ==> MergePID
+  IRT           ==> IRTPIDGas        ==> MergePID
+  MergePID      ==> IRTPIDMerged     ==> PIDOutputs
+  PIDInputs     ==> AlternatePIDAlgo ==> AlternatePID ==> PIDOutputs
 
   %% linking
-  Trajectories --> ReconParts
-  MergePID     --> ProxMatch
-  ReconParts   --> ProxMatch
-  ProxMatch    --> ReconPartsWithPID
+  Trajectories ==> TrackingAlgos ==> ReconParts -.association.- MCParts
+  PIDOutputs   ==> ProxMatch
+  ReconParts   ==> ProxMatch
+  ProxMatch    ==> ReconPartsWithPID -.association.- MCParts
 ```
 
 ## Data Model
 
 ### Digitized Hits
+- All digitized hits, including noise hits, are stored as `edm4eic::RawTrackerHit` collections
 - Association `edm4eic::MCRecoTrackerHitAssociation` stores the 1-N link from a digitized hit to the MC truth hits
   - each MC truth hit has a 1-1 relation to the original MC `opticalphoton` (or whatever particle caused the hit)
-  - digitized noise hits will not have associated MC truth hits
+  - digitized noise hits will not have associated MC truth hits, and therefore do not appear in `edm4eic::MCRecoTrackerHitAssociation` collections
 ```mermaid
-flowchart LR
+flowchart TB
   classDef col fill:#00aaaa,color:black
+  classDef fn fill:#c3b091,color:black
 
   %% nodes
   Association(<strong>DRICHRawHitsAssociation</strong><br/>edm4eic::MCRecoTrackerHitAssociation):::col
+  RawHitFn[rawHit]:::fn
   subgraph Digitized
     RawHit(edm4eic::RawTrackerHit):::col
   end
+  SimHitsFn[simHits]:::fn
   subgraph Simulated MC Truth
     direction TB
     SimHit1(edm4hep::SimTrackerHit):::col
     SimHit2(edm4hep::SimTrackerHit):::col
-    SimHit3(... additional MC hits ...):::col
+    SimHit3(... additional MC hits and corresponding photons ...):::col
+    MCParticleFn1[MCParticle]:::fn
+    MCParticleFn2[MCParticle]:::fn
     Photon1(edm4hep::MCParticle):::col
     Photon2(edm4hep::MCParticle):::col
   end
 
   %% edges
-  Association -- rawHit --> RawHit
-  Association -- simHits --> SimHit1
-  Association -- simHits --> SimHit2
-  Association -- simHits --> SimHit3
-  SimHit1 -- MCParticle --> Photon1
-  SimHit2 -- MCParticle --> Photon2
+  Association ==> RawHitFn ==> RawHit
+  Association ==> SimHitsFn
+  SimHitsFn ==> SimHit1 ==> MCParticleFn1 ==> Photon1
+  SimHitsFn ==> SimHit2 ==> MCParticleFn2 ==> Photon2
+  SimHitsFn ==> SimHit3
 ```
 
 ### Expert-level PID Output
 - RICH-specific particle ID datatype `edm4eic::CherenkovParticleID`
-  - Vector components `edm4eic::CherenkovParticleIDHypothesis`, one for each PID hypothesis
+  - From IRT: aerogel and gas results separated
+  - Vector member of `edm4eic::CherenkovParticleIDHypothesis` components, one for each PID hypothesis, with members:
+    - PDG
+    - NPE
+    - weight
+  - Additional members:
+    - Average reconstructed Cherenkov angle (theta)
+    - Reconstructed Cherenkov (theta, phi) for each photon
+    - NPE
+    - MC: average photon energy and refractive index at emission point
+    - Link to charged particle and hit-associations
   - 1-1 relation to corresponding charged particle `edm4eic::TrackSegment`
-- Aerogel and Gas results are combined to one collection: `DRICHIrtCherenkovParticleID`
+    - points to the _same_ `DRICHMergedTrack`, to facillitate merging aerogel and gas PID results
+
 ```mermaid
-flowchart LR
+flowchart TB
   classDef col fill:#00aaaa,color:black
+  classDef fn fill:#c3b091,color:black
   classDef comp fill:#8888ff,color:black
 
   %% nodes
-  TrackAgl(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
-  TrackGas(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
-  subgraph DRICHIrtCherenkovParticleID
+  CPIDAgl(<strong>DRICHAerogelIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+  CPIDGas(<strong>DRICHGasIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+  HypAglFn[hypotheses]:::fn
+  HypGasFn[hypotheses]:::fn
+
+  subgraph <strong>hypotheses from aerogel</strong>
     direction TB
-    CPIDAgl(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
-    CPIDGas(<strong>DRICHIrtCherenkovParticleID</strong><br/>edm4eic::CherenkovParticleID):::col
+    HypAgl0([Electron]):::comp
+    HypAgl1([Pion]):::comp
+    HypAgl2([Kaon]):::comp
+    HypAgl3([Proton]):::comp
   end
-  subgraph <strong>hypotheses, from aerogel</strong><br/>edm4eic::CherenkovParticleIDHypothesis
+  subgraph <strong>hypotheses from gas</strong>
     direction TB
-    HypAgl0([Electron Hypothesis]):::comp
-    HypAgl1([Pion Hypothesis]):::comp
-    HypAgl2([Kaon Hypothesis]):::comp
-    HypAgl3([Proton Hypothesis]):::comp
-  end
-  subgraph <strong>hypotheses, from gas</strong><br/>edm4eic::CherenkovParticleIDHypothesis
-    direction TB
-    HypGas0([Electron Hypothesis]):::comp
-    HypGas1([Pion Hypothesis]):::comp
-    HypGas2([Kaon Hypothesis]):::comp
-    HypGas3([Proton Hypothesis]):::comp
+    HypGas0([Electron]):::comp
+    HypGas1([Pion]):::comp
+    HypGas2([Kaon]):::comp
+    HypGas3([Proton]):::comp
   end
 
+  TrackAglFn[chargedParticle]:::fn
+  TrackGasFn[chargedParticle]:::fn
+  Track(<strong>DRICHMergedTracks</strong><br/>edm4eic::TrackSegment):::col
+
   %% edges
-  CPIDAgl -- hypotheses --> HypAgl0
-  CPIDAgl -- hypotheses --> HypAgl1
-  CPIDAgl -- hypotheses --> HypAgl2
-  CPIDAgl -- hypotheses --> HypAgl3
-  CPIDAgl -- chargedParticle --> TrackAgl
-  CPIDGas -- hypotheses --> HypGas0
-  CPIDGas -- hypotheses --> HypGas1
-  CPIDGas -- hypotheses --> HypGas2
-  CPIDGas -- hypotheses --> HypGas3
-  CPIDGas -- chargedParticle --> TrackGas
+  CPIDAgl ==> HypAglFn
+  HypAglFn   ==> HypAgl0
+  HypAglFn   ==> HypAgl1
+  HypAglFn   ==> HypAgl2
+  HypAglFn   ==> HypAgl3
+  CPIDAgl ==> TrackAglFn ==> Track
+  CPIDGas ==> HypGasFn
+  HypGasFn   ==> HypGas0
+  HypGasFn   ==> HypGas1
+  HypGasFn   ==> HypGas2
+  HypGasFn   ==> HypGas3
+  CPIDGas ==> TrackGasFn ==> Track
 ```
 
 ### User-level PID Output
 - Add `edm4hep::ParticleID` objects to `ReconstructedParticle`
-  - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object, and
-    set `ReconstructedParticle::PDG` accordingly; the diagram below exemplifies this for a pion
+  - `edm4hep::ParticleID` objects include a likelihood, PDG (and some index variables and `float` parameters for full generality)
+  - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object;
+    the diagram below exemplifies this for a pion
   - Use 1-N relation `ReconstructedParticle::particleIDs` to link all the `edm4hep::ParticleID` objects
-- User can then access the most-likely PDG via:
+- User can then access PDG via:
 ```cpp
-ReconstructedParticle::getPDG();                      // EDM4eic specific; could be be filled with true PDG instead
-ReconstructedParticle::getParticleIDUsed().getPDG();  // alternative; always PDG from PID (more consistent with EDM4hep)
+ReconstructedParticleAssociation.getRec().getParticleIDUsed().getPDG(); // most likely PDG from PID
+ReconstructedParticleAssociation.getSim().getPDG();                     // true PDG
 ```
 ```mermaid
-flowchart LR
+flowchart TB
   classDef col fill:#00aaaa,color:black
-  classDef alg fill:#ff8888,color:black
+  classDef fn fill:#c3b091,color:black
   classDef comp fill:#8888ff,color:black
 
   %% nodes
-  Recon(<strong>ReconstructedParticleWithDRICHParticleID</strong><br/>edm4eic::ReconstructedParticle):::col
-  subgraph <strong>DRICHParticleID</strong>
+  ReconPart(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle):::col
+  ReconAssoc(<strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+  MCPart(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
+  RecFn[rec]:::fn
+  SimFn[sim]:::fn
+
+  PDGReconFn[PDG]:::fn
+  PDGMCFn[PDG]:::fn
+
+  PDGTrue([True PDG]):::comp
+
+  ParticleIDsFn[particleIDs]:::fn
+  ParticleIDUsedFn[particleIDUsed]:::fn
+
+  subgraph <strong>Particle ID Objects</strong>
     direction LR
-    Hyp0(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col --> Pdg0([PDG=electron]):::comp
-    Hyp1(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col --> Pdg1([PDG=pion]):::comp
-    Hyp2(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col --> Pdg2([PDG=kaon]):::comp
-    Hyp3(<strong>DRICHParticleID</strong><br/>edm4hep::ParticleID):::col --> Pdg3([PDG=proton]):::comp
+    Hyp0(edm4hep::ParticleID):::col ==> Pdg0Fn[PDG]:::fn ==> Pdg0([Electron]):::comp
+    Hyp1(edm4hep::ParticleID):::col ==> Pdg1Fn[PDG]:::fn ==> Pdg1([Pion]):::comp
+    Hyp2(edm4hep::ParticleID):::col ==> Pdg2Fn[PDG]:::fn ==> Pdg2([Kaon]):::comp
+    Hyp3(edm4hep::ParticleID):::col ==> Pdg3Fn[PDG]:::fn ==> Pdg3([Proton]):::comp
   end
 
   %% edges
-  Recon -- particleIDs --> Hyp0
-  Recon -- particleIDs --> Hyp1
-  Recon -- particleIDUsed --> Hyp1
-  Recon -- PDG --> Pdg1
-  Recon -- particleIDs --> Hyp2
-  Recon -- particleIDs --> Hyp3
+  ReconAssoc ==> RecFn   ==> ReconPart
+  ReconAssoc ==> SimFn   ==> MCPart
+  ReconPart  ==>|TO BE REMOVED| PDGReconFn ==> PDGTrue
+  MCPart     ==> PDGMCFn ==> PDGTrue
+
+  ReconPart ==> ParticleIDUsedFn ==> Hyp1
+  ReconPart ==> ParticleIDsFn
+
+  ParticleIDsFn ==> Hyp0
+  ParticleIDsFn ==> Hyp1
+  ParticleIDsFn ==> Hyp2
+  ParticleIDsFn ==> Hyp3
   ```
