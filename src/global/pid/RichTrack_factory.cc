@@ -11,6 +11,13 @@ void eicrecon::RichTrack_factory::Init() {
   auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
   auto param_prefix  = detector_name + GetPrefix();
 
+  /* declare an additional output tag for "TrackIDs", which will be related to
+   * the output `TrackSegment`s (see "TrackIDs workaround" below in the
+   * `Process` method for more info)
+   */
+  m_trackIDs_tag = detector_name + "TrackIDs";
+  DeclarePodioOutput<edm4eic::Track>(m_trackIDs_tag);
+
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
@@ -21,15 +28,12 @@ void eicrecon::RichTrack_factory::Init() {
   // get list of radiators
   std::vector<std::tuple<int, std::string, std::string>> radiator_list; // < radiator_id, radiator_name, output_tag >
   for(auto& output_tag : GetOutputTags()) {
-    if(output_tag.find("TrackID") == std::string::npos) {
-      auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
-      radiator_list.push_back({
-          radiator_id,
-          richgeo::RadiatorName(radiator_id, m_log),
-          output_tag
-          });
-    }
-    else m_trackIDs_tag = output_tag; // output TrackID tag name
+    auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
+    radiator_list.push_back({
+        radiator_id,
+        richgeo::RadiatorName(radiator_id, m_log),
+        output_tag
+        });
   }
 
   // configuration parameters
@@ -70,7 +74,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
-  /* workaround (FIXME)
+  /* TrackIDs workaround (FIXME)
    * - this factory creates multiple track propagations (`edm4eic::TrackSegment`)
    *   for a single input `eicrecon::TrackingResultTrajectory`, but downstream
    *   code needs a way to know which of these `edm4eic::TrackSegments` came from
@@ -108,6 +112,6 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
-  // set factory output TrackIDs
+  // set factory output TrackIDs (necessary for re-reading with podio::ROOTFrameReader)
   SetCollection<edm4eic::Track>(m_trackIDs_tag, std::move(track_coll));
 }

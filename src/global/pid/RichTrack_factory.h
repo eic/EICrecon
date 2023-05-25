@@ -39,12 +39,8 @@ namespace eicrecon {
           RichTrackConfig cfg
           ):
         JChainMultifactoryT<RichTrackConfig>(std::move(tag), input_tags, output_tags, cfg) {
-          for(auto& output_tag : GetOutputTags()) {
-            if(output_tag.find("TrackID") == std::string::npos)
-              DeclarePodioOutput<edm4eic::TrackSegment>(output_tag);
-            else
-              DeclarePodioOutput<edm4eic::Track>(output_tag);
-          }
+          for(auto& output_tag : GetOutputTags())
+            DeclarePodioOutput<edm4eic::TrackSegment>(output_tag);
         }
 
       /** One time initialization **/
