@@ -28,10 +28,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "EcalLumiSpecRecHits";
 
-        m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
-
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         u_adjacencyMatrix = "(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)";
@@ -49,11 +45,15 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={};
 
+        m_splitCluster=true;
+        m_minClusterHitEdep=1.0 * dd4hep::MeV;
+        m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "localDistXY";
+        u_transverseEnergyProfileScale = 10. * dd4hep::mm;
 
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -62,8 +62,11 @@ public:
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);
