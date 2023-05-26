@@ -156,7 +156,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 );
 
           };
-          m_readoutGeo->VisitAllRngPixels(cellID_action, p);
+          m_VisitRngCellIDs(cellID_action, p);
         }
 
         // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections

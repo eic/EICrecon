@@ -58,7 +58,7 @@ namespace eicrecon {
     private:
 
         eicrecon::PhotoMultiplierHitDigi m_digi_algo;       /// Actual digitisation algorithm
-        richgeo::ReadoutGeo              *m_readoutGeo = nullptr;
+        std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
     };
 
 }

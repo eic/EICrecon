@@ -16,7 +16,6 @@
 #pragma once
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <services/geometry/richgeo/RichGeo_service.h>
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -24,6 +23,7 @@
 #include <spdlog/spdlog.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <cstddef>
+#include <functional>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include <algorithms/interfaces/WithPodConfig.h>
@@ -60,7 +60,7 @@ public:
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-    dd4hep::Position get_sensor_local_position(uint64_t id, dd4hep::Position pos);
+    dd4hep::Position get_sensor_local_position(CellIDType id, dd4hep::Position pos);
 
     // random number generators
     TRandomMixMax m_random;
@@ -76,11 +76,19 @@ public:
       return dd4hep::Position( v.x*dd4hep::mm, v.y*dd4hep::mm, v.z*dd4hep::mm );
     }
 
-    // set readout info
-    void SetReadoutGeo(richgeo::ReadoutGeo *readout) {
-      m_readoutGeo = readout;
-      m_readoutGeo->SetSeed(m_cfg.seed);
-    }
+    // set `m_VisitAllRngPixels`, a visitor to run an action (type
+    // `function<void(cellID)>`) on a selection of random CellIDs; must be
+    // defined externally, since this would be detector-specific
+    void SetVisitRngCellIDs(
+        std::function< void(std::function<void(CellIDType)>, float) > visitor
+        )
+    { m_VisitRngCellIDs = visitor; }
+
+protected:
+
+    // visitor of all possible CellIDs (set with SetVisitRngCellIDs)
+    std::function< void(std::function<void(CellIDType)>, float) > m_VisitRngCellIDs =
+      [] ( std::function<void(CellIDType)> visitor_action, float p ) { /* default no-op */ };
 
 private:
 
@@ -97,7 +105,6 @@ private:
         );
 
     dd4hep::Detector    *m_detector   = nullptr;
-    richgeo::ReadoutGeo *m_readoutGeo = nullptr;
 
     std::shared_ptr<spdlog::logger> m_log;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;

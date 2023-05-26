@@ -14,7 +14,8 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   InitLogger(param_prefix, "info");
 
   // get readout info (if a RICH)
-  if(plugin_name=="DRICH" || plugin_name=="PFRICH") {
+  bool use_richgeo = plugin_name=="DRICH" || plugin_name=="PFRICH";
+  if(use_richgeo) {
     auto richGeoSvc = app->GetService<RichGeo_service>();
     m_readoutGeo    = richGeoSvc->GetReadoutGeo(plugin_name);
   }
@@ -43,7 +44,14 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
   m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
-  m_digi_algo.SetReadoutGeo(m_readoutGeo);
+
+  // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
+  if(use_richgeo) {
+    m_readoutGeo->SetSeed(cfg.seed);
+    m_digi_algo.SetVisitRngCellIDs(
+        [readoutGeo = this->m_readoutGeo] (std::function<void(uint64_t)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
+        );
+  }
 }
 
 void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
