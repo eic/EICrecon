@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 
 #pragma once
 
@@ -23,6 +23,11 @@ namespace eicrecon {
       double speError       = 16.0;   // sigma of ADC counts for a single photon
       double pedMean        = 200.0;  // mean ADC counts for the pedestal
       double pedError       = 3.0;    // sigma of ADC counts for the pedestal
+
+      // noise
+      bool enableNoise       = false;
+      double noiseRate       = 20000; // [Hz]
+      double noiseTimeWindow = 20.0;  // [ns]
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
@@ -56,6 +61,7 @@ namespace eicrecon {
         {850, 0.06},
         {900, 0.04}
       };
+
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
          {325, 1.00},
@@ -81,6 +87,9 @@ namespace eicrecon {
         print_param("enablePixelGaps",enablePixelGaps);
         print_param("pixelSize",pixelSize);
         print_param("safetyFactor",safetyFactor);
+        print_param("enableNoise",enableNoise);
+        print_param("noiseRate",noiseRate);
+        print_param("noiseTimeWindow",noiseTimeWindow);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);

@@ -1,7 +1,5 @@
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
@@ -50,6 +48,9 @@ extern "C" {
     digi_cfg.enablePixelGaps = true;
     digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
+    digi_cfg.enableNoise     = false;
+    digi_cfg.noiseRate       = 20000; // [Hz]
+    digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
     digi_cfg.quantumEfficiency.clear();
     digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
     digi_cfg.quantumEfficiency.push_back({340, 0.10});

@@ -13,6 +13,13 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   auto param_prefix = plugin_name + GetPrefix();
   InitLogger(param_prefix, "info");
 
+  // get readout info (if a RICH)
+  bool use_richgeo = plugin_name=="DRICH" || plugin_name=="PFRICH";
+  if(use_richgeo) {
+    auto richGeoSvc = app->GetService<RichGeo_service>();
+    m_readoutGeo    = richGeoSvc->GetReadoutGeo(plugin_name);
+  }
+
   // Configuration parameters
   auto cfg = GetDefaultConfig();
   auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
@@ -29,11 +36,22 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   set_param("enablePixelGaps", cfg.enablePixelGaps, "enable/disable removal of hits in gaps between pixels");
   set_param("pixelSize",       cfg.pixelSize,       "pixel (active) size");
   set_param("safetyFactor",    cfg.safetyFactor,    "overall safety factor");
+  set_param("enableNoise",     cfg.enableNoise,     "");
+  set_param("noiseRate",       cfg.noiseRate,       "");
+  set_param("noiseTimeWindow", cfg.noiseTimeWindow, "");
   // set_param("quantumEfficiency", cfg.quantumEfficiency, ""); // FIXME JParameterManager cannot use vector<pair>
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
   m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
+
+  // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
+  if(use_richgeo) {
+    m_readoutGeo->SetSeed(cfg.seed);
+    m_digi_algo.SetVisitRngCellIDs(
+        [readoutGeo = this->m_readoutGeo] (std::function<void(uint64_t)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
+        );
+  }
 }
 
 void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
