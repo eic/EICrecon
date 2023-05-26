@@ -9,7 +9,6 @@
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/TrackCollection.h>
 
 // algorithms
 #include <algorithms/tracking/TrackPropagation.h>
@@ -60,9 +59,6 @@ namespace eicrecon {
 
       // map: output_tag name (for a radiator's track projections) -> a vector of xy-planes to project to
       std::map< std::string, std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
-
-      // name of trackIDs output collection
-      std::string m_trackIDs_tag;
 
       // underlying algorithm
       eicrecon::TrackPropagation m_propagation_algo;

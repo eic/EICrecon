@@ -11,13 +11,6 @@ void eicrecon::RichTrack_factory::Init() {
   auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
   auto param_prefix  = detector_name + GetPrefix();
 
-  /* declare an additional output tag for "TrackIDs", which will be related to
-   * the output `TrackSegment`s (see "TrackIDs workaround" below in the
-   * `Process` method for more info)
-   */
-  m_trackIDs_tag = detector_name + "TrackIDs";
-  DeclarePodioOutput<edm4eic::Track>(m_trackIDs_tag);
-
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
@@ -74,36 +67,11 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
-  /* TrackIDs workaround (FIXME)
-   * - this factory creates multiple track propagations (`edm4eic::TrackSegment`)
-   *   for a single input `eicrecon::TrackingResultTrajectory`, but downstream
-   *   code needs a way to know which of these `edm4eic::TrackSegments` came from
-   *   the same input `eicrecon::TrackingResultTrajectory`
-   * - `eicrecon::TrackingResultTrajectory` is not an `EDM4*` datatype, and
-   *   therefore the `edm4eic::TrackSegment` objects this factory creates
-   *   cannot link to them
-   * - in the data model `edm4eic::TrackSegment` can have a 1-1 relation to
-   *   an `edm4eic::Track`
-   * - therefore, as a workaround, we generate a unique, empty `edm4eic::Track`
-   *   for each input `eicrecon::TrackingResultTrajectory`, which can be used in this
-   *   1-1 relation from `edm4eic::TrackSegment` as a unique identifier to encode
-   *   which `edm4eic::TrackSegment`s came from the same input track
-   * - finally, an additional 'TrackID' output tag is needed, to to guarantee
-   *   these related `edm4eic::Track` objects have an owner are accessible by
-   *   downstream readers
-   */
-  auto track_coll = std::make_unique<edm4eic::TrackCollection>();
-  for(const auto& traj : trajectories)
-    track_coll->create();
-
   // run algorithm, for each radiator
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
       // propagate trajectories to RICH planes (discs)
       auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes);
-      // 1-1 relation to unique tracks (see 'workaround' above)
-      for(unsigned i_track=0; i_track<track_coll->size(); i_track++)
-        result->at(i_track).setTrack(track_coll->at(i_track));
       // set factory output propagated tracks
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
@@ -111,7 +79,4 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
       m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
     }
   }
-
-  // set factory output TrackIDs (necessary for re-reading with podio::ROOTFrameReader)
-  SetCollection<edm4eic::Track>(m_trackIDs_tag, std::move(track_coll));
 }
