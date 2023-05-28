@@ -221,11 +221,8 @@ void CalorimeterHitReco::AlgorithmProcess() {
         //FIXME: needs to come from the geometry service/converter
         const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
                                                                     gpos.z() / m_lUnit);
-        // FIXME: this accesses out-of-bounds memory for CalorimeterHit_factory_EcalBarrelScFiRecHits
-        // (failure can be seen with ASAN
-        //const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
-        //                                                              cdim.size() > 2? cdim[2] / m_lUnit: 0);
-        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(0, 0, 0);
+        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
+                                                                      cdim.size() > 2? cdim[2] / m_lUnit: 0);
         const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
                                                                        pos.z() / m_lUnit);
 
