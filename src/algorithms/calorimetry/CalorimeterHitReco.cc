@@ -210,11 +210,13 @@ void CalorimeterHitReco::AlgorithmProcess() {
         // get segmentation dimensions
         if (converter->findReadout(local).segmentation().type() != "NoSegmentation") {
             cdim = converter->cellDimensions(cellID);
+            m_log->error("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
             cdim = converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
             std::transform(cdim.begin(), cdim.end(), cdim.begin(),
                            std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
+            m_log->error("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
         }
 
         //create constant vectors for passing to hit initializer list
