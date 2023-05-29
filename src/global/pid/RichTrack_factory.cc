@@ -46,6 +46,7 @@ void eicrecon::RichTrack_factory::Init() {
         output_tag,
         m_actsGeo->TrackingPlanes(radiator_id, cfg.numPlanes.at(radiator_name))
         });
+
 }
 
 //-----------------------------------------------------------------------------
