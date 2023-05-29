@@ -46,6 +46,7 @@ void eicrecon::RichTrack_factory::Init() {
         output_tag,
         m_actsGeo->TrackingPlanes(radiator_id, cfg.numPlanes.at(radiator_name))
         });
+
 }
 
 //-----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // collect all trajectories all input tags
+  // collect all trajectories from all input tags
   std::vector<const eicrecon::TrackingResultTrajectory*> trajectories;
   for(const auto& input_tag : GetInputTags()) {
     try {
@@ -67,16 +68,15 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
-  // run algorithm, for each radiator
+  // run track propagator algorithm, for each radiator
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
-      // propagate trajectories to RICH planes (discs)
       auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes);
-      // set factory output propagated tracks
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {
       throw JException(e.what());
     }
   }
+
 }
