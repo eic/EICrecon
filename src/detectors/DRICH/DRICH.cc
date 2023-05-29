@@ -138,7 +138,7 @@ extern "C" {
     app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
           "DRICHIrtCherenkovParticleID",
           {
-            "DRICHAerogelTracks", "DRICHGasTracks",
+            "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
             "DRICHRawHits",
             "DRICHRawHitsAssociations"
           },

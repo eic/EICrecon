@@ -48,7 +48,7 @@ void eicrecon::IrtCherenkovParticleID_factory::BeginRun(const std::shared_ptr<co
 //-----------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // get input track projection collections
+  // get input track propagation collections from radiators
   std::map<std::string, const edm4eic::TrackSegmentCollection*> charged_particles; // map : radiator_name -> collection of TrackSegments
   int tag_num = 0;
   while(tag_num < richgeo::nRadiators) {
@@ -60,6 +60,17 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
           static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag))
           });
     else m_log->error("Unknown input RICH track collection '{}'", input_tag);
+  }
+
+  // get merged track propagation
+  if(GetInputTags()[tag_num].find("Merge") != std::string::npos)
+    charged_particles.insert({
+        "Merged",
+        static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]))
+        });
+  else {
+    m_log->critical("input tag {} should be merged tracks", tag_num);
+    return;
   }
 
   // get input hit collections

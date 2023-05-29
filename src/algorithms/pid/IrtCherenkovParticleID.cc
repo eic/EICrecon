@@ -368,8 +368,14 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       Tools::PrintCherenkovEstimate(m_log, out_cherenkov_pid);
 
       // relate charged particle projection
-      auto charged_particle = in_charged_particles.at(rad_name)->at(i); // (no need to error check again)
-      out_cherenkov_pid.setChargedParticle(charged_particle);
+      auto charged_particle_list_it = in_charged_particles.find("Merged");
+      if(charged_particle_list_it != in_charged_particles.end()) {
+        auto charged_particle_list = charged_particle_list_it->second;
+        auto charged_particle      = charged_particle_list->at(i);
+        out_cherenkov_pid.setChargedParticle(charged_particle);
+      }
+      else
+        m_log->error("Cannot find radiator 'Merged' in `in_charged_particles`");
 
       // relate hit associations
       for(const auto& hit_assoc : *in_hit_assocs)
