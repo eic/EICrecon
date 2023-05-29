@@ -42,7 +42,7 @@ flowchart TB
       AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
       GasTracks(<strong>DRICHGasTracks</strong><br/>edm4eic::TrackSegment):::col
     end
-    MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTrackSegments<br/><i>RichTrack_factory</i>]:::alg
+    MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTrackSegments<br/><i>MergeTrack_factory</i>]:::alg
     MergedTracks(<strong>DRICHMergedTracks</strong><br/>edm4eic::TrackSegment):::col
 
     %% MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col

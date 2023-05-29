@@ -9,6 +9,7 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
+#include <global/pid/MergeTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
 #include <global/pid/MergeCherenkovParticleID_factory.h>
 #include <global/pid/LinkParticleID_factory.h>
@@ -127,6 +128,10 @@ extern "C" {
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app
+          ));
+    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
+          "DRICHMergedTracks"
           ));
 
     // PID algorithm
