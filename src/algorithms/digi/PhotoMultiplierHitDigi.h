@@ -30,21 +30,9 @@
 
 namespace eicrecon {
 
-using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
-using TimeType   = decltype(edm4hep::SimTrackerHitData::time);
-
 struct PhotoMultiplierHitDigiResult {
   std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
   std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
-};
-
-struct HitData {
-  uint32_t         npe;
-  double           signal;
-  TimeType         time;
-  dd4hep::Position pos_local;
-  dd4hep::Position pos_global;
-  std::vector<std::size_t> sim_hit_indices;
 };
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
@@ -57,6 +45,20 @@ public:
     PhotoMultiplierHitDigiResult AlgorithmProcess(
         const edm4hep::SimTrackerHitCollection* sim_hits
         );
+
+    // EDM datatype member types
+    using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
+    using TimeType   = decltype(edm4hep::SimTrackerHitData::time);
+
+    // local structure to hold data for a hit
+    struct HitData {
+      uint32_t                 npe;
+      double                   signal;
+      TimeType                 time;
+      dd4hep::Position         pos_local;
+      dd4hep::Position         pos_global;
+      std::vector<std::size_t> sim_hit_indices;
+    };
 
     // transform global position `pos` to sensor `id` frame position
     // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
@@ -104,7 +106,7 @@ private:
         bool             is_noise_hit = false
         );
 
-    dd4hep::Detector    *m_detector   = nullptr;
+    dd4hep::Detector *m_detector   = nullptr;
 
     std::shared_ptr<spdlog::logger> m_log;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
