@@ -208,10 +208,18 @@ void CalorimeterHitReco::AlgorithmProcess() {
 //                dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));//dd4hep::Position(gpos.x, gpos.y, gpos.z)
         std::vector<double> cdim;
         // get segmentation dimensions
-        if (converter->findReadout(local).segmentation().type() != "NoSegmentation") {
-            cdim = converter->cellDimensions(cellID);
+        auto segmentation_type = converter->findReadout(local).segmentation().type();
+        auto cell_dim = converter->cellDimensions(cellID);
+        if (segmentation_type == "CartesianGridXY") {
+            cdim.resize(3);
+            cdim[0] = cell_dim[0];
+            cdim[1] = cell_dim[1];
             m_log->error("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
+            if (segmentation_type != "NoSegmentation") {
+                m_log->warn("Usupported segmentation type \"{}\"", segmentation_type);
+            }
+
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
             cdim = converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
             std::transform(cdim.begin(), cdim.end(), cdim.begin(),
@@ -223,8 +231,8 @@ void CalorimeterHitReco::AlgorithmProcess() {
         //FIXME: needs to come from the geometry service/converter
         const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
                                                                     gpos.z() / m_lUnit);
-        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
-                                                                      cdim.size() > 2? cdim[2] / m_lUnit: 0);
+        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim.at(0) / m_lUnit, cdim.at(1) / m_lUnit,
+                                                                      cdim.at(2) / m_lUnit);
         const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
                                                                        pos.z() / m_lUnit);
 
