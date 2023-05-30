@@ -1,9 +1,7 @@
-// Copyright 2022, Christopher Dilks
+// Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #include "RichTrack_factory.h"
-
-#include <edm4eic/vector_utils.h>
 
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Init() {
@@ -11,43 +9,45 @@ void eicrecon::RichTrack_factory::Init() {
 
   // input tags
   auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-  auto param_prefix = detector_name + ":" + GetTag();
-  InitDataTags(param_prefix);
-  m_radiatorID = richgeo::ParseRadiatorName(GetTag());
+  auto param_prefix  = detector_name + GetPrefix();
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
   InitLogger(param_prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
-  m_log->debug("detector_name='{}'  param_prefix='{}'  m_radiatorID={}", detector_name, param_prefix, m_radiatorID);
+  m_log->debug("detector_name='{}'  param_prefix='{}'", detector_name, param_prefix);
 
-  // default configuration parameters
-  /* FIXME: eventually we will move this factory to an independent algorithm
-   * and be able to use a Config class, overridable in {D,PF}RICH.cc; for now,
-   * a quick way to set the defaults without reco_flags.py, to tide us over
-   * until we have a proper config file front end
-   */
-  m_numPlanes = 5;
-  if(param_prefix.rfind("DRICH")!=std::string::npos || param_prefix.rfind("PFRICH")!=std::string::npos) {
-    if(param_prefix.rfind("Aerogel")!=std::string::npos) m_numPlanes = 5;
-    else if(param_prefix.rfind("Gas")!=std::string::npos) m_numPlanes = 10;
+  // get list of radiators
+  std::map<int,std::string> radiator_list;
+  for(auto& output_tag : GetOutputTags()) {
+    auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
+    radiator_list.insert({
+        radiator_id,
+        richgeo::RadiatorName(radiator_id, m_log)
+        });
   }
 
   // configuration parameters
-  auto set_param = [&param_prefix, &app, this] (std::string name, auto &val, std::string description) {
-    app->SetDefaultParameter(param_prefix+":"+name, val, description);
+  auto cfg = GetDefaultConfig();
+  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
+    name = param_prefix + ":" + name;
+    app->SetDefaultParameter(name, val, description);
   };
-  set_param("numPlanes", m_numPlanes, "number of track-projection planes");
-  m_log->debug("numPlanes = {}",m_numPlanes);
+  for(auto& [radiator_id, radiator_name] : radiator_list)
+    set_param(radiator_name+":numPlanes", cfg.numPlanes[radiator_name], "");
+  cfg.Print(m_log, spdlog::level::debug);
 
-  // get RICH geometry for track projection
+  // get RICH geometry for track projection, for each radiator
   m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
-  m_trackingPlanes = m_actsGeo->TrackingPlanes(m_radiatorID, m_numPlanes);
+  for(auto& [radiator_id, radiator_name] : radiator_list)
+    m_tracking_planes.push_back(
+        m_actsGeo->TrackingPlanes(radiator_id, cfg.numPlanes.at(radiator_name))
+        );
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::RichTrack_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
 }
 
 //-----------------------------------------------------------------------------
@@ -65,15 +65,16 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
-  // result will be `TrackSegments`s for each trajectory
-  std::vector<edm4eic::TrackSegment*> result;
-
-  // loop over trajectories
-  m_log->debug("Propagate trajectories: --------------------");
-  m_log->debug("number of trajectories: {}",trajectories.size());
-  for(const auto& traj : trajectories)
-    result.push_back(m_propagation_algo.propagateToSurfaceList( traj, m_trackingPlanes ));
-
-  // output
-  Set(std::move(result));
+  // run algorithm, for each radiator
+  for(unsigned i=0; i<m_tracking_planes.size(); i++) {
+    auto& radiator_tracking_planes = m_tracking_planes.at(i);
+    auto& out_collection_name      = GetOutputTags().at(i);
+    try {
+      auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes);
+      SetCollection<edm4eic::TrackSegment>(out_collection_name, std::move(result));
+    }
+    catch(std::exception &e) {
+      m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    }
+  }
 }
