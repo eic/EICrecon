@@ -1,7 +1,7 @@
 // Original licence: SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022, 2023, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks
 
-#include "ParticlesWithTruthPID.h"
+#include "ParticlesWithPID.h"
 
 #include <edm4eic/vector_utils.h>
 
@@ -9,20 +9,23 @@
 
 namespace eicrecon {
 
-    void ParticlesWithTruthPID::init(std::shared_ptr<spdlog::logger> logger) {
+    void ParticlesWithPID::init(std::shared_ptr<spdlog::logger> logger) {
         m_log = logger;
 
     }
 
-    ParticlesWithAssociationNew ParticlesWithTruthPID::process(
+    ParticlesWithAssociationNew ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
-            const edm4eic::TrackParametersCollection* track_params) {
+            const edm4eic::TrackParametersCollection* track_params,
+            std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids
+            ) {
 
         // input collection
 
         /// Resulting reconstructed particles
         auto reco_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
         auto associations = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+        auto linked_pids = std::make_unique<edm4hep::ParticleIDCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
@@ -171,7 +174,7 @@ namespace eicrecon {
         return std::make_pair(std::move(reco_particles), std::move(associations));
     }
 
-    void ParticlesWithTruthPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
+    void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
         // This function is called once to print tolerances useful for tracing
         static std::once_flag do_it_once;
         std::call_once(do_it_once, [this, sinPhiOver2Tolerance, phiTolerance]() {

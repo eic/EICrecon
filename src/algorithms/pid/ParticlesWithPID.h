@@ -1,5 +1,5 @@
 // Original licence header: SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022, 2023, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks
 
 
 #pragma once
@@ -14,16 +14,23 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/CherenknovParticleIDCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 #include <algorithms/interfaces/WithPodConfig.h>
-#include "ParticlesWithTruthPIDConfig.h"
+#include "ParticlesWithPIDConfig.h"
+#include "ConvertParticleID.h"
 
 
 namespace eicrecon {
 
-    using ParticlesWithAssociationNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>, std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>>;
+    struct ParticlesWithAssociationNew {
+      std::unique_ptr<edm4eic::ReconstructedParticleCollection>     parts;
+      std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection> assocs;
+      std::unique_ptr<edm4hep::ParticleIDCollection>                pids;
+    };
 
-    class ParticlesWithTruthPID : public WithPodConfig<ParticlesWithTruthPIDConfig> {
+    class ParticlesWithPID : public WithPodConfig<ParticlesWithPIDConfig> {
 
     public:
 
@@ -31,7 +38,9 @@ namespace eicrecon {
 
         ParticlesWithAssociationNew process(
                 const edm4hep::MCParticleCollection* mc_particles,
-                const edm4eic::TrackParametersCollection* track_params);
+                const edm4eic::TrackParametersCollection* track_params,
+                std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids
+                );
 
     private:
 

@@ -7,26 +7,27 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <algorithms/tracking/ParticlesWithTruthPID.h>
-#include <algorithms/tracking/ParticlesWithTruthPIDConfig.h>
+#include <algorithms/pid/ParticlesWithPID.h>
+#include <algorithms/pid/ParticlesWithPIDConfig.h>
 #include <spdlog/logger.h>
 
 
 namespace eicrecon {
 
-    class ParticlesWithTruthPID_factory :
-            public JChainMultifactoryT<ParticlesWithTruthPIDConfig>,
-            public SpdlogMixin<ParticlesWithTruthPID_factory> {
+    class ParticlesWithPID_factory :
+            public JChainMultifactoryT<ParticlesWithPIDConfig>,
+            public SpdlogMixin<ParticlesWithPID_factory> {
 
     public:
-        explicit ParticlesWithTruthPID_factory( std::string tag,
+        explicit ParticlesWithPID_factory( std::string tag,
                                                 const std::vector<std::string>& input_tags,
                                                 const std::vector<std::string>& output_tags,
-                                                ParticlesWithTruthPIDConfig cfg):
-            JChainMultifactoryT<ParticlesWithTruthPIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
+                                                ParticlesWithPIDConfig cfg):
+            JChainMultifactoryT<ParticlesWithPIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
             DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
             DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1]);
+            DeclarePodioOutput<edm4hep::ParticleID>(GetOutputTags()[2]);
         }
 
         /** One time initialization **/
@@ -36,7 +37,7 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-        eicrecon::ParticlesWithTruthPID m_matching_algo;
+        eicrecon::ParticlesWithPID m_matching_algo;
     };
 
 } // eicrecon

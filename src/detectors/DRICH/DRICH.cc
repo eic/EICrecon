@@ -12,14 +12,12 @@
 #include <global/pid/MergeTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
 #include <global/pid/MergeCherenkovParticleID_factory.h>
-#include <global/pid/LinkParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 #include <global/pid/RichTrackConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 #include <algorithms/pid/MergeParticleIDConfig.h>
-#include <algorithms/pid/LinkParticleIDConfig.h>
 
 // data model
 #include <edm4eic/ReconstructedParticle.h>
@@ -102,12 +100,6 @@ extern "C" {
     MergeParticleIDConfig merge_cfg;
     merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
 
-    // Proximity matching to ReconstructedParticles
-    // NOTE: cf. ParticlesWithTruthPIDConfig settings
-    LinkParticleIDConfig link_cfg;
-    link_cfg.phiTolerance = 0.1; // [rad]
-    link_cfg.etaTolerance = 0.2;
-
 
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
@@ -152,20 +144,6 @@ extern "C" {
           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
           "DRICHMergedIrtCherenkovParticleID",
           merge_cfg
-          ));
-
-    // link reconstructed particles
-    app->Add(new JChainFactoryGeneratorT<
-        LinkParticleID_factory<edm4eic::ReconstructedParticle, edm4eic::ReconstructedParticleCollection>>(
-          {"DRICHMergedIrtCherenkovParticleID", "ReconstructedChargedParticles"},
-          "ReconstructedChargedParticlesWithDRICHPID",
-          link_cfg
-          ));
-    app->Add(new JChainFactoryGeneratorT<
-        LinkParticleID_factory<edm4eic::MCRecoParticleAssociation, edm4eic::MCRecoParticleAssociationCollection>>(
-          {"DRICHMergedIrtCherenkovParticleID", "ReconstructedChargedParticleAssociations"},
-          "ReconstructedChargedParticleAssociationsWithDRICHPID",
-          link_cfg
           ));
 
     // clang-format on

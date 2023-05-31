@@ -259,10 +259,10 @@ flowchart LR
     HcalEndcapPClusters(HcalEndcapPClusters<br/>HcalEndcapPClustersAssoc)
   end
 
-  MCParticles --> ParticlesWithTruthPID[ParticlesWithTruthPID]:::alg
-  outputTrackParameters --> ParticlesWithTruthPID
-  ParticlesWithTruthPID --> ReconstructedChargedParticles(ReconstructedChargedParticles)
-  ParticlesWithTruthPID --> ReconstructedChargedParticlesAssoc(ReconstructedChargedParticlesAssoc)
+  MCParticles --> ParticlesWithPID[ParticlesWithPID]:::alg
+  outputTrackParameters --> ParticlesWithPID
+  ParticlesWithPID --> ReconstructedChargedParticles(ReconstructedChargedParticles)
+  ParticlesWithPID --> ReconstructedChargedParticlesAssoc(ReconstructedChargedParticlesAssoc)
 
   MCParticles --> MatchClusters[MatchClusters]:::alg
   ReconstructedChargedParticles --> MatchClusters
