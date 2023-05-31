@@ -6,13 +6,11 @@
 
 #include "Digitizer_processor.h"
 #include "IrtCherenkovParticleID_processor.h"
-#include "LinkParticleID_processor.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     app->Add(new eicrecon::Digitizer_processor);
     app->Add(new eicrecon::IrtCherenkovParticleID_processor);
-    app->Add(new eicrecon::LinkParticleID_processor);
   }
 }
