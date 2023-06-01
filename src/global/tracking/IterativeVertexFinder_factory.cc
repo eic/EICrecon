@@ -59,6 +59,6 @@ void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<cons
     auto result = m_vertexing_algo.produce(trajectories);
     Set(result); // Set() - is what factory produced
   } catch (std::exception& e) {
-    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    throw JException(e.what());
   }
 }
