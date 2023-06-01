@@ -75,7 +75,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {
-      m_log->warn("Exception in underlying propagator algorithm: {}. Event data will be skipped", e.what());
+      throw JException(e.what());
     }
   }
 

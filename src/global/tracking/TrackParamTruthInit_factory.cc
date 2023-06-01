@@ -80,6 +80,6 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
         Set(results);
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }

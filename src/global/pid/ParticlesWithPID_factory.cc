@@ -36,6 +36,6 @@ void eicrecon::ParticlesWithPID_factory::Process(const std::shared_ptr<const JEv
         SetCollection<edm4hep::ParticleID>(GetOutputTags().at(2),                std::move(result.pids));
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }
