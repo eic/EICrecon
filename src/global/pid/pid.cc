@@ -3,7 +3,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 // factories
 #include <global/pid/ParticlesWithPID_factory.h>
@@ -38,9 +38,9 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedChargedParticles",           // edm4eic::ReconstructedParticle
-            "ReconstructedChargedParticleAssociations" // edm4eic::MCRecoParticleAssociation
-            "ReconstructedChargedParticleID"           // edm4hep::ParticleID
+            "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
+            "ReconstructedChargedParticleID"            // edm4hep::ParticleID
           },
           link_cfg,
           app

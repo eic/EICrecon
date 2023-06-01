@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cstddef>
+#include <map>
 
 // data model
 #include <edm4eic/CherenkovParticleID.h>
@@ -18,14 +19,24 @@ namespace eicrecon {
   class ConvertParticleID {
     public:
 
-      // convert edm4eic::CherenkovParticleID hypotheses to list of edm4hep::ParticleID objects
-      static std::unique_ptr<edm4hep::ParticleIDCollection> ConvertToParticleIDs(
-          edm4eic::CherenkovParticleID in_pid,
-          bool sort_by_likelihood = false
-          ) {
+      // index map, used for external access to the converted objects
+      using IndexMap = std::map<std::size_t, unsigned int>; // <collection index, object ID>
 
-        // start output collection, to persistify objects
-        auto out_pids = std::make_unique<edm4hep::ParticleIDCollection>();
+      // convert edm4eic::CherenkovParticleID hypotheses to list of edm4hep::ParticleID objects
+      // - requires input `CherenkovParticleID` object `in_pid`
+      // - adds output `ParticleID` objects to collection `out_pids`
+      // - sorted by likelihood, if `sort_by_likelihood==true`
+      // - returns a map of the new `out_pid` indices to new `ParticleID` IDs, so the caller can
+      //   access the newly created `ParticleID` objects
+      static IndexMap ConvertToParticleIDs(
+          const edm4eic::CherenkovParticleID& in_pid,
+          edm4hep::ParticleIDCollection&      out_pids,
+          bool                                sort_by_likelihood = false
+          )
+      {
+
+        // output vector of collection indices
+        IndexMap out_indices;
 
         // build list of (hypothesis index, hypothesis weight)
         using HypIndex = std::pair<std::size_t, decltype(edm4eic::CherenkovParticleIDHypothesis::weight)>;
@@ -47,8 +58,13 @@ namespace eicrecon {
         // create and fill output objects
         for(const auto& [hyp_index, hyp_weight] : hyp_indices) {
 
-          auto in_hyp  = in_pid.getHypotheses(hyp_index);
-          auto out_pid = out_pids->create();
+          // get the input hypothesis
+          auto in_hyp = in_pid.getHypotheses(hyp_index);
+
+          // create output `ParticleID` object
+          auto out_index = out_pids.size();
+          auto out_pid   = out_pids.create();
+          out_indices.insert({out_index, out_pid.id()});
 
           // fill scalars
           out_pid.setPDG(           static_cast<decltype(edm4hep::ParticleIDData::PDG)>           (in_hyp.PDG)    );
@@ -61,7 +77,7 @@ namespace eicrecon {
 
         }
 
-        return out_pids;
+        return out_indices;
       }
 
   }; // class ConvertParticleID

@@ -4,6 +4,7 @@
 #include "ParticlesWithPID.h"
 
 #include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 
 
@@ -17,15 +18,16 @@ namespace eicrecon {
     ParticlesWithAssociationNew ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
             const edm4eic::TrackParametersCollection* track_params,
-            std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids
+            std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
             ) {
 
         // input collection
 
         /// Resulting reconstructed particles
-        auto reco_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        auto associations = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-        auto linked_pids = std::make_unique<edm4hep::ParticleIDCollection>();
+        ParticlesWithAssociationNew result;
+        result.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        result.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+        result.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
@@ -130,11 +132,22 @@ namespace eicrecon {
             rec_part.setReferencePoint(referencePoint);
             rec_part.setCharge(charge_rec);
             rec_part.setMass(mass);
-            rec_part.setGoodnessOfPID(1); // perfect PID
+            rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
             rec_part.setPDG(best_pid);
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
+
+            // link Cherenkov PID objects
+            for (const auto& cherenkov_pids : cherenkov_pid_collections) {
+                auto success = linkCherenkovPID(rec_part, *cherenkov_pids, *(result.pids));
+                if (success)
+                    m_log->trace("      PID PDG vs. true PDG: {:>10} vs. {:<10}",
+                            rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0,
+                            best_pid
+                            );
+            }
+
             // Add reconstructed particle to collection BEFORE doing association
-            reco_particles->push_back(rec_part);
+            result.parts->push_back(rec_part);
 
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
@@ -147,7 +160,7 @@ namespace eicrecon {
                 rec_assoc.setSim(sim);
 
                 // Add association to collection
-                associations->push_back(rec_assoc);
+                result.assocs->push_back(rec_assoc);
 
                 if (m_log->level() <= spdlog::level::debug) {
 
@@ -170,8 +183,7 @@ namespace eicrecon {
 
         }
 
-        // Assembling the results
-        return std::make_pair(std::move(reco_particles), std::move(associations));
+        return result;
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
@@ -180,5 +192,136 @@ namespace eicrecon {
         std::call_once(do_it_once, [this, sinPhiOver2Tolerance, phiTolerance]() {
             m_log->trace("m_cfg.phiTolerance: {:<8.4f} => sinPhiOver2Tolerance: {:<8.4f}", sinPhiOver2Tolerance, phiTolerance);
         });
+    }
+
+
+    /* link PID objects to input particle
+     * - finds `CherenkovParticleID` object in `in_pids` associated to particle `in_part`
+     *   by proximity matching to the associated track
+     * - converts this `CherenkovParticleID` object's PID hypotheses to `ParticleID` objects,
+     *   relates them to `in_part`, and adds them to the collection `out_pids` for persistency
+     * - returns `true` iff PID objects were found and linked
+     */
+    bool ParticlesWithPID::linkCherenkovPID(
+            edm4eic::MutableReconstructedParticle& in_part,
+            const edm4eic::CherenkovParticleIDCollection& in_pids,
+            edm4hep::ParticleIDCollection& out_pids
+            )
+    {
+
+        // skip this particle, if neutral
+        if (std::abs(in_part.getCharge()) < 0.001)
+            return false;
+
+        // structure to store list of candidate matches
+        struct ProxMatch {
+            double      match_dist;
+            std::size_t pid_idx;
+        };
+        std::vector<ProxMatch> prox_match_list;
+
+        // get input reconstructed particle momentum angles
+        auto in_part_p   = in_part.getMomentum();
+        auto in_part_eta = edm4hep::utils::eta(in_part_p);
+        auto in_part_phi = edm4hep::utils::angleAzimuthal(in_part_p);
+        m_log->trace("Input particle: (eta,phi) = ( {:>5.4}, {:>5.4} deg )",
+                in_part_eta,
+                in_part_phi * 180.0 / M_PI
+                );
+
+        // loop over input CherenkovParticleID objects
+        for (std::size_t in_pid_idx = 0; in_pid_idx < in_pids.size(); in_pid_idx++) {
+            auto in_pid = in_pids.at(in_pid_idx);
+
+            // get charged particle track associated to this CherenkovParticleID object
+            auto in_track = in_pid.getChargedParticle();
+            if (!in_track.isAvailable()) {
+                m_log->error("found CherenkovParticleID object with no chargedParticle");
+                return false;
+            }
+            if (in_track.points_size() == 0) {
+                m_log->error("found chargedParticle for CherenkovParticleID, but it has no TrackPoints");
+                return false;
+            }
+
+            // get averge momentum direction of the track's TrackPoints
+            decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
+            for (const auto& in_track_point : in_track.getPoints())
+                in_track_p = in_track_p + ( in_track_point.momentum / in_track.points_size() );
+            auto in_track_eta = edm4hep::utils::eta(in_track_p);
+            auto in_track_phi = edm4hep::utils::angleAzimuthal(in_track_p);
+
+            // calculate dist(eta,phi)
+            auto match_dist = std::hypot(
+                    in_part_eta - in_track_eta,
+                    in_part_phi - in_track_phi
+                    );
+
+            // check if the match is close enough: within user-specified tolerances
+            auto match_is_close =
+                std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
+                std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
+            if (match_is_close)
+                prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+
+            // logging
+            m_log->trace("  - (eta,phi) = ( {:>5.4}, {:>5.4} deg ),  match_dist = {:<5.4}{}",
+                    in_track_eta,
+                    in_track_phi * 180.0 / M_PI,
+                    match_dist,
+                    match_is_close ? " => CLOSE!" : ""
+                    );
+
+        } // end loop over input CherenkovParticleID objects
+
+        // check if at least one match was found
+        if (prox_match_list.size() == 0) {
+            m_log->warn("no matching CherenkovParticleID found for this particle");
+            return false;
+        }
+
+        // choose the closest matching CherenkovParticleID object corresponding to this input reconstructed particle
+        auto closest_prox_match = *std::min_element(
+                prox_match_list.begin(),
+                prox_match_list.end(),
+                [] (ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; }
+                );
+        auto in_pid_matched = in_pids.at(closest_prox_match.pid_idx);
+        m_log->trace("  => best match: match_dist = {:<5.4} at idx = {}",
+                closest_prox_match.match_dist,
+                closest_prox_match.pid_idx
+                );
+
+        // convert `CherenkovParticleID` object's hypotheses => set of `ParticleID` objects
+        auto out_pid_index_map = ConvertParticleID::ConvertToParticleIDs(in_pid_matched, out_pids, true);
+        if (out_pid_index_map.size() == 0) {
+            m_log->error("found CherenkovParticleID object with no hypotheses");
+            return false;
+        }
+
+        // relate matched ParticleID objects to output particle
+        bool first = true;
+        for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
+            const auto& out_pid = out_pids->at(out_pids_index);
+            if (out_pid.id() != out_pids_id) { // sanity check
+                m_log->error("indexing error in `edm4eic::ParticleID` collection");
+                return false;
+            }
+            in_part.addToParticleIDs(out_pid);
+            if (first) {
+                in_part.setParticleIDUsed(out_pid); // highest likelihood is the first
+                in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
+                first = false;
+            }
+        }
+
+        // trace logging
+        m_log->trace("    {:.^50}"," PID results ");
+        m_log->trace("      Hypotheses (sorted):");
+        for (auto out_pid : in_part.getParticleIDs())
+            Tools::PrintHypothesisTableLine(m_log, out_pid, 8);
+        m_log->trace("    {:'^50}","");
+
+        return true;
     }
 }

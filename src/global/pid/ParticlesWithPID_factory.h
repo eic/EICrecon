@@ -25,9 +25,11 @@ namespace eicrecon {
                                                 ParticlesWithPIDConfig cfg):
             JChainMultifactoryT<ParticlesWithPIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1]);
-            DeclarePodioOutput<edm4hep::ParticleID>(GetOutputTags()[2]);
+            if (GetOutputTags().size() != 3)
+              throw JException("incorrect number of input tags");
+            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags().at(0));
+            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags().at(1));
+            DeclarePodioOutput<edm4hep::ParticleID>(GetOutputTags().at(2));
         }
 
         /** One time initialization **/
