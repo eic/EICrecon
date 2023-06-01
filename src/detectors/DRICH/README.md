@@ -36,7 +36,7 @@ flowchart TB
     HitAssocs(<strong>DRICHRawHitsAssociations</strong><br/>no noise<br/>edm4eic::MCRecoTrackerHitAssociation):::col
   end
 
-  subgraph Charged Particles
+  subgraph Charged Particles and Tracking
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br/><i>RichTrack_factory</i>]:::alg
     subgraph rad1 [radiators]
       AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
@@ -48,6 +48,9 @@ flowchart TB
     %% MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
     %% ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br/><i>RichTrackReflection_factory</i>]:::alg
     %% Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
+
+    TrackingAlgos[[<strong>Tracking Algorithms</strong>]]:::alg
+    TrackParameters(<strong>outputTrackParameters</strong><br/>edm4eic::TrackParameters):::col
   end
 
   PIDInputs{{<strong>PID Algorithm Inputs</strong>}}:::misc
@@ -67,9 +70,6 @@ flowchart TB
   end
 
   PIDOutputs{{<strong>PID Algorithm Outputs</strong>}}:::misc
-
-  TrackingAlgos[<strong>Tracking Algorithms</strong>]:::alg
-  TrackParameters(<strong>outputTrackParameters</strong><br/>edm4eic::TrackParameters):::col
 
   subgraph Particle Identification Linking
     ProxMatch[<strong>Proximity Matching</strong><br/>ParticlesWithPID<br/><i>ParticlesWithPID_factory</i>]:::alg
