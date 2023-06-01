@@ -39,7 +39,7 @@ void eicrecon::MergeTrack_factory::Process(const std::shared_ptr<const JEvent> &
     SetCollection(std::move(out_track_collection));
   }
   catch(std::exception &e) {
-    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    throw JException(e.what());
   }
 
 }
