@@ -1,6 +1,8 @@
 calibrations
 fieldmaps
 
+CMakeLists.txt
+
 jana.conf
 eicrecon.root
 eicrecon_out.dat
@@ -12,6 +14,21 @@ output.edm4hep.root
 *.pdf
 run_sim_etarange.sh
 *_etarange*.pdf
+ddsim_mysteer_etarange.py
+
+edep_plots
+energy_thresh_bug
 
 .gitignore
 plot_hists.pdf
+
+compare_arches_brycecanyon.C
+compare_edep_barak.C
+comparePositions.C
+datafiles
+muons
+plothits.C
+plots_withoutlayers
+run_sim_muons.sh
+threshold_study
+tracking_geometry.obj

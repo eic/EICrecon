@@ -45,7 +45,13 @@ namespace eicrecon {
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
             for (const auto hit : hits) {
-                total_hits.push_back(const_cast<edm4eic::TrackerHit*>(hit));
+                // auto x = hit->getPosition().x;
+                // auto y = hit->getPosition().y;
+                // auto z = hit->getPosition().z;
+                // auto r = sqrt(x*x + y*y);
+                // if (!( (z > 1919 && z < 1921) && (r > 84 && r < 671) )) {
+                    total_hits.push_back(const_cast<edm4eic::TrackerHit*>(hit));
+                // }
             }
         }
         Set(total_hits);
