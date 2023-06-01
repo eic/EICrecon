@@ -50,6 +50,7 @@ void trackqa_processor::Init()
     // Create a directory for this plugin. And subdirectories for series of histograms
     m_dir_main = file->mkdir(plugin_name.c_str());
     m_dir_sub = m_dir_main->mkdir("eta_bins");
+    m_dir_res = m_dir_main->mkdir("residuals");
 
     //Define histograms
     h1a = new TH2D("h1a","",100,0,25,100,0,25);
@@ -198,7 +199,7 @@ void trackqa_processor::Init()
         V_eta_edges[i] = low_eta;
         V_eta_edges[i+1] = high_eta;
     
-	TH2 *htemp = new TH2D(TString::Format("hchi2_vs_hits_eta_%.1f_%.1f", low_eta, high_eta),
+	    TH2 *htemp = new TH2D(TString::Format("hchi2_vs_hits_eta_%.1f_%.1f", low_eta, high_eta),
                     "",50,0,50,50,0,50);
         htemp->GetXaxis()->SetTitle("Number of Hits");htemp->GetXaxis()->CenterTitle();
         htemp->GetYaxis()->SetTitle("Track #Chi^{2} Sum");htemp->GetYaxis()->CenterTitle();
@@ -228,6 +229,23 @@ void trackqa_processor::Init()
     }
     // hchi2_vs_hits_etabins->SetDirectory(m_dir_main);
 
+
+    hmeaschi2_vs_volID = new TH2D("hmeaschi2_vs_volID","",50,0,50,50,0,20);
+    hmeaschi2_vs_volID->GetXaxis()->SetTitle("Volume ID");hmeaschi2_vs_volID->GetXaxis()->CenterTitle();
+    hmeaschi2_vs_volID->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_volID->GetYaxis()->CenterTitle();
+    hmeaschi2_vs_volID->SetDirectory(m_dir_main);
+
+    hmeaschi2_vs_layID = new TH2D("hmeaschi2_vs_layID","",50,0,50,50,0,20);
+    hmeaschi2_vs_layID->GetXaxis()->SetTitle("Layer ID");hmeaschi2_vs_layID->GetXaxis()->CenterTitle();
+    hmeaschi2_vs_layID->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_layID->GetYaxis()->CenterTitle();
+    hmeaschi2_vs_layID->SetDirectory(m_dir_main);
+
+    hmeaschi2_vs_vollayIDs = new TH2D("hmeaschi2_vs_vollayIDs","",400,0,400,50,0,20);
+    hmeaschi2_vs_vollayIDs->GetXaxis()->SetTitle("Volume ID * 10 + Layer ID");hmeaschi2_vs_vollayIDs->GetXaxis()->CenterTitle();
+    hmeaschi2_vs_vollayIDs->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_vollayIDs->GetYaxis()->CenterTitle();
+    hmeaschi2_vs_vollayIDs->SetDirectory(m_dir_main);
+    
+
     file -> cd();
     V_eta_edges.Write("V_eta_edges");
 
@@ -253,8 +271,173 @@ void trackqa_processor::Init()
 
     hsummation3 = new TH2D("hsummation3","",15,0,15,15,0,15);
     hsummation3->GetXaxis()->SetTitle("Number of Meas per Track + Number of Outliers + Number of Holes");hsummation3->GetXaxis()->CenterTitle();
-    hsummation3->GetYaxis()->SetTitle("Number of States");hsummation3->GetYaxis()->CenterTitle();
+    hsummation3->GetYaxis()->SetTitle("Number of Calibrated States");hsummation3->GetYaxis()->CenterTitle();
     hsummation3->SetDirectory(m_dir_main);
+
+    // TString eta_regions[] = {"backward", "barrel", "forward"};
+    char eta_regions[3][20] = {"backward", "barrel", "forward"};
+    for (int i=0; i<3; i++){
+    
+	    TH1 *htemp = new TH1D(TString::Format("hhits_in_r_%s", eta_regions[i]),
+                    "",2000,-1000,1000);
+        htemp->GetXaxis()->SetTitle("r [mm]");htemp->GetXaxis()->CenterTitle();
+        htemp->GetYaxis()->SetTitle("Counts");htemp->GetYaxis()->CenterTitle();
+        htemp->SetLineWidth(2);htemp->SetLineColor(kBlue);
+        hhits_in_r.push_back(htemp);
+        hhits_in_r[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp1 = new TH1D(TString::Format("hhits_in_z_%s", eta_regions[i]),
+                    "",4000,-2000,2000);
+        htemp1->GetXaxis()->SetTitle("z [mm]");htemp1->GetXaxis()->CenterTitle();
+        htemp1->GetYaxis()->SetTitle("Counts");htemp1->GetYaxis()->CenterTitle();
+        htemp1->SetLineWidth(2);htemp1->SetLineColor(kBlue);
+        hhits_in_z.push_back(htemp1);
+        hhits_in_z[i]->SetDirectory(m_dir_res);
+
+        TH2 *htemp2 = new TH2D(TString::Format("hhits_r_vs_z_%s", eta_regions[i]),"",4000,-2000,2000,2000,-1000,1000);
+        htemp2->GetXaxis()->SetTitle("z [mm]");htemp2->GetXaxis()->CenterTitle();
+        htemp2->GetYaxis()->SetTitle("r [mm]");htemp2->GetYaxis()->CenterTitle();
+        hhits_r_vs_z.push_back(htemp2);
+        hhits_r_vs_z[i]->SetDirectory(m_dir_res);
+
+        
+        TH1 *htemp3 = new TH1D(TString::Format("hmeas_in_r_%s", eta_regions[i]),
+                    "",2000,-1000,1000);
+        htemp3->GetXaxis()->SetTitle("r (measurements) [mm]");htemp3->GetXaxis()->CenterTitle();
+        htemp3->GetYaxis()->SetTitle("Counts");htemp3->GetYaxis()->CenterTitle();
+        htemp3->SetLineWidth(2);htemp3->SetLineColor(kRed); htemp3->SetLineStyle(7);
+        hmeas_in_r.push_back(htemp3);
+        hmeas_in_r[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp4 = new TH1D(TString::Format("hmeas_in_z_%s", eta_regions[i]),
+                    "",4000,-2000,2000);
+        htemp4->GetXaxis()->SetTitle("z (measurements) [mm]");htemp4->GetXaxis()->CenterTitle();
+        htemp4->GetYaxis()->SetTitle("Counts");htemp4->GetYaxis()->CenterTitle();
+        htemp4->SetLineWidth(2);htemp4->SetLineColor(kRed); htemp4->SetLineStyle(7);
+        hmeas_in_z.push_back(htemp4);
+        hmeas_in_z[i]->SetDirectory(m_dir_res);
+        
+        TH2 *htemp5 = new TH2D(TString::Format("hmeas_r_vs_z_%s", eta_regions[i]),"",4000,-2000,2000,2000,-1000,1000);
+        htemp5->GetXaxis()->SetTitle("z [mm]");htemp5->GetXaxis()->CenterTitle();
+        htemp5->GetYaxis()->SetTitle("r [mm]");htemp5->GetYaxis()->CenterTitle();
+        hmeas_r_vs_z.push_back(htemp5);
+        hmeas_r_vs_z[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp6 = new TH1D(TString::Format("hresiduals_%s", eta_regions[i]),"Residuals",400,-0.5,0.5);
+        if (i==1) htemp6->GetXaxis()->SetTitle("#Delta z_{(track meas - hit)} [mm]"); else {htemp6->GetXaxis()->SetTitle("#Delta r_{(track meas - hit)} [mm]");}
+        htemp6->GetXaxis()->CenterTitle();
+        htemp6->GetYaxis()->SetTitle("Counts");htemp6->GetYaxis()->CenterTitle();
+        htemp6->SetLineWidth(2);htemp6->SetLineColor(kBlue);
+        hresiduals.push_back(htemp6);
+        hresiduals[i]->SetDirectory(m_dir_res);
+
+        TH2 *htemp7 = new TH2D(TString::Format("hmeas_outliers_r_vs_z_%s", eta_regions[i]), 
+                    "Trackstate Outliers",4000,-2000,2000,2000,-1000,1000);
+        htemp7->GetXaxis()->SetTitle("z (track state meas) [mm]");htemp7->GetXaxis()->CenterTitle();
+        htemp7->GetYaxis()->SetTitle("r (track state meas) [mm]");htemp7->GetYaxis()->CenterTitle();
+        hmeas_outliers_r_vs_z.push_back(htemp7);
+        hmeas_outliers_r_vs_z[i]->SetDirectory(m_dir_res);
+
+        TH2 *htemp8 = new TH2D(TString::Format("hmeas_holes_r_vs_z_%s", eta_regions[i]), 
+                    "Trackstate Holes",4000,-2000,2000,2000,-1000,1000);
+        htemp8->GetXaxis()->SetTitle("z (track state meas) [mm]");htemp8->GetXaxis()->CenterTitle();
+        htemp8->GetYaxis()->SetTitle("r (track state meas) [mm]");htemp8->GetYaxis()->CenterTitle();
+        hmeas_holes_r_vs_z.push_back(htemp8);
+        hmeas_holes_r_vs_z[i]->SetDirectory(m_dir_res);
+    }
+
+    //Looking at volume + layer IDs
+    hvolID = new TH1D("hvolID","",50,0,50);
+    hvolID->GetXaxis()->SetTitle("Volume ID");hvolID->GetXaxis()->CenterTitle();
+    hvolID->GetYaxis()->SetTitle("Counts");hvolID->GetYaxis()->CenterTitle();
+    hvolID->SetLineWidth(2);hvolID->SetLineColor(kBlue);
+    hvolID->SetDirectory(m_dir_main);
+
+    hlayID = new TH1D("hlayID","",50,0,50);
+    hlayID->GetXaxis()->SetTitle("Layer ID");hlayID->GetXaxis()->CenterTitle();
+    hlayID->GetYaxis()->SetTitle("Counts");hlayID->GetYaxis()->CenterTitle();
+    hlayID->SetLineWidth(2);hlayID->SetLineColor(kBlue);
+    hlayID->SetDirectory(m_dir_main);
+
+    hvollayIDs = new TH1D("hvollayIDs","",400,0,400);
+    hvollayIDs->GetXaxis()->SetTitle("Volume ID * 10 + Layer ID");hvollayIDs->GetXaxis()->CenterTitle();
+    hvollayIDs->GetYaxis()->SetTitle("Counts");hvollayIDs->GetYaxis()->CenterTitle();
+    hvollayIDs->SetLineWidth(2);hvollayIDs->SetLineColor(kBlue);
+    hvollayIDs->SetDirectory(m_dir_main);
+
+    for (int i=0; i<20; i++){
+
+        // vollay_index[vollay[i]] = i; //assign index to each item of vollay array
+        vollay_index.emplace(vollay_arr[i], i); //assign index to each item of vollay array
+    
+	    // TH2 *htemp = new TH2D(TString::Format("htrackstate_r_vs_vollayIDs_%d", vollay_arr[i]), 
+        //             "",400,0,400,2000,-1000,1000);
+        // htemp->GetXaxis()->SetTitle("Volume ID * 10 + Layer ID");htemp->GetXaxis()->CenterTitle();
+        // htemp->GetYaxis()->SetTitle("r (track state meas) [mm]");htemp->GetYaxis()->CenterTitle();
+        // htrackstate_r_vs_vollayIDs.push_back(htemp);
+        // htrackstate_r_vs_vollayIDs[i]->SetDirectory(m_dir_res);
+
+        // TH2 *htemp1 = new TH2D(TString::Format("htrackstate_z_vs_vollayIDs_%d", vollay_arr[i]), 
+        //             "",400,0,400,4000,-2000,2000);
+        // htemp1->GetXaxis()->SetTitle("Volume ID * 10 + Layer ID");htemp1->GetXaxis()->CenterTitle();
+        // htemp1->GetYaxis()->SetTitle("z (track state meas) [mm]");htemp1->GetYaxis()->CenterTitle();
+        // htrackstate_z_vs_vollayIDs.push_back(htemp1);
+        // htrackstate_z_vs_vollayIDs[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp2 = new TH1D(TString::Format("htrackstate_r_%d", vollay_arr[i]),
+                    "Trackstate msmts",2000,-1000,1000);
+        htemp2->GetXaxis()->SetTitle("r (measurements) [mm]");htemp2->GetXaxis()->CenterTitle();
+        htemp2->GetYaxis()->SetTitle("Counts");htemp2->GetYaxis()->CenterTitle();
+        htemp2->SetLineWidth(2);htemp2->SetLineColor(kBlue); htemp2->SetLineStyle(7);
+        htrackstate_r.push_back(htemp2);
+        htrackstate_r[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp3 = new TH1D(TString::Format("htrackstate_z_%d", vollay_arr[i]),
+                    "Trackstate msmts",4000,-2000,2000);
+        htemp3->GetXaxis()->SetTitle("z (measurements) [mm]");htemp3->GetXaxis()->CenterTitle();
+        htemp3->GetYaxis()->SetTitle("Counts");htemp3->GetYaxis()->CenterTitle();
+        htemp3->SetLineWidth(2);htemp3->SetLineColor(kBlue); htemp3->SetLineStyle(7);
+        htrackstate_z.push_back(htemp3);
+        htrackstate_z[i]->SetDirectory(m_dir_res);
+
+        
+        TH2 *htemp4 = new TH2D(TString::Format("htrackstate_r_vs_z_%d", vollay_arr[i]), 
+                    "Trackstate msmts",4000,-2000,2000,2000,-1000,1000);
+        htemp4->GetXaxis()->SetTitle("z (track state meas) [mm]");htemp4->GetXaxis()->CenterTitle();
+        htemp4->GetYaxis()->SetTitle("r (track state meas) [mm]");htemp4->GetYaxis()->CenterTitle();
+        htrackstate_r_vs_z.push_back(htemp4);
+        htrackstate_r_vs_z[i]->SetDirectory(m_dir_res);
+
+        TH1 *htemp5 = new TH1D(TString::Format("hresiduals_vollaybins_%d", vollay_arr[i]),
+                    "Residuals",200,-0.5,0.5);
+        if (i == 7 || i == 8 ||  i == 9 ||  i == 11 ||  i == 13 ||  i == 17 || i == 18 ) htemp5->GetXaxis()->SetTitle("#Delta z_{(track meas - hit)} [mm]"); 
+        else {htemp5->GetXaxis()->SetTitle("#Delta r_{(track meas - hit)} [mm]");}
+        htemp5->GetXaxis()->CenterTitle();
+        htemp5->GetYaxis()->SetTitle("Counts");htemp5->GetYaxis()->CenterTitle();
+        htemp5->SetLineWidth(2);htemp5->SetLineColor(kBlue); //htemp5->SetLineStyle(7);
+        hresiduals_vollaybins.push_back(htemp5);
+        hresiduals_vollaybins[i]->SetDirectory(m_dir_res);
+
+
+    }
+
+ 
+    for (int i=0; i<20; i++) {
+        hresiduals_layers_in_pbins.push_back(vector<TH1*>());
+        for (int j=0; j<4; j++) { //momentum bins
+            TH1 *htemp = new TH1D(TString::Format("hresiduals_vollay_%d_mom_%s", vollay_arr[i], mom_bins_arr[j]),
+                        "Residuals",200,-0.5,0.5);
+            if (i == 7 || i == 8 ||  i == 9 ||  i == 11 ||  i == 13 ||  i == 17 || i == 18 ) htemp->GetXaxis()->SetTitle("#Delta z_{(track meas - hit)} [mm]"); 
+            else {htemp->GetXaxis()->SetTitle("#Delta r_{(track meas - hit)} [mm]");}
+            htemp->GetXaxis()->CenterTitle();
+            htemp->GetYaxis()->SetTitle("Counts");htemp->GetYaxis()->CenterTitle();
+            htemp->SetLineWidth(2);htemp->SetLineColor(kBlue); //htemp->SetLineStyle(7);
+            hresiduals_layers_in_pbins[i].push_back(htemp);
+            hresiduals_layers_in_pbins[i][j]->SetDirectory(m_dir_res);
+            
+        }    
+    }
+
 
 
     // Get log level from user parameter or default
@@ -262,6 +445,8 @@ void trackqa_processor::Init()
 
     auto acts_service = app->GetService<ACTSGeo_service>();
     m_geo_provider = acts_service->actsGeoProvider();
+
+    test_counter = 0;
 
 }
 
@@ -324,6 +509,10 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
     m_log->trace("-------------------------");
     int nHitsallTrackers = 0;
+    // int index_reg = 0; if (mceta >= -0.5 && mceta < 0.5) index_reg = 1; else if (mceta >= 0.5) index_reg = 2;
+    int index_reg = 0; if (mceta >= -0.88137 && mceta < 0.88137) index_reg = 1; else if (mceta >= 0.88137) index_reg = 2;
+    vector<float> r_hits_arr;
+    vector<float> z_hits_arr; 
     
     for(size_t name_index = 0; name_index < m_data_names.size(); name_index++ ) {
         auto data_name = m_data_names[name_index];
@@ -331,6 +520,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         m_log->trace("Detector {} has {} digitized hits.",data_name,hits.size());
         
         int nHits_detector = 0;
+        // int index_reg = 0; if (mceta >= -1. && mceta < 1.) index_reg = 1; else if (mceta >= 1.) index_reg = 2;
         for(auto hit: hits) {
             auto cell_id = hit->getCellID(); //FIXME: convert to volume id and layer id
             auto x = hit->getPosition().x;
@@ -345,6 +535,16 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             m_log->trace("Hit x, y, z, r, eta:");
             m_log->trace("{:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}",x,y,z,r,etahit);
             nHitsallTrackers++;
+
+            //Fill hists:
+            if(num_primary==1){
+                hhits_in_r[index_reg]->Fill(r);
+                hhits_in_z[index_reg]->Fill(z);
+                hhits_r_vs_z[index_reg]->Fill(z,r);
+
+                r_hits_arr.push_back(r);
+                z_hits_arr.push_back(z);
+            }
         }
 
         m_log->trace("");
@@ -358,8 +558,8 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     m_log->trace("Number of ACTS Seeds: {}", seed_parameters.size());
 
     //ACTS Trajectories
-    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
+    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
+    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
 
     m_log->trace("Number of ACTS Trajectories: {}", trajectories.size());
     m_log->trace("");
@@ -421,12 +621,20 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         m_log->trace("Trajectory p, eta:");
         m_log->trace("{:>10.2f} {:>10.2f}",p_traj,eta_traj);
         m_log->trace("");
+        // int index_reg = 0; if (eta_traj >= -0.88137 && eta_traj < 0.88137) index_reg = 1; else if (eta_traj >= 0.88137) index_reg = 2;
+        // int index_reg = 0; if (eta_traj >= -0.5 && eta_traj < 0.5) index_reg = 1; else if (eta_traj >= 0.5) index_reg = 2;
+
 
         //Information at tracking layers
         int m_nCalibrated = 0;
         int state_counter = 0;
+        int numCalState = -1;
         // visit the track points
         mj.visitBackwards(trackTip, [&](auto &&trackstate) {
+            
+            auto typeFlags = trackstate.typeFlags();
+            // if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag) == 1) 
+            // cout << "FLAG!!: " << typeFlags.test(Acts::TrackStateFlag::OutlierFlag) << endl;
 
             state_counter++;
             m_log->trace("Now at State number {}",state_counter);
@@ -439,6 +647,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
             if (trackstate.hasCalibrated()) {
                 m_nCalibrated++;
+                numCalState++;
                 m_log->trace("This is a calibrated state.");
             }
             else{
@@ -448,6 +657,42 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             // get track state parameters and their covariances
             const auto &state_params = trackstate.predicted();
             const auto &state_covar = trackstate.predictedCovariance();
+
+            // //get local  hit residuals
+            // cout << "begin" << endl;
+            // cout << "H: " << trackstate.effectiveProjector() <<endl;
+            // cout << "eff cal: " << trackstate.effectiveCalibrated() <<endl;
+            // cout << "eff cal cov: " << trackstate.effectiveCalibratedCovariance() <<endl;
+            // cout << "ststae params: " << state_params <<endl;
+            // cout << "cov: " << state_covar <<endl;
+            // cout << "H transposed: " << trackstate.effectiveProjector().transpose() <<endl;
+
+            // auto typeFlags = trackstate.typeFlags();
+
+            // auto H = trackstate.effectiveProjector();
+            // auto resCov = trackstate.effectiveCalibratedCovariance() + H * state_covar * H.transpose();
+            // auto res = trackstate.effectiveCalibrated() - (H * state_params);
+            // cout << "res calculated" << endl;
+            // cout << Acts::eBoundLoc0 << endl;
+            // cout << " siZe pf: " << sizeof(res) << endl;
+            // cout << " type: " << typeid(res).name() << endl;
+            // // for (int ij=0; ij<sizeof(res); ij++){
+            // //     cout << res[ij] <<", " << endl;
+            // // }
+            // cout << "testing" << state_params[0] <<endl;
+            // cout << "res: " << res << endl;
+            // cout << "calibrated size: " << trackstate.calibratedSize() << endl;
+            // cout << "res.rows: " << res.rows() << endl;
+            // cout << "res.cols: " << res.cols() << endl;
+            // // cout << "res(0,0): " << res(0,0) << endl;
+            // cout << "res.coeff(0,0): " << res.coeff(0,0) << endl;
+            // if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+            //     cout << "res[0]: " << res[1] << endl;
+            //     cout << "value:" << res[Acts::eBoundLoc0] << endl;
+            //     // m_res_x_hit.push_back(res[Acts::eBoundLoc0]);
+            // }
+            
+
 
             //First print same information as for initial track parameters
             m_log->trace("{:>8} {:>8} {:>8} {:>8} {:>8} {:>10} {:>10} {:>10}",
@@ -473,7 +718,91 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             m_log->trace("{:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}",global.x(),global.y(),global.z(),global_r,trackstate.pathLength());
             
             m_log->trace("");
+
+            //Fill histograms - note there are only meas chi^2 associated with the CALIBRATED states
+            if(num_primary==1 && trackstate.hasCalibrated()){
+                hmeaschi2_vs_volID->Fill(volume,m_measurementChi2[numCalState]);
+                hmeaschi2_vs_layID->Fill(layer,m_measurementChi2[numCalState]);
+                hmeaschi2_vs_vollayIDs->Fill(volume*10+layer,m_measurementChi2[numCalState]);
+
+                hmeas_in_r[index_reg]->Fill(global_r);
+                hmeas_in_z[index_reg]->Fill(global.z());
+                hmeas_r_vs_z[index_reg]->Fill(global.z(), global_r);
+                if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag) == 1) hmeas_outliers_r_vs_z[index_reg]->Fill(global.z(), global_r);
+                if (typeFlags.test(Acts::TrackStateFlag::HoleFlag) == 1) hmeas_holes_r_vs_z[index_reg]->Fill(global.z(), global_r);
+
+                hvolID->Fill(volume);
+                hlayID->Fill(layer);
+                hvollayIDs->Fill(volume*10+layer);
+
+                // cout << "CHECKPOINT 1" << endl;
+
+                // int vollayID = vollay_index.find(volume*10+layer); //map isn't liked...
+                auto itr = find(vollay_arr, vollay_arr+20, volume*10+layer);
+                int vollayID = distance(vollay_arr, itr);
+                // cout << "CHECKPOINT 1.5" << endl;
+                // htrackstate_r_vs_vollayIDs[0]->Fill(volume*10+layer,global_r); //index 0 holds all events (summary)
+                // htrackstate_r_vs_vollayIDs[vollayID]->Fill(volume*10+layer,global_r);
+                // htrackstate_z_vs_vollayIDs[0]->Fill(volume*10+layer,global.z()); //index 0 holds all events (summary)
+                // htrackstate_z_vs_vollayIDs[vollayID]->Fill(volume*10+layer,global.z());
+                htrackstate_r[0]->Fill(global_r);
+                htrackstate_r[vollayID]->Fill(global_r);
+                htrackstate_z[0]->Fill(global.z());
+                htrackstate_z[vollayID]->Fill(global.z());
+                htrackstate_r_vs_z[0]->Fill(global.z(),global_r);
+                htrackstate_r_vs_z[vollayID]->Fill(global.z(),global_r);
+
+                // cout << "CHECKPOINT 2" << endl;
+
+                
+
+                // calculate residuals
+                if (index_reg == 1) { //this is in the barrel - expect r's to be the same, look at dif in z
+                    //look at the hits in this event, see which ones have the same r's
+                    for (int jj=0; jj<r_hits_arr.size(); jj++){
+                        if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
+                            hresiduals[index_reg]->Fill( global.z() - z_hits_arr[jj]);
+                            // break;
+                        }
+                    }
+                } else { //this is in the forward/backward - expect z's to be the same, look at dif in r
+                    //look at the hits in this event, see which ones have the same z's
+                    for (int jj=0; jj<z_hits_arr.size(); jj++){
+                        if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
+                            hresiduals[index_reg]->Fill( global_r - r_hits_arr[jj]);
+                            // break;
+                        }
+                    }
+                }
+                // cout << "CHECKPOINT 3" << endl;
+                int pbin = 3;
+                if (mcp > 1. && mcp < 2.) pbin = 0; else if (mcp < 5.) pbin = 1; else if (mcp < 7.) pbin = 2;
+                if (vollayID == 7 || vollayID == 8 ||  vollayID == 9 ||  vollayID == 11 ||  vollayID == 13 ||  vollayID == 17 || vollayID == 18 ) {
+                    //constant r if vertex/sagitta/barrel -> indices are 7,8,9,11,13,17,18
+                    for (int jj=0; jj<r_hits_arr.size(); jj++){
+                        if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
+                            hresiduals_vollaybins[vollayID]->Fill( global.z() - z_hits_arr[jj]);
+                            hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global.z() - z_hits_arr[jj]);
+                            // break;
+                        }
+                    }
+                } else {
+                    for (int jj=0; jj<z_hits_arr.size(); jj++){
+                        if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
+                            hresiduals_vollaybins[vollayID]->Fill( global_r - r_hits_arr[jj]);
+                            hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global_r - r_hits_arr[jj]);
+                            // break;
+                        }
+                    }
+                }
+
+            }
         }); //End visiting track points
+
+        if(m_measurementChi2.size() != m_nCalibrated){
+            cout << "meas size " << m_measurementChi2.size() << " and # states " << m_nCalibrated << endl;
+            test_counter++;
+        }
      
         m_log->trace("Number of calibrated states: {}",m_nCalibrated);
         num_traj++;
@@ -517,11 +846,14 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             houtliers_vs_hits->Fill(nHitsallTrackers, m_nOutliers);
             hsummation->Fill(m_nMeasurements + m_nOutliers, m_nCalibrated);
             hsummation2->Fill(m_nOutliers + m_nMeasurements, nHitsallTrackers);
-            hsummation3->Fill(m_nMeasurements + m_nOutliers + m_nHoles,m_nStates);
+            hsummation3->Fill(m_nMeasurements + m_nOutliers + m_nHoles, m_nCalibrated);
+            //is m_nStates == state_counter??
             
         }
 
+
     } //End loop over trajectories
+
 
     if(num_primary==1){
         heta->Fill(mceta);
@@ -543,6 +875,8 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 void trackqa_processor::Finish()
 {
+    cout << "The number of times the state counter and meas chi^2 are diff is " << test_counter <<"/10000" << endl;
+
 	m_log->trace("trackqa_processor finished\n");
 }
 

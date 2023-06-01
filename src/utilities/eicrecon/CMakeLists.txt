@@ -7,7 +7,6 @@ project(eicrecon_project)
 find_package(JANA    REQUIRED)
 find_package(Threads REQUIRED)
 find_package(fmt     REQUIRED)
-find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 
 # Compile all sources into executable
 file(GLOB SOURCES *.cpp *.cc *.c  *.hpp *.hh *.h)
@@ -20,7 +19,6 @@ add_executable( eicrecon ${SOURCES} )
 target_include_directories( eicrecon PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(eicrecon ${LINK_LIBRARIES} )
 target_compile_definitions(eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT_VERSION})
-
 
 # Install executable
 install(TARGETS eicrecon DESTINATION bin)

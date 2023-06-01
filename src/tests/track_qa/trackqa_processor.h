@@ -17,6 +17,7 @@
 // #include <fstream>
 // #include <string>
 #include <vector>
+#include <map>
 // #include <sstream>
 // #include <cstdlib>
 using namespace std;
@@ -92,8 +93,8 @@ public:
     vector<TH2*> hmeasptrack_vs_chi2perNDF_etabins; //# of measurements per track vs chi^2 in 16 bins of eta
     TH2 *hmeasptrack_vs_calstates; //# of measurements per tracks vs # of calibrated states
 
-    TH2 *hholes_vs_hits; //# of holes per # of hits
-    TH2 *houtliers_vs_hits; //# of outliers [er # of hits
+    TH2 *hholes_vs_hits; //# of holes vs # of hits
+    TH2 *houtliers_vs_hits; //# of outliers vs # of hits
     TH2 *hsummation; //compare # calibrated states with # of trajectories + # outliers //This comparison doesn't make sense - remove later
     TH2 *hsummation2; //confirm that # hits = # of outliers + # meas per track
     TH2 *hsummation3; //compare #meas + #outliers + #holes to #states
@@ -103,6 +104,46 @@ public:
     TH2 *hmeaschi2_vs_eta;
     TH2 *hmeaschi2_vs_hits;
 
+    //look at the r,z, and residuals
+    vector<TH1*> hhits_in_r;
+    vector<TH1*> hhits_in_z;
+    vector<TH2*> hhits_r_vs_z;
+
+    vector<TH1*> hmeas_in_r;
+    vector<TH1*> hmeas_in_z;
+    vector<TH2*> hmeas_r_vs_z;
+
+    vector<TH1*> hresiduals;
+    vector<TH1*> hresiduals_vollaybins;
+    vector<vector<TH1*>> hresiduals_layers_in_pbins;
+
+    vector<float> m_res_x_hit;   ///< hit residual x
+    TH2 *hmeaschi2_vs_volID;
+    TH2 *hmeaschi2_vs_layID;
+    TH2 *hmeaschi2_vs_vollayIDs;
+
+    TH1 *hvolID; //just the volume ID
+    TH1 *hlayID;
+    TH1 *hvollayIDs;
+    // int vollay_arr[20] = {0,22,142,144,146,192,242,262,264,266,282,302,312,332,342,344,346,352,362,382}; //indices of all (volID*10 + layID) indices - ARCHES
+    int vollay_arr[20] = {0,22,122,124,126,172,222,242,244,246,262,282,292,312,322,324,326,332,342,362}; //indices of all (volID*10 + layID) indices - BRYCE CANYON
+    char vollay_identities[20][20] = {"all","dead","b disk 5","b disk 4","b disk 3","b disk 2","b disk 1",
+                                    "vertex 1","vertex 2","vertex 3","f disk 1","barrel sagitta 1","f disk 2",
+                                    "barrel sagitta 2","f disk 3","f disk 4","f disk 5",
+                                    "MPGD barrel","TOF barrel","MPGD DIRC"}; //corresponding labels of all (volID*10 + layID) indices
+    char mom_bins_arr[4][20] = {"1-2","2-5","5-7","7-10"};
+    map<int,int> vollay_index;
+    // vector<TH2*> htrackstate_r_vs_vollayIDs; //the r position of where track is at a trackstate vs each volume ID * 10 + layer ID
+    // vector<TH2*> htrackstate_z_vs_vollayIDs;
+    vector<TH1*> htrackstate_r; //the r position of where track is at a trackstate vs each volume ID * 10 + layer ID
+    vector<TH1*> htrackstate_z;
+    vector<TH2*> htrackstate_r_vs_z;
+    vector<TH2*> hmeas_outliers_r_vs_z;
+    vector<TH2*> hmeas_holes_r_vs_z;
+
+
+    int test_counter;
+
 private:
 
     std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
@@ -110,6 +151,7 @@ private:
     /// Directory to store histograms to
     TDirectory *m_dir_main{};
     TDirectory *m_dir_sub{};
+    TDirectory *m_dir_res{};
 
 };
 

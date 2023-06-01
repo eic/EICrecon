@@ -4,9 +4,11 @@
 
 
 #include <Acts/Propagator/Navigator.hpp>
+#include <edm4eic/TrackParametersCollection.h>
+#include <JANA/JEvent.h>
+
 #include "TrackSeeding_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <JANA/JEvent.h>
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/string/StringHelpers.h"

@@ -6,13 +6,15 @@
 
 #include <random>
 
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
+
 #include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/RawCalorimeterHit.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
@@ -46,7 +48,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 0.03;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -65,7 +66,6 @@ public:
         app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("FEMC:EcalEndcapPRawHits:readoutClass",     m_readout);
 

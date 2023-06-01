@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <spdlog/logger.h>
+
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
 #include <algorithms/reco/JetReconstruction.h>
 
 

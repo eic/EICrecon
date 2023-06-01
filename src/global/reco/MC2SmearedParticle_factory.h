@@ -6,6 +6,7 @@
 
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 
 #include <algorithms/reco/MC2SmearedParticleConfig.h>
 #include <algorithms/reco/MC2SmearedParticle.h>

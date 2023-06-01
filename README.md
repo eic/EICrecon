@@ -1,3 +1,6 @@
+
+[![DOI](https://zenodo.org/badge/512187504.svg)](https://zenodo.org/badge/latestdoi/512187504)
+
 # EICrecon
 JANA based reconstruction for the EPIC detector
 

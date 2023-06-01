@@ -4,6 +4,8 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 

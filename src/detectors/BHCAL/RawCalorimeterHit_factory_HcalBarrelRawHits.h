@@ -6,13 +6,15 @@
 
 #include <random>
 
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
+
 #include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/RawCalorimeterHit.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
@@ -46,7 +48,6 @@ public:
         m_resolutionTDC = 1.0 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "geoServiceName";
         m_readout = "HcalBarrelHits";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -62,7 +63,6 @@ public:
         app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BHCAL:HcalBarrelRawHits:readoutClass",     m_readout);
 

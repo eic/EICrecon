@@ -2,7 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <edm4eic/TrackSegmentCollection.h>
 #include <JANA/JEvent.h>
+
 #include "TrackProjector_factory.h"
 #include "extensions/string/StringHelpers.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
