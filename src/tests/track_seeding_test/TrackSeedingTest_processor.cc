@@ -94,7 +94,7 @@ void TrackSeedingTest_processor::Process(const std::shared_ptr<const JEvent>& ev
             projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+            throw JException(e.what());
         }
 
         if(!projection_point) {
