@@ -87,9 +87,8 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
   make_track(collection1, { // empty
       { }
       });
-  make_track(collection2, { // horizontal
-      { {2, 0, 0}, {1, 0, 0}, 3 },
-      { {3, 0, 0}, {1, 0, 0}, 4 }
+  make_track(collection2, { // one point
+      { {2, 0, 0}, {1, 0, 0}, 3 }
       });
 
   // track2
@@ -163,7 +162,7 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE(trks->size() == colls.front()->size());
     // track length: from endpoints
     REQUIRE_THAT( track_length(trks->at(0)), Catch::Matchers::WithinAbs(5, EPSILON) );
-    REQUIRE_THAT( track_length(trks->at(1)), Catch::Matchers::WithinAbs(3, EPSILON) );
+    REQUIRE_THAT( track_length(trks->at(1)), Catch::Matchers::WithinAbs(2, EPSILON) );
     REQUIRE_THAT( track_length(trks->at(2)), Catch::Matchers::WithinAbs(std::hypot(1,2), EPSILON) );
     REQUIRE_THAT( track_length(trks->at(3)), Catch::Matchers::WithinAbs(5, EPSILON) );
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
