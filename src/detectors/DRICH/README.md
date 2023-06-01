@@ -120,8 +120,8 @@ flowchart TB
   PIDOutputs      ==> ProxMatch
   TrackParameters ==> ProxMatch
   MCParts         ==> ProxMatch
-  ProxMatch ==> ReconParts
   ProxMatch ==> ReconAssocs
+  ProxMatch ==> ReconParts
   ProxMatch ==> ReconPIDs
   ReconParts -.1 to N.-> ReconPIDs
   %%ReconAssocs -.association.- MCParts
