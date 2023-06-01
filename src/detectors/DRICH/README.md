@@ -45,9 +45,9 @@ flowchart TB
     MergeTracksAlg[<strong>Merge Tracks</strong><br/>MergeTrackSegments<br/><i>MergeTrack_factory</i>]:::alg
     MergedTracks(<strong>DRICHMergedTracks</strong><br/>edm4eic::TrackSegment):::col
 
-    %% MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
-    %% ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br/><i>RichTrackReflection_factory</i>]:::alg
-    %% Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
+    %%MirrorTracks(<strong>DRICHMirrorTracks - TODO</strong><br/>edm4eic::TrackSegment):::col
+    %%ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br/><i>RichTrackReflection_factory</i>]:::alg
+    %%Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
 
     TrackingAlgos[[<strong>Tracking Algorithms</strong>]]:::alg
     TrackParameters(<strong>outputTrackParameters</strong><br/>edm4eic::TrackParameters):::col
@@ -88,8 +88,8 @@ flowchart TB
   SimHits ==> DigiAlg
   DigiAlg ==> RawHits
   DigiAlg ==> HitAssocs
-  SimHits -.association.- HitAssocs
-  SimHits -.association.- MCParts
+  %%SimHits -.association.- HitAssocs
+  %%SimHits -.association.- MCParts
 
   %% tracking
   Trajectories   ==> PropagatorAlg
@@ -120,8 +120,8 @@ flowchart TB
   PIDOutputs      ==> ProxMatch
   TrackParameters ==> ProxMatch
   MCParts         ==> ProxMatch
-  ProxMatch ==> ReconParts -.1 to N.-> ReconPIDs
-  ProxMatch ==> ReconAssocs -.association.- MCParts
+  %%ProxMatch ==> ReconParts -.1 to N.-> ReconPIDs
+  %%ProxMatch ==> ReconAssocs -.association.- MCParts
   ProxMatch ==> ReconPIDs
 ```
 
