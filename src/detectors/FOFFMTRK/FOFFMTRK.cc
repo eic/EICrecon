@@ -22,7 +22,7 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig digi_default_cfg;
-    digi_default_cfg.threshold = 0;
+    digi_default_cfg.threshold = 0 * dd4hep::keV;
     digi_default_cfg.timeResolution = 8;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"ForwardOffMTrackerHits"}, "ForwardOffMTrackerDigiHits", digi_default_cfg));
 

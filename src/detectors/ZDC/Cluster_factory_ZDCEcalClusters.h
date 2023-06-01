@@ -6,7 +6,9 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <edm4eic/ClusterCollection.h>
+
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
 #include <services/log/Log_service.h>
@@ -14,7 +16,7 @@
 
 
 
-class Cluster_factory_ZDCEcalClusters : public JFactoryT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
+class Cluster_factory_ZDCEcalClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterRecoCoG {
 
 public:
     //------------------------------------------

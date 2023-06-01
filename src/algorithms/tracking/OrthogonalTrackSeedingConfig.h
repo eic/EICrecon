@@ -23,22 +23,24 @@ namespace eicrecon {
     float m_zMax = 1700. * Acts::UnitConstants::mm; // max z to look for hits to compose seeds
     float m_zMin = -1500. * Acts::UnitConstants::mm; // min z to look for hits to compose seeds
     float m_deltaRMinTopSP = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and top SP in one seed
-    float m_deltaRMaxTopSP = 400. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
+    float m_deltaRMaxTopSP = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
     float m_deltaRMinBottomSP = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and bottom SP in one seed
-    float m_deltaRMaxBottomSP = 400. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
+    float m_deltaRMaxBottomSP = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and bottom SP in one seed
     float m_collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
-    float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex 
+    float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex
 
     float m_maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
-    float m_cotThetaMax = 27.29; // Cotangent of max theta angle (27.29 corresponds to eta = 4)
+    float m_cotThetaMax = 1.0 / tan(2. * atan(exp(-4.0))); // Cotangent of max theta angle (based on eta)
+
     float m_sigmaScattering = 5; // How many standard devs of scattering angles to consider
     float m_radLengthPerSeed = 0.1; // Average radiation lengths of material on the length of a seed
-    float m_minPt = 6*Acts::UnitConstants::MeV; // MeV - minimum transverse momentum
-    float m_bFieldInZ = 1.7*Acts::UnitConstants::T; // kTesla - Magnetic field strength
+    float m_minPt = (100. * Acts::UnitConstants::MeV) / m_cotThetaMax; // MeV (in Acts units of GeV) - minimum transverse momentum
+    float m_bFieldInZ = 1.7 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Magnetic field strength
     float m_beamPosX = 0; // x offset for beam position
     float m_beamPosY = 0; // y offset for beam position
     float m_impactMax = 3. * Acts::UnitConstants::mm; // Maximum transverse PCA allowed
-    float m_rMinMiddle = 10. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
+    float m_bFieldMin = 0.1 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Minimum Magnetic field strength
+    float m_rMinMiddle = 20. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
     float m_rMaxMiddle = 400. * Acts::UnitConstants::mm;
 
     Acts::SeedFilterConfig m_seedFilterConfig;
@@ -100,25 +102,25 @@ namespace eicrecon {
       m_seedFilterConfig.seedWeightIncrement = m_seedWeightIncrement;
 
       m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-	      m_zMinSeedConf_cent,
-              m_zMaxSeedConf_cent,
-              m_rMaxSeedConf_cent,
-              m_nTopForLargeR_cent,
-              m_nTopForSmallR_cent,
-              m_seedConfMinBottomRadius_cent,
-              m_seedConfMaxZOrigin_cent,
-              m_minImpactSeedConf_cent
+        m_zMinSeedConf_cent,
+        m_zMaxSeedConf_cent,
+        m_rMaxSeedConf_cent,
+        m_nTopForLargeR_cent,
+        m_nTopForSmallR_cent,
+        m_seedConfMinBottomRadius_cent,
+        m_seedConfMaxZOrigin_cent,
+        m_minImpactSeedConf_cent
       };
 
       m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-              m_zMinSeedConf_forw,
-              m_zMaxSeedConf_forw,
-              m_rMaxSeedConf_forw,
-              m_nTopForLargeR_forw,
-              m_nTopForSmallR_forw,
-              m_seedConfMinBottomRadius_forw,
-              m_seedConfMaxZOrigin_forw,
-              m_minImpactSeedConf_forw
+        m_zMinSeedConf_forw,
+        m_zMaxSeedConf_forw,
+        m_rMaxSeedConf_forw,
+        m_nTopForLargeR_forw,
+        m_nTopForSmallR_forw,
+        m_seedConfMinBottomRadius_forw,
+        m_seedConfMaxZOrigin_forw,
+        m_minImpactSeedConf_forw
       };
 
       // Finder parameters
@@ -142,32 +144,26 @@ namespace eicrecon {
       m_seedFinderConfig.impactMax = m_impactMax;
       m_seedFinderConfig.rMinMiddle = m_rMinMiddle;
       m_seedFinderConfig.rMaxMiddle = m_rMaxMiddle;
+
       // Taken from SeedingOrthogonalAlgorithm.cpp, e.g.
       // calculation of scattering using the highland formula
       // convert pT to p once theta angle is known
       m_seedFinderConfig.highland =
-	13.6 * std::sqrt(m_seedFinderConfig.radLengthPerSeed) *
-	(1 + 0.038 * std::log(m_seedFinderConfig.radLengthPerSeed));
-      float maxScatteringAngle =
-	m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
-      m_seedFinderConfig.maxScatteringAngle2 =
-	maxScatteringAngle * maxScatteringAngle;
-      // helix radius in homogeneous magnetic field. Units are Kilotesla, MeV and
-      // millimeter
-      m_seedFinderConfig.pTPerHelixRadius =
-	300. * m_seedFinderConfig.bFieldInZ;
+        (13.6 * Acts::UnitConstants::MeV) * std::sqrt(m_seedFinderConfig.radLengthPerSeed) *
+        (1 + 0.038 * std::log(m_seedFinderConfig.radLengthPerSeed));
+      float maxScatteringAngle = m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
+      m_seedFinderConfig.maxScatteringAngle2 = maxScatteringAngle * maxScatteringAngle;
+
+      // Helix radius in homogeneous magnetic field
+      // in ACTS Units of GeV, mm, and GeV/(e*mm)
+      m_seedFinderConfig.pTPerHelixRadius = m_seedFinderConfig.bFieldInZ;
+
       m_seedFinderConfig.minHelixDiameter2 =
-	std::pow(m_seedFinderConfig.minPt * 2 /
-		 m_seedFinderConfig.pTPerHelixRadius,
-		 2);
+        std::pow(m_seedFinderConfig.minPt * 2 / m_seedFinderConfig.pTPerHelixRadius,2);
 
       m_seedFinderConfig.pT2perRadius =
-	std::pow(
-          m_seedFinderConfig.highland / m_seedFinderConfig.pTPerHelixRadius,
-	  2);
+        std::pow(m_seedFinderConfig.highland / m_seedFinderConfig.pTPerHelixRadius,2);
 
     }
-
   };
-
 }

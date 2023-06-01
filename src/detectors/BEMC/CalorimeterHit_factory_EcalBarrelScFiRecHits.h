@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelScFiRecHits : public JFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalBarrelScFiRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
@@ -32,11 +32,11 @@ public:
         m_resolutionTDC=10 * dd4hep::picosecond;//{this, "resolutionTDC", 10 * ps};
 
         // zero suppression values
-        m_thresholdFactor=5.0;// from ATHENA's reconstruction.py
+        m_thresholdFactor=36.0488;// from ATHENA's reconstruction.py
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction
-        m_sampFrac=0.125;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.10200085;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";

@@ -7,6 +7,9 @@
  *
  *  Author: Chao Peng (ANL), 06/02/2021
  */
+
+#pragma once
+
 #include "fmt/format.h"
 #include <Eigen/Dense>
 #include <algorithm>
@@ -17,12 +20,6 @@
 
 #include <algorithms/calorimetry/ClusterTypes.h>
 
-//
-//#include "JugBase/DataHandle.h"
-//#include "JugBase/IGeoSvc.h"
-//#include "JugBase/Utilities/Utils.hpp"
-//#include "JugReco/ClusterTypes.h"
-
 // Event Model related classes
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
@@ -30,12 +27,6 @@
 #include "edm4eic/ClusterCollection.h"
 #include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
 #include "edm4eic/ProtoClusterCollection.h"
-#include "edm4eic/vector_utils.h"
-
-//using namespace Gaudi::Units;
-//using namespace Eigen;
-
-//namespace Jug::Reco {
 
 /** Imaging cluster reconstruction.
  *
@@ -87,9 +78,12 @@ public:
             auto cl_layers = reconstruct_cluster_layers(pcl);
 
             // Get cluster direction from the layer profile
-            auto [theta, phi] = fit_track(cl_layers);
-            cl.setIntrinsicTheta(theta);
-            cl.setIntrinsicPhi(phi);
+            // TODO in fit_track causing eigen3 alignment issue at Eigen::JacobiSVD
+            // TODO For now this code is switched off (experts permission is given),
+            // TODO It should be reviewed and reinstated after PODIO works
+            // auto [theta, phi] = fit_track(cl_layers);
+            // cl.setIntrinsicTheta(theta);
+            // cl.setIntrinsicPhi(phi);
             // no error on the intrinsic direction TODO
 
             // store layer and clusters on the datastore
@@ -103,7 +97,7 @@ public:
             // If mcHits are available, associate cluster with MCParticle
             if ( (!m_mcHits.empty()) && (!m_outputAssociations.empty()) ) {
 
-                // 1. find pclhit with largest energy deposition
+                // 1. find pclhit with the largest energy deposition
                 auto pclhits = pcl->getHits();
                 auto pclhit = std::max_element(
                         pclhits.begin(),
@@ -136,7 +130,7 @@ public:
                 clusterassoc.setSimID(mcp.getObjectID().index);
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(cl);
-                //clusterassoc.setSim(mcp);
+                clusterassoc.setSim(mcp);
                 m_outputAssociations.push_back(new edm4eic::MCRecoClusterParticleAssociation(clusterassoc));
             }
 
@@ -283,6 +277,7 @@ private:
                 nrows += 1;
             }
         }
+
         // cannot fit
         if (nrows < 2) {
             return {};
@@ -302,6 +297,7 @@ private:
             }
         }
 
+        // TODO Eigen::JacobiSVD <Eigen::MatrixXd> svd may cause eigen3 alignment issues, should be tested
         Eigen::JacobiSVD <Eigen::MatrixXd> svd(pos, Eigen::ComputeThinU | Eigen::ComputeThinV);
         const auto dir = svd.matrixV().col(0);
         // theta and phi

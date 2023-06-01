@@ -50,7 +50,9 @@ public:
   double m_thresholdValue;//{this, "thresholdValue", 0.0};
 
   // energy correction with sampling fraction
-  double m_sampFrac;//{this, "samplingFraction", 1.0};
+  double m_sampFrac          = 1.;//{this, "samplingFraction", 1.0};
+  double m_sampFracLayer[14] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                                0., 0., 0., 0.}; //maximum 14 layers
 
   // unitless counterparts of the input parameters
   double thresholdADC{0};
@@ -77,7 +79,7 @@ public:
   std::string m_localDetElement="", m_maskPos="";
   std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
-  size_t local_mask = ~0, gpos_mask = 0;
+  size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
 
     std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;

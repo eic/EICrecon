@@ -41,31 +41,19 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
     auto& assoc2 = m_outputAssociations;
 
     if (!split.size()) {
-      if (m_log->level() <=spdlog::level::debug) {
-        m_log->debug("Nothing to do for this event, returning...");
-        //LOG_INFO(default_cout_logger) << "Nothing to do for this event, returning..." << LOG_END;
-      }
+      m_log->debug("Nothing to do for this event, returning...");
       return;
     }
-    if (m_log->level() <=spdlog::level::debug) {
-       m_log->debug( "Step 0/1: Getting indexed list of clusters..." );
-      //LOG_INFO(default_cout_logger) << "Step 0/1: Getting indexed list of clusters..." << LOG_END;
-    }
+    m_log->debug( "Step 0/1: Getting indexed list of clusters..." );
     // get an indexed map of all vectors of clusters, indexed by mcID
     auto clusterMap = indexedClusterLists(split, assoc);
     // loop over all position clusters and match with energy clusters
-    if (m_log->level() <=spdlog::level::debug) {
-       m_log->debug( "Step 1/1: Merging clusters where needed" );
-    }
+    m_log->debug( "Step 1/1: Merging clusters where needed" );
     for (const auto& [mcID, clusters] : clusterMap) {
-      if (m_log->level() <=spdlog::level::debug) {
-         m_log->debug( " --> Processing {} clusters for mcID {}",clusters.size(), mcID );
-      }
+      m_log->debug( " --> Processing {} clusters for mcID {}",clusters.size(), mcID );
       if (clusters.size() == 1) {
         const auto& clus = clusters[0];
-        if (m_log->level() <=spdlog::level::debug) {
-           m_log->debug( "   --> Only a single cluster, energy: {} for this particle, copying",clus->getEnergy());
-        }
+        m_log->debug( "   --> Only a single cluster, energy: {} for this particle, copying",clus->getEnergy());
         auto nclus= clus->clone();
         edm4eic::Cluster* new_clus = new edm4eic::Cluster(nclus);
         merged.push_back(new_clus);
@@ -88,9 +76,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         int nhits = 0;
         auto position = new_clus.getPosition();
         for (auto clus : clusters) {
-          if (m_log->level() <=spdlog::level::debug) {
-             m_log->debug( "   --> Adding cluster with energy: {}" , clus->getEnergy() );
-          }
+          m_log->debug( "   --> Adding cluster with energy: {}" , clus->getEnergy() );
           energy += clus->getEnergy();
           energyError += clus->getEnergyError() * clus->getEnergyError();
           time += clus->getTime() * clus->getEnergy();
@@ -107,9 +93,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
         new_clus.setNhits(nhits);
         new_clus.setPosition(position / energy);
         merged.push_back( new edm4eic::Cluster(new_clus) );
-        if (m_log->level() <=spdlog::level::debug) {
-           m_log->debug( "   --> Merged cluster with energy: {}",new_clus.getEnergy() );
-        }
+        m_log->debug( "   --> Merged cluster with energy: {}",new_clus.getEnergy() );
         auto ca = new edm4eic::MutableMCRecoClusterParticleAssociation();
         ca->setSimID(mcID);
         ca->setWeight(1.0);

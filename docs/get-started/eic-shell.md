@@ -15,10 +15,6 @@ cd ~/eic
 
 curl --location https://get.epic-eic.org | bash
 ./eic-shell
-
-# or, if /cvmfs is available:
-
-singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly eic-shell
 ~~~~
 
 _n.b. if on the JLab CUE you should do module load singularity/3.9.5 first_

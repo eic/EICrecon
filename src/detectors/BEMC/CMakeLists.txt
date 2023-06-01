@@ -6,8 +6,6 @@ project(BEMC)
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
-
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
 plugin_add(${PLUGIN_NAME} )
@@ -17,16 +15,9 @@ plugin_add(${PLUGIN_NAME} )
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-# Find dependencies
-find_package(Eigen3 REQUIRED)
-set(Eigen3_INCLUDE_DIR ${Eigen3_DIR}/../../../include/eigen3)
-
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIR})
-
-# Add include directories (works same as target_include_directories)
-# plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
+plugin_add_eigen3(${PLUGIN_NAME})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library )

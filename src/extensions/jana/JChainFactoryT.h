@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include "extensions/string/StringHelpers.h"
 
 
@@ -23,8 +23,8 @@
 struct NoConfig {
 };
 
-template <typename OutT, typename ConfigT = NoConfig>
-class JChainFactoryT : public JFactoryT<OutT> {
+template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
+class JChainFactoryT : public BaseT<OutT> {
 public:
 
     using OutputType = OutT;

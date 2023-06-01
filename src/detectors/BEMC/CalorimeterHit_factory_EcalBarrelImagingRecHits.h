@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 
 #include <algorithms/calorimetry/ImagingPixelReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JFactoryT<edm4eic::CalorimeterHit>, ImagingPixelReco {
+class CalorimeterHit_factory_EcalBarrelImagingRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, ImagingPixelReco {
 
 public:
 
@@ -38,7 +38,7 @@ public:
         m_pedSigmaADC=14; // {this, "pedestalSigma", 3.2};
         m_thresholdFactor=3.0; // {this, "thresholdFactor", 3.0};
         // Calibration!
-        m_sampFrac=0.005;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
+        m_sampFrac=0.00619766;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:layerField",       m_layerField);

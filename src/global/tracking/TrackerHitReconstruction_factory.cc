@@ -1,14 +1,17 @@
 // Created by Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <JANA/JEvent.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
 #include "TrackerHitReconstruction_factory.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
-#include <edm4eic/RawTrackerHit.h>
-#include <JANA/JEvent.h>
 
 void TrackerHitReconstruction_factory::Init() {
 

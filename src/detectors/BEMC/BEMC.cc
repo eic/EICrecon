@@ -11,7 +11,6 @@
 #include "CalorimeterHit_factory_EcalBarrelSciGlassRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassClusters.h"
-#include "Cluster_factory_EcalBarrelSciGlassMergedClusters.h"
 
 #include "RawCalorimeterHit_factory_EcalBarrelScFiRawHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
@@ -36,7 +35,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedClusters>());
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>());
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>());

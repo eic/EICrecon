@@ -7,18 +7,19 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
 
-class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public JFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
@@ -36,7 +37,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalBarrelSciGlassHits";
-        u_eRes =  {0.0, 0.0, 0.0};
+        u_eRes =  {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 20 * dd4hep::GeV;
@@ -45,7 +46,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -64,7 +64,6 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassRawHits:readoutClass",     m_readout);
 

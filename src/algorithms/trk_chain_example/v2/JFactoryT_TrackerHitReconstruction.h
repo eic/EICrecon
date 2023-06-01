@@ -3,13 +3,13 @@
 
 #include <fmt/core.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <edm4hep/TrackerHit.h>
 
 
 
 template <typename OutputType>
-class JFactoryT_TrackerHitReconstruction : public JFactoryT<OutputType> {
+class JFactoryT_TrackerHitReconstruction : public eicrecon::JFactoryPodioT<OutputType> {
 
 public:
     JFactoryT_TrackerHitReconstruction() {

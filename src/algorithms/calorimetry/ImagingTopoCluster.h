@@ -9,6 +9,8 @@
  *  References: https://arxiv.org/pdf/1603.02934.pdf
  *
  */
+#pragma once
+
 #include "fmt/format.h"
 #include <algorithm>
 

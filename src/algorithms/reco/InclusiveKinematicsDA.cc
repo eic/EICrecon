@@ -25,10 +25,8 @@ namespace eicrecon {
     m_log = logger;
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
-    //   if (m_log->level() <= spdlog::level::debug) {
-    //     m_log->debug("Unable to locate Particle Service. "
-    //       "Make sure you have ParticleSvc in the configuration.");
-    //   }
+    //   m_log->debug("Unable to locate Particle Service. "
+    //     "Make sure you have ParticleSvc in the configuration.");
     // }
   }
 
@@ -42,9 +40,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No beam electron found");
-      }
+      m_log->debug("No beam electron found");
       return kinematics;
     }
     const PxPyPzEVector ei(
@@ -58,9 +54,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No beam hadron found");
-      }
+      m_log->debug("No beam hadron found");
       return kinematics;
     }
     const PxPyPzEVector pi(
@@ -74,9 +68,7 @@ namespace eicrecon {
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No truth scattered electron found");
-      }
+      m_log->debug("No truth scattered electron found");
       return kinematics;
     }
     // Associate first scattered electron with reconstructed electrons
@@ -91,9 +83,7 @@ namespace eicrecon {
       }
     }
     if (!(ef_assoc != rcassoc.end())) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("Truth scattered electron not in reconstructed particles");
-      }
+      m_log->debug("Truth scattered electron not in reconstructed particles");
       return kinematics;
     }
     const auto ef_rc{(*ef_assoc)->getRec()};
@@ -153,9 +143,7 @@ namespace eicrecon {
 
     // If no scattered electron was found
     if (sigma_h <= 0) {
-      if (m_log->level() <= spdlog::level::debug) {
-        m_log->debug("No scattered electron found");
-      }
+      m_log->debug("No scattered electron found");
       return kinematics;
     }
 
@@ -168,18 +156,13 @@ namespace eicrecon {
     edm4eic::MutableInclusiveKinematics kin(x_da, Q2_da, W_da, y_da, nu_da);
     kin.setScat(ef_rc);
 
-    // Debugging output
-    if (m_log->level() <= spdlog::level::debug) {
-      //m_log->debug("pi = ", pi);
-      //m_log->debug("ei = ", ei);
-      m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
-              kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-    }
+    m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+            kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
 
     kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
 
     return kinematics;
-    }
+  }
 
 
 } // namespace Jug::Reco

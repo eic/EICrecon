@@ -32,17 +32,14 @@ ddsim --compactFile=$DETECTOR_PATH/epic.xml --runType=run -N=100 --outputFile=20
 ddsim --compactFile=$DETECTOR_PATH/epic.xml --runType=run -N=200 --outputFile=2022-09-26_ccdis10x100_200ev.edm4hep.root --inputFiles pythia8CCDIS_10x100_minQ2=100_beamEffects_xAngle=-0.025_hiDiv_1.hepmc
 
 eicrecon
--Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy
+-Pplugins=tracking_test
 -Pnthreads=1
 -Pjana:debug_plugin_loading=1
--Pjana:nevents=1
--Pjana:debug_mode=1
+-Pjana:nevents=100
 -Pjana:timeout=0
--PTracking:CentralTrackerSourceLinker:LogLevel=info
--PCKFTracking:TrackingResultTrajectory:LogLevel=trace
--Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
--Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
-/home/romanov/work/data/eicrecon_test/2022-09-10_pgun_3xe-_podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
+-Pdd4hep:xml_files=epic_brycecanyon.xml
+-Phistsfile=output_hists.ana.root
+input.edm4hep.root
 
 ```
 

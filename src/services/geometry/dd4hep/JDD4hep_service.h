@@ -36,11 +36,13 @@
 class JDD4hep_service : public JService
 {
 public:
-    JDD4hep_service( JApplication *app ):app(app){}
-    ~JDD4hep_service();
+    JDD4hep_service( JApplication *app ) : app(app) {}
+    virtual ~JDD4hep_service();
 
-    dd4hep::Detector* detector();
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter(){ return m_cellid_converter; }
+    virtual dd4hep::Detector* detector();
+    virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter() {
+        return m_cellid_converter;
+    }
 
 protected:
     void Initialize();
@@ -51,9 +53,9 @@ private:
     std::once_flag init_flag;
     JApplication *app = nullptr;
     dd4hep::Detector* m_dd4hepGeo = nullptr;
-	std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xml_files;
 
     /// Ensures there is a geometry file that should be opened
-    std::string  resolveFileName(const std::string &filename, char *detector_path_env);
+    std::string resolveFileName(const std::string &filename, char *detector_path_env);
 };

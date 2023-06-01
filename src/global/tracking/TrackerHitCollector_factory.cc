@@ -2,11 +2,13 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <JANA/JEvent.h>
+#include <edm4eic/TrackerHitCollection.h>
+
 #include "TrackerHitCollector_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
-#include <JANA/JEvent.h>
 
 namespace eicrecon {
     void TrackerHitCollector_factory::Init() {

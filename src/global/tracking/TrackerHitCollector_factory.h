@@ -19,6 +19,9 @@ namespace eicrecon {
     public:
         TrackerHitCollector_factory( std::vector<std::string> default_input_tags, TrackerHitReconstructionConfig cfg ):
                 JChainFactoryT<edm4eic::TrackerHit, TrackerHitReconstructionConfig>(std::move(default_input_tags), cfg ) {
+            // TrackerHitCollector merges existing hits from different collections. We make this a subset collection
+            // so that PODIO understands that this collection doesn't own its contents.
+            SetSubsetCollection(true);
         }
 
         /** One time initialization **/

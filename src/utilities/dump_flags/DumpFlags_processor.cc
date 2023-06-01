@@ -5,17 +5,6 @@
 
 #include <fmt/core.h>
 
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-
-#include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <Math/LorentzVector.h>
-#include <Math/GenVector/PxPyPzM4D.h>
-#include "services/rootfile/RootFile_service.h"
 #include "extensions/string/StringHelpers.h"
 
 

@@ -12,9 +12,7 @@
 #include "ProtoCluster_factory_ZDCEcalTruthProtoClusters.h"
 #include "ProtoCluster_factory_ZDCEcalIslandProtoClusters.h"
 #include "Cluster_factory_ZDCEcalClusters.h"
-#include "Cluster_factory_ZDCEcalMergedClusters.h"
 #include "Cluster_factory_ZDCEcalTruthClusters.h"
-#include "Cluster_factory_ZDCEcalMergedTruthClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -24,8 +22,6 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_ZDCEcalTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_ZDCEcalIslandProtoClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_ZDCEcalClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_ZDCEcalMergedClusters>());
         app->Add(new JFactoryGeneratorT<Cluster_factory_ZDCEcalTruthClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_ZDCEcalMergedTruthClusters>());
     }
 }

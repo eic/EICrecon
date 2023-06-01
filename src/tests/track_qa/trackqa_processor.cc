@@ -553,9 +553,13 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     m_log->trace("Total number of tracker hits is {}",nHitsallTrackers);
     m_log->trace("-------------------------");
 
+    //Print out number of seeds from orthogonal seeder
+    auto seed_parameters = event->Get<eicrecon::TrackParameters>("SeededTrackParams");
+    m_log->trace("Number of ACTS Seeds: {}", seed_parameters.size());
+
     //ACTS Trajectories
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
-    // auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic seeded trajectories
+    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
+    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
 
     m_log->trace("Number of ACTS Trajectories: {}", trajectories.size());
     m_log->trace("");

@@ -3,19 +3,8 @@
 
 #include "ParticlesWithTruthPID.h"
 
-// Event Model related classes
-#include <edm4hep/MutableMCParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MutableReconstructedParticle.h>
-#include <edm4eic/MutableMCRecoParticleAssociation.h>
 #include <edm4eic/vector_utils.h>
 
-// Getting access to PODIO indexes
-#include <extensions/podio_access/accessor.h>
-#include <edm4eic/ReconstructedParticleObj.h>
-
-using ReconstructedParticleObjPtr = edm4eic::ReconstructedParticleObj*;
-ALLOW_ACCESS(edm4eic::MutableReconstructedParticle, m_obj, ReconstructedParticleObjPtr);
 
 
 namespace eicrecon {
@@ -25,41 +14,40 @@ namespace eicrecon {
 
     }
 
-    ParticlesWithAssociation *ParticlesWithTruthPID::process(
-            const std::vector<const edm4hep::MCParticle *> &mc_particles,
-            const std::vector<const edm4eic::TrackParameters *> &track_params) {
+    ParticlesWithAssociationNew ParticlesWithTruthPID::process(
+            const edm4hep::MCParticleCollection* mc_particles,
+            const edm4eic::TrackParametersCollection* track_params) {
+
         // input collection
 
         /// Resulting reconstructed particles
-        std::vector<edm4eic::ReconstructedParticle *> reco_particles;
-
-        /// Resulting associations
-        std::vector<edm4eic::MCRecoParticleAssociation *> associations;
+        auto reco_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        auto associations = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
 
-        std::vector<bool> mc_prt_is_consumed(mc_particles.size(), false);         // MCParticle is already consumed flag
+        std::vector<bool> mc_prt_is_consumed(mc_particles->size(), false);         // MCParticle is already consumed flag
 
-        for (const auto &trk: track_params) {
-            const auto mom = edm4eic::sphericalToVector(1.0 / std::abs(trk->getQOverP()), trk->getTheta(),
-                                                        trk->getPhi());
-            const auto charge_rec = trk->getCharge();
+        for (const auto &trk: *track_params) {
+            const auto mom = edm4eic::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
+                                                        trk.getPhi());
+            const auto charge_rec = trk.getCharge();
 
 
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");
             m_log->debug(" Track : {:<4} {:<8.3f} {:<8.3f} {:<8.2f} {:<4}",
-                         trk->getObjectID().index, edm4eic::magnitude(mom), edm4eic::anglePolar(mom), edm4eic::angleAzimuthal(mom), charge_rec);
+                         trk.getObjectID().index, edm4eic::magnitude(mom), edm4eic::anglePolar(mom), edm4eic::angleAzimuthal(mom), charge_rec);
 
             // utility variables for matching
             int best_match = -1;
             double best_delta = std::numeric_limits<double>::max();
-            for (size_t ip = 0; ip < mc_particles.size(); ++ip) {
-                const auto &mc_part = mc_particles[ip];
-                const auto &p = mc_part->getMomentum();
+            for (size_t ip = 0; ip < mc_particles->size(); ++ip) {
+                const auto &mc_part = (*mc_particles)[ip];
+                const auto &p = mc_part.getMomentum();
 
-                m_log->trace("  MCParticle with id={:<4} mom={:<8.3f} charge={}", mc_part->getObjectID().index,
-                             edm4eic::magnitude(p), mc_part->getCharge());
+                m_log->trace("  MCParticle with id={:<4} mom={:<8.3f} charge={}", mc_part.getObjectID().index,
+                             edm4eic::magnitude(p), mc_part.getCharge());
 
                 // Check if used
                 if (mc_prt_is_consumed[ip]) {
@@ -68,19 +56,19 @@ namespace eicrecon {
                 }
 
                 // Check if non-primary
-                if (mc_part->getGeneratorStatus() > 1) {
+                if (mc_part.getGeneratorStatus() > 1) {
                     m_log->trace("    Ignoring. GeneratorStatus > 1 => Non-primary particle");
                     continue;
                 }
 
                 // Check if neutral
-                if (mc_part->getCharge() == 0) {
+                if (mc_part.getCharge() == 0) {
                     m_log->trace("    Ignoring. Neutral particle");
                     continue;
                 }
 
                 // Check opposite charge
-                if (mc_part->getCharge() * charge_rec < 0) {
+                if (mc_part.getCharge() * charge_rec < 0) {
                     m_log->trace("    Ignoring. Opposite charge particle");
                     continue;
                 }
@@ -123,21 +111,15 @@ namespace eicrecon {
             if (best_match >= 0) {
                 m_log->trace("Best match is found and is: {}", best_match);
                 mc_prt_is_consumed[best_match] = true;
-                const auto &best_mc_part = mc_particles[best_match];
-                best_pid = best_mc_part->getPDG();
+                const auto &best_mc_part = (*mc_particles)[best_match];
+                best_pid = best_mc_part.getPDG();
                 referencePoint = {
-                        static_cast<float>(best_mc_part->getVertex().x),
-                        static_cast<float>(best_mc_part->getVertex().y),
-                        static_cast<float>(best_mc_part->getVertex().z)}; // @TODO: not sure if vertex/reference point makes sense here
+                        static_cast<float>(best_mc_part.getVertex().x),
+                        static_cast<float>(best_mc_part.getVertex().y),
+                        static_cast<float>(best_mc_part.getVertex().z)}; // @TODO: not sure if vertex/reference point makes sense here
                 // time                 = mcpart.getTime();
-                mass = best_mc_part->getMass();
+                mass = best_mc_part.getMass();
             }
-
-            // Getting access to private PODIO member to set the index in the collection
-            // Evil, Evil, Evil, Evil is here TODO change asap
-            // Nothing is private in this world anymore!
-            auto obj = ACCESS(rec_part, m_obj);
-            obj->id.index = (int) reco_particles.size();     // Set the index in the collection
 
             rec_part.setType(static_cast<int16_t>(best_match >= 0 ? 0 : -1)); // @TODO: determine type codes
             rec_part.setEnergy((float) std::hypot(edm4eic::magnitude(mom), mass));
@@ -148,27 +130,32 @@ namespace eicrecon {
             rec_part.setGoodnessOfPID(1); // perfect PID
             rec_part.setPDG(best_pid);
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
+            // Add reconstructed particle to collection BEFORE doing association
+            reco_particles->push_back(rec_part);
+
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
                 auto rec_assoc = edm4eic::MutableMCRecoParticleAssociation();
                 rec_assoc.setRecID(rec_part.getObjectID().index);
-                rec_assoc.setSimID(mc_particles[best_match]->getObjectID().index);
+                rec_assoc.setSimID((*mc_particles)[best_match].getObjectID().index);
                 rec_assoc.setWeight(1);
                 rec_assoc.setRec(rec_part);
-                auto sim = mc_particles[best_match]->clone();
+                auto sim = (*mc_particles)[best_match];
                 rec_assoc.setSim(sim);
-                associations.emplace_back(new edm4eic::MCRecoParticleAssociation(rec_assoc));
+
+                // Add association to collection
+                associations->push_back(rec_assoc);
 
                 if (m_log->level() <= spdlog::level::debug) {
 
-                    const auto &mcpart = mc_particles[best_match];
-                    const auto &p = mcpart->getMomentum();
+                    const auto &mcpart = (*mc_particles)[best_match];
+                    const auto &p = mcpart.getMomentum();
                     const auto p_mag = edm4eic::magnitude(p);
                     const auto p_phi = edm4eic::angleAzimuthal(p);
                     const auto p_theta = edm4eic::anglePolar(p);
                     m_log->debug(" MCPart: {:<4} {:<8.3f} {:<8.3f} {:<8.2f} {:<6}",
-                                 mcpart->getObjectID().index, p_mag, p_theta, p_phi, mcpart->getCharge(),
-                                 mcpart->getPDG());
+                                 mcpart.getObjectID().index, p_mag, p_theta, p_phi, mcpart.getCharge(),
+                                 mcpart.getPDG());
 
                     m_log->debug(" Assoc: id={} SimId={} RecId={}",
                                  rec_assoc.getObjectID().index, rec_assoc.getSimID(), rec_assoc.getSimID());
@@ -178,12 +165,10 @@ namespace eicrecon {
                 m_log->debug(" MCPart: Did not find a good match");
             }
 
-            // Add particle to the output vector
-            reco_particles.push_back(new edm4eic::ReconstructedParticle(rec_part));
         }
 
         // Assembling the results
-        return new ParticlesWithAssociation(std::move(reco_particles), std::move(associations));
+        return std::make_pair(std::move(reco_particles), std::move(associations));
     }
 
     void ParticlesWithTruthPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {

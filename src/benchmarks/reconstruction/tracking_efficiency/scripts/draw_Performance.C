@@ -1,4 +1,5 @@
-///////////// code for checking the basic things works in ALICE and also in PANDA of particles by shyam kumar
+// Code to draw Basic Tracking Performances
+// Shyam Kumar:INFN Bari, shyam.kumar@ba.infn.it; shyam055119@gmail.com
 
 #include "TGraphErrors.h"
 #include "TF1.h"
@@ -18,7 +19,7 @@ void draw_Performance(Int_t nevent=-1)
    gStyle->SetLabelSize(.04,"X");gStyle->SetLabelSize(.04,"Y");
    gStyle->SetHistLineWidth(2);
    gStyle->SetOptFit(1);
-   gStyle->SetOptStat(1);
+   gStyle->SetOptStat(0);
 
 //=======Reading the root file DD4HEP===========
    TFile* file = new TFile("tracking_test_gun.edm4eic.root"); // Tree with tracks and hits
@@ -39,9 +40,9 @@ void draw_Performance(Int_t nevent=-1)
    TTreeReaderArray<Float_t> py_rec(myReader, "ReconstructedChargedParticles.momentum.y");
    TTreeReaderArray<Float_t> pz_rec(myReader, "ReconstructedChargedParticles.momentum.z");
 
-
- TCanvas * c[5];
- for (int i =0; i<5; ++i){
+ const int ngraph = 7;
+ TCanvas * c[ngraph];
+ for (int i =0; i<ngraph; ++i){
  c[i] = new TCanvas(Form("c%d",i),Form("c%d",i),1200,1000);
  c[i]->SetMargin(0.09, 0.1 ,0.1,0.06);
  }
@@ -50,13 +51,17 @@ void draw_Performance(Int_t nevent=-1)
 
  Int_t nbins = 200;
  Double_t x= 4.0;
- TH2D *hetavspmc = new TH2D("hetavspmc","hetavspmc",120,0.,12.,nbins,-x,x);
- TH2D *hetavsprec = new TH2D("hetavsprec","hetavsprec",120,0.,12.,nbins,-x,x);
+ TH2D *hetavspmc = new TH2D("hetavspmc","hetavspmc",400,0.,40.,nbins,-x,x);
+ TH2D *hetavsprec = new TH2D("hetavsprec","hetavsprec",400,0.,40.,nbins,-x,x);
+ TH2D *heff_pnum = new TH2D("heff_pnum","heff_p",400,0.,40.,nbins,-x,x);
+ TH2D *heff_pden = new TH2D("heff_pden","heff_p",400,0.,40.,nbins,-x,x);
 
- TH2D *hetavsptmc = new TH2D("hetavsptmc","hetavsptmc",120,0.,12.,nbins,-x,x);
- TH2D *hetavsptrec = new TH2D("hetavsptrec","hetavsptrec",120,0.,12.,nbins,-x,x);
+ TH2D *hetavsptmc = new TH2D("hetavsptmc","hetavsptmc",400,0.,40.,nbins,-x,x);
+ TH2D *hetavsptrec = new TH2D("hetavsptrec","hetavsptrec",400,0.,40.,nbins,-x,x);
+ TH2D *heff_ptnum = new TH2D("heff_ptnum","heff_p",400,0.,40.,nbins,-x,x);
+ TH2D *heff_ptden = new TH2D("heff_ptden","heff_p",400,0.,40.,nbins,-x,x);
 
- TH1D *hpresol = new TH1D("hpresol","hpresol",200,-0.0001,0.0001);
+ TH1D *hpresol = new TH1D("hpresol","hpresol",200,-0.5,0.5);
 
  hetavspmc->GetXaxis()->SetTitle("p_{mc} (GeV/c)");
  hetavspmc->GetYaxis()->SetTitle("#eta_{mc}");
@@ -90,7 +95,7 @@ void draw_Performance(Int_t nevent=-1)
   {
    if (nevent>0 && count>nevent) continue;
  //  cout<<"=====Event No. "<<count<<"============="<<endl;
-     Double_t pmc = 0;
+     Double_t pmc = 0;  Double_t etamc = 0; Double_t ptmc = 0;
    // MC Particle
      for (int iParticle = 0; iParticle < charge.GetSize(); ++iParticle){
    //  cout<<" PDG: "<<pdg[iParticle]<<" Status: "<<status[iParticle]<<" Pt: "<<sqrt(px_mc[iParticle]*px_mc[iParticle]+py_mc[iParticle]*py_mc[iParticle])<<endl;
@@ -100,23 +105,34 @@ void draw_Performance(Int_t nevent=-1)
      Double_t etamc = -1.0*TMath::Log(TMath::Tan((TMath::ACos(pz_mc[iParticle]/pmc))/2));
      hetavspmc->Fill(pmc,etamc);
      hetavsptmc->Fill(ptmc,etamc);
-     }
-     }
-
-    // Rec Particle
-     for (int iRecParticle = 0; iRecParticle < px_rec.GetSize(); ++iRecParticle){
-     Double_t prec = sqrt(px_rec[iRecParticle]*px_rec[iRecParticle]+py_rec[iRecParticle]*py_rec[iRecParticle]+pz_rec[iRecParticle]*pz_rec[iRecParticle]);
-     Double_t ptrec = sqrt(px_rec[iRecParticle]*px_rec[iRecParticle]+py_rec[iRecParticle]*py_rec[iRecParticle]);
-     Double_t etarec = -1.0*TMath::Log(TMath::Tan((TMath::ACos(pz_rec[iRecParticle]/prec))/2));
+     heff_pden->Fill(pmc,etamc);
+     heff_ptden->Fill(ptmc,etamc);
+     if (px_rec.GetSize()==1){
+     Double_t prec = sqrt(px_rec[iParticle]*px_rec[iParticle]+py_rec[iParticle]*py_rec[iParticle]+pz_rec[iParticle]*pz_rec[iParticle]);
+     Double_t ptrec = sqrt(px_rec[iParticle]*px_rec[iParticle]+py_rec[iParticle]*py_rec[iParticle]);
+     Double_t etarec = -1.0*TMath::Log(TMath::Tan((TMath::ACos(pz_rec[iParticle]/prec))/2));
      hetavsprec->Fill(prec,etarec);
      hetavsptrec->Fill(ptrec,etarec);
      hpresol->Fill((prec-pmc)/pmc);
-
+     heff_pnum->Fill(pmc,etamc);
+     heff_ptnum->Fill(ptmc,etamc);
+     }
+     }
      }
 
     count++;
 
   }
+
+      heff_pnum->Divide(heff_pden);
+      heff_ptnum->Divide(heff_ptden);
+      heff_pnum->GetYaxis()->SetTitle("Acceptance");
+      heff_pnum->GetXaxis()->SetTitle("p_mc");
+      heff_pnum->GetZaxis()->SetRangeUser(0.,1.1);
+
+      heff_ptnum->GetYaxis()->SetTitle("Acceptance");
+      heff_ptnum->GetXaxis()->SetTitle("pt_mc");
+      heff_ptnum->GetZaxis()->SetRangeUser(0.,1.1);
 
      c[0]->cd();
      hetavspmc->Draw("colz");
@@ -130,8 +146,14 @@ void draw_Performance(Int_t nevent=-1)
      c[3]->cd();
      hetavsptrec->Draw("colz");
      c[3]->SaveAs("eta_mcvsptrec.png");
-
      c[4]->cd();
      hpresol->Draw("hist");
      c[4]->SaveAs("ptresol.png");
+     c[5]->cd();
+     heff_pnum->Draw("colz");
+     c[5]->SaveAs("effvsp_2D.png");
+     c[6]->cd();
+     heff_ptnum->Draw("colz");
+     c[6]->SaveAs("effvspt_2D.png");
+
 }

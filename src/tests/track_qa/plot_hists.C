@@ -277,8 +277,8 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 	h1a->Draw("colz");
 
 	TPaveText* tex_gen = new TPaveText(0.2,0.7,0.5,0.85,"NDCNB");
-	tex_gen->AddText("Single Electrons generated:");
-	tex_gen->AddText("1 GeV < E < 10 GeV");
+	tex_gen->AddText("Single #mu^{-} generated:");
+	tex_gen->AddText("0.5 GeV/c < P < 20 GeV/c");
 	tex_gen->AddText("-4 < #eta < 4, 0^{o} < #phi < 360^{o}");
 	tex_gen->SetFillStyle(4000);tex_gen->SetTextFont(63);tex_gen->SetTextSize(20);
 	tex_gen->Draw();

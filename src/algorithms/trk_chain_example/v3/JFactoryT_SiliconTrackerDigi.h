@@ -4,7 +4,7 @@
 
 #include <fmt/core.h>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 
 #include <edm4hep/SimTrackerHit.h>
 
@@ -12,7 +12,7 @@
 #include "SimTrackerHitDigi.h"
 
 template <typename InputT, typename OutputT>
-class JFactoryT_SiliconTrackerDigi : public JFactoryT<OutputT>, SimTrackerHitDigi {
+class JFactoryT_SiliconTrackerDigi : public eicrecon::JFactoryPodioT<OutputT>, SimTrackerHitDigi {
 
 public:
     JFactoryT_SiliconTrackerDigi() {
@@ -73,7 +73,7 @@ void JFactoryT_SiliconTrackerDigi<SimTrackerHitInT, RawTrackerHitOutT>::Process(
     // Call SimTrackerHitDigi::execute() to fill in m_hits member
     execute();
 
-    // Convert output into pointers to RawTrackerHitOutT, placing them directly in JFactoryT::mData
+    // Convert output into pointers to RawTrackerHitOutT
     std::vector<RawTrackerHitOutT*> hits;
     std::transform(m_hits.begin(), m_hits.end(), hits.begin(), [](T* t) { return rinterpret_cast<RawTrackerHitOutT*>(t); });
 

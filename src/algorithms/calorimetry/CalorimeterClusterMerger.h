@@ -65,17 +65,10 @@ private:
         }
       }
 
-      //TODO:spdlog verbosity
-      if ( m_log->level() <= spdlog::level::debug) {
-        m_log->debug("--> Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
-        //LOG_INFO(default_cout_logger) << " --> Found cluster with mcID " << mcID << " and energy " << cluster->getEnergy() << LOG_END;
-      }
+      m_log->debug("Cluster {} has MC ID {} and energy", cluster->id(), mcID, cluster->getEnergy());
 
       if (mcID < 0) {
-        if (m_log->level() <= spdlog::level::debug) {
-          m_log->debug("   --> WARNING: no valid MC truth link found, skipping cluster...");
-          //LOG_INFO(default_cout_logger) << "   --> WARNING: no valid MC truth link found, skipping cluster..." << LOG_END;
-        }
+        m_log->warn("No valid MC truth link found, skipping cluster...");
         continue;
       }
 

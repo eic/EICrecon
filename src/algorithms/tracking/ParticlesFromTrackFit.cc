@@ -29,7 +29,7 @@ void eicrecon::Reco::ParticlesFromTrackFit::init(std::shared_ptr<spdlog::logger>
     m_log = log;
 }
 
-ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories) {
+ParticlesFromTrackFitResultNew eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories) {
 
     // create output collections
     auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();
@@ -137,5 +137,5 @@ ParticlesFromTrackFitResult* eicrecon::Reco::ParticlesFromTrackFit::execute(cons
         });
     }
 
-    return new ParticlesFromTrackFitResult(std::move(rec_parts), std::move(track_pars));
+    return std::make_pair(std::move(rec_parts), std::move(track_pars));
 }

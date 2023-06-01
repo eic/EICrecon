@@ -16,11 +16,11 @@ namespace eicrecon {
 
     class TrackerSourceLinker;
 
-    class TrackerSourceLinker_factory : public JChainFactoryT<TrackerSourceLinkerResult> {
+    class TrackerSourceLinker_factory : public JChainFactoryT<TrackerSourceLinkerResult, NoConfig, JFactoryT> {
 
     public:
         TrackerSourceLinker_factory( std::vector<std::string> default_input_tags):
-                JChainFactoryT<TrackerSourceLinkerResult>(std::move(default_input_tags) ) {
+                JChainFactoryT<TrackerSourceLinkerResult, NoConfig, JFactoryT>(std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/

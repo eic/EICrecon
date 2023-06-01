@@ -1,29 +1,16 @@
-// Created by Christopher Dilks
-// Based on SiliconTrackerDigi_factory
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023, Christopher Dilks
 
 #include "PhotoMultiplierHitDigi_factory.h"
-#include <fmt/format.h>
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
-  using namespace eicrecon::str;
 
   auto app = GetApplication();
 
-  std::string plugin_name = ReplaceAll(GetPluginName(), ".so", "");
-
-  // We will use plugin name to get parameters for correct factory
-  // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
-  //    "BTRK:parameter" or "FarForward:parameter"
-  // That has limitations but the convenient in the most of the cases
-  std::string param_prefix = plugin_name + ":" + GetTag();   // Will be something like SiTrkDigi_BarrelTrackerRawHit
-
-  // Set input tags
-  InitDataTags(param_prefix);
-
   // Services
   auto geo_service = app->GetService<JDD4hep_service>();
+  auto plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+  auto param_prefix = plugin_name + GetPrefix();
   InitLogger(param_prefix, "info");
 
   // Configuration parameters
@@ -34,7 +21,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   };
   set_param("seed",            cfg.seed,            "random number generator seed");
   set_param("hitTimeWindow",   cfg.hitTimeWindow,   "");
-  set_param("timeStep",        cfg.timeStep,        "");
+  set_param("timeResolution",  cfg.timeResolution,  "");
   set_param("speMean",         cfg.speMean,         "");
   set_param("speError",        cfg.speError,        "");
   set_param("pedMean",         cfg.pedMean,         "");
@@ -49,24 +36,21 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
 }
 
-void eicrecon::PhotoMultiplierHitDigi_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
   m_digi_algo.AlgorithmChangeRun();
 }
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // Collect all hits from different tags
-  std::vector<const edm4hep::SimTrackerHit*> sim_hits;
-  for(const auto &input_tag: GetInputTags()) {
-    try {
-      for (const auto hit : event->Get<edm4hep::SimTrackerHit>(input_tag))
-        sim_hits.push_back(hit);
-    } catch(std::exception &e) {
-      m_log->critical(e.what());
-      throw JException(e.what());
-    }
+  auto sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+
+  try {
+    auto result = m_digi_algo.AlgorithmProcess(sim_hits);
+    SetCollection<edm4eic::RawTrackerHit>(GetOutputTags()[0], std::move(result.raw_hits));
+    SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(result.hit_assocs));
+  }
+  catch(std::exception &e) {
+    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
   }
 
-  // Digitize
-  Set(m_digi_algo.AlgorithmProcess(sim_hits));
 }

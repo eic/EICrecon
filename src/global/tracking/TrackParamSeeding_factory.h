@@ -14,12 +14,12 @@
 namespace eicrecon {
 
 class TrackParamSeeding_factory :
-        public JChainFactoryT<eicrecon::TrackParameters>,
+        public JChainFactoryT<eicrecon::TrackParameters, NoConfig, JFactoryT>,
         public SpdlogMixin<TrackParamSeeding_factory>  {
 
     public:
         TrackParamSeeding_factory( std::vector<std::string> default_input_tags ):
-                JChainFactoryT<eicrecon::TrackParameters>(std::move(default_input_tags) ) {
+                JChainFactoryT<eicrecon::TrackParameters, NoConfig, JFactoryT>(std::move(default_input_tags) ) {
         }
 
         /** One time initialization **/

@@ -37,9 +37,10 @@
 class ACTSGeo_service : public JService
 {
 public:
-    ACTSGeo_service( JApplication *app ): m_app(app){}
+    ACTSGeo_service( JApplication *app ) : m_app(app) {}
+    virtual ~ACTSGeo_service();
 
-    std::shared_ptr<const ActsGeometryProvider> actsGeoProvider();
+    virtual std::shared_ptr<const ActsGeometryProvider> actsGeoProvider();
 
 protected:
 

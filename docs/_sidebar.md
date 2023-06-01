@@ -2,7 +2,6 @@
 * Getting started
     * [EIC shell (recommended)](get-started/eic-shell.md)
     * [Manual build](get-started/manual-build.md)
-    * [EDPM](get-started/edpm.md)
 * HowTo
     * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md)
     * [Use docker](howto/use_docker.md)

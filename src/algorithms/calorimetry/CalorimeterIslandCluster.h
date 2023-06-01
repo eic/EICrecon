@@ -23,6 +23,10 @@
 
 using CaloHit = edm4eic::CalorimeterHit;
 
+static double Phi_mpi_pi(double phi) {
+  return std::remainder(phi, 2 * M_PI);
+}
+
 //TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
 static edm4hep::Vector2f localDistXY(const CaloHit *h1, const CaloHit *h2) {
   //edm4eic::Vector3f h1_pos=geo_converter->position(h1.getCellID());
@@ -64,7 +68,7 @@ static edm4hep::Vector2f globalDistRPhi(const CaloHit *h1, const CaloHit *h2) {
       edm4eic::magnitude(h1->getPosition()) - edm4eic::magnitude(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition()))
     )
   };
 }
@@ -76,7 +80,7 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit *h1,
       edm4eic::eta(h1->getPosition()) - edm4eic::eta(h2->getPosition())
     ),
     static_cast<vector_type>(
-      edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition())
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1->getPosition()) - edm4eic::angleAzimuthal(h2->getPosition()))
     )
   };
 }
@@ -225,10 +229,7 @@ private:
                    std::vector<edm4eic::ProtoCluster *>& proto) const {
     // special cases
     if (maxima.empty()) {
-      if (m_log->level() <= spdlog::level::info){//msgLevel(MSG::VERBOSE)) {
-        //LOG_TRACE(default_cout_logger) << "No maxima found, not building any clusters" << LOG_END;
-        m_log->trace("No maxima found, not building any clusters");
-      }
+      m_log->debug("No maxima found, not building any clusters");
       return;
     } else if (maxima.size() == 1) {
       edm4eic::MutableProtoCluster pcl;
@@ -288,8 +289,6 @@ private:
     for (auto& pcl : pcls) {
       proto.push_back(new edm4eic::ProtoCluster(pcl)); // TODO: Should we be using clone() here?
     }
-    if (m_log->level() <= spdlog::level::info) {
-      m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
-    }
+    m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
   }
 };

@@ -60,7 +60,7 @@ namespace eicrecon {
 
         m_geoSvc = geo_svc;
 
-        m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
+        m_BField = std::static_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
         m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 
         // eta bins, chi2 and #sourclinks per surface cutoffs

@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.16)
 # Automatically set plugin name the same as the directory name
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
-print_header(">>>>   P L U G I N :   ${PLUGIN_NAME}    <<<<")       # Fancy printing
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
@@ -29,7 +28,7 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} podio::podio podio::podioRootIO algorithms_digi_library algorithms_tracking_library)
 
 #
 ## Add include directories (works same as target_include_directories)

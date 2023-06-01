@@ -10,6 +10,9 @@
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 
+using ParticlesFromTrackFitResultNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
+                                                 std::unique_ptr<edm4eic::TrackParametersCollection>>;
+
 namespace eicrecon::Reco {
 
     /** Extract the particles form fit trajectories.
@@ -24,7 +27,7 @@ namespace eicrecon::Reco {
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        ParticlesFromTrackFitResult *execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
+        ParticlesFromTrackFitResultNew execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
 
     };
 } // namespace Jug::Reco

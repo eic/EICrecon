@@ -52,6 +52,11 @@ void eicrecon::TrackParamSeeding_factory::Process(const std::shared_ptr<const JE
         std::vector<eicrecon::TrackParameters *> results;
         for (auto aseed: seed_params) {
 
+ 	    //Check for well-defined seeds
+ 	    if( std::isnan(aseed->getLoc().a)  || std::isnan(aseed->getLoc().b) ||
+		std::isnan(aseed->getPhi())    || std::isnan(aseed->getTheta()) ||
+		std::isnan(aseed->getQOverP()) || std::isnan(aseed->getTime()) ) continue; 
+
             //Seed Parameters
             Acts::BoundVector  params;
             params(Acts::eBoundLoc0)   = aseed->getLoc().a * mm ;  // cylinder radius

@@ -19,7 +19,6 @@ ddsim_mysteer_etarange.py
 edep_plots
 energy_thresh_bug
 
-.gitignore
 plot_hists.pdf
 
 compare_arches_brycecanyon.C

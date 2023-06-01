@@ -6,22 +6,28 @@
 
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 #include <algorithms/tracking/ParticlesFromTrackFit.h>
-#include <extensions/jana/JChainFactoryT.h>
+#include <extensions/jana/JChainMultifactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 
 class TrackingResult_factory:
-        public JChainFactoryT<ParticlesFromTrackFitResult>,
+        public JChainMultifactoryT<NoConfig>,
         public eicrecon::SpdlogMixin<TrackingResult_factory> {
 public:
-    explicit TrackingResult_factory(std::vector<std::string> default_input_tags):
-    JChainFactoryT<ParticlesFromTrackFitResult>(std::move(default_input_tags) ) {
+    explicit TrackingResult_factory(std::string tag,
+                                    const std::vector<std::string>& input_tags,
+                                    const std::vector<std::string>& output_tags):
+    JChainMultifactoryT(std::move(tag), input_tags, output_tags) {
+
+        DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
+        DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
     }
+
 
     /** One time initialization **/
     void Init() override;
 
     /** On run change preparations **/
-    void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+    void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
     /** Event by event processing **/
     void Process(const std::shared_ptr<const JEvent> &event) override;
