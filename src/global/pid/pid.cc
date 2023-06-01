@@ -40,7 +40,7 @@ extern "C" {
           {
             "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
-            "ReconstructedChargedParticleID"            // edm4hep::ParticleID
+            "ReconstructedChargedParticleIDs"           // edm4hep::ParticleID
           },
           link_cfg,
           app
