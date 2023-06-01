@@ -6,8 +6,8 @@ using namespace std;
 // Main function
 void plot_hists(){
 	// Variables that the user should specify
-	TString input_fname = "eicrecon.root";
-	TString output_fname = "plot_hists_etarange_flat.pdf";
+	TString input_fname = "eicrecon_outnowwithmuons.root";
+	TString output_fname = "plot_hists_etarange_flat_butmuons.pdf";
 
 	//Define Style
 	gStyle->SetOptStat(0);
