@@ -27,6 +27,7 @@ flowchart TB
     direction LR
     SimHits(<strong>DRICHHits</strong><br/>MC dRICH photon hits<br/>edm4hep::SimTrackerHit):::col
     Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
+    MCParts(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
   end
 
   subgraph Digitization
@@ -36,7 +37,6 @@ flowchart TB
   end
 
   subgraph Charged Particles
-
     PropagatorAlg[<strong>Track Projection</strong><br/>TrackPropagation<br/><i>RichTrack_factory</i>]:::alg
     subgraph rad1 [radiators]
       AerogelTracks(<strong>DRICHAerogelTracks</strong><br/>edm4eic::TrackSegment):::col
@@ -68,16 +68,17 @@ flowchart TB
 
   PIDOutputs{{<strong>PID Algorithm Outputs</strong>}}:::misc
 
-  TrackingAlgos[<strong>Tracking Algorithms, etc.</strong>]:::alg
+  TrackingAlgos[<strong>Tracking Algorithms</strong>]:::alg
+  TrackParameters(<strong>outputTrackParameters</strong><br/>edm4eic::TrackParameters):::col
 
   subgraph Particle Identification Linking
-    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ProxMatch[<strong>Proximity Matching</strong><br/>ParticlesWithPID<br/><i>ParticlesWithPID_factory</i>]:::alg
 
-    ProxMatch[<strong>Proximity Matching</strong><br/>LinkParticleID<br/><i>LinkParticleID_factory</i>]:::alg
-    ReconPartsWithPID(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle<br/><br/><strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ReconParts(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+    ReconAssocs(<strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+    ReconPIDs(<strong>ReconstructedChargedParticleIDs</strong><br/>edm4hep::ParticleID):::col
   end
 
-  MCParts(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
 
   %%-----------------
   %% Edges
@@ -88,6 +89,7 @@ flowchart TB
   DigiAlg ==> RawHits
   DigiAlg ==> HitAssocs
   SimHits -.association.- HitAssocs
+  SimHits -.association.- MCParts
 
   %% tracking
   Trajectories   ==> PropagatorAlg
@@ -114,10 +116,13 @@ flowchart TB
   PIDInputs     ==> AlternatePIDAlgo ==> AlternatePID ==> PIDOutputs
 
   %% linking
-  Trajectories ==> TrackingAlgos ==> ReconParts -.association.- MCParts
-  PIDOutputs   ==> ProxMatch
-  ReconParts   ==> ProxMatch
-  ProxMatch    ==> ReconPartsWithPID -.association.- MCParts
+  Trajectories ==> TrackingAlgos ==> TrackParameters
+  PIDOutputs      ==> ProxMatch
+  TrackParameters ==> ProxMatch
+  MCParts         ==> ProxMatch
+  ProxMatch ==> ReconParts -.1 to N.-> ReconPIDs
+  ProxMatch ==> ReconAssocs -.association.- MCParts
+  ProxMatch ==> ReconPIDs
 ```
 
 ## Data Model
