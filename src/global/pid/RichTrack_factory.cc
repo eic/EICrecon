@@ -22,11 +22,11 @@ void eicrecon::RichTrack_factory::Init() {
   std::vector<std::tuple<int, std::string, std::string>> radiator_list; // < radiator_id, radiator_name, output_tag >
   for(auto& output_tag : GetOutputTags()) {
     auto radiator_id = richgeo::ParseRadiatorName(output_tag, m_log);
-    radiator_list.push_back({
+    radiator_list.emplace_back(
         radiator_id,
         richgeo::RadiatorName(radiator_id, m_log),
         output_tag
-        });
+        );
   }
 
   // configuration parameters
