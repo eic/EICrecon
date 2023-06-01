@@ -49,7 +49,7 @@ flowchart TB
     %%ReflectionsAlg[<strong>Track Reflections - TODO</strong><br/>RichTrackReflection<br/><i>RichTrackReflection_factory</i>]:::alg
     %%Reflections(<strong>DRICHTrackReflections - TODO</strong><br/>edm4eic::TrackSegment):::col
 
-    TrackingAlgos[[<strong>Tracking Algorithms</strong>]]:::alg
+    TrackingAlgos[(<strong>Tracking Algorithms</strong>)]:::alg
     TrackParameters(<strong>outputTrackParameters</strong><br/>edm4eic::TrackParameters):::col
   end
 
@@ -120,9 +120,11 @@ flowchart TB
   PIDOutputs      ==> ProxMatch
   TrackParameters ==> ProxMatch
   MCParts         ==> ProxMatch
-  %%ProxMatch ==> ReconParts -.1 to N.-> ReconPIDs
-  %%ProxMatch ==> ReconAssocs -.association.- MCParts
+  ProxMatch ==> ReconParts
+  ProxMatch ==> ReconAssocs
   ProxMatch ==> ReconPIDs
+  ReconParts -.1 to N.-> ReconPIDs
+  %%ReconAssocs -.association.- MCParts
 ```
 
 ## Data Model
