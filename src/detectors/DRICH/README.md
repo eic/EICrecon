@@ -121,8 +121,8 @@ flowchart TB
   TrackParameters ==> ProxMatch
   MCParts         ==> ProxMatch
   ProxMatch ==> ReconParts
-  ProxMatch ==> ReconPIDs
-  ProxMatch ===> ReconAssocs
+  ProxMatch ===> ReconPIDs
+  ProxMatch ==> ReconAssocs
   ReconParts -.1 to N.-> ReconPIDs
   %%ReconAssocs -.association.- MCParts
 ```
