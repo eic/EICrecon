@@ -11,9 +11,11 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
+#include <global/pid/MergeTrack_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include <global/pid/RichTrackConfig.h>
 
 
 extern "C" {
@@ -54,6 +56,11 @@ extern "C" {
     digi_cfg.quantumEfficiency.push_back({850, 0.06});
     digi_cfg.quantumEfficiency.push_back({900, 0.04});
 
+    // track propagation to each radiator
+    RichTrackConfig track_cfg;
+    track_cfg.numPlanes.insert({ "Aerogel", 5  });
+    track_cfg.numPlanes.insert({ "Gas",     10 });
+
 
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
@@ -68,13 +75,16 @@ extern "C" {
           ));
 
     // charged particle tracks
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
+          "DRICHTracks",
           {"CentralCKFTrajectories"},
-          "DRICHAerogelTracks"
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
+          track_cfg,
+          app
           ));
-    app->Add(new JChainFactoryGeneratorT<RichTrack_factory>(
-          {"CentralCKFTrajectories"},
-          "DRICHGasTracks"
+    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
+          "DRICHMergedTracks"
           ));
 
     // clang-format on

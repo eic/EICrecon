@@ -20,6 +20,7 @@
 #include "TrackerParticleCollector_factory.h"
 #include "TrackProjector_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
+#include "IterativeVertexFinder_factory.h"
 
 //
 extern "C" {
@@ -56,6 +57,9 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackSegments"));
+
+    app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
+            {"CentralCKFTrajectories"}, "CentralTrackVertices"));
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory

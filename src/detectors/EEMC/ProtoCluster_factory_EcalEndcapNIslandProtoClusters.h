@@ -28,10 +28,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "EcalEndcapNRecHits";
 
-        m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
-
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         u_adjacencyMatrix = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1";
@@ -49,11 +45,15 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={};
 
+        m_splitCluster = true;
+        m_minClusterHitEdep=1.0 * dd4hep::MeV;
+        m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 0.08;
 
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -62,8 +62,11 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

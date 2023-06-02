@@ -73,7 +73,7 @@ namespace eicrecon {
             Insert(result);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+            throw JException(e.what());
         }
     }
 } // eicrecon
