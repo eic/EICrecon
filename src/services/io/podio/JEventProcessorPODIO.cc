@@ -54,6 +54,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // DRICH
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHMergedIrtCherenkovParticleID",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -74,8 +75,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
-            "ReconstructedChargedParticlesWithDRICHPID", // FIXME: overlaps with `ReconstructedChargedParticles`
-            "ReconstructedChargedParticleAssociationsWithDRICHPID", // FIXME: overlaps with `ReconstructedChargedParticleAssociations`
+            "ReconstructedChargedParticleIDs",
             "CentralTrackSegments",
 	    "CentralTrackVertices",
             "InclusiveKinematicsDA",
