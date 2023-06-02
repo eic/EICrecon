@@ -24,10 +24,10 @@ namespace eicrecon {
         // input collection
 
         /// Resulting reconstructed particles
-        ParticlesWithAssociationNew result;
-        result.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        result.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-        result.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
+        ParticlesWithAssociationNew out_colls;
+        out_colls.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        out_colls.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+        out_colls.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
@@ -108,7 +108,7 @@ namespace eicrecon {
                     }
                 }
             }
-            auto rec_part = edm4eic::MutableReconstructedParticle();
+            auto rec_part = out_colls.parts->create();
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
             // float time          = 0;
@@ -138,29 +138,23 @@ namespace eicrecon {
 
             // link Cherenkov PID objects
             for (const auto& cherenkov_pids : cherenkov_pid_collections) {
-                auto success = linkCherenkovPID(rec_part, *cherenkov_pids, *(result.pids));
+                auto success = linkCherenkovPID(rec_part, *cherenkov_pids, *(out_colls.pids));
                 if (success)
-                    m_log->trace("      PID PDG vs. true PDG: {:>10} vs. {:<10}",
-                            rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0,
-                            best_pid
+                    m_log->trace("      true PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
+                            best_pid,
+                            rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
                             );
             }
 
-            // Add reconstructed particle to collection BEFORE doing association
-            result.parts->push_back(rec_part);
-
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
-                auto rec_assoc = edm4eic::MutableMCRecoParticleAssociation();
+                auto rec_assoc = out_colls.assocs->create();
                 rec_assoc.setRecID(rec_part.getObjectID().index);
                 rec_assoc.setSimID((*mc_particles)[best_match].getObjectID().index);
                 rec_assoc.setWeight(1);
                 rec_assoc.setRec(rec_part);
                 auto sim = (*mc_particles)[best_match];
                 rec_assoc.setSim(sim);
-
-                // Add association to collection
-                result.assocs->push_back(rec_assoc);
 
                 if (m_log->level() <= spdlog::level::debug) {
 
@@ -175,6 +169,13 @@ namespace eicrecon {
 
                     m_log->debug(" Assoc: id={} SimId={} RecId={}",
                                  rec_assoc.getObjectID().index, rec_assoc.getSimID(), rec_assoc.getSimID());
+                    
+                    m_log->trace(" Assoc PDGs: sim.PDG | rec.PDG | rec.particleIDUsed.PDG = {:^6} | {:^6} | {:^6}",
+                                 rec_assoc.getSim().getPDG(),
+                                 rec_assoc.getRec().getPDG(),
+                                 rec_assoc.getRec().getParticleIDUsed().isAvailable() ? rec_assoc.getRec().getParticleIDUsed().getPDG() : 0);
+
+
                 }
             }
             else {
@@ -183,7 +184,7 @@ namespace eicrecon {
 
         }
 
-        return result;
+        return out_colls;
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
