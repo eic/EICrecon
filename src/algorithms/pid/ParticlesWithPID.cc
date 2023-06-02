@@ -169,7 +169,7 @@ namespace eicrecon {
 
                     m_log->debug(" Assoc: id={} SimId={} RecId={}",
                                  rec_assoc.getObjectID().index, rec_assoc.getSimID(), rec_assoc.getSimID());
-                    
+
                     m_log->trace(" Assoc PDGs: sim.PDG | rec.PDG | rec.particleIDUsed.PDG = {:^6} | {:^6} | {:^6}",
                                  rec_assoc.getSim().getPDG(),
                                  rec_assoc.getRec().getPDG(),
