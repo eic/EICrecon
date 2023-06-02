@@ -32,6 +32,6 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
         SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(result.second));
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }

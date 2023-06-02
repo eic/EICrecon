@@ -49,7 +49,6 @@ public:
         m_resolutionTDC = 10 * unit::ps;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -65,7 +64,6 @@ public:
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:readoutClass",     m_readout);
 

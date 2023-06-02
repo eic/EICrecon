@@ -32,10 +32,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "EcalBarrelSciGlassRecHits";
 
-        m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * unit::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * unit::MeV; // from ATHENA reconstruction.py
-
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         // Magic constants:
@@ -64,10 +60,15 @@ public:
         u_globalDistEtaPhi={}; //{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={}; // not used
 
+        m_splitCluster = true;
+        m_minClusterHitEdep=1.0 * unit::MeV;
+        m_minClusterCenterEdep=30.0 * unit::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 0.06;
+
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:localDistXZ",   u_localDistXZ);
@@ -76,8 +77,11 @@ public:
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("BEMC:EcalBarrelSciGlassProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

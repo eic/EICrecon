@@ -36,7 +36,7 @@ public:
         m_resolutionTDC = 10 * unit::ps;
 
         // zero suppression values
-        m_thresholdFactor=5.0;// from ATHENA's reconstruction.py
+        m_thresholdFactor=36.0488;// from ATHENA's reconstruction.py
         m_thresholdValue=0.0;//{this, "thresholdValue", 0.0};
 
         // energy correction with sampling fraction

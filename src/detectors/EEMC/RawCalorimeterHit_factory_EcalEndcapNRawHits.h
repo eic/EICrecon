@@ -51,7 +51,6 @@ public:
         m_resolutionTDC = 10 * unit::ps;
         m_corrMeanScale = 1.0;
         u_fields={};
-        u_refs={};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
 
@@ -70,7 +69,6 @@ public:
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("EEMC:EcalEndcapNRawHits:readoutClass",     m_readout);
 
