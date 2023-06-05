@@ -19,13 +19,6 @@
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 #include <algorithms/pid/MergeParticleIDConfig.h>
 
-// data model
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
-
-// other
-#include <services/geometry/richgeo/RichGeo.h>
-
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
@@ -96,10 +89,9 @@ extern "C" {
     irt_cfg.cheatPhotonVertex  = true;
     irt_cfg.cheatTrueRadiator  = true;
 
-    // Final PID
+    // Merge PID from radiators
     MergeParticleIDConfig merge_cfg;
     merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
-
 
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
