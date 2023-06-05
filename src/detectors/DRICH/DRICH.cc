@@ -11,6 +11,7 @@
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
+#include <global/pid/MergeTrack_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
@@ -80,6 +81,10 @@ extern "C" {
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app
+          ));
+    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+          {"DRICHAerogelTracks", "DRICHGasTracks"},
+          "DRICHMergedTracks"
           ));
 
     // clang-format on
