@@ -1,6 +1,10 @@
 # dRICH
 
 ## Algorithms and Data Flowchart
+
+The following is a flowchart of algorithms and collections corresponding to **P**article **Id**entification (PID)
+from the **D**ual **R**ing **I**maging **Ch**erenkov (dRICH) detector.
+
 ### Legend
 ```mermaid
 flowchart TB
@@ -173,7 +177,6 @@ flowchart TB
     - NPE
     - weight
   - Additional members:
-    - Average reconstructed Cherenkov angle (theta)
     - Reconstructed Cherenkov (theta, phi) for each photon
     - NPE
     - MC: average photon energy and refractive index at emission point
