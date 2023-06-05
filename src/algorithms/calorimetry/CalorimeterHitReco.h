@@ -74,6 +74,8 @@ public:
 
   size_t sector_idx{0}, layer_idx{0};
 
+  bool warned_unsupported_segmentation = false;
+
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
   std::string m_localDetElement="", m_maskPos="";
