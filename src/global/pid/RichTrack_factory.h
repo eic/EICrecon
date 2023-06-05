@@ -57,8 +57,8 @@ namespace eicrecon {
       std::shared_ptr<ACTSGeo_service> m_actsSvc;
       richgeo::ActsGeo *m_actsGeo;
 
-      // vector of radiators, each with a vector of xy-planes to project to
-      std::vector< std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
+      // map: output_tag name (for a radiator's track projections) -> a vector of xy-planes to project to
+      std::map< std::string, std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
 
       // underlying algorithm
       eicrecon::TrackPropagation m_propagation_algo;

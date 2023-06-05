@@ -68,7 +68,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
     SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(result.hit_assocs));
   }
   catch(std::exception &e) {
-    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    throw JException(e.what());
   }
 
 }
