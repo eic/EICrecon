@@ -1,6 +1,7 @@
 // Copyright 2023, Alexander Kiselev, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// Common functions for PID algorithms
 // Several methods ported from Juggler's JugPID `IRTAlgorithmServices`
 //
 
@@ -13,9 +14,6 @@
 
 // ROOT
 #include <TVector3.h>
-
-// IRT
-#include <IRT/ParametricSurface.h>
 
 // DD4hep
 #include <Evaluator/DD4hepUnits.h>
