@@ -215,9 +215,14 @@ void CalorimeterHitReco::AlgorithmProcess() {
             cdim[0] = cell_dim[0];
             cdim[1] = cell_dim[1];
             m_log->error("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+        } else if (segmentation_type == "PolarGridRPhi2") {
+            cdim.resize(3);
+            cdim[0] = cell_dim[0];
+            cdim[1] = cell_dim[1];
+            m_log->error("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
             if (segmentation_type != "NoSegmentation") {
-                m_log->warn("Usupported segmentation type \"{}\"", segmentation_type);
+                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
             }
 
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
