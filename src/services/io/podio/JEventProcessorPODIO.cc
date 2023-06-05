@@ -64,6 +64,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardRomanPotRecParticles",
             "SmearedFarForwardParticles",
 
+            "DRICHAerogelIrtCherenkovParticleID",
+            "DRICHGasIrtCherenkovParticleID",
+
             // Reconstructed data
             "GeneratedParticles",
             "ReconstructedParticles",
