@@ -4,6 +4,7 @@ get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # These tests can use the Catch2-provided main
 add_executable(${TEST_NAME}
   calorimetry_CalorimeterIslandCluster.cc
+  calorimetry_CalorimeterHitDigi.cc
   pid_MergeTracks.cc
   )
 
