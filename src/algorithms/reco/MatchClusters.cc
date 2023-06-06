@@ -83,6 +83,8 @@ namespace eicrecon {
                 const auto &clus = clusterMap[mcID];
                 m_log->debug("    --> found matching cluster with energy: {}", clus->getEnergy());
                 clusterMap.erase(mcID);
+                m_log->debug("    --> adding cluster to reconstructed particle");
+                outpart.addToClusters(*clus);
             }
 
             // create truth associations
@@ -203,6 +205,7 @@ namespace eicrecon {
         part.setCharge(0);
         part.setEnergy(energy);
         part.setMass(mass);
+        part.addToClusters(*cluster);
         return part;
     }
 
