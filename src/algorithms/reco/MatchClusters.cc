@@ -93,7 +93,7 @@ namespace eicrecon {
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            assoc.setRec(outpart);
+            assoc.setSim(*mcparticles[mcID]);
         }
 
         // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
@@ -129,7 +129,7 @@ namespace eicrecon {
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            //assoc.setSim(mcparticles[mcID]);
+            assoc.setSim(*mcparticles[mcID]);
         }
 
         return {outparts, outpartsassoc};
