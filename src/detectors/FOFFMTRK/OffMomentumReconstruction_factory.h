@@ -67,7 +67,7 @@ namespace eicrecon {
 	dd4hep::DetElement local;
 	size_t local_mask = ~0;
 	dd4hep::Detector *detector = nullptr;
-	    
+
 	const double aXOMD[2][2] = {{1.6248, 12.966293},
 	                           {0.1832, -2.8636535}};
 	//const double aXOMD[2][2] = {{-1.3656, 2.9971},
