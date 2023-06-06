@@ -61,17 +61,6 @@ namespace eicrecon {
 
     std::function<double(double, double, double, int)> weightFunc;
 
-
-  //inputs EcalEndcapNTruthProtoClusters AND EcalEndcapNHits
-
-  //inputs
-    std::vector<const edm4hep::SimCalorimeterHit*> m_inputSimhits; //e.g. EcalEndcapNHits
-    std::vector<const edm4eic::ProtoCluster*> m_inputProto; //e.g. EcalEndcapNTruthProtoClusters  //{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
-
-  //outputs
-    std::vector<edm4eic::Cluster*> m_outputClusters;
-    std::vector<edm4eic::MCRecoClusterParticleAssociation*> m_outputAssociations;
-
   private:
 
     edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster& pcl) const;
