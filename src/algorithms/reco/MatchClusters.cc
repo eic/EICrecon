@@ -59,7 +59,8 @@ namespace eicrecon {
             m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart->getObjectID().index,
                          inpart->getPDG(), inpart->getEnergy());
 
-            auto outpart = outparts->create();
+            auto outpart = inpart->clone();
+            outparts->push_back(outpart);
 
             int mcID = -1;
 
