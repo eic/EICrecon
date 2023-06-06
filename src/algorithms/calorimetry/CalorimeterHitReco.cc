@@ -216,8 +216,9 @@ void CalorimeterHitReco::AlgorithmProcess() {
             cdim[1] = cell_dim[1];
             m_log->debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
-            if (segmentation_type != "NoSegmentation") {
-                m_log->warn("Usupported segmentation type \"{}\"", segmentation_type);
+            if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
+                warned_unsupported_segmentation = true;
             }
 
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
