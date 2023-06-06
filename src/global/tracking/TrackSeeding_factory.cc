@@ -4,9 +4,11 @@
 
 
 #include <Acts/Propagator/Navigator.hpp>
+#include <edm4eic/TrackParametersCollection.h>
+#include <JANA/JEvent.h>
+
 #include "TrackSeeding_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <JANA/JEvent.h>
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/string/StringHelpers.h"
@@ -83,6 +85,6 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
         Set(result);    // Set() - is what factory produced
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }

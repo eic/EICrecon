@@ -6,13 +6,13 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_B0ECalIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_B0ECalIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
@@ -27,10 +27,6 @@ public:
     void Init() override{
         auto app = GetApplication();
         m_input_tag = "B0ECalRecHits";
-
-        m_splitCluster=false;               // from ATHENA reconstruction.py
-        m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA reconstruction.py
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -49,10 +45,15 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={1.8,1.8};// from ATHENA reconstruction.py
 
+        m_splitCluster=false;
+        m_minClusterHitEdep=1.0 * dd4hep::MeV;
+        m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
+
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -61,8 +62,11 @@ public:
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("B0ECAL:B0ECalIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

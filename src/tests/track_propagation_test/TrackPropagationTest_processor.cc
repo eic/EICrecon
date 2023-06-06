@@ -85,13 +85,13 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
         auto &trajectory = trajectories[traj_index];
         m_log->trace(" -- trajectory {} --", traj_index);
 
-        edm4eic::TrackPoint* projection_point;
+        std::unique_ptr<edm4eic::TrackPoint> projection_point;
         try {
             // >>> try to propagate to surface <<<
             projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+            throw JException(e.what());
         }
 
         if(!projection_point) {

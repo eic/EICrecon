@@ -69,22 +69,14 @@ if [[ -d @fmt_DIR@/../../.. ]] ; then
     fi
 fi
 
-#----------------- ip6,epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
-# if [[ -f @BEAMLINE_PATH@/../../setup.sh ]]; then
-#     source @BEAMLINE_PATH@/../../setup.sh
-# fi
+#----------------- epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
 # if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
 #     source @DETECTOR_PATH@/../../setup.sh
 # fi
 
 #----------------- IRT
-IRT=$( readlink -f @IRT_DIR@/../.. )
-if [[ -d ${IRT} ]] ; then
-    export IRT_ROOT=${IRT}
-    IRT_LIBDIR=$( readlink -f @IRT_DIR@/.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":IRT_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${IRT_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
+if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
+    export LD_LIBRARY_PATH="@IRT_LIBRARY_DIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
 
 #----------------- EICrecon
@@ -105,7 +97,8 @@ if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
     export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}"
 fi
 
-# Add plugins to ROOT_INCLUDE_PATH if not already there
-if [[ ! ":ROOT_INCLUDE_PATH:" == *":$PLUGINS_DIR:"* ]]; then
-    export ROOT_INCLUDE_PATH="${PLUGINS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
+# Add plugin headers to ROOT_INCLUDE_PATH if not already there
+HEADERS_DIR=$( readlink -f ${EICrecon_ROOT}/include )
+if [[ ! ":ROOT_INCLUDE_PATH:" == *":$HEADERS_DIR:"* ]]; then
+    export ROOT_INCLUDE_PATH="${HEADERS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
 fi

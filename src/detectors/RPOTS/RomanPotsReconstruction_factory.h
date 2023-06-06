@@ -28,7 +28,7 @@
 
 namespace eicrecon {
 
-    class RomanPotsReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
+    class RomanPotsReconstruction_factory : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>{
 
     public:
 
@@ -65,7 +65,7 @@ namespace eicrecon {
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
-	size_t local_mask = ~0;
+	size_t local_mask = ~static_cast<size_t>(0);
 	dd4hep::Detector *detector = nullptr;
 
 	const double aXRP[2][2] = {{2.102403743, 29.11067626},

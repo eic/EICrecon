@@ -5,14 +5,14 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/TruthEnergyPositionClusterMerger.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
-class Cluster_factory_EcalBarrelImagingMergedClusters : public JFactoryT<edm4eic::Cluster>, TruthEnergyPositionClusterMerger {
+class Cluster_factory_EcalBarrelImagingMergedClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, TruthEnergyPositionClusterMerger {
 
 public:
     //------------------------------------------

@@ -6,13 +6,13 @@
 
 #include <random>
 
-#include <JANA/JFactoryT.h>
+#include <services/io/podio/JFactoryPodioT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_ZDCEcalIslandProtoClusters : public JFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_ZDCEcalIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
@@ -27,10 +27,6 @@ public:
     void Init() override{
         auto app = GetApplication();
         m_input_tag = "ZDCEcalRecHits";
-
-        m_splitCluster=true;              // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterHitEdep=0.1 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterCenterEdep=3.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -49,12 +45,16 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={50.0*dd4hep::mm, 50.0*dd4hep::mm};// from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
+        m_splitCluster=true;
+        m_minClusterHitEdep=0.1 * dd4hep::MeV;
+        m_minClusterCenterEdep=3.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
-        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
         //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:inputHitCollection", m_inputHitCollection);
         //app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:outputProtoClusterCollection",    m_outputProtoCollection);
+        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -63,8 +63,11 @@ public:
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("ZDC:ZDCIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("ZDC:ZDCEcalIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

@@ -17,6 +17,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+
 using namespace edm4eic;
 
 //
@@ -110,7 +111,6 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
-
       is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
         dd4hep::tools::Evaluator::Object evaluator;
         for(const auto &p : m_idSpec.fields()) {
@@ -125,9 +125,9 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         if (eval.status()) {
           std::stringstream sstr;
           eval.print_error(sstr);
-          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: ", sstr.str()));
+          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: {}", sstr.str()));
         }
-        m_log->debug("result = {}", eval.result());
+        m_log->trace("Evaluated {} to {}", u_adjacencyMatrix, eval.result());
         return eval.result();
       };
       method_found = true;
@@ -143,7 +143,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
             // in the same sector
             if (h1->getSector() == h2->getSector()) {
               auto dist = hitsDist(h1, h2);
-              return (dist.a <= neighbourDist[0]) && (dist.b <= neighbourDist[1]);
+              return (fabs(dist.a) <= neighbourDist[0]) && (fabs(dist.b) <= neighbourDist[1]);
               // different sector, local coordinates do not work, using global coordinates
             } else {
               // sector may have rotation (barrel), so z is included
@@ -159,7 +159,22 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     }
 
     if (not method_found) {
-        throw std::runtime_error("Cannot determine the clustering coordinates");
+      throw std::runtime_error("Cannot determine the clustering coordinates");
+    }
+
+    if (m_splitCluster) {
+      auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return u_transverseEnergyProfileMetric == p.first; });
+      if (transverseEnergyProfileMetric_it == distMethods.end()) {
+          throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", u_transverseEnergyProfileMetric));
+      }
+      transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
+      std::vector<double> &units = std::get<1>(transverseEnergyProfileMetric_it->second);
+      for (auto unit : units) {
+        if (unit != units[0]) {
+          throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units", u_transverseEnergyProfileMetric));
+        }
+      }
+      transverseEnergyProfileScaleUnits = units[0];
     }
 
     return;

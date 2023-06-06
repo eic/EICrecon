@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-#include <TFile.h>
-
 #include "eicrecon_cli.h"
 
 /// The default plugins
@@ -25,8 +23,12 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "reco",
         "tracking",
         "pid",
+        "EEMC",
         "BEMC",
-        "HCAL",
+        "FEMC",
+        "EHCAL",
+        "BHCAL",
+        "FHCAL",
         "B0ECAL",
         "B0TRK",
         "ZDC",
@@ -34,12 +36,12 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "BVTX",
         "DRICH",
         "ECTRK",
-        "EEMC",
         "MPGD",
         "RPOTS",
 	"FOFFMTRK",
         "BTOF",
         "ECTOF",
+        "LUMISPECCAL",
         "podio",
 };
 

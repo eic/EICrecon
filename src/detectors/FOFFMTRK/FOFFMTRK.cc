@@ -16,7 +16,6 @@ void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     using namespace eicrecon;
 
-
     app->Add(new JFactoryGeneratorT<OffMomentumReconstruction_factory>());
 }
 }
