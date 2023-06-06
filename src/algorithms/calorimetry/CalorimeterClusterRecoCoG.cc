@@ -109,9 +109,9 @@ namespace eicrecon {
             m_log->trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
           }
           m_log->trace("MC hits: ");
-          //for (const auto& mchit1: mchits) {
-          //  m_log->trace("{}: {}", mchit1->getCellID(), mchit1->getEnergy());
-          //}
+          for (const auto& mchit1: *mchits) {
+            m_log->trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
+          }
           break;
         }
 
