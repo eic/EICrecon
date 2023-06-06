@@ -124,18 +124,12 @@ namespace eicrecon {
         m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
 
         // set association
-        edm4eic::MutableMCRecoClusterParticleAssociation* clusterassoc = new edm4eic::MutableMCRecoClusterParticleAssociation();
-        //auto* clusterassoc = m_outputAssociations.create();
-        clusterassoc->setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
-        //clusterassoc->setRecID((uint32_t)((uint64_t)cl&0xFFFFFFFF)); // mask lower 32 bits of cluster pointer as unique ID FIXME:
-        clusterassoc->setSimID(mcp.getObjectID().index);
-        clusterassoc->setWeight(1.0);
-        clusterassoc->setRec(*cl);
-        clusterassoc->setSim(mcp);
-        m_log->info("assoc: RecID {} SimID {}", clusterassoc->getRecID(), clusterassoc->getSimID());
-        edm4eic::MCRecoClusterParticleAssociation* cassoc = new edm4eic::MCRecoClusterParticleAssociation(*clusterassoc);
-        m_outputAssociations.push_back(cassoc);
-        delete clusterassoc;
+        auto clusterassoc = associations->create();
+        clusterassoc.setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc.setSimID(mcp.getObjectID().index);
+        clusterassoc.setWeight(1.0);
+        clusterassoc.setRec(*cl);
+        clusterassoc.setSim(mcp);
       } else {
         m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
