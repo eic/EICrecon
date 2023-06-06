@@ -45,12 +45,12 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 
-	const double local_x_offset = -11.9872; //this is from mis-alignment of the detector
-	const double local_y_offset = -0.0146;  //this is from mis-alignment of the detector
-	const double local_x_slope_offset = -14.75315;
-	const double local_y_slope_offset = -0.0073;
-	const double crossingAngle = -0.025;
-	const double nomMomentum = 137.5; //exactly half of the top energy momentum
+	const double local_x_offset = -11.9872; // in mm --> this is from mis-alignment of the detector
+	const double local_y_offset = -0.0146;  //in mm --> this is from mis-alignment of the detector
+	const double local_x_slope_offset = -14.75315; //in mrad
+	const double local_y_slope_offset = -0.0073; //in mrad
+	const double crossingAngle = -0.025; //in mrad
+	const double nomMomentum = 137.5; //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
 	std::string m_readout;
 	std::string m_layerField;
@@ -67,7 +67,7 @@ namespace eicrecon {
 	dd4hep::DetElement local;
 	size_t local_mask = ~0;
 	dd4hep::Detector *detector = nullptr;
-
+	    
 	const double aXOMD[2][2] = {{1.6248, 12.966293},
 	                           {0.1832, -2.8636535}};
 	//const double aXOMD[2][2] = {{-1.3656, 2.9971},
