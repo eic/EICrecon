@@ -124,7 +124,7 @@ namespace eicrecon {
             outparts->push_back(outpart);
 
             // Create truth associations
-            auto assoc = edm4eic::MutableMCRecoParticleAssociation();
+            auto assoc = outpartsassoc->create();
             assoc.setRecID(outpart.getObjectID().index);
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
