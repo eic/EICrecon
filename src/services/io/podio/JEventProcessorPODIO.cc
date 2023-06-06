@@ -253,7 +253,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // TODO: WDC: This should not be necessary, but while we await collection IDs
     //            that are determined by hash, we have to ensure they are reproducible
     //            even if the collections are filled in unpredictable order (or not at
-    //            all). See also below, at "TODO: NBW:".
+    //            all). See also below, at "TODO: NWB:".
     for (const auto& coll_name : m_collections_to_write) {
         try {
             const auto* coll_ptr = event->GetCollectionBase(coll_name);
