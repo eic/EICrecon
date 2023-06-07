@@ -1,4 +1,4 @@
-//Code generated automatically by TMVA for Inference of Model file [trainedTaggerRegressionModel.h5] at [Mon Jun  5 08:11:01 2023] 
+//Code generated automatically by TMVA for Inference of Model file [trainedTaggerRegressionModel.h5] at [Mon Jun  5 08:11:01 2023]
 
 #ifndef TMVA_SOFIE_TRAINEDTAGGERREGRESSIONMODEL
 #define TMVA_SOFIE_TRAINEDTAGGERREGRESSIONMODEL
@@ -88,7 +88,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 3 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense4bias0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense3bias0" ) {
@@ -99,7 +99,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 32 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense3bias0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense3kernel0" ) {
@@ -110,7 +110,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 2048 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense3kernel0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense2bias0" ) {
@@ -121,7 +121,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 64 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense2bias0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense4kernel0" ) {
@@ -132,7 +132,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 96 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense4kernel0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense2kernel0" ) {
@@ -143,7 +143,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 8192 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense2kernel0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense1bias0" ) {
@@ -154,7 +154,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 128 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense1bias0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_dense1kernel0" ) {
@@ -165,7 +165,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 131072 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_dense1kernel0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_densebias0" ) {
@@ -176,7 +176,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 1024 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_densebias0[i];
    f >> tensor_name >> length;
    if (tensor_name != "tensor_densekernel0" ) {
@@ -187,7 +187,7 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 4096 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
-    for (int i =0; i < length; ++i) 
+    for (int i =0; i < length; ++i)
        f >> tensor_densekernel0[i];
    f.close();
    {

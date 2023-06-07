@@ -54,14 +54,14 @@ namespace eicrecon {
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
       std::shared_ptr<TMVA_SOFIE_trainedTaggerRegressionModel::Session>  model;
       // Stuff to add to config
-      
+
       // How should the path to this best be described?
       // $EICrecon_ROOT does not need to be set for usual running so possibly not appropriate
       //      TString m_file_path{"/src/detectors/LOWQ2/LowQ2_DNN_CPU.weights.xml"};
       std::string m_file_path{"/src/detectors/LOWQ2/trainedTaggerRegressionModel.dat"};
       std::string m_location_path{"EICrecon_ROOT"};
 
-   
+
 
   };
 

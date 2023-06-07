@@ -30,7 +30,7 @@ namespace eicrecon {
     std::string weightName = weightDir + m_file_path;
 
     model = std::make_shared<TMVA_SOFIE_trainedTaggerRegressionModel::Session>(weightName);
-    
+
   }
 
 
@@ -72,8 +72,8 @@ namespace eicrecon {
       nnInput[LowQ2NNIndexIn::PosZ] = pos.b;
       nnInput[LowQ2NNIndexIn::DirX] = sin(trackphi)*sin(tracktheta);
       nnInput[LowQ2NNIndexIn::DirY] = cos(trackphi)*sin(tracktheta);
-    
-      
+
+
       //auto values = TMVA_SOFIE_trainedTaggerRegressionModel::infer(nnInput);
       auto values = model->infer(nnInput);
       //auto values = m_method->GetRegressionValues();
