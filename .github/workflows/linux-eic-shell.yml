@@ -138,26 +138,31 @@ jobs:
         COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+')
         llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
-        llvm-cov-15 report src/algorithms/calorimetry/algorithms_calorimetry.so \
-          -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
-          "${COV_OPTIONS[@]}"
-        llvm-cov-15 show src/algorithms/calorimetry/algorithms_calorimetry.so \
+        LIB_PATHS=()
+        for LIB_NAME in algorithms_calorimetry algorithms_digi algorithms_pid algorithms_reco algorithms_tracking; do
+          LIB_PATH="$(find src/ -type f -name "$LIB_NAME.so")"
+          LIB_PATHS+=("$LIB_PATH")
+          llvm-cov-15 report $LIB_PATH \
+            -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
+            "${COV_OPTIONS[@]}"
+          COV_PERCENT=$(llvm-cov-15 export $LIB_PATH \
+            -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
+            "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
+          curl --request POST \
+            --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --data '{
+              "state": "success",
+              "context": "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%"
+              }' \
+            --fail-with-body
+        done
+        llvm-cov-15 show "${LIB_PATHS[@]/#/--object=}" \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
-        COV_PERCENT=$(llvm-cov-15 export src/algorithms/calorimetry/algorithms_calorimetry.so \
-          -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
-          "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
-        curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
-          --header "Accept: application/vnd.github+json" \
-          --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          --header "X-GitHub-Api-Version: 2022-11-28" \
-          --data '{
-            "state": "success",
-            "context": "Code coverage (algorithms_calorimetry) - '$COV_PERCENT'%"
-            }' \
-          --fail-with-body
     - uses: actions/upload-artifact@v3
       with:
         name: codecov_report
