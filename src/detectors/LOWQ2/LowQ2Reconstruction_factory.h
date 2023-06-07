@@ -13,14 +13,14 @@
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
-#include <TMVA/MethodBase.h>
-#include <TMVA/Reader.h>
 #include <Evaluator/DD4hepUnits.h>
+#include "trainedTaggerRegressionModel.h"
 
 namespace eicrecon {
 
   //  enum LowQ2NNIndex{Energy,Theta,X,Y};
-  enum LowQ2NNIndex{MomX,MomY,MomZ};
+  enum LowQ2NNIndexIn{PosY,PosZ,DirX,DirY};
+  enum LowQ2NNIndexOut{MomX,MomY,MomZ};
 
   //  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
   class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
@@ -49,25 +49,20 @@ namespace eicrecon {
       std::string m_input_tag{"LowQ2Tracks"};
       std::string m_output_tag{"LowQ2Particles"};
 
-      TMVA::Reader          m_reader{"!Color:!Silent"};
-      TMVA::MethodBase*     m_method{nullptr};
-
       float beamE = 18*dd4hep::GeV; //TODO: Change when this is included in metadata/other location
-      float m_yP{0};
-      float m_zP{0};
-      float m_xV{0};
-      float m_yV{0};
 
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
-
+      std::shared_ptr<TMVA_SOFIE_trainedTaggerRegressionModel::Session>  model;
       // Stuff to add to config
-      TString m_method_name = "DNN_CPU";
-
+      
       // How should the path to this best be described?
       // $EICrecon_ROOT does not need to be set for usual running so possibly not appropriate
-      TString m_weight_file   = "LowQ2_DNN_CPU.weights.xml";
-      TString m_file_path     = "/src/detectors/LOWQ2/";
-      TString m_location_path = "EICrecon_ROOT";
+      //      TString m_file_path{"/src/detectors/LOWQ2/LowQ2_DNN_CPU.weights.xml"};
+      std::string m_file_path{"/src/detectors/LOWQ2/trainedTaggerRegressionModel.dat"};
+      std::string m_location_path{"EICrecon_ROOT"};
+
+   
+
   };
 
 } // eicrecon
