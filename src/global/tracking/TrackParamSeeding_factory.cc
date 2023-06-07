@@ -55,7 +55,7 @@ void eicrecon::TrackParamSeeding_factory::Process(const std::shared_ptr<const JE
  	    //Check for well-defined seeds
  	    if( std::isnan(aseed->getLoc().a)  || std::isnan(aseed->getLoc().b) ||
 		std::isnan(aseed->getPhi())    || std::isnan(aseed->getTheta()) ||
-		std::isnan(aseed->getQOverP()) || std::isnan(aseed->getTime()) ) continue; 
+		std::isnan(aseed->getQOverP()) || std::isnan(aseed->getTime()) ) continue;
 
             //Seed Parameters
             Acts::BoundVector  params;
@@ -77,7 +77,7 @@ void eicrecon::TrackParamSeeding_factory::Process(const std::shared_ptr<const JE
             cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( aseed->getMomentumError().yy,2);
             cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( aseed->getMomentumError().zz,2) / (GeV*GeV);
             cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( aseed->getTimeError(),2)*ns*ns;
-            
+
             //Construct a perigee surface as the target surface
             auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
 

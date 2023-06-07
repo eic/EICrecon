@@ -36,4 +36,3 @@ class TrackParamSeeding_factory :
     };
 
 } // eicrecon
-
