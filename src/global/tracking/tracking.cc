@@ -16,6 +16,8 @@
 #include "TrackingResult_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
+#include "TrackParamSeeding_factory.h"
+#include "CKFSeededTracking_factory.h"
 #include "TrackerHitCollector_factory.h"
 #include "TrackProjector_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
@@ -58,6 +60,12 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<TrackSeeding_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackSeedingResults"));
+
+    app->Add(new JChainFactoryGeneratorT<TrackParamSeeding_factory>(
+            {"CentralTrackSeedingResults"}, "SeededTrackParams"));
+
+    app->Add(new JChainFactoryGeneratorT<CKFSeededTracking_factory>(
+            {"CentralTrackerSourceLinker"}, "CentralCKFSeededTrajectories"));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackSegments"));
