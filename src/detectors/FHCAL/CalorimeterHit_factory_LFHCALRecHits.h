@@ -42,7 +42,7 @@ public:
         // energy correction with sampling fraction
         m_sampFrac=0.033;
         m_sampFracLayer[0]=0.019; // 0.037
-        for (int i = 1; i < 13; i++) m_sampFracLayer[i]=0.037;
+        for (int i = 0; i < 13; i++) m_sampFracLayer[i]=0.037;
         // geometry service to get ids, ignored if no names provided
         m_geoSvcName="geoServiceName";
         m_readout="LFHCALHits";

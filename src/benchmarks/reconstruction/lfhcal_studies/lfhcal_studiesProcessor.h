@@ -84,19 +84,22 @@ public:
 
     bool enableTree       = true;
     TTree* event_tree;
-    const int maxNTowers  = 65000;
+    const int maxNTowers  = 10000;
     int     t_lFHCal_towers_N;
     short*  t_lFHCal_towers_cellIDx;
     short*  t_lFHCal_towers_cellIDy;
     short*  t_lFHCal_towers_cellIDz;
+    float*  t_lFHCal_towers_Posx;
+    float*  t_lFHCal_towers_Posy;
+    float*  t_lFHCal_towers_Posz;
     short*  t_lFHCal_towers_clusterIDA;
     short*  t_lFHCal_towers_clusterIDB;
     float*  t_lFHCal_towers_cellE;
     float*  t_lFHCal_towers_cellT;
     int*    t_lFHCal_towers_cellTrueID;
 
-    bool enableTreeCluster  = true;
-    bool enableECalCluster  = true;
+    bool enableTreeCluster  = false;
+    bool enableECalCluster  = false;
     TTree* cluster_tree;
     const int maxNCluster   = 50;
     const int maxNMC        = 50;

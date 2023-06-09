@@ -92,60 +92,60 @@ void lfhcal_studiesProcessor::Init() {
   // Sum cell clusters rec histos
   // ===============================================================================================
   hClusterEcalib_E_eta  = new TH3D("hClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #eta",
-                                    1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                    1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hClusterNCells_E_eta  = new TH3D("hClusterNCells_E_eta", "; E_{MC} (GeV); N_{cells}; #eta",
-                                    1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
+                                    1000, 0., 100.0, 500, -0.5, 499.5, 50, 0, 5);
   hClusterEcalib_E_phi  = new TH3D("hClusterEcalib_E_phi", "; E_{MC} (GeV); E_{rec,rec hit}/E_{MC}; #varphi (rad)",
-                                    1500, 0., 150.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
-  hPosCaloHitsXY        = new TH2D("hPosCaloHitsXY", "; X (cm); Y (cm)", 400, -400., 400., 400, -400., 400.);
-  hPosCaloHitsZX        = new TH2D("hPosCaloHitsZX", "; Z (cm); X (cm)", 200, 300., 500., 400, -400., 400.);
-  hPosCaloHitsZY        = new TH2D("hPosCaloHitsZY", "; Z (cm); Y (cm)", 200, 300., 500., 400, -400., 400.);
+                                    1000, 0., 100.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
+  // hPosCaloHitsXY        = new TH2D("hPosCaloHitsXY", "; X (cm); Y (cm)", 400, -400., 400., 400, -400., 400.);
+  // hPosCaloHitsZX        = new TH2D("hPosCaloHitsZX", "; Z (cm); X (cm)", 200, 300., 500., 400, -400., 400.);
+  // hPosCaloHitsZY        = new TH2D("hPosCaloHitsZY", "; Z (cm); Y (cm)", 200, 300., 500., 400, -400., 400.);
   hClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hClusterNCells_E_eta->SetDirectory(m_dir_main);
   hClusterEcalib_E_phi->SetDirectory(m_dir_main);
-  hPosCaloHitsXY->SetDirectory(m_dir_main);
-  hPosCaloHitsZX->SetDirectory(m_dir_main);
-  hPosCaloHitsZY->SetDirectory(m_dir_main);
+  // hPosCaloHitsXY->SetDirectory(m_dir_main);
+  // hPosCaloHitsZX->SetDirectory(m_dir_main);
+  // hPosCaloHitsZY->SetDirectory(m_dir_main);
 
   // ===============================================================================================
   // Sum cell clusters sim histos
   // ===============================================================================================
   hClusterESimcalib_E_eta = new TH3D("hClusterESimcalib_E_eta", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #eta" ,
-                                      1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                      1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hClusterSimNCells_E_eta = new TH3D("hClusterSimNCells_E_eta", "; E_{MC} (GeV); N_{cells, sim}; #eta",
-                                      1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
+                                      1000, 0., 100.0, 500, -0.5, 499.5, 50, 0, 5);
   hClusterESimcalib_E_phi = new TH3D("hClusterESimcalib_E_phi", "; E_{MC} (GeV); E_{rec,sim hit}/E_{MC}; #varphi (rad)" ,
-                                      1500, 0., 150.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
-  hCellESim_layerX        = new TH2D("hCellESim_layerX", "; #cell ID X; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
-  hCellESim_layerY        = new TH2D("hCellESim_layerY", "; #cell ID Y; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
-  hCellESim_layerZ        = new TH2D("hCellESim_layerZ", "; #cell ID Z; E_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1);
-  hCellTSim_layerZ        = new TH2D("hCellTSim_layerZ", "; #cell ID Z; t_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1000);
-  hPosCaloSimHitsXY       = new TH2D("hPosCaloSimHitsXY", "; X (cm); Y (cm)", 400, -400., 400., 400, -400., 400.);
-  hPosCaloSimHitsZX       = new TH2D("hPosCaloSimHitsZX", "; Z (cm); X (cm)", 200, 300., 500., 400, -400., 400.);
-  hPosCaloSimHitsZY       = new TH2D("hPosCaloSimHitsZY", "; Z (cm); Y (cm)", 200, 300., 500., 400, -400., 400.);
+                                      1000, 0., 100.0, 200, 0., 2.0, 360 , -TMath::Pi(), TMath::Pi());
+  // hCellESim_layerX        = new TH2D("hCellESim_layerX", "; #cell ID X; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
+  // hCellESim_layerY        = new TH2D("hCellESim_layerY", "; #cell ID Y; E_{rec,sim hit} (GeV)" , 240, -0.5, 239.5, 5000, 0, 1);
+  // hCellESim_layerZ        = new TH2D("hCellESim_layerZ", "; #cell ID Z; E_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1);
+  // hCellTSim_layerZ        = new TH2D("hCellTSim_layerZ", "; #cell ID Z; t_{rec,sim hit} (GeV)" , 70, -0.5, 69.5, 5000, 0, 1000);
+  // hPosCaloSimHitsXY       = new TH2D("hPosCaloSimHitsXY", "; X (cm); Y (cm)", 400, -400., 400., 400, -400., 400.);
+  // hPosCaloSimHitsZX       = new TH2D("hPosCaloSimHitsZX", "; Z (cm); X (cm)", 200, 300., 500., 400, -400., 400.);
+  // hPosCaloSimHitsZY       = new TH2D("hPosCaloSimHitsZY", "; Z (cm); Y (cm)", 200, 300., 500., 400, -400., 400.);
   hClusterESimcalib_E_eta->SetDirectory(m_dir_main);
   hClusterSimNCells_E_eta->SetDirectory(m_dir_main);
   hClusterESimcalib_E_phi->SetDirectory(m_dir_main);
-  hCellESim_layerX->SetDirectory(m_dir_main);
-  hCellESim_layerY->SetDirectory(m_dir_main);
-  hCellESim_layerZ->SetDirectory(m_dir_main);
-  hCellTSim_layerZ->SetDirectory(m_dir_main);
-  hPosCaloSimHitsXY->SetDirectory(m_dir_main);
-  hPosCaloSimHitsZX->SetDirectory(m_dir_main);
-  hPosCaloSimHitsZY->SetDirectory(m_dir_main);
+  // hCellESim_layerX->SetDirectory(m_dir_main);
+  // hCellESim_layerY->SetDirectory(m_dir_main);
+  // hCellESim_layerZ->SetDirectory(m_dir_main);
+  // hCellTSim_layerZ->SetDirectory(m_dir_main);
+  // hPosCaloSimHitsXY->SetDirectory(m_dir_main);
+  // hPosCaloSimHitsZX->SetDirectory(m_dir_main);
+  // hPosCaloSimHitsZY->SetDirectory(m_dir_main);
 
   // ===============================================================================================
   // rec cluster MA clusters histos
   // ===============================================================================================
   hRecClusterEcalib_E_eta     = new TH3D("hRecClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,rec clus}/E_{MC}; #eta",
-                                          1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                          1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hRecNClusters_E_eta         = new TH3D("hRecNClusters_E_eta", "; E_{MC} (GeV); N_{rec cl.}; #eta",
-                                          1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
+                                          1000, 0., 100.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster highest
   hRecClusterEcalib_Ehigh_eta = new TH3D("hRecClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,rec clus high.}/E_{MC}; #eta",
-                                          1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                          1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hRecClusterNCells_Ehigh_eta = new TH3D("hRecClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec cl., high.}; #eta",
-                                          1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
+                                          1000, 0., 100.0, 500, -0.5, 499.5, 50, 0, 5);
   hRecClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hRecNClusters_E_eta->SetDirectory(m_dir_main);
   hRecClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
@@ -155,14 +155,14 @@ void lfhcal_studiesProcessor::Init() {
   // rec cluster framework Island clusters histos
   // ===============================================================================================
   hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
-                                            1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                            1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
-                                            1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
+                                            1000, 0., 100.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
   hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
-                                            1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
+                                            1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
   hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
-                                            1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
+                                            1000, 0., 100.0, 500, -0.5, 499.5, 50, 0, 5);
   hRecFClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hRecFNClusters_E_eta->SetDirectory(m_dir_main);
   hRecFClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
@@ -171,16 +171,16 @@ void lfhcal_studiesProcessor::Init() {
   // ===============================================================================================
   // FEcal rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFEmClusterEcalib_E_eta      = new TH3D("hRecFEmClusterEcalib_E_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus}/E_{MC}; #eta",
-                                              1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecFEmNClusters_E_eta          = new TH3D("hRecFEmNClusters_E_eta", "; E_{MC} (GeV); N_{Ecal, rec f. cl.}; #eta",
-                                              1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
-  // rec cluster framework highest
-  hRecFEmClusterEcalib_Ehigh_eta  = new TH3D("hRecFEmClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus high.}/E_{MC}; #eta",
-                                              1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
-  hRecFEmClusterEcalib_E_eta->SetDirectory(m_dir_main);
-  hRecFEmNClusters_E_eta->SetDirectory(m_dir_main);
-  hRecFEmClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
+  // hRecFEmClusterEcalib_E_eta      = new TH3D("hRecFEmClusterEcalib_E_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus}/E_{MC}; #eta",
+  //                                             1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
+  // hRecFEmNClusters_E_eta          = new TH3D("hRecFEmNClusters_E_eta", "; E_{MC} (GeV); N_{Ecal, rec f. cl.}; #eta",
+  //                                             1000, 0., 100.0, 10, -0.5, 9.5, 50, 0, 5);
+  // // rec cluster framework highest
+  // hRecFEmClusterEcalib_Ehigh_eta  = new TH3D("hRecFEmClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus high.}/E_{MC}; #eta",
+  //                                             1000, 0., 100.0, 200, 0., 2.0, 50, 0, 5);
+  // hRecFEmClusterEcalib_E_eta->SetDirectory(m_dir_main);
+  // hRecFEmNClusters_E_eta->SetDirectory(m_dir_main);
+  // hRecFEmClusterEcalib_Ehigh_eta->SetDirectory(m_dir_main);
 
   // ===============================================================================================
   // Sampling fraction
@@ -200,6 +200,9 @@ void lfhcal_studiesProcessor::Init() {
     t_lFHCal_towers_cellIDx     = new short[maxNTowers];
     t_lFHCal_towers_cellIDy     = new short[maxNTowers];
     t_lFHCal_towers_cellIDz     = new short[maxNTowers];
+    t_lFHCal_towers_Posx     = new float[maxNTowers];
+    t_lFHCal_towers_Posy     = new float[maxNTowers];
+    t_lFHCal_towers_Posz     = new float[maxNTowers];
     t_lFHCal_towers_clusterIDA  = new short[maxNTowers];
     t_lFHCal_towers_clusterIDB  = new short[maxNTowers];
     t_lFHCal_towers_cellTrueID  = new int[maxNTowers];
@@ -211,6 +214,9 @@ void lfhcal_studiesProcessor::Init() {
     event_tree->Branch("tower_LFHCAL_ix", t_lFHCal_towers_cellIDx, "tower_LFHCAL_ix[tower_LFHCAL_N]/S");
     event_tree->Branch("tower_LFHCAL_iy", t_lFHCal_towers_cellIDy, "tower_LFHCAL_iy[tower_LFHCAL_N]/S");
     event_tree->Branch("tower_LFHCAL_iz", t_lFHCal_towers_cellIDz, "tower_LFHCAL_iz[tower_LFHCAL_N]/S");
+    event_tree->Branch("tower_LFHCAL_posx", t_lFHCal_towers_Posx, "tower_LFHCAL_posx[tower_LFHCAL_N]/F");
+    event_tree->Branch("tower_LFHCAL_posy", t_lFHCal_towers_Posy, "tower_LFHCAL_posy[tower_LFHCAL_N]/F");
+    event_tree->Branch("tower_LFHCAL_posz", t_lFHCal_towers_Posz, "tower_LFHCAL_posz[tower_LFHCAL_N]/F");
     event_tree->Branch("tower_LFHCAL_clusIDA", t_lFHCal_towers_clusterIDA, "tower_LFHCAL_clusIDA[tower_LFHCAL_N]/S");
     event_tree->Branch("tower_LFHCAL_clusIDB", t_lFHCal_towers_clusterIDB, "tower_LFHCAL_clusIDB[tower_LFHCAL_N]/S");
     event_tree->Branch("tower_LFHCAL_trueID", t_lFHCal_towers_cellTrueID, "tower_LFHCAL_trueID[tower_LFHCAL_N]/I");
@@ -366,14 +372,14 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     nCaloHitsSim++;
 
-    hPosCaloSimHitsXY->Fill(x, y);
-    hPosCaloSimHitsZX->Fill(z, x);
-    hPosCaloSimHitsZY->Fill(z, y);
+    // hPosCaloSimHitsXY->Fill(x, y);
+    // hPosCaloSimHitsZX->Fill(z, x);
+    // hPosCaloSimHitsZY->Fill(z, y);
 
-    hCellESim_layerZ->Fill(cellIDz, energy);
-    hCellESim_layerX->Fill(cellIDx, energy);
-    hCellESim_layerY->Fill(cellIDy, energy);
-    hCellTSim_layerZ->Fill(cellIDz, time);
+    // hCellESim_layerZ->Fill(cellIDz, energy);
+    // hCellESim_layerX->Fill(cellIDx, energy);
+    // hCellESim_layerY->Fill(cellIDy, energy);
+    // hCellTSim_layerZ->Fill(cellIDz, time);
 
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
@@ -442,9 +448,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       cellIDz = detector_layer_rz;
     }
 
-    hPosCaloHitsXY->Fill(x, y);
-    hPosCaloHitsZX->Fill(z, x);
-    hPosCaloHitsZY->Fill(z, y);
+    // hPosCaloHitsXY->Fill(x, y);
+    // hPosCaloHitsZX->Fill(z, x);
+    // hPosCaloHitsZY->Fill(z, y);
 
     nCaloHitsRec++;
 
@@ -518,7 +524,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   hClusterNCells_E_eta->Fill(mcenergy, nCaloHitsRec, mceta);
   hClusterEcalib_E_eta->Fill(mcenergy, tot_energyRecHit/mcenergy, mceta);
   hClusterEcalib_E_phi->Fill(mcenergy, tot_energyRecHit/mcenergy, mcphi);
-  // sim hits
+  // // sim hits
   hClusterSimNCells_E_eta->Fill(mcenergy, nCaloHitsSim, mceta);
   hClusterESimcalib_E_eta->Fill(mcenergy, tot_energySimHit/mcenergy, mceta);
   hClusterESimcalib_E_phi->Fill(mcenergy, tot_energySimHit/mcenergy, mcphi);
@@ -669,17 +675,17 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
           iEClHigh      = iECl;
           highestEEmCl  = cluster->getEnergy();
         }
-        hRecFEmClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+        // hRecFEmClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
         iECl++;
       }
       t_fEMC_clusters_N  = iECl;
-      hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
+      // hRecFEmNClusters_E_eta->Fill(mcenergy, iECl, mceta);
 
       // fill hists for highest Island cluster
       iECl          = 0;
       for (auto& cluster : fEMCClustersF) {
         if (iECl == iEClHigh){
-          hRecFEmClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
+          // hRecFEmClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
         }
         iECl++;
       }
@@ -701,6 +707,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       t_lFHCal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
       t_lFHCal_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
       t_lFHCal_towers_cellIDz[iCell]    = (short)input_tower_recSav.at(iCell).cellIDz;
+      t_lFHCal_towers_Posx[iCell]    = (float)input_tower_recSav.at(iCell).posx;
+      t_lFHCal_towers_Posy[iCell]    = (float)input_tower_recSav.at(iCell).posy;
+      t_lFHCal_towers_Posz[iCell]    = (float)input_tower_recSav.at(iCell).posz;
       t_lFHCal_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
       t_lFHCal_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
       t_lFHCal_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
@@ -715,6 +724,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       t_lFHCal_towers_cellIDx[itow]     = 0;
       t_lFHCal_towers_cellIDy[itow]     = 0;
       t_lFHCal_towers_cellIDz[itow]     = 0;
+      t_lFHCal_towers_Posx[itow]     = 0;
+      t_lFHCal_towers_Posy[itow]     = 0;
+      t_lFHCal_towers_Posz[itow]     = 0;
       t_lFHCal_towers_clusterIDA[itow]  = 0;
       t_lFHCal_towers_clusterIDB[itow]  = 0;
       t_lFHCal_towers_cellTrueID[itow]  = 0;
