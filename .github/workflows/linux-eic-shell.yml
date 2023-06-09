@@ -278,7 +278,7 @@ jobs:
     - ddsim-gun
     strategy:
       matrix:
-        CC: [clang]
+        CC: [gcc, clang]
         particle: [pi, e]
         detector_config: [arches, brycecanyon]
     env:
@@ -372,7 +372,7 @@ jobs:
     - ddsim-dis
     strategy:
       matrix:
-        CC: [clang]
+        CC: [gcc, clang]
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
         detector_config: [arches, brycecanyon]
