@@ -209,22 +209,23 @@ void CalorimeterHitReco::AlgorithmProcess() {
         std::vector<double> cdim;
         // get segmentation dimensions
         auto segmentation_type = converter->findReadout(local).segmentation().type();
-        auto cell_dim = converter->cellDimensions(cellID);
         if (segmentation_type == "CartesianGridXY") {
+            auto cell_dim = converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];
             cdim[1] = cell_dim[1];
-            m_log->error("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+            m_log->debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
-            if (segmentation_type != "NoSegmentation") {
-                m_log->warn("Usupported segmentation type \"{}\"", segmentation_type);
+            if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
+                warned_unsupported_segmentation = true;
             }
 
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
             cdim = converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
             std::transform(cdim.begin(), cdim.end(), cdim.begin(),
                            std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
-            m_log->error("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
+            m_log->debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
         }
 
         //create constant vectors for passing to hit initializer list
