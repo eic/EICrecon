@@ -54,7 +54,7 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
               .depthCorrection = 0.0,
-              .enableEtaBounds = true
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
