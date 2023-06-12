@@ -44,21 +44,25 @@ extern "C" {
     digi_cfg.noiseRate       = 20000; // [Hz]
     digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
     digi_cfg.quantumEfficiency.clear();
-    digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
-    digi_cfg.quantumEfficiency.push_back({340, 0.10});
-    digi_cfg.quantumEfficiency.push_back({350, 0.20});
-    digi_cfg.quantumEfficiency.push_back({370, 0.30});
-    digi_cfg.quantumEfficiency.push_back({400, 0.35});
-    digi_cfg.quantumEfficiency.push_back({450, 0.40});
-    digi_cfg.quantumEfficiency.push_back({500, 0.38});
-    digi_cfg.quantumEfficiency.push_back({550, 0.35});
-    digi_cfg.quantumEfficiency.push_back({600, 0.27});
-    digi_cfg.quantumEfficiency.push_back({650, 0.20});
-    digi_cfg.quantumEfficiency.push_back({700, 0.15});
-    digi_cfg.quantumEfficiency.push_back({750, 0.12});
-    digi_cfg.quantumEfficiency.push_back({800, 0.08});
-    digi_cfg.quantumEfficiency.push_back({850, 0.06});
-    digi_cfg.quantumEfficiency.push_back({900, 0.04});
+    digi_cfg.quantumEfficiency = { // wavelength units are [nm]
+      {315,  0.00},
+      {325,  0.04},
+      {340,  0.10},
+      {350,  0.20},
+      {370,  0.30},
+      {400,  0.35},
+      {450,  0.40},
+      {500,  0.38},
+      {550,  0.35},
+      {600,  0.27},
+      {650,  0.20},
+      {700,  0.15},
+      {750,  0.12},
+      {800,  0.08},
+      {850,  0.06},
+      {900,  0.04},
+      {1000, 0.00}
+    };
 
     // track propagation to each radiator
     RichTrackConfig track_cfg;
