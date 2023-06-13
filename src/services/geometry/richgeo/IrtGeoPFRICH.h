@@ -20,7 +20,7 @@ namespace richgeo {
       void DD4hep_to_IRT() override;
 
     private:
-      // FIXME: should be smart pointers, but even using unique/shared_ptr::get() causes issues in IRT...
+      // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
       FlatSurface*             m_surfEntrance;
       CherenkovPhotonDetector* m_irtPhotonDetector;
       FlatSurface*             m_aerogelFlatSurface;
