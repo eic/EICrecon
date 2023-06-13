@@ -20,6 +20,7 @@
 #include "TrackProjector_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
 #include "IterativeVertexFinder_factory.h"
+#include "TracksToParticles_factory.h"
 
 //
 extern "C" {
@@ -61,12 +62,16 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFTrajectories"}, "CentralTrackVertices"));
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
-            "CentralTrackingParticles",                       // Tag name for multifactory
+            "CentralTrackingTracks",                       // Tag name for multifactory
             {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
-            {"outputParticles",                               // edm4eic::ReconstructedParticle
+            {"outputTracks",                               // edm4eic::ReconstructedParticle
              "outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
-
+    app->Add(new JChainMultifactoryGeneratorT<TracksToParticles_factory>(
+            "CentralTrackingParticles",
+            {"CentralTrackingTracks"},
+            {"outputParticles"}, 
+	    app));
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle

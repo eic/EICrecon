@@ -6,8 +6,6 @@
 #include "DDRec/SurfaceManager.h"
 #include "DDRec/Surface.h"
 
-
-
 #include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/MultiTrajectoryHelpers.hpp"
 
