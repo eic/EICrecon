@@ -37,7 +37,7 @@ extern "C" {
     digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
     digi_cfg.quantumEfficiency.clear();
-    digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
+    /*digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
     digi_cfg.quantumEfficiency.push_back({340, 0.10});
     digi_cfg.quantumEfficiency.push_back({350, 0.20});
     digi_cfg.quantumEfficiency.push_back({370, 0.30});
@@ -52,8 +52,8 @@ extern "C" {
     digi_cfg.quantumEfficiency.push_back({800, 0.08});
     digi_cfg.quantumEfficiency.push_back({850, 0.06});
     digi_cfg.quantumEfficiency.push_back({900, 0.04});
-
-    /*double wavelength[250];
+    */
+    double wavelength[250];
     double sensor_qe[250] = {
       0,    0,    14.0, 14.8, 14.5, 14.9, 14.4, 14.2, 13.9, 14.6, 15.2, 15.7, 16.4, 16.9, 17.5,
       17.7, 18.1, 18.8, 19.3, 19.8, 20.6, 21.4, 22.4, 23.1, 23.6, 24.1, 24.2, 24.6, 24.8, 25.2,
@@ -78,7 +78,7 @@ extern "C" {
 	wavelength[i] = 180 + i * 2;
 	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]});
       }
-    */
+    
     
     // digitization
     app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
