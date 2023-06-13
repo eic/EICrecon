@@ -32,7 +32,7 @@ void eicrecon::Reco::ParticlesFromTrackFit::init(std::shared_ptr<spdlog::logger>
 ParticlesFromTrackFitResultNew eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories) {
 
     // create output collections
-    auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();
+    auto rec_tracks = std::make_unique<edm4eic::TrackCollection>();
     auto track_pars = std::make_unique<edm4eic::TrackParametersCollection>();
 
     m_log->debug("Trajectories size: {}", std::size(trajectories));
@@ -126,16 +126,16 @@ ParticlesFromTrackFitResultNew eicrecon::Reco::ParticlesFromTrackFit::execute(co
                 return;
             }
 
-            auto rec_part = rec_parts->create();
-            rec_part.setMomentum(
+            auto rec_track = rec_tracks->create();
+            rec_track.setMomentum(
                     edm4eic::sphericalToVector(
                             1.0 / std::abs(params[Acts::eBoundQOverP]),
                             params[Acts::eBoundTheta],
                             params[Acts::eBoundPhi])
             );
-            rec_part.setCharge(static_cast<int16_t>(std::copysign(1., params[Acts::eBoundQOverP])));
+            rec_track.setCharge(static_cast<int16_t>(std::copysign(1., params[Acts::eBoundQOverP])));
         });
     }
 
-    return std::make_pair(std::move(rec_parts), std::move(track_pars));
+    return std::make_pair(std::move(rec_tracks), std::move(track_pars));
 }

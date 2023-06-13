@@ -18,7 +18,7 @@ public:
                                     const std::vector<std::string>& output_tags):
     JChainMultifactoryT(std::move(tag), input_tags, output_tags) {
 
-        DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
+        DeclarePodioOutput<edm4eic::Track>(GetOutputTags()[0]);
         DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
     }
 

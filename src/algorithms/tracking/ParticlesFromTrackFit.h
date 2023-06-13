@@ -9,8 +9,9 @@
 #include "JugTrack/TrackingResultTrajectory.hpp"
 #include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
+#include "edm4eic/TrackCollection.h"
 
-using ParticlesFromTrackFitResultNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
+using ParticlesFromTrackFitResultNew = std::pair<std::unique_ptr<edm4eic::TrackCollection>,
                                                  std::unique_ptr<edm4eic::TrackParametersCollection>>;
 
 namespace eicrecon::Reco {
