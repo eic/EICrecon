@@ -76,7 +76,7 @@ extern "C" {
     for(int i=0; i < 250; i++)
       {
 	wavelength[i] = 180 + i * 2;
-	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]});
+	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]*0.01});
       }
     
     
