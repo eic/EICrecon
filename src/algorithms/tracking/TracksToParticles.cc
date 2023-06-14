@@ -8,12 +8,12 @@
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 
-void eicrecon::Reco::TracksToParticles::init(std::shared_ptr<spdlog::logger> log) 
+void eicrecon::Reco::TracksToParticles::init(std::shared_ptr<spdlog::logger> log)
 {
   m_log = log;
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> 
+std::unique_ptr<edm4eic::ReconstructedParticleCollection>
 eicrecon::Reco::TracksToParticles::execute(const std::vector<const edm4eic::Track*>& tracks)
 {
   auto rec_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
@@ -24,6 +24,6 @@ eicrecon::Reco::TracksToParticles::execute(const std::vector<const edm4eic::Trac
       part.setMomentum(track->getMomentum());
       part.setCharge(track->getCharge());
     }
-	
+
   return rec_particles;
 }

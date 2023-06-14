@@ -32,5 +32,5 @@ public:
 
 private:
 
-    eicrecon::Reco::TracksToParticles m_particle_maker_algo;  
+    eicrecon::Reco::TracksToParticles m_particle_maker_algo;
 };

@@ -67,13 +67,13 @@ void InitPlugin(JApplication *app) {
             {"outputTracks",                               // edm4eic::ReconstructedParticle
              "outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
-   
+
     app->Add(new JChainMultifactoryGeneratorT<TracksToParticles_factory>(
             "CentralTrackingParticles",
             {"outputTracks"},
-            {"outputParticles"}, 
+            {"outputParticles"},
 	    app));
- 
+
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle

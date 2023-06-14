@@ -29,7 +29,7 @@ void TracksToParticles_factory::Process(const std::shared_ptr<const JEvent> &eve
         auto tracks = event->Get<edm4eic::Track>(input_tag);
         auto result = m_particle_maker_algo.execute(tracks);
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(result));
-        
+
     }
     catch(std::exception &e) {
         throw JException(e.what());
