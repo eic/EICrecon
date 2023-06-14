@@ -125,9 +125,9 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         if (eval.status()) {
           std::stringstream sstr;
           eval.print_error(sstr);
-          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: ", sstr.str()));
+          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: {}", sstr.str()));
         }
-        m_log->debug("result = {}", eval.result());
+        m_log->trace("Evaluated {} to {}", u_adjacencyMatrix, eval.result());
         return eval.result();
       };
       method_found = true;
@@ -159,7 +159,22 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     }
 
     if (not method_found) {
-        throw std::runtime_error("Cannot determine the clustering coordinates");
+      throw std::runtime_error("Cannot determine the clustering coordinates");
+    }
+
+    if (m_splitCluster) {
+      auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return u_transverseEnergyProfileMetric == p.first; });
+      if (transverseEnergyProfileMetric_it == distMethods.end()) {
+          throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", u_transverseEnergyProfileMetric));
+      }
+      transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
+      std::vector<double> &units = std::get<1>(transverseEnergyProfileMetric_it->second);
+      for (auto unit : units) {
+        if (unit != units[0]) {
+          throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units", u_transverseEnergyProfileMetric));
+        }
+      }
+      transverseEnergyProfileScaleUnits = units[0];
     }
 
     return;

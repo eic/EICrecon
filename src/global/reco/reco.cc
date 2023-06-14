@@ -43,28 +43,25 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
-    // TODO: NWB: "ReconstructedParticleAssociations" used input "ChargedParticlesWithAssociations" instead of
-    //            "ReconstructedParticlesWithAssoc", which I'm pretty sure was wrong, given the mermaid diagrams and
-    //            naming conventions. However, I want someone else to verify this.
 
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsElectron"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsElectron"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsTruth"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsTruth"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsJB_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsJB"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsJB"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsDA_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsDA"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsDA"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicseSigma"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicseSigma"));
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
-            {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"}, "InclusiveKinematicsSigma"));
+            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsSigma"));
 
     app->Add(new JChainFactoryGeneratorT<GeneratedJets_factory>(
             {"MCParticles"}, "GeneratedJets"));

@@ -3,7 +3,7 @@
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
-#include "services/io/podio/datamodel_glue.h"
+#include <datamodel_glue.h>
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -15,6 +15,7 @@
 
 #include <spdlog/spdlog.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/ReconstructedParticle.h>
 
@@ -132,7 +133,7 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
     // auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 
     auto particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-    auto associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticlesAssociations");
+    auto associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
 
 
 

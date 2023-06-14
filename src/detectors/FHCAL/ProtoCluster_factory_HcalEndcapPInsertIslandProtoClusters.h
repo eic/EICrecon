@@ -28,10 +28,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "HcalEndcapPInsertMergedHits";
 
-        m_splitCluster=true;              // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        m_minClusterHitEdep=0.0 * dd4hep::MeV;    // https://eicweb.phy.anl.gov/EIC/juggler/-/blob/main/JugReco/src/components/CalorimeterIslandCluster.cpp
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from ATHENA's reconstruction.py
-
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         u_adjacencyMatrix = "";
@@ -49,10 +45,14 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={15.0*dd4hep::mm, 15.0*dd4hep::mm};// from ATHENA's reconstruction.py
 
+        m_splitCluster=true;
+        m_minClusterHitEdep=0.0 * dd4hep::MeV;
+        m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -61,8 +61,11 @@ public:
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

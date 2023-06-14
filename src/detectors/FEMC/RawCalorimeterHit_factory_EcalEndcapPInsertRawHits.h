@@ -36,7 +36,7 @@ public:
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         m_input_tag = "EcalEndcapPInsertHits";
-        u_eRes = {0.00316 * sqrt(dd4hep::GeV), 0.0015, 0.0 * dd4hep::GeV}; // (0.316% / sqrt(E)) \oplus 0.15%
+        u_eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}; // (0.340% / sqrt(E)) \oplus 0.09%
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
         m_dyRangeADC = 3 * dd4hep::GeV;
@@ -45,7 +45,6 @@ public:
         m_resolutionTDC = 10 * dd4hep::picosecond;
         m_corrMeanScale = 0.03;
         u_fields={};
-        u_refs={1, 1};
         m_geoSvcName = "ActsGeometryProvider";
         m_readout = "";
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
@@ -62,7 +61,6 @@ public:
         app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:resolutionTDC",    m_resolutionTDC);
         app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:scaleResponse",    m_corrMeanScale);
         app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:signalSumFields",  u_fields);
-        app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:fieldRefNumbers",  u_refs);
         app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:geoServiceName",   m_geoSvcName);
         app->SetDefaultParameter("FEMC:EcalEndcapPInsertRawHits:readoutClass",     m_readout);
 

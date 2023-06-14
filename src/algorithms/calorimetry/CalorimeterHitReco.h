@@ -74,12 +74,14 @@ public:
 
   size_t sector_idx{0}, layer_idx{0};
 
+  bool warned_unsupported_segmentation = false;
+
   // name of detelment or fields to find the local detector (for global->local transform)
   // if nothing is provided, the lowest level DetElement (from cellID) will be used
   std::string m_localDetElement="", m_maskPos="";
   std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
-  size_t local_mask = ~0, gpos_mask = 0;
+  size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
 
     std::vector<edm4eic::CalorimeterHit*> hits;
     std::vector<const edm4hep::RawCalorimeterHit*> rawhits;

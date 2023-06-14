@@ -28,8 +28,8 @@ void reco_particles_track_matching(const std::string &file_name) {
 
     // Next arrays correspond to particle associations
     // Each association has 2 ids - indexes in corresponding reco and MC arrays
-    TTreeReaderArray<unsigned int> rec_id = {tree_reader, "ReconstructedChargedParticlesAssociations.recID"};
-    TTreeReaderArray<unsigned int> sim_id = {tree_reader, "ReconstructedChargedParticlesAssociations.simID"};
+    TTreeReaderArray<unsigned int> rec_id = {tree_reader, "ReconstructedChargedParticleAssociations.recID"};
+    TTreeReaderArray<unsigned int> sim_id = {tree_reader, "ReconstructedChargedParticleAssociations.simID"};
 
 
     // Read 100 events

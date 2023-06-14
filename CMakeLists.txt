@@ -2,8 +2,6 @@
 # ===================================================================================
 #    CMake flag       |  environment variable  |  Description
 # ===================================================================================
-# -DEIC_DD4HEP_HOME   | EIC_DD4HEP_HOME        |  DD4Hep Detector geometry install
-# -DIP6_DD4HEP_HOME   | IP6_DD4HEP_HOME        |  DD4Hep IP6 geometry install dir
 # -- (under review)   | EDM4HEP_ROOT           |  Edm4Hep  installation directory
 #------------------------------------------------------------------------------------
 # -DCMAKE_CXX_STANDARD      | 17 - standard for C++ compilation
@@ -92,10 +90,10 @@ add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # PODIO, EDM4HEP, EDM4EIC event models
+find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
-set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
@@ -122,6 +120,7 @@ include(cmake/print_functions.cmake)                        # Helpers to print f
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
+enable_testing()
 
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
