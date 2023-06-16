@@ -77,7 +77,7 @@ class CalorimeterClusterRecoCoG_factoryT :
             SetCollection<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1], std::move(clusters_with_assocs.second));
         }
         catch(std::exception &e) {
-            logger()->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+            throw JException(e.what());
         }
 
     }
