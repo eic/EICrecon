@@ -248,8 +248,8 @@ flowchart TB
   classDef comp fill:#8888ff,color:black
 
   %% nodes
-  ReconPart(<strong>ReconstructedChargedParticlesWithDRICHPID</strong><br/>edm4eic::ReconstructedParticle):::col
-  ReconAssoc(<strong>ReconstructedChargedParticleAssociationsWithDRICHPID</strong><br/>edm4eic::MCRecoParticleAssociation):::col
+  ReconPart(<strong>ReconstructedChargedParticles</strong><br/>edm4eic::ReconstructedParticle):::col
+  ReconAssoc(<strong>ReconstructedChargedParticleAssociations</strong><br/>edm4eic::MCRecoParticleAssociation):::col
   MCPart(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
   RecFn[rec]:::fn
   SimFn[sim]:::fn
