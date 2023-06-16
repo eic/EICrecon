@@ -91,6 +91,9 @@ namespace eicrecon {
 
 
       // -------------------------------------------------------------------------------------
+      // Table rebinning and lookup
+
+      // Rebin input table `input` to have `nbins+1` equidistant bins; returns the rebinned table
       static std::vector<std::pair<double, double>> ApplyFineBinning(
           const std::vector<std::pair<double,double>> &input,
           unsigned nbins
@@ -135,8 +138,8 @@ namespace eicrecon {
         return ret;
       }
 
-
-      // -------------------------------------------------------------------------------------
+      // Find the bin in table `table` that contains entry `argument` in the first column and
+      // sets `entry` to the corresponding element of the second column; returns true if successful
       static bool GetFinelyBinnedTableEntry(
           const std::vector<std::pair<double, double>> &table,
           double argument,
