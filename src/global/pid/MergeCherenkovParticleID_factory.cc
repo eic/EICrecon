@@ -50,6 +50,6 @@ void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<c
     SetCollection(std::move(merged_pids));
   }
   catch(std::exception &e) {
-    m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+    throw JException(e.what());
   }
 }
