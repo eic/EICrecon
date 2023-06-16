@@ -22,6 +22,7 @@
 #include "IrtGeoDRICH.h"
 #include "IrtGeoPFRICH.h"
 #include "ActsGeo.h"
+#include "ReadoutGeo.h"
 
 class RichGeo_service : public JService {
   public:
@@ -34,6 +35,7 @@ class RichGeo_service : public JService {
     // return pointers to geometry bindings; initializes the bindings upon the first time called
     virtual richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
     virtual richgeo::ActsGeo *GetActsGeo(std::string detector_name);
+    virtual std::shared_ptr<richgeo::ReadoutGeo> GetReadoutGeo(std::string detector_name);
 
   private:
     RichGeo_service() = default;
@@ -41,10 +43,12 @@ class RichGeo_service : public JService {
 
     std::once_flag   m_init_irt;
     std::once_flag   m_init_acts;
-    JApplication     *m_app       = nullptr;
-    dd4hep::Detector *m_dd4hepGeo = nullptr;
-    richgeo::IrtGeo  *m_irtGeo    = nullptr;
-    richgeo::ActsGeo *m_actsGeo   = nullptr;
+    std::once_flag   m_init_readout;
+    JApplication        *m_app        = nullptr;
+    dd4hep::Detector    *m_dd4hepGeo  = nullptr;
+    richgeo::IrtGeo     *m_irtGeo     = nullptr;
+    richgeo::ActsGeo    *m_actsGeo    = nullptr;
+    std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
 
     std::shared_ptr<spdlog::logger> m_log;
 };
