@@ -57,7 +57,6 @@ namespace eicrecon {
       CherenkovDetectorCollection*    m_irt_det_coll;
       CherenkovDetector*              m_irt_det;
 
-      bool        m_init_failed;
       uint64_t    m_cell_mask;
       std::string m_det_name;
       std::unordered_map<int,double>           m_pdg_mass;
