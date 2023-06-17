@@ -13,7 +13,6 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   // members
   m_irt_det_coll = irt_det_coll;
   m_log          = logger;
-  m_init_failed  = false;
 
   // print the configuration parameters
   m_cfg.Print(m_log, spdlog::level::debug);
@@ -23,10 +22,8 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
 
   // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
   auto& detectors = m_irt_det_coll->GetDetectors();
-  if(detectors.size() == 0) {
-    m_log->error("No CherenkovDetectors found in input collection `irt_det_coll`");
-    m_init_failed = true;
-  }
+  if(detectors.size() == 0)
+    throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
   if(detectors.size() > 1)
     m_log->warn("IrtCherenkovParticleID currently only supports 1 CherenkovDetector at a time; taking the first");
   auto this_detector = *detectors.begin();
@@ -119,7 +116,6 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
   std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> result;
   for(auto [rad_name,irt_rad] : m_pid_radiators)
     result.insert({rad_name, std::make_unique<edm4eic::CherenkovParticleIDCollection>()});
-  if(m_init_failed) return result;
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   long num_charged_particles = -1;
