@@ -59,9 +59,12 @@ public:
   void FinishWithGlobalRootLock() override;
   TDirectory* m_dir_main;
   TH2D* hPosTestRZ;
+  TH2D* hMindRMatched;
   TH2D* hThetaResoVsEta;
   TH2D* hThetaResoVsP;
+  TH2D* hzPosResoVsPhi;
   TH2D* hzPosResoVsEta;
+  TH2D* hzPosAbsResoVsEta;
   TH2D* hzPosResoVsP;
   TH2D* hPhiResoVsEta;
   TH2D* hPhiResoVsP;

@@ -30,7 +30,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "BHCAL",
         "FHCAL",
         "B0ECAL",
-        "B0TRK",
+        // "B0TRK",
         "ZDC",
         "BTRK",
         "BVTX",
