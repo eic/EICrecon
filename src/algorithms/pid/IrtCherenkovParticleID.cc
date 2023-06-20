@@ -248,12 +248,14 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         // was used in GEANT, but should be very close
         if(m_cfg.cheatPhotonVertex) {
           double ri;
-          auto ri_set = Tools::GetFinelyBinnedTableEntry(
-              irt_rad->m_ri_lookup_table,
-              1e9 * irt_photon->GetVertexMomentum().Mag(),
-              &ri
-              );
-          if(ri_set) irt_photon->SetVertexRefractiveIndex(ri);
+          auto mom    = 1e9 * irt_photon->GetVertexMomentum().Mag();
+          auto ri_set = Tools::GetFinelyBinnedTableEntry(irt_rad->m_ri_lookup_table, mom, &ri);
+          if(ri_set) {
+            irt_photon->SetVertexRefractiveIndex(ri);
+            m_log->trace("{:>30} = {}", "refractive index", ri);
+          }
+          else
+            m_log->warn("Tools::GetFinelyBinnedTableEntry failed to lookup refractive index for momentum {} eV", mom);
         }
 
         // add each `irt_photon` to the radiator history
