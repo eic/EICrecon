@@ -9,6 +9,7 @@
 
 // DD4Hep
 #include <DD4hep/Detector.h>
+#include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/DD4hepUnits.h>
 

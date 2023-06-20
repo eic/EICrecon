@@ -130,6 +130,17 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
+        // sandbox
+        m_log->critical("ID={}", detSensor.id());
+        const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
+        if(detSensorPars==nullptr) {
+          m_log->error("this sensor does not have VariantParameters");
+          continue; // FIXME throw runtime error
+        }
+        m_log->critical("  x={}", detSensorPars->get<double>("x"));
+        m_log->critical("  y={}", detSensorPars->get<double>("y"));
+        m_log->critical("  z={}", detSensorPars->get<double>("z"));
+
         // get sensor info
         auto imodsec = detSensor.id();
         // - get sensor centroid position
@@ -195,13 +206,13 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
             imodsec,             // copy number
             m_sensorFlatSurface  // surface
             );
-        m_log->trace(
-            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
-            imodsec,
-            posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
-            normXdir.x(),  normXdir.y(),  normXdir.z(),
-            normYdir.x(),  normYdir.y(),  normYdir.z()
-            );
+        // m_log->trace(
+        //     "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
+        //     imodsec,
+        //     posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
+        //     normXdir.x(),  normXdir.y(),  normXdir.z(),
+        //     normYdir.x(),  normYdir.y(),  normYdir.z()
+        //     );
       }
     } // search for sensors
 
