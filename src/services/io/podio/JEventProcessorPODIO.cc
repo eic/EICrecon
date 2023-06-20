@@ -60,14 +60,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "PFRICHHits",
             "DIRCBarHits",
 
-            // Forward & Far forward hits
-            "ForwardOffMTrackerRecHits",
-            "ForwardRomanPotRecHits",
-            "B0TrackerRecHits",
+            // // Forward & Far forward hits
+            // "ForwardOffMTrackerRecHits",
+            // "ForwardRomanPotRecHits",
+            // "B0TrackerRecHits",
 
-            //
-            "ForwardRomanPotRecParticles",
-            "SmearedFarForwardParticles",
+            // //
+            // "ForwardRomanPotRecParticles",
+            // "SmearedFarForwardParticles",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -117,12 +117,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
-            "EcalLumiSpecRawHits",
-            "EcalLumiSpecRecHits",
-            "EcalLumiSpecTruthClusters",
-            "EcalLumiSpecClusters",
-            "EcalLumiSpecTruthClusterAssociations",
-            "EcalLumiSpecClusterAssociations",
+            // "EcalLumiSpecRawHits",
+            // "EcalLumiSpecRecHits",
+            // "EcalLumiSpecTruthClusters",
+            // "EcalLumiSpecClusters",
+            // "EcalLumiSpecTruthClusterAssociations",
+            // "EcalLumiSpecClusterAssociations",
             "HcalEndcapNRawHits",
             "HcalEndcapNRecHits",
             "HcalEndcapNMergedHits",
@@ -143,18 +143,19 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",
-            "B0ECalRawHits",
-            "B0ECalRecHits",
-            "B0ECalClusters",
-            "ZDCEcalRawHits",
-            "ZDCEcalRecHits",
-            "ZDCEcalClusters",
+            // "B0ECalRawHits",
+            // "B0ECalRecHits",
+            // "B0ECalClusters",
+            // "ZDCEcalRawHits",
+            // "ZDCEcalRecHits",
+            // "ZDCEcalClusters",
             "HcalEndcapNTruthClusters",
 //            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
-            "HcalBarrelTruthClusters",
-            "B0ECalRecHits",
-            "B0ECalClusters",
-            "ZDCEcalTruthClusters"
+            "HcalBarrelTruthClusters"
+            // ,
+            // "B0ECalRecHits",
+            // "B0ECalClusters",
+            // "ZDCEcalTruthClusters"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
