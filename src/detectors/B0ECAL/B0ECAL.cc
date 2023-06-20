@@ -44,7 +44,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_B0ECalClusters>(
-             "B0ECalClustersWithAssociations",
+             "B0ECalClusters",
             {"B0ECalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                // edm4hep::SimCalorimeterHitCollection
             {"B0ECalClusters",             // edm4eic::Cluster
@@ -63,7 +63,7 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_B0ECalTruthClusters>(
-             "B0ECalTruthClustersWithAssociations",
+             "B0ECalTruthClusters",
             {"B0ECalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"B0ECalTruthClusters",             // edm4eic::Cluster
