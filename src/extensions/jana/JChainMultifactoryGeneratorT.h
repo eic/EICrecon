@@ -27,7 +27,6 @@ public:
             m_default_cfg(cfg),
             m_app(app)
     {
-        Init();
     };
 
     /// Constructor for NoConfig configuration
@@ -37,10 +36,14 @@ public:
             m_default_output_tags(std::move(output_tags)),
             m_app(app)
     {
-        Init();
     };
 
     void GenerateFactories(JFactorySet *factory_set) override {
+        // initialization is delayed to let caller set plugin name first
+        if (!m_init_done) {
+            Init();
+            m_init_done = true;
+        }
 
         FactoryT *factory;
         if constexpr(std:: is_base_of<NoConfig,FactoryConfigType>()) {
@@ -57,7 +60,6 @@ public:
 
 
     void Init() {
-
         std::string plugin_name = eicrecon::str::ReplaceAll(this->GetPluginName(), ".so", "");
         m_prefix = plugin_name+ ":" + m_tag;
 
@@ -84,4 +86,5 @@ private:
 
     FactoryConfigType m_default_cfg;                   /// Default config for a factories. (!) Must be properly copyable
     JApplication* m_app; // TODO: NWB: Remove me
+    bool m_init_done = false;
 };
