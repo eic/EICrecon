@@ -132,77 +132,30 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
         // get sensor info
         const auto imodsec       = detSensor.id();
-        /*
         const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
         if(detSensorPars==nullptr)
           throw std::runtime_error(fmt::format("sensor '{}' does not have VariantParameters", de_name));
         // - sensor surface position
-        auto posSensorSurface = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos");
+        auto posSensor = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos");
         // - sensor orientation
-        auto normXdir      = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
-        auto normYdir      = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
-        auto normZdir      = normXdir.Cross(normYdir); // sensor surface normal
+        auto normXdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
+        auto normYdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
+        auto normZdir = normXdir.Cross(normYdir); // sensor surface normal
         // - surface offset, used to convert sensor volume centroid to sensor surface centroid
-        auto surfaceOffset = normZDir.Unit() * (0.5*sensorThickness);
-        */
+        auto surfaceOffset = normZdir.Unit() * (0.5*sensorThickness);
 
-
-        // - get sensor centroid position
-        auto pvSensor  = detSensor.placement();
-        auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());
-        // - get sensor surface position
-        dd4hep::Direction radialDir = posSensor - sensorSphCenter; // sensor sphere radius direction
-        auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
-        auto posSensorSurface = posSensor + surfaceOffset;
-        // - add to `m_sensor_info` map
+        // add sensor info to `m_sensor_info` map
         richgeo::Sensor sensor_info;
         sensor_info.size             = sensorSize;
-        sensor_info.surface_centroid = posSensorSurface;
+        sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
         m_sensor_info.insert({ imodsec, sensor_info });
-        // - get surface normal and in-plane vectors
-        double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
-        double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
-        double sensorGlobalNormX[3], sensorGlobalNormY[3];
-        pvSensor.ptr()->LocalToMasterVect(sensorLocalNormX, sensorGlobalNormX); // ignore vessel transformation, since it is a pure translation
-        pvSensor.ptr()->LocalToMasterVect(sensorLocalNormY, sensorGlobalNormY);
-
-        // validate sensor position and normal
-        // - test normal vectors
-        dd4hep::Direction normXdir, normYdir;
-        normXdir.SetCoordinates(sensorGlobalNormX);
-        normYdir.SetCoordinates(sensorGlobalNormY);
-        auto normZdir   = normXdir.Cross(normYdir);         // sensor surface normal
-        auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
-        auto testRadial = radialDir.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is parallel to sensor sphere radius
-        if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-          m_log->error(
-              "sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
-              testOrtho,
-              testRadial
-              );
-          return;
-        }
-        // - test sensor positioning
-        auto distSensor2center = sqrt((posSensorSurface-sensorSphCenter).Mag2()); // distance between sensor sphere center and sensor surface position
-        auto testDist          = abs(distSensor2center-sensorSphRadius);          // should be zero, if sensor position w.r.t. sensor sphere center is correct
-        if(abs(testDist)>1e-5) {
-          m_log->error(
-              "sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
-              distSensor2center,
-              sensorSphRadius,
-              sensorThickness,
-              testDist
-              );
-          return;
-        }
-
 
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
-            TVector3(posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z()),
-            TVector3(sensorGlobalNormX),
-            TVector3(sensorGlobalNormY)
+            TVector3(posSensor.x(), posSensor.y(), posSensor.z()),
+            TVector3(normXdir.x(),  normXdir.y(),  normXdir.z()),
+            TVector3(normYdir.x(),  normYdir.y(),  normYdir.z())
             );
         m_irtDetector->CreatePhotonDetectorInstance(
             isec,                // sector
@@ -210,13 +163,13 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
             imodsec,             // copy number
             m_sensorFlatSurface  // surface
             );
-        // m_log->trace(
-        //     "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
-        //     imodsec,
-        //     posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
-        //     normXdir.x(),  normXdir.y(),  normXdir.z(),
-        //     normYdir.x(),  normYdir.y(),  normYdir.z()
-        //     );
+        m_log->trace(
+            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
+            imodsec,
+            posSensor.x(), posSensor.y(), posSensor.z(),
+            normXdir.x(),  normXdir.y(),  normXdir.z(),
+            normYdir.x(),  normYdir.y(),  normYdir.z()
+            );
       }
     } // search for sensors
 
