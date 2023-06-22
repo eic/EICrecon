@@ -130,19 +130,23 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
-        // sandbox
-        m_log->critical("ID={}", detSensor.id());
-        const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
-        if(detSensorPars==nullptr) {
-          m_log->error("this sensor does not have VariantParameters");
-          continue; // FIXME throw runtime error
-        }
-        m_log->critical("  x={}", detSensorPars->get<double>("x"));
-        m_log->critical("  y={}", detSensorPars->get<double>("y"));
-        m_log->critical("  z={}", detSensorPars->get<double>("z"));
-
         // get sensor info
-        auto imodsec = detSensor.id();
+        const auto imodsec       = detSensor.id();
+        /*
+        const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
+        if(detSensorPars==nullptr)
+          throw std::runtime_error(fmt::format("sensor '{}' does not have VariantParameters", de_name));
+        // - sensor surface position
+        auto posSensorSurface = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos");
+        // - sensor orientation
+        auto normXdir      = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
+        auto normYdir      = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
+        auto normZdir      = normXdir.Cross(normYdir); // sensor surface normal
+        // - surface offset, used to convert sensor volume centroid to sensor surface centroid
+        auto surfaceOffset = normZDir.Unit() * (0.5*sensorThickness);
+        */
+
+
         // - get sensor centroid position
         auto pvSensor  = detSensor.placement();
         auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());

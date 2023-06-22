@@ -42,6 +42,11 @@ namespace richgeo {
       virtual void DD4hep_to_IRT() = 0;    // given DD4hep geometry, produce IRT geometry
       void SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
       void SetRefractiveIndexTable();      // fill table of refractive indices
+      // read `VariantParameters` for a vector
+      template<class VecT>
+        VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters *pars, std::string key) {
+          return VecT(pars->get<double>(key+"_x"), pars->get<double>(key+"_y"), pars->get<double>(key+"_z"));
+        }
 
       // inputs
       std::string m_detName;
