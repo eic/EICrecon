@@ -35,7 +35,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
     m_num_pdus          = m_det->constant<int>("DRICH_num_pdus");
     m_num_sipms_per_pdu = std::pow(m_det->constant<int>("DRICH_pdu_num_sensors"), 2);
     m_num_px            = m_det->constant<int>("DRICH_num_px");
-    m_pixel_size        = m_det->constant<double>("DRICH_pixel_size");
+    m_pixel_size        = m_det->constant<double>("DRICH_pixel_size") / dd4hep::mm;
 
     // define cellID looper
     m_loopCellIDs = [this] (std::function<void(CellIDType)> lambda) {
