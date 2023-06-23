@@ -33,7 +33,7 @@ namespace eicrecon {
 //     m_reader.AddVariable( "LowQ2Tracks[0].loc.a", &m_yP );
 //     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &m_zP );
 //     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_xV );
-//     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );   
+//     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );
 
     //auto weightDir = std::string(std::getenv( "EICrecon_ROOT" ));
 
