@@ -24,12 +24,25 @@ namespace eicrecon {
 
     m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-    auto weightDir = std::string(std::getenv( "EICrecon_ROOT" ));
+    // Create a set of variables and declare them to the reader
+    // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
+    m_reader.AddVariable( "LowQ2Tracks[0].loc.a", &nnInput[LowQ2NNIndexIn::PosY] );
+    m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &nnInput[LowQ2NNIndexIn::PosZ] );
+    m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirX] );
+    m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirY] );
+//     m_reader.AddVariable( "LowQ2Tracks[0].loc.a", &m_yP );
+//     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &m_zP );
+//     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_xV );
+//     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );   
+
+    //auto weightDir = std::string(std::getenv( "EICrecon_ROOT" ));
 
     //std::string weightName = m_file_path;
-    std::string weightName = weightDir + m_file_path;
+    //std::string weightName = weightDir + m_file_path;
 
-    model = std::make_shared<TMVA_SOFIE_trainedTaggerRegressionModel::Session>(weightName);
+    //m_reader.BookMVA( "DNN_CPU", weightName );
+    m_reader.BookMVA( "DNN_CPU", "/home/simon/EIC/EICrecon/src/detectors/LOWQ2/LowQ2_DNN_CPU.weights.xml" );
+    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA("DNN_CPU"));
 
   }
 
@@ -59,8 +72,6 @@ namespace eicrecon {
     edm4eic::Cov4f    covMatrix;
     float             mass = m_electron;
 
-    float nnInput[4];
-
     uint ipart = 0;
     for(auto track: inputtracks){
 
@@ -73,10 +84,7 @@ namespace eicrecon {
       nnInput[LowQ2NNIndexIn::DirX] = sin(trackphi)*sin(tracktheta);
       nnInput[LowQ2NNIndexIn::DirY] = cos(trackphi)*sin(tracktheta);
 
-
-      //auto values = TMVA_SOFIE_trainedTaggerRegressionModel::infer(nnInput);
-      auto values = model->infer(nnInput);
-      //auto values = m_method->GetRegressionValues();
+      auto values = m_method->GetRegressionValues();
 
       ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndexOut::MomX]*beamE,values[LowQ2NNIndexOut::MomY]*beamE,values[LowQ2NNIndexOut::MomZ]*beamE);
       //      edm4hep::Vector3f momentum(values[LowQ2NNIndex::MomX]*beamE,values[LowQ2NNIndex::MomY]*beamE,values[LowQ2NNIndex::MomZ]*beamE);
