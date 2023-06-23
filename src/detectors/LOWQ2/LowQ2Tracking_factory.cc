@@ -64,12 +64,13 @@ namespace eicrecon {
 	  TMatrixD md(3,1);
 	  double layerWeights[4] = {1,1,1,1};
 	  double meanWeight = 1;
+	  int    layerLimit = 5;
 
-	  //temporary limits before Kalman filtering implemented
-	  if( moduleHits.second[0].size()>4 ) break;
-	  if( moduleHits.second[1].size()>4 ) break;
-	  if( moduleHits.second[2].size()>4 ) break;
-	  if( moduleHits.second[3].size()>4 ) break;
+	  //temporary limits before Kalman filtering/GNN implemented
+	  if( moduleHits.second[0].size()>layerLimit ) break;
+	  if( moduleHits.second[1].size()>layerLimit ) break;
+	  if( moduleHits.second[2].size()>layerLimit ) break;
+	  if( moduleHits.second[3].size()>layerLimit ) break;
 
 	  for ( auto hit0c : moduleHits.second[0] ) {
 	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);
