@@ -99,19 +99,23 @@ namespace eicrecon {
         0.0)
       );
 
+    PxPyPzEVector pi(0.0, 0.0, 9.9995598131387851e+01, 1.0e+02 );
+
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
-    if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
-      return kinematics;
+//     if (pi_coll.size() == 0) {
+//       m_log->debug("No beam hadron found");
+//       return kinematics;
+//     }
+    if (pi_coll.size() > 0) {
+      pi = PxPyPzEVector(
+			 round_beam_four_momentum(
+						  pi_coll[0]->getMomentum(),
+						  pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
+						  {41.0, 100.0, 275.0},
+						  m_crossingAngle)
+			 );
     }
-    const PxPyPzEVector pi(
-      round_beam_four_momentum(
-        pi_coll[0]->getMomentum(),
-        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
-        {41.0, 100.0, 275.0},
-        m_crossingAngle)
-      );
 
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
