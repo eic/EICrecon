@@ -62,8 +62,8 @@ namespace eicrecon {
       std::string m_method_name{"DNN_CPU"};
       // How should the path to this best be described?
       // $EICrecon_ROOT does not need to be set for usual running so possibly not appropriate
-      std::string m_file_path{"/src/detectors/LOWQ2/LowQ2_DNN_CPU.weights.xml"};
-      std::string m_environment_path{"EICrecon_ROOT"};
+      std::string m_file_path{"LowQ2_DNN_CPU.weights.xml"};
+      std::string m_environment_path{"JANA_PLUGIN_PATH"};
 
 
 

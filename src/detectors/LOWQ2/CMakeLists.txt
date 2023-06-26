@@ -27,4 +27,4 @@ plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${E
 # Add libraries (works same as target_include_directories)
 #file(COPY trainedTaggerRegressionModel.dat DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 plugin_link_libraries(${PLUGIN_NAME} ROOT::TMVA openblas)
-#install(FILES trainedTaggerRegressionModel.dat DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+install(FILES LowQ2_DNN_CPU.weights.xml DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})

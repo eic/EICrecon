@@ -30,19 +30,13 @@ namespace eicrecon {
     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &nnInput[LowQ2NNIndexIn::PosZ] );
     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirX] );
     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirY] );
-//     m_reader.AddVariable( "LowQ2Tracks[0].loc.a", &m_yP );
-//     m_reader.AddVariable( "LowQ2Tracks[0].loc.b", &m_zP );
-//     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_xV );
-//     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &m_yV );
 
-    //auto weightDir = std::string(std::getenv( "EICrecon_ROOT" ));
+    auto weightDir = std::string(std::getenv( m_environment_path.c_str() ));
 
     //std::string weightName = m_file_path;
-    //std::string weightName = weightDir + m_file_path;
-
-    //m_reader.BookMVA( "DNN_CPU", weightName );
-    m_reader.BookMVA( "DNN_CPU", "/home/simon/EIC/EICrecon/src/detectors/LOWQ2/LowQ2_DNN_CPU.weights.xml" );
-    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA("DNN_CPU"));
+    std::string weightName = weightDir + m_file_path;
+    m_reader.BookMVA( m_method_name, weightName );
+    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA(m_method_name));
 
   }
 
@@ -57,9 +51,7 @@ namespace eicrecon {
 
     auto inputtracks =  event->Get<edm4eic::TrackParameters>(m_input_tag);
 
-    //    std::vector<std::unique_ptr<edm4eic::ReconstructedParticle>> outputLowQ2Particles(inputtracks.size());
     std::vector<edm4eic::TrackParameters*> outputLowQ2Particles(inputtracks.size());
-    //std::vector<edm4eic::ReconstructedParticle*> outputLowQ2Particles(inputtracks.size());
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
