@@ -61,8 +61,8 @@ void eicrecon::TrackParamSeeding_factory::Process(const std::shared_ptr<const JE
             Acts::BoundVector  params;
             params(Acts::eBoundLoc0)   = aseed->getLoc().a * mm ;  // cylinder radius
             params(Acts::eBoundLoc1)   = aseed->getLoc().b * mm ;  // cylinder length
+	    params(Acts::eBoundTheta)  = aseed->getTheta();
             params(Acts::eBoundPhi)    = aseed->getPhi();
-            params(Acts::eBoundTheta)  = aseed->getTheta();
             params(Acts::eBoundQOverP) = aseed->getQOverP()/ GeV;
             params(Acts::eBoundTime)   = aseed->getTime() * ns;
 

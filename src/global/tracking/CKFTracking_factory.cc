@@ -2,7 +2,6 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-
 #include <Acts/Propagator/Navigator.hpp>
 #include "CKFTracking_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -47,17 +46,18 @@ void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Now we check that user provided an input names
-    std::string input_tag = GetInputTags()[0];
+    std::string track_params = GetInputTags()[0];
+    std::string source_linker = GetInputTags()[1];
 
     // Collect all hits
-    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(source_linker);
 
     if(!source_linker_result) {
         m_log->warn("TrackerSourceLinkerResult is null (hasn't been produced?). Skipping tracking for the whole event!");
         return;
     }
 
-    auto track_parameters = event->Get<eicrecon::TrackParameters>("InitTrackParams");
+    auto track_parameters = event->Get<eicrecon::TrackParameters>(track_params);
     eicrecon::TrackParametersContainer acts_track_params;
     for(auto track_params_item: track_parameters) {
         acts_track_params.push_back(*track_params_item);
