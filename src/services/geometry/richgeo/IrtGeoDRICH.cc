@@ -12,12 +12,13 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
    * for all radiators will be assigned at the end by hand; FIXME: should assign it on
    * per-photon basis, at birth, like standalone GEANT code does;
    */
-  auto nSectors       = m_det->constant<int>("DRICH_num_sectors");
-  auto vesselZmin     = m_det->constant<double>("DRICH_zmin") / dd4hep::mm;
-  auto gasvolMaterial = m_det->constant<std::string>("DRICH_gasvol_material");
+  auto nSectors              = m_det->constant<int>("DRICH_num_sectors");
+  auto vesselZmin            = m_det->constant<double>("DRICH_zmin") / dd4hep::mm;
+  auto vesselWindowThickness = m_det->constant<double>("DRICH_window_thickness") / dd4hep::mm;
+  auto gasvolMaterial        = m_det->constant<std::string>("DRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, -1, 0);
-  m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
+  m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin + vesselWindowThickness), normX, normY);
   for (int isec=0; isec<nSectors; isec++) {
     auto cv = m_irtDetectorCollection->SetContainerVolume(
         m_irtDetector,              // Cherenkov detector
