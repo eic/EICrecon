@@ -112,26 +112,13 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     // complete the radiator volume description; this is the rear side of the container gas volume
     m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = m_mirrorSphericalSurface;
 
-    // sensor sphere (only used for validation of sensor normals)
-    auto sensorSphRadius  = m_det->constant<double>("DRICH_sensor_sph_radius") / dd4hep::mm;
-    auto sensorThickness  = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
-    auto sensorSize       = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
-    dd4hep::Position sensorSphCenter(
-      m_det->constant<double>("DRICH_sensor_sph_center_x_"+secName) / dd4hep::mm,
-      m_det->constant<double>("DRICH_sensor_sph_center_y_"+secName) / dd4hep::mm,
-      m_det->constant<double>("DRICH_sensor_sph_center_z_"+secName) / dd4hep::mm
-      );
-    m_log->debug("  SECTOR {:d} SENSOR SPHERE:", isec);
-    m_log->debug("    sphere x = {:f} mm", sensorSphCenter.x());
-    m_log->debug("    sphere y = {:f} mm", sensorSphCenter.y());
-    m_log->debug("    sphere z = {:f} mm", sensorSphCenter.z());
-    m_log->debug("    sphere R = {:f} mm", sensorSphRadius);
-
     // sensor modules: search the detector tree for sensors for this sector
     m_log->trace("  SENSORS:");
     m_log->trace("--------------------------------------------------------------------------------------"); 
     m_log->trace("name ID sector   pos_x pos_y pos_z   normX_x normX_y normX_z   normY_x normY_y normY_z"); 
     m_log->trace("--------------------------------------------------------------------------------------"); 
+    auto sensorThickness = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
+    auto sensorSize      = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
