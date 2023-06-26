@@ -168,7 +168,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
             m_sensorFlatSurface  // surface
             );
         m_log->trace(
-            "{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f})",
+            "{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}",
             de_name, sensorID, isec,
             posSensor.x(), posSensor.y(), posSensor.z(),
             normXdir.x(),  normXdir.y(),  normXdir.z(),
