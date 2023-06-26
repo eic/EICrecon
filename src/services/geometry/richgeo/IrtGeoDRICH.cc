@@ -127,16 +127,20 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    sphere R = {:f} mm", sensorSphRadius);
 
     // sensor modules: search the detector tree for sensors for this sector
+    m_log->trace("  SENSORS:");
+    m_log->trace("--------------------------------------------------------------------------------------"); 
+    m_log->trace("name ID sector   pos_x pos_y pos_z   normX_x normX_y normX_z   normY_x normY_y normY_z"); 
+    m_log->trace("--------------------------------------------------------------------------------------"); 
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
         // get sensor info
-        const auto imodsec       = detSensor.id();
+        const auto sensorID      = detSensor.id();
         const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
         if(detSensorPars==nullptr)
           throw std::runtime_error(fmt::format("sensor '{}' does not have VariantParameters", de_name));
         // - sensor surface position
-        auto posSensor = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos");
+        auto posSensor = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos") / dd4hep::mm;
         // - sensor orientation
         auto normXdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
         auto normYdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
@@ -149,7 +153,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
-        m_sensor_info.insert({ imodsec, sensor_info });
+        m_sensor_info.insert({ sensorID, sensor_info });
 
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
@@ -160,12 +164,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_irtDetector->CreatePhotonDetectorInstance(
             isec,                // sector
             m_irtPhotonDetector, // CherenkovPhotonDetector
-            imodsec,             // copy number
+            sensorID,            // copy number
             m_sensorFlatSurface  // surface
             );
         m_log->trace(
-            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
-            imodsec,
+            "{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f})",
+            de_name, sensorID, isec,
             posSensor.x(), posSensor.y(), posSensor.z(),
             normXdir.x(),  normXdir.y(),  normXdir.z(),
             normYdir.x(),  normYdir.y(),  normYdir.z()
