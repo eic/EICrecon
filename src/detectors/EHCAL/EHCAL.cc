@@ -3,19 +3,38 @@
 //
 //
 
-#include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
+#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+
+#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
 
 #include "RawCalorimeterHit_factory_HcalEndcapNRawHits.h"
 #include "CalorimeterHit_factory_HcalEndcapNRecHits.h"
 #include "CalorimeterHit_factory_HcalEndcapNMergedHits.h"
 #include "ProtoCluster_factory_HcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalEndcapNIslandProtoClusters.h"
-#include "Cluster_factory_HcalEndcapNClusters.h"
-#include "Cluster_factory_HcalEndcapNTruthClusters.h"
+
+
+namespace eicrecon {
+    class Cluster_factory_HcalEndcapNTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNTruthClusters> {
+    public:
+        template <typename... Args>
+        Cluster_factory_HcalEndcapNTruthClusters(Args&&... args)
+        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNTruthClusters>(std::forward<Args>(args)...) { }
+    };
+
+    class Cluster_factory_HcalEndcapNClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNClusters> {
+    public:
+        template <typename... Args>
+        Cluster_factory_HcalEndcapNClusters(Args&&... args)
+        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNClusters>(std::forward<Args>(args)...) { }
+    };
+}
 
 extern "C" {
     void InitPlugin(JApplication *app) {
+
+        using namespace eicrecon;
+
         InitJANAPlugin(app);
 
         app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapNRawHits>());
@@ -23,8 +42,42 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNMergedHits>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>());
         app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>());
+        app->Add(
+          new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>(
+             "HcalEndcapNTruthClusters",
+            {"HcalEndcapNTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalEndcapNHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"HcalEndcapNTruthClusters",             // edm4eic::Cluster
+             "HcalEndcapNTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .moduleDimZName = "",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .depthCorrection = 0.0,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
 
+        app->Add(
+          new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapNClusters>(
+             "HcalEndcapNClusters",
+            {"HcalEndcapNIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "HcalEndcapNHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"HcalEndcapNClusters",             // edm4eic::Cluster
+             "HcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .moduleDimZName = "",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .depthCorrection = 0.0,
+              .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
     }
 }
