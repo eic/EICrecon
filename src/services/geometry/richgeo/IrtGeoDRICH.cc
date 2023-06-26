@@ -127,6 +127,10 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    sphere R = {:f} mm", sensorSphRadius);
 
     // sensor modules: search the detector tree for sensors for this sector
+    m_log->trace("  SENSORS:");
+    m_log->trace("--------------------------------------------------------------------------------------"); 
+    m_log->trace("name ID sector   pos_x pos_y pos_z   normX_x normX_y normX_z   normY_x normY_y normY_z"); 
+    m_log->trace("--------------------------------------------------------------------------------------"); 
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
@@ -196,9 +200,9 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
             m_sensorFlatSurface  // surface
             );
         m_log->trace(
-            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
-            imodsec,
-            posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
+            "{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f})",
+            de_name, imodsec, isec,
+            posSensor.x(), posSensor.y(), posSensor.z(),
             normXdir.x(),  normXdir.y(),  normXdir.z(),
             normYdir.x(),  normYdir.y(),  normYdir.z()
             );
