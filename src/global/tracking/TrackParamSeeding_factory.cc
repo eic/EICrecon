@@ -73,8 +73,8 @@ void eicrecon::TrackParamSeeding_factory::Process(const std::shared_ptr<const JE
             Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
             cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( aseed->getLocError().xx ,2)*mm*mm;
             cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( aseed->getLocError().yy,2)*mm*mm;
-            cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( aseed->getMomentumError().xx,2);
-            cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( aseed->getMomentumError().yy,2);
+            cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( aseed->getMomentumError().xx,2);
+            cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( aseed->getMomentumError().yy,2);
             cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( aseed->getMomentumError().zz,2) / (GeV*GeV);
             cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( aseed->getTimeError(),2)*ns*ns;
 
