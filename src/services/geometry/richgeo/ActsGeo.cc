@@ -66,11 +66,15 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
     trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
     // define discs
+    /* - make `numPlanes+2` z-equidistant planes, ranging from `trackZmin` to `trackZmax`; remove the first
+     *   and last points such that there are `numPlanes` points remaining and the end points are
+     *   not on an optical boundary (on `trackZ{min,max}`)
+     */
     m_log->debug("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
         RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
-    double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
+    double trackZstep = std::abs(trackZmax-trackZmin) / ((numPlanes+2) - 1);
     for(int i=0; i<numPlanes; i++) {
-      auto z         = trackZmin + i*trackZstep;
+      auto z         = trackZmin + (i+1)*trackZstep;
       auto rmin      = trackRmin(z);
       auto rmax      = trackRmax(z);
       auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
