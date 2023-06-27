@@ -33,12 +33,15 @@ namespace eicrecon {
 
     auto weightDir = std::string(std::getenv( m_environment_path.c_str() ));
 
-    //std::string weightName = m_file_path;
     std::string weightName = weightDir + m_file_path;
-    m_reader.BookMVA( m_method_name, weightName );
-    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.FindMVA(m_method_name));
-
-  }
+ 
+    try{
+      m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
+    }
+    catch(std::exception &e){   
+      m_log->error("Failed to load method {} from file {}",m_method_name,weightName);
+      return;
+    }
 
 
 
