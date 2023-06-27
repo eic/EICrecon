@@ -84,5 +84,22 @@ void InitPlugin(JApplication *app) {
             app  // TODO: Remove me once fixed
             ));
 
+    app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
+            "CentralTrackingParticles",                       // Tag name for multifactory
+            {"CentralCKFSeededTrajectories"},                 // eicrecon::TrackingResultTrajectory
+            {"outputSeededParticles",                         // edm4eic::ReconstructedParticle
+             "outputSeededTrackParameters"},                  // edm4eic::TrackParameters
+            app)); 
+
+    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
+            "ChargedParticlesWithAssociations",                // Tag name for multifactory
+            {"MCParticles",                                    // edm4hep::MCParticle
+            "outputSeededTrackParameters"},                    // edm4eic::TrackParameters
+            {"ReconstructedSeededChargedParticles",            //
+             "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
+            },
+            app  // TODO: Remove me once fixed
+            ));
+
 }
 } // extern "C"
