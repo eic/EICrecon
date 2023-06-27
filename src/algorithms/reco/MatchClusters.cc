@@ -59,7 +59,8 @@ namespace eicrecon {
             m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart->getObjectID().index,
                          inpart->getPDG(), inpart->getEnergy());
 
-            auto outpart = outparts->create();
+            auto outpart = inpart->clone();
+            outparts->push_back(outpart);
 
             int mcID = -1;
 
@@ -82,6 +83,8 @@ namespace eicrecon {
                 const auto &clus = clusterMap[mcID];
                 m_log->debug("    --> found matching cluster with energy: {}", clus->getEnergy());
                 clusterMap.erase(mcID);
+                m_log->debug("    --> adding cluster to reconstructed particle");
+                outpart.addToClusters(*clus);
             }
 
             // create truth associations
@@ -90,7 +93,7 @@ namespace eicrecon {
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            assoc.setRec(outpart);
+            assoc.setSim(*mcparticles[mcID]);
         }
 
         // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
@@ -121,12 +124,12 @@ namespace eicrecon {
             outparts->push_back(outpart);
 
             // Create truth associations
-            auto assoc = edm4eic::MutableMCRecoParticleAssociation();
+            auto assoc = outpartsassoc->create();
             assoc.setRecID(outpart.getObjectID().index);
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            //assoc.setSim(mcparticles[mcID]);
+            assoc.setSim(*mcparticles[mcID]);
         }
 
         return {outparts, outpartsassoc};
@@ -202,6 +205,7 @@ namespace eicrecon {
         part.setCharge(0);
         part.setEnergy(energy);
         part.setMass(mass);
+        part.addToClusters(*cluster);
         return part;
     }
 
