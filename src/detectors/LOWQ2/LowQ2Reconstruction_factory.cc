@@ -43,7 +43,7 @@ namespace eicrecon {
       return;
     }
 
-
+  }
 
 
   void LowQ2Reconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
