@@ -89,7 +89,7 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFSeededTrajectories"},                 // eicrecon::TrackingResultTrajectory
             {"outputSeededParticles",                         // edm4eic::ReconstructedParticle
              "outputSeededTrackParameters"},                  // edm4eic::TrackParameters
-            app)); 
+            app));
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
