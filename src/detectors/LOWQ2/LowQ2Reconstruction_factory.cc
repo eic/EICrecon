@@ -6,6 +6,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov4f.h>
+#include <filesystem>
 
 #include "LowQ2Reconstruction_factory.h"
 #include "services/log/Log_service.h"
@@ -47,9 +48,11 @@ namespace eicrecon {
       		    m_log->error("Failed to load method {} from file {}",m_method_name,weightName);
        		    return;
     		}
-		break;
+		return;
 	    }
         }
+        m_log->error("File {} not found in any {} paths",m_file_path,m_environment_path);
+        return;
 
     }
     else {
