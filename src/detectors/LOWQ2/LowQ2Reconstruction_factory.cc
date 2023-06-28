@@ -31,18 +31,32 @@ namespace eicrecon {
     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirX] );
     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirY] );
 
-    auto weightDir = std::string(std::getenv( m_environment_path.c_str() ));
-
-    std::string weightName = weightDir + m_file_path;
-
-    try{
-      m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
+	  
+    const char* env_p = getenv(m_environment_path.c_str());
+    if (env_p) {
+	
+	std::string dir_path;
+        std::stringstream envvar_ss(env_p);
+        while (getline(envvar_ss, dir_path, ':')) {
+	    std::string weightName = dir_path +"/"+ m_file_path;
+	    if (std::filesystem::exists(weightName)){	    
+   		try{
+      		    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
+    		}
+    		catch(std::exception &e){
+      		    m_log->error("Failed to load method {} from file {}",m_method_name,weightName);
+       		    return;
+    		}
+		break;
+	    }
+        }
+	    
     }
-    catch(std::exception &e){
-      m_log->error("Failed to load method {} from file {}",m_method_name,weightName);
-      return;
+    else {
+      m_log->error("Environment variable {} not found",m_environment_path);
+      return;	    
     }
-
+	  
   }
 
 
