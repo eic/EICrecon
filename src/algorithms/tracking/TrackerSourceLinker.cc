@@ -98,25 +98,8 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
             loc[Acts::eBoundLoc1] = pos[1];
         }
         catch(std::exception &ex) {
-            auto inverse = ((surface->transform(Acts::GeometryContext())).inverse()) ;
-            m_log->warn("Can't convert globalToLocal for hit:    \n\
-                        vol_id,\t det_id,\t CellID               \n\
-                        {},\t {},\t {}                           \n\
-                        global_x, global_y, global_z             \n\
-                        {},\t {},\t {}                           \n\
-                        Inverse transform of context             \n\
-                        {},\t {},\t {}                           \n\
-                        {},\t {},\t {}                           \n\
-                        {},\t {},\t {}                           \n\
-                        local_x,\t local_y,\t local_z            \n\
-                        {},\t {},\t {}",
-                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z,
-                        inverse(0,0), inverse(0,1), inverse(0,2),
-                        inverse(1,0), inverse(1,1), inverse(1,2),
-                        inverse(2,0), inverse(2,1), inverse(2,2),
-                        hit_pos.x*inverse(0,0)+hit_pos.y*inverse(0,1)+hit_pos.z*inverse(0,2),
-                        hit_pos.x*inverse(1,0)+hit_pos.y*inverse(1,1)+hit_pos.z*inverse(1,2),
-                        hit_pos.x*inverse(2,0)+hit_pos.y*inverse(2,1)+hit_pos.z*inverse(2,2));
+            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
+                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
             continue;
         }
 
