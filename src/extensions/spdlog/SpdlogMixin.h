@@ -65,10 +65,12 @@ namespace eicrecon {
             m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
         }
 
-    protected:
+    public:
+        std::shared_ptr<spdlog::logger> &logger() { return m_log; }
+
+    protected: // FIXME change to private
         /// current logger
         std::shared_ptr<spdlog::logger> m_log;
 
-        std::shared_ptr<spdlog::logger> &logger() { return m_log; }
     };
 }
