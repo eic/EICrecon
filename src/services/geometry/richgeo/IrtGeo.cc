@@ -88,6 +88,6 @@ void richgeo::IrtGeo::SetRefractiveIndexTable() {
 
 // destructor
 richgeo::IrtGeo::~IrtGeo() {
-  if(m_irtDetector) delete m_irtDetector;
-  if(m_irtDetectorCollection) delete m_irtDetectorCollection;
+  delete m_irtDetector;
+  delete m_irtDetectorCollection;
 }
