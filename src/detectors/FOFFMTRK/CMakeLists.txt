@@ -17,9 +17,6 @@ plugin_add_event_model(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-# Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
-
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library)
