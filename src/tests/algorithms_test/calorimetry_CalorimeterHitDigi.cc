@@ -20,14 +20,14 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
 
   // Keep smearing parameters at zero
   algo.m_pedSigmaADC = 0;
-  algo.m_tRes = 0. * dd4hep::ns;
+  algo.m_tRes = 0. * unit::ns;
   algo.u_eRes = {0. * sqrt(unit::GeV), 0., 0. * unit::GeV};
 
   SECTION( "single hit with couple contributions" ) {
     algo.m_capADC = 555;
     algo.m_dyRangeADC = 5.0 * unit::GeV;
     algo.m_pedMeanADC = 123;
-    algo.m_resolutionTDC = 1.0 * dd4hep::ns;
+    algo.m_resolutionTDC = 1.0 * unit::ns;
     algo.AlgorithmInit(logger);
     algo.AlgorithmChangeRun();
 
@@ -39,13 +39,13 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     mhit.addToContributions({
       0, // std::int32_t PDG
       0.5 * unit::GeV, // float energy
-      7.0 /* ns */, // float time
+      7.0 * unit::ns, // float time
       {0. /* mm */, 0. /* mm */, 0. /* mm */}, // edm4hep::Vector3f stepPosition
     });
     mhit.addToContributions({
       0, // std::int32_t PDG
       0.5 * unit::GeV, // float energy
-      9.0 /* ns */, // float time
+      9.0 * unit::ns, // float time
       {0. /* mm */, 0. /* mm */, 0. /* mm */}, // edm4hep::Vector3f stepPosition
     });
     algo.simhits = {
