@@ -10,7 +10,6 @@ namespace eicrecon {
 
   // radiator config parameters
   struct RadiatorConfig {
-    int         zbins;           // number of z-bins (should match the number of projected track points)
     double      referenceRIndex; // reference radiator refractive index
     double      attenuation;     // reference radiator attenuation length [mm]; set to 0 to disable
     std::string smearingMode;    // smearing type: "gaussian", "uniform"
@@ -87,7 +86,6 @@ namespace eicrecon {
           print_param("smearing",        rad.smearing);
           print_param("referenceRIndex", rad.referenceRIndex);
           print_param("attenuation",     rad.attenuation);
-          print_param("zbins",           rad.zbins);
         }
         m_log->log(lvl, "{:=^60}","");
       }

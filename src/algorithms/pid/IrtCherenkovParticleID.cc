@@ -74,7 +74,6 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
         else
           m_log->error("Unknown smearing mode '{}' for {} radiator", cfg_rad.smearingMode, rad_name);
       }
-      irt_rad->SetTrajectoryBinCount(cfg_rad.zbins - 1);
     }
     else
       m_log->error("Cannot find radiator '{}' in IrtCherenkovParticleIDConfig instance", rad_name);
@@ -141,12 +140,6 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
     // loop over radiators
     for(auto [rad_name,irt_rad] : m_pid_radiators) {
 
-      // start a new IRT `RadiatorHistory`
-      // - must be a raw pointer for `irt` compatibility
-      // - it will be destroyed when `irt_particle` is destroyed
-      auto irt_rad_history = new RadiatorHistory();
-      irt_particle->StartRadiatorHistory({ irt_rad, irt_rad_history });
-
       // get the `charged_particle` for this radiator
       auto charged_particle_list_it = in_charged_particles.find(rad_name);
       if(charged_particle_list_it == in_charged_particles.end()) {
@@ -155,6 +148,15 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       }
       auto charged_particle_list = charged_particle_list_it->second;
       auto charged_particle      = charged_particle_list->at(i_charged_particle);
+
+      // set number of bins for this radiator and charged particle
+      irt_rad->SetTrajectoryBinCount(charged_particle.points_size() - 1);
+
+      // start a new IRT `RadiatorHistory`
+      // - must be a raw pointer for `irt` compatibility
+      // - it will be destroyed when `irt_particle` is destroyed
+      auto irt_rad_history = new RadiatorHistory();
+      irt_particle->StartRadiatorHistory({ irt_rad, irt_rad_history });
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
       irt_rad->ResetLocations();
