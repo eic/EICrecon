@@ -14,9 +14,20 @@ namespace richgeo {
         IrtGeo("DRICH",compactFile_,log_) { DD4hep_to_IRT(); }
       IrtGeoDRICH(dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_) :
         IrtGeo("DRICH",det_,log_) { DD4hep_to_IRT(); }
-      ~IrtGeoDRICH() {}
+      ~IrtGeoDRICH();
 
     protected:
       void DD4hep_to_IRT() override;
+
+    private:
+      // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
+      FlatSurface*             m_surfEntrance;
+      CherenkovPhotonDetector* m_irtPhotonDetector;
+      FlatSurface*             m_aerogelFlatSurface;
+      FlatSurface*             m_filterFlatSurface;
+      SphericalSurface*        m_mirrorSphericalSurface;
+      OpticalBoundary*         m_mirrorOpticalBoundary;
+      FlatSurface*             m_sensorFlatSurface;
+
   };
 }
