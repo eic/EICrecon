@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"B0TrackerHits"}, "B0TrackerRawHits", digi_default_cfg));
 
     TrackerHitReconstructionConfig hit_reco_cfg;
-    hit_reco_cfg.timeResolution = 8;
+    hit_reco_cfg.time_resolution = 8;
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"B0TrackerRawHits"},"B0TrackerRecHits", hit_reco_cfg));
 
