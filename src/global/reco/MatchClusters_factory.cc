@@ -57,8 +57,8 @@ namespace eicrecon {
         using ClustersVector = std::vector<const edm4eic::Cluster*>;
         using ClustersAssocVector = std::vector<const edm4eic::MCRecoClusterParticleAssociation*>;
 
-        std::vector<ClustersVector> input_cluster_vectors;//{"OutputClusters", Gaudi::DataHandle::Writer, this};
-        std::vector<ClustersAssocVector> input_cluster_assoc;//{"OutputAssociations", Gaudi::DataHandle::Writer, this};
+        std::vector<ClustersVector> input_cluster_vectors;
+        std::vector<ClustersAssocVector> input_cluster_assoc;
 
         for(auto &input_tag: GetInputTags()) {
             auto clusters = event->Get<edm4eic::Cluster>(input_tag);
