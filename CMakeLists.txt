@@ -122,6 +122,33 @@ list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modul
 
 enable_testing()
 
+# Address sanitizer
+option(USE_ASAN "Compile with address sanitizer" OFF)
+if (${USE_ASAN})
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
+    add_link_options(-fsanitize=address)
+endif()
+
+# Thread sanitizer
+option(USE_TSAN "Compile with thread sanitizer" OFF)
+if (${USE_TSAN})
+    add_compile_options(-fsanitize=thread -g -O1)
+    add_link_options(-fsanitize=thread)
+endif()
+
+# Undefined behavior sanitizer
+option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
+if (${USE_UBSAN})
+    include(CheckCXXCompilerFlag)
+    foreach (sanitizer undefined nullability implicit-conversion)
+        check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
+        if (CXX_COMPILER_HAS_sanitize_${sanitizer})
+            add_compile_options(-fsanitize=${sanitizer} -g -O1)
+            add_link_options(-fsanitize=${sanitizer})
+        endif()
+    endforeach()
+endif()
+
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
