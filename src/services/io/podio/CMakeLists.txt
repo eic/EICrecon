@@ -17,8 +17,6 @@ if(NOT DD4hep_FOUND)
 endif()
 
 set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
-set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
-set(INCLUDE_DIRS ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EDM4EIC_INCLUDE_DIR} ${fmt_INCLUDE_DIR})
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
@@ -36,12 +34,8 @@ add_custom_command(
         MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
-# Add include directories (works same as target_include_directories)
-message(STATUS "fmt_INCLUDE_DIR=${fmt_INCLUDE_DIR}")
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR} ${EICRECON_SOURCE_DIR}/src)
-
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
+plugin_link_libraries(${PLUGIN_NAME} fmt::fmt EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.

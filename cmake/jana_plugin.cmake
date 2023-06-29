@@ -31,7 +31,6 @@ macro(plugin_add _name)
     target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
-    target_include_directories(${_name}_plugin PUBLIC ${fmt_DIR}/../../../include)
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
     target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
     target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
@@ -45,7 +44,6 @@ macro(plugin_add _name)
         add_library(${_name}_library STATIC "")
 	    target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        target_include_directories(${_name}_library PUBLIC ${fmt_DIR}/../../../include)
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
         target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
@@ -159,7 +157,6 @@ macro(plugin_add_dd4hep _name)
         find_package(DD4hep REQUIRED)
     endif()
 
-    plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
     plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
 
 endmacro()
@@ -189,12 +186,7 @@ macro(plugin_add_acts _name)
                 AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
             message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
         endif()
-
-        set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
     endif()
-
-    # Add include directories (works same as target_include_directories)
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Acts_INCLUDE_DIRS})
 
     # Add libraries (works same as target_include_directories)
     plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
@@ -223,13 +215,11 @@ macro(plugin_add_event_model _name)
 
     if(NOT EDM4EIC_FOUND)
         find_package(EDM4EIC REQUIRED)
-        set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
     endif()
 
     # Add include directories
-    # (same as target_include_directories but for both plugin and library)
     # ${podio_BINARY_DIR} is an include path to datamodel_glue.h
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${podio_BINARY_DIR})
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_BINARY_DIR})
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
@@ -247,9 +237,6 @@ macro(plugin_add_cern_root _name)
         #find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
         find_package(ROOT REQUIRED)
     endif()
-
-    # Add include directories
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
 
     # Add libraries
     #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)

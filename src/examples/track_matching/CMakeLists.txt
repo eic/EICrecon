@@ -25,7 +25,6 @@ find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
 # include ROOT by default
 find_package(ROOT REQUIRED)
@@ -36,7 +35,6 @@ set(COMMON_TARGET_INCLUDES
         ${EDM4HEP_INCLUDE_DIR}
         ${EDM4EIC_INCLUDE_DIR}
         ${ROOT_INCLUDE_DIRS}
-        ${fmt_INCLUDE_DIR}
         PUBLIC
         ${CMAKE_SOURCE_DIR}/executables
         ${CMAKE_SOURCE_DIR}/common_bench/include
