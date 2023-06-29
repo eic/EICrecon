@@ -40,7 +40,7 @@ set(COMMON_TARGET_INCLUDES
         ${CMAKE_SOURCE_DIR}/common_bench/include
         )
 
-set(COMMON_TARGET_LIBRARIES spdlog::spdlog EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ROOT::Core ${ROOT_LIBRARIES})
+set(COMMON_TARGET_LIBRARIES spdlog::spdlog fmt::fmt EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ROOT::Core ${ROOT_LIBRARIES})
 
 add_executable(reco_particles_track_matching
         reco_particles_track_matching.cc

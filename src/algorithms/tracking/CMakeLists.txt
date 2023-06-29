@@ -17,8 +17,8 @@ plugin_sources(${PLUGIN_NAME} JugBase/BField/DD4hepBField.cc)
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
+plugin_add_eigen3(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
-find_package(Eigen3 REQUIRED)
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets

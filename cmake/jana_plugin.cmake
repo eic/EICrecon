@@ -22,9 +22,6 @@ macro(plugin_add _name)
     # include fmt by default
     find_package(fmt REQUIRED)
 
-    # include ROOT by default
-    find_package(ROOT REQUIRED)
-
     # Define plugin
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
 
@@ -151,7 +148,10 @@ macro(plugin_add_dd4hep _name)
         find_package(DD4hep REQUIRED)
     endif()
 
-    plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
+    plugin_link_libraries(${_name}
+        DD4hep::DDCore
+        DD4hep::DDRec
+    )
 
 endmacro()
 
@@ -163,8 +163,9 @@ macro(plugin_add_eigen3 _name)
         find_package(Eigen3 REQUIRED)
     endif()
 
-    plugin_include_directories(${_name} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
-    plugin_link_libraries(${_name} Eigen3::Eigen)
+    plugin_link_libraries(${_name}
+        Eigen3::Eigen
+    )
 
 endmacro()
 
@@ -183,17 +184,26 @@ macro(plugin_add_acts _name)
     endif()
 
     # Add libraries (works same as target_include_directories)
-    plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
+    plugin_link_libraries(${PLUGIN_NAME}
+        ActsCore
+        ActsPluginIdentification
+        ActsPluginTGeo
+        ActsPluginJson
+        ActsPluginDD4hep
+    )
+
 endmacro()
 
 
 # Adds IRT PID reconstruction package for a plugin
 macro(plugin_add_irt _name)
+
     if(NOT IRT_FOUND)
         find_package(IRT REQUIRED)
     endif()
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
+
     plugin_link_libraries(${PLUGIN_NAME} IRT)
+
 endmacro()
 
 # Adds podio, edm4hep, edm4eic for a plugin
@@ -218,9 +228,11 @@ macro(plugin_add_event_model _name)
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
     plugin_link_libraries(${PLUGIN_NAME}
-            EDM4EIC::edm4eic
-            EDM4HEP::edm4hep
-            )
+        podio::podio
+        EDM4EIC::edm4eic
+        EDM4HEP::edm4hep
+    )
+
 endmacro()
 
 
@@ -228,13 +240,15 @@ endmacro()
 macro(plugin_add_cern_root _name)
 
     if(NOT ROOT_FOUND)
-        #find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
         find_package(ROOT REQUIRED)
     endif()
 
     # Add libraries
-    #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
-    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
+    plugin_link_libraries(${PLUGIN_NAME}
+        ROOT::Core
+        ROOT::EG
+    )
+
 endmacro()
 
 
