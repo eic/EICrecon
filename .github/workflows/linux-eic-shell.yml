@@ -132,7 +132,7 @@ jobs:
     - name: llvm-cov
       run: |
         cd build
-        COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+')
+        COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+|/usr/local/include/IRT.+')
         llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
         LIB_PATHS=()
