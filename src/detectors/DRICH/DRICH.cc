@@ -10,11 +10,12 @@
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
 #include <global/pid/RichTrack_factory.h>
 #include <global/pid/MergeTrack_factory.h>
+#include <global/pid/IrtCherenkovParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 #include <global/pid/RichTrackConfig.h>
-
+#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -66,6 +67,29 @@ extern "C" {
     track_cfg.numPlanes.insert({ "Aerogel", 5  });
     track_cfg.numPlanes.insert({ "Gas",     10 });
 
+    // IRT PID
+    IrtCherenkovParticleIDConfig irt_cfg;
+    // - refractive index interpolation
+    irt_cfg.numRIndexBins = 100;
+    // - aerogel
+    irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
+    irt_cfg.radiators.at("Aerogel").zbins           = track_cfg.numPlanes.at("Aerogel");
+    irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
+    irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
+    irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
+    irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
+    // - gas
+    irt_cfg.radiators.insert({"Gas", RadiatorConfig{}});
+    irt_cfg.radiators.at("Gas").zbins           = track_cfg.numPlanes.at("Gas");
+    irt_cfg.radiators.at("Gas").referenceRIndex = 1.00076;
+    irt_cfg.radiators.at("Gas").attenuation     = 0; // [mm]
+    irt_cfg.radiators.at("Gas").smearingMode    = "gaussian";
+    irt_cfg.radiators.at("Gas").smearing        = 5e-3; // [radians]
+    // - PDG list
+    irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { 11, 211, 321, 2212 });
+    // - cheat modes
+    irt_cfg.cheatPhotonVertex  = true;
+    irt_cfg.cheatTrueRadiator  = true;
 
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
@@ -90,6 +114,19 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           "DRICHMergedTracks"
+          ));
+
+    // PID algorithm
+    app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
+          "DRICHIrtCherenkovParticleID",
+          {
+            "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
+            "DRICHRawHits",
+            "DRICHRawHitsAssociations"
+          },
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          irt_cfg,
+          app
           ));
 
     // clang-format on
