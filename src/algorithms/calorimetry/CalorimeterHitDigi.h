@@ -48,7 +48,7 @@ public:
     double                   m_tRes;
 
     // single hit energy deposition threshold
-    double                   m_threshold=1.0*dd4hep::keV; // {this, "threshold", 1. * keV};
+    double                   m_threshold = 1.0 * unit::keV;
 
     // digitization settings
     unsigned int             m_capADC;
