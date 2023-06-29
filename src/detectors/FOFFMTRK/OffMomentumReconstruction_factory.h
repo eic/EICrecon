@@ -53,8 +53,6 @@ namespace eicrecon {
 	const double nomMomentum = 137.5; //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
 	std::string m_readout;
-	std::string m_layerField;
-	std::string m_sectorField;
 	std::string m_geoSvcName;
 
 	dd4hep::BitFieldCoder *id_dec = nullptr;
