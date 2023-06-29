@@ -150,6 +150,10 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       auto charged_particle      = charged_particle_list->at(i_charged_particle);
 
       // set number of bins for this radiator and charged particle
+      if(charged_particle.points_size()==0) {
+        m_log->trace("No propagated track points in radiator '{}'", rad_name);
+        continue;
+      }
       irt_rad->SetTrajectoryBinCount(charged_particle.points_size() - 1);
 
       // start a new IRT `RadiatorHistory`
@@ -295,6 +299,10 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
 
       // loop over this radiator's photons, and decide which to include in the theta estimate
       auto irt_rad_history = irt_particle->FindRadiatorHistory(irt_rad);
+      if(irt_rad_history==nullptr) {
+        m_log->trace("  No radiator history; skip");
+        continue;
+      }
       m_log->trace("  Photoelectrons:");
       for(auto irt_photon : irt_rad_history->Photons()) {
 
