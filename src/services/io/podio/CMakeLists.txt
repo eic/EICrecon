@@ -28,10 +28,13 @@ plugin_add(${PLUGIN_NAME} )
 plugin_glob_all(${PLUGIN_NAME})
 
 # Generate the datamodel header files.
+file(GLOB EDM4HEP_DEPENDS ${EDM4HEP_INCLUDE_DIR}/edm4hep/*.h)
+file(GLOB EDM4EIC_DEPENDS ${EDM4EIC_INCLUDE_DIR}/edm4eic/*.h)
 add_custom_command(
         OUTPUT ${podio_BINARY_DIR}/datamodel_glue.h ${podio_BINARY_DIR}/datamodel_includes.h
         COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${podio_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
         MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+	DEPENDS ${EDM4HEP_DEPENDS} ${EDM4EIC_DEPENDS}
 )
 
 # Add libraries (works same as target_include_directories)
