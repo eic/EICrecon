@@ -16,6 +16,8 @@ if(NOT DD4hep_FOUND)
     find_package(DD4hep REQUIRED)
 endif()
 
+# FIXME should use $<TARGET_PROPERTY:edm4eic,INTERFACE_INCLUDE_DIRECTORIES>
+# Also, we could just export this in the EDM4eic cmake config like EDM4hep
 set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
