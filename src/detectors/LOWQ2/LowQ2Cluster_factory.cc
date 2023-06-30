@@ -38,7 +38,7 @@ namespace eicrecon {
     std::vector<TrackerClusterPoint*> outputClusterPoints(inputclusters.size());
 
     // Find the energy weighted center of each protocluster
-    int iclust = 0;    
+    int iclust = 0;
     for(const auto protoCl: inputclusters ){
 
       float esum = 0;

@@ -128,7 +128,7 @@ namespace eicrecon {
 		  auto subAsArray  = subMat.GetMatrixArray();
 		  ROOT::VecOps::RVec<double> subAsVector(subAsArray,subAsArray+8);
 		  double outChi2 = Sum(subAsVector*subAsVector)/8;
-		  
+
 		  // Chi2 cut on fit to cluster points
 		  if(outChi2>0.001) continue; // Optimise later or add as config
 
@@ -154,7 +154,7 @@ namespace eicrecon {
 		  float time      = 0;
 		  float timeError = 0;
 		  float charge    = 0;
- 
+
 		  edm4eic::TrackParameters* outTrack =
 		    new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 		  outputTracks.push_back(outTrack);

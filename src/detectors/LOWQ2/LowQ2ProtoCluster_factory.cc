@@ -58,7 +58,7 @@ namespace eicrecon {
   }
 
   void LowQ2ProtoCluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    // TODO check if this whole method is unnecessarily complicated/inefficient 
+    // TODO check if this whole method is unnecessarily complicated/inefficient
 
     auto inputhits = event->Get<edm4eic::RawTrackerHit>(m_input_tag);
 

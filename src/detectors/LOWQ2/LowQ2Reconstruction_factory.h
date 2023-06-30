@@ -57,7 +57,7 @@ namespace eicrecon {
 
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
 
-      // Stuff to add to config      
+      // Stuff to add to config
       std::string m_method_name{"DNN_CPU"};
       std::string m_file_path{"LowQ2_DNN_CPU.weights.xml"};
       std::string m_environment_path{"JANA_PLUGIN_PATH"};
