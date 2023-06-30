@@ -31,7 +31,7 @@ namespace eicrecon {
         app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
-        // jana should not delete edm4eic::TrackerHit from this factory
+        // jana should not delete edm4eic::TrackParameters from this factory
         // TrackerHits created by other factories, this factory only collect them together
         SetFactoryFlag(JFactory::NOT_OBJECT_OWNER);
 
@@ -43,7 +43,7 @@ namespace eicrecon {
     void TrackerParticleCollector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         std::vector<edm4eic::TrackParameters*> total_hits;
 
-        // Just collect hits together
+        // Just collect track parameters together
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackParameters>(input_tag);
             for (const auto hit : hits) {
