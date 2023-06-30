@@ -1,4 +1,4 @@
-// Created by Simon Gardner to do LowQ2 reconstruction
+// Created by Simon Gardner to do LowQ2 tracking
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 

@@ -1,4 +1,4 @@
-// Copyright 2022, David Lawrence
+// Copyright 2023, Simon Gardner
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
