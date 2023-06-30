@@ -16,26 +16,26 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   auto gasvolMaterial = m_det->constant<std::string>("PFRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, 1, 0);
-  auto surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
+  m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
   auto cv = m_irtDetectorCollection->SetContainerVolume(
       m_irtDetector,              // Cherenkov detector
       RadiatorName(kGas).c_str(), // name
       0,                          // path
       (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                    // G4RadiatorMaterial (inaccessible?)
-      surfEntrance                // surface
+      m_surfEntrance              // surface
       );
   cv->SetAlternativeMaterialName(gasvolMaterial.c_str());
 
   // photon detector
   // - FIXME: args (G4Solid,G4Material) inaccessible?
   auto cellMask = uint64_t(std::stoull(m_det->constant<std::string>("PFRICH_cell_mask")));
-  CherenkovPhotonDetector* irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
+  m_irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   m_irtDetector->SetReadoutCellMask(cellMask);
   m_irtDetectorCollection->AddPhotonDetector(
-      m_irtDetector,    // Cherenkov detector
-      nullptr,          // G4LogicalVolume (inaccessible?)
-      irtPhotonDetector // photon detector
+      m_irtDetector,      // Cherenkov detector
+      nullptr,            // G4LogicalVolume (inaccessible?)
+      m_irtPhotonDetector // photon detector
       );
   m_log->debug("cellMask = {:#X}", cellMask);
 
@@ -43,21 +43,21 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   /* AddFlatRadiator will create a pair of flat refractive surfaces internally;
    * FIXME: should make a small gas gap at the upstream end of the gas volume;
    */
-  auto aerogelZpos        = m_det->constant<double>("PFRICH_aerogel_zpos") / dd4hep::mm;
-  auto aerogelThickness   = m_det->constant<double>("PFRICH_aerogel_thickness") / dd4hep::mm;
-  auto aerogelMaterial    = m_det->constant<std::string>("PFRICH_aerogel_material");
-  auto filterZpos         = m_det->constant<double>("PFRICH_filter_zpos") / dd4hep::mm;
-  auto filterThickness    = m_det->constant<double>("PFRICH_filter_thickness") / dd4hep::mm;
-  auto filterMaterial     = m_det->constant<std::string>("PFRICH_filter_material");
-  auto aerogelFlatSurface = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
-  auto filterFlatSurface  = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
+  auto aerogelZpos      = m_det->constant<double>("PFRICH_aerogel_zpos") / dd4hep::mm;
+  auto aerogelThickness = m_det->constant<double>("PFRICH_aerogel_thickness") / dd4hep::mm;
+  auto aerogelMaterial  = m_det->constant<std::string>("PFRICH_aerogel_material");
+  auto filterZpos       = m_det->constant<double>("PFRICH_filter_zpos") / dd4hep::mm;
+  auto filterThickness  = m_det->constant<double>("PFRICH_filter_thickness") / dd4hep::mm;
+  auto filterMaterial   = m_det->constant<std::string>("PFRICH_filter_material");
+  m_aerogelFlatSurface  = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
+  m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
   auto aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,                  // Cherenkov detector
       RadiatorName(kAerogel).c_str(), // name
       0,                              // path
       (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                        // G4RadiatorMaterial
-      aerogelFlatSurface,             // surface
+      m_aerogelFlatSurface,           // surface
       aerogelThickness                // surface thickness
       );
   auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
@@ -66,7 +66,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       0,                       // path
       (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial
-      filterFlatSurface,       // surface
+      m_filterFlatSurface,     // surface
       filterThickness          // surface thickness
       );
   aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
@@ -123,16 +123,16 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       }
 
       // create the optical surface
-      auto sensorFlatSurface = new FlatSurface(
+      m_sensorFlatSurface = new FlatSurface(
           TVector3(posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z()),
           TVector3(sensorGlobalNormX),
           TVector3(sensorGlobalNormY)
           );
       m_irtDetector->CreatePhotonDetectorInstance(
-          0,                 // sector
-          irtPhotonDetector, // CherenkovPhotonDetector
-          imod,              // copy number
-          sensorFlatSurface  // surface
+          0,                   // sector
+          m_irtPhotonDetector, // CherenkovPhotonDetector
+          imod,                // copy number
+          m_sensorFlatSurface  // surface
           );
       m_log->trace(
           "sensor: id={:#08X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
@@ -146,7 +146,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       // Yes, since there are no mirrors in this detector, just close the gas radiator volume by hand (once),
       // assuming that all the sensors will be sitting at roughly the same location along the beam line anyway;
       if(firstSensor) {
-        m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[0].second = dynamic_cast<ParametricSurface*>(sensorFlatSurface);
+        m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[0].second = dynamic_cast<ParametricSurface*>(m_sensorFlatSurface);
         firstSensor = false;
       }
 
@@ -169,4 +169,13 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
+}
+
+// destructor
+richgeo::IrtGeoPFRICH::~IrtGeoPFRICH() {
+  delete m_surfEntrance;
+  delete m_irtPhotonDetector;
+  delete m_aerogelFlatSurface;
+  delete m_filterFlatSurface;
+  delete m_sensorFlatSurface;
 }
