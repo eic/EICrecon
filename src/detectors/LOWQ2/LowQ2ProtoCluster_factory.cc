@@ -58,6 +58,7 @@ namespace eicrecon {
   }
 
   void LowQ2ProtoCluster_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    // TODO check if this whole method is unnecessarily complicated/inefficient 
 
     auto inputhits = event->Get<edm4eic::RawTrackerHit>(m_input_tag);
 
@@ -88,7 +89,7 @@ namespace eicrecon {
     for(ulong i = 0; i<indeces.size(); i++)
       indeces[i] = i;
 
-    // Loop while hits haven't been clustered
+    // Loop while there are unclustered hits
     while(ROOT::VecOps::Any(avaliable)){
 
       auto pCluster = new eicrecon::TrackerProtoCluster();

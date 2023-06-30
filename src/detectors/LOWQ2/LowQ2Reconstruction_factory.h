@@ -23,7 +23,6 @@ namespace eicrecon {
   enum LowQ2NNIndexIn{PosY,PosZ,DirX,DirY};
   enum LowQ2NNIndexOut{MomX,MomY,MomZ};
 
-  //  class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::ReconstructedParticle, NoConfig>{
   class LowQ2Reconstruction_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
 
   public:
@@ -54,18 +53,14 @@ namespace eicrecon {
       TMVA::MethodBase*     m_method{nullptr};
       float nnInput[4];
 
-      float beamE = 10*dd4hep::GeV; //TODO: Change when this is included in metadata/other location
+      float beamE = 10*dd4hep::GeV; //TODO: Change when this is included in metadata/other location/as config
 
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
-      // Stuff to add to config
 
+      // Stuff to add to config      
       std::string m_method_name{"DNN_CPU"};
-      // How should the path to this best be described?
-      // $EICrecon_ROOT does not need to be set for usual running so possibly not appropriate
       std::string m_file_path{"LowQ2_DNN_CPU.weights.xml"};
       std::string m_environment_path{"JANA_PLUGIN_PATH"};
-
-
 
   };
 

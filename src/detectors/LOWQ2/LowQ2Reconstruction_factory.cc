@@ -32,7 +32,8 @@ namespace eicrecon {
     m_reader.AddVariable( "sin(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirX] );
     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[LowQ2NNIndexIn::DirY] );
 
-
+    // Locate and load the weight file
+    // TODO - Add functionality to select passed by configiuration
     const char* env_p = getenv(m_environment_path.c_str());
     if (env_p) {
 
@@ -99,7 +100,7 @@ namespace eicrecon {
       auto values = m_method->GetRegressionValues();
 
       ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndexOut::MomX]*beamE,values[LowQ2NNIndexOut::MomY]*beamE,values[LowQ2NNIndexOut::MomZ]*beamE);
-      //      edm4hep::Vector3f momentum(values[LowQ2NNIndex::MomX]*beamE,values[LowQ2NNIndex::MomY]*beamE,values[LowQ2NNIndex::MomZ]*beamE);
+
       float energy = sqrt(values[LowQ2NNIndexOut::MomX]*beamE*values[LowQ2NNIndexOut::MomX]*beamE+
 			  values[LowQ2NNIndexOut::MomY]*beamE*values[LowQ2NNIndexOut::MomY]*beamE+
 			  values[LowQ2NNIndexOut::MomZ]*beamE*values[LowQ2NNIndexOut::MomZ]*beamE
@@ -110,6 +111,7 @@ namespace eicrecon {
 	values[LowQ2NNIndexOut::MomZ]*beamE*values[LowQ2NNIndexOut::MomZ]*beamE;
 
       // Track parameter variables
+      // TODO: Add time and momentum errors
       int type = 0;
       // Plane Point
       edm4hep::Vector2f loc(0,0); //Temp unit transform
@@ -123,7 +125,6 @@ namespace eicrecon {
       float time  = 0;
       float timeError = 0;
 
-//       //      auto particle = new edm4eic::ReconstructedParticle(type,energy,momentum,referencePoint,charge,mass,goodnessOfPID,covMatrix,PDG);
       auto particle = new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 
       outputLowQ2Particles[ipart++] = particle;

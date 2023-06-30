@@ -37,7 +37,8 @@ namespace eicrecon {
 
     std::vector<TrackerClusterPoint*> outputClusterPoints(inputclusters.size());
 
-    int iclust = 0;
+    // Find the energy weighted center of each protocluster
+    int iclust = 0;    
     for(const auto protoCl: inputclusters ){
 
       float esum = 0;
@@ -48,6 +49,7 @@ namespace eicrecon {
 
       auto hits = *protoCl->associatedHits;
 
+      // Loop over hits contributing to the protocluster
       for(auto hit : hits){
 	auto hitE = hit.getCharge();
 	auto hitT = hit.getTimeStamp();

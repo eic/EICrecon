@@ -38,23 +38,26 @@ namespace eicrecon {
 
     void LowQ2Tracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-
 	std::vector<edm4eic::TrackParameters*> outputTracks;
 
 	auto inputhits = event->Get<eicrecon::TrackerClusterPoint>(m_input_tag);
 
 	std::map<int,std::map<int,std::vector<eicrecon::TrackerClusterPoint>>> sortedHits;
 
+	// Sort the hits by module and layer
 	for(auto hit: inputhits){
 	  auto module = hit->pCluster->module;
 	  auto layer  = hit->pCluster->layer;
 	  sortedHits[module][layer].push_back(*hit);
 	}
 
+	// Loop over module
 	for ( auto moduleHits : sortedHits ) {
-	  //std::cout << "mod " << moduleHits.first << " " << moduleHits.second.size() << "\n";
+
+	  // Check there is a hit in each layer of the module
 	  if(moduleHits.second.size()<4) continue;
 
+	  // For matrix vector fitting method
 	  ROOT::VecOps::RVec<float> x(4,0);
 	  ROOT::VecOps::RVec<float> y(4,0);
 	  ROOT::VecOps::RVec<float> z(4,0);
@@ -62,16 +65,21 @@ namespace eicrecon {
 	  TMatrixD mb(3,1);
 	  TMatrixD mc(3,1);
 	  TMatrixD md(3,1);
+
+	  // For changing how strongly each layer hit is in contributing to the fit
 	  double layerWeights[4] = {1,1,1,1};
 	  double meanWeight = 1;
 	  int    layerLimit = 5;
 
-	  //temporary limits before Kalman filtering/GNN implemented
+	  // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
+	  // TODO - Implement more sensible solution
 	  if( moduleHits.second[0].size()>layerLimit ) break;
 	  if( moduleHits.second[1].size()>layerLimit ) break;
 	  if( moduleHits.second[2].size()>layerLimit ) break;
 	  if( moduleHits.second[3].size()>layerLimit ) break;
 
+	  // Loop over hits in every layer
+	  // TODO - Implement more sensible solution
 	  for ( auto hit0c : moduleHits.second[0] ) {
 	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);
 	    x[0] = hit0.x()*layerWeights[0];
@@ -93,14 +101,14 @@ namespace eicrecon {
 		  y[3] = hit3.y()*layerWeights[3];
 		  z[3] = hit3.z()*layerWeights[3];
 
+		  // Weighted track centre
 		  ROOT::Math::XYZVector outPos = ROOT::Math::XYZVector(Mean(x),Mean(y),Mean(z))/meanWeight;
 
-
+		  // Fill matrices with weighted hit points
 		  ROOT::Math::XYZPoint((hit0-outPos)*layerWeights[0]).GetCoordinates(ma.GetMatrixArray());
 		  ROOT::Math::XYZPoint((hit1-outPos)*layerWeights[1]).GetCoordinates(mb.GetMatrixArray());
 		  ROOT::Math::XYZPoint((hit2-outPos)*layerWeights[2]).GetCoordinates(mc.GetMatrixArray());
 		  ROOT::Math::XYZPoint((hit3-outPos)*layerWeights[3]).GetCoordinates(md.GetMatrixArray());
-
 
 		  TMatrixD vecMatrix(3,4);
 		  vecMatrix.SetSub(0,0,ma);
@@ -115,35 +123,25 @@ namespace eicrecon {
 		  auto decompVec = decomp.GetV().GetMatrixArray();
 
 		  auto varMatrix = vecMatrix*(decomp.GetV());
-		  //varMatrix.Print();
-		  auto subMat = varMatrix.GetSub(0,3,1,2);
-		  // 	      subMat.Print();
+		  auto subMat    = varMatrix.GetSub(0,3,1,2);
+
 		  auto subAsArray  = subMat.GetMatrixArray();
 		  ROOT::VecOps::RVec<double> subAsVector(subAsArray,subAsArray+8);
 		  double outChi2 = Sum(subAsVector*subAsVector)/8;
-
+		  
+		  // Chi2 cut on fit to cluster points
 		  if(outChi2>0.001) continue; // Optimise later or add as config
 
-		  // 	      lf->AssignData(maxLayer, 2, &v[0], &z[0]);
-		  // 	      lf->Eval();
-		  TVectorD params;
-		  TVectorD errors;
-		  // 	      lf->GetParameters(params);
-		  // 	      params.Print();
-		  // 	      lf->GetErrors(errors);
-		  //double outChi2=1;
-		  // 	      double outChi2=lf->GetChisquare();
-		  //	      XYZVector outVec = XYZVector(params[0],params[1],params[0]);
 		  ROOT::Math::XYZVector outVec(decompVec[0],decompVec[3],decompVec[6]);
-		  // 	      std::cout << outPos << std::endl;
+
+		  // Make sure fit was pointing in the right direction
 		  if(outVec.Z()>0) outVec*=-1;
-		  // 	      std::cout << outChi2 << std::endl<< std::endl;
-		  //track outTrack = {outPos,outVec.Unit(),outChi2,index};
 
 		  //Position vector crosses x axis, swap to z exit later
 		  auto exitPos = outPos-(outPos.x()/outVec.x())*outVec;
-		  //auto exitPos =
 
+		  // Create track parameters edm4eic structure
+		  // TODO - populate more of the fields
 		  int type = 0;
 		  // Plane Point
 		  edm4hep::Vector2f loc(exitPos.y()*10,exitPos.z()*10); //Temp unit transform
@@ -153,10 +151,10 @@ namespace eicrecon {
 		  float phi   = outVec.Unit().Phi();
 		  float qOverP;
 		  edm4eic::Cov3f momentumError;
-		  float time  = 0;
+		  float time      = 0;
 		  float timeError = 0;
-		  float charge = 0;
-
+		  float charge    = 0;
+ 
 		  edm4eic::TrackParameters* outTrack =
 		    new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 		  outputTracks.push_back(outTrack);
@@ -168,9 +166,6 @@ namespace eicrecon {
 
 
 	}
-
-// 	outputTracks.push_back(new edm4eic::TrackParameters(track));
-
 
 	Set(outputTracks);
 
