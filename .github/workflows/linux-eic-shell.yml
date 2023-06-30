@@ -33,8 +33,8 @@ jobs:
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -282,8 +282,8 @@ jobs:
         particle: [pi, e]
         detector_config: [arches, brycecanyon]
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -329,8 +329,8 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -380,8 +380,8 @@ jobs:
         - beam: 5x41
           minq2: 1000
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
