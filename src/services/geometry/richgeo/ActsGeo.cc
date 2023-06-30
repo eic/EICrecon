@@ -116,8 +116,8 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
 // generate a cut to remove any track points that should not be used
 std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) {
 
-  // reject track points that are beyond the dRICH mirrors
-  // FIXME: assumes the spherical mirrors are much bigger than the dRICH
+  // reject track points in dRICH gas that are beyond the dRICH mirrors
+  // FIXME: assumes the full mirror spheres are much bigger than the dRICH
   // FIXME: needs to be generalized for dual or multi-mirror (per sector) design
   if(m_detName=="DRICH" && radiator==kGas) {
 
