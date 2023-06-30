@@ -2,10 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <JANA/JEvent.h>
-
-#include "RomanPotsReconstruction_factory.h"
+#include "OffMomentumReconstruction_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
@@ -13,9 +11,9 @@
 namespace eicrecon {
 
 
-    RomanPotsReconstruction_factory::RomanPotsReconstruction_factory(){ SetTag(m_output_tag); }
+    OffMomentumReconstruction_factory::OffMomentumReconstruction_factory(){ SetTag(m_output_tag); }
 
-    void RomanPotsReconstruction_factory::Init() {
+    void OffMomentumReconstruction_factory::Init() {
 
 	std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
 	std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
@@ -31,46 +29,47 @@ namespace eicrecon {
 
 	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
-        double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
+
+        double det = aXOMD[0][0] * aXOMD[1][1] - aXOMD[0][1] * aXOMD[1][0];
 
         if (det == 0) {
             m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
             throw JException("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
         }
 
-        aXRPinv[0][0] = aXRP[1][1] / det;
-        aXRPinv[0][1] = -aXRP[0][1] / det;
-        aXRPinv[1][0] = -aXRP[1][0] / det;
-        aXRPinv[1][1] = aXRP[0][0] / det;
+        aXOMDinv[0][0] = aXOMD[1][1] / det;
+        aXOMDinv[0][1] = -aXOMD[0][1] / det;
+        aXOMDinv[1][0] = -aXOMD[1][0] / det;
+        aXOMDinv[1][1] = aXOMD[0][0] / det;
 
-        det = aYRP[0][0] * aYRP[1][1] - aYRP[0][1] * aYRP[1][0];
+        det = aYOMD[0][0] * aYOMD[1][1] - aYOMD[0][1] * aYOMD[1][0];
 
         if (det == 0) {
             m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
             throw JException("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
         }
 
-        aYRPinv[0][0] = aYRP[1][1] / det;
-        aYRPinv[0][1] = -aYRP[0][1] / det;
-        aYRPinv[1][0] = -aYRP[1][0] / det;
-        aYRPinv[1][1] = aYRP[0][0] / det;
+        aYOMDinv[0][0] = aYOMD[1][1] / det;
+        aYOMDinv[0][1] = -aYOMD[0][1] / det;
+        aYOMDinv[1][0] = -aYOMD[1][0] / det;
+        aYOMDinv[1][1] = aYOMD[0][0] / det;
 
 
     }
 
 
-    void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void OffMomentumReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     	// Nothing to do here
     }
 
-    void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void OffMomentumReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
 
-	std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
+	std::vector<edm4eic::ReconstructedParticle*> outputOMDTracks;
 
 	auto converter = m_geoSvc->cellIDPositionConverter();
 
-	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
+	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardOffMTrackerHits");
 
 
         //---- begin Roman Pot Reconstruction code ----
@@ -105,7 +104,7 @@ namespace eicrecon {
 
 	    //information is stored in cm, we need mm - divide by dd4hep::mm
 
-	    if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
+	    if(!goodHit2 && gpos.z()/dd4hep::mm > 24499.0 && gpos.z()/dd4hep::mm < 24522.0){
 
 		goodHitX[1] = pos0.x()/dd4hep::mm;
 		goodHitY[1] = pos0.y()/dd4hep::mm;
@@ -113,7 +112,7 @@ namespace eicrecon {
 	    	goodHit2 = true;
 
 	    }
-	    if(!goodHit1 && gpos.z()/dd4hep::mm > 25099.0 && gpos.z()/dd4hep::mm < 26022.0){
+	    if(!goodHit1 && gpos.z()/dd4hep::mm > 22499.0 && gpos.z()/dd4hep::mm < 22522.0){
 
 		goodHitX[0] = pos0.x()/dd4hep::mm;
 		goodHitY[0] = pos0.y()/dd4hep::mm;
@@ -132,11 +131,13 @@ namespace eicrecon {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
-	    //
-            double XL[2] = {goodHitX[0], goodHitX[1]};
-            double YL[2] = {goodHitY[0], goodHitY[1]};
+
+            double XL[2] = {goodHitX[0] - local_x_offset, goodHitX[1] - local_x_offset};
+            double YL[2] = {goodHitY[0] - local_y_offset, goodHitY[1] - local_y_offset};
 
             double base = goodHitZ[1] - goodHitZ[0];
+
+
 
             if (base == 0) {
                 m_log->info("Detector separation = 0! Cannot calculate slope!");
@@ -153,8 +154,8 @@ namespace eicrecon {
 
             for (unsigned i0 = 0; i0 < 2; i0++) {
                 for (unsigned i1 = 0; i1 < 2; i1++) {
-                    Xip[i0] += aXRPinv[i0][i1] * Xrp[i1];
-                    Yip[i0] += aYRPinv[i0][i1] * Yrp[i1];
+                    Xip[i0] += aXOMDinv[i0][i1] * Xrp[i1];
+                    Yip[i0] += aYOMDinv[i0][i1] * Yrp[i1];
                 }
             }
 
@@ -163,32 +164,33 @@ namespace eicrecon {
             double rsy = Yip[1] / 1000.;
 
             // calculate momentum magnitude from measured deltaP – using thin lens optics.
-            double p = nomMomentum * (1 + 0.01 * Xip[0]);
+            double p = 137.5 * (1 + 0.01 * Xip[0]);
             double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
             float prec[3] = {static_cast<float>((p * rsx) / norm), static_cast<float>((p * rsy) / norm),
                                    static_cast<float>(p / norm)};
 
-	    float refPoint[3] = {static_cast<float>(goodHitX[0]), static_cast<float>(goodHitY[0]), static_cast<float>(goodHitZ[0])};
+	    float refPoint[3] = {static_cast<float>(goodHitX[1]), static_cast<float>(goodHitY[1]), static_cast<float>(goodHitZ[1])};
 
             //----- end RP reconstruction code ------
 
-            edm4eic::MutableReconstructedParticle rpTrack;
-            rpTrack.setType(0);
-            rpTrack.setMomentum({prec});
-            rpTrack.setEnergy(std::hypot(edm4eic::magnitude(rpTrack.getMomentum()), .938272));
-            rpTrack.setReferencePoint({refPoint});
-            rpTrack.setCharge(1);
-            rpTrack.setMass(.938272);
-            rpTrack.setGoodnessOfPID(1.);
-            rpTrack.setPDG(2212);
+
+            edm4eic::MutableReconstructedParticle omdTrack;
+            omdTrack.setType(0);
+            omdTrack.setMomentum({prec});
+            omdTrack.setEnergy(std::hypot(edm4eic::magnitude(omdTrack.getMomentum()), .938272));
+            omdTrack.setReferencePoint({refPoint});
+            omdTrack.setCharge(1);
+            omdTrack.setMass(.938272);
+            omdTrack.setGoodnessOfPID(1.);
+            omdTrack.setPDG(2212);
             //rpTrack.covMatrix(); // @TODO: Errors
-            outputRPTracks.push_back(new edm4eic::ReconstructedParticle(rpTrack));
+            outputOMDTracks.push_back(new edm4eic::ReconstructedParticle(omdTrack));
 
 
         } // END matrix reco
 
-	Set(outputRPTracks);
+	Set(outputOMDTracks);
 
     }
 
