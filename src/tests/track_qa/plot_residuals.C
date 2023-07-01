@@ -183,8 +183,8 @@ void write_widths(double*** fit_widths){
 void plot_residuals(TString input_fname="eicrecon_plugin_brycecanyon_etarange_flat_thresh5keV.root", 
 				    TString output_fname="plot_residuals_brycecanyon_etarange_flat_thresh5keV.pdf"){
 	// Variables that the user should specify
-	// TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat_thresh5keV.root"; //"eicrecon.root"; //"eicrecon_plugin_etarange_flat.root"; 
-	// TString output_fname = "plot_residuals_brycecanyon_etarange_flat_thresh5keV.pdf"; //"plot_hists_etarange_flat.pdf";
+	input_fname = "eicrecon.root"; //"eicrecon.root"; //"eicrecon_plugin_etarange_flat.root"; 
+	output_fname = "plot_residuals_brycecanyon_etarange_flat_thresh5keV2.pdf"; //"plot_hists_etarange_flat.pdf";
 
 	//Define Style
 	gStyle->SetOptStat(0);

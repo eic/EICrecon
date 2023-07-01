@@ -96,8 +96,8 @@ void adjustLabelSize(TH1* hist, double size){
 void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat_thresh5keV.root", 
 				TString output_fname = "plot_hists_brycecanyon_etarange_flat_thresh5keV.pdf"){
 	// Variables that the user should specify
-	TString input_fname = "eicrecon_outnowwithmuons.root";
-	TString output_fname = "plot_hists_etarange_flat_butmuons.pdf";
+	input_fname = "eicrecon.root"; 
+	output_fname = "plot_hists_brycecanyon3.pdf"; //"plot_hists_etarange_flat.pdf";
 
 	//Define Style
 	gStyle->SetOptStat(0);
@@ -149,7 +149,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 	// -----------------------------------------------
 	// Loading histograms broken down in eta bins
 	TVectorT<double> * V_eta_edges = (TVectorT<double> *) f -> Get("V_eta_edges");
-        const int num_eta_bin = (*V_eta_edges).GetNoElements()-1;
+    const int num_eta_bin = (*V_eta_edges).GetNoElements()-1;
 
 	vector<TH2*> hchi2_vs_hits_etabins(num_eta_bin);
         vector<TH2*> hmeasptrack_vs_hits_etabins(num_eta_bin);
@@ -208,7 +208,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		hmeas_holes_r_vs_z[i] = (TH2*) f->Get(Form("track_qa/residuals/hmeas_holes_r_vs_z_%s", eta_regions[i]));
 
 		hresiduals[i] = (TH1*) f->Get(Form("track_qa/residuals/hresiduals_%s", eta_regions[i]));
-
+		cout << "residual entries: " << hresiduals[i]->GetEntries()<<endl;
 		TString text = Form("%s", eta_regions[i]);
 		if (i==0) { //backward
 			tex_eta_regions[i] = makeTexLabel(text, 0.55, 0.7, 0.7, 0.85, 10);
@@ -247,6 +247,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		htrackstate_z[i] = (TH1*) f->Get(Form("track_qa/residuals/htrackstate_z_%d", vollay_arr[i]));
 		htrackstate_r_vs_z[i] = (TH2*) f->Get(Form("track_qa/residuals/htrackstate_r_vs_z_%d", vollay_arr[i]));
 		hresiduals_vollaybins[i] = (TH1*) f->Get(Form("track_qa/residuals/hresiduals_vollaybins_%d", vollay_arr[i]));
+		printf("%d\n", hresiduals_vollaybins[i]);
 
 		int layID = vollay_arr[i] % 10;
 		int volID = floor(vollay_arr[i] / 10);
@@ -605,4 +606,3 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 
 	
 }
-

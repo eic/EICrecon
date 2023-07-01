@@ -125,7 +125,7 @@ public:
     TH1 *hvolID; //just the volume ID
     TH1 *hlayID;
     TH1 *hvollayIDs;
-    // int vollay_arr[20] = {0,22,142,144,146,192,242,262,264,266,282,302,312,332,342,344,346,352,362,382}; //indices of all (volID*10 + layID) indices - ARCHES
+    //int vollay_arr[20] = {0,22,142,144,146,192,242,262,264,266,282,302,312,332,342,344,346,352,362,382}; //indices of all (volID*10 + layID) indices - ARCHES
     int vollay_arr[20] = {0,22,122,124,126,172,222,242,244,246,262,282,292,312,322,324,326,332,342,362}; //indices of all (volID*10 + layID) indices - BRYCE CANYON
     char vollay_identities[20][20] = {"all","dead","b disk 5","b disk 4","b disk 3","b disk 2","b disk 1",
                                     "vertex 1","vertex 2","vertex 3","f disk 1","barrel sagitta 1","f disk 2",
@@ -141,8 +141,10 @@ public:
     vector<TH2*> hmeas_outliers_r_vs_z;
     vector<TH2*> hmeas_holes_r_vs_z;
 
-
+    int total_measurements = 0;
+    float average_number_of_measurements = 0;
     int test_counter;
+    int event_number = 0;
 
 private:
 

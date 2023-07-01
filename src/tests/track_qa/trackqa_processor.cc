@@ -51,7 +51,6 @@ void trackqa_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
     m_dir_sub = m_dir_main->mkdir("eta_bins");
     m_dir_res = m_dir_main->mkdir("residuals");
-
     //Define histograms
     h1a = new TH2D("h1a","",100,0,25,100,0,25);
     h1a->GetXaxis()->SetTitle("True Momentum [GeV/c]");h1a->GetXaxis()->CenterTitle();
@@ -191,7 +190,7 @@ void trackqa_processor::Init()
 
     const int n_eta_bins = 16;
     TVectorT<double> V_eta_edges(n_eta_bins+1);
-
+    printf("%d", V_eta_edges[0]);
     //use 0.5i-4 to get lowerbound and 0.5i-3.5 to get upper bound
     for (int i=0; i<n_eta_bins; i++){
         double low_eta = 0.5*i-4;
@@ -364,7 +363,6 @@ void trackqa_processor::Init()
     hvollayIDs->GetYaxis()->SetTitle("Counts");hvollayIDs->GetYaxis()->CenterTitle();
     hvollayIDs->SetLineWidth(2);hvollayIDs->SetLineColor(kBlue);
     hvollayIDs->SetDirectory(m_dir_main);
-
     for (int i=0; i<20; i++){
 
         // vollay_index[vollay[i]] = i; //assign index to each item of vollay array
@@ -421,7 +419,6 @@ void trackqa_processor::Init()
 
     }
 
- 
     for (int i=0; i<20; i++) {
         hresiduals_layers_in_pbins.push_back(vector<TH1*>());
         for (int j=0; j<4; j++) { //momentum bins
@@ -437,8 +434,6 @@ void trackqa_processor::Init()
             
         }    
     }
-
-
 
     // Get log level from user parameter or default
     InitLogger(plugin_name);
@@ -457,6 +452,7 @@ void trackqa_processor::Init()
 // This function is called every event
 void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 {
+
     m_log->trace("");
     m_log->trace("trackqa_processor event");
 
@@ -566,9 +562,15 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
     // Loop over the trajectories
     int num_traj = 0;
-
+    
+    // //Populate r_measurements_arr
+    // //Populate z_measurements_arr
+    vector<float> r_measurements_arr;
+    vector<float> z_meaurements_arr;
+    vector<int> vollayids;
+    vector<int> pbins;
+    vector<int> indexregs;
     for (const auto& traj : trajectories) {
-
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
         const auto &mj = traj->multiTrajectory();
@@ -581,7 +583,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         }
         auto &trackTip = trackTips.front();
 
-        // Collect the trajectory summary info
+        // Collect the trajectory summary info  
         auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
         int m_nStates = trajState.nStates;
         int m_nMeasurements = trajState.nMeasurements;
@@ -718,7 +720,6 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             m_log->trace("{:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}",global.x(),global.y(),global.z(),global_r,trackstate.pathLength());
             
             m_log->trace("");
-
             //Fill histograms - note there are only meas chi^2 associated with the CALIBRATED states
             if(num_primary==1 && trackstate.hasCalibrated()){
                 hmeaschi2_vs_volID->Fill(volume,m_measurementChi2[numCalState]);
@@ -735,67 +736,73 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 hlayID->Fill(layer);
                 hvollayIDs->Fill(volume*10+layer);
 
-                // cout << "CHECKPOINT 1" << endl;
 
-                // int vollayID = vollay_index.find(volume*10+layer); //map isn't liked...
+                int vollayID = vollay_index[volume * 10 + layer];
                 auto itr = find(vollay_arr, vollay_arr+20, volume*10+layer);
-                int vollayID = distance(vollay_arr, itr);
-                // cout << "CHECKPOINT 1.5" << endl;
+                //int vollayID = distance(vollay_arr, itr); //DO NOT USE
                 // htrackstate_r_vs_vollayIDs[0]->Fill(volume*10+layer,global_r); //index 0 holds all events (summary)
                 // htrackstate_r_vs_vollayIDs[vollayID]->Fill(volume*10+layer,global_r);
                 // htrackstate_z_vs_vollayIDs[0]->Fill(volume*10+layer,global.z()); //index 0 holds all events (summary)
-                // htrackstate_z_vs_vollayIDs[vollayID]->Fill(volume*10+layer,global.z());
+                // htrackstate_z_vs_vollayIDs[vollayID]->Fill(volume*10+layer,global.z()); 
+
                 htrackstate_r[0]->Fill(global_r);
+
                 htrackstate_r[vollayID]->Fill(global_r);
+
                 htrackstate_z[0]->Fill(global.z());
                 htrackstate_z[vollayID]->Fill(global.z());
+
                 htrackstate_r_vs_z[0]->Fill(global.z(),global_r);
                 htrackstate_r_vs_z[vollayID]->Fill(global.z(),global_r);
-
-                // cout << "CHECKPOINT 2" << endl;
-
                 
-
-                // calculate residuals
-                if (index_reg == 1) { //this is in the barrel - expect r's to be the same, look at dif in z
-                    //look at the hits in this event, see which ones have the same r's
-                    for (int jj=0; jj<r_hits_arr.size(); jj++){
-                        if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
-                            hresiduals[index_reg]->Fill( global.z() - z_hits_arr[jj]);
-                            // break;
-                        }
-                    }
-                } else { //this is in the forward/backward - expect z's to be the same, look at dif in r
-                    //look at the hits in this event, see which ones have the same z's
-                    for (int jj=0; jj<z_hits_arr.size(); jj++){
-                        if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
-                            hresiduals[index_reg]->Fill( global_r - r_hits_arr[jj]);
-                            // break;
-                        }
-                    }
-                }
-                // cout << "CHECKPOINT 3" << endl;
+                //get measurement vectors
+                r_measurements_arr.push_back(global_r);
+                z_meaurements_arr.push_back(global.z());
+                vollayids.push_back(vollayID);
                 int pbin = 3;
                 if (mcp > 1. && mcp < 2.) pbin = 0; else if (mcp < 5.) pbin = 1; else if (mcp < 7.) pbin = 2;
-                if (vollayID == 7 || vollayID == 8 ||  vollayID == 9 ||  vollayID == 11 ||  vollayID == 13 ||  vollayID == 17 || vollayID == 18 ) {
-                    //constant r if vertex/sagitta/barrel -> indices are 7,8,9,11,13,17,18
-                    for (int jj=0; jj<r_hits_arr.size(); jj++){
-                        if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
-                            hresiduals_vollaybins[vollayID]->Fill( global.z() - z_hits_arr[jj]);
-                            hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global.z() - z_hits_arr[jj]);
-                            // break;
-                        }
-                    }
-                } else {
-                    for (int jj=0; jj<z_hits_arr.size(); jj++){
-                        if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
-                            hresiduals_vollaybins[vollayID]->Fill( global_r - r_hits_arr[jj]);
-                            hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global_r - r_hits_arr[jj]);
-                            // break;
-                        }
-                    }
-                }
+                pbins.push_back(pbin);
+                indexregs.push_back(index_reg);
+                
+                // // calculate residuals
+                // if (index_reg == 1) { //this is in the barrel - expect r's to be the same, look at dif in z
+                //     //look at the hits in this event, see which ones have the same r's
+                //     for (int jj=0; jj<r_hits_arr.size(); jj++){
+                //         if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
+                //             hresiduals[index_reg]->Fill(global.z() - z_hits_arr[jj]);
+                //             // break;
+                //         }
+                //     }
+                // } else { //this is in the forward/backward - expect z's to be the same, look at dif in r
+                //     //look at the hits in this event, see which ones have the same z's
+                //     for (int jj=0; jj<z_hits_arr.size(); jj++){
+                //         if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
+                //             hresiduals[index_reg]->Fill( global_r - r_hits_arr[jj]);
+                //             // break;
+                //         }
+                //     }
+                // }
 
+                // int pbin = 3;
+                // if (mcp > 1. && mcp < 2.) pbin = 0; else if (mcp < 5.) pbin = 1; else if (mcp < 7.) pbin = 2;
+                // if (vollayID == 7 || vollayID == 8 ||  vollayID == 9 ||  vollayID == 11 ||  vollayID == 13 ||  vollayID == 17 || vollayID == 18 ) {
+                //     //constant r if vertex/sagitta/barrel -> indices are 7,8,9,11,13,17,18
+                //     for (int jj=0; jj<r_hits_arr.size(); jj++){
+                //         if (fabs(global_r - r_hits_arr[jj]) < 1. ){ //mm
+                //             hresiduals_vollaybins[vollayID]->Fill( global.z() - z_hits_arr[jj]);
+                //             hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global.z() - z_hits_arr[jj]);
+                //             // break;
+                //         }
+                //     }
+                // } else {
+                //     for (int jj=0; jj<z_hits_arr.size(); jj++){
+                //         if (fabs(global.z() - z_hits_arr[jj]) < 1. ){
+                //             hresiduals_vollaybins[vollayID]->Fill( global_r - r_hits_arr[jj]);
+                //             hresiduals_layers_in_pbins[vollayID][pbin]->Fill( global_r - r_hits_arr[jj]);
+                //             // break;
+                //         }
+                //     }
+                // }
             }
         }); //End visiting track points
 
@@ -847,13 +854,12 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             hsummation->Fill(m_nMeasurements + m_nOutliers, m_nCalibrated);
             hsummation2->Fill(m_nOutliers + m_nMeasurements, nHitsallTrackers);
             hsummation3->Fill(m_nMeasurements + m_nOutliers + m_nHoles, m_nCalibrated);
-            //is m_nStates == state_counter??
+            //is m_nStates == state_counter??   
             
         }
 
-
     } //End loop over trajectories
-
+    printf("for loop finished\n");
 
     if(num_primary==1){
         heta->Fill(mceta);
@@ -865,18 +871,92 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         hhits_vs_eta->Fill(mceta, nHitsallTrackers);
         if(num_traj>0) hhits_vs_eta_1->Fill(mceta, nHitsallTrackers);
     }
-
+    
+    if (r_measurements_arr.size() == 0) {
+        m_log->trace("-------------------------");
+        return;
+    }
+    event_number++;
+    total_measurements += r_measurements_arr.size();
+    average_number_of_measurements = (float) total_measurements / (float) event_number;
+    printf("Running total of measurements: %d\n", total_measurements);
+    printf("Running average of number of measurements %f\n", average_number_of_measurements);
+    //First, for the algorithm to work, we have to sort all the arrays.
+    /* This does work without sorting, but there is edge cases
+    where the matching isnt perfect, I am yet to see an edge case while running though.
+    Also bc I am matching using indices, if I sort the arrays, this gets really complicated really quick
+    Solution might be to rewrite using a hashmap.*/
+    // sort(r_measurements_arr.begin(), r_measurements_arr.end());
+    // sort(r_hits_arr.begin(), r_hits_arr.end());
+    // sort(z_meaurements_arr.begin(), r_hits_arr.end());
+    // sort(z_hits_arr.begin(), z_hits_arr.end());
+    printf("check1\n");
+    //now it works  
+    //r_matches is an array that matches r_measurements to hit
+    int* r_matches = new int[r_measurements_arr.size()];
+    //z_matches is an array that matches r_measurements to hit
+    int* z_matches = new int[z_meaurements_arr.size()];
+    printf("check2\n");
+    //matches is an array that has the index of the value to match it to
+    float prev_diff = fabs(r_measurements_arr[0] - r_hits_arr[0]); 
+    float curr_diff;
+    for (int i = 0; i < r_measurements_arr.size(); i++) {
+        for (int j = 0; j < r_hits_arr.size(); j++) {
+            curr_diff = fabs(r_measurements_arr[i] - r_hits_arr[j]);
+            if (curr_diff <= prev_diff) {
+                r_matches[i] = j;
+                prev_diff = curr_diff;
+            }
+        }
+        if (i < r_measurements_arr.size() - 1) prev_diff = fabs(r_measurements_arr[i+1] - r_hits_arr[0]);
+    }
+    prev_diff = fabs(z_meaurements_arr[0] - z_hits_arr[0]);
+    for (int i = 0; i < z_meaurements_arr.size(); i++) {
+        for (int j = 0; j < z_hits_arr.size(); j++) {
+            curr_diff = fabs(z_meaurements_arr[i] - z_hits_arr[j]);
+            if (curr_diff <= prev_diff) {
+                z_matches[i] = j;
+                prev_diff = curr_diff;
+            }
+        }
+        if (i < z_meaurements_arr.size() - 1) prev_diff = fabs(z_meaurements_arr[i+1] - z_hits_arr[0]);
+    }
+    printf("# of rs: %d\n", r_measurements_arr.size());
+    printf("# of r hits: %d\n", r_hits_arr.size());
+    for (int i = 0; i < r_measurements_arr.size(); i++) {
+        printf("r measurement: %f\n", r_measurements_arr[i]);
+        printf("r match: %d\n", r_matches[i]);
+    }
+    printf("# of zs: %d\n", z_meaurements_arr.size());
+    printf("# of z hits: %d\n", z_hits_arr.size());
+    for (int i = 0; i < z_meaurements_arr.size(); i++) {
+        printf("z measurement: %f\n", z_meaurements_arr[i]);
+        printf("z match: %d\n", z_matches[i]);      
+    }
+    //Calculate Residuals
+    for (int i = 0; i < r_measurements_arr.size(); i++) {
+        printf("z Residual is %f\n", z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
+        hresiduals[indexregs[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
+        hresiduals_vollaybins[vollayids[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
+        hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
+    }
+    for (int i = 0; i < z_meaurements_arr.size(); i++) {
+        printf("r Residual is %f\n", r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
+        hresiduals[indexregs[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
+        hresiduals_vollaybins[vollayids[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
+        hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
+    }
     m_log->trace("-------------------------");
-
+    printf("final check");
 }
-
+ 
 //------------------
 // Finish
 //------------------
 void trackqa_processor::Finish()
 {
+    printf("is it finish");
     cout << "The number of times the state counter and meas chi^2 are diff is " << test_counter <<"/10000" << endl;
 
 	m_log->trace("trackqa_processor finished\n");
 }
-
