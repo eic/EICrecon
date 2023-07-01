@@ -47,7 +47,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     auto dd4hepGeo = m_acts_context->dd4hepDetector();
 
     // Extract detector-specific information
-    auto detid_b0tracker = dd4hepGeo->constant<int>("B0Tracker_Station_1_ID")
+    auto detid_b0tracker = dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
