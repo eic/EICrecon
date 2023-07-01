@@ -33,14 +33,16 @@ void InitPlugin(JApplication *app) {
 
     // Tracker hits collector
     app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
-                     {
-                         "SiBarrelTrackerRecHits",      // Si tracker hits
+                      {
+                         "SiBarrelTrackerRecHits",          // Si tracker hits
                          "SiBarrelVertexRecHits",
                          "SiEndcapTrackerRecHits",
                          "TOFBarrelRecHit",             // TOF hits
                          "TOFEndcapRecHits",
-                         "MPGDBarrelRecHits",           // MPGD
-                         "MPGDDIRCRecHits"},
+                         "MPGDBarrelRecHits",        // MPGD
+                         "MPGDDIRCRecHits",
+                         "B0TrackerRecHits"          // B0TRK
+                      },
 
                       "CentralTrackingRecHits"));    // Output collection name
 

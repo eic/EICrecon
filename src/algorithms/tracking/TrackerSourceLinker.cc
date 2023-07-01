@@ -30,6 +30,8 @@ void eicrecon::TrackerSourceLinker::init(std::shared_ptr<const dd4hep::rec::Cell
     m_cellid_converter = std::move(cellid_converter);
     m_log = std::move(logger);
     m_acts_context = std::move(acts_context);
+    m_dd4hepGeo = m_acts_context->dd4hepDetector();
+    m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
 }
 
 
@@ -80,19 +82,24 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
         Acts::Vector2 pos;
+        auto hit_det = hit->getCellID()&0xFF;
+        auto onSurfaceTolerance = 0.1*Acts::UnitConstants::um;      // By default, ACTS uses 0.1 micron as the on surface tolerance
+        if (hit_det==m_detid_b0tracker){
+         onSurfaceTolerance = 1*Acts::UnitConstants::um;           // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
+        }
+
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
             pos = surface->globalToLocal(
                     Acts::GeometryContext(),
                     {hit_pos.x, hit_pos.y, hit_pos.z},
-                    {0, 0, 0}).value();
+                    {0, 0, 0}, onSurfaceTolerance).value();
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
         }
         catch(std::exception &ex) {
-
             m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
                         vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
             continue;
