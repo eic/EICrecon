@@ -161,5 +161,3 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(uint64_t cellID, dd
 
   return pos_transformed;
 }
-
-
