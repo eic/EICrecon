@@ -44,6 +44,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     std::list<eicrecon::IndexSourceLink> linkStorage;
     auto sourceLinks = std::vector<std::shared_ptr<eicrecon::IndexSourceLink>>();
     auto measurements = std::make_shared<eicrecon::MeasurementContainer>();
+    auto dd4hepGeo = m_acts_context->dd4hepDetector();
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
@@ -82,7 +83,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         Acts::Vector2 pos;
         auto hit_det = hit->getCellID()&0xFF;
         auto onSurfaceTolerance = 0.1*Acts::UnitConstants::um;      // By default, ACTS uses 0.1 micron as the on surface tolerance
-        if (hit_det==150){
+        if (hit_det==dd4hepGeo->constant<int>("B0Tracker_Station_1_ID")){
          onSurfaceTolerance = 1*Acts::UnitConstants::um;           // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
         }
 
