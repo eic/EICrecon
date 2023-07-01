@@ -8,16 +8,16 @@
 #include <spdlog/spdlog.h>
 
 // DD4Hep
-#include "DD4hep/Detector.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DD4hep/DD4hepUnits.h"
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DD4hep/DD4hepUnits.h>
 
 // IRT
-#include "IRT/CherenkovDetectorCollection.h"
-#include "IRT/CherenkovPhotonDetector.h"
-#include "IRT/CherenkovRadiator.h"
-#include "IRT/OpticalBoundary.h"
-#include "IRT/ParametricSurface.h"
+#include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/CherenkovPhotonDetector.h>
+#include <IRT/CherenkovRadiator.h>
+#include <IRT/OpticalBoundary.h>
+#include <IRT/ParametricSurface.h>
 
 // local
 #include "RichGeo.h"

@@ -9,8 +9,8 @@
 #include <spdlog/spdlog.h>
 
 // DD4Hep
-#include "DD4hep/Detector.h"
-#include "DD4hep/DD4hepUnits.h"
+#include <DD4hep/Detector.h>
+#include <DD4hep/DD4hepUnits.h>
 
 // ACTS
 #include <Acts/Surfaces/Surface.hpp>
