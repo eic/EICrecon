@@ -87,7 +87,6 @@ public:
 
         // Hand owner of algorithm objects over to JANA
         Set(rawhits);
-        rawhits.clear(); // not really needed, but better to not leave dangling pointers around
     }
 
 };
