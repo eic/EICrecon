@@ -1,2 +1,1 @@
-# Ref. https://clang.llvm.org/docs/AddressSanitizer.html#suppressing-reports-in-external-libraries
 interceptor_via_lib:libCore.so
