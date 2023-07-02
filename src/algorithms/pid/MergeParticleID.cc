@@ -170,7 +170,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
               out_hyp.weight *= in_hyp.weight;
               break;
             default:
-              m_log->error("unknown MergeParticleIDConfig::mergeMode setting; weights not combined");
+              throw std::runtime_error("unknown MergeParticleIDConfig::mergeMode setting; weights not combined");
           }
         }
       } // end `in_pid.getHypotheses()` loop, for this charged particle
