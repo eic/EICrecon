@@ -28,11 +28,11 @@
 
 namespace eicrecon {
 
-    class RomanPotsReconstruction_factory : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>{
+    class OffMomentumReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
 
     public:
 
-	RomanPotsReconstruction_factory(); //constructer
+	OffMomentumReconstruction_factory(); //constructer
 
         /** One time initialization **/
         void Init() override;
@@ -45,12 +45,12 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 
-	//const double local_x_offset_station_1 = -833.3878326;
-	//const double local_x_offset_station_2 = -924.342804;
-	const double local_x_slope_offset = -0.00622147;
-	const double local_y_slope_offset = -0.0451035;
-	const double crossingAngle = -0.025;
-	const double nomMomentum = 275.0;
+	const double local_x_offset = -11.9872; // in mm --> this is from mis-alignment of the detector
+	const double local_y_offset = -0.0146;  //in mm --> this is from mis-alignment of the detector
+	const double local_x_slope_offset = -14.75315; //in mrad
+	const double local_y_slope_offset = -0.0073; //in mrad
+	const double crossingAngle = -0.025; //in mrad
+	const double nomMomentum = 137.5; //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
 	std::string m_readout;
 	std::string m_geoSvcName;
@@ -60,25 +60,27 @@ namespace eicrecon {
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
-	size_t local_mask = ~static_cast<size_t>(0);
+	size_t local_mask = ~0;
 	dd4hep::Detector *detector = nullptr;
 
-	const double aXRP[2][2] = {{2.102403743, 29.11067626},
-	                           {0.186640381, 0.192604619}};
-	const double aYRP[2][2] = {{0.0000159900, 3.94082098},
-	                           {0.0000079946, -0.1402995}};
+	const double aXOMD[2][2] = {{1.6248, 12.966293},
+	                           {0.1832, -2.8636535}};
+	//const double aXOMD[2][2] = {{-1.3656, 2.9971},
+	//                           {-0.14452284, -3.33502319}};
+	const double aYOMD[2][2] = {{0.0001674, -28.6003},
+	                           {0.0000837, -2.87985}};
 
-	double aXRPinv[2][2] = {{0.0, 0.0},
+	double aXOMDinv[2][2] = {{0.0, 0.0},
 	                        {0.0, 0.0}};
-	double aYRPinv[2][2] = {{0.0, 0.0},
+	double aYOMDinv[2][2] = {{0.0, 0.0},
 	                        {0.0, 0.0}};
 
 
 
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-		std::string m_input_tag  = "ForwardRomanPotHits";
-		std::string m_output_tag = "ForwardRomanPotRecParticles";
+		std::string m_input_tag  = "ForwardOffMTrackerHits";
+		std::string m_output_tag = "ForwardOffMRecParticles";
 
     };
 
