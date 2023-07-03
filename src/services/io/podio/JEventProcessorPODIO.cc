@@ -54,6 +54,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "InnerMPGDBarrelRecHits",
+            "BackwardMPGDEndcapRecHits",
+            "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
             "ForwardOffMTrackerRecHits",

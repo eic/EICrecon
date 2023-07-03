@@ -23,12 +23,12 @@ void InitPlugin(JApplication *app) {
     // Digitization
     SiliconTrackerDigiConfig barrel_digi_default_cfg;
     barrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
-    barrel_digi_default_cfg.timeResolution = 8;
+    barrel_digi_default_cfg.timeResolution = 10;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDBarrelHits"}, "MPGDBarrelDigiHits", barrel_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig tracker_hit_reco_cfg;
-    tracker_hit_reco_cfg.time_resolution = 8;
+    tracker_hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"MPGDBarrelDigiHits"},     // Input data collection tags
             "MPGDBarrelRecHits",    // Output data tag
@@ -36,17 +36,72 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig dirc_digi_default_cfg;
-    barrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
-    barrel_digi_default_cfg.timeResolution = 8;
+    dirc_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    dirc_digi_default_cfg.timeResolution = 10;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDDIRCHits"}, "MPGDDIRCDigiHits", dirc_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     TrackerHitReconstructionConfig dirc_hit_reco_cfg;
-    tracker_hit_reco_cfg.time_resolution = 8;
+    dirc_hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"MPGDDIRCDigiHits"},     // Input data collection tags
             "MPGDDIRCRecHits",   // Output data tag
             dirc_hit_reco_cfg));          // Hit reco default config for factories
 
+    // Digitization
+    SiliconTrackerDigiConfig outMPGDbarrel_digi_default_cfg;
+   outMPGDbarrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+   outMPGDbarrel_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"OuterMPGDBarrelHits"}, "OuterMPGDBarrelDigiHits", outMPGDbarrel_digi_default_cfg));
+
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig outMPGDbarrel_hit_reco_cfg;
+    outMPGDbarrel_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"OuterMPGDBarrelDigiHits"},     // Input data collection tags
+            "OuterMPGDBarrelRecHits",   // Output data tag
+            outMPGDbarrel_hit_reco_cfg));          // Hit reco default config for factories
+						   
+    // Digitization
+    SiliconTrackerDigiConfig inMPGDbarrel_digi_default_cfg;
+    inMPGDbarrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    inMPGDbarrel_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"InnerMPGDBarrelHits"}, "InnerMPGDBarrelDigiHits", inMPGDbarrel_digi_default_cfg));
+
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig inMPGDbarrel_hit_reco_cfg;
+    inMPGDbarrel_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"InnerMPGDBarrelDigiHits"},     // Input data collection tags
+            "InnerMPGDBarrelRecHits",   // Output data tag
+            inMPGDbarrel_hit_reco_cfg));          // Hit reco default config for factories
+						  
+    // Digitization
+    SiliconTrackerDigiConfig backMPGDendcap_digi_default_cfg;
+    backMPGDendcap_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    backMPGDendcap_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"BackwardMPGDEndcapHits"}, "BackwardMPGDEndcapDigiHits", backMPGDendcap_digi_default_cfg));
+    
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig backMPGDendcap_hit_reco_cfg;
+    backMPGDendcap_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"BackwardMPGDEndcapDigiHits"},     // Input data collection tags
+            "BackwardMPGDEndcapRecHits",   // Output data tag
+            backMPGDendcap_hit_reco_cfg));          // Hit reco default config for factories
+
+    // Digitization
+    SiliconTrackerDigiConfig forwardMPGDendcap_digi_default_cfg;
+    forwardMPGDendcap_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    forwardMPGDendcap_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"ForwardMPGDEndcapHits"}, "ForwardMPGDEndcapDigiHits", forwardMPGDendcap_digi_default_cfg));
+    
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig forwardMPGDendcap_hit_reco_cfg;
+    forwardMPGDendcap_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"ForwardMPGDEndcapDigiHits"},     // Input data collection tags
+            "ForwardMPGDEndcapRecHits",   // Output data tag
+            forwardMPGDendcap_hit_reco_cfg));          // Hit reco default config for factories
 }
 } // extern "C"
