@@ -33,11 +33,14 @@ plugin_glob_all(${PLUGIN_NAME})
 file(GLOB EDM4HEP_DEPENDS ${EDM4HEP_INCLUDE_DIR}/edm4hep/*.h)
 file(GLOB EDM4EIC_DEPENDS ${EDM4EIC_INCLUDE_DIR}/edm4eic/*.h)
 add_custom_command(
-        OUTPUT ${podio_BINARY_DIR}/datamodel_glue.h ${podio_BINARY_DIR}/datamodel_includes.h
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${podio_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_glue.h ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py WORKING_DIR=${CMAKE_CURRENT_BINARY_DIR} EDM4HEP_INCLUDE_DIR=${EDM4HEP_INCLUDE_DIR} EDM4EIC_INCLUDE_DIR=${EDM4EIC_INCLUDE_DIR}
         MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 	DEPENDS ${EDM4HEP_DEPENDS} ${EDM4EIC_DEPENDS}
 )
+
+# Add include directories (works same as target_include_directories)
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} fmt::fmt EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
