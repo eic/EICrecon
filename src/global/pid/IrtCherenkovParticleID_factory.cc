@@ -51,7 +51,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   std::map<std::string, const edm4eic::TrackSegmentCollection*> charged_particles; // map : radiator_name -> collection of TrackSegments
   int tag_num = 0;
   while(tag_num < richgeo::nRadiators) {
-    auto input_tag   = GetInputTags()[tag_num++];
+    auto input_tag   = GetInputTags().at(tag_num++);
     auto radiator_id = richgeo::ParseRadiatorName(input_tag);
     if(radiator_id >= 0 && radiator_id < richgeo::nRadiators)
       charged_particles.insert({

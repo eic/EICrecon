@@ -67,7 +67,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             //
             "ForwardRomanPotRecParticles",
-            "SmearedFarForwardParticles",
+            "ForwardOffMRecParticles",
+	    "SmearedFarForwardParticles",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -91,71 +92,86 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapNRawHits",
             "EcalEndcapNRecHits",
             "EcalEndcapNTruthClusters",
-            "EcalEndcapNClusters",
             "EcalEndcapNTruthClusterAssociations",
+            "EcalEndcapNClusters",
             "EcalEndcapNClusterAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
             "EcalEndcapPTruthClusters",
-            "EcalEndcapPClusters",
             "EcalEndcapPTruthClusterAssociations",
+            "EcalEndcapPClusters",
             "EcalEndcapPClusterAssociations",
             "EcalEndcapPInsertRawHits",
             "EcalEndcapPInsertRecHits",
             "EcalEndcapPInsertTruthClusters",
-            "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertTruthClusterAssociations",
+            "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertClusterAssociations",
             "EcalBarrelSciGlassRawHits",
             "EcalBarrelSciGlassRecHits",
             "EcalBarrelSciGlassClusters",
+            "EcalBarrelSciGlassClusterAssociations",
             "EcalBarrelSciGlassTruthClusters",
+            "EcalBarrelSciGlassTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
+            "EcalBarrelImagingClusterAssociations",
             "EcalBarrelImagingMergedClusters",
+            "EcalBarrelImagingMergedClusterAssociations",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
+            "EcalBarrelScFiClusterAssociations",
             "EcalLumiSpecRawHits",
             "EcalLumiSpecRecHits",
             "EcalLumiSpecTruthClusters",
-            "EcalLumiSpecClusters",
             "EcalLumiSpecTruthClusterAssociations",
+            "EcalLumiSpecClusters",
             "EcalLumiSpecClusterAssociations",
             "HcalEndcapNRawHits",
             "HcalEndcapNRecHits",
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
+            "HcalEndcapNClusterAssociations",
             "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
             "HcalEndcapPRecHits",
             "HcalEndcapPMergedHits",
-            "HcalEndcapPClusters",
+            "HcalEndcapPTruthClusters",
             "HcalEndcapPTruthClusterAssociations",
+            "HcalEndcapPClusters",
             "HcalEndcapPClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
             "HcalEndcapPInsertClusters",
+            "HcalEndcapPInsertClusterAssociations",
             "LFHCALRawHits",
             "LFHCALRecHits",
             "LFHCALClusters",
+            "LFHCALClusterAssociations",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",
+            "HcalBarrelClusterAssociations",
             "B0ECalRawHits",
             "B0ECalRecHits",
             "B0ECalClusters",
+            "B0ECalClusterAssociations",
             "ZDCEcalRawHits",
             "ZDCEcalRecHits",
             "ZDCEcalClusters",
+            "ZDCEcalClusterAssociations",
             "HcalEndcapNTruthClusters",
-//            "HcalEndcapPTruthClusters",  // This gives lots of errors from volume manager on "unknown identifier"
+            "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
+            "HcalBarrelTruthClusterAssociations",
             "B0ECalRecHits",
             "B0ECalClusters",
-            "ZDCEcalTruthClusters"
+            "B0ECalClusterAssociations",
+            "ZDCEcalTruthClusters",
+            "ZDCEcalTruthClusterAssociations"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
@@ -240,6 +256,20 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         FindCollectionsToWrite(event);
     }
 
+    // Trigger all collections once to fix the collection IDs
+    // TODO: WDC: This should not be necessary, but while we await collection IDs
+    //            that are determined by hash, we have to ensure they are reproducible
+    //            even if the collections are filled in unpredictable order (or not at
+    //            all). See also below, at "TODO: NWB:".
+    for (const auto& coll_name : m_collections_to_write) {
+        try {
+            const auto* coll_ptr = event->GetCollectionBase(coll_name);
+        }
+        catch(std::exception &e) {
+            // chomp
+        }
+    }
+
     // Print the contents of some collections, just for debugging purposes
     // Do this before writing just in case writing crashes
     if (!m_collections_to_print.empty()) {
@@ -249,7 +279,17 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     for (const auto& coll_name : m_collections_to_print) {
         LOG << "------------------------------" << LOG_END;
         LOG << coll_name << LOG_END;
-        event->GetCollectionBase(coll_name)->print();
+        try {
+            const auto* coll_ptr = event->GetCollectionBase(coll_name);
+            if (coll_ptr == nullptr) {
+                LOG << "missing" << LOG_END;
+            } else {
+                coll_ptr->print();
+            }
+        }
+        catch(std::exception &e) {
+            LOG << "missing" << LOG_END;
+        }
     }
 
     m_log->trace("==================================");
@@ -274,7 +314,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     //            We do this so that we always have the same collections created in the same order.
     //            This means that the collection IDs are stable so the writer doesn't segfault.
     //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
-    // std::vector<std::string> successful_collections;  // TODO: NWB: Re-enable me
+    std::vector<std::string> successful_collections;
     static std::set<std::string> failed_collections;
     for (const std::string& coll : m_collections_to_write) {
         try {
@@ -291,7 +331,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 }
             }
             else {
-                // successful_collections.push_back(coll); // TODO: NWB: Re-enable me
+                m_log->trace("Including PODIO collection '{}'", coll);
+                successful_collections.push_back(coll);
             }
         }
         catch(std::exception &e) {
@@ -302,7 +343,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
             }
         }
     }
-    // m_collections_to_write = successful_collections; // TODO: NWB: Re-enable me
+    m_collections_to_write = successful_collections;
 
     // Frame will contain data from all Podio factories that have been triggered,
     // including by the `event->GetCollectionBase(coll);` above.
