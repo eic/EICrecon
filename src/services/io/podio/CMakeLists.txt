@@ -43,7 +43,7 @@ plugin_link_libraries(${PLUGIN_NAME} fmt::fmt EDM4HEP::edm4hep EDM4HEP::edm4hepD
 
 # Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.
-root_generate_dictionary(G__datamodel_vectors ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h MODULE ${PLUGIN_NAME}_plugin LINKDEF datamodel_LinkDef.h)
+root_generate_dictionary(G__datamodel_vectors ${datamodel_BINARY_DIR}/datamodel_includes.h MODULE ${PLUGIN_NAME}_plugin LINKDEF datamodel_LinkDef.h)
 
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
