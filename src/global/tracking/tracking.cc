@@ -67,15 +67,14 @@ void InitPlugin(JApplication *app) {
             "CentralTrackingParticles",                       // Tag name for multifactory
             {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
             {"outputParticles",                               // edm4eic::ReconstructedParticle
-             "outputTrackParametersT"},                        // edm4eic::TrackParameters
+             "outputTrackParametersACTS"},                        // edm4eic::TrackParameters
             app));
 
-    // Tracker hits collector
+    // Tracker hits collector from ACTS and other factories
     app->Add(new JChainFactoryGeneratorT<TrackerParticleCollector_factory>(
-                     {
-		       "outputTrackParametersT",           // MPGD
-                         "LowQ2Particles"},
-
+            {"outputTrackParametersACTS",  // ACTS output
+             "LowQ2Particles"},            // Low Q2 output
+ 
                       "outputTrackParameters"));    // Output collection name
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(

@@ -27,7 +27,7 @@ extern "C" {
     using namespace eicrecon;
 
     // -------------------------------
-    // To do - Parameterization of charge/signal sharing in detector.
+    // TODO: Separate algorithms from factories and and config parameters
     // -------------------------------
 
     // Digitization
@@ -48,12 +48,6 @@ extern "C" {
     // Initial particle reconstruction
 //     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>());
     app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
-
-
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    TrackerHitReconstructionConfig hit_reco_cfg;
-    // change default parameters like hit_reco_cfg.time_resolution = 10;
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
 
   }
 }
