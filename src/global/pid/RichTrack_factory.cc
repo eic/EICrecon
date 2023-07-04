@@ -40,7 +40,7 @@ void eicrecon::RichTrack_factory::Init() {
   cfg.Print(m_log, spdlog::level::debug);
 
   // get RICH geometry for track propagation, for each radiator
-  m_actsGeo = m_richGeoSvc->GetActsGeo(plugin);
+  m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
   for(auto& [radiator_id, radiator_name, output_tag] : radiator_list) {
     m_tracking_planes.insert({
         output_tag,
