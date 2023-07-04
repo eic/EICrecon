@@ -65,7 +65,7 @@ extern "C" {
     // track propagation to each radiator
     RichTrackConfig track_cfg;
     track_cfg.numPlanes.insert({ "Aerogel", 5  });
-    track_cfg.numPlanes.insert({ "Gas",     10 });
+    track_cfg.numPlanes.insert({ "Gas",     30 });
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
@@ -73,14 +73,12 @@ extern "C" {
     irt_cfg.numRIndexBins = 100;
     // - aerogel
     irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
-    irt_cfg.radiators.at("Aerogel").zbins           = track_cfg.numPlanes.at("Aerogel");
     irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
     irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
     irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
     irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
     // - gas
     irt_cfg.radiators.insert({"Gas", RadiatorConfig{}});
-    irt_cfg.radiators.at("Gas").zbins           = track_cfg.numPlanes.at("Gas");
     irt_cfg.radiators.at("Gas").referenceRIndex = 1.00076;
     irt_cfg.radiators.at("Gas").attenuation     = 0; // [mm]
     irt_cfg.radiators.at("Gas").smearingMode    = "gaussian";

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 #include <spdlog/logger.h>
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -46,11 +47,14 @@ namespace eicrecon {
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
                                                          const std::shared_ptr<const Acts::Surface> &targetSurf);
 
-        /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`
+        /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
+         *  optionally omit track points with `trackPointCut`.
          * @remark: being a simple wrapper of propagate(...) this method is more sutable for factories */
         std::unique_ptr<edm4eic::TrackSegmentCollection> propagateToSurfaceList(
             std::vector<const eicrecon::TrackingResultTrajectory*> trajectories,
-            std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces
+            std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
+            std::function<bool(edm4eic::TrackPoint)> trackPointCut = [] (edm4eic::TrackPoint p) { return true; },
+            bool stopIfTrackPointCutFailed = false
             );
 
     private:

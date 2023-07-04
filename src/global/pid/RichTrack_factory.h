@@ -59,6 +59,9 @@ namespace eicrecon {
 
       // map: output_tag name (for a radiator's track projections) -> a vector of xy-planes to project to
       std::map< std::string, std::vector<std::shared_ptr<Acts::Surface>> > m_tracking_planes;
+      // map: output tag name -> cuts
+      std::map< std::string, std::function<bool(edm4eic::TrackPoint)> > m_track_point_cuts;
+
 
       // underlying algorithm
       eicrecon::TrackPropagation m_propagation_algo;
