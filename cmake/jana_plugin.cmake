@@ -221,10 +221,6 @@ macro(plugin_add_event_model _name)
         find_package(EDM4EIC REQUIRED)
     endif()
 
-    # Add include directories
-    # ${podio_BINARY_DIR} is an include path to datamodel_glue.h
-    plugin_include_directories(${PLUGIN_NAME} PUBLIC ${podio_BINARY_DIR})
-
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
     plugin_link_libraries(${PLUGIN_NAME}
