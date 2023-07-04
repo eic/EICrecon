@@ -46,19 +46,16 @@ namespace eicrecon {
       		    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
     		}
     		catch(std::exception &e){
-      		    m_log->error("Failed to load method {} from file {}",m_method_name,weightName);
-       		    return;
+      		    throw JException(fmt::format("Failed to load method {} from file {}",m_method_name,weightName));
     		}
 		return;
 	    }
         }
-        m_log->error("File {} not found in any {} paths",m_file_path,m_environment_path);
-        return;
+        throw JException(fmt::format("File {} not found in any {} paths",m_file_path,m_environment_path));
 
     }
     else {
-      m_log->error("Environment variable {} not found",m_environment_path);
-      return;
+      throw JException(fmt::format("Environment variable {} not found",m_environment_path));
     }
 
   }
