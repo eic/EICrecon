@@ -4,19 +4,14 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParameters.h>
-#include "extensions/string/StringHelpers.h"
 #include "ParticlesWithPID_factory.h"
 
 
 void eicrecon::ParticlesWithPID_factory::Init() {
     auto app = GetApplication();
 
-    // This prefix will be used for parameters
-    std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-    std::string param_prefix = plugin_name + GetPrefix();
-
     // SpdlogMixin logger initialization, sets m_log
-    InitLogger(param_prefix, "info");
+    InitLogger(GetPrefix(), "info");
     m_matching_algo.init(m_log);
 }
 
