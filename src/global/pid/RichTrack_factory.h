@@ -22,7 +22,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
   class RichTrack_factory :

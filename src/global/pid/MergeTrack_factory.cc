@@ -7,15 +7,15 @@
 void eicrecon::MergeTrack_factory::Init() {
 
   // get plugin name and tag
-  auto app = GetApplication();
-  auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-  auto param_prefix = detector_name + ":" + GetTag();
-  InitDataTags(param_prefix);
+  auto app    = GetApplication();
+  auto plugin = GetPluginName();
+  auto prefix = plugin + ":" + GetTag();
+  InitDataTags(prefix);
 
   // services
-  InitLogger(param_prefix, "info");
+  InitLogger(prefix, "info");
   m_algo.AlgorithmInit(m_log);
-  m_log->debug("detector_name='{}'  param_prefix='{}'", detector_name, param_prefix);
+  m_log->debug("MergeTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
 }
 
