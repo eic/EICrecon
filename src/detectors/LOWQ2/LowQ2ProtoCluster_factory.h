@@ -20,7 +20,7 @@ namespace eicrecon {
   struct TrackerProtoCluster {
     int layer;
     int module;
-    std::vector<edm4eic::RawTrackerHit>* associatedHits;
+    std::vector<edm4eic::RawTrackerHit> associatedHits;
   };
 
   class LowQ2ProtoCluster_factory : public JChainFactoryT<eicrecon::TrackerProtoCluster, NoConfig, JFactoryT>{

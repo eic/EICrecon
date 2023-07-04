@@ -93,7 +93,7 @@ namespace eicrecon {
     while(ROOT::VecOps::Any(avaliable)){
 
       auto pCluster = new eicrecon::TrackerProtoCluster();
-      pCluster->associatedHits = new std::vector<edm4eic::RawTrackerHit>;
+      //pCluster->associatedHits = std::vector<edm4eic::RawTrackerHit>;
 
       auto maxIndex = ROOT::VecOps::ArgMax(e*avaliable);
 
@@ -117,7 +117,7 @@ namespace eicrecon {
 
 	indexList.erase(indexList.begin());
 
-	pCluster->associatedHits->push_back(*inputhits[index]);
+	pCluster->associatedHits.push_back(*inputhits[index]);
 
       }
 

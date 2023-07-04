@@ -45,10 +45,10 @@ namespace eicrecon {
 
       ROOT::Math::XYZVector position(0,0,0);
 
-      auto hits = *protoCl->associatedHits;
+      auto hits = protoCl->associatedHits;
 
       // Loop over hits contributing to the protocluster
-      for (cons auto &hit : hits) {
+      for (const auto &hit : hits) {
 	auto hitE = hit.getCharge();
 	auto hitT = hit.getTimeStamp();
 	auto id   = hit.getCellID();
