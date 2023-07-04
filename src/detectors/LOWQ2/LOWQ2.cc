@@ -55,11 +55,5 @@ extern "C" {
     // change default parameters like hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"TaggerTrackerRawHit"}, "TaggerTrackerHit", hit_reco_cfg));
 
-//     app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerClusterPositions"),"LowQ2Tracks");
-    //    app->Add(new JFactoryGeneratorT<LowQ2Tracking_factory>("TaggerTrackerHit"),"LowQ2Tracks");
-
-//     // Initial electron reconstruction
-//     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>("LowQ2Tracks"),"LowQ2RecParticles");
-
   }
 }

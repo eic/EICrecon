@@ -21,8 +21,6 @@ namespace eicrecon {
 
     m_geoSvc  = app->GetService<JDD4hep_service>();
 
-    m_log->info("LowQ2 Tagger Clustering Prep complete...");
-
   }
 
 
@@ -50,7 +48,7 @@ namespace eicrecon {
       auto hits = *protoCl->associatedHits;
 
       // Loop over hits contributing to the protocluster
-      for(auto hit : hits){
+      for (cons auto &hit : hits) {
 	auto hitE = hit.getCharge();
 	auto hitT = hit.getTimeStamp();
 	auto id   = hit.getCellID();

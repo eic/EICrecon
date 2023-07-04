@@ -22,33 +22,33 @@ namespace eicrecon {
 
     m_geoSvc = app->GetService<JDD4hep_service>();
 
-    if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
+    if (m_readout.empty()) {
+      throw JException("Readout is empty");
+    }
 
     try {
       id_dec = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
       if (!m_moduleField.empty()) {
 	module_idx = id_dec->index(m_moduleField);
-	m_log->info("Find module field {}, index = {}", m_moduleField, module_idx);
+	m_log->debug("Find module field {}, index = {}", m_moduleField, module_idx);
       }
       if (!m_layerField.empty()) {
 	layer_idx = id_dec->index(m_layerField);
-	m_log->info("Find layer field {}, index = {}", m_layerField, layer_idx);
+	m_log->debug("Find layer field {}, index = {}", m_layerField, layer_idx);
       }
       if (!m_xField.empty()) {
 	x_idx = id_dec->index(m_xField);
-	m_log->info("Find layer field {}, index = {}",  m_xField,      x_idx);
+	m_log->debug("Find layer field {}, index = {}",  m_xField, x_idx);
       }
       if (!m_yField.empty()) {
 	y_idx = id_dec->index(m_yField);
-	m_log->info("Find layer field {}, index = {}", m_yField, y_idx);
+	m_log->debug("Find layer field {}, index = {}", m_yField, y_idx);
       }
     } catch (...) {
       m_log->error("Failed to load ID decoder for {}", m_readout);
       throw JException("Failed to load ID decoder");
     }
 
-
-    m_log->info("LowQ2 Tagger Decoding complete...");
 
   }
 
