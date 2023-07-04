@@ -86,18 +86,18 @@ namespace eicrecon {
 
     std::vector<TrackerProtoCluster*> outputProtoClusters;
 
-    for(ulong i = 0; i<indeces.size(); i++)
-      indeces[i] = i;
+    for(ulong i = 0; i<indices.size(); i++)
+      indices[i] = i;
 
     // Loop while there are unclustered hits
-    while(ROOT::VecOps::Any(avaliable)){
+    while(ROOT::VecOps::Any(available)){
 
       auto pCluster = new eicrecon::TrackerProtoCluster();
       //pCluster->associatedHits = std::vector<edm4eic::RawTrackerHit>;
 
-      auto maxIndex = ROOT::VecOps::ArgMax(e*avaliable);
+      auto maxIndex = ROOT::VecOps::ArgMax(e*available);
 
-      avaliable[maxIndex] = 0;
+      available[maxIndex] = 0;
 
       ROOT::VecOps::RVec<ulong> indexList = {maxIndex};
 
@@ -111,9 +111,9 @@ namespace eicrecon {
       while(indexList.size()){
 
 	auto index = indexList[0];
-	auto filter = avaliable*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
-	avaliable = avaliable*(!filter);
-	indexList = Concatenate(indexList,indeces[filter]);
+	auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
+	available = available*(!filter);
+	indexList = Concatenate(indexList,indices[filter]);
 
 	indexList.erase(indexList.begin());
 
