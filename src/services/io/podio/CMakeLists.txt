@@ -36,7 +36,7 @@ add_custom_command(
 )
 
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+plugin_include_directories(${PLUGIN_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} fmt::fmt EDM4HEP::edm4hep EDM4HEP::edm4hepDict EDM4EIC::edm4eic EDM4EIC::edm4eic_utils podio::podioRootIO)
