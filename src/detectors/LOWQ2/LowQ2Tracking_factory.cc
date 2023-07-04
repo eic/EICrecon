@@ -27,8 +27,6 @@ namespace eicrecon {
 
 	m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-	m_log->info("LowQ2 Tracking Built...");
-
     }
 
 

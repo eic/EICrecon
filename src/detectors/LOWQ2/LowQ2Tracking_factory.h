@@ -34,9 +34,6 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
-	//----- Define constants here ------
-
-
 	private:
 		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 		std::string m_input_tag  = "TaggerTrackerClusterPositions";
