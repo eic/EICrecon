@@ -65,12 +65,35 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
     }
     trackRmin = [&] (auto z) { return rmin0 + boreSlope * (z - zmin); };
 
-    // define discs
+    // define discs: `numPlanes` z-equidistant planes *within* the radiator;
+    /* NOTE: do not allow planes to be at radiator boundary
+     * NOTE: alternative binning strategies do not seem to work well with the IRT algorithm;
+     *       this one seems to work the best
+     *
+     * EXAMPLE: numPlanes=4
+     *
+     *    trackZmin         trackZmax
+     *       :                 :
+     *       :                 :
+     *       +===================+....trackRmax
+     *       [   |   |   |   |   ]
+     *       [   |   |   |   |   ]
+     *       [   <--planes--->   ]
+     *       [   0   1   2   3   ]
+     *       [   |   |   |   |   ]
+     *       [   |   |   |   |   ]
+     *       +===================+....trackRmin
+     *       :   :       :   :
+     *     ->:   :<-     :   :
+     *     trackZstep    :   :
+     *                 ->:   :<-
+     *                 trackZStep
+     */
     m_log->debug("Define ACTS disks for {} radiator: {} disks in z=[ {}, {} ]",
         RadiatorName(radiator), numPlanes, trackZmin, trackZmax);
-    double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes-1);
+    double trackZstep = std::abs(trackZmax-trackZmin) / (numPlanes+1);
     for(int i=0; i<numPlanes; i++) {
-      auto z         = trackZmin + i*trackZstep;
+      auto z         = trackZmin + (i+1)*trackZstep;
       auto rmin      = trackRmin(z);
       auto rmax      = trackRmax(z);
       auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
@@ -88,4 +111,42 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
   // ------------------------------------------------------------------------------------------------
   else m_log->error("ActsGeo is not defined for detector '{}'",m_detName);
   return discs;
+}
+
+// generate a cut to remove any track points that should not be used
+std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) {
+
+  // reject track points in dRICH gas that are beyond the dRICH mirrors
+  // FIXME: assumes the full mirror spheres are much bigger than the dRICH
+  // FIXME: needs to be generalized for dual or multi-mirror (per sector) design
+  if(m_detName=="DRICH" && radiator==kGas) {
+
+    // get sphere centers
+    std::vector<dd4hep::Position> mirror_centers;
+    for(int isec = 0; isec < m_det->constant<int>("DRICH_num_sectors"); isec++)
+      mirror_centers.emplace_back(
+          m_det->constant<double>("DRICH_mirror_center_x_sec" + std::to_string(isec)) / dd4hep::mm,
+          m_det->constant<double>("DRICH_mirror_center_y_sec" + std::to_string(isec)) / dd4hep::mm,
+          m_det->constant<double>("DRICH_mirror_center_z_sec" + std::to_string(isec)) / dd4hep::mm
+          );
+    auto mirror_radius = m_det->constant<double>("DRICH_mirror_radius") / dd4hep::mm;
+
+    // beyond the mirror cut
+    return [mirror_centers, mirror_radius] (edm4eic::TrackPoint p) {
+      for(auto& c : mirror_centers) {
+        auto dist = std::hypot(
+            c.x() - p.position.x,
+            c.y() - p.position.y,
+            c.z() - p.position.z
+            );
+        if(dist < mirror_radius)
+          return true;
+      }
+      return false;
+    };
+  }
+
+  // otherwise return a cut which always passes
+  return [] (edm4eic::TrackPoint p) { return true; };
+
 }

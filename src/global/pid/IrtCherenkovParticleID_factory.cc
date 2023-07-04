@@ -30,7 +30,6 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
     set_param(name+":smearing",        rad.smearing,        "");
     set_param(name+":referenceRIndex", rad.referenceRIndex, "");
     set_param(name+":attenuation",     rad.attenuation,     "");
-    set_param(name+":zbins",           rad.zbins,           "");
   }
   set_param("cheatPhotonVertex",  cfg.cheatPhotonVertex,  "");
   set_param("cheatTrueRadiator",  cfg.cheatTrueRadiator,  "");
