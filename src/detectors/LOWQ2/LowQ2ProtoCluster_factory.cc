@@ -81,8 +81,8 @@ namespace eicrecon {
     }
 
     // Set up clustering variables
-    ROOT::VecOps::RVec<bool> avaliable(module.size(),1);
-    ROOT::VecOps::RVec<int>  indeces  (module.size());
+    ROOT::VecOps::RVec<bool> available(module.size(), 1);
+    ROOT::VecOps::RVec<int>  indices  (module.size());
 
     std::vector<TrackerProtoCluster*> outputProtoClusters;
 
