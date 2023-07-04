@@ -5,18 +5,18 @@
 
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Init() {
-  auto app = GetApplication();
 
-  // input tags
-  auto detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-  auto param_prefix  = detector_name + GetPrefix();
+  // get app and user info
+  auto app    = GetApplication();
+  auto plugin = GetPluginName(); // plugin name should be detector name
+  auto prefix = GetPrefix();
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
-  InitLogger(param_prefix, "info");
+  InitLogger(prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
-  m_log->debug("detector_name='{}'  param_prefix='{}'", detector_name, param_prefix);
+  m_log->debug("RichTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // get list of radiators
   std::vector<std::tuple<int, std::string, std::string>> radiator_list; // < radiator_id, radiator_name, output_tag >
@@ -31,8 +31,8 @@ void eicrecon::RichTrack_factory::Init() {
 
   // configuration parameters
   auto cfg = GetDefaultConfig();
-  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
-    name = param_prefix + ":" + name;
+  auto set_param = [&prefix, &app] (std::string name, auto &val, std::string description) {
+    name = prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
   for(auto& [radiator_id, radiator_name, output_tag] : radiator_list)
@@ -40,7 +40,7 @@ void eicrecon::RichTrack_factory::Init() {
   cfg.Print(m_log, spdlog::level::debug);
 
   // get RICH geometry for track propagation, for each radiator
-  m_actsGeo = m_richGeoSvc->GetActsGeo(detector_name);
+  m_actsGeo = m_richGeoSvc->GetActsGeo(plugin);
   for(auto& [radiator_id, radiator_name, output_tag] : radiator_list) {
     m_tracking_planes.insert({
         output_tag,
