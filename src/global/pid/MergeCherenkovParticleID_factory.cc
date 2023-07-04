@@ -6,20 +6,20 @@
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Init() {
 
-  // get plugin name and tag
-  auto app = GetApplication();
-  m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
-  auto param_prefix = m_detector_name + ":" + GetTag();
-  InitDataTags(param_prefix);
+  // get app and user info
+  auto app    = GetApplication();
+  auto plugin = GetPluginName();
+  auto prefix = plugin + ":" + GetTag();
+  InitDataTags(prefix);
 
   // services
-  InitLogger(param_prefix, "info");
-  m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
+  InitLogger(prefix, "info");
+  m_log->debug("MergeCherenkovParticleID_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // config
   auto cfg = GetDefaultConfig();
-  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
-    name = param_prefix + ":" + name;
+  auto set_param = [&prefix, &app] (std::string name, auto &val, std::string description) {
+    name = prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
   set_param("mergeMode", cfg.mergeMode, "");

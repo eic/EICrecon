@@ -19,7 +19,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
 
@@ -49,7 +48,6 @@ namespace eicrecon {
 
     private:
       eicrecon::MergeParticleID m_algo;
-      std::string               m_detector_name;
 
   };
 }
