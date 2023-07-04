@@ -46,7 +46,6 @@ extern "C" {
     app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks"));
 
     // Initial particle reconstruction
-//     app->Add(new JFactoryGeneratorT<LowQ2Reconstruction_factory>());
     app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
 
   }
