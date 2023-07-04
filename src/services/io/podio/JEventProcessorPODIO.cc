@@ -51,6 +51,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
 
+            // DRICH
+            "DRICHRawHits",
+            "DRICHRawHitsAssociations",
+            "DRICHAerogelTracks",
+            "DRICHGasTracks",
+            "DRICHMergedTracks",
+            "DRICHAerogelIrtCherenkovParticleID",
+            "DRICHGasIrtCherenkovParticleID",
+            // "DRICHMergedIrtCherenkovParticleID",
+
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
@@ -73,6 +83,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
+            // "ReconstructedChargedParticleIDs",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
