@@ -37,7 +37,7 @@ class JDD4hep_service : public JService
 {
 public:
     JDD4hep_service( JApplication *app ) : app(app) {}
-    virtual ~JDD4hep_service();
+    virtual ~JDD4hep_service() override;
 
     virtual dd4hep::Detector* detector();
     virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter() {
