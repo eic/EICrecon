@@ -12,23 +12,18 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/RawCalorimeterHit.h>
-#include <edm4hep/RawCalorimeterHit.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
 
 class CalorimeterHitReco {
-
-    // Insert any member variables here
-
 public:
     CalorimeterHitReco() = default;
-    ~CalorimeterHitReco(){} // better to use smart pointer?
     virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun() ;
-    virtual void AlgorithmProcess() ;
+    virtual void AlgorithmChangeRun();
+    virtual std::unique_ptr<edm4eic::CalorimeterHitCollection> AlgorithmProcess(const edm4hep::RawCalorimeterHitCollection &rawhits);
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
@@ -59,8 +54,6 @@ public:
   double stepTDC{0};
 
     std::shared_ptr<JDD4hep_service> m_geoSvc;
-  //DataHandle<edm4eic::RawCalorimeterHitCollection> m_inputHitCollection{"inputHitCollection", Gaudi::DataHandle::Reader,  this};
-  //DataHandle<edm4eic::CalorimeterHitCollection> m_outputHitCollection{"outputHitCollection", Gaudi::DataHandle::Writer,   this};
 
   // geometry service to get ids, ignored if no names provided
   std::string m_geoSvcName="geoServiceName";
@@ -82,9 +75,6 @@ public:
   std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
   size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
-
-    std::vector<edm4eic::CalorimeterHit*> hits;
-    std::vector<const edm4hep::RawCalorimeterHit*> rawhits;
 
 private:
     //std::default_random_engine generator; // TODO: need something more appropriate here
