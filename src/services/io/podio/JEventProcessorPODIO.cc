@@ -55,7 +55,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
             "OuterMPGDBarrelRecHits",
-            "InnerMPGDBarrelRecHits",
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 

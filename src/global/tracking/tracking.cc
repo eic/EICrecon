@@ -42,7 +42,6 @@ void InitPlugin(JApplication *app) {
 			 "MPGDBarrelRecHits",           // MPGD
                          "MPGDDIRCRecHits"
                          "OuterMPGDBarrelRecHits",
-                         "InnerMPGDBarrelRecHits",
                          "BackwardMPGDEndcapRecHits",
                          "ForwardMPGDEndcapRecHits",
                          "B0TrackerRecHits"          // B0TRK
