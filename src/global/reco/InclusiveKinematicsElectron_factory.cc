@@ -40,14 +40,14 @@ namespace eicrecon {
 	else{
 	  m_log->info("Electron beam energy not found, using default value {}", m_electron_beamE);
 	}
-	
+
 	if(app->GetJParameterManager()->Exists("beam:ion_energy")){
 	  m_ion_beamE = app->GetParameterValue<float>("beam:ion_energy");
 	}
 	else{
 	  m_log->info("Ion beam energy not found, using default value {}", m_ion_beamE);
 	}
-	
+
 	if(app->GetJParameterManager()->Exists("beam:crossing_angle")){
 	  m_crossingAngle = app->GetParameterValue<float>("beam:crossing_angle");
 	}
@@ -61,7 +61,7 @@ namespace eicrecon {
 	else{
 	  m_log->info("Ion beam species pdg not found, using default value {}", m_ion_pdg);
 	}
-	
+
         m_inclusive_kinematics_algo.init(m_log, m_electron_beamE, m_ion_beamE, m_ion_pdg, m_crossingAngle);
 
     }

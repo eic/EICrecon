@@ -37,7 +37,7 @@ namespace eicrecon {
 						{-5.0, -10.0, -18.0},
 						0.0)
 		       );
-    
+
     pi = PxPyPzEVector(
 		       round_beam_four_momentum(
 						{0,0,ionE},
@@ -120,7 +120,7 @@ namespace eicrecon {
 //       );
 
 //     const edm4hep::Vector3f ion_momentum(0.0,0.0,m_proton_beamE);
-      
+
 //     PxPyPzEVector pi(0.0, 0.0, 9.9995598131387851e+01, 1.0e+02 );
 
 //     // Get incoming hadron beam
