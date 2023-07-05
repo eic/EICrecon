@@ -43,16 +43,15 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
-        m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
+        // Get input collection
+        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(m_inputHit_tag));
+        auto sim_coll = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(m_inputMCHit_tag));
 
         // Call Process for generic algorithm
-        AlgorithmProcess();
+        auto protoclust_coll = AlgorithmProcess(*hits_coll, *sim_coll);
 
-        // Hand owner of algorithm objects over to JANA
-        Set(m_outputProtoClusters);
-        m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(protoclust_coll));
     }
 private:
     // Name of input data type (collection)
