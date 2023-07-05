@@ -34,13 +34,16 @@ namespace eicrecon {
 
     // Locate and load the weight file
     // TODO - Add functionality to select passed by configiuration
+    bool methodFound = false;
     const char* env_p = getenv(m_environment_path.c_str());
     if (env_p) {
 
 	std::string dir_path;
         std::stringstream envvar_ss(env_p);
         while (getline(envvar_ss, dir_path, ':')) {
+	  std::cout << dir_path << std::endl;
 	    std::string weightName = dir_path +"/"+ m_file_path;
+	  std::cout << weightName << std::endl;
 	    if (std::filesystem::exists(weightName)){
    		try{
       		    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
@@ -48,14 +51,24 @@ namespace eicrecon {
     		catch(std::exception &e){
       		    throw JException(fmt::format("Failed to load method {} from file {}",m_method_name,weightName));
     		}
-		return;
+		methodFound = true;
+		break;
 	    }
         }
-        throw JException(fmt::format("File {} not found in any {} paths",m_file_path,m_environment_path));
+	if(!methodFound){
+	  throw JException(fmt::format("File {} not found in any {} paths",m_file_path,m_environment_path));
+	}
 
     }
     else {
       throw JException(fmt::format("Environment variable {} not found",m_environment_path));
+    }
+
+    if(app->GetJParameterManager()->Exists("beam:electron_energy")){
+      m_electron_beamE = app->GetParameterValue<float>("beam:electron_energy");
+    }
+    else{
+      m_log->info("Electron beam energy not found, using default value {}", m_electron_beamE);
     }
 
   }
@@ -96,16 +109,16 @@ namespace eicrecon {
 
       auto values = m_method->GetRegressionValues();
 
-      ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndexOut::MomX]*beamE,values[LowQ2NNIndexOut::MomY]*beamE,values[LowQ2NNIndexOut::MomZ]*beamE);
+      ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndexOut::MomX]*m_electron_beamE,values[LowQ2NNIndexOut::MomY]*m_electron_beamE,values[LowQ2NNIndexOut::MomZ]*m_electron_beamE);
 
-      float energy = sqrt(values[LowQ2NNIndexOut::MomX]*beamE*values[LowQ2NNIndexOut::MomX]*beamE+
-			  values[LowQ2NNIndexOut::MomY]*beamE*values[LowQ2NNIndexOut::MomY]*beamE+
-			  values[LowQ2NNIndexOut::MomZ]*beamE*values[LowQ2NNIndexOut::MomZ]*beamE
+      float energy = sqrt(values[LowQ2NNIndexOut::MomX]*m_electron_beamE*values[LowQ2NNIndexOut::MomX]*m_electron_beamE+
+			  values[LowQ2NNIndexOut::MomY]*m_electron_beamE*values[LowQ2NNIndexOut::MomY]*m_electron_beamE+
+			  values[LowQ2NNIndexOut::MomZ]*m_electron_beamE*values[LowQ2NNIndexOut::MomZ]*m_electron_beamE
 			  +mass*mass);
 
-      float momMag2 = values[LowQ2NNIndexOut::MomX]*beamE*values[LowQ2NNIndexOut::MomX]*beamE+
-	values[LowQ2NNIndexOut::MomY]*beamE*values[LowQ2NNIndexOut::MomY]*beamE+
-	values[LowQ2NNIndexOut::MomZ]*beamE*values[LowQ2NNIndexOut::MomZ]*beamE;
+      float momMag2 = values[LowQ2NNIndexOut::MomX]*m_electron_beamE*values[LowQ2NNIndexOut::MomX]*m_electron_beamE+
+	values[LowQ2NNIndexOut::MomY]*m_electron_beamE*values[LowQ2NNIndexOut::MomY]*m_electron_beamE+
+	values[LowQ2NNIndexOut::MomZ]*m_electron_beamE*values[LowQ2NNIndexOut::MomZ]*m_electron_beamE;
 
       // Track parameter variables
       // TODO: Add time and momentum errors

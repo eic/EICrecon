@@ -27,7 +27,7 @@ extern "C" {
     using namespace eicrecon;
 
     // -------------------------------
-    // TODO: Separate algorithms from factories and and config parameters
+    // TODO: Separate algorithms from factories and add config parameters
     // -------------------------------
 
     // Digitization
