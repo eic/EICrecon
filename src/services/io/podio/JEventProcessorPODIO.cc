@@ -189,38 +189,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(),
                                                          output_exclude_collections.end());
 
-    // Default beam parameters. -- Is this the best place to define these globally?
-    // TODO - Add beam parameters to input metadata collection so they can be controlled that way too
-    japp->SetDefaultParameter(
-            "beam:electron_energy",
-            m_electron_energy,
-            "Electron beam energy [GeV]"
-    );
-
-    japp->SetDefaultParameter(
-            "beam:electron_pdg",
-            m_electron_pdg,
-            "Electron pdg number"
-    );
-
-    japp->SetDefaultParameter(
-            "beam:ion_energy",
-            m_ion_energy,
-            "Ion beam energy [GeV]"
-    );
-
-    japp->SetDefaultParameter(
-            "beam:ion_pdg",
-            m_ion_pdg,
-            "Ion beam species pdg number"
-    );
-
-    japp->SetDefaultParameter(
-            "beam:crossing_angle",
-            m_crossing_angle,
-            "Interaction point crossing angle [rad]"
-    );
-
 }
 
 

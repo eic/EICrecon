@@ -64,12 +64,13 @@ namespace eicrecon {
       throw JException(fmt::format("Environment variable {} not found",m_environment_path));
     }
 
-    if(app->GetJParameterManager()->Exists("beam:electron_energy")){
-      m_electron_beamE = app->GetParameterValue<float>("beam:electron_energy");
-    }
-    else{
-      m_log->info("Electron beam energy not found, using default value {}", m_electron_beamE);
-    }
+    japp->SetDefaultParameter(
+            "lowq2:electron_energy",
+            m_electron_beamE,
+            "Electron beam energy [GeV]"
+    );
+
+    m_electron_beamE = app->GetParameterValue<float>("lowq2:electron_energy");
 
   }
 
