@@ -70,8 +70,6 @@ namespace eicrecon {
             "Electron beam energy [GeV]"
     );
 
-    m_electron_beamE = app->GetParameterValue<float>("lowq2:electron_energy");
-
   }
 
 
@@ -87,7 +85,7 @@ namespace eicrecon {
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
-    std::int32_t PDG    = -11;
+    std::int32_t PDG    = 11;
     float        charge = -1;
 
     // Reconstructed particle members which don't change yet
