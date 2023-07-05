@@ -127,7 +127,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits { std::make_unique<edm4hep::RawCalorimeterHitCollection>() };
 
      // Create output collections
-    for ( auto ahit : simhits ) {
+    for (const auto &ahit : simhits) {
         // Note: juggler internal unit of energy is dd4hep::GeV
         const double eDep    = ahit.getEnergy();
 
@@ -173,7 +173,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
-    for (auto ahit : simhits) {
+    for (const auto &ahit : simhits) {
         int64_t hid = ahit.getCellID() & id_mask;
 
         m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit.getCellID());
@@ -184,7 +184,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
 
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
-    for (auto &[id, hits] : merge_map) {
+    for (const auto &[id, hits] : merge_map) {
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
