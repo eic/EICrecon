@@ -53,7 +53,7 @@ namespace eicrecon {
       TMVA::MethodBase*     m_method{nullptr};
       float nnInput[4];
 
-      float m_electron_beamE = 10*dd4hep::GeV; //TODO: Change when this is included in metadata/other location/as config
+      float m_electron_beamE = 10*dd4hep::GeV;
 
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
 
