@@ -38,19 +38,14 @@ void CalorimeterHitsMerger::initialize() {
     m_log->info(fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask));
 }
 
-void CalorimeterHitsMerger::execute() {
+std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::execute(const edm4eic::CalorimeterHitCollection &input) {
+    auto output = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<long long, std::vector<const edm4eic::CalorimeterHit *>> merge_map;
-    for (const auto &h: m_inputs) {
-        int64_t id = h->getCellID() & id_mask;
-        // use the reference field position
-        auto it = merge_map.find(id);
-        if (it == merge_map.end()) {
-            merge_map[id] = {h};
-        } else {
-            it->second.push_back(h);
-        }
+    for (const auto &h : input) {
+        int64_t id = h.getCellID() & id_mask;
+        merge_map[id].push_back(&h);
     }
 
     // sort hits by energy from large to small
@@ -65,7 +60,7 @@ void CalorimeterHitsMerger::execute() {
     auto poscon = m_geoSvc->cellIDPositionConverter();
     auto volman = m_geoSvc->detector()->volumeManager();
 
-    for (auto &[id, hits]: merge_map) {
+    for (const auto &[id, hits]: merge_map) {
         // reference fields id
         const uint64_t ref_id = id | ref_mask;
         // global positions
@@ -99,8 +94,7 @@ void CalorimeterHitsMerger::execute() {
                 pos.x(), pos.y(), pos.z()
         );
 
-        m_outputs.push_back(
-                new edm4eic::CalorimeterHit{
+        output->create(
                         href->getCellID(),
                         energy,
                         energyError,
@@ -110,8 +104,10 @@ void CalorimeterHitsMerger::execute() {
                         href->getDimension(),
                         href->getSector(),
                         href->getLayer(),
-                        local}); // Can do better here? Right now position is mapped on the central hit
+                        local); // Can do better here? Right now position is mapped on the central hit
     }
 
-    m_log->debug(fmt::format("Size before = {}, after = {}", m_inputs.size(), m_outputs.size()) );
+    m_log->debug(fmt::format("Size before = {}, after = {}", input.size(), output->size()) );
+
+    return output;
 }
