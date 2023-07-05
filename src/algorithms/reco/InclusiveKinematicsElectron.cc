@@ -20,32 +20,13 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger, float electronE, float ionE, int ionPDG, double crossingAngle ) {
-
+  void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
     //   m_log->debug("Unable to locate Particle Service. "
     //     "Make sure you have ParticleSvc in the configuration.");
     // }
-
-
-    ei = PxPyPzEVector(
-		       round_beam_four_momentum(
-						{0,0,-electronE},
-						m_electron,
-						{-5.0, -10.0, -18.0},
-						0.0)
-		       );
-
-    pi = PxPyPzEVector(
-		       round_beam_four_momentum(
-						{0,0,ionE},
-						ionPDG ? m_proton : m_neutron,
-						{41.0, 100.0, 275.0},
-						crossingAngle)
-		       );
-
   }
 
   std::vector<edm4eic::InclusiveKinematics*> InclusiveKinematicsElectron::execute(
@@ -104,40 +85,33 @@ namespace eicrecon {
     //  break;
     //}
 
+    // Get incoming electron beam
+    const auto ei_coll = find_first_beam_electron(mcparts);
+    if (ei_coll.size() == 0) {
+      m_log->debug("No beam electron found");
+      return kinematics;
+    }
+    const PxPyPzEVector ei(
+      round_beam_four_momentum(
+        ei_coll[0]->getMomentum(),
+        m_electron,
+        {-5.0, -10.0, -18.0},
+        0.0)
+      );
 
-//     // Get incoming electron beam
-//     const auto ei_coll = find_first_beam_electron(mcparts);
-//     if (ei_coll.size() == 0) {
-//       m_log->debug("No beam electron found");
-//       return kinematics;
-//     }
-//     const PxPyPzEVector ei(
-//       round_beam_four_momentum(
-//         ei_coll[0]->getMomentum(),
-//         m_electron,
-//         {-5.0, -10.0, -18.0},
-//         0.0)
-//       );
-
-//     const edm4hep::Vector3f ion_momentum(0.0,0.0,m_proton_beamE);
-
-//     PxPyPzEVector pi(0.0, 0.0, 9.9995598131387851e+01, 1.0e+02 );
-
-//     // Get incoming hadron beam
-//     const auto pi_coll = find_first_beam_hadron(mcparts);
-// //     if (pi_coll.size() == 0) {
-// //       m_log->debug("No beam hadron found");
-// //       return kinematics;
-// //     }
-//     if (pi_coll.size() > 0) {
-//       pi = PxPyPzEVector(
-// 			 round_beam_four_momentum(
-// 						  pi_coll[0]->getMomentum(),
-// 						  pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
-// 						  {41.0, 100.0, 275.0},
-// 						  m_crossingAngle)
-// 			 );
-//     }
+    // Get incoming hadron beam
+    const auto pi_coll = find_first_beam_hadron(mcparts);
+    if (pi_coll.size() == 0) {
+      m_log->debug("No beam hadron found");
+      return kinematics;
+    }
+    const PxPyPzEVector pi(
+      round_beam_four_momentum(
+        pi_coll[0]->getMomentum(),
+        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
+        {41.0, 100.0, 275.0},
+        m_crossingAngle)
+      );
 
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
@@ -160,7 +134,6 @@ namespace eicrecon {
       m_log->debug("Truth scattered electron not in reconstructed particles");
       return kinematics;
     }
-
     const auto ef_rc{(*ef_assoc)->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 

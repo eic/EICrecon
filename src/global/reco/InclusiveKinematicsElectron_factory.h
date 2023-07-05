@@ -9,7 +9,6 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <algorithms/reco/InclusiveKinematicsElectron.h>
-#include <Evaluator/DD4hepUnits.h>
 
 
 namespace eicrecon {
@@ -35,10 +34,6 @@ namespace eicrecon {
 
         std::vector<std::string> m_input_assoc_tags = {"InclusiveKinematicsElectron"};
         InclusiveKinematicsElectron m_inclusive_kinematics_algo;
-	float  m_electron_beamE{10*dd4hep::GeV};
-	float  m_ion_beamE  {100*dd4hep::GeV};
-	int    m_ion_pdg       {2212};
-	double m_crossingAngle {-0.025};
 
     };
 

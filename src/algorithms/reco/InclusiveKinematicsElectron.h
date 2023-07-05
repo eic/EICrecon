@@ -9,8 +9,6 @@
 #include <map>
 
 #include <spdlog/spdlog.h>
-#include "Math/Vector4D.h"
-using ROOT::Math::PxPyPzEVector;
 
 
 // Event Model related classes
@@ -26,7 +24,7 @@ namespace eicrecon {
 
     public:
 
-        void init(std::shared_ptr<spdlog::logger> logger, float electronE, float ionE, int ionPDG, double crossingAngle);
+        void init(std::shared_ptr<spdlog::logger> logger);
 
         std::vector<edm4eic::InclusiveKinematics*> execute(
                 std::vector<const edm4hep::MCParticle*> mcparts,
@@ -36,9 +34,7 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928};
-	PxPyPzEVector ei;
-	PxPyPzEVector pi;
-    };
+        double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
+        };
 
 } // namespace eicrecon
