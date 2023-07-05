@@ -214,7 +214,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             m_ion_pdg,
             "Ion beam species pdg number"
     );
-    
+
     japp->SetDefaultParameter(
             "beam:crossing_angle",
             m_crossing_angle,
