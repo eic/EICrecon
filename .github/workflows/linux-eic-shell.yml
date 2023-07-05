@@ -279,6 +279,7 @@ jobs:
     strategy:
       matrix:
         CC: [gcc, clang]
+        BUILD_TYPE: [Debug, Release]
         particle: [pi, e]
         detector_config: [arches, brycecanyon]
     env:
@@ -288,7 +289,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.BUILD_TYPE }}
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
