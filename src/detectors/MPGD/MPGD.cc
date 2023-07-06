@@ -55,7 +55,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"OuterMPGDBarrelHits"}, "OuterMPGDBarrelDigiHits", outMPGDbarrel_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    TrackerHitReconstructionConfig outMPGDbarrel_hit_reco_cfg;
+    TrackerHitReconstructionConfig outerMPGDbarrel_hit_reco_cfg;
     outMPGDbarrel_hit_reco_cfg.time_resolution = 10;
     app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
             {"OuterMPGDBarrelDigiHits"},     // Input data collection tags
