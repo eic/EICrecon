@@ -64,7 +64,7 @@ void InitPlugin(JApplication *app) {
 
 
     // Digitization
-    SiliconTrackerDigiConfig backMPGDendcap_digi_default_cfg;
+    SiliconTrackerDigiConfig backwardMPGDendcap_digi_default_cfg;
     backMPGDendcap_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
     backMPGDendcap_digi_default_cfg.timeResolution = 10;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"BackwardMPGDEndcapHits"}, "BackwardMPGDEndcapDigiHits", backMPGDendcap_digi_default_cfg));
