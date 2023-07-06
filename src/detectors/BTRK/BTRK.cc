@@ -18,14 +18,14 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"SiBarrelHits"}, "SiBarrelDigiHits"));
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"SiBarrelHits"}, "SiBarrelRawHits"));
 
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
 
     TrackerHitReconstructionConfig hit_reco_cfg;
     // change default parameters like hit_reco_cfg.time_resolution = 10;
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"SiBarrelDigiHits"}, "SiBarrelTrackerRecHits", hit_reco_cfg));
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"SiBarrelRawHits"}, "SiBarrelTrackerRecHits", hit_reco_cfg));
 
 }
 } // extern "C"
