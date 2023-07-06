@@ -77,7 +77,9 @@ namespace eicrecon {
 
     std::unique_ptr<edm4eic::TrackSegmentCollection> TrackPropagation::propagateToSurfaceList(
         std::vector<const eicrecon::TrackingResultTrajectory*> trajectories,
-        std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces
+        std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
+        std::function<bool(edm4eic::TrackPoint)> trackPointCut,
+        bool stopIfTrackPointCutFailed
         )
     {
       // logging
@@ -115,6 +117,14 @@ namespace eicrecon {
               point->position.x, point->position.y, point->position.z);
           m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
               point->momentum.x, point->momentum.y, point->momentum.z);
+
+          // track point cut
+          if(!trackPointCut(*point)) {
+            m_log->trace("                 => REJECTED by trackPointCut");
+            if(stopIfTrackPointCutFailed)
+              break;
+            continue;
+          }
 
           // update the `TrackSegment` length
           // FIXME: `length` and `length_error` are currently not used by any callers, and may not be correctly calculated here

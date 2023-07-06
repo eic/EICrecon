@@ -21,7 +21,6 @@
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/string/StringHelpers.h>
 
 namespace eicrecon {
 
@@ -57,7 +56,6 @@ namespace eicrecon {
     private:
 
       eicrecon::IrtCherenkovParticleID m_irt_algo;
-      std::string                      m_detector_name;
       std::shared_ptr<RichGeo_service> m_richGeoSvc;
       CherenkovDetectorCollection      *m_irt_det_coll;
 
