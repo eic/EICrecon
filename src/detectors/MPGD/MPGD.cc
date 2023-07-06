@@ -50,8 +50,8 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     SiliconTrackerDigiConfig outerMPGDbarrel_digi_default_cfg;
-   outerMPGDbarrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
-   outerMPGDbarrel_digi_default_cfg.timeResolution = 10;
+    outerMPGDbarrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    outerMPGDbarrel_digi_default_cfg.timeResolution = 10;
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"OuterMPGDBarrelHits"}, "OuterMPGDBarrelRawHits", outerMPGDbarrel_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
