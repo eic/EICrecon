@@ -1,8 +1,8 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//  Sections Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin
-//  under SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin, David Lawrence
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
+#include <vector>
+#include <set>
 
 #include "CalorimeterIslandCluster.h"
 
@@ -19,20 +19,6 @@
 #include <fmt/format.h>
 
 using namespace edm4eic;
-
-//
-// This algorithm converted from:
-//
-//  https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/CalorimeterHitDigi.cpp
-//
-// TODO:
-// - Array type configuration parameters are not yet supported in JANA (needs to be added)
-// - Random number service needs to bew resolved (on global scale)
-// - It is possible standard running of this with Gaudi relied on a number of parameters
-//   being set in the config. If that is the case, they should be moved into the default
-//   values here. This needs to be confirmed.
-
-
 
 //------------------------
 // AlgorithmInit
@@ -59,7 +45,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     m_log=logger;
 
     static std::map<std::string,
-                std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>
+                std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>, std::vector<double>>>
     distMethods{
         {"localDistXY", {localDistXY, {dd4hep::mm, dd4hep::mm}}},        {"localDistXZ", {localDistXZ, {dd4hep::mm, dd4hep::mm}}},
         {"localDistYZ", {localDistYZ, {dd4hep::mm, dd4hep::mm}}},        {"dimScaledLocalDistXY", {dimScaledLocalDistXY, {1., 1.}}},
@@ -111,15 +97,15 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
-      is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
+      is_neighbour = [this](const CaloHit &h1, const CaloHit &h2) {
         dd4hep::tools::Evaluator::Object evaluator;
         for(const auto &p : m_idSpec.fields()) {
           const std::string &name = p.first;
           const dd4hep::IDDescriptor::Field* field = p.second;
-          evaluator.setVariable((name + "_1").c_str(), field->value(h1->getCellID()));
-          evaluator.setVariable((name + "_2").c_str(), field->value(h2->getCellID()));
-          m_log->trace("setVariable(\"{}_1\", {});", name, field->value(h1->getCellID()));
-          m_log->trace("setVariable(\"{}_2\", {});", name, field->value(h2->getCellID()));
+          evaluator.setVariable((name + "_1").c_str(), field->value(h1.getCellID()));
+          evaluator.setVariable((name + "_2").c_str(), field->value(h2.getCellID()));
+          m_log->trace("setVariable(\"{}_1\", {});", name, field->value(h1.getCellID()));
+          m_log->trace("setVariable(\"{}_2\", {});", name, field->value(h2.getCellID()));
         }
         dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
         if (eval.status()) {
@@ -139,16 +125,16 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         if (set_dist_method(uprop)) {
           method_found = true;
 
-          is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
+          is_neighbour = [this](const CaloHit &h1, const CaloHit &h2) {
             // in the same sector
-            if (h1->getSector() == h2->getSector()) {
+            if (h1.getSector() == h2.getSector()) {
               auto dist = hitsDist(h1, h2);
               return (fabs(dist.a) <= neighbourDist[0]) && (fabs(dist.b) <= neighbourDist[1]);
               // different sector, local coordinates do not work, using global coordinates
             } else {
               // sector may have rotation (barrel), so z is included
               // (EDM4hep units are mm, so convert sectorDist to mm)
-              return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm);
+              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= m_sectorDist / dd4hep::mm);
             }
           };
 
@@ -184,25 +170,14 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 // AlgorithmChangeRun
 //------------------------
 void CalorimeterIslandCluster::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
 }
 
 //------------------------
 // AlgorithmProcess
 //------------------------
-void CalorimeterIslandCluster::AlgorithmProcess()  {
-// input collections
-    //const auto& hits = event
-    // Create output collections
-    //auto& proto = *(m_outputProtoCollection.createAndPut());
-
+std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits) {
     // group neighboring hits
-    std::vector<std::vector<std::pair<uint32_t, const CaloHit*>>> groups;
-
-    //FIXME: protocluster collection to this?
-    std::vector<edm4eic::ProtoCluster> proto;
+    std::vector<std::set<std::size_t>> groups;
 
     std::vector<bool> visits(hits.size(), false);
     //TODO: use the right logger
@@ -210,7 +185,7 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
 
       {
         const auto& hit = hits[i];
-        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
+        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
       }
       // already in a group
       if (visits[i]) {
@@ -218,19 +193,21 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      dfs_group(groups.back(), i, hits, visits);
+      dfs_group(hits, groups.back(), i, visits);
     }
+
+    auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();
 
     for (auto& group : groups) {
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(group, !m_splitCluster);
-      split_group(group, maxima, protoClusters);
+      auto maxima = find_maxima(hits, group, !m_splitCluster);
+      split_group(hits, group, maxima, protoClusters.get());
 
       m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
 
-    return;
+    return protoClusters;
 
 }
