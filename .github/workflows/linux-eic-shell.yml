@@ -119,7 +119,7 @@ jobs:
       with:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
-    - uses: platisd/clang-tidy-pr-comments@v1.4.0
+    - uses: platisd/clang-tidy-pr-comments@1.4.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
