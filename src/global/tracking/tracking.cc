@@ -40,7 +40,7 @@ void InitPlugin(JApplication *app) {
                          "TOFBarrelRecHit",             // TOF hits
                          "TOFEndcapRecHits",
 			 "MPGDBarrelRecHits",           // MPGD
-                         "MPGDDIRCRecHits",
+                         "MPGDDIRCRecHits"
                          "OuterMPGDBarrelRecHits",
                          "BackwardMPGDEndcapRecHits",
                          "ForwardMPGDEndcapRecHits",
