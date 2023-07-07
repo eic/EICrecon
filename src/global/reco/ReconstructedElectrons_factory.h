@@ -20,9 +20,6 @@
 
 namespace eicrecon {
 
-// algorithm
-  class ElectronReconstruction;
-
   class ReconstructedElectrons_factory :
     public JChainFactoryT<edm4eic::ReconstructedParticle>,
     public SpdlogMixin<ReconstructedElectrons_factory>
