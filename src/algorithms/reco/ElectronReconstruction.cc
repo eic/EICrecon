@@ -44,8 +44,8 @@ namespace eicrecon {
             auto sim = clu_assoc->getSim(); // McParticle
             auto clu = clu_assoc->getRec(); // RecoCluster
 
-            m_log->debug( "SimId={}, CluId={}", clu_assoc->getSimID(), clu_assoc->getRecID() );
-            m_log->debug( "MCParticle: Energy={}, p={}, E/p = {} for PDG: {}", clu.getEnergy(), edm4eic::magnitude(sim.getMomentum()), clu.getEnergy() / edm4eic::magnitude(sim.getMomentum()), sim.getPDG() );
+            m_log->trace( "SimId={}, CluId={}", clu_assoc->getSimID(), clu_assoc->getRecID() );
+            m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4eic::magnitude(sim.getMomentum()), clu.getEnergy() / edm4eic::magnitude(sim.getMomentum()), sim.getPDG() );
 
 
             // Find the Reconstructed particle associated to the MC Particle that is matched with this reco cluster
