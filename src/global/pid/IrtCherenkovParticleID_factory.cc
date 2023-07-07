@@ -6,21 +6,21 @@
 //-----------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID_factory::Init() {
 
-  // get plugin name and tag
-  auto app = GetApplication();
-  m_detector_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", ""); // plugin name should be detector name
-  auto param_prefix = m_detector_name + GetPrefix();
+  // get app and user info
+  auto app    = GetApplication();
+  auto plugin = GetPluginName(); // plugin name should be detector name
+  auto prefix = GetPrefix();
 
   // services
-  InitLogger(param_prefix, "info");
+  InitLogger(prefix, "info");
   m_richGeoSvc   = app->GetService<RichGeo_service>();
-  m_irt_det_coll = m_richGeoSvc->GetIrtGeo(m_detector_name)->GetIrtDetectorCollection();
-  m_log->debug("detector: {}   param_prefix: {}", m_detector_name, param_prefix);
+  m_irt_det_coll = m_richGeoSvc->GetIrtGeo(plugin)->GetIrtDetectorCollection();
+  m_log->debug("IrtCherenkovParticleID_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // config
   auto cfg = GetDefaultConfig();
-  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
-    name = param_prefix + ":" + name;
+  auto set_param = [&prefix, &app] (std::string name, auto &val, std::string description) {
+    name = prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
   set_param("numRIndexBins", cfg.numRIndexBins, "");

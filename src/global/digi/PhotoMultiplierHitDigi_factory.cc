@@ -5,25 +5,27 @@
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
-  auto app = GetApplication();
+  // get app and user info
+  auto app    = GetApplication();
+  auto plugin = GetPluginName();
+  auto prefix = GetPrefix();
 
-  // Services
+  // services
   auto geo_service = app->GetService<JDD4hep_service>();
-  auto plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-  auto param_prefix = plugin_name + GetPrefix();
-  InitLogger(param_prefix, "info");
+  InitLogger(prefix, "info");
+  m_log->debug("PhotoMultiplierHitDigi_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // get readout info (if a RICH)
-  bool use_richgeo = plugin_name=="DRICH" || plugin_name=="PFRICH";
+  bool use_richgeo = plugin=="DRICH" || plugin=="PFRICH";
   if(use_richgeo) {
     auto richGeoSvc = app->GetService<RichGeo_service>();
-    m_readoutGeo    = richGeoSvc->GetReadoutGeo(plugin_name);
+    m_readoutGeo    = richGeoSvc->GetReadoutGeo(plugin);
   }
 
   // Configuration parameters
   auto cfg = GetDefaultConfig();
-  auto set_param = [&param_prefix, &app] (std::string name, auto &val, std::string description) {
-    name = param_prefix + ":" + name;
+  auto set_param = [&prefix, &app] (std::string name, auto &val, std::string description) {
+    name = prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
   set_param("seed",            cfg.seed,            "random number generator seed");
