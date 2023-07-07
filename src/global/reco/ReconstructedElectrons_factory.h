@@ -53,8 +53,6 @@ namespace eicrecon {
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override{
-        m_log->debug("ReconstructedElectrons_factory: Process");
-
         // Step 1. lets collect the Cluster associations from various detectors
         std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> in_clu_assoc;
         for(auto& input_tag : GetInputTags()){
