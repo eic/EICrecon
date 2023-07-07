@@ -36,8 +36,6 @@ namespace eicrecon {
         // - use of any HCAL info?
         // - check for duplicates?
 
-        m_log->debug("ElectronReconstruction::execute");
-
         // output container
         std::vector<edm4eic::ReconstructedParticle*> electrons_edm;
 
