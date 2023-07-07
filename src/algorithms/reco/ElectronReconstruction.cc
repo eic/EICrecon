@@ -63,7 +63,7 @@ namespace eicrecon {
             if ( found_reco_part ){
               auto reco_part = (*reco_part_assoc)->getRec();
               double EoverP = clu.getEnergy() / edm4eic::magnitude(reco_part.getMomentum());
-              m_log->info( "ReconstructedParticle: Energy={}, p={}, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4eic::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
+              m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4eic::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
 
               // Apply the E/p cut here to select electons
               if ( EoverP >= min_energy_over_momentum && EoverP <= max_energy_over_momentum ) {
