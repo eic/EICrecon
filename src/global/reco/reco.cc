@@ -73,14 +73,14 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
-        "EcalBarrelScFiClusterAssociations", 
+        "EcalBarrelScFiClusterAssociations",
         // "EcalBarrelSciGlassClusterAssociations",
         "EcalBarrelImagingClusterAssociations",
         "EcalEndcapNClusterAssociations",
-        "EcalEndcapPClusterAssociations", 
-        "EcalEndcapPInsertClusterAssociations", 
+        "EcalEndcapPClusterAssociations",
+        "EcalEndcapPInsertClusterAssociations",
         "EcalLumiSpecClusterAssociations",
-        }, 
+        },
         "ReconstructedElectrons"
     ));
 

@@ -29,15 +29,15 @@ namespace eicrecon {
 
         // Step 1. Loop through MCParticle - cluster associations
         // Step 2. Get Reco particle for the Mc Particle matched to cluster
-        // Step 3. Apply E/p cut using Reco cluster Energy and Reco Particle momentum 
+        // Step 3. Apply E/p cut using Reco cluster Energy and Reco Particle momentum
 
         // Some obvious improvements:
         // - E/p cut from real study optimized for electron finding and hadron rejection
         // - use of any HCAL info?
         // - check for duplicates?
 
-        m_log->debug("ElectronReconstruction::execute");    
-        
+        m_log->debug("ElectronReconstruction::execute");
+
         // output container
         std::vector<edm4eic::ReconstructedParticle*> electrons_edm;
 
@@ -45,7 +45,7 @@ namespace eicrecon {
           for ( auto clu_assoc : col ){ // loop on MCRecoClusterParticleAssociation in this particular collection
             auto sim = clu_assoc->getSim(); // McParticle
             auto clu = clu_assoc->getRec(); // RecoCluster
-            
+
             m_log->debug( "SimId={}, CluId={}", clu_assoc->getSimID(), clu_assoc->getRecID() );
             m_log->debug( "MCParticle: Energy={}, p={}, E/p = {} for PDG: {}", clu.getEnergy(), edm4eic::magnitude(sim.getMomentum()), clu.getEnergy() / edm4eic::magnitude(sim.getMomentum()), sim.getPDG() );
 
