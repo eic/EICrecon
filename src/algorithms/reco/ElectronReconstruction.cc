@@ -21,10 +21,10 @@ namespace eicrecon {
   }
 
   std::vector<edm4eic::ReconstructedParticle*> ElectronReconstruction::execute(
-    std::vector<const edm4hep::MCParticle *> mcparts,
-    std::vector<const edm4eic::ReconstructedParticle *> rcparts,
-    std::vector<const edm4eic::MCRecoParticleAssociation *> rcassoc,
-    std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &in_clu_assoc
+    const std::vector<const edm4hep::MCParticle *> &mcparts,
+    const std::vector<const edm4eic::ReconstructedParticle *> &rcparts,
+    const std::vector<const edm4eic::MCRecoParticleAssociation *> &rcassoc,
+    const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &in_clu_assoc
     ) {
 
         // Step 1. Loop through MCParticle - cluster associations
