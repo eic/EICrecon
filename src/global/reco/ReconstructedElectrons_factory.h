@@ -83,7 +83,7 @@ namespace eicrecon {
           in_clu_assoc
         );
 
-        m_log->info( "We have found {} reconstructed electron candidates this event", output.size() );
+        m_log->debug( "We have found {} reconstructed electron candidates this event", output.size() );
 
         // Step 4. Output the collection
         Set( std::move(output) );
