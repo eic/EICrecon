@@ -45,7 +45,6 @@ namespace eicrecon {
         // services
         InitLogger(prefix, "info");
         m_algo.init(m_log);
-        m_log->debug("ReconstructedElectrons_factory: plugin='{}' prefix='{}'", plugin, prefix);
       }
 
       /** On run change preparations **/
