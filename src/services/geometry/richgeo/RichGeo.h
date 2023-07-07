@@ -11,7 +11,7 @@
 
 namespace richgeo {
 
-  typedef decltype(edm4hep::SimTrackerHitData::cellID) CellIDType;
+  using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
 
   // sensors
   // -----------------------------------------------------------------------
