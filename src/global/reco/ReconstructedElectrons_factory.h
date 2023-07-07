@@ -7,9 +7,6 @@
 #include <extensions/jana/JChainFactoryT.h>
 #include <JANA/JEvent.h>
 
-// data model
-#include <edm4eic/TrackSegmentCollection.h>
-
 // algorithms
 #include <algorithms/reco/ElectronReconstruction.h>
 
