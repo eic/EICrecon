@@ -22,9 +22,9 @@ namespace eicrecon {
   }
 
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> ElectronReconstruction::execute(
-    const std::vector<const edm4hep::MCParticle *> &mcparts,
-    const std::vector<const edm4eic::ReconstructedParticle *> &rcparts,
-    const std::vector<const edm4eic::MCRecoParticleAssociation *> &rcassoc,
+    const edm4hep::MCParticleCollection *mcparts,
+    const edm4eic::ReconstructedParticleCollection *rcparts,
+    const edm4eic::MCRecoParticleAssociationCollection *rcassoc,
     const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
     ) {
 
@@ -52,10 +52,10 @@ namespace eicrecon {
 
             // Find the Reconstructed particle associated to the MC Particle that is matched with this reco cluster
             // i.e. take (MC Particle <-> RC Cluster) + ( MC Particle <-> RC Particle ) = ( RC Particle <-> RC Cluster )
-            auto reco_part_assoc = rcassoc.begin();
+            auto reco_part_assoc = rcassoc->begin();
             bool found_reco_part = false;
-            for (; reco_part_assoc != rcassoc.end(); ++reco_part_assoc) {
-              if ((*reco_part_assoc)->getSimID() == (unsigned) clu_assoc.getSimID()) {
+            for (; reco_part_assoc != rcassoc->end(); ++reco_part_assoc) {
+              if (reco_part_assoc->getSimID() == (unsigned) clu_assoc.getSimID()) {
                 found_reco_part = true;
                 break;
               }
@@ -63,7 +63,7 @@ namespace eicrecon {
 
             // if we found a reco particle then test for electron compatibility
             if ( found_reco_part ){
-              auto reco_part = (*reco_part_assoc)->getRec();
+              auto reco_part = reco_part_assoc->getRec();
               double EoverP = clu.getEnergy() / edm4eic::magnitude(reco_part.getMomentum());
               m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4eic::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
 

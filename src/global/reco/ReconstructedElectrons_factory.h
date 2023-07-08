@@ -61,9 +61,10 @@ namespace eicrecon {
 
         // Step 2. Get MC, RC, and MC-RC association info
         // This is needed as a bridge to get RecoCluster - RC Particle associations
-        auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-        auto rc_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-        auto rc_particles_assoc = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
+
+        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
+        auto rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
+        auto rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
 
         // Step 3. Pass everything to "the algorithm"
         // in the future, select appropriate algorithm (truth, fully reco, etc.)
@@ -75,7 +76,6 @@ namespace eicrecon {
         );
 
         m_log->debug( "We have found {} reconstructed electron candidates this event", output->size() );
-
         // Step 4. Output the collection
         SetCollection(std::move(output));
       }

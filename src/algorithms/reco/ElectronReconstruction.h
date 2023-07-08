@@ -13,10 +13,7 @@
 #include <edm4eic/vector_utils.h>
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/MCRecoClusterParticleAssociation.h"
 #include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
 
 
@@ -30,9 +27,9 @@ namespace eicrecon {
 
         // idea will be to overload this with other version (e.g. reco mode)
         std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
-                const std::vector<const edm4hep::MCParticle*> &mcparts,
-                const std::vector<const edm4eic::ReconstructedParticle*> &rcparts,
-                const std::vector<const edm4eic::MCRecoParticleAssociation*> &rcassoc,
+                const edm4hep::MCParticleCollection *mcparts,
+                const edm4eic::ReconstructedParticleCollection *rcparts,
+                const edm4eic::MCRecoParticleAssociationCollection *rcassoc,
                 const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
         );
 
