@@ -47,15 +47,15 @@ namespace eicrecon {
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override{
         // Step 1. lets collect the Cluster associations from various detectors
-        std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> in_clu_assoc;
+        std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> in_clu_assoc;
         for(auto& input_tag : GetInputTags()){
           // only collect from the sources that provide ClusterAssociations
           if ( input_tag.find( "ClusterAssociations" ) == std::string::npos ) {
             continue;
           }
-          m_log->debug( "Adding cluster associations from: {}", input_tag );
+          m_log->trace( "Adding cluster associations from: {}", input_tag );
           in_clu_assoc.push_back(
-            event->Get<edm4eic::MCRecoClusterParticleAssociation>(input_tag)
+            static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag))
           );
         }
 
@@ -74,10 +74,10 @@ namespace eicrecon {
           in_clu_assoc
         );
 
-        m_log->debug( "We have found {} reconstructed electron candidates this event", output.size() );
+        m_log->debug( "We have found {} reconstructed electron candidates this event", output->size() );
 
         // Step 4. Output the collection
-        Set( std::move(output) );
+        SetCollection(std::move(output));
       }
 
     private:

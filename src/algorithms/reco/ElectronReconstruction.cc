@@ -13,6 +13,7 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
 #include "edm4eic/ReconstructedParticleCollection.h"
+#include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
 
 namespace eicrecon {
 
@@ -20,11 +21,11 @@ namespace eicrecon {
     m_log = logger;
   }
 
-  std::vector<edm4eic::ReconstructedParticle*> ElectronReconstruction::execute(
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection> ElectronReconstruction::execute(
     const std::vector<const edm4hep::MCParticle *> &mcparts,
     const std::vector<const edm4eic::ReconstructedParticle *> &rcparts,
     const std::vector<const edm4eic::MCRecoParticleAssociation *> &rcassoc,
-    const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &in_clu_assoc
+    const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
     ) {
 
         // Step 1. Loop through MCParticle - cluster associations
@@ -37,14 +38,15 @@ namespace eicrecon {
         // - check for duplicates?
 
         // output container
-        std::vector<edm4eic::ReconstructedParticle*> electrons_edm;
+        auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
         for ( auto col : in_clu_assoc ){ // loop on cluster association collections
-          for ( auto clu_assoc : col ){ // loop on MCRecoClusterParticleAssociation in this particular collection
-            auto sim = clu_assoc->getSim(); // McParticle
-            auto clu = clu_assoc->getRec(); // RecoCluster
+          for ( size_t i = 0; i < col->size(); i++ ){ // loop on MCRecoClusterParticleAssociation in this particular collection
+            const auto& clu_assoc = col->at(i);
+            auto sim = clu_assoc.getSim(); // McParticle
+            auto clu = clu_assoc.getRec(); // RecoCluster
 
-            m_log->trace( "SimId={}, CluId={}", clu_assoc->getSimID(), clu_assoc->getRecID() );
+            m_log->trace( "SimId={}, CluId={}", clu_assoc.getSimID(), clu_assoc.getRecID() );
             m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4eic::magnitude(sim.getMomentum()), clu.getEnergy() / edm4eic::magnitude(sim.getMomentum()), sim.getPDG() );
 
 
@@ -53,7 +55,7 @@ namespace eicrecon {
             auto reco_part_assoc = rcassoc.begin();
             bool found_reco_part = false;
             for (; reco_part_assoc != rcassoc.end(); ++reco_part_assoc) {
-              if ((*reco_part_assoc)->getSimID() == (unsigned) clu_assoc->getSimID()) {
+              if ((*reco_part_assoc)->getSimID() == (unsigned) clu_assoc.getSimID()) {
                 found_reco_part = true;
                 break;
               }
@@ -67,23 +69,18 @@ namespace eicrecon {
 
               // Apply the E/p cut here to select electons
               if ( EoverP >= min_energy_over_momentum && EoverP <= max_energy_over_momentum ) {
-                // doing this doesnt cause an error but resulted in an empty podio output collection
-                // electrons_edm.push_back( new edm4eic::ReconstructedParticle( reco_part ) );
-
-                edm4eic::MutableReconstructedParticle electron_edm = reco_part.clone();
-                electron_edm.setMass(m_electron);
-                electrons_edm.push_back(new edm4eic::ReconstructedParticle(electron_edm));
+                out_electrons->push_back(reco_part.clone());
               }
 
             } else {
-              m_log->debug( "Could not find reconstructed particle for SimId={}", clu_assoc->getSimID() );
+              m_log->debug( "Could not find reconstructed particle for SimId={}", clu_assoc.getSimID() );
             }
 
           } // loop on MC particle to cluster associations in collection
         } // loop on collections
 
-        m_log->debug( "Found {} electron candidates", electrons_edm.size() );
-        return electrons_edm;
+        m_log->debug( "Found {} electron candidates", out_electrons->size() );
+        return out_electrons;
     }
 
 }

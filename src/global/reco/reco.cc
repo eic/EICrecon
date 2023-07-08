@@ -74,7 +74,6 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
         "EcalBarrelScFiClusterAssociations",
-        "EcalBarrelImagingClusterAssociations",
         "EcalEndcapNClusterAssociations",
         "EcalEndcapPClusterAssociations",
         "EcalEndcapPInsertClusterAssociations",
