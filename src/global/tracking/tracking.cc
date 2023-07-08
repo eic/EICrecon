@@ -18,6 +18,7 @@
 #include "TrackSeeding_factory.h"
 #include "TrackerHitCollector_factory.h"
 #include "TrackProjector_factory.h"
+#include "Trajectory_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
 #include "IterativeVertexFinder_factory.h"
 
@@ -72,6 +73,11 @@ void InitPlugin(JApplication *app) {
              "outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
 
+    app->Add(new JChainFactoryGeneratorT<Trajectory_factory>(
+            {"CentralCKFTrajectories"}, "CentralTrackingTrajectories"));
+
+    app->Add(new JChainFactoryGeneratorT<TrackerReconstructedParticle_factory>(
+            {"CentralTrackingParticles"}, "outputParticles"));
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
