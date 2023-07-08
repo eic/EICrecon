@@ -41,8 +41,7 @@ namespace eicrecon {
         auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
         for ( auto col : in_clu_assoc ){ // loop on cluster association collections
-          for ( size_t i = 0; i < col->size(); i++ ){ // loop on MCRecoClusterParticleAssociation in this particular collection
-            const auto& clu_assoc = col->at(i);
+          for ( auto clu_assoc : (*col) ){ // loop on MCRecoClusterParticleAssociation in this particular collection
             auto sim = clu_assoc.getSim(); // McParticle
             auto clu = clu_assoc.getRec(); // RecoCluster
 
@@ -53,16 +52,14 @@ namespace eicrecon {
             // Find the Reconstructed particle associated to the MC Particle that is matched with this reco cluster
             // i.e. take (MC Particle <-> RC Cluster) + ( MC Particle <-> RC Particle ) = ( RC Particle <-> RC Cluster )
             auto reco_part_assoc = rcassoc->begin();
-            bool found_reco_part = false;
             for (; reco_part_assoc != rcassoc->end(); ++reco_part_assoc) {
               if (reco_part_assoc->getSimID() == (unsigned) clu_assoc.getSimID()) {
-                found_reco_part = true;
                 break;
               }
             }
 
             // if we found a reco particle then test for electron compatibility
-            if ( found_reco_part ){
+            if ( reco_part_assoc != rcassoc->end() ){
               auto reco_part = reco_part_assoc->getRec();
               double EoverP = clu.getEnergy() / edm4eic::magnitude(reco_part.getMomentum());
               m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4eic::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
