@@ -3,17 +3,16 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
 #include <vector>
-#include <map>
 
 #include <spdlog/spdlog.h>
 
 #include <edm4eic/vector_utils.h>
 
 // Event Model related classes
+#include "edm4hep/MCParticleCollection.h"
 #include "edm4eic/MCRecoParticleAssociationCollection.h"
+#include "edm4eic/ReconstructedParticleCollection.h"
 #include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
 
 

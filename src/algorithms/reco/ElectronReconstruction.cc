@@ -1,19 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Daniel Brandenburg
-
-#include <algorithm>
-#include <cmath>
-#include <vector>
-
-#include "Beam.h"
-#include "Boost.h"
 #include "ElectronReconstruction.h"
-
-// Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
 
 namespace eicrecon {
 
