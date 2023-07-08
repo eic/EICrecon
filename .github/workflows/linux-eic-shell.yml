@@ -109,7 +109,7 @@ jobs:
           build/
         if-no-files-found: error
 
-  clang-tidy:
+  clang-tidy-iwyu:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -146,6 +146,15 @@ jobs:
         clang_tidy_fixes: clang_tidy_fixes.yml
         request_changes: true
         suggestions_per_comment: 10
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        run: |
+          iwyu_tool -p build -o clang > iwyu_fixes.yml
+    - uses: actions/upload-artifact@v3
+      with:
+        name: iwyu_fixes.yml
+        path: iwyu_fixes.yml
 
   llvm-cov:
     runs-on: ubuntu-latest
