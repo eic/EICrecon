@@ -16,10 +16,10 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
   m_random.SetSeed(1); // default seed
 
   // default (empty) cellID looper
-  m_loopCellIDs = [] (std::function<void(uint64_t)> lambda) { return; };
+  m_loopCellIDs = [] (std::function<void(CellIDType)> lambda) { return; };
 
   // default (empty) cellID rng generator
-  m_rngCellIDs = [] (std::function<void(uint64_t)> lambda, float p) { return; };
+  m_rngCellIDs = [] (std::function<void(CellIDType)> lambda, float p) { return; };
 
   // common objects
   m_readoutCoder = m_det->readout(m_detName+"Hits").idSpec().decoder();
@@ -37,7 +37,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
     m_num_px = m_det->constant<int>("DRICH_num_px");
 
     // define cellID looper
-    m_loopCellIDs = [this] (std::function<void(uint64_t)> lambda) {
+    m_loopCellIDs = [this] (std::function<void(CellIDType)> lambda) {
       m_log->trace("call VisitAllReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
 
       // loop over sensors (for all sectors)
@@ -65,7 +65,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
     }; // end definition of m_loopCellIDs
 
     // define k random cell IDs generator
-    m_rngCellIDs = [this] (std::function<void(uint64_t)> lambda, float p) {
+    m_rngCellIDs = [this] (std::function<void(CellIDType)> lambda, float p) {
       m_log->trace("call RngReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
 
       int k = p*m_num_sec*m_num_mod*m_num_px*m_num_px;
