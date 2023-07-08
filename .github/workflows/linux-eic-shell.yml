@@ -155,16 +155,20 @@ jobs:
           COV_PERCENT=$(llvm-cov-15 export $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
-          curl --request POST \
-            --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --data '{
-              "state": "success",
-              "context": "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%"
-              }' \
-            --fail-with-body
+          if [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
+            curl --request POST \
+              --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --data '{
+                "state": "success",
+                "context": "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%"
+                }' \
+              --fail-with-body
+          else
+            echo 'PR submitted from a fork. Skipping posting the "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%" status.'
+          fi
         done
         llvm-cov-15 show "${LIB_PATHS[@]/#/--object=}" \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
