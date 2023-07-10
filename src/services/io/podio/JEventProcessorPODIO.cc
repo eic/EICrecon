@@ -54,6 +54,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "BackwardMPGDEndcapRecHits",
+            "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
             "ForwardOffMTrackerRecHits",
@@ -81,6 +84,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsTruth",
             "GeneratedJets",
             "ReconstructedJets",
+            "ReconstructedElectrons",
 
             // Ecal stuff
             "EcalEndcapNRawHits",

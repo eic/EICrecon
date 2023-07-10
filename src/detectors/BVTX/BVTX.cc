@@ -18,10 +18,10 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"VertexBarrelHits"}, "BarrelVertexDigiHits"));
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"VertexBarrelHits"}, "BarrelVertexRawHits"));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelVertexDigiHits"}, "SiBarrelVertexRecHits"));
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"BarrelVertexRawHits"}, "SiBarrelVertexRecHits"));
 
 }
 } // extern "C"
