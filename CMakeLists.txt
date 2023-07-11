@@ -90,6 +90,7 @@ add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # PODIO, EDM4HEP, EDM4EIC event models
+find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
@@ -119,6 +120,34 @@ include(cmake/print_functions.cmake)                        # Helpers to print f
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
+enable_testing()
+
+# Address sanitizer
+option(USE_ASAN "Compile with address sanitizer" OFF)
+if (${USE_ASAN})
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
+    add_link_options(-fsanitize=address)
+endif()
+
+# Thread sanitizer
+option(USE_TSAN "Compile with thread sanitizer" OFF)
+if (${USE_TSAN})
+    add_compile_options(-fsanitize=thread -g -O1)
+    add_link_options(-fsanitize=thread)
+endif()
+
+# Undefined behavior sanitizer
+option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
+if (${USE_UBSAN})
+    include(CheckCXXCompilerFlag)
+    foreach (sanitizer undefined nullability implicit-conversion)
+        check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
+        if (CXX_COMPILER_HAS_sanitize_${sanitizer})
+            add_compile_options(-fsanitize=${sanitizer} -g -O1)
+            add_link_options(-fsanitize=${sanitizer})
+        endif()
+    endforeach()
+endif()
 
 add_subdirectory( src/services )
 add_subdirectory( src/algorithms )

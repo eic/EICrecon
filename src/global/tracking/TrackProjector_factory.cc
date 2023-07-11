@@ -2,7 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <edm4eic/TrackSegmentCollection.h>
 #include <JANA/JEvent.h>
+
 #include "TrackProjector_factory.h"
 #include "extensions/string/StringHelpers.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
@@ -39,7 +41,7 @@ namespace eicrecon {
             Set(result);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+            throw JException(e.what());
         }
     }
 

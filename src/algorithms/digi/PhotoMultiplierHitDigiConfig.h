@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
+
 #pragma once
 
 #include <spdlog/spdlog.h>
@@ -7,19 +10,28 @@ namespace eicrecon {
     public:
 
       // random number generator seed
-      unsigned long seed = 0;
+      /* FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
+       * FIXME: remove this warning when this issue is resolved:
+       *        https://github.com/eic/EICrecon/issues/539
+       */
+      unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
 
       // triggering
-      double hitTimeWindow = 20.0;   // [ns]
-      double timeStep      = 0.0625; // [ns]
-      double speMean       = 80.0;
-      double speError      = 16.0;
-      double pedMean       = 200.0;
-      double pedError      = 3.0;
+      double hitTimeWindow  = 20.0;   // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
+      double timeResolution = 1/16.0; // time resolution (= 1 / TDC counts per unit time) // [ns]
+      double speMean        = 80.0;   // mean ADC counts for a single photon
+      double speError       = 16.0;   // sigma of ADC counts for a single photon
+      double pedMean        = 200.0;  // mean ADC counts for the pedestal
+      double pedError       = 3.0;    // sigma of ADC counts for the pedestal
+
+      // noise
+      bool enableNoise       = false;
+      double noiseRate       = 20000; // [Hz]
+      double noiseTimeWindow = 20.0;  // [ns]
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
-      double pixelSize       = 3.0;   // [mm] // pixel (active) size
+      double pixelSize       = 3.0;   // pixel (active) size // [mm]
 
       // overall safety factor
       /* simulations assume the detector is ideal and perfect, but reality is
@@ -33,22 +45,25 @@ namespace eicrecon {
       // - wavelength units are [nm]
       // FIXME: figure out how users can override this, maybe an external `yaml` file
       std::vector<std::pair<double, double> > quantumEfficiency = {
-        {325, 0.04},
-        {340, 0.10},
-        {350, 0.20},
-        {370, 0.30},
-        {400, 0.35},
-        {450, 0.40},
-        {500, 0.38},
-        {550, 0.35},
-        {600, 0.27},
-        {650, 0.20},
-        {700, 0.15},
-        {750, 0.12},
-        {800, 0.08},
-        {850, 0.06},
-        {900, 0.04}
+        {315,  0.00},
+        {325,  0.04},
+        {340,  0.10},
+        {350,  0.20},
+        {370,  0.30},
+        {400,  0.35},
+        {450,  0.40},
+        {500,  0.38},
+        {550,  0.35},
+        {600,  0.27},
+        {650,  0.20},
+        {700,  0.15},
+        {750,  0.12},
+        {800,  0.08},
+        {850,  0.06},
+        {900,  0.04},
+        {1000, 0.00}
       };
+
       /*
          std::vector<std::pair<double, double> > quantumEfficiency = { // test unit QE
          {325, 1.00},
@@ -61,19 +76,22 @@ namespace eicrecon {
       // print all parameters
       void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
         m_log->log(lvl, "{:=^60}"," PhotoMultiplierHitDigiConfig Settings ");
-        auto puts = [&m_log, &lvl] (auto name, auto val) {
+        auto print_param = [&m_log, &lvl] (auto name, auto val) {
           m_log->log(lvl, "  {:>20} = {:<}", name, val);
         };
-        puts("seed",seed);
-        puts("hitTimeWindow",hitTimeWindow);
-        puts("timeStep",timeStep);
-        puts("speMean",speMean);
-        puts("speError",speError);
-        puts("pedMean",pedMean);
-        puts("pedError",pedError);
-        puts("enablePixelGaps",enablePixelGaps);
-        puts("pixelSize",pixelSize);
-        puts("safetyFactor",safetyFactor);
+        print_param("seed",seed);
+        print_param("hitTimeWindow",hitTimeWindow);
+        print_param("timeResolution",timeResolution);
+        print_param("speMean",speMean);
+        print_param("speError",speError);
+        print_param("pedMean",pedMean);
+        print_param("pedError",pedError);
+        print_param("enablePixelGaps",enablePixelGaps);
+        print_param("pixelSize",pixelSize);
+        print_param("safetyFactor",safetyFactor);
+        print_param("enableNoise",enableNoise);
+        print_param("noiseRate",noiseRate);
+        print_param("noiseTimeWindow",noiseTimeWindow);
         m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
         for(auto& [wl,qe] : quantumEfficiency)
           m_log->log(lvl, "  {:>10} {:<}",wl,qe);

@@ -29,10 +29,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "LFHCALRecHits";
 
-        m_splitCluster=false;
-        m_minClusterHitEdep=1 * dd4hep::MeV;
-        m_minClusterCenterEdep=100.0 * dd4hep::MeV;
-
         // neighbour checking distances
         m_sectorDist=0 * dd4hep::cm;
         u_localDistXY={};     //{this, "localDistXY", {}};
@@ -73,9 +69,14 @@ public:
         std::remove(u_adjacencyMatrix.begin(), u_adjacencyMatrix.end(), ' ');
         m_readout = "LFHCALHits";
 
-        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:splitCluster",          m_splitCluster);
-        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:minClusterHitEdep",     m_minClusterHitEdep);
-        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:minClusterCenterEdep",  m_minClusterCenterEdep);
+        m_splitCluster=false;
+        m_minClusterHitEdep=1 * dd4hep::MeV;
+        m_minClusterCenterEdep=100.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
+
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:sectorDist",            m_sectorDist);
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:localDistXY",           u_localDistXY);
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:localDistXZ",           u_localDistXZ);
@@ -84,9 +85,11 @@ public:
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:globalDistEtaPhi",      u_globalDistEtaPhi);
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:dimScaledLocalDistXY",  u_dimScaledLocalDistXY);
         app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:adjacencyMatrix",       u_adjacencyMatrix);
-        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:geoServiceName",        m_geoSvcName);
-        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:readoutClass",          m_readout);
-
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("FHCAL:LFHCALIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
 
         m_geoSvc = app->template GetService<JDD4hep_service>();
 

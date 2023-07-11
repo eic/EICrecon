@@ -33,6 +33,6 @@ void eicrecon::ParticlesWithTruthPID_factory::Process(const std::shared_ptr<cons
         SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::move(prt_with_assoc.second));
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }

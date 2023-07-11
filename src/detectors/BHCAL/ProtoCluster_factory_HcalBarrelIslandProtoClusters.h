@@ -28,10 +28,6 @@ public:
         auto app = GetApplication();
         m_input_tag = "HcalBarrelRecHits";
 
-        m_splitCluster=false;              // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterHitEdep=3.0 * dd4hep::MeV;    // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-        m_minClusterCenterEdep=30.0 * dd4hep::MeV; // from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
-
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
         // Magic constants:
@@ -61,10 +57,14 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={50.0*dd4hep::mm, 50.0*dd4hep::mm};// from https://eicweb.phy.anl.gov/EIC/detectors/athena/-/blob/master/calibrations/ffi_zdc.json
 
+        m_splitCluster=false;
+        m_minClusterHitEdep=3.0 * dd4hep::MeV;
+        m_minClusterCenterEdep=30.0 * dd4hep::MeV;
+        u_transverseEnergyProfileMetric = "globalDistEtaPhi";
+        u_transverseEnergyProfileScale = 1.;
 
-        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:splitCluster",             m_splitCluster);
-        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
-        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:geoServiceName", m_geoSvcName);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:sectorDist",   m_sectorDist);
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:localDistXY",   u_localDistXY);
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:localDistXZ",   u_localDistXZ);
@@ -73,8 +73,11 @@ public:
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:globalDistEtaPhi",    u_globalDistEtaPhi);
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:dimScaledLocalDistXY",    u_dimScaledLocalDistXY);
         app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:adjacencyMatrix", u_adjacencyMatrix);
-        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:geoServiceName", m_geoSvcName);
-        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:readoutClass", m_readout);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:splitCluster", m_splitCluster);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:minClusterHitEdep", m_minClusterHitEdep);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:minClusterCenterEdep", m_minClusterCenterEdep);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:transverseEnergyProfileMetric", u_transverseEnergyProfileMetric);
+        app->SetDefaultParameter("BHCAL:HcalBarrelIslandProtoClusters:transverseEnergyProfileScale", u_transverseEnergyProfileScale);
         m_geoSvc = app->template GetService<JDD4hep_service>();
 
         AlgorithmInit(m_log);

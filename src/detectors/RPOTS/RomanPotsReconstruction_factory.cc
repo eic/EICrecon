@@ -2,7 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <JANA/JEvent.h>
+
 #include "RomanPotsReconstruction_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -29,50 +31,6 @@ namespace eicrecon {
 
 	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
-        auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
-        try {
-            id_dec = id_spec.decoder();
-            if (!m_sectorField.empty()) {
-                sector_idx = id_dec->index(m_sectorField);
-                m_log->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
-            }
-            if (!m_layerField.empty()) {
-                layer_idx = id_dec->index(m_layerField);
-                m_log->info("Find layer field {}, index = {}", m_layerField, layer_idx);
-            }
-        } catch (...) {
-            m_log->error("Failed to load ID decoder for {}", m_readout);
-            throw JException("Failed to load ID decoder");
-        }
-
-
-	m_log->info("RP Decoding complete...");
-
-        // local detector name has higher priority
-        if (!m_localDetElement.empty()) {
-            try {
-                local = detector->detector(m_localDetElement);
-                m_log->info("Local coordinate system from DetElement {}", m_localDetElement);
-            } catch (...) {
-                m_log->error("Failed to locate local coordinate system from DetElement {}", m_localDetElement);
-                throw JException("Failed to locate local coordinate system");
-            }
-            // or get from fields
-        } else {
-            std::vector<std::pair<std::string, int>> fields;
-            for (auto &f: u_localDetFields) {
-                fields.emplace_back(f, 0);
-            }
-            local_mask = id_spec.get_mask(fields);
-            // use all fields if nothing provided
-            if (fields.empty()) {
-                local_mask = ~0;
-            }
-            // info() << fmt::format("Local DetElement mask {:#064b} from fields [{}]", local_mask,
-            //                      fmt::join(fields, ", "))
-            //        << endmsg;
-        }
-
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
         if (det == 0) {
@@ -86,6 +44,12 @@ namespace eicrecon {
         aXRPinv[1][1] = aXRP[0][0] / det;
 
         det = aYRP[0][0] * aYRP[1][1] - aYRP[0][1] * aYRP[1][0];
+
+        if (det == 0) {
+            m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+            throw JException("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+        }
+
         aYRPinv[0][0] = aYRP[1][1] / det;
         aYRPinv[0][1] = -aYRP[0][1] / det;
         aYRPinv[1][0] = -aYRP[1][0] / det;

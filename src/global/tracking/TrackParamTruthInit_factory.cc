@@ -70,9 +70,15 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
             if (m_log->level() <= spdlog::level::debug) {
                 const auto p = std::hypot(mc_particle->getMomentum().x, mc_particle->getMomentum().y,
                                           mc_particle->getMomentum().z);
+                const auto theta = std::atan2(std::hypot(mc_particle->getMomentum().x,
+                                                         mc_particle->getMomentum().y),
+                                              mc_particle->getMomentum().z);
+                const auto phi = std::atan2(mc_particle->getMomentum().y, mc_particle->getMomentum().x);
                 const auto charge = result->charge();
                 m_log->debug("Invoke track finding seeded by truth particle with:");
-                m_log->debug("   p =  {} GeV\"", p);
+                m_log->debug("   p =  {} GeV", p);
+                m_log->debug("   theta = {}", theta);
+                m_log->debug("   phi = {}", phi);
                 m_log->debug("   charge = {}", charge);
                 m_log->debug("   q/p =  {}", charge / p);
             }
@@ -80,6 +86,6 @@ void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const 
         Set(results);
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }

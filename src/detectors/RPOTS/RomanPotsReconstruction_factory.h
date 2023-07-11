@@ -53,19 +53,14 @@ namespace eicrecon {
 	const double nomMomentum = 275.0;
 
 	std::string m_readout;
-	std::string m_layerField;
-	std::string m_sectorField;
 	std::string m_geoSvcName;
-
-	dd4hep::BitFieldCoder *id_dec = nullptr;
-	size_t sector_idx{0}, layer_idx{0};
 
 	std::shared_ptr<JDD4hep_service> m_geoSvc;
 	std::string m_localDetElement;
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
-	size_t local_mask = ~0;
+	size_t local_mask = ~static_cast<size_t>(0);
 	dd4hep::Detector *detector = nullptr;
 
 	const double aXRP[2][2] = {{2.102403743, 29.11067626},

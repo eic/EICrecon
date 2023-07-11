@@ -5,6 +5,8 @@
 // It converts digitized ADC/TDC values to energy/time, and looks for geometrical information of the
 // readout pixels Author: Chao Peng Date: 06/02/2021
 
+#pragma once
+
 #include <algorithm>
 #include <bitset>
 
@@ -64,12 +66,12 @@ public:
     void initialize() {
         if (!m_geoSvc) {
             m_log->error("Unable to locate Geometry Service. \nMake sure you have GeoSvc and SimSvc in the right order in the configuration.");
-            return;
+            throw std::runtime_error("Unable to locate Geometry Service. \nMake sure you have GeoSvc and SimSvc in the right order in the configuration.");
         }
 
         if (m_readout.empty()) {
             m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
-            return;
+            throw std::runtime_error("readoutClass is not provided, it is needed to know the fields in readout ids");
         }
 
         try {
@@ -78,7 +80,7 @@ public:
             layer_idx = id_dec->index(m_layerField);
         } catch (...) {
             m_log->warn(fmt::format("Failed to load ID decoder for {}", m_readout));
-            return;
+            throw;
         }
     }
 
