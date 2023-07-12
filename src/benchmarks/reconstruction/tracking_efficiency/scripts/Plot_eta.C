@@ -67,7 +67,7 @@ void Plot_eta()
    tree->Draw(FwdMM_hits.Data(),"ForwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
    tree->Draw(BwdMM_hits.Data(),"BackwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
    tree->Draw(B0_hits.Data(),"B0TrackerHits.position.y>0","goff"); // B0 Tracker
-  
+
    c1->cd();
    c1->SetLogy();
    h0->Scale(1./h0->Integral());
@@ -114,7 +114,7 @@ void Plot_eta()
   l1->AddEntry(h3,"TOFBarrelHits");
   l1->AddEntry(h4,"TrackerEndcapHits");
   l1->Draw();
-  l1= new TLegend(0.40,0.75,0.70,0.93);  
+  l1= new TLegend(0.40,0.75,0.70,0.93);
   l1->SetTextSize(0.03);
   l1->SetBorderSize(0);
   l1->AddEntry(h5,"TOFEndcapHits");
