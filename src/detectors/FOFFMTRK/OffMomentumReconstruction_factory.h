@@ -17,7 +17,7 @@
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/SimTrackerHit.h>
@@ -28,7 +28,7 @@
 
 namespace eicrecon {
 
-    class OffMomentumReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
+    class OffMomentumReconstruction_factory : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>{
 
     public:
 
