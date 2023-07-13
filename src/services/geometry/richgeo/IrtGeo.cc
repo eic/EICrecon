@@ -81,7 +81,7 @@ void richgeo::IrtGeo::SetRefractiveIndexTable() {
       auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
       auto rindex = rindex_matrix->Get(row,1);
       m_log->debug("  {:>5} eV   {:<}", energy, rindex);
-      rad->m_ri_lookup_table.push_back({energy,rindex});
+      rad->m_ri_lookup_table.emplace_back(energy,rindex);
     }
   }
 }
