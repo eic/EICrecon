@@ -181,7 +181,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                     );
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
-                if(data.sim_hit_indices.size()>0) {
+                if(!data.sim_hit_indices.empty()) {
                   auto hit_assoc = result.hit_assocs->create();
                   hit_assoc.setWeight(1.0); // not used
                   hit_assoc.setRawHit(raw_hit);
