@@ -17,8 +17,8 @@ namespace eicrecon {
 
     void TrackerSourceLinker_factory::Init() {
         // Ask JApplication and parameter managers
-        auto app =  this->GetApplication();
-        auto pm = app->GetJParameterManager();
+        auto *app =  this->GetApplication();
+        auto *pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
         std::string plugin_name = GetPluginName();
@@ -64,7 +64,7 @@ namespace eicrecon {
         m_log->debug("TrackerSourceLinker_factory::Process");
 
         try {
-            auto result = m_source_linker.produce(total_hits);
+            auto *result = m_source_linker.produce(total_hits);
 
             for (auto sourceLink: result->sourceLinks) {
                 m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(),

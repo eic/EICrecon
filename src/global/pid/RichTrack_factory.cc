@@ -7,7 +7,7 @@
 void eicrecon::RichTrack_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName(); // plugin name should be detector name
   auto prefix = GetPrefix();
 

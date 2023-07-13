@@ -23,7 +23,7 @@ void DumpFlags_processor::Init()
 {
         // Ask service locator a file to write to
 
-    auto app = GetApplication();
+    auto *app = GetApplication();
     app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
     app->SetDefaultParameter("dump_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
     app->SetDefaultParameter("dump_flags:json", m_json_file_name, "If not empty, a json file to generate");
@@ -48,7 +48,7 @@ void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 void DumpFlags_processor::Finish()
 {
-    auto pm = GetApplication()->GetJParameterManager();
+    auto *pm = GetApplication()->GetJParameterManager();
 
     // Find longest strings in names and values
     size_t max_name_len = 0;

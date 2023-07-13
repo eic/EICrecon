@@ -63,7 +63,7 @@ namespace eicrecon {
             input_cluster_vectors.push_back(clusters);
 
             m_log->debug("Clusters '{}' len: {}", input_tag,  clusters.size());
-            for(auto cluster: clusters) {
+            for(const auto *cluster: clusters) {
                 m_log->debug("  {} {}", cluster->getObjectID().collectionID, cluster->getEnergy());
             }
         }
@@ -73,7 +73,7 @@ namespace eicrecon {
             input_cluster_assoc.push_back(assocs);
 
             m_log->debug("Associations '{}' len: {}", input_tag, assocs.size());
-            for(auto assoc: assocs) {
+            for(const auto *assoc: assocs) {
                 m_log->debug("  {} {} {} {}", assoc->getRecID(), assoc->getSimID(), assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
             }
         }

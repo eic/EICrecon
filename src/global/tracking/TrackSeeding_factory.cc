@@ -11,7 +11,7 @@
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
     std::string plugin_name = GetPluginName();

@@ -23,7 +23,7 @@ extern "C" {
 void RPOTScheckProcessor::InitWithGlobalRootLock(){
 
     auto rootfile_svc = GetApplication()->GetService<RootFile_service>();
-    auto rootfile = rootfile_svc->GetHistFile();
+    auto *rootfile = rootfile_svc->GetHistFile();
     rootfile->mkdir("RPOTS")->cd();
 
     hist1D["ForwardRomanPotHits_hits_per_event"]  =  new TH1I("ForwardRomanPotHits_hits_per_event",  "RPOTS Simulated hit Nhits/event;Nhits",  201, -0.5, 200.5);
@@ -63,7 +63,7 @@ void RPOTScheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>&
     // ForwardRomanPotHits
     hist1D["ForwardRomanPotHits_hits_per_event"]->Fill(ForwardRomanPotHits().size());
 
-    for( auto hit : ForwardRomanPotHits() ){
+    for( const auto *hit : ForwardRomanPotHits() ){
         hist1D["ForwardRomanPotHits_EDep"]->Fill( hit->getEDep() / dd4hep::MeV);
         hist1D["ForwardRomanPotHits_time"]->Fill( hit->getTime());
         hist1D["ForwardRomanPotHits_pathlength"]->Fill( hit->getPathLength());
@@ -79,14 +79,14 @@ void RPOTScheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>&
 
     // ForwardRomanPotRawHits
     hist1D["ForwardRomanPotRawHits_hits_per_event"]->Fill(ForwardRomanPotRawHits().size());
-    for( auto hit : ForwardRomanPotRawHits()  ){
+    for( const auto *hit : ForwardRomanPotRawHits()  ){
         hist1D["ForwardRomanPotRawHits_charge"]->Fill( hit->getCharge() );
         hist1D["ForwardRomanPotRawHits_timestamp"]->Fill( hit->getTimeStamp() );
     }
 
     // ForwardRomanPotRecHits
     hist1D["ForwardRomanPotRecHits_hits_per_event"]->Fill(ForwardRomanPotRecHits().size());
-    for( auto hit : ForwardRomanPotRecHits() ){
+    for( const auto *hit : ForwardRomanPotRecHits() ){
         hist1D["ForwardRomanPotRecHits_Edep"]->Fill( hit->getEdep() / dd4hep::MeV);
         hist1D["ForwardRomanPotRecHits_time"]->Fill( hit->getTime());
 

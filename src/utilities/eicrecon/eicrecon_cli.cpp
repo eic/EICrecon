@@ -228,7 +228,7 @@ namespace jana {
 
     JApplication* CreateJApplication(UserOptions& options) {
 
-        auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+        auto *para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
 
         // Add the cli options based on the user inputs
         for (auto pair : options.params) {
@@ -262,7 +262,7 @@ namespace jana {
             para_mgr->SetParameter("jana:warmup_timeout", 180); // seconds
         }
 
-        auto app = new JApplication(para_mgr);
+        auto *app = new JApplication(para_mgr);
 
         const char* env_p = getenv("EICrecon_MY");
         if( env_p ){
@@ -293,7 +293,7 @@ namespace jana {
             // cli criteria: Ppodio:print_type_table=1
             if (print_type_table) {
                 auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
-                for (auto event_source : event_sources) {
+                for (auto *event_source : event_sources) {
 //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
 //                    std::cout << event_source->GetResourceName() << std::endl;
                     if (event_source->GetPluginName().find("podio") != std::string::npos)

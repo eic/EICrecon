@@ -71,7 +71,7 @@ namespace eicrecon {
                 m_log->debug("  Empty multiTrajectory.");
                 continue;
             }
-            auto &trackTip = trackTips.front();
+            const auto &trackTip = trackTips.front();
 
             // Collect the trajectory summary info
             auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);

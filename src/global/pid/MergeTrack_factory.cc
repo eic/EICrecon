@@ -7,7 +7,7 @@
 void eicrecon::MergeTrack_factory::Init() {
 
   // get plugin name and tag
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = plugin + ":" + GetTag();
   InitDataTags(prefix);

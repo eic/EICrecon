@@ -52,7 +52,7 @@ namespace eicrecon {
     auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
 
     for (const auto& pcl : *proto) {
-      auto cl = reconstruct(pcl);
+      auto *cl = reconstruct(pcl);
 
       // skip null clusters
       if (cl == nullptr) continue;

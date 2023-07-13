@@ -618,7 +618,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
     m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
-    for (auto& hit: cluster->getHits()){
+    for (const auto& hit: cluster->getHits()){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)

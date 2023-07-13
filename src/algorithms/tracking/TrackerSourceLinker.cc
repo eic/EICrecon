@@ -50,7 +50,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
     int hit_index = 0;
-    for (auto hit: trk_hits) {
+    for (const auto *hit: trk_hits) {
 
         Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
         cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
@@ -78,7 +78,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         // variable surf_center not used anywhere;
         // auto surf_center = surface->center(Acts::GeometryContext());
 
-        auto& hit_pos = hit->getPosition();
+        const auto& hit_pos = hit->getPosition();
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
         Acts::Vector2 pos;
@@ -131,7 +131,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     }
     m_log->debug("All hits processed measurements->size(): {}", measurements->size());
 
-    auto result = new eicrecon::TrackerSourceLinkerResult();
+    auto *result = new eicrecon::TrackerSourceLinkerResult();
 
     result->sourceLinks = sourceLinks;
     result->measurements = measurements;

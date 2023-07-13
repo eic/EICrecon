@@ -22,7 +22,7 @@ extern "C" {
 void BEMCcheckProcessor::InitWithGlobalRootLock(){
 
     auto rootfile_svc = GetApplication()->GetService<RootFile_service>();
-    auto rootfile = rootfile_svc->GetHistFile();
+    auto *rootfile = rootfile_svc->GetHistFile();
     rootfile->mkdir("BEMC")->cd();
 
     hist1D["EcalBarrelhits_hits_per_event"]  =  new TH1I("EcalBarrelhits_hits_per_event",  "BEMC Simulated hit Nhits/event;Nhits",  300, 0.0, 3000);
@@ -56,7 +56,7 @@ void BEMCcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& 
 
     // EcalBarrelhits
     hist1D["EcalBarrelhits_hits_per_event"]->Fill(EcalBarrelhits().size());
-    for( auto hit : EcalBarrelhits()  ){
+    for( const auto *hit : EcalBarrelhits()  ){
 //        auto row = floor(hit->getPosition().y/20.5); // 20.5 is empirical
 //        auto col = floor(hit->getPosition().x/20.5); // 20.5 is empirical
 //        hist2D["EcalBarrelhits_occupancy"]->Fill(row, col);
@@ -66,15 +66,15 @@ void BEMCcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& 
 
     // EcalBarrelRawhits
     hist1D["EcalBarrelRawhits_hits_per_event"]->Fill(EcalBarrelRawhits().size());
-    for( auto hit : EcalBarrelRawhits()  ){
+    for( const auto *hit : EcalBarrelRawhits()  ){
         hist1D["EcalBarrelRawhits_amplitude"]->Fill( hit->getAmplitude() );
         hist1D["EcalBarrelRawhits_timestamp"]->Fill( hit->getTimeStamp() );
     }
 
     // EcalBarrelRechits
     hist1D["EcalBarrelRechits_hits_per_event"]->Fill(EcalBarrelRecHits().size());
-    for( auto hit : EcalBarrelRecHits()  ){
-        auto &pos = hit->getPosition();
+    for( const auto *hit : EcalBarrelRecHits()  ){
+        const auto &pos = hit->getPosition();
         hist1D["EcalBarrelRecHits_hit_energy"]->Fill(hit->getEnergy() / dd4hep::MeV);
         hist2D["EcalBarrelRecHits_xy"]->Fill( pos.x, pos.y, hit->getEnergy() );
         hist1D["EcalBarrelRecHits_z"]->Fill(pos.z);
@@ -84,7 +84,7 @@ void BEMCcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& 
 
     // EcalBarrelIslandProtoClusters
     hist1D["EcalBarrelIslandProtoClusters_clusters_per_event"]->Fill(EcalBarrelIslandProtoClusters().size());
-    for (auto proto : EcalBarrelIslandProtoClusters() ){
+    for (const auto *proto : EcalBarrelIslandProtoClusters() ){
         hist1D["EcalBarrelIslandProtoClusters_hits_per_cluster"]->Fill( proto->getHits().size() );
     }
 }

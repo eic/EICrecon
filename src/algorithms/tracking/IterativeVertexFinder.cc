@@ -107,7 +107,7 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
     edm4eic::Cov3f cov(vtx.covariance()(0, 0), vtx.covariance()(1, 1), vtx.covariance()(2, 2),
                        vtx.covariance()(0, 1), vtx.covariance()(0, 2), vtx.covariance()(1, 2));
 
-    edm4eic::Vertex* eicvertex = new edm4eic::Vertex{
+    auto* eicvertex = new edm4eic::Vertex{
         1,                              // boolean flag if vertex is primary vertex of event
         (float)vtx.fitQuality().first,  // chi2
         (float)vtx.fitQuality().second, // ndf

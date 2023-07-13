@@ -45,7 +45,7 @@ void GlobalReconstructionTest_processor::Init()
     std::string plugin_name=("reco_test");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -53,7 +53,7 @@ void GlobalReconstructionTest_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -93,7 +93,7 @@ void GlobalReconstructionTest_processor::Process(const std::shared_ptr<const JEv
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
 
-        auto particle=mc_particles[i];
+        const auto *particle=mc_particles[i];
 
         if(particle->getGeneratorStatus() != 1) continue;
 //
@@ -124,7 +124,7 @@ void GlobalReconstructionTest_processor::printRecoParticles(std::vector<const ed
 
 
     for(size_t i=0; i < reco_particles.size(); i++) {
-        auto particle = reco_particles[i];
+        const auto *particle = reco_particles[i];
 
         double px = particle->getMomentum().x;
         double py = particle->getMomentum().y;
