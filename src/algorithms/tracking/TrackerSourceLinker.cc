@@ -80,21 +80,45 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
         Acts::Vector2 pos;
+        auto hit_det = hit->getCellID()&0xFF;
+        auto onSurfaceTolerance = 0.0001;      // By default, ACTS uses 0.1 micron as the on surface tolerance
+        if (hit_det==150 || hit_det==122){
+         onSurfaceTolerance = 0.001;           // Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
+        }
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
             pos = surface->globalToLocal(
                     Acts::GeometryContext(),
                     {hit_pos.x, hit_pos.y, hit_pos.z},
-                    {0, 0, 0}).value();
+                    {0, 0, 0}, onSurfaceTolerance).value();
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
         }
         catch(std::exception &ex) {
 
-            m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
-                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+            // m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
+            //             vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+                        auto inverse = ((surface->transform(Acts::GeometryContext())).inverse()) ;
+            m_log->warn("Can't convert globalToLocal for hit:    \n\
+                        vol_id,\t det_id,\t CellID               \n\
+                        {},\t {},\t {}                           \n\
+                        global_x, global_y, global_z             \n\
+                        {},\t {},\t {}                           \n\
+                        Inverse transform of context             \n\
+                        {},\t {},\t {}                           \n\
+                        {},\t {},\t {}                           \n\
+                        {},\t {},\t {}                           \n\
+                        local_x,\t local_y,\t local_z            \n\
+                        {},\t {},\t {}",
+                        vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z,
+                        inverse(0,0), inverse(0,1), inverse(0,2),
+                        inverse(1,0), inverse(1,1), inverse(1,2),
+                        inverse(2,0), inverse(2,1), inverse(2,2),
+                        hit_pos.x*inverse(0,0)+hit_pos.y*inverse(0,1)+hit_pos.z*inverse(0,2),
+                        hit_pos.x*inverse(1,0)+hit_pos.y*inverse(1,1)+hit_pos.z*inverse(1,2),
+                        hit_pos.x*inverse(2,0)+hit_pos.y*inverse(2,1)+hit_pos.z*inverse(2,2));
             continue;
         }
 

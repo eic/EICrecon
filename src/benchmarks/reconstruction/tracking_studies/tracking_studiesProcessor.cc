@@ -39,7 +39,7 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   auto app          = GetApplication();
   auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-  std::string log_level_str = "debug";
+  std::string log_level_str = "off";//"debug";
   m_log                     = app->GetService<Log_service>()->logger(plugin_name);
   app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str,
                            "LogLevel: trace, debug, info, warn, err, critical, off");
@@ -67,9 +67,9 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   m_dir_main = file->mkdir(plugin_name.c_str());
 
   // Create histograms here. e.g.
-  hPosTestRZ = new TH2D("hPosTestRZ", "", 1000, -200, 300, 200, 0, 100);
+  hPosTestRZ = new TH2D("hPosTestRZ", "", 500, -200, 300, 100, 0, 100);
   hPosTestRZ->SetDirectory(m_dir_main);
-  hMindRMatched = new TH2D("hMindRMatched", "", 1000, 0, 50, 5, -0.5, 4.5);
+  hMindRMatched = new TH2D("hMindRMatched", "", 300, 0, 30, 5, -0.5, 4.5);
   hMindRMatched->SetDirectory(m_dir_main);
 
   hThetaResoVsEta = new TH2D("hThetaResoVsEta", "", 400, -4, 4, 1000, -0.1, 0.1);
@@ -108,7 +108,7 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
 
   // Create propagation surfaces for cherenkov angular studies
   // make a reference disk to mimic center of PFRICH
-  const auto PFRICH_center_Z    = -1186. - 20.; // center of aerogel
+  const auto PFRICH_center_Z    = -1236. - 20.; // center of aerogel
   const auto PFRICH_center_MinR = 80.0;
   const auto PFRICH_center_MaxR = 630;
   auto PFRICH_center_Bounds =
@@ -197,9 +197,9 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
   auto acts_results = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
   m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
-  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
-               "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
-               "[chi2]");
+  // m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
+  //              "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
+  //              "[chi2]");
   // Loop over the trajectories
   for (const auto& traj : acts_results) {
 
@@ -430,11 +430,11 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
       }
     }
 
-    // const auto& trackTip = trackTips.front();
+    const auto& trackTip = trackTips.front();
 
-    // // Collect the trajectory summary info
+    // Collect the trajectory summary info
     // auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-    // // auto trajState       = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+    // auto trajState       = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
     // if (traj->hasTrackParameters(trackTip)) {
     //   const auto& boundParam = traj->trackParameters(trackTip);
     //   const auto& parameter  = boundParam.parameters();
@@ -448,7 +448,7 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
     //   // TODO also check chi2
     //   //  cout << "\tnMeasurements: " << m_nMeasurements << endl;
 
-    //   nHitsTrackVsEtaVsP->Fill(mceta, m_nMeasurements, mcp);
+    //   // nHitsTrackVsEtaVsP->Fill(mceta, m_nMeasurements, mcp);
     //   nTracksFilled++;
     //   // m_log->debug("{:>10.2f} {:>10.2f}  {:>10.2f} {:>10.3f} {:>10.4f} {:>10.3f} {:>12.4e}
     //   // {:>12.4e} {:>12.4e} {:>8.2f}",
@@ -463,83 +463,83 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
     //   //     sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
     //   //     trajState.chi2Sum);
     // }
-    // bool trackstateVerbosity = false;
-    // if (trackstateVerbosity)
-    //   cout << "\n\nnew event" << endl;
-    // // // visit the track points
-    // mj.visitBackwards(trackTip, [&](auto&& trackstate) {
-    //   // get volume info
-    //   auto geoID  = trackstate.referenceSurface().geometryId();
-    //   auto volume = geoID.volume();
-    //   auto layer  = geoID.layer();
-    //   auto module = geoID.sensitive();
-    //   if (trackstateVerbosity)
-    //     cout << "surfname: " << trackstate.referenceSurface().name() << endl;
-    //   auto detEl              = trackstate.referenceSurface().associatedDetectorElement();
-    //   const auto* det_element = dynamic_cast<const Acts::DD4hepDetectorElement*>(detEl);
-    //   // cout << "detEl: " << det_element->identifier() << endl;
+    bool trackstateVerbosity = false;
+    if (trackstateVerbosity)
+      cout << "\n\nnew event" << endl;
+    // // visit the track points
+    mj.visitBackwards(trackTip, [&](auto&& trackstate) {
+      // get volume info
+      auto geoID  = trackstate.referenceSurface().geometryId();
+      auto volume = geoID.volume();
+      auto layer  = geoID.layer();
+      auto module = geoID.sensitive();
+      if (trackstateVerbosity)
+        cout << "surfname: " << trackstate.referenceSurface().name() << endl;
+      auto detEl              = trackstate.referenceSurface().associatedDetectorElement();
+      const auto* det_element = dynamic_cast<const Acts::DD4hepDetectorElement*>(detEl);
+      // cout << "detEl: " << det_element->identifier() << endl;
 
-    //   auto volman = m_geoSvc->detector()->volumeManager();
+      auto volman = m_geoSvc->detector()->volumeManager();
 
-    //   if (det_element == nullptr) {
-    //     if (trackstateVerbosity)
-    //       cout << "\tdet_element is null" << endl;
-    //   } else {
-    //     auto* vol_ctx = volman.lookupContext(det_element->identifier());
-    //     if (vol_ctx == nullptr) {
-    //       if (trackstateVerbosity)
-    //         cout << "\tvol_ctx is null" << endl;
-    //     } else {
-    //       auto de = vol_ctx->element;
-    //       if (trackstateVerbosity)
-    //         cout << "\t" << de.path() << endl;
-    //       if (trackstateVerbosity)
-    //         cout << "\t" << de.placementPath() << endl;
-    //     }
-    //   }
-    //   // m_init_log->debug("  de.path          = {}", de.path());
-    //   // m_init_log->debug("  de.placementPath = {}", de.placementPath());
-    //   // print detEl name
-    //   // cout << "volume: " << volume << endl;
-    //   // auto volName = geoID.volume().volumeName();
-    //   // .volume()
-    //   // auto referenceSurface = trackstate.referenceSurface();
-    //   // cout << "volName: " << volName << endl;
+      if (det_element == nullptr) {
+        if (trackstateVerbosity)
+          cout << "\tdet_element is null" << endl;
+      } else {
+        auto* vol_ctx = volman.lookupContext(det_element->identifier());
+        if (vol_ctx == nullptr) {
+          if (trackstateVerbosity)
+            cout << "\tvol_ctx is null" << endl;
+        } else {
+          auto de = vol_ctx->element;
+          if (trackstateVerbosity)
+            cout << "\t" << de.path() << endl;
+          if (trackstateVerbosity)
+            cout << "\t" << de.placementPath() << endl;
+        }
+      }
+      // m_init_log->debug("  de.path          = {}", de.path());
+      // m_init_log->debug("  de.placementPath = {}", de.placementPath());
+      // print detEl name
+      // cout << "volume: " << volume << endl;
+      // auto volName = geoID.volume().volumeName();
+      // .volume()
+      // auto referenceSurface = trackstate.referenceSurface();
+      // cout << "volName: " << volName << endl;
 
-    //   // convert geoID to bitfield and cout
-    //   // Acts::GeometryIdentifier geoID_bitfield(geoID);
-    //   // cout << "geoID: " << geoID_bitfield << endl;
-    //   // if (trackstate.hasCalibrated()) {
-    //   //     m_nCalibrated++;
-    //   // }
+      // convert geoID to bitfield and cout
+      // Acts::GeometryIdentifier geoID_bitfield(geoID);
+      // cout << "geoID: " << geoID_bitfield << endl;
+      // if (trackstate.hasCalibrated()) {
+      //     m_nCalibrated++;
+      // }
 
-    //   // get track state parameters and their covariances
-    //   const auto& parameter = trackstate.predicted();
-    //   // cout << "track parameters: " << parameter << endl;
-    //   const auto& covariance = trackstate.predictedCovariance();
+      // get track state parameters and their covariances
+      const auto& parameter = trackstate.predicted();
+      // cout << "track parameters: " << parameter << endl;
+      const auto& covariance = trackstate.predictedCovariance();
 
-    //   // convert local to global
-    //   auto global = trackstate.referenceSurface().localToGlobal(
-    //       m_geo_provider->getActsGeometryContext(),
-    //       {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]}, {0, 0, 0});
-    //   // global position
-    //   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(global.x()),
-    //                                                          static_cast<float>(global.y()),
-    //                                                          static_cast<float>(global.z())};
-    //   // if(position.z/10>160.)
-    //   if (trackstateVerbosity)
-    //     cout << "\t\ttrack point: " << position << endl;
-    //   hPosTestRZ->Fill(position.z / 10.,
-    //                    sqrt(position.x * position.x + position.y * position.y) / 10.);
-    //   const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
-    //       static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
-    //       static_cast<float>(parameter[Acts::eBoundTheta]),
-    //       static_cast<float>(parameter[Acts::eBoundPhi]));
-    //   const float theta(parameter[Acts::eBoundTheta]);
-    //   const float phi(parameter[Acts::eBoundPhi]);
-    //   // cout << "\tmomentum : " << momentum << "\t total: " << sqrt(momentum.x*momentum.x +
-    //   // momentum.y*momentum.y + momentum.z*momentum.z) << endl;
-    // });
+      // convert local to global
+      auto global = trackstate.referenceSurface().localToGlobal(
+          m_geo_provider->getActsGeometryContext(),
+          {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]}, {0, 0, 0});
+      // global position
+      const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(global.x()),
+                                                             static_cast<float>(global.y()),
+                                                             static_cast<float>(global.z())};
+      // if(position.z/10>160.)
+      if (trackstateVerbosity)
+        cout << "\t\ttrack point: " << position << endl;
+      hPosTestRZ->Fill(position.z / 10.,
+                       sqrt(position.x * position.x + position.y * position.y) / 10.);
+      const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
+          static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
+          static_cast<float>(parameter[Acts::eBoundTheta]),
+          static_cast<float>(parameter[Acts::eBoundPhi]));
+      const float theta(parameter[Acts::eBoundTheta]);
+      const float phi(parameter[Acts::eBoundPhi]);
+      // cout << "\tmomentum : " << momentum << "\t total: " << sqrt(momentum.x*momentum.x +
+      // momentum.y*momentum.y + momentum.z*momentum.z) << endl;
+    });
   }
 
   // std::vector<std::string> m_data_names = {
