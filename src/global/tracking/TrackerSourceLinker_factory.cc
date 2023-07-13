@@ -57,7 +57,7 @@ namespace eicrecon {
 
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-            for (const auto hit : hits) {
+            for (const auto *const hit : hits) {
                 total_hits.push_back(hit);
             }
         }

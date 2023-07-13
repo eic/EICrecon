@@ -67,7 +67,7 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
 
     for(auto input_tag: GetInputTags()) {
         auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-        for (const auto hit : hits) {
+        for (const auto *const hit : hits) {
             total_hits.push_back(hit);
         }
     }
