@@ -20,6 +20,7 @@
 #include "InclusiveKinematicsSigma_factory.h"
 #include "GeneratedJets_factory.h"
 #include "ReconstructedJets_factory.h"
+#include "ReconstructedElectrons_factory.h"
 
 //
 extern "C" {
@@ -69,6 +70,17 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedJets_factory>(
             {"ReconstructedParticles"}, "ReconstructedJets"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
+        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
+        "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapNClusterAssociations",
+        "EcalEndcapPClusterAssociations",
+        "EcalEndcapPInsertClusterAssociations",
+        "EcalLumiSpecClusterAssociations",
+        },
+        "ReconstructedElectrons"
+    ));
 
 }
 } // extern "C"
