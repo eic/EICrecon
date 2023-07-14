@@ -1,52 +1,77 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Zhongling Ji, Derek Anderson
 
-#include "GeneratedJets_factory.h"
-
+// standard c includes
 #include <memory>
-
+// jana includes
 #include <JANA/JEvent.h>
 #include <services/log/Log_service.h>
-
+// event data model definitions
 #include <edm4hep/MCParticle.h>
+// factory-specific includes
+#include "GeneratedJets_factory.h"
+
 
 
 namespace eicrecon {
 
     void GeneratedJets_factory::Init() {
 
-        // This prefix will be used for parameters
-        std::string param_prefix = "reco:" + GetTag();
-
-        // Set input data tags properly
-        InitDataTags(param_prefix);
-
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
+        InitLogger(GetPrefix(), "info");
 
+        // initialize jet reconstruction algorithm
         m_jet_algo.init(m_log);
-    }
+        return;
 
-    void GeneratedJets_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        // Nothing to do here
-    }
+    }  // end 'Init()'
+
+
+
+    void GeneratedJets_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
+
+      // nothing to do here
+      return;
+
+    }  // end 'BeginRun(std::shared_ptr<JEvent&>)'
+
+
 
     void GeneratedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
-        std::vector<const edm4hep::LorentzVectorE*> momenta;
-        for (const auto& p : mc_particles) {
-          if (p -> getGeneratorStatus() == 1) {
-            const auto& mom    = p -> getMomentum();
-            const auto& energy = p -> getEnergy();
-            momenta.push_back(new edm4hep::LorentzVectorE(mom.x, mom.y, mom.z, energy));
+        // loop over input tags
+        size_t iInput = 0;
+        for (const std::string& input_tag : GetInputTags()) {  
+
+          // grab input collection
+          auto input = event -> Get<edm4hep::MCParticle>(input_tag);
+
+          // extract particle momenta
+          std::vector<const edm4hep::LorentzVectorE*> momenta;
+          for (const auto& particle : input) {
+
+            // select only final state particles
+            const bool is_final_state = (particle -> getGeneratorStatus() == 1);
+            if (!is_final_state) continue;
+
+            const auto& momentum = particle -> getMomentum();
+            const auto& energy   = particle -> getEnergy();
+            momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
+          }  // end particle loop
+
+          // run algorithm
+          auto gen_jets = m_jet_algo.execute(momenta);
+          for (const auto &momentum : momenta) {
+            delete momentum;
           }
-        }
 
-        auto jets = m_jet_algo.execute(momenta);
-        for (const auto &mom : momenta) {
-          delete mom;
-        }
-        Set(jets);
-    }
-} // eicrecon
+          // set output collection
+          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::unique_ptr<edm4eic::ReconstructedParticleCollection>(gen_jets));
+          ++iInput;
+
+        }  // end input tag loop
+        return;
+
+    }  // end 'Process(shared_ptr<JEvent>)'
+
+}  // end eicrecon namespace
