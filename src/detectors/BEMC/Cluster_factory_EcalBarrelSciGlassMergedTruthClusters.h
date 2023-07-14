@@ -49,16 +49,21 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Get input collection
-        auto clusters_coll = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(m_input_tag));
-        auto associations_coll = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(m_inputAssociations_tag));
+
+
+        // Prefill inputs
+        m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
 
         // Call Process for generic algorithm
-        auto p = AlgorithmProcess(*clusters_coll, *associations_coll);
+        AlgorithmProcess();
 
-        // Hand algorithm objects over to JANA
-        SetCollection(std::move(p.first));
-        //event->Insert(std::move(p.second), "EcalBarrelMergedClusterAssociations");
+        //outputs
+        // Hand owner of algorithm objects over to JANA
+        Set(m_outputClusters);
+        event->Insert(m_outputAssociations, "EcalBarrelMergedClusterAssociations");
+        m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
+        m_outputAssociations.clear();
     }
 
 private:
