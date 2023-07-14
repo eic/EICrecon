@@ -86,6 +86,10 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float R = std::get<0>(RX0Y0);
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
+      if (R > std::sqrt(std::cbrt(std::numeric_limits<float>::max()))) {
+        // avoid future float overflow for hits on a line
+        continue;
+      }
       auto slopeZ0 = lineFit(rzHitPositions);
 
       int charge = determineCharge(xyHitPositions);
