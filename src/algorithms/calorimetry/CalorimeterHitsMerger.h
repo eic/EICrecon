@@ -37,9 +37,9 @@ public:
 
 public:
     CalorimeterHitsMerger() = default;
-    virtual ~CalorimeterHitsMerger() {}
+    ~CalorimeterHitsMerger() {}
 
-    virtual void initialize();
+    void initialize();
     std::unique_ptr<edm4eic::CalorimeterHitCollection> execute(const edm4eic::CalorimeterHitCollection &input);
 
 }; // class CalorimeterHitsMerger

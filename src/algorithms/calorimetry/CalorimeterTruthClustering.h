@@ -23,7 +23,7 @@ protected:
 
 public:
     CalorimeterTruthClustering() = default;
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger> &logger);
-    virtual void AlgorithmChangeRun();
-    virtual std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
+    void AlgorithmInit(std::shared_ptr<spdlog::logger> &logger);
+    void AlgorithmChangeRun();
+    std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
 };

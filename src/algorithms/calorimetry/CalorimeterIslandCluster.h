@@ -10,7 +10,6 @@
 #include <memory>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-//#include <services/randomgenerator/randomGenerator.h>
 #include <Evaluator/DD4hepUnits.h>
 
 #include <edm4hep/Vector2f.h>
@@ -21,77 +20,15 @@
 
 using CaloHit = edm4eic::CalorimeterHit;
 
-static double Phi_mpi_pi(double phi) {
-  return std::remainder(phi, 2 * M_PI);
-}
-
-//TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
-static edm4hep::Vector2f localDistXY(const CaloHit &h1, const CaloHit &h2) {
-  //edm4eic::Vector3f h1_pos=geo_converter->position(h1.getCellID());
-  //edm4eic::Vector3f h2_pos=geo_converter->position(h2.getCellID());
-  const auto delta =h1.getLocal() - h2.getLocal();
-  return {delta.x, delta.y};
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
-  //return {delta.x, delta.y,0};
-  //return {deltax,deltay};
-}
-static edm4hep::Vector2f localDistXZ(const CaloHit &h1, const CaloHit &h2) {
-  const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltaz = h1.getLocal()[2] - h2.getLocal()[2];
-  return {delta.x, delta.z};
-}
-static edm4hep::Vector2f localDistYZ(const CaloHit &h1, const CaloHit &h2) {
-  const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
-  //const auto deltaz = h1.getLocal()[2] - h2.getLocal()[2];
-  return {delta.y, delta.z};
-}
-static edm4hep::Vector2f dimScaledLocalDistXY(const CaloHit &h1, const CaloHit &h2) {
-  const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
-
-  const auto dimsum = h1.getDimension() + h2.getDimension();
-  //const auto dimsumx = h1.getDimension()[0] + h2.getDimension()[0];
-  //const auto dimsumy = h1.getDimension()[1] + h2.getDimension()[1];
-
-  return {2 * delta.x / dimsum.x, 2 * delta.y / dimsum.y};
-}
-static edm4hep::Vector2f globalDistRPhi(const CaloHit &h1, const CaloHit &h2) {
-  using vector_type = decltype(edm4hep::Vector2f::a);
-  return {
-    static_cast<vector_type>(
-      edm4eic::magnitude(h1.getPosition()) - edm4eic::magnitude(h2.getPosition())
-    ),
-    static_cast<vector_type>(
-      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
-    )
-  };
-}
-static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) {
-  using vector_type = decltype(edm4hep::Vector2f::a);
-  return {
-    static_cast<vector_type>(
-      edm4eic::eta(h1.getPosition()) - edm4eic::eta(h2.getPosition())
-    ),
-    static_cast<vector_type>(
-      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
-    )
-  };
-}
-
 class CalorimeterIslandCluster {
 
     // Insert any member variables here
 
 public:
     CalorimeterIslandCluster() = default;
-    virtual ~CalorimeterIslandCluster(){} // better to use smart pointer?
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun();
-    virtual std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits);
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun();
+    std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits);
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
@@ -146,7 +83,7 @@ private:
 
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
-    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, int idx, std::vector<bool>& visits) const {
+    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, std::size_t idx, std::vector<bool>& visits) const {
         // not a qualified hit to particpate clustering, stop here
         if (hits[idx].getEnergy() < m_minClusterHitEdep) {
             visits[idx] = true;
@@ -172,7 +109,7 @@ private:
 
     if (global) {
       int mpos = 0;
-      for (std::size_t idx : group) {
+      for (auto idx : group) {
         if (hits[mpos].getEnergy() < hits[idx].getEnergy()) {
           mpos = idx;
         }
@@ -183,9 +120,9 @@ private:
       return maxima;
     }
 
-    for (std::size_t idx : group) {
+    for (std::size_t idx1 : group) {
       // not a qualified center
-      if (hits[idx].getEnergy() < m_minClusterCenterEdep) {
+      if (hits[idx1].getEnergy() < m_minClusterCenterEdep) {
         continue;
       }
 
@@ -195,14 +132,14 @@ private:
           continue;
         }
 
-        if (is_neighbour(hits[idx], hits[idx2]) && (hits[idx2].getEnergy() > hits[idx].getEnergy())) {
+        if (is_neighbour(hits[idx1], hits[idx2]) && (hits[idx2].getEnergy() > hits[idx1].getEnergy())) {
           maximum = false;
           break;
         }
       }
 
       if (maximum) {
-        maxima.push_back(idx);
+        maxima.push_back(idx1);
       }
     }
 

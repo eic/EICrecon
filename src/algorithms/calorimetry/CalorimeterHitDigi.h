@@ -28,9 +28,9 @@ class CalorimeterHitDigi {
 
 public:
     CalorimeterHitDigi() = default;
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun() ;
-    virtual std::unique_ptr<edm4hep::RawCalorimeterHitCollection> AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits) ;
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun() ;
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits) ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger

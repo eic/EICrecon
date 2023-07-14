@@ -133,7 +133,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::Algorithm
     // indicating what is going on is printed below where the
     // error is detector.
     auto decoder = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
-    if (NcellIDerrors >= MaxCellIDerrors) return recohits;
+    if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
 
     auto converter = m_geoSvc->cellIDPositionConverter();
     for (const auto &rh: rawhits) {

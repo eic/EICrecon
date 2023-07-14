@@ -169,45 +169,48 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single
 }
 
 std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits)  {
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits { std::make_unique<edm4hep::RawCalorimeterHitCollection>() };
+    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
     // find the hits that belong to the same group (for merging)
-    std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
+    std::unordered_map<uint64_t, std::vector<std::size_t> merge_map;
+    std::size_t ix = 0;
     for (const auto &ahit : simhits) {
-        int64_t hid = ahit.getCellID() & id_mask;
+        uint64_t hid = ahit.getCellID() & id_mask;
 
         m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit.getCellID());
         m_log->trace("new cell ID in {:s}: {:#064b}", m_readout, hid);
 
-        merge_map[hid].push_back(&ahit);
+        merge_map[hid].push_back(ix);
+
+        ix++;
     }
 
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
-    for (const auto &[id, hits] : merge_map) {
+    for (const auto &[id, ixs] : merge_map) {
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
-        auto   mid      = hits[0]->getCellID();
+        auto   mid      = simhits[ixs[0]].getCellID();
         // sum energy, take time from the most energetic hit
-        m_log->trace("id: {} \t {}", id, edep);
-        for (size_t i = 0; i < hits.size(); ++i) {
+        for (size_t i = 0; i < ixs.size(); ++i) {
+            auto hit = simhits[ixs[i]];
 
             double timeC = std::numeric_limits<double>::max();
-            for (const auto& c : hits[i]->getContributions()) {
+            for (const auto& c : hit.getContributions()) {
                 if (c.getTime() <= timeC) {
                     timeC = c.getTime();
                 }
             }
             if (timeC > m_capTime) continue;
-            edep += hits[i]->getEnergy();
-            m_log->trace("adding {} \t total: {}", hits[i]->getEnergy(), edep);
+            edep += hit.getEnergy();
+            m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
             // change maximum hit energy & time if necessary
-            if (hits[i]->getEnergy() > max_edep) {
-                max_edep = hits[i]->getEnergy();
-                mid = hits[i]->getCellID();
-                for (const auto& c : hits[i]->getContributions()) {
+            if (hit.getEnergy() > max_edep) {
+                max_edep = hit.getEnergy();
+                mid = hit.getCellID();
+                for (const auto& c : hit.getContributions()) {
                     if (c.getTime() <= time) {
                         time = c.getTime();
                     }

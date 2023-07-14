@@ -20,9 +20,9 @@ protected:
 
 public:
     CalorimeterClusterMerger() = default;
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun();
-    virtual std::pair<std::unique_ptr<edm4eic::ClusterCollection>, std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>> AlgorithmProcess(const edm4eic::ClusterCollection&, const edm4eic::MCRecoClusterParticleAssociationCollection&);
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun();
+    std::pair<std::unique_ptr<edm4eic::ClusterCollection>, std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>> AlgorithmProcess(const edm4eic::ClusterCollection&, const edm4eic::MCRecoClusterParticleAssociationCollection&);
 
 private:
 // get a map of MCParticle index--> std::vector<Cluster> for clusters that belong together

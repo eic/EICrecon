@@ -21,9 +21,9 @@
 class CalorimeterHitReco {
 public:
     CalorimeterHitReco() = default;
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun();
-    virtual std::unique_ptr<edm4eic::CalorimeterHitCollection> AlgorithmProcess(const edm4hep::RawCalorimeterHitCollection &rawhits);
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun();
+    std::unique_ptr<edm4eic::CalorimeterHitCollection> AlgorithmProcess(const edm4hep::RawCalorimeterHitCollection &rawhits);
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
@@ -75,8 +75,4 @@ public:
   std::vector<std::string> u_localDetFields={}, u_maskPosFields={};
   dd4hep::DetElement local;
   size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
-
-private:
-    //std::default_random_engine generator; // TODO: need something more appropriate here
-    //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 };
