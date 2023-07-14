@@ -128,7 +128,7 @@ private:
 
       bool maximum = true;
       for (std::size_t idx2 : group) {
-        if (idx == idx2) {
+        if (idx1 == idx2) {
           continue;
         }
 
