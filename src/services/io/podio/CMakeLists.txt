@@ -25,13 +25,19 @@ plugin_add(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
+# Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
+# generator expression would include multiple additional paths from transitive
+# dependencies such as PODIO and ROOT.
+get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic INTERFACE_INCLUDE_DIRECTORIES)
+
 # Generate the datamodel header files.
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_glue.h ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h
         COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
                 WORKING_DIR=${CMAKE_CURRENT_BINARY_DIR}
-                EDM4HEP_INCLUDE_DIR=$<REMOVE_DUPLICATES:$<TARGET_PROPERTY:EDM4HEP::edm4hep,INTERFACE_INCLUDE_DIRECTORIES>>
-                EDM4EIC_INCLUDE_DIR=$<REMOVE_DUPLICATES:$<TARGET_PROPERTY:EDM4EIC::edm4eic,INTERFACE_INCLUDE_DIRECTORIES>>
+                EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
+                EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
         MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
 )
 
