@@ -181,7 +181,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                     );
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
-                if(data.sim_hit_indices.size()>0) {
+                if(!data.sim_hit_indices.empty()) {
                   auto hit_assoc = result.hit_assocs->create();
                   hit_assoc.setWeight(1.0); // not used
                   hit_assoc.setRawHit(raw_hit);
@@ -198,8 +198,9 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
         // get quantum efficiency table
         qeff.clear();
         auto hc = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::eV * dd4hep::nm); // [eV*nm]
-        for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
-          qeff.push_back({ hc / wl, qe }); // convert wavelength [nm] -> energy [eV]
+        for(const auto &[wl,qe] : m_cfg.quantumEfficiency) {
+          qeff.emplace_back( hc / wl, qe ); // convert wavelength [nm] -> energy [eV]
+        }
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),

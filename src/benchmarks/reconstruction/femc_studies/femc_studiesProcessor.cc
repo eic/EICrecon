@@ -445,7 +445,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   float minAggE     = 0.001;
   float seedE       = 0.20;
 
-  if (input_tower_rec.size()> 0){
+  if (!input_tower_rec.empty()){
 
     // clean up rec array for clusterization
     while (input_tower_rec.at(input_tower_rec.size()-1).energy < minAggE ){
