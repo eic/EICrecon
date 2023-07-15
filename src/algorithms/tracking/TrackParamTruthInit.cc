@@ -40,7 +40,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     for (const auto& mcparticle: *mcparticles) {
 
         // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
-        if (mcparticle.getGeneratorStatus() == 1 ) {
+        if (mcparticle.getGeneratorStatus() != 1 ) {
             m_log->trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
             continue;
         }
