@@ -94,7 +94,7 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
 
     //// Construct a perigee surface as the target surface
     auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
-            Acts::Vector3{part->getVertex().x * mm, part->getVertex().y * mm, part->getVertex().z * mm});
+            Acts::Vector3{0,0,0});
 
     //params(Acts::eBoundQOverP) = charge/p;
     auto result = new eicrecon::TrackParameters({pSurface, params, charge, cov});
