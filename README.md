@@ -1,4 +1,4 @@
-
+[![CI status](https://github.com/eic/EICrecon/actions/workflows/linux-eic-shell.yml/badge.svg)](https://github.com/eic/EICrecon/actions/workflows/linux-eic-shell.yml)
 [![DOI](https://zenodo.org/badge/512187504.svg)](https://zenodo.org/badge/latestdoi/512187504)
 
 # EICrecon

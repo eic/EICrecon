@@ -146,7 +146,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     bool method_found = false;
 
     // Adjacency matrix methods
-    if (u_adjacencyMatrix != "") {
+    if (!u_adjacencyMatrix.empty()) {
       // sanity checks
       if (!m_geoSvc) {
         m_log->error("Unable to locate Geometry Service. ",

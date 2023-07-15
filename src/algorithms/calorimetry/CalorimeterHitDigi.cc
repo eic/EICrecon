@@ -56,7 +56,7 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // set energy resolution numbers
     m_log=logger;
 
-    if (u_eRes.size() == 0) {
+    if (u_eRes.empty()) {
       u_eRes.resize(3);
     } else if (u_eRes.size() != 3) {
       m_log->error("Invalid u_eRes.size()");
