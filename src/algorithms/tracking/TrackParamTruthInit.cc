@@ -39,8 +39,8 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     // Loop over input particles
     for (const auto& mcparticle: *mcparticles) {
 
-        // getGeneratorStatus = 1 means thrown G4Primary, but dd4gun uses getGeneratorStatus == 0
-        if (mcparticle.getGeneratorStatus() > 1 ) {
+        // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
+        if (mcparticle.getGeneratorStatus() == 1 ) {
             m_log->trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
             continue;
         }
