@@ -25,6 +25,8 @@ void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
 eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcparticles) {
+    // MCParticles uses numerical values in its specified units,
+    // while m_cfg is in the Acts unit system
     using Acts::UnitConstants::GeV;
     using Acts::UnitConstants::MeV;
     using Acts::UnitConstants::mm;
@@ -87,34 +89,28 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // modify initial momentum to avoid bleeding truth to results when fit fails
         const auto pinit = pmag*(1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
 
+        // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({0.0 * mm, 0.0 * mm}); // 2d location on surface
-        track_parameter.setLocError({1000*um, 1000*um}); // sqrt(variance) of location
+        track_parameter.setLoc({0.0, 0.0}); // 2d location on surface [mm]
+        track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
         track_parameter.setTheta(theta); //theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / pinit); // Q/p [e/GeV]
-        track_parameter.setMomentumError({0.05,0.05,0.05}); // sqrt(variance) on theta/phi/q/p
-        track_parameter.setTime(mcparticle.getTime()); // time in ns
-        track_parameter.setTimeError(0.1); // error on time
+        track_parameter.setMomentumError({0.05, 0.01, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
+        track_parameter.setTime(mcparticle.getTime()); // time [ns]
+        track_parameter.setTimeError(0.1); // error on time [ns]
         track_parameter.setCharge(charge); // charge
 
         // Debug output
         if (m_log->level() <= spdlog::level::debug) {
-            const auto p = std::hypot(mcparticle.getMomentum().x, mcparticle.getMomentum().y,
-                                      mcparticle.getMomentum().z);
-            const auto theta = std::atan2(std::hypot(mcparticle.getMomentum().x,
-                                                     mcparticle.getMomentum().y),
-                                          mcparticle.getMomentum().z);
-            const auto phi = std::atan2(mcparticle.getMomentum().y, mcparticle.getMomentum().x);
             m_log->debug("Invoke track finding seeded by truth particle with:");
-            m_log->debug("   p =  {} GeV", p);
+            m_log->debug("   p     = {} GeV", pmag);
+            m_log->debug("   q     = {}", charge);
+            m_log->debug("   q/p   = {} e/GeV", charge / pmag);
             m_log->debug("   theta = {}", theta);
-            m_log->debug("   phi = {}", phi);
-            m_log->debug("   charge = {}", charge);
-            m_log->debug("   q/p =  {}", charge / p);
+            m_log->debug("   phi   = {}", phi);
         }
-
     }
 
     return std::move(track_parameters);
