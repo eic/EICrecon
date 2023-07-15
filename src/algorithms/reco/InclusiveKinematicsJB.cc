@@ -38,7 +38,7 @@ namespace eicrecon {
     std::vector<edm4eic::InclusiveKinematics *> kinematics;
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
-    if (ei_coll.size() == 0) {
+    if (ei_coll.empty()) {
       m_log->debug("No beam electron found");
       return kinematics;
     }
@@ -52,7 +52,7 @@ namespace eicrecon {
 
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
-    if (pi_coll.size() == 0) {
+    if (pi_coll.empty()) {
       m_log->debug("No beam hadron found");
       return kinematics;
     }
@@ -66,7 +66,7 @@ namespace eicrecon {
 
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
-    if (ef_coll.size() == 0) {
+    if (ef_coll.empty()) {
       m_log->debug("No truth scattered electron found");
       return kinematics;
     }

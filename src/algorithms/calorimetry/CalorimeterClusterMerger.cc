@@ -40,7 +40,7 @@ void CalorimeterClusterMerger::AlgorithmProcess() {
     auto& merged = m_outputClusters;
     auto& assoc2 = m_outputAssociations;
 
-    if (!split.size()) {
+    if (split.empty()) {
       m_log->debug("Nothing to do for this event, returning...");
       return;
     }
