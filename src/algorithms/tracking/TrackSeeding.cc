@@ -78,8 +78,8 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       std::vector<std::pair<float,float>> rzHitPositions;
       for(auto& spptr : seed.sp())
 	{
-	  xyHitPositions.push_back(std::make_pair(spptr->x(), spptr->y()));
-	  rzHitPositions.push_back(std::make_pair(spptr->r(), spptr->z()));
+	  xyHitPositions.emplace_back(spptr->x(), spptr->y());
+	  rzHitPositions.emplace_back(spptr->r(), spptr->z());
 	}
 
       auto RX0Y0 = circleFit(xyHitPositions);

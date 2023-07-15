@@ -7,8 +7,11 @@
 #include <iostream>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include <edm4hep/SimTrackerHitData.h>
 
 namespace richgeo {
+
+  using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
 
   // sensors
   // -----------------------------------------------------------------------
