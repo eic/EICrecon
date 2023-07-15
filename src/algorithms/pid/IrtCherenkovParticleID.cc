@@ -330,7 +330,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
 
         // add to the total
         npe++;
-        phot_theta_phi.push_back({ phot_theta, phot_phi });
+        phot_theta_phi.emplace_back( phot_theta, phot_phi );
         if(m_cfg.cheatPhotonVertex) {
           rindex_ave += irt_photon->GetVertexRefractiveIndex();
           energy_ave += irt_photon->GetVertexMomentum().Mag();
