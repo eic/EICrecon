@@ -105,9 +105,9 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // Debug output
         if (m_log->level() <= spdlog::level::debug) {
             m_log->debug("Invoke track finding seeded by truth particle with:");
-            m_log->debug("   p     = {} GeV", pmag);
+            m_log->debug("   p     = {} GeV (smeared to {} GeV)", pmag, pinit);
             m_log->debug("   q     = {}", charge);
-            m_log->debug("   q/p   = {} e/GeV", charge / pmag);
+            m_log->debug("   q/p   = {} e/GeV (smeared to {} e/GeV)", charge / pmag, charge / pinit);
             m_log->debug("   theta = {}", theta);
             m_log->debug("   phi   = {}", phi);
         }
