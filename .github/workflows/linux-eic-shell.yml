@@ -336,8 +336,9 @@ jobs:
         if-no-files-found: error
     - uses: dawidd6/action-download-artifact@v2
       with:
-        branch: ${{ github.event.pull_request.base.ref }}
+        branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
         path: ref/
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if_no_artifact_found: warn
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
