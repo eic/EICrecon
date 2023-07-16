@@ -28,6 +28,9 @@ cmake_minimum_required(VERSION 3.16)
 
 project(EICRecon)
 
+# CMake includes
+include(CheckCXXCompilerFlag)
+
 # Set version based on git
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
@@ -138,7 +141,6 @@ endif()
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
 if (${USE_UBSAN})
-    include(CheckCXXCompilerFlag)
     foreach (sanitizer undefined nullability implicit-conversion)
         check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
         if (CXX_COMPILER_HAS_sanitize_${sanitizer})
@@ -146,6 +148,13 @@ if (${USE_UBSAN})
             add_link_options(-fsanitize=${sanitizer})
         endif()
     endforeach()
+endif()
+
+# Compress debug symbols if supported
+check_cxx_compiler_flag("-gz" CXX_COMPILER_HAS_gz)
+if (CXX_COMPILER_HAS_gz)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gz")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
 add_subdirectory( src/services )
