@@ -51,6 +51,8 @@ jobs:
         key: ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
              ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
+             ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.pull_request.head.ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.pull_request.base.ref }}-
              ccache-${{ matrix.CC }}-${{ matrix.CMAKE_BUILD_TYPE }}-
              ccache-${{ matrix.CC }}-
              ccache-
