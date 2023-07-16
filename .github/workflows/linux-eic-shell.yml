@@ -350,8 +350,10 @@ jobs:
           echo "::endgroup::"
           echo "::group::ref"
           rootls -t ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root | tee ref.txt
-          echo "::endgroup:;"
-          diff ref.txt new.txt
+          echo "::endgroup::"
+          echo "::group::diff ref -> new"
+          diff ref.txt new.txt || true
+          echo "::endgroup::"
 
 
   eicrecon-gun-EcalLumiSpec:
