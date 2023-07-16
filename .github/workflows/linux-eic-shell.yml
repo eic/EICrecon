@@ -334,6 +334,24 @@ jobs:
           *.dot
           *.svg
         if-no-files-found: error
+    - uses: dawidd6/action-download-artifact@v2
+      with:
+        branch: ${{ github.event.pull_request.base.ref }}
+        path: ref/
+        if_no_artifact_found: warn
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          echo "::group::new"
+          rootls -t rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root | tee new.txt
+          echo "::endgroup::"
+          echo "::group::ref"
+          rootls -t ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root | tee ref.txt
+          echo "::endgroup:;"
+          diff ref.txt new.txt
+
 
   eicrecon-gun-EcalLumiSpec:
     runs-on: ubuntu-latest
