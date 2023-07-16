@@ -438,6 +438,9 @@ jobs:
   # to embed into docs
   build-docs-advanced:
     runs-on: ubuntu-latest
+    needs:
+      - eicrecon-gun
+      - eicrecon-dis
     container:
       image: alpine:latest
       volumes:
@@ -456,7 +459,7 @@ jobs:
           name: docs
           path: publishing_docs/
           if-no-files-found: error
-      - uses: action/download-artifact@v3
+      - uses: actions/download-artifact@v3
         with:
           name: jana.dot
           path: publishing_docs/dot/
