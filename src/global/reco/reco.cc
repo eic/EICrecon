@@ -32,7 +32,7 @@ void InitPlugin(JApplication *app) {
     MC2SmearedParticleConfig smearing_default_config {0};  // No momentum smearing by default
 
     app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
-            {"MCParticles"}, "GeneratedParticles", smearing_default_config));
+            {"MCParticles"}, "GeneratedParticles"));
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",

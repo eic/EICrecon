@@ -3,41 +3,28 @@
 
 #pragma once
 
-#include <vector>
-#include <TRandomGen.h>
 #include <spdlog/spdlog.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
-#include <algorithms/interfaces/IObjectProducer.h>
-
-#include <algorithms/reco/MC2SmearedParticleConfig.h>
-
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 
 
 namespace eicrecon {
 
     /**
-     * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle with momentum smearing
+     * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
      */
-    class MC2SmearedParticle:
-            public IObjectProducer<edm4hep::MCParticle, edm4eic::ReconstructedParticle>,
-            public WithPodConfig<MC2SmearedParticleConfig> {
+    class MC2SmearedParticle {
     public:
 
         /** Initialized algorithms with required data. Init function is assumed to be called once **/
         void init(std::shared_ptr<spdlog::logger> logger);
 
         /** process function convert one data type to another **/
-        edm4eic::ReconstructedParticle * produce(const edm4hep::MCParticle * mc_particle) override;
+        std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::MCParticleCollection* mc_particles);
 
     private:
         /** algorithm logger */
         std::shared_ptr<spdlog::logger> m_log;
-
-        /** Random number generation*/
-        TRandomMixMax m_random;
-        std::function<double()> m_gauss;
     };
 }
