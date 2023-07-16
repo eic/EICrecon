@@ -58,7 +58,7 @@ jobs:
       run: |
         mkdir -p ~/.ccache/
         echo "cache_dir=${{ github.workspace }}/.ccache" > ~/.ccache/ccache.conf
-        echo "max_size=500MB" >> ~/.ccache/ccache.conf
+        echo "max_size=1500MB" >> ~/.ccache/ccache.conf
         echo "compression=true" >> ~/.ccache/ccache.conf
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Build and install
@@ -69,6 +69,7 @@ jobs:
           # install this repo
           CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=OFF
           cmake --build build -- -j 2 install
+          ccache --show-stats --verbose
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
