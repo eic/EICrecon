@@ -29,23 +29,23 @@ namespace eicrecon {
     // }
   }
 
-  std::vector<edm4eic::InclusiveKinematics*> InclusiveKinematicseSigma::execute(
-    std::vector<const edm4hep::MCParticle *> mcparts,
-    std::vector<const edm4eic::ReconstructedParticle *> rcparts,
-    std::vector<const edm4eic::MCRecoParticleAssociation *> rcassoc) {
+  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicseSigma::execute(
+    const edm4hep::MCParticleCollection& mcparts,
+    const edm4eic::ReconstructedParticleCollection& rcparts,
+    const edm4eic::MCRecoParticleAssociationCollection& rcassoc) {
 
     // Resulting inclusive kinematics
-    std::vector<edm4eic::InclusiveKinematics *> kinematics;
+    auto kinematics = std::unique_ptr<edm4eic::InclusiveKinematicsCollection>();
 
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
-    if (ei_coll.empty()) {
+    if (ei_coll.size() == 0) {
       m_log->debug("No beam electron found");
       return kinematics;
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
-        ei_coll[0]->getMomentum(),
+        ei_coll[0].getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
         0.0)
@@ -53,21 +53,21 @@ namespace eicrecon {
 
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
-    if (pi_coll.empty()) {
+    if (pi_coll.size() == 0) {
       m_log->debug("No beam hadron found");
       return kinematics;
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
-        pi_coll[0]->getMomentum(),
-        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
+        pi_coll[0].getMomentum(),
+        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
 
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
-    if (ef_coll.empty()) {
+    if (ef_coll.size() == 0) {
       m_log->debug("No truth scattered electron found");
       return kinematics;
     }
@@ -78,7 +78,7 @@ namespace eicrecon {
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if ((*ef_assoc)->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
+      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
         break;
       }
     }
@@ -86,7 +86,7 @@ namespace eicrecon {
       m_log->debug("Truth scattered electron not in reconstructed particles");
       return kinematics;
     }
-    const auto ef_rc{(*ef_assoc)->getRec()};
+    const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 
     // Loop over reconstructed particles to get all outgoing particles
@@ -116,9 +116,9 @@ namespace eicrecon {
 
     for (const auto& p: rcparts) {
       // Get the scattered electron index and angle
-      if (p->getObjectID().index == ef_rc_id) {
+      if (p.getObjectID().index == ef_rc_id) {
         // Lorentz vector in lab frame
-        PxPyPzEVector e_lab(p->getMomentum().x, p->getMomentum().y, p->getMomentum().z, p->getEnergy());
+        PxPyPzEVector e_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         // Boost to colinear frame
         PxPyPzEVector e_boosted = apply_boost(boost, e_lab);
 
@@ -128,7 +128,7 @@ namespace eicrecon {
       // Sum over all particles other than scattered electron
       } else {
         // Lorentz vector in lab frame
-        PxPyPzEVector hf_lab(p->getMomentum().x, p->getMomentum().y, p->getMomentum().z, p->getEnergy());
+        PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         // Boost to colinear frame
         PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
 
@@ -162,17 +162,15 @@ namespace eicrecon {
     const auto y_esig = Q2_esig / (4.*ei.energy()*pi.energy()*x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
     const auto nu_esig = Q2_esig / (2.*m_proton*x_esig);
     const auto W_esig = sqrt(m_proton*m_proton + 2*m_proton*nu_esig - Q2_esig);
-    edm4eic::MutableInclusiveKinematics kin(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
+    auto kin = kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
     kin.setScat(ef_rc);
 
     // Debugging output
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
 
-    kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
-
     return kinematics;
-    }
+  }
 
 
 } // namespace Jug::Reco

@@ -5,11 +5,7 @@
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/InclusiveKinematics.h>
 #include <algorithms/reco/InclusiveKinematicsElectron.h>
-
 
 namespace eicrecon {
 
