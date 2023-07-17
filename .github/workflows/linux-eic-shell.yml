@@ -138,6 +138,7 @@ jobs:
       with:
         name: build-clang-eic-shell-Debug
         path: build/
+    - run: sudo apt-get update
     - run: sudo apt-get install -y llvm-15 jq
     - name: llvm-cov
       run: |
