@@ -29,7 +29,7 @@ namespace eicrecon {
 
       void init(std::shared_ptr<spdlog::logger> logger);
 
-      edm4eic::ReconstructedParticleCollection* execute(
+      std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
         const std::vector<const edm4hep::LorentzVectorE*> momenta
       );
 

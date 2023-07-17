@@ -27,7 +27,7 @@ namespace eicrecon {
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
-    edm4eic::ReconstructedParticleCollection* jet_collection = new edm4eic::ReconstructedParticleCollection();
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection = new edm4eic::ReconstructedParticleCollection();
 
     // Skip empty
     if (momenta.empty()) {
