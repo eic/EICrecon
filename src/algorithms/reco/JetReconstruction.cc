@@ -23,11 +23,11 @@ namespace eicrecon {
     m_log->trace("Initialized");
   }
 
-  edm4eic::ReconstructedParticleCollection* JetReconstruction::execute(
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::execute(
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection = new edm4eic::ReconstructedParticleCollection();
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection(new edm4eic::ReconstructedParticleCollection());
 
     // Skip empty
     if (momenta.empty()) {
@@ -43,12 +43,12 @@ namespace eicrecon {
 
       // Only cluster particles within the given pt Range
       if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
-        particles.push_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
+        particles.emplace_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
       }
     }
 
     // Choose jet and area definitions
-    JetDefinition  jet_def(m_jetAlgo, m_rJet);
+    JetDefinition jet_def(m_jetAlgo, m_rJet);
     AreaDefinition area_def(m_areaType, GhostedAreaSpec(m_ghostMaxRap, m_numGhostRepeat, m_ghostArea));
 
     // Run the clustering, extract the jets
@@ -65,7 +65,7 @@ namespace eicrecon {
 
       // Type = 0 for jets, Type = 1 for constituents
       // Use PDG values to match jets and constituents
-      edm4eic::MutableReconstructedParticle jet_output;
+      edm4eic::MutableReconstructedParticle jet_output = jet_collection -> create();;
       jet_output.setType(0);
       jet_output.setPDG(i);
       jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
@@ -81,21 +81,14 @@ namespace eicrecon {
 
         // Type = 0 for jets, Type = 1 for constituents
         // Use PDG values to match jets and constituents
-        edm4eic::MutableReconstructedParticle cst_output;
+        edm4eic::MutableReconstructedParticle cst_output = jet_collection -> create();
         cst_output.setType(1);
         cst_output.setPDG(i);
         cst_output.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
         cst_output.setEnergy(csts[j].e());
         cst_output.setMass(csts[j].m());
         //jet_output.addToParticles(cst_output);  // FIXME: global issue with podio reference
-
-        // Store constituents in jets due to the above issue
-        jet_collection -> push_back(cst_output);
       } // for constituent j
-
-      // add jets to output collection
-      jet_collection -> push_back(jet_output);
-
     } // for jet i
 
     // return the jets

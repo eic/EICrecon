@@ -4,9 +4,7 @@
 #ifndef EICRECON_JETRECONSTRUCTION_H
 #define EICRECON_JETRECONSTRUCTION_H
 
-// standard c includes
 #include <vector>
-// jana includes
 #include <spdlog/spdlog.h>
 #include <DD4hep/DD4hepUnits.h>
 // event data model definitions
