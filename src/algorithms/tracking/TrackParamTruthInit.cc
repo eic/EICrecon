@@ -38,10 +38,11 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
 
 
     // require close to interaction vertex
-    if (abs(part->getVertex().x) * mm > m_cfg.m_maxVertexX
-        || abs(part->getVertex().y) * mm > m_cfg.m_maxVertexY
-        || abs(part->getVertex().z) * mm > m_cfg.m_maxVertexZ) {
-        m_log->trace("ignoring particle with vs = {} [mm]", part->getVertex());
+    auto& v = part->getVertex();
+    if (abs(v.x) * mm > m_cfg.m_maxVertexX
+        || abs(v.y) * mm > m_cfg.m_maxVertexY
+        || abs(v.z) * mm > m_cfg.m_maxVertexZ) {
+        m_log->trace("ignoring particle with vs = {} [mm]", v);
         return nullptr;
     }
 
@@ -85,8 +86,8 @@ eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep:
     cov(Acts::eBoundTime, Acts::eBoundTime)     = 10.0e9*ns*10.0e9*ns;
 
     Acts::BoundVector  params;
-    params(Acts::eBoundLoc0)   = 0.0 * mm ;  // cylinder radius
-    params(Acts::eBoundLoc1)   = 0.0 * mm ;  // cylinder length
+    params(Acts::eBoundLoc0)   = std::hypot(v.x, v.y) * mm ;  // cylinder radius
+    params(Acts::eBoundLoc1)   = v.z * mm ;  // cylinder length
     params(Acts::eBoundPhi)    = phi;
     params(Acts::eBoundTheta)  = theta;
     params(Acts::eBoundQOverP) = charge / (pinit * GeV);
