@@ -25,7 +25,6 @@ find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC REQUIRED)
 find_package(podio REQUIRED)
 find_package(DD4hep REQUIRED)
-set(fmt_INCLUDE_DIR ${fmt_DIR}/../../../include)
 
 # include ROOT by default
 find_package(ROOT REQUIRED)
@@ -36,13 +35,12 @@ set(COMMON_TARGET_INCLUDES
         ${EDM4HEP_INCLUDE_DIR}
         ${EDM4EIC_INCLUDE_DIR}
         ${ROOT_INCLUDE_DIRS}
-        ${fmt_INCLUDE_DIR}
         PUBLIC
         ${CMAKE_SOURCE_DIR}/executables
         ${CMAKE_SOURCE_DIR}/common_bench/include
         )
 
-set(COMMON_TARGET_LIBRARIES spdlog::spdlog EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ROOT::Core ${ROOT_LIBRARIES})
+set(COMMON_TARGET_LIBRARIES spdlog::spdlog fmt::fmt EDM4HEP::edm4hep DD4hep::DDCore EDM4EIC::edm4eic ROOT::Core ${ROOT_LIBRARIES})
 
 add_executable(reco_particles_track_matching
         reco_particles_track_matching.cc
