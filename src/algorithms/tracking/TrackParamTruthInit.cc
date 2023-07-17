@@ -97,7 +97,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         track_parameter.setTheta(theta); //theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / pinit); // Q/p [e/GeV]
-        track_parameter.setMomentumError({0.05, 0.01, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
+        track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
         track_parameter.setTimeError(10e9); // error on time [ns]
         track_parameter.setCharge(charge); // charge
