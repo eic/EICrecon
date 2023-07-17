@@ -2,15 +2,18 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include "CKFTracking_factory.h"
 
 #include <Acts/Propagator/Navigator.hpp>
-#include "CKFTracking_factory.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <edm4eic/TrackParametersCollection.h>
 #include <JANA/JEvent.h>
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/log/Log_service.h"
+
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/log/Log_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
     auto app = GetApplication();
@@ -46,21 +49,41 @@ void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent
 }
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    // Now we check that user provided an input names
-    std::string input_tag = GetInputTags()[0];
-
-    // Collect all hits
-    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+    // Collect all inputs
+    auto track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(GetInputTags()[1]);
 
     if(!source_linker_result) {
         m_log->warn("TrackerSourceLinkerResult is null (hasn't been produced?). Skipping tracking for the whole event!");
         return;
     }
 
-    auto track_parameters = event->Get<eicrecon::TrackParameters>("InitTrackParams");
     eicrecon::TrackParametersContainer acts_track_params;
-    for(auto track_params_item: track_parameters) {
-        acts_track_params.push_back(*track_params_item);
+    for (const auto& track_parameter: *track_parameters) {
+
+        Acts::BoundVector params;
+        params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
+        params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
+        params(Acts::eBoundTheta)  = track_parameter.getTheta();
+        params(Acts::eBoundPhi)    = track_parameter.getPhi();
+        params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
+        params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
+
+        double charge = track_parameter.getCharge();
+
+        Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
+        cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
+        cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
+        cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
+        cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( track_parameter.getMomentumError().yy,2);
+        cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( track_parameter.getMomentumError().zz,2) / (Acts::UnitConstants::GeV*Acts::UnitConstants::GeV);
+        cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( track_parameter.getTimeError(),2)*Acts::UnitConstants::ns*Acts::UnitConstants::ns;
+
+        // Construct a perigee surface as the target surface
+        auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+
+        // Create parameters
+        acts_track_params.emplace_back(pSurface, params, charge, cov);
     }
 
     // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
