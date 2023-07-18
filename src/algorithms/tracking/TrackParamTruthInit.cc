@@ -93,7 +93,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({std::hypot(v.x, v.y), v.z}); // 2d location on surface [mm]
+        track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y)), static_cast<float>(v.z)}); // 2d location on surface [mm]
         track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
         track_parameter.setTheta(theta); //theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
