@@ -46,10 +46,11 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         }
 
         // require close to interaction vertex
-        if (abs(mcparticle.getVertex().x) * mm > m_cfg.m_maxVertexX
-            || abs(mcparticle.getVertex().y) * mm > m_cfg.m_maxVertexY
-            || abs(mcparticle.getVertex().z) * mm > m_cfg.m_maxVertexZ) {
-            m_log->trace("ignoring particle with vs = {} [mm]", mcparticle.getVertex());
+        auto v = mcparticle.getVertex();
+        if (abs(v.x) * mm > m_cfg.m_maxVertexX ||
+            abs(v.y) * mm > m_cfg.m_maxVertexY ||
+            abs(v.z) * mm > m_cfg.m_maxVertexZ) {
+            m_log->trace("ignoring particle with vs = {} [mm]", v);
             continue;
         }
 
@@ -92,7 +93,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({0.0, 0.0}); // 2d location on surface [mm]
+        track_parameter.setLoc({std::hypot(v.x, v.y), v.z}); // 2d location on surface [mm]
         track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
         track_parameter.setTheta(theta); //theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
