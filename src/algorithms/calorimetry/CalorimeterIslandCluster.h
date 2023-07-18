@@ -83,7 +83,7 @@ private:
 
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
-    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, std::size_t idx, std::vector<bool>& visits) const {
+    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
         // not a qualified hit to particpate clustering, stop here
         if (hits[idx].getEnergy() < m_minClusterHitEdep) {
             visits[idx] = true;
@@ -100,15 +100,14 @@ private:
     }
 
     // find local maxima that above a certain threshold
-  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t>& group,
-              bool global = false) const {
+  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t> &group, bool global = false) const {
     std::vector<std::size_t> maxima;
     if (group.empty()) {
       return maxima;
     }
 
     if (global) {
-      int mpos = 0;
+      std::size_t mpos = *group.begin();
       for (auto idx : group) {
         if (hits[mpos].getEnergy() < hits[idx].getEnergy()) {
           mpos = idx;
