@@ -52,11 +52,11 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::execut
     }
 
     // sort hits by energy from large to small
-    std::for_each(merge_map.begin(), merge_map.end(), [&](auto &it) {
+    for (auto &it : merge_map) {
         std::sort(it.second.begin(), it.second.end(), [&](std::size_t ix1, std::size_t ix2) {
             return input[ix1].getEnergy() > input[ix2].getEnergy();
         });
-    });
+    }
 
     // reconstruct info for merged hits
     // dd4hep decoders
