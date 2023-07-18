@@ -18,33 +18,10 @@
 #include "ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_EcalEndcapPTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPInsertTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPInsertTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPInsertClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPInsertClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_EcalEndcapPTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalEndcapPInsertTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalEndcapPInsertClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {

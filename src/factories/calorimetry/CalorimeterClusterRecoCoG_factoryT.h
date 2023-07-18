@@ -12,13 +12,15 @@
 
 namespace eicrecon {
 
-template<class T>
+// variadic template parameter T unused
+template<template<typename> typename... T>
 class CalorimeterClusterRecoCoG_factoryT :
     public JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>,
-    public SpdlogMixin<T> {
+    public SpdlogMixin<CalorimeterClusterRecoCoG_factoryT<T...>>,
+    public T<CalorimeterClusterRecoCoG_factoryT<T...>>... {
 
   public:
-    using SpdlogMixin<T>::logger;
+    using SpdlogMixin<CalorimeterClusterRecoCoG_factoryT>::logger;
 
     explicit CalorimeterClusterRecoCoG_factoryT(
         std::string tag,
@@ -47,7 +49,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         m_detector = geoSvc->detector();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<T>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
+        SpdlogMixin<CalorimeterClusterRecoCoG_factoryT>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();
