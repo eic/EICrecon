@@ -144,7 +144,10 @@ extern "C" {
           )
         );
         app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>(
-          {},
+          {
+            "EcalBarrelSciGlassTruthClusters",
+            "EcalBarrelSciGlassTruthClusterAssociations"
+          },
 	  "EcalBarrelSciGlassMergedTruthCluster"
 	));
     }
