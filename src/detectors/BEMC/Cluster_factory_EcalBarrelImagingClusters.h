@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/ImagingClusterReco.h>
 #include <services/log/Log_service.h>
@@ -14,7 +14,7 @@
 
 
 
-class Cluster_factory_EcalBarrelImagingClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, ImagingClusterReco {
+class Cluster_factory_EcalBarrelImagingClusters : public JChainFactoryT<edm4eic::Cluster>, ImagingClusterReco {
 
 public:
 
@@ -23,8 +23,8 @@ public:
 
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelImagingClusters(){
-        SetTag("EcalBarrelImagingClusters");
+    Cluster_factory_EcalBarrelImagingClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::Cluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 

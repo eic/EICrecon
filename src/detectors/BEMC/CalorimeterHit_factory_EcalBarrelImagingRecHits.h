@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 
 #include <algorithms/calorimetry/ImagingPixelReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelImagingRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, ImagingPixelReco {
+class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, ImagingPixelReco {
 
 public:
 
@@ -16,8 +16,8 @@ public:
 
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalBarrelImagingRecHits(){
-        SetTag("EcalBarrelImagingRecHits");
+    CalorimeterHit_factory_EcalBarrelImagingRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -40,7 +40,6 @@ public:
         // Calibration!
         m_sampFrac=0.00619766;// from ${DETECTOR_PATH}/calibrations/emcal_barrel_calibration.json
 
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:layerField",       m_layerField);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:sectorField",      m_sectorField);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRecHits:capacityADC",      m_capADC);

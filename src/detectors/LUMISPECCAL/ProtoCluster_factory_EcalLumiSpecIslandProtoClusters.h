@@ -6,19 +6,19 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalLumiSpecIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalLumiSpecIslandProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalLumiSpecIslandProtoClusters(){
-        SetTag("EcalLumiSpecIslandProtoClusters");
+    ProtoCluster_factory_EcalLumiSpecIslandProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -26,7 +26,6 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalLumiSpecRecHits";
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -51,7 +50,6 @@ public:
         u_transverseEnergyProfileMetric = "localDistXY";
         u_transverseEnergyProfileScale = 10. * dd4hep::mm;
 
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecIslandProtoClusters:sectorDist",   m_sectorDist);

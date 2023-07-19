@@ -3,18 +3,18 @@
 
 #include <edm4eic/CalorimeterHitCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalEndcapPRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalEndcapPRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalEndcapPRecHits(){
-        SetTag("EcalEndcapPRecHits");
+    CalorimeterHit_factory_EcalEndcapPRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -23,7 +23,6 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "EcalEndcapPRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=65536;//2^16 old: 16384
@@ -48,8 +47,6 @@ public:
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-//        app->SetDefaultParameter("FEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("FEMC:EcalEndcapPRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("FEMC:EcalEndcapPRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("FEMC:EcalEndcapPRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("FEMC:EcalEndcapPRecHits:pedestalMean",     m_pedMeanADC);

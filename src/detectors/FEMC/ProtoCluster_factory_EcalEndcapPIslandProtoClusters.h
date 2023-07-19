@@ -6,19 +6,19 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalEndcapPIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalEndcapPIslandProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalEndcapPIslandProtoClusters(){
-        SetTag("EcalEndcapPIslandProtoClusters");
+    ProtoCluster_factory_EcalEndcapPIslandProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -26,7 +26,6 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        m_input_tag = "EcalEndcapPRecHits";
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -51,7 +50,6 @@ public:
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";
         u_transverseEnergyProfileScale = 0.04;
 
-        app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("FEMC:EcalEndcapPIslandProtoClusters:sectorDist",   m_sectorDist);

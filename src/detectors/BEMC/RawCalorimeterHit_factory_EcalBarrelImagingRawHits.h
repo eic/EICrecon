@@ -7,7 +7,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -18,14 +18,14 @@
 
 
 
-class RawCalorimeterHit_factory_EcalBarrelImagingRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalBarrelImagingRawHits : public JChainFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalBarrelImagingRawHits() {
-        SetTag("EcalBarrelImagingRawHits");
+    RawCalorimeterHit_factory_EcalBarrelImagingRawHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4hep::RawCalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -35,7 +35,6 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "EcalBarrelImagingHits";
         u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 8192;
@@ -49,7 +48,6 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingRawHits:capacityADC",      m_capADC);

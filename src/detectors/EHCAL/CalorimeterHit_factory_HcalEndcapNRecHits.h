@@ -3,18 +3,18 @@
 
 #include <edm4eic/CalorimeterHitCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_HcalEndcapNRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_HcalEndcapNRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_HcalEndcapNRecHits(){
-        SetTag("HcalEndcapNRecHits");
+    CalorimeterHit_factory_HcalEndcapNRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -23,7 +23,6 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "HcalEndcapNRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=1024;//{this, "capacityADC", 8096};
@@ -48,7 +47,6 @@ public:
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-//        app->SetDefaultParameter("EHCAL:tag",              m_input_tag);
         app->SetDefaultParameter("EHCAL:HcalEndcapNRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("EHCAL:HcalEndcapNRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("EHCAL:HcalEndcapNRecHits:pedestalMean",     m_pedMeanADC);

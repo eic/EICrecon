@@ -8,7 +8,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -19,14 +19,14 @@
 
 
 
-class RawCalorimeterHit_factory_LFHCALRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_LFHCALRawHits : public JChainFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_LFHCALRawHits() {
-        SetTag("LFHCALRawHits");
+    RawCalorimeterHit_factory_LFHCALRawHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4hep::RawCalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -36,7 +36,6 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "LFHCALHits";
         u_eRes = {};
         m_tRes = 0.0; // in ns
         m_capTime = 100 ; // given in ns, 4 samples in HGCROC
@@ -52,7 +51,6 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("FHCAL:tag",              m_input_tag);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:maxTimeInt",       m_capTime);
         app->SetDefaultParameter("FHCAL:LFHCALRawHits:timeResolution",   m_tRes);

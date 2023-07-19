@@ -12,7 +12,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <services/log/Log_service.h>
@@ -20,14 +20,14 @@
 
 
 
-class RawCalorimeterHit_factory_EcalLumiSpecRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_EcalLumiSpecRawHits : public JChainFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_EcalLumiSpecRawHits() {
-        SetTag("EcalLumiSpecRawHits");
+    RawCalorimeterHit_factory_EcalLumiSpecRawHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4hep::RawCalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -37,7 +37,6 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "LumiSpecCALHits";
         u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}; // flat 2%
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 16384;
@@ -54,7 +53,6 @@ public:
 
 
         // This is another option for exposing the data members as JANA configuration parameters.
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRawHits:capacityADC",      m_capADC);

@@ -1,19 +1,19 @@
 
 #pragma once
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalBarrelScFiRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalBarrelScFiRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalBarrelScFiRecHits(){
-        SetTag("EcalBarrelScFiRecHits");
+    CalorimeterHit_factory_EcalBarrelScFiRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -22,7 +22,6 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "EcalBarrelScFiRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
@@ -53,8 +52,6 @@ public:
         u_maskPosFields = {"fiber", "z"};
 
 
-//        app->SetDefaultParameter("BEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:readout",          m_readout );
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:layerField",       m_layerField );
         app->SetDefaultParameter("BEMC:EcalBarrelScFiRecHits:sectorField",      m_sectorField );

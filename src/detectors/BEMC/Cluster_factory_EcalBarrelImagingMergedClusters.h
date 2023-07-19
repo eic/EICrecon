@@ -5,20 +5,20 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/TruthEnergyPositionClusterMerger.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
 
-class Cluster_factory_EcalBarrelImagingMergedClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, TruthEnergyPositionClusterMerger {
+class Cluster_factory_EcalBarrelImagingMergedClusters : public JChainFactoryT<edm4eic::Cluster>, TruthEnergyPositionClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelImagingMergedClusters(){
-        SetTag("EcalBarrelImagingMergedClusters");
+    Cluster_factory_EcalBarrelImagingMergedClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::Cluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 

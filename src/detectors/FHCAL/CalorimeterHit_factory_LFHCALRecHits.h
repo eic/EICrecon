@@ -6,18 +6,18 @@
 
 #include <JANA/JFactoryT.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_LFHCALRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_LFHCALRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_LFHCALRecHits(){
-        SetTag("LFHCALRecHits");
+    CalorimeterHit_factory_LFHCALRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -26,7 +26,6 @@ public:
     void Init() override{
         auto app = GetApplication();
 
-        m_input_tag = "LFHCALRawHits";
 
         // digitization settings, must be consistent with digi class
         m_capADC=65536;//2^16
@@ -52,7 +51,6 @@ public:
         m_localDetElement="";
         u_localDetFields={};
 
-//        app->SetDefaultParameter("FHCAL:tag",              m_input_tag);
         app->SetDefaultParameter("FHCAL:LFHCALRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("FHCAL:LFHCALRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("FHCAL:LFHCALRecHits:pedestalMean",     m_pedMeanADC);

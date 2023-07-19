@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterMerger.h>
 #include <services/log/Log_service.h>
@@ -13,13 +13,13 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public JChainFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(){
-        SetTag("EcalBarrelSciGlassMergedTruthClusters");
+    Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::Cluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -34,7 +34,6 @@ public:
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
 
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:inputAssociations_tag", m_inputAssociations_tag);
 
         AlgorithmInit(m_log);

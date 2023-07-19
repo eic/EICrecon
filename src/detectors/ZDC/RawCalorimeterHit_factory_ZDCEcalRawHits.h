@@ -12,7 +12,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <services/log/Log_service.h>
@@ -20,14 +20,14 @@
 
 
 
-class RawCalorimeterHit_factory_ZDCEcalRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_ZDCEcalRawHits : public JChainFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_ZDCEcalRawHits() {
-        SetTag("ZDCEcalRawHits");
+    RawCalorimeterHit_factory_ZDCEcalRawHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4hep::RawCalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
@@ -37,7 +37,6 @@ public:
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "ZDCEcalHits";
         u_eRes = {};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 8096;
@@ -52,7 +51,6 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("ZDC:tag",              m_input_tag);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("ZDC:ZDCEcalRawHits:capacityADC",      m_capADC);
