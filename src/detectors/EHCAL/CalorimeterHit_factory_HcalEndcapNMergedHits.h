@@ -23,7 +23,6 @@ public:
         auto app = GetApplication();
         m_log = app->GetService<Log_service>()->logger(GetTag());
 
-
         m_readout="HcalEndcapNHits";
         u_fields={"layer", "slice"};  // from ATHENA's reconstruction.py
         u_refs={1, 0};                // from ATHENA's reconstruction.py
@@ -33,7 +32,6 @@ public:
         app->SetDefaultParameter("EHCAL:HcalEndcapNMergedHits:readout", m_readout);
         app->SetDefaultParameter("EHCAL:HcalEndcapNMergedHits:fields", u_fields);
         app->SetDefaultParameter("EHCAL:HcalEndcapNMergedHits:refs",  u_refs);
-
 
         initialize();
     }
@@ -55,7 +53,4 @@ public:
         Set(m_outputs);
         m_outputs.clear(); // not really needed, but better to not leave dangling pointers around
     }
-
-private:
-    std::string m_input_tag;
 };

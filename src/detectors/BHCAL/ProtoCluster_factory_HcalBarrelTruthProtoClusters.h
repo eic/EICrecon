@@ -54,7 +54,5 @@ public:
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
 private:
-    // Name of input data type (collection)
-
     std::shared_ptr<spdlog::logger> m_log;
 };

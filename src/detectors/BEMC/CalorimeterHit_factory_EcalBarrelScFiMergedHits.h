@@ -53,7 +53,4 @@ public:
         Set(m_outputs);
         m_outputs.clear(); // not really needed, but better to not leave dangling pointers around
     }
-
-private:
-    std::string m_input_tag;
 };

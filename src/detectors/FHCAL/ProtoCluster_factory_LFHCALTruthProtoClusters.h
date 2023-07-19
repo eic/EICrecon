@@ -51,8 +51,6 @@ public:
         Set(m_outputProtoClusters);
         m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
     }
-private:
-    // Name of input data type (collection)
 };
 
 #endif // _ProtoCLuster_factory_IslandProtoClusters_h_
