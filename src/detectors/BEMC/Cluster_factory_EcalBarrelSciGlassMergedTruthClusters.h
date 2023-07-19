@@ -26,6 +26,8 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
 
         std::string tag=this->GetTag();

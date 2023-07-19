@@ -34,6 +34,8 @@ public:
     //------------------------------------------
     // Init
     void Init() override {
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm

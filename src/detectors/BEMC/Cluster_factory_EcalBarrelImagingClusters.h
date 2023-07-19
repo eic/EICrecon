@@ -31,6 +31,8 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
         //-------- Configuration Parameters ------------
         m_input_simhit_tag="EcalBarrelImagingHits";

@@ -24,8 +24,9 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
+        auto app = GetApplication();
 
         // digitization settings, must be consistent with digi class
         m_capADC=65536;//2^16

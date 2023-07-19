@@ -25,6 +25,8 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
 
         m_splitCluster=false;               // from ATHENA reconstruction.py

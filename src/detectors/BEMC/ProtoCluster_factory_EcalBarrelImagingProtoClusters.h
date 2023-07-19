@@ -28,8 +28,9 @@ public:
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
+        auto app = GetApplication();
 
         // from https://eicweb.phy.anl.gov/EIC/benchmarks/physics_benchmarks/-/blob/master/options/reconstruction.py#L593
         u_localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm};     //  # same layer
