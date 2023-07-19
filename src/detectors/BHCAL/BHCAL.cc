@@ -33,7 +33,7 @@ extern "C" {
 	    {"HcalBarrelRawHits"}, "HcalBarrelRecHits"
 	));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
-	    {"HcalBarrelRecHits"}, "HcalBarrelTruthProtoClusters"
+	    {"HcalBarrelRecHits", "HcalBarrelHits"}, "HcalBarrelTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>(
 	    {"HcalBarrelRecHits"}, "HcalBarrelIslandProtoClusters"

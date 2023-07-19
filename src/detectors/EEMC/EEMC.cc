@@ -26,13 +26,13 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>(
-	    {"EcalEndcapNHitd"}, "EcalEndcapNRawHits"
+	    {"EcalEndcapNHits"}, "EcalEndcapNRawHits"
 	));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
 	    {"EcalEndcapNRawHits"}, "EcalEndcapNRecHits"
 	));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
-	    {"EcalEndcapNRecHits"}, "EcalEndcapNTruthProtoClusters"
+	    {"EcalEndcapNRecHits", "EcalEndcapNHits"}, "EcalEndcapNTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>(
 	    {"EcalEndcapNRecHits"}, "EcalEndcapNIslandProtoClusters"

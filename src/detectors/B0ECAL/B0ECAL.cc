@@ -34,7 +34,7 @@ extern "C" {
           {"B0ECalRawHits"}, "B0ECalRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
-          {"B0ECalRecHits"}, "B0ECalTruthProtoClusters"
+          {"B0ECalRecHits", "B0ECalHits"}, "B0ECalTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>(
           {"B0ECalRecHits"}, "B0ECalIslandProtoClusters"

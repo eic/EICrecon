@@ -37,7 +37,7 @@ extern "C" {
           {"HcalEndcapNRawHits"}, "HcalEndcapNMergedRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>(
-          {"HcalEndcapNRecHits"}, "HcalEndcapNTruthProtoClusters"
+          {"HcalEndcapNRecHits", "HcalEndcapNHits"}, "HcalEndcapNTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>(
           {"HcalEndcapNRecHits"}, "HcalEndcapNIslandProtoClusters"

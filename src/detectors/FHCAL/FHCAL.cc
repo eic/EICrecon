@@ -51,7 +51,7 @@ extern "C" {
           {"HcalEndcapPRawHits"}, "HcalEndcapPMergedHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>(
-          {"HcalEndcapPRecHits"}, "HcalEndcapPTruthProtoClusters"
+          {"HcalEndcapPRecHits", "HcalEndcapPHits"}, "HcalEndcapPTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>(
           {"HcalEndcapPRecHits"}, "HcalEndcapPIslandProtoClusters"
@@ -105,7 +105,7 @@ extern "C" {
           {"HcalEndcapPInsertRawHits"}, "HcalEndcapPInsertMergedHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>(
-          {"HcalEndcapPInsertMergedHits"}, "HcalEndcapPInsertTruthProtoClusters"
+          {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, "HcalEndcapPInsertTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>(
           {"HcalEndcapPInsertMergedHits"}, "HcalEndcapPInsertIslandProtoClusters"
@@ -156,7 +156,7 @@ extern "C" {
           {"LFHCALRawHits"}, "LFHCALRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>(
-          {"LFHCALRecHits"}, "LFHCALTruthProtoClusters"
+          {"LFHCALRecHits", "LFHCALHits"}, "LFHCALTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>(
           {"LFHCALRecHits"}, "LFHCALIslandProtoClusters"

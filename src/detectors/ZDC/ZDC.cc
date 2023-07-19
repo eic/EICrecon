@@ -33,7 +33,7 @@ extern "C" {
 	  {"ZDCEcalRawHits"}, "ZDCEcalRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalTruthProtoClusters>(
-	  {"ZDCEcalRecHits"}, "ZDCEcalTruthProtoClusters"
+	  {"ZDCEcalRecHits", "ZDCEcalHits"}, "ZDCEcalTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalIslandProtoClusters>(
 	  {"ZDCEcalRecHits"}, "ZDCEcalIslandProtoClusters"

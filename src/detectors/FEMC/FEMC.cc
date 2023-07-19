@@ -39,7 +39,7 @@ extern "C" {
           {"EcalEndcapPRawHits"}, "EcalEndcapPRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPTruthProtoClusters>(
-          {"EcalEndcapPRecHits"}, "EcalEndcapPTruthProtoClusters"
+          {"EcalEndcapPRecHits", "EcalEndcapPHits"}, "EcalEndcapPTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPIslandProtoClusters>(
           {"EcalEndcapPRecHits"}, "EcalEndcapPIslandProtoClusters"
@@ -90,7 +90,7 @@ extern "C" {
           {"EcalEndcapPInsertRawHits"}, "EcalEndcapPInsertRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters>(
-          {"EcalEndcapPInsertRecHits"}, "EcalEndcapPInsertTruthProtoClusters"
+          {"EcalEndcapPInsertRecHits", "EcalEndcapPInsertHits"}, "EcalEndcapPInsertTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>(
           {"EcalEndcapPInsertRecHits"}, "EcalEndcapPInsertIslandProtoClusters"

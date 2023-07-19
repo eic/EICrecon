@@ -32,7 +32,7 @@ extern "C" {
           {"EcalLumiSpecRawHits"}, "EcalLumiSpecRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecTruthProtoClusters>(
-          {"EcalLumiSpecRecHits"}, "EcalLumiSpecTruthProtoClusters"
+          {"EcalLumiSpecRecHits", "LumiSpecCALHits"}, "EcalLumiSpecTruthProtoClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>(
           {"EcalLumiSpecRecHits"}, "EcalLumiSpecIslandProtoClusters"
