@@ -26,18 +26,6 @@ public:
     // Init
     void Init() override{
         auto app = GetApplication();
-        //-------- Configuration Parameters ------------
-        m_inputMCParticles_tag = "MCParticles";
-        m_energyClusters_tag = "EcalBarrelScFiClusters";
-        m_energyAssociation_tag = "EcalBarrelScFiClusterAssociations";
-        m_positionClusters_tag = "EcalBarrelImagingClusters";
-        m_positionAssociations_tag = "EcalBarrelImagingClusterAssociations";
-
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:inputMCParticles_tag", m_inputMCParticles_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:energyClusters_tag", m_energyClusters_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:energyAssociation_tag", m_energyAssociation_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionClusters_tag", m_positionClusters_tag);
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingMergedClusters:positionAssociations_tag", m_positionAssociations_tag);
 
         initialize();
     }
@@ -48,11 +36,11 @@ public:
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
         // Prefill inputs
-        m_inputMCParticles     = event->Get<edm4hep::MCParticle>(m_inputMCParticles_tag);;
-        m_energyClusters       = event->Get<edm4eic::Cluster>(m_energyClusters_tag);;
-        m_energyAssociations   = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_energyAssociation_tag);;
-        m_positionClusters     = event->Get<edm4eic::Cluster>(m_positionClusters_tag);;
-        m_positionAssociations = event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_positionAssociations_tag);;
+        m_inputMCParticles     = event->Get<edm4hep::MCParticle>(GetInputTags()[0]);
+        m_energyClusters       = event->Get<edm4eic::Cluster>(GetInputTags()[1]);
+        m_energyAssociations   = event->Get<edm4eic::MCRecoClusterParticleAssociation>(GetInputTags()[2]);
+        m_positionClusters     = event->Get<edm4eic::Cluster>(GetInputTags()[3]);
+        m_positionAssociations = event->Get<edm4eic::MCRecoClusterParticleAssociation>(GetInputTags()[4]);
 
         // Call Process for generic algorithm
         execute();
@@ -63,12 +51,4 @@ public:
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
-
-private:
-    // Name of input data type (collection)
-    std::string m_inputMCParticles_tag;
-    std::string m_energyClusters_tag;
-    std::string m_energyAssociation_tag;
-    std::string m_positionClusters_tag;
-    std::string m_positionAssociations_tag;
 };

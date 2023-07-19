@@ -110,10 +110,13 @@ extern "C" {
           {"EcalBarrelImagingProtoClusters"}, "EcalBarrelImagingClusters"
         ));
         app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>(
-          {"EcalBarrelImagingClusters",
+          {
+            "MCParticles",
             "EcalBarrelScFiClusters",
-            "EcalBarrelImagingClusterAssociations",
-            "EcalBarrelScFiClusterAssociations"},
+            "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelImagingClusters",
+            "EcalBarrelImagingClusterAssociations"
+          },
           "EcalBarrelImagingMergedClusters"
         ));
 
