@@ -122,7 +122,10 @@ extern "C" {
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
 
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>(
-	    {},
+	    {
+              "EcalBarrelSciGlassRecHits",
+              "EcalBarrelSciGlassHits",
+            },
 	    "EcalBarrelSciGlassTruthProtoClusters"
 	));
         app->Add(
