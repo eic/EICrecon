@@ -13,19 +13,8 @@
 #include "ProtoCluster_factory_EcalLumiSpecIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_EcalLumiSpecTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalLumiSpecClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_EcalLumiSpecTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalLumiSpecClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {

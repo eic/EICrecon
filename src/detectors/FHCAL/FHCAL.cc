@@ -25,48 +25,12 @@
 #include "ProtoCluster_factory_LFHCALIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_HcalEndcapPTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPInsertTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPInsertTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPInsertClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPInsertClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_LFHCALTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_LFHCALTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_LFHCALClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_LFHCALClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALClusters>(std::forward<Args>(args)...) { }
-    };
-
+    using Cluster_factory_HcalEndcapPTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPInsertTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPInsertClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_LFHCALTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_LFHCALClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
