@@ -10,6 +10,9 @@
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/string/StringHelpers.h"
 
+#include "TFunction.h"
+#include "TGraph.h"
+
 namespace eicrecon {
 
 
@@ -87,9 +90,14 @@ namespace eicrecon {
 	bool goodHit1 = false;
 	bool goodHit2 = false;
 
+	//edm4hep::MCParticle mcPart;
+
+	std::cout << "number of raw hits for event = " << rawhits.size() << "\n";
+
         for (const auto h: rawhits) {
 
             auto cellID = h->getCellID();
+
 
 	    //global --> local begins here -----
 
@@ -104,6 +112,9 @@ namespace eicrecon {
             auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
 	    //information is stored in cm, we need mm - divide by dd4hep::mm
+
+	    if(h->getEDep() < 0.0002){continue;} //place eDep cut of 0.2 MeV to try and cleanup hits --> only works with simplified geom
+
 
 	    if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
 
