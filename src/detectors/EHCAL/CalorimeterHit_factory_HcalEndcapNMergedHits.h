@@ -44,7 +44,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputs = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        m_inputs = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         execute();
