@@ -25,8 +25,6 @@ public:
     void Init() override{
         InitDataTags(GetPluginName() + ":" + GetTag());
 
-        auto app = GetApplication();
-
         AlgorithmInit(m_log);
     }
 
