@@ -13,19 +13,8 @@
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_EcalEndcapNTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapNTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapNClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapNClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {

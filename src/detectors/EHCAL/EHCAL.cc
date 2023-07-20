@@ -15,19 +15,8 @@
 
 
 namespace eicrecon {
-    class Cluster_factory_HcalEndcapNTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapNTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapNClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapNClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapNClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_HcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
