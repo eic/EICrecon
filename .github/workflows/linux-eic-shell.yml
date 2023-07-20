@@ -340,6 +340,9 @@ jobs:
         path: ref/
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if_no_artifact_found: warn
+    - uses: actions/checkout@v3
+      with:
+        repository: 'eic/epic-capybara'
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
@@ -347,7 +350,7 @@ jobs:
         run: |
           python3 -m pip install -r .github/requirements.txt
           echo "::group::diff ref -> new"
-          python3 .github/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           echo "::endgroup::"
 
 
