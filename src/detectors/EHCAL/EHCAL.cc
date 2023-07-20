@@ -34,7 +34,7 @@ extern "C" {
           {"HcalEndcapNRawHits"}, "HcalEndcapNRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNMergedHits>(
-          {"HcalEndcapNRawHits"}, "HcalEndcapNMergedRecHits"
+          {"HcalEndcapNRawHits"}, "HcalEndcapNMergedHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>(
           {"HcalEndcapNRecHits", "HcalEndcapNHits"}, "HcalEndcapNTruthProtoClusters"
