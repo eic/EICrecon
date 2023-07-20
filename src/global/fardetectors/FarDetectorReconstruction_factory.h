@@ -34,8 +34,8 @@ namespace eicrecon {
 
     public:
 
-        explicit FarDetectorReconstruction_factory( std::vector<std::string> default_input_tags, MatrixTransferStaticConfig cfg ):
-	  JChainFactoryT<edm4eic::ReconstructedParticle, MatrixTransferStaticConfig, JFactoryT>(std::move(default_input_tags), cfg) {
+        explicit FarDetectorReconstruction_factory(const std::vector<std::string> &default_input_tags, MatrixTransferStaticConfig cfg ):
+	  JChainFactoryT(std::move(default_input_tags), cfg) {
 	}
 	
         /** One time initialization **/

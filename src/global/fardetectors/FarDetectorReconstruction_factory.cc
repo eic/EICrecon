@@ -18,7 +18,7 @@ namespace eicrecon {
 
 	//m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-	m_readout = m_input_tag;
+	m_readout = GetDefaultInputTags()[0];
 
 	m_geoSvc = app->GetService<JDD4hep_service>();
 
@@ -34,8 +34,8 @@ namespace eicrecon {
 
     void FarDetectorReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-      auto inputhits = event->Get<edm4eic::RawTrackerHit>(m_readout);
-      auto outputTracks = m_reco_algo.AlgorithmProcess(inputhits);
+      auto inputhits = event->Get<edm4hep::SimTrackerHit>(m_readout);
+      auto outputTracks = m_reco_algo.produce(inputhits);
       Set(outputTracks);
 
     }

@@ -31,7 +31,7 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_y_slope_offset = -0.0073;   //in mrad
     recon_cfg.nomMomentum          =  137.5;    //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
-    app->Add(new JFactoryGeneratorT<FarDetectorReconstruction_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorReconstruction_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));
 
 }
 }

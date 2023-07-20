@@ -6,9 +6,8 @@
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
-  class MatrixTransferStaticConfig {
-    public:
-
+  struct MatrixTransferStaticConfig {
+    
       float partMass   = .938272;
       float partCharge = 1;
       float partPDG    = 2122;
