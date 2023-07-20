@@ -19,7 +19,7 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/vector_utils.h>
 
-class FarForwardParticles {
+class MatrixTransferStatic {
 public:
     std::vector<const edm4eic::TrackerHit *> m_inputHits;
     std::vector<edm4eic::ReconstructedParticle *> m_outputParticles;
@@ -60,7 +60,7 @@ public:
                             {0.0, 0.0}};
 
 public:
-    FarForwardParticles() {}
+    MatrixTransferStatic() {}
 
     // See Wouter's example to extract local coordinates CalorimeterHitReco.cpp
     // includes DDRec/CellIDPositionConverter.here
