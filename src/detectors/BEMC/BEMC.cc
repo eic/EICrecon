@@ -26,27 +26,9 @@
 
 
 namespace eicrecon {
-    class Cluster_factory_EcalBarrelSciGlassTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelSciGlassClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelScFiClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelScFiClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters>(std::forward<Args>(args)...) { }
-    };
-
+    using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
