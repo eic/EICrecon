@@ -35,7 +35,7 @@ namespace eicrecon {
     const edm4eic::MCRecoParticleAssociationCollection& rcassoc) {
 
     // Resulting inclusive kinematics
-    auto kinematics = std::unique_ptr<edm4eic::InclusiveKinematicsCollection>();
+    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 
     // 1. find_if
     //const auto mc_first_electron = std::find_if(

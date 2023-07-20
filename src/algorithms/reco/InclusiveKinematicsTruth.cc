@@ -36,7 +36,7 @@ namespace eicrecon {
     const edm4hep::MCParticleCollection& mcparts) {
 
     // Resulting inclusive kinematics
-    auto kinematics = std::unique_ptr<edm4eic::InclusiveKinematicsCollection>();
+    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 
     // Loop over generated particles to get incoming electron and proton beams
     // and the scattered electron. In the presence of QED radition on the incoming
