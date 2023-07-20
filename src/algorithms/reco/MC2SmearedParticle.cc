@@ -18,7 +18,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MC2SmearedPa
 
         if (mc_particle.getGeneratorStatus() != 1) {
             m_log->debug("ignoring particle with generatorStatus = {}", mc_particle.getGeneratorStatus());
-            return nullptr;
+            continue;
         }
 
         // make sure we keep types consistent
