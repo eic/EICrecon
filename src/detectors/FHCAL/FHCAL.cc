@@ -48,7 +48,7 @@ extern "C" {
           {"HcalEndcapPRawHits"}, "HcalEndcapPRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>(
-          {"HcalEndcapPRawHits"}, "HcalEndcapPMergedHits"
+          {"HcalEndcapPRecHits"}, "HcalEndcapPMergedHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>(
           {"HcalEndcapPRecHits", "HcalEndcapPHits"}, "HcalEndcapPTruthProtoClusters"
@@ -102,7 +102,7 @@ extern "C" {
           {"HcalEndcapPInsertRawHits"}, "HcalEndcapPInsertRecHits"
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>(
-          {"HcalEndcapPInsertRawHits"}, "HcalEndcapPInsertMergedHits"
+          {"HcalEndcapPInsertRecHits"}, "HcalEndcapPInsertMergedHits"
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>(
           {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, "HcalEndcapPInsertTruthProtoClusters"
