@@ -80,7 +80,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
         // Prefill inputs
-        simhits = event->Get<edm4hep::SimCalorimeterHit>(m_input_tag);
+        simhits = event->Get<edm4hep::SimCalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();

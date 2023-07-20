@@ -15,9 +15,6 @@
 class ProtoCluster_factory_EcalBarrelImagingProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, ImagingTopoCluster {
 
 public:
-
-    std::string m_input_tag;
-
     //------------------------------------------
     // Constructor
     ProtoCluster_factory_EcalBarrelImagingProtoClusters(std::vector<std::string> default_input_tags)
@@ -58,7 +55,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        m_inputHits = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         execute();

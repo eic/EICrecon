@@ -10,10 +10,6 @@
 class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, ImagingPixelReco {
 
 public:
-
-    std::string m_input_tag  = "EcalBarrelImagingRawHits";
-
-
     //------------------------------------------
     // Constructor
     CalorimeterHit_factory_EcalBarrelImagingRecHits(std::vector<std::string> default_input_tags)
@@ -60,7 +56,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
+        m_inputHits = event->Get<edm4hep::RawCalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         execute();
