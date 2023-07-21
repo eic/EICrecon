@@ -1,5 +1,5 @@
-// Copyright 2023, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Christopher Dilks
 
 #include "MergeParticleID.h"
 
@@ -73,7 +73,6 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
     // loop over this PID collection
     for(size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
-
       // make the index pair
       const auto& in_pid = in_pid_collection->at(idx_pid);
       auto& charged_particle_track_segment = in_pid.getChargedParticle();
