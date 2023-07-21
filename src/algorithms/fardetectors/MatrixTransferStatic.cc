@@ -80,11 +80,11 @@ void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logge
 
 std::vector<edm4eic::ReconstructedParticle*> eicrecon::MatrixTransferStatic::produce(const std::vector<const edm4hep::SimTrackerHit *>& rawhits) {
        
-        auto converter = m_cellid_converter;
+  auto converter = m_cellid_converter;
 
-	std::vector<edm4eic::ReconstructedParticle*> outputParticles;
+  std::vector<edm4eic::ReconstructedParticle*> outputParticles;
 
-        //---- begin Roman Pot Reconstruction code ----
+  //---- begin Reconstruction code ----
 
         int eventReset = 0; // counter for IDing at least one hit per layer
         std::vector<double> hitx;
