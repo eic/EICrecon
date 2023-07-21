@@ -124,7 +124,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
       if(obj.getChargedParticle().id() == trk.id())
         return obj;
     }
-    throw std::runtime_error("ERROR: cannot find CherenkovParticleID given track");
+    FAIL("ERROR: cannot find CherenkovParticleID given track");
   };
 
   // additive weights
@@ -164,7 +164,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
           REQUIRE_THAT( hyp.weight, Catch::Matchers::WithinAbs(60, EPSILON) );
           break;
         default:
-          throw std::runtime_error("untested PDG hypothesis");
+          FAIL("untested PDG hypothesis");
       }
     }
 
@@ -179,7 +179,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
           REQUIRE_THAT( hyp.weight, Catch::Matchers::WithinAbs(100+90, EPSILON) );
           break;
         default:
-          throw std::runtime_error("untested PDG hypothesis");
+          FAIL("untested PDG hypothesis");
       }
     }
 
@@ -226,7 +226,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
           REQUIRE_THAT( hyp.weight, Catch::Matchers::WithinAbs(60, EPSILON) );
           break;
         default:
-          throw std::runtime_error("untested PDG hypothesis");
+          FAIL("untested PDG hypothesis");
       }
     }
 
@@ -241,7 +241,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
           REQUIRE_THAT( hyp.weight, Catch::Matchers::WithinAbs(100*90, EPSILON) );
           break;
         default:
-          throw std::runtime_error("untested PDG hypothesis");
+          FAIL("untested PDG hypothesis");
       }
     }
 
