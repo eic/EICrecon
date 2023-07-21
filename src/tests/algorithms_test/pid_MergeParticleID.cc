@@ -149,6 +149,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
     REQUIRE_THAT( pid_0.getPhotonEnergy(), Catch::Matchers::WithinAbs((10*3e-9+6*4e-9)/(10+6), EPSILON) );
     REQUIRE_THAT( pid_1.getPhotonEnergy(), Catch::Matchers::WithinAbs((11*4e-9+4*3e-9)/(11+4), EPSILON) );
 
+    REQUIRE(pid_0.hypotheses_size() == 3);
     for(auto hyp : pid_0.getHypotheses()) {
       switch(hyp.PDG) {
         case 211:
@@ -168,6 +169,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
       }
     }
 
+    REQUIRE(pid_1.hypotheses_size() == 2);
     for(auto hyp : pid_1.getHypotheses()) {
       switch(hyp.PDG) {
         case 211:
