@@ -352,9 +352,7 @@ jobs:
           echo "::group::pip install"
           python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
           echo "::endgroup::"
-          echo "::group::diff ref -> new"
           python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-          echo "::endgroup::"
 
 
   eicrecon-gun-EcalLumiSpec:
