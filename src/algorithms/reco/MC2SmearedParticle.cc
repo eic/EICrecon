@@ -18,7 +18,7 @@ void eicrecon::MC2SmearedParticle::init(std::shared_ptr<spdlog::logger> logger) 
 
 edm4eic::ReconstructedParticle *eicrecon::MC2SmearedParticle::produce(const edm4hep::MCParticle *mc_particle) {
 
-    if (mc_particle->getGeneratorStatus() > 1) {
+    if (mc_particle->getGeneratorStatus() != 1) {
         m_log->debug("ignoring particle with generatorStatus = {}", mc_particle->getGeneratorStatus());
         return nullptr;
     }
