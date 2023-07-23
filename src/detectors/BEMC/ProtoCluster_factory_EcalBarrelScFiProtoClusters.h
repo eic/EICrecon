@@ -6,27 +6,28 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalBarrelScFiProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalBarrelScFiProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalBarrelScFiProtoClusters(){
-        SetTag("EcalBarrelScFiProtoClusters");
+    ProtoCluster_factory_EcalBarrelScFiProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
-        m_input_tag = "EcalBarrelScFiRecHits";
 
         m_splitCluster=false;               // from ATHENA reconstruction.py
         m_minClusterHitEdep=1.0 * dd4hep::MeV;    // from ATHENA reconstruction.py
@@ -49,7 +50,6 @@ public:
         u_globalDistEtaPhi={};//{this, "globalDistEtaPhi", {}};
         u_dimScaledLocalDistXY={};// from ATHENA reconstruction.py
 
-        app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:splitCluster",             m_splitCluster);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:minClusterHitEdep",  m_minClusterHitEdep);
         app->SetDefaultParameter("BEMC:EcalBarrelScFiProtoClusters:minClusterCenterEdep",     m_minClusterCenterEdep);
@@ -78,7 +78,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        hits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        hits = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();

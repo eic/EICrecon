@@ -6,27 +6,28 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterIslandCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalEndcapNIslandProtoClusters(){
-        SetTag("EcalEndcapNIslandProtoClusters");
+    ProtoCluster_factory_EcalEndcapNIslandProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
-        m_input_tag = "EcalEndcapNRecHits";
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -51,7 +52,6 @@ public:
         u_transverseEnergyProfileMetric = "globalDistEtaPhi";
         u_transverseEnergyProfileScale = 0.08;
 
-        app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:geoServiceName", m_geoSvcName);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:readoutClass", m_readout);
         app->SetDefaultParameter("EEMC:EcalEndcapNIslandProtoClusters:sectorDist",   m_sectorDist);
@@ -82,7 +82,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        hits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        hits = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();

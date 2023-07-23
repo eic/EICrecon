@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -14,19 +15,8 @@
 
 
 namespace eicrecon {
-    class Cluster_factory_B0ECalTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_B0ECalTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_B0ECalTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_B0ECalTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_B0ECalClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_B0ECalClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_B0ECalClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_B0ECalClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 
@@ -37,10 +27,18 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_B0ECalRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_B0ECalRawHits>(
+          {"B0ECalHits"}, "B0ECalRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>(
+          {"B0ECalRawHits"}, "B0ECalRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
+          {"B0ECalRecHits", "B0ECalHits"}, "B0ECalTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>(
+          {"B0ECalRecHits"}, "B0ECalIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_B0ECalClusters>(

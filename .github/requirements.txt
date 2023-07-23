@@ -1,0 +1,4 @@
+awkward
+deepdiff
+scipy
+uproot

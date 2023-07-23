@@ -8,28 +8,26 @@
 
 #include <edm4eic/ProtoClusterCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
 
 
-class ProtoCluster_factory_HcalEndcapNTruthProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_HcalEndcapNTruthProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_HcalEndcapNTruthProtoClusters(){
-        SetTag("HcalEndcapNTruthProtoClusters");
+    ProtoCluster_factory_HcalEndcapNTruthProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
-        m_inputHit_tag="HcalEndcapNRecHits";
-        m_inputMCHit_tag="HcalEndcapNHits";
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
         AlgorithmInit(m_log);
     }
@@ -44,8 +42,8 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Get input collection
-        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(m_inputHit_tag));
-        auto sim_coll = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(m_inputMCHit_tag));
+        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto sim_coll = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
         // Call Process for generic algorithm
         auto protoclust_coll = AlgorithmProcess(*hits_coll, *sim_coll);
@@ -53,8 +51,4 @@ public:
         // Hand algorithm objects over to JANA
         SetCollection(std::move(protoclust_coll));
     }
-private:
-    // Name of input data type (collection)
-    std::string              m_inputHit_tag;
-    std::string              m_inputMCHit_tag;
 };

@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -26,27 +27,9 @@
 
 
 namespace eicrecon {
-    class Cluster_factory_EcalBarrelSciGlassTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelSciGlassClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelScFiClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelScFiClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters>(std::forward<Args>(args)...) { }
-    };
-
+    using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -56,9 +39,15 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>(
+          {"EcalBarrelSciGlassHits"}, "EcalBarrelSciGlassRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>(
+          {"EcalBarrelSciGlassRawHits"}, "EcalBarrelSciGlassRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>(
+          {"EcalBarrelSciGlassRecHits"}, "EcalBarrelSciGlassProtoClusters"
+        ));
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassClusters>(
              "EcalBarrelSciGlassClusters",
@@ -79,9 +68,15 @@ extern "C" {
         );
 
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
+          {"EcalBarrelScFiHits"}, "EcalBarrelScFiRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
+          {"EcalBarrelScFiRawHits"}, "EcalBarrelScFiRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>(
+          {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
+        ));
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>(
              "EcalBarrelScFiClusters",
@@ -101,18 +96,41 @@ extern "C" {
           )
         );
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>(
+          {"EcalBarrelImagingHits"}, "EcalBarrelImagingRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>(
+          {"EcalBarrelImagingRawHits"}, "EcalBarrelImagingRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>(
+          {"EcalBarrelImagingRecHits"}, "EcalBarrelImagingProtoClusters"
+        ));
 
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>());
+        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>(
+          {"EcalBarrelImagingProtoClusters"}, "EcalBarrelImagingClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>(
+          {
+            "MCParticles",
+            "EcalBarrelScFiClusters",
+            "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelImagingClusters",
+            "EcalBarrelImagingClusterAssociations"
+          },
+          "EcalBarrelImagingMergedClusters"
+        ));
 
         // Inserted types (so they can be written to output podio file)
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
 
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>(
+	    {
+              "EcalBarrelSciGlassRecHits",
+              "EcalBarrelSciGlassHits",
+            },
+	    "EcalBarrelSciGlassTruthProtoClusters"
+	));
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(
              "EcalBarrelSciGlassTruthClusters",
@@ -131,6 +149,12 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>());
+        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>(
+          {
+            "EcalBarrelSciGlassTruthClusters",
+            "EcalBarrelSciGlassTruthClusterAssociations"
+          },
+	  "EcalBarrelSciGlassMergedTruthCluster"
+	));
     }
 }

@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -13,19 +14,8 @@
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_EcalEndcapNTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapNTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapNClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapNClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapNClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -35,10 +25,18 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>(
+	    {"EcalEndcapNHits"}, "EcalEndcapNRawHits"
+	));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
+	    {"EcalEndcapNRawHits"}, "EcalEndcapNRecHits"
+	));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
+	    {"EcalEndcapNRecHits", "EcalEndcapNHits"}, "EcalEndcapNTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>(
+	    {"EcalEndcapNRecHits"}, "EcalEndcapNIslandProtoClusters"
+	));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapNTruthClusters>(

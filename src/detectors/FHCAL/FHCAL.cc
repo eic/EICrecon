@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -25,48 +26,12 @@
 #include "ProtoCluster_factory_LFHCALIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_HcalEndcapPTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPInsertTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPInsertTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_HcalEndcapPInsertClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_HcalEndcapPInsertClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_HcalEndcapPInsertClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_LFHCALTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_LFHCALTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_LFHCALClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_LFHCALClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_LFHCALClusters>(std::forward<Args>(args)...) { }
-    };
-
+    using Cluster_factory_HcalEndcapPTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPInsertTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_HcalEndcapPInsertClusters =  CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_LFHCALTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_LFHCALClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -76,11 +41,21 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPRawHits>(
+          {"HcalEndcapPHits"}, "HcalEndcapPRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>(
+          {"HcalEndcapPRawHits"}, "HcalEndcapPRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>(
+          {"HcalEndcapPRecHits"}, "HcalEndcapPMergedHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>(
+          {"HcalEndcapPRecHits", "HcalEndcapPHits"}, "HcalEndcapPTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>(
+          {"HcalEndcapPRecHits"}, "HcalEndcapPIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>(
@@ -120,11 +95,21 @@ extern "C" {
           )
         );
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPInsertRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapPInsertRawHits>(
+          {"HcalEndcapPInsertHits"}, "HcalEndcapPInsertRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>(
+          {"HcalEndcapPInsertRawHits"}, "HcalEndcapPInsertRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>(
+          {"HcalEndcapPInsertRecHits"}, "HcalEndcapPInsertMergedHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>(
+          {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, "HcalEndcapPInsertTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>(
+          {"HcalEndcapPInsertMergedHits"}, "HcalEndcapPInsertIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapPTruthClusters>(
@@ -164,10 +149,18 @@ extern "C" {
           )
         );
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_LFHCALRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_LFHCALRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_LFHCALRawHits>(
+          {"LFHCALHits"}, "LFHCALRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_LFHCALRecHits>(
+          {"LFHCALRawHits"}, "LFHCALRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>(
+          {"LFHCALRecHits", "LFHCALHits"}, "LFHCALTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>(
+          {"LFHCALRecHits"}, "LFHCALIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_LFHCALTruthClusters>(

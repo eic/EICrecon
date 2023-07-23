@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -13,19 +14,8 @@
 #include "ProtoCluster_factory_EcalLumiSpecIslandProtoClusters.h"
 
 namespace eicrecon {
-    class Cluster_factory_EcalLumiSpecTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalLumiSpecClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_EcalLumiSpecTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_EcalLumiSpecClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -35,10 +25,18 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalLumiSpecRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalLumiSpecRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalLumiSpecRawHits>(
+          {"LumiSpecCALHits"}, "EcalLumiSpecRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalLumiSpecRecHits>(
+          {"EcalLumiSpecRawHits"}, "EcalLumiSpecRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecTruthProtoClusters>(
+          {"EcalLumiSpecRecHits", "LumiSpecCALHits"}, "EcalLumiSpecTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>(
+          {"EcalLumiSpecRecHits"}, "EcalLumiSpecIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_EcalLumiSpecClusters>(

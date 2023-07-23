@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -14,19 +15,8 @@
 
 
 namespace eicrecon {
-    class Cluster_factory_ZDCEcalTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_ZDCEcalTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_ZDCEcalTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_ZDCEcalTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_ZDCEcalClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_ZDCEcalClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_ZDCEcalClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_ZDCEcalClusters>(std::forward<Args>(args)...) { }
-    };
+    using Cluster_factory_ZDCEcalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+    using Cluster_factory_ZDCEcalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -36,10 +26,18 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_ZDCEcalRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_ZDCEcalRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_ZDCEcalTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_ZDCEcalIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_ZDCEcalRawHits>(
+	  {"ZDCEcalHits"}, "ZDCEcalRawHits"
+	));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_ZDCEcalRecHits>(
+	  {"ZDCEcalRawHits"}, "ZDCEcalRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalTruthProtoClusters>(
+	  {"ZDCEcalRecHits", "ZDCEcalHits"}, "ZDCEcalTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalIslandProtoClusters>(
+	  {"ZDCEcalRecHits"}, "ZDCEcalIslandProtoClusters"
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_ZDCEcalTruthClusters>(
