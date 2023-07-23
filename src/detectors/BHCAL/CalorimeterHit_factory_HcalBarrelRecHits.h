@@ -76,15 +76,14 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        rawhits = event->Get<edm4hep::RawCalorimeterHit>(GetInputTags()[0]);
+        // Get input collection
+        auto rawhits_coll = static_cast<const edm4hep::RawCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
         // Call Process for generic algorithm
-        AlgorithmProcess();
+        auto recohits_coll = AlgorithmProcess(*rawhits_coll);
 
-        // Hand owner of algorithm objects over to JANA
-        Set(hits);
-        hits.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(recohits_coll));
     }
 
     std::shared_ptr<spdlog::logger> m_log;

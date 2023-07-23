@@ -30,11 +30,12 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     algo.AlgorithmInit(logger);
     algo.AlgorithmChangeRun();
 
-    auto mhit = edm4hep::MutableSimCalorimeterHit {
+    edm4hep::SimCalorimeterHitCollection simhits;
+    auto mhit = simhits.create(
       0xABABABAB, // std::uint64_t cellID
       1.0 /* GeV */, // float energy
-      {0. /* mm */, 0. /* mm */, 0. /* mm */}, // edm4hep::Vector3f position
-    };
+      edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f position
+    );
     mhit.addToContributions({
       0, // std::int32_t PDG
       0.5 /* GeV */, // float energy
@@ -47,15 +48,12 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
       9.0 /* ns */, // float time
       {0. /* mm */, 0. /* mm */, 0. /* mm */}, // edm4hep::Vector3f stepPosition
     });
-    algo.simhits = {
-      new edm4hep::SimCalorimeterHit(mhit),
-    };
 
-    algo.AlgorithmProcess();
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits = algo.AlgorithmProcess(simhits);
 
-    REQUIRE( algo.rawhits.size() == 1 );
-    REQUIRE( algo.rawhits[0]->getCellID() == 0xABABABAB);
-    REQUIRE( algo.rawhits[0]->getAmplitude() == 123 + 111 );
-    REQUIRE( algo.rawhits[0]->getTimeStamp() == 7 ); // currently, earliest contribution is returned
+    REQUIRE( (*rawhits).size() == 1 );
+    REQUIRE( (*rawhits)[0].getCellID() == 0xABABABAB);
+    REQUIRE( (*rawhits)[0].getAmplitude() == 123 + 111 );
+    REQUIRE( (*rawhits)[0].getTimeStamp() == 7 ); // currently, earliest contribution is returned
   }
 }

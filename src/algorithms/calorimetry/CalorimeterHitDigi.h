@@ -13,12 +13,13 @@
 
 #pragma once
 
+#include <memory>
 #include <random>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <spdlog/spdlog.h>
 
 class CalorimeterHitDigi {
@@ -27,10 +28,9 @@ class CalorimeterHitDigi {
 
 public:
     CalorimeterHitDigi() = default;
-    ~CalorimeterHitDigi(){for( auto h : rawhits ) delete h;} // better to use smart pointer?
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun() ;
-    virtual void AlgorithmProcess() ;
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun() ;
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits) ;
 
     //-------- Configuration Parameters ------------
     //instantiate new spdlog logger
@@ -78,14 +78,10 @@ public:
     std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t         id_mask{0};
 
-    // inputs/outputs
-    std::vector<const edm4hep::SimCalorimeterHit*> simhits;
-    std::vector<edm4hep::RawCalorimeterHit*> rawhits;
-
 private:
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
-    void single_hits_digi();
-    void signal_sum_digi();
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
 };
