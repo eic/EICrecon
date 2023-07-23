@@ -1,29 +1,29 @@
 
 #pragma once
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 
 #include <algorithms/calorimetry/CalorimeterHitsMerger.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_HcalEndcapPInsertMergedHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitsMerger {
+class CalorimeterHit_factory_HcalEndcapPInsertMergedHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitsMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_HcalEndcapPInsertMergedHits(){
-        SetTag("HcalEndcapPInsertMergedHits");
+    CalorimeterHit_factory_HcalEndcapPInsertMergedHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
         m_log = app->GetService<Log_service>()->logger(GetTag());
-
-        m_input_tag = "HcalEndcapPInsertRecHits";
 
         m_readout="HcalEndcapPInsertHits";
         u_fields={"layer", "slice"};  // from ATHENA's reconstruction.py
@@ -31,7 +31,6 @@ public:
 
         m_geoSvc= app->GetService<JDD4hep_service>();
 
-        app->SetDefaultParameter("FHCAL:HcalEndcapPInsertMergedHits:input_tag", m_input_tag);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertMergedHits:fields", u_fields);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertMergedHits:refs",  u_refs);
 
@@ -45,17 +44,13 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        m_inputs = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        // Get input collection
+        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
         // Call Process for generic algorithm
-        execute();
+        auto mergedhits_coll = execute(*hits_coll);
 
-        // Hand ownership of algorithm objects over to JANA
-        Set(m_outputs);
-        m_outputs.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(mergedhits_coll));
     }
-
-private:
-    std::string m_input_tag;
 };

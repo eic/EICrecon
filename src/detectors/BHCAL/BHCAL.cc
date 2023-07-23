@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -25,10 +26,18 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>(
+	    {"HcalBarrelHits"}, "HcalBarrelRawHits"
+	));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
+	    {"HcalBarrelRawHits"}, "HcalBarrelRecHits"
+	));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
+	    {"HcalBarrelRecHits", "HcalBarrelHits"}, "HcalBarrelTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>(
+	    {"HcalBarrelRecHits"}, "HcalBarrelIslandProtoClusters"
+	));
 
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelClusters>(

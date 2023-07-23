@@ -3,6 +3,7 @@
 //
 //
 
+#include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
 
 #include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
@@ -26,11 +27,21 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapNRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNRecHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNMergedHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>());
+        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapNRawHits>(
+          {"HcalEndcapNHits"}, "HcalEndcapNRawHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNRecHits>(
+          {"HcalEndcapNRawHits"}, "HcalEndcapNRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNMergedHits>(
+          {"HcalEndcapNRecHits"}, "HcalEndcapNMergedHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>(
+          {"HcalEndcapNRecHits", "HcalEndcapNHits"}, "HcalEndcapNTruthProtoClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>(
+          {"HcalEndcapNRecHits"}, "HcalEndcapNIslandProtoClusters"
+        ));
         app->Add(
           new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>(
              "HcalEndcapNTruthClusters",
