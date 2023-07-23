@@ -4,27 +4,27 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalLumiSpecRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalLumiSpecRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalLumiSpecRecHits(){
-        SetTag("EcalLumiSpecRecHits");
+    CalorimeterHit_factory_EcalLumiSpecRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
-        m_input_tag = "EcalLumiSpecRawHits";
+        auto app = GetApplication();
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
@@ -49,7 +49,6 @@ public:
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecRecHits:pedestalMean",     m_pedMeanADC);
@@ -79,7 +78,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        rawhits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
+        rawhits = event->Get<edm4hep::RawCalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();

@@ -7,7 +7,7 @@
 #include <random>
 
 #include <JANA/JEvent.h>
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterHitDigi.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -18,24 +18,25 @@
 
 
 
-class RawCalorimeterHit_factory_HcalEndcapPInsertRawHits : public eicrecon::JFactoryPodioT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
+class RawCalorimeterHit_factory_HcalEndcapPInsertRawHits : public JChainFactoryT<edm4hep::RawCalorimeterHit>, CalorimeterHitDigi {
 
 public:
 
     //------------------------------------------
     // Constructor
-    RawCalorimeterHit_factory_HcalEndcapPInsertRawHits() {
-        SetTag("HcalEndcapPInsertRawHits");
+    RawCalorimeterHit_factory_HcalEndcapPInsertRawHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4hep::RawCalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override {
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
 
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
-        m_input_tag = "HcalEndcapPInsertHits";
         u_eRes = {};
         m_tRes = 0.0 * dd4hep::ns;
         m_capADC = 32768;
@@ -50,7 +51,6 @@ public:
         m_geoSvc = app->GetService<JDD4hep_service>(); // TODO: implement named geometry service?
 
         // This is another option for exposing the data members as JANA configuration parameters.
-//        app->SetDefaultParameter("FHCAL:tag",              m_input_tag);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:energyResolutions",u_eRes);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:timeResolution",   m_tRes);
         app->SetDefaultParameter("FHCAL:HcalEndcapPInsertRawHits:capacityADC",      m_capADC);
@@ -77,7 +77,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
         // Prefill inputs
-        simhits = event->Get<edm4hep::SimCalorimeterHit>(m_input_tag);
+        simhits = event->Get<edm4hep::SimCalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
