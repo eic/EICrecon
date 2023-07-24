@@ -16,6 +16,7 @@ namespace eicrecon {
       const T& parts,
       const std::set<int32_t>& pdg) {
     T c;
+    c.setSubsetCollection();
     for (const auto& p: parts) {
       if (pdg.count(p.getPDG()) > 0) {
         c.push_back(p);
@@ -31,6 +32,7 @@ namespace eicrecon {
       const std::set<int32_t>& status,
       const std::set<int32_t>& pdg) {
     T c;
+    c.setSubsetCollection();
     for (const auto& p: parts) {
       if (status.count(p.getGeneratorStatus()) > 0 &&
           pdg.count(p.getPDG()) > 0) {
