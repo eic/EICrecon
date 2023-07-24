@@ -26,10 +26,9 @@ protected:
 
 public:
     CalorimeterClusterMerger() = default;
-    ~CalorimeterClusterMerger(){} // better to use smart pointer?
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    virtual void AlgorithmChangeRun() ;
-    virtual void AlgorithmProcess() ;
+    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmChangeRun() ;
+    void AlgorithmProcess() ;
 
     //-------- Configuration Parameters ------------
 
