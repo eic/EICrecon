@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterClusterMerger.h>
 #include <services/log/Log_service.h>
@@ -13,29 +13,25 @@
 
 
 
-class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public eicrecon::JFactoryPodioT<edm4eic::Cluster>, CalorimeterClusterMerger {
+class Cluster_factory_EcalBarrelSciGlassMergedTruthClusters : public JChainFactoryT<edm4eic::Cluster>, CalorimeterClusterMerger {
 
 public:
     //------------------------------------------
     // Constructor
-    Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(){
-        SetTag("EcalBarrelSciGlassMergedTruthClusters");
+    Cluster_factory_EcalBarrelSciGlassMergedTruthClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::Cluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
-        //-------- Configuration Parameters ------------
-        m_input_tag="EcalBarrelSciGlassTruthClusters";
-        m_inputAssociations_tag="EcalBarrelSciGlassTruthClusterAssociations";
 
         std::string tag=this->GetTag();
         std::shared_ptr<spdlog::logger> m_log = app->GetService<Log_service>()->logger(tag);
-
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:input_tag", m_input_tag, "Name of input collection to use");
-        app->SetDefaultParameter("BEMC:EcalBarrelMergedSciGlassTruthClusters:inputAssociations_tag", m_inputAssociations_tag);
 
         AlgorithmInit(m_log);
     }
@@ -52,8 +48,8 @@ public:
 
 
         // Prefill inputs
-        m_inputClusters=event->Get<edm4eic::Cluster>(m_input_tag);
-        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(m_inputAssociations_tag);
+        m_inputClusters=event->Get<edm4eic::Cluster>(GetInputTags()[0]);
+        m_inputAssociations=event->Get<edm4eic::MCRecoClusterParticleAssociation>(GetInputTags()[1]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();
@@ -65,9 +61,4 @@ public:
         m_outputClusters.clear(); // not really needed, but better to not leave dangling pointers around
         m_outputAssociations.clear();
     }
-
-private:
-    // Name of input data type (collection)
-    std::string              m_input_tag;
-    std::string              m_inputAssociations_tag;
 };

@@ -14,7 +14,6 @@
 #include "CalorimeterHitDigi.h"
 
 #include <JANA/JEvent.h>
-#include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
 using namespace dd4hep;
@@ -116,29 +115,21 @@ void CalorimeterHitDigi::AlgorithmChangeRun() {
 //------------------------
 // AlgorithmProcess
 //------------------------
-void CalorimeterHitDigi::AlgorithmProcess()  {
-
-    // Delete any output objects left from last event.
-    // (Should already have been done for us, but just to be bullet-proof.)
-    for( auto h : rawhits ) delete h;
-    rawhits.clear();
-
+std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits)  {
     if (merge_hits) {
-        signal_sum_digi();
+        return std::move(signal_sum_digi(simhits));
     } else {
-        single_hits_digi();
+        return std::move(single_hits_digi(simhits));
     }
 }
 
-//------------------------
-// single_hits_digi
-//------------------------
-void CalorimeterHitDigi::single_hits_digi(){
+std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits)  {
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits { std::make_unique<edm4hep::RawCalorimeterHitCollection>() };
 
      // Create output collections
-    for ( auto ahit : simhits ) {
+    for (const auto &ahit : simhits) {
         // Note: juggler internal unit of energy is dd4hep::GeV
-        const double eDep    = ahit->getEnergy();
+        const double eDep    = ahit.getEnergy();
 
         // apply additional calorimeter noise to corrected energy deposit
         const double eResRel = (eDep > m_threshold)
@@ -157,7 +148,7 @@ void CalorimeterHitDigi::single_hits_digi(){
         const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
 
         double time = std::numeric_limits<double>::max();
-        for (const auto& c : ahit->getContributions()) {
+        for (const auto& c : ahit.getContributions()) {
             if (c.getTime() <= time) {
                 time = c.getTime();
             }
@@ -166,64 +157,60 @@ void CalorimeterHitDigi::single_hits_digi(){
 
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit->getCellID());
-        auto rawhit = new edm4hep::RawCalorimeterHit(
-                ahit->getCellID(),
+        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit.getCellID());
+        rawhits->create(
+                ahit.getCellID(),
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );
-        rawhits.push_back(rawhit);
     }
+
+    return std::move(rawhits);
 }
 
-//------------------------
-// signal_sum_digi
-//------------------------
-void CalorimeterHitDigi::signal_sum_digi( void ){
+std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits)  {
+    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
     // find the hits that belong to the same group (for merging)
-    std::unordered_map<long long, std::vector<const edm4hep::SimCalorimeterHit*>> merge_map;
-    for (auto ahit : simhits) {
-        int64_t hid = ahit->getCellID() & id_mask;
+    std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
+    std::size_t ix = 0;
+    for (const auto &ahit : simhits) {
+        uint64_t hid = ahit.getCellID() & id_mask;
 
-        m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit->getCellID());
+        m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit.getCellID());
         m_log->trace("new cell ID in {:s}: {:#064b}", m_readout, hid);
 
-        auto    it  = merge_map.find(hid);
+        merge_map[hid].push_back(ix);
 
-        if (it == merge_map.end()) {
-            merge_map[hid] = {ahit};
-        } else {
-            it->second.push_back(ahit);
-        }
+        ix++;
     }
 
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
-    for (auto &[id, hits] : merge_map) {
+    for (const auto &[id, ixs] : merge_map) {
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
-        auto   mid      = hits[0]->getCellID();
+        auto   mid      = simhits[ixs[0]].getCellID();
         // sum energy, take time from the most energetic hit
-        m_log->trace("id: {} \t {}", id, edep);
-        for (size_t i = 0; i < hits.size(); ++i) {
+        for (size_t i = 0; i < ixs.size(); ++i) {
+            auto hit = simhits[ixs[i]];
 
             double timeC = std::numeric_limits<double>::max();
-            for (const auto& c : hits[i]->getContributions()) {
+            for (const auto& c : hit.getContributions()) {
                 if (c.getTime() <= timeC) {
                     timeC = c.getTime();
                 }
             }
             if (timeC > m_capTime) continue;
-            edep += hits[i]->getEnergy();
-            m_log->trace("adding {} \t total: {}", hits[i]->getEnergy(), edep);
+            edep += hit.getEnergy();
+            m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
             // change maximum hit energy & time if necessary
-            if (hits[i]->getEnergy() > max_edep) {
-                max_edep = hits[i]->getEnergy();
-                mid = hits[i]->getCellID();
-                for (const auto& c : hits[i]->getContributions()) {
+            if (hit.getEnergy() > max_edep) {
+                max_edep = hit.getEnergy();
+                mid = hit.getCellID();
+                for (const auto& c : hit.getContributions()) {
                     if (c.getTime() <= time) {
                         time = c.getTime();
                     }
@@ -251,11 +238,12 @@ void CalorimeterHitDigi::signal_sum_digi( void ){
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_capTime, tdc);
-        auto rawhit = new edm4hep::RawCalorimeterHit(
+        rawhits->create(
                 mid,
                 (adc > m_capADC ? m_capADC : adc),
                 tdc
         );
-        rawhits.push_back(rawhit);
     }
+
+    return std::move(rawhits);
 }

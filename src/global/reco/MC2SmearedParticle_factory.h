@@ -8,7 +8,6 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 
-#include <algorithms/reco/MC2SmearedParticleConfig.h>
 #include <algorithms/reco/MC2SmearedParticle.h>
 #include "extensions/jana/JChainFactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
@@ -16,12 +15,12 @@
 namespace eicrecon {
 
     class MC2SmearedParticle_factory:
-            public JChainFactoryT<edm4eic::ReconstructedParticle, MC2SmearedParticleConfig>,
+            public JChainFactoryT<edm4eic::ReconstructedParticle>,
             public SpdlogMixin<MC2SmearedParticle_factory> {
     public:
 
-        explicit MC2SmearedParticle_factory(const std::vector<std::string> &default_input_tags, MC2SmearedParticleConfig cfg)
-            :JChainFactoryT(default_input_tags, cfg) {}
+        explicit MC2SmearedParticle_factory(const std::vector<std::string> &default_input_tags)
+            :JChainFactoryT(default_input_tags) {}
 
         /** One time initialization **/
         void Init() override;
