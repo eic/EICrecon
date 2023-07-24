@@ -36,9 +36,9 @@ namespace eicrecon {
     }
 
     void InclusiveKinematicsJB_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        const auto* mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
-        const auto* rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
-        const auto* rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
+        const auto* mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        const auto* rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[1]));
+        const auto* rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[2]));
 
         auto inclusive_kinematics = m_inclusive_kinematics_algo.execute(
             *mc_particles,
