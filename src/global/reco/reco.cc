@@ -8,7 +8,6 @@
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 #include <extensions/jana/JChainMultifactoryGeneratorT.h>
-#include <algorithms/reco/MC2SmearedParticleConfig.h>
 
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
