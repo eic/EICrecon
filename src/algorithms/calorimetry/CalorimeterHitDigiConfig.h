@@ -18,7 +18,7 @@ namespace eicrecon {
 
     // digitization settings
     unsigned int             capADC{1};
-    double                   capTime{1}; // FIXME unsigned int?
+    double                   capTime{1000}; // dynamic range in ns
     double                   dyRangeADC{1};
     unsigned int             pedMeanADC{0};
     double                   pedSigmaADC{0};
