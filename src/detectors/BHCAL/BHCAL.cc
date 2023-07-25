@@ -8,16 +8,17 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_HcalBarrelRecHits.h"
 #include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
+  using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -43,8 +44,22 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
-	    {"HcalBarrelRawHits"}, "HcalBarrelRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
+          "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
+          {
+            .capADC = 65536,
+            .dyRangeADC = 1.0 * dd4hep::GeV,
+            .pedMeanADC = 10,
+            .pedSigmaADC = 2.0,
+            .resolutionTDC = 1.0 * dd4hep::picosecond,
+            .thresholdFactor = 5.0,
+            .thresholdValue = 1.0,
+            .sampFrac = 0.033, // average, from sPHENIX simulations
+            .readout = "HcalBarrelHits",
+            .layerField = "tower",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
 	));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
 	    {"HcalBarrelRecHits", "HcalBarrelHits"}, "HcalBarrelTruthProtoClusters"

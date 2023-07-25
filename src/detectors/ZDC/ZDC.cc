@@ -8,16 +8,17 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_ZDCEcalRecHits.h"
 #include "ProtoCluster_factory_ZDCEcalTruthProtoClusters.h"
 #include "ProtoCluster_factory_ZDCEcalIslandProtoClusters.h"
 
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_ZDCEcalRawHits = CalorimeterHitDigi_factoryT<>;
-    using Cluster_factory_ZDCEcalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_ZDCEcalClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using CalorimeterHit_factory_ZDCEcalRecHits = CalorimeterHitReco_factoryT<>;
+  using Cluster_factory_ZDCEcalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_ZDCEcalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -40,8 +41,20 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_ZDCEcalRecHits>(
-	  {"ZDCEcalRawHits"}, "ZDCEcalRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_ZDCEcalRecHits>(
+	  "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          {
+            .capADC = 8096,
+            .dyRangeADC = 100. * dd4hep::MeV,
+            .pedMeanADC = 400,
+            .pedSigmaADC = 3.2,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 0.0,
+            .sampFrac = 1.0,
+            .readout = "ZDCEcalHits",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalTruthProtoClusters>(
 	  {"ZDCEcalRecHits", "ZDCEcalHits"}, "ZDCEcalTruthProtoClusters"
