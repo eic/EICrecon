@@ -56,9 +56,6 @@ namespace eicrecon {
     const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
-    std::string m_input_simhit_tag;
-    std::string m_input_protoclust_tag;
-
     std::function<double(double, double, double, int)> weightFunc;
 
   private:
