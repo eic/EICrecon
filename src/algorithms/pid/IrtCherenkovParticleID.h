@@ -14,6 +14,7 @@
 #include <IRT/CherenkovRadiator.h>
 #include <IRT/CherenkovEvent.h>
 #include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/OpticalPhoton.h>
 
 // DD4hep
 #include <Evaluator/DD4hepUnits.h>

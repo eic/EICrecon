@@ -217,7 +217,10 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         auto     cell_id   = raw_hit.getCellID();
         uint64_t sensor_id = cell_id & m_cell_mask;
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
-
+		printf("pixel Pos--> %lf %lf %lf \n",pixel_pos.X(),pixel_pos.Y(),pixel_pos.Z());
+		auto sensorInfo = m_irt_det->m_PhotonDetectors[0]->GetSensorInfo();
+		TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
+		printf("pixel Pos--> %lf %lf %lf \n",pixel_pos.X(),pixel_pos.Y(),pixel_pos.Z());
         // trace logging
         if(m_log->level() <= spdlog::level::trace) {
           m_log->trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
@@ -233,9 +236,12 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         // start new IRT photon
         auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // NOTE: assumes one sensor type
         auto irt_photon = new OpticalPhoton(); // new raw pointer; it will also be destroyed when `irt_particle` is destroyed
+        TVector3 nSurface;
+		nSurface.SetXYZ(0.,0.,0.);
         irt_photon->SetVolumeCopy(sensor_id);
         irt_photon->SetDetectionPosition(pixel_pos);
         irt_photon->SetPhotonDetector(irt_sensor);
+        irt_photon->SetNormalSurface(nSurface); // Including Normal of Surface
         irt_photon->SetDetected(true);
 
         // cheat mode: get photon vertex info from MC truth

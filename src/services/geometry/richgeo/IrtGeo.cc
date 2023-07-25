@@ -60,6 +60,7 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
     auto sensor_obj = sensor_info_it->second;
     // get pixel surface centroid, given sensor surface offset w.r.t centroid
     auto pixel_surface_centroid  = pixel_volume_centroid + sensor_obj.surface_offset;
+	printf("------>>>>> %lf %lf %lf\n",sensor_obj.surface_offset.X(),sensor_obj.surface_offset.Y(),sensor_obj.surface_offset.Z());
     // cross check: make sure pixel and sensor surface centroids are close enough
     auto dist = sqrt((pixel_surface_centroid - sensor_obj.surface_centroid).Mag2());
     if( dist > sensor_obj.size / sqrt(2) )
