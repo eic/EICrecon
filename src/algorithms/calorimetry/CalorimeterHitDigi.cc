@@ -115,12 +115,8 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single
                                     std::pow(m_cfg.eRes[0] / std::sqrt(eDep), 2) +
                                     std::pow(m_cfg.eRes[1], 2) +
                                     std::pow(m_cfg.eRes[2] / (eDep), 2)
-                )
+                                 )
                                : 0;
-//       const double eResRel = (eDep > 1e-6)
-//                               ? m_normDist(generator) * std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(eDep), 2) +
-//                                                          std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (eDep), 2))
-//                               : 0;
 
         const double ped    = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
         const long long adc = std::llround(ped + eDep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
@@ -199,18 +195,12 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
             }
         }
 
-//        double eResRel = 0.;
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
                 ? m_normDist(generator) * m_cfg.eRes[0] / std::sqrt(edep) +
                   m_normDist(generator) * m_cfg.eRes[1] +
                   m_normDist(generator) * m_cfg.eRes[2] / edep
                   : 0;
-//        if (edep > 1e-6) {
-//            eResRel = m_normDist(generator) * m_cfg.eRes[0] / std::sqrt(edep) +
-//                      m_normDist(generator) * m_cfg.eRes[1] +
-//                      m_normDist(generator) * m_cfg.eRes[2] / edep;
-//        }
         double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
