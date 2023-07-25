@@ -28,8 +28,6 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    MC2SmearedParticleConfig smearing_default_config {0};  // No momentum smearing by default
-
     app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
             {"MCParticles"}, "GeneratedParticles"));
 
