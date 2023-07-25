@@ -7,14 +7,15 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 
-#include "RawCalorimeterHit_factory_HcalBarrelRawHits.h"
 #include "CalorimeterHit_factory_HcalBarrelRecHits.h"
 #include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 
 
 namespace eicrecon {
+  using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
     using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
     using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
@@ -26,8 +27,21 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>(
-	    {"HcalBarrelHits"}, "HcalBarrelRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>(
+          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          {
+            .eRes = {},
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 65536,
+            .capTime = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC = 1.0 * dd4hep::GeV,
+            .pedMeanADC = 10,
+            .pedSigmaADC = 2.0,
+            .resolutionTDC = 1.0 * dd4hep::picosecond,
+            .corrMeanScale = 1.0,
+            .readout = "HcalBarrelHits",
+          },
+          app   // TODO: Remove me once fixed
 	));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
 	    {"HcalBarrelRawHits"}, "HcalBarrelRecHits"

@@ -7,19 +7,17 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 
-#include "RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits.h"
 #include "CalorimeterHit_factory_EcalBarrelSciGlassRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
 
-#include "RawCalorimeterHit_factory_EcalBarrelScFiRawHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
-#include "RawCalorimeterHit_factory_EcalBarrelImagingRawHits.h"
 #include "CalorimeterHit_factory_EcalBarrelImagingRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelImagingProtoClusters.h"
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
@@ -27,9 +25,12 @@
 
 
 namespace eicrecon {
-    using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits = CalorimeterHitDigi_factoryT<>;
+  using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
+  using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
+  using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -39,8 +40,22 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>(
-          {"EcalBarrelSciGlassHits"}, "EcalBarrelSciGlassRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>(
+           "EcalBarrelSciGlassRawHits",
+           {"EcalBarrelSciGlassHits"},
+           {"EcalBarrelSciGlassRawHits"},
+           {
+             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 16384,
+             .dyRangeADC = 20 * dd4hep::GeV,
+             .pedMeanADC = 100,
+             .pedSigmaADC = 1,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+             .fields = {},
+           },
+           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>(
           {"EcalBarrelSciGlassRawHits"}, "EcalBarrelSciGlassRecHits"
@@ -68,8 +83,23 @@ extern "C" {
         );
 
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
-          {"EcalBarrelScFiHits"}, "EcalBarrelScFiRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
+           "EcalBarrelScFiRawHits",
+           {"EcalBarrelScFiHits"},
+           {"EcalBarrelScFiRawHits"},
+           {
+             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 16384,
+             .dyRangeADC = 750 * dd4hep::MeV,
+             .pedMeanADC = 20,
+             .pedSigmaADC = 0.3,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+             .readout = "EcalBarrelScFiHits",
+             .fields = {"fiber", "z"},
+           },
+           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
           {"EcalBarrelScFiRawHits"}, "EcalBarrelScFiRecHits"
@@ -96,8 +126,21 @@ extern "C" {
           )
         );
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>(
-          {"EcalBarrelImagingHits"}, "EcalBarrelImagingRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>(
+           "EcalBarrelImagingRawHits",
+          {"EcalBarrelImagingHits"},
+          {"EcalBarrelImagingRawHits"},
+          {
+             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 8192,
+             .dyRangeADC = 3 * dd4hep::MeV,
+             .pedMeanADC = 100,
+             .pedSigmaADC = 14,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+           },
+           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>(
           {"EcalBarrelImagingRawHits"}, "EcalBarrelImagingRecHits"
