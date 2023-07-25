@@ -8,7 +8,6 @@ else()
 endif()
 
 add_subdirectory(pyjano)
-add_subdirectory(BEMC_test)
 add_subdirectory(reco_test)
 add_subdirectory(tracking_test)
 add_subdirectory(track_propagation_test)
