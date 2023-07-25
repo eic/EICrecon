@@ -363,9 +363,10 @@ void trackqa_processor::Init()
     hvollayIDs->GetYaxis()->SetTitle("Counts");hvollayIDs->GetYaxis()->CenterTitle();
     hvollayIDs->SetLineWidth(2);hvollayIDs->SetLineColor(kBlue);
     hvollayIDs->SetDirectory(m_dir_main);
-    for (int i=0; i<20; i++){
+    int NUM_LAYERS = 20;
+    for (int i=0; i<NUM_LAYERS; i++){
 
-        // vollay_index[vollay[i]] = i; //assign index to each item of vollay array
+        //vollay_index[vollay[i]] = i; //assign index to each item of vollay array
         vollay_index.emplace(vollay_arr[i], i); //assign index to each item of vollay array
     
 	    // TH2 *htemp = new TH2D(TString::Format("htrackstate_r_vs_vollayIDs_%d", vollay_arr[i]), 
@@ -419,7 +420,7 @@ void trackqa_processor::Init()
 
     }
 
-    for (int i=0; i<20; i++) {
+    for (int i=0; i<NUM_LAYERS; i++) {
         hresiduals_layers_in_pbins.push_back(vector<TH1*>());
         for (int j=0; j<4; j++) { //momentum bins
             TH1 *htemp = new TH1D(TString::Format("hresiduals_vollay_%d_mom_%s", vollay_arr[i], mom_bins_arr[j]),
@@ -566,10 +567,10 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     // //Populate r_measurements_arr
     // //Populate z_measurements_arr
     vector<float> r_measurements_arr;
-    vector<float> z_meaurements_arr;
+    vector<float> z_measurements_arr;
     vector<int> vollayids;
     vector<int> pbins;
-    vector<int> indexregs;
+    int indexregsaved;
     for (const auto& traj : trajectories) {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
@@ -736,7 +737,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 hlayID->Fill(layer);
                 hvollayIDs->Fill(volume*10+layer);
 
-
+                printf("vollayget = %d\n", volume * 10 + layer);
                 int vollayID = vollay_index[volume * 10 + layer];
                 auto itr = find(vollay_arr, vollay_arr+20, volume*10+layer);
                 //int vollayID = distance(vollay_arr, itr); //DO NOT USE
@@ -757,12 +758,14 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 
                 //get measurement vectors
                 r_measurements_arr.push_back(global_r);
-                z_meaurements_arr.push_back(global.z());
+                z_measurements_arr.push_back(global.z());
                 vollayids.push_back(vollayID);
                 int pbin = 3;
                 if (mcp > 1. && mcp < 2.) pbin = 0; else if (mcp < 5.) pbin = 1; else if (mcp < 7.) pbin = 2;
+                printf("Pbin is currently: %d\n", pbin);
+                printf("VollayID is currently: %d\n", vollayID);
                 pbins.push_back(pbin);
-                indexregs.push_back(index_reg);
+                indexregsaved = index_reg;
                 
                 // // calculate residuals
                 // if (index_reg == 1) { //this is in the barrel - expect r's to be the same, look at dif in z
@@ -872,7 +875,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         if(num_traj>0) hhits_vs_eta_1->Fill(mceta, nHitsallTrackers);
     }
     
-    if (r_measurements_arr.size() == 0) {
+    if (r_measurements_arr.size() == 0 || r_hits_arr.size() == 0) {
         m_log->trace("-------------------------");
         return;
     }
@@ -881,21 +884,22 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     average_number_of_measurements = (float) total_measurements / (float) event_number;
     printf("Running total of measurements: %d\n", total_measurements);
     printf("Running average of number of measurements %f\n", average_number_of_measurements);
-    //First, for the algorithm to work, we have to sort all the arrays.
-    /* This does work without sorting, but there is edge cases
-    where the matching isnt perfect, I am yet to see an edge case while running though.
-    Also bc I am matching using indices, if I sort the arrays, this gets really complicated really quick
-    Solution might be to rewrite using a hashmap.*/
-    // sort(r_measurements_arr.begin(), r_measurements_arr.end());
-    // sort(r_hits_arr.begin(), r_hits_arr.end());
-    // sort(z_meaurements_arr.begin(), r_hits_arr.end());
-    // sort(z_hits_arr.begin(), z_hits_arr.end());
+    sort(r_hits_arr.begin(), r_hits_arr.end());
+    sort(z_hits_arr.begin(), z_hits_arr.end());
+    bool* r_taken = new bool[r_hits_arr.size()];
+    bool* z_taken = new bool[z_hits_arr.size()];
+    for (int i = 0; i < r_hits_arr.size(); i++) {
+        r_taken[i] = false;
+    }
+    for (int i = 0; i < z_hits_arr.size(); i++) {
+        z_taken[i] = false;
+    }
     printf("check1\n");
     //now it works  
     //r_matches is an array that matches r_measurements to hit
     int* r_matches = new int[r_measurements_arr.size()];
     //z_matches is an array that matches r_measurements to hit
-    int* z_matches = new int[z_meaurements_arr.size()];
+    int* z_matches = new int[z_measurements_arr.size()];
     printf("check2\n");
     //matches is an array that has the index of the value to match it to
     float prev_diff = fabs(r_measurements_arr[0] - r_hits_arr[0]); 
@@ -903,23 +907,25 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     for (int i = 0; i < r_measurements_arr.size(); i++) {
         for (int j = 0; j < r_hits_arr.size(); j++) {
             curr_diff = fabs(r_measurements_arr[i] - r_hits_arr[j]);
-            if (curr_diff <= prev_diff) {
+            if ((curr_diff < prev_diff && (!r_taken[j] || r_hits_arr.size() < r_measurements_arr.size())) || j == 0) {  
                 r_matches[i] = j;
                 prev_diff = curr_diff;
             }
         }
+        r_taken[r_matches[i]] = true;
         if (i < r_measurements_arr.size() - 1) prev_diff = fabs(r_measurements_arr[i+1] - r_hits_arr[0]);
     }
-    prev_diff = fabs(z_meaurements_arr[0] - z_hits_arr[0]);
-    for (int i = 0; i < z_meaurements_arr.size(); i++) {
+    prev_diff = fabs(z_measurements_arr[0] - z_hits_arr[0]);
+    for (int i = 0; i < z_measurements_arr.size(); i++) {
         for (int j = 0; j < z_hits_arr.size(); j++) {
-            curr_diff = fabs(z_meaurements_arr[i] - z_hits_arr[j]);
-            if (curr_diff <= prev_diff) {
+            curr_diff = fabs(z_measurements_arr[i] - z_hits_arr[j]);
+            if ((curr_diff < prev_diff && (!z_taken[j] || z_hits_arr.size() < z_measurements_arr.size())) || j == 0) {
                 z_matches[i] = j;
                 prev_diff = curr_diff;
             }
         }
-        if (i < z_meaurements_arr.size() - 1) prev_diff = fabs(z_meaurements_arr[i+1] - z_hits_arr[0]);
+        z_taken[z_matches[i]] = true;
+        if (i < z_measurements_arr.size() - 1) prev_diff = fabs(z_measurements_arr[i+1] - z_hits_arr[0]);
     }
     printf("# of rs: %d\n", r_measurements_arr.size());
     printf("# of r hits: %d\n", r_hits_arr.size());
@@ -927,22 +933,24 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         printf("r measurement: %f\n", r_measurements_arr[i]);
         printf("r match: %d\n", r_matches[i]);
     }
-    printf("# of zs: %d\n", z_meaurements_arr.size());
+    printf("# of zs: %d\n", z_measurements_arr.size());
     printf("# of z hits: %d\n", z_hits_arr.size());
-    for (int i = 0; i < z_meaurements_arr.size(); i++) {
-        printf("z measurement: %f\n", z_meaurements_arr[i]);
+    for (int i = 0; i < z_measurements_arr.size(); i++) {
+        printf("z measurement: %f\n", z_measurements_arr[i]);
         printf("z match: %d\n", z_matches[i]);      
     }
     //Calculate Residuals
     for (int i = 0; i < r_measurements_arr.size(); i++) {
-        printf("z Residual is %f\n", z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
-        hresiduals[indexregs[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
-        hresiduals_vollaybins[vollayids[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
-        hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(z_meaurements_arr[i] - z_hits_arr[z_matches[i]]);
+        if (indexregsaved == 1) hresiduals[indexregsaved]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
+        printf("Vollay ID[i] for r = %d\n", vollayids[i]);
+        printf("pbins[i] for r = %d\n", pbins[i]);
+        hresiduals_vollaybins[vollayids[i]]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
+        hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
     }
-    for (int i = 0; i < z_meaurements_arr.size(); i++) {
-        printf("r Residual is %f\n", r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
-        hresiduals[indexregs[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
+    for (int i = 0; i < z_measurements_arr.size(); i++) {
+        printf("Vollay ID[i] for z = %d\n", vollayids[i]);
+        printf("pbins[i] for z = %d\n", pbins[i]);
+        if (indexregsaved != 1) hresiduals[indexregsaved]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
         hresiduals_vollaybins[vollayids[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
         hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
     }

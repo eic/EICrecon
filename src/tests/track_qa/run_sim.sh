@@ -11,7 +11,7 @@ source /opt/detector/setup.sh
 
 
 source ../../../bin/eicrecon-this.sh
-
+    
 eicrecon \
 -Pplugins=dump_flags,track_qa \
 -Ppodio:output_file=eicrecon_out.root \

@@ -126,7 +126,8 @@ public:
     TH1 *hlayID;
     TH1 *hvollayIDs;
     //int vollay_arr[20] = {0,22,142,144,146,192,242,262,264,266,282,302,312,332,342,344,346,352,362,382}; //indices of all (volID*10 + layID) indices - ARCHES
-    int vollay_arr[20] = {0,22,122,124,126,172,222,242,244,246,262,282,292,312,322,324,326,332,342,362}; //indices of all (volID*10 + layID) indices - BRYCE CANYON
+    //int vollay_arr[20] = {0,22,122,124,126,172,222,242,244,246,262,282,292,312,322,324,326,332,342,362}; //indices of all (volID*10 + layID) indices - BRYCE CANYON
+    int vollay_arr[20] = {0, 22, 132, 134, 136, 182, 232, 252, 254, 256, 272, 292, 302, 322, 332, 334, 336, 342, 352, 372}; //Realistic seeding
     char vollay_identities[20][20] = {"all","dead","b disk 5","b disk 4","b disk 3","b disk 2","b disk 1",
                                     "vertex 1","vertex 2","vertex 3","f disk 1","barrel sagitta 1","f disk 2",
                                     "barrel sagitta 2","f disk 3","f disk 4","f disk 5",
