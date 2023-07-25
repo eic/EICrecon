@@ -7,16 +7,17 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 
-#include "RawCalorimeterHit_factory_B0ECalRawHits.h"
 #include "CalorimeterHit_factory_B0ECalRecHits.h"
 #include "ProtoCluster_factory_B0ECalTruthProtoClusters.h"
 #include "ProtoCluster_factory_B0ECalIslandProtoClusters.h"
 
 
 namespace eicrecon {
-    using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using RawCalorimeterHit_factory_B0ECalRawHits = CalorimeterHitDigi_factoryT<>;
+  using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 
@@ -27,8 +28,19 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_B0ECalRawHits>(
-          {"B0ECalHits"}, "B0ECalRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_B0ECalRawHits>(
+          "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
+          {
+            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 16384,
+            .dyRangeADC = 20 * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 1e-11,
+            .corrMeanScale = 1.0,
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>(
           {"B0ECalRawHits"}, "B0ECalRecHits"

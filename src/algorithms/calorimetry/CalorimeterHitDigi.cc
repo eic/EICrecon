@@ -18,10 +18,8 @@
 #include <fmt/format.h>
 using namespace dd4hep;
 
-//
-// This algorithm converted from:
-//
-//  https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/CalorimeterHitDigi.cpp
+namespace eicrecon {
+
 //
 // TODO:
 // - Array type configuration parameters are not yet supported in JANA (needs to be added)
@@ -31,13 +29,8 @@ using namespace dd4hep;
 //   values here. This needs to be confirmed.
 
 
-
-//------------------------
-// AlgorithmInit
-//------------------------
-void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
-
-    // Assume all configuration parameter data members have been filled in already.
+void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+    m_log = logger;
 
     // Gaudi implements a random number generator service. It is not clear to me how this
     // can work. There are multiple race conditions that occur in parallel event processing:
@@ -54,68 +47,53 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // now, just use default values defined in header file.
 
     // set energy resolution numbers
-    m_log=logger;
-
-    if (u_eRes.empty()) {
-      u_eRes.resize(3);
-    } else if (u_eRes.size() != 3) {
-      m_log->error("Invalid u_eRes.size()");
-      throw std::runtime_error("Invalid u_eRes.size()");
+    if (m_cfg.eRes.empty()) {
+      m_cfg.eRes.resize(3);
+    } else if (m_cfg.eRes.size() != 3) {
+      m_log->error("Invalid m_cfg.eRes.size()");
+      throw std::runtime_error("Invalid m_cfg.eRes.size()");
     }
 
     // using juggler internal units (GeV, mm, radian, ns)
-    tRes       = m_tRes / dd4hep::ns;
-    stepTDC    = dd4hep::ns / m_resolutionTDC;
+    tRes       = m_cfg.tRes / dd4hep::ns;
+    stepTDC    = dd4hep::ns / m_cfg.resolutionTDC;
 
     // all these are for signal sum at digitization level
     merge_hits = false;
-    if (!u_fields.empty()) {
+    if (!m_cfg.fields.empty()) {
         // sanity checks
-        if (!m_geoSvc) {
-            m_log->error("Unable to locate Geometry Service.");
+        if (!m_detector) {
+            m_log->error("Unable to locate geometry.");
             throw std::runtime_error("Unable to locate Geometry Service.");
         }
-        if (m_readout.empty()) {
+        if (m_cfg.readout.empty()) {
             m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids.");
             throw std::runtime_error("readoutClass is not provided.");
         }
 
         // get decoders
         try {
-            auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
+            auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
             id_mask = 0;
-            for (size_t i = 0; i < u_fields.size(); ++i) {
-                id_mask |= id_desc.field(u_fields[i])->mask();
+            for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
+                id_mask |= id_desc.field(m_cfg.fields[i])->mask();
             }
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
             // TODO: it should be a fatal error to not cause unexpected analysis results
-            m_log->warn("Failed to load ID decoder for {}, hits will not be merged.", m_readout);
-            // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_readout));
+            m_log->warn("Failed to load ID decoder for {}, hits will not be merged.", m_cfg.readout);
+            // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
             return;
         }
         id_mask = ~id_mask;
-        m_log->info("ID mask in {:s}: {:#064b}", m_readout, id_mask);
+        m_log->info("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
         // all checks passed
         merge_hits = true;
     }
 }
 
 
-
-//------------------------
-// AlgorithmChangeRun
-//------------------------
-void CalorimeterHitDigi::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
-}
-
-//------------------------
-// AlgorithmProcess
-//------------------------
-std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits)  {
+std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::process(const edm4hep::SimCalorimeterHitCollection &simhits)  {
     if (merge_hits) {
         return std::move(signal_sum_digi(simhits));
     } else {
@@ -132,20 +110,20 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single
         const double eDep    = ahit.getEnergy();
 
         // apply additional calorimeter noise to corrected energy deposit
-        const double eResRel = (eDep > m_threshold)
+        const double eResRel = (eDep > m_cfg.threshold)
                                ? m_normDist(generator) * std::sqrt(
-                                    std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
-                                    std::pow(u_eRes[1], 2) +
-                                    std::pow(u_eRes[2] / (eDep), 2)
+                                    std::pow(m_cfg.eRes[0] / std::sqrt(eDep), 2) +
+                                    std::pow(m_cfg.eRes[1], 2) +
+                                    std::pow(m_cfg.eRes[2] / (eDep), 2)
                 )
                                : 0;
 //       const double eResRel = (eDep > 1e-6)
-//                               ? m_normDist(generator) * std::sqrt(std::pow(u_eRes[0] / std::sqrt(eDep), 2) +
-//                                                          std::pow(u_eRes[1], 2) + std::pow(u_eRes[2] / (eDep), 2))
+//                               ? m_normDist(generator) * std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(eDep), 2) +
+//                                                          std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (eDep), 2))
 //                               : 0;
 
-        const double ped    = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        const long long adc = std::llround(ped + eDep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
+        const double ped    = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
+        const long long adc = std::llround(ped + eDep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
 
         double time = std::numeric_limits<double>::max();
         for (const auto& c : ahit.getContributions()) {
@@ -153,14 +131,14 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single
                 time = c.getTime();
             }
         }
-        if (time > m_capTime) continue;
+        if (time > m_cfg.capTime) continue;
 
         const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_capTime, tdc, ahit.getCellID());
+        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_cfg.capTime, tdc, ahit.getCellID());
         rawhits->create(
                 ahit.getCellID(),
-                (adc > m_capADC ? m_capADC : adc),
+                (adc > m_cfg.capADC ? m_cfg.capADC : adc),
                 tdc
         );
     }
@@ -177,8 +155,8 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
     for (const auto &ahit : simhits) {
         uint64_t hid = ahit.getCellID() & id_mask;
 
-        m_log->trace("org cell ID in {:s}: {:#064b}", m_readout, ahit.getCellID());
-        m_log->trace("new cell ID in {:s}: {:#064b}", m_readout, hid);
+        m_log->trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
+        m_log->trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
 
         merge_map[hid].push_back(ix);
 
@@ -202,7 +180,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
                     timeC = c.getTime();
                 }
             }
-            if (timeC > m_capTime) continue;
+            if (timeC > m_cfg.capTime) continue;
             edep += hit.getEnergy();
             m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
@@ -223,27 +201,29 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
 
 //        double eResRel = 0.;
         // safety check
-        const double eResRel = (edep > m_threshold)
-                ? m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
-                  m_normDist(generator) * u_eRes[1] +
-                  m_normDist(generator) * u_eRes[2] / edep
+        const double eResRel = (edep > m_cfg.threshold)
+                ? m_normDist(generator) * m_cfg.eRes[0] / std::sqrt(edep) +
+                  m_normDist(generator) * m_cfg.eRes[1] +
+                  m_normDist(generator) * m_cfg.eRes[2] / edep
                   : 0;
 //        if (edep > 1e-6) {
-//            eResRel = m_normDist(generator) * u_eRes[0] / std::sqrt(edep) +
-//                      m_normDist(generator) * u_eRes[1] +
-//                      m_normDist(generator) * u_eRes[2] / edep;
+//            eResRel = m_normDist(generator) * m_cfg.eRes[0] / std::sqrt(edep) +
+//                      m_normDist(generator) * m_cfg.eRes[1] +
+//                      m_normDist(generator) * m_cfg.eRes[2] / edep;
 //        }
-        double    ped     = m_pedMeanADC + m_normDist(generator) * m_pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (m_corrMeanScale + eResRel) / m_dyRangeADC * m_capADC);
+        double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
+        unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
-        if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_capTime, tdc);
+        if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
         rawhits->create(
                 mid,
-                (adc > m_capADC ? m_capADC : adc),
+                (adc > m_cfg.capADC ? m_cfg.capADC : adc),
                 tdc
         );
     }
 
     return std::move(rawhits);
 }
+
+} // namespace eicrecon

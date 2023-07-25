@@ -7,15 +7,16 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 
-#include "RawCalorimeterHit_factory_EcalEndcapNRawHits.h"
 #include "CalorimeterHit_factory_EcalEndcapNRecHits.h"
 #include "ProtoCluster_factory_EcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
 namespace eicrecon {
-    using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using RawCalorimeterHit_factory_EcalEndcapNRawHits = CalorimeterHitDigi_factoryT<>;
+  using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -25,8 +26,19 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>(
-	    {"EcalEndcapNHits"}, "EcalEndcapNRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>(
+          "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits"},
+          {
+            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 16384,
+            .dyRangeADC = 20 * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .corrMeanScale = 1.0,
+          },
+          app   // TODO: Remove me once fixed
 	));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
 	    {"EcalEndcapNRawHits"}, "EcalEndcapNRecHits"
