@@ -36,7 +36,7 @@ class ActsGeometryProvider;
 
 namespace eicrecon {
 
-/** Fitting algorithm implmentation .
+/** Fitting algorithm implementation .
  *
  * \ingroup tracking
  */

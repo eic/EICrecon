@@ -32,7 +32,7 @@ namespace eicrecon {
 
     public:
 
-	OffMomentumReconstruction_factory(); //constructer
+	OffMomentumReconstruction_factory(); //constructor
 
         /** One time initialization **/
         void Init() override;
@@ -45,8 +45,8 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 
-	const double local_x_offset = -11.9872; // in mm --> this is from mis-alignment of the detector
-	const double local_y_offset = -0.0146;  //in mm --> this is from mis-alignment of the detector
+	const double local_x_offset = -11.9872; // in mm --> this is from misalignment of the detector
+	const double local_y_offset = -0.0146;  //in mm --> this is from misalignment of the detector
 	const double local_x_slope_offset = -14.75315; //in mrad
 	const double local_y_slope_offset = -0.0073; //in mrad
 	const double crossingAngle = -0.025; //in mrad

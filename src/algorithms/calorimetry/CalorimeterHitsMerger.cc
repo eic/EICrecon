@@ -28,7 +28,7 @@ void CalorimeterHitsMerger::initialize() {
             ref_fields.emplace_back(u_fields[i], ref);
         }
         ref_mask = id_desc.encode(ref_fields);
-        // debug() << fmt::format("Referece id mask for the fields {:#064b}", ref_mask) << endmsg;
+        // debug() << fmt::format("Reference id mask for the fields {:#064b}", ref_mask) << endmsg;
     } catch (...) {
         auto mess = fmt::format("Failed to load ID decoder for {}", m_readout);
         m_log->warn(mess);

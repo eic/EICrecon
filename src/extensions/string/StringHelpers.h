@@ -80,18 +80,18 @@ namespace eicrecon::str
         return s;
     }
 
-    inline std::vector<std::string> Split(const std::string& content, const std::string& delimeter)
+    inline std::vector<std::string> Split(const std::string& content, const std::string& delimiter)
     {
         std::vector<std::string> result;
         auto prev_pos = content.begin();
         auto next_pos = std::search(prev_pos, content.end(),
-                                    delimeter.begin(), delimeter.end());
+                                    delimiter.begin(), delimiter.end());
         while (next_pos != content.end())
         {
             result.emplace_back(prev_pos, next_pos);
-            prev_pos = next_pos + delimeter.size();
+            prev_pos = next_pos + delimiter.size();
             next_pos = std::search(prev_pos, content.end(),
-                                   delimeter.begin(), delimeter.end());
+                                   delimiter.begin(), delimiter.end());
         }
 
         if (prev_pos != content.end())
@@ -190,7 +190,7 @@ namespace eicrecon::str
                 else if(source[i]=='"')
                 {
 
-                    //it is a beginnig or ending  of a string
+                    //it is a beginning or ending  of a string
                     //just set appropriate flag and continue
                     stringIsStarted = !stringIsStarted;
                 }
