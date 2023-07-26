@@ -70,6 +70,38 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
 
 }
 // ------------------------------------------------
+void richgeo::IrtGeo::SetReadoutIDToNormalLambda() {
+
+  m_irtDetector->m_ReadoutIDToNormal = [
+    &m_log = this->m_log, // capture logger by reference
+    // capture instance members by value, so those owned by `this` are not mutable here
+    cell_mask        = this->m_irtDetector->GetReadoutCellMask(),
+    cellid_converter = this->m_cellid_converter,
+    sensor_info      = this->m_sensor_info
+  ] (auto cell_id) {
+    // decode cell ID to get the sensor ID and pixel volume centroid
+    auto sensor_id = cell_id & cell_mask;
+    auto pixel_volume_centroid = (1/dd4hep::mm) * cellid_converter->position(cell_id);
+    // get sensor info
+    auto sensor_info_it = sensor_info.find(sensor_id);
+    if(sensor_info_it == sensor_info.end()) {
+      m_log->warn("cannot find sensor ID {} in IrtGeo; Returning Null Vector",sensor_id);
+      return TVector3( 0,0,0);
+    }
+    auto sensor_obj = sensor_info_it->second;
+    // get pixel surface centroid, given sensor surface offset w.r.t centroid
+    auto pixel_surface_centroid  = pixel_volume_centroid + sensor_obj.surface_offset;
+	auto pixel_surface_normal  = sensor_obj.surface_normal;
+	//printf("------>>>>> %lf %lf %lf\n",pixel_surface_normal.X(),pixel_surface_normal.Y(),pixel_surface_normal.Z());
+    // cross check: make sure pixel and sensor surface centroids are close enough
+    auto dist = sqrt((pixel_surface_centroid - sensor_obj.surface_centroid).Mag2());
+    if( dist > sensor_obj.size / sqrt(2) )
+      m_log->warn("dist(pixel,sensor) is too large: {} mm",dist);
+    return TVector3( pixel_surface_normal.x(), pixel_surface_normal.y(), pixel_surface_normal.z());
+  };
+}
+//-----------------------------------------------------
+
 
 // fill table of refractive indices
 void richgeo::IrtGeo::SetRefractiveIndexTable() {

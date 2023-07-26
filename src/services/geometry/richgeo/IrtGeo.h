@@ -41,6 +41,7 @@ namespace richgeo {
       // protected methods
       virtual void DD4hep_to_IRT() = 0;    // given DD4hep geometry, produce IRT geometry
       void SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
+	  void SetReadoutIDToNormalLambda();   // define the `cell ID -> surface normal Z` converter
       void SetRefractiveIndexTable();      // fill table of refractive indices
       // read `VariantParameters` for a vector
       template<class VecT>

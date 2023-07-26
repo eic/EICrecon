@@ -82,8 +82,9 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   m_log->debug("aerogelZpos = {:f} mm", aerogelZpos);
   m_log->debug("filterZpos  = {:f} mm", filterZpos);
   m_log->debug("aerogel thickness = {:f} mm", aerogelThickness);
-  m_log->debug("filter thickness  = {:f} mm", filterThickness);
-
+  m_log->debug("filter thickness  = {:f} mm", filterThickness); 
+  
+  double thickness;
   // sector loop
   for (int isec = 0; isec < nSectors; isec++) {
     std::string secName = "sec" + std::to_string(isec);
@@ -116,8 +117,9 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->trace("  SENSORS:");
     m_log->trace("--------------------------------------------------------------------------------------"); 
     m_log->trace("name ID sector   pos_x pos_y pos_z   normX_x normX_y normX_z   normY_x normY_y normY_z"); 
-    m_log->trace("--------------------------------------------------------------------------------------"); 
+    m_log->trace("--------------------------------------------------------------------------------------");
     auto sensorThickness = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
+    thickness = sensorThickness;
     auto sensorSize      = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
@@ -135,12 +137,13 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         auto normZdir = normXdir.Cross(normYdir); // sensor surface normal
         // - surface offset, used to convert sensor volume centroid to sensor surface centroid
         auto surfaceOffset = normZdir.Unit() * (0.5*sensorThickness);
-
+		//printf("->>>>> %lf %lf %lf\n",surfaceOffset.X(),surfaceOffset.Y(),surfaceOffset.Z());
         // add sensor info to `m_sensor_info` map
         richgeo::Sensor sensor_info;
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
+        sensor_info.surface_normal   = normZdir;
         m_sensor_info.insert({ sensorID, sensor_info });
 
         // create the optical surface
@@ -183,6 +186,8 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
+  // define the `cell ID -> pixel position` converter
+  SetReadoutIDToNormalLambda();
 }
 
 // destructor

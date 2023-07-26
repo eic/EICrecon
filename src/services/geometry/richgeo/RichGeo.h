@@ -21,6 +21,7 @@ namespace richgeo {
       double            size;
       dd4hep::Position  surface_centroid;
       dd4hep::Direction surface_offset; // surface centroid = volume centroid + `surface_offset`
+      dd4hep::Direction surface_normal;
   };
 
   // logging
