@@ -143,6 +143,10 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
       for(auto in_photon_vec : in_pid.getThetaPhiPhotons())
         out_pid.addToThetaPhiPhotons(in_photon_vec);
 
+      // merge photon incidence angles
+      for(auto in_photon_angle : in_pid.getIncidentAngle())
+        out_pid.addToIncidentAngle(in_photon_angle);
+
       // relate the charged particle
       if(!out_pid.getChargedParticle().isAvailable()) // only needs to be done once
         out_pid.setChargedParticle(in_pid.getChargedParticle());

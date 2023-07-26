@@ -301,7 +301,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       double   rindex_ave = 0.0;
       double   energy_ave = 0.0;
       std::vector<std::pair<double,double>> phot_theta_phi;
-
+      std::vector<float> phot_imp_angle;
       // loop over this radiator's photons, and decide which to include in the theta estimate
       auto irt_rad_history = irt_particle->FindRadiatorHistory(irt_rad);
       if(irt_rad_history==nullptr) {
@@ -332,10 +332,11 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         // get this photon's theta and phi estimates
         auto phot_theta = irt_photon->_m_PDF[irt_rad].GetAverage();
         auto phot_phi   = irt_photon->m_Phi[irt_rad];
-
+        auto phot_iAngle = irt_photon->m_Angle[irt_rad];
         // add to the total
         npe++;
         phot_theta_phi.push_back({ phot_theta, phot_phi });
+        phot_imp_angle.push_back(phot_iAngle);
         if(m_cfg.cheatPhotonVertex) {
           rindex_ave += irt_photon->GetVertexRefractiveIndex();
           energy_ave += irt_photon->GetVertexMomentum().Mag();
@@ -359,7 +360,10 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
             static_cast<float>(phot_theta),
             static_cast<float>(phot_phi)
             });
-
+      for(auto phot_incident_angle : phot_imp_angle)
+        out_cherenkov_pid.addToIncidentAngle(float{
+            static_cast<float>(phot_incident_angle)
+            });
       // relate mass hypotheses
       for(auto [pdg,mass] : m_pdg_mass) {
 
