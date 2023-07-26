@@ -2,11 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <JANA/JEvent.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 
-#include "FarDetectorProtoCluster_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ROOT/RVec.hxx"
@@ -52,7 +50,7 @@ namespace eicrecon {
 
   }
 
-  std::vector<TrackerProtoCluster*> TrackerProtoCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
+  std::vector<eicrecon::TrackerProtoCluster*> TrackerProtoCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
     ROOT::VecOps::RVec<int>   module;
@@ -77,7 +75,7 @@ namespace eicrecon {
     ROOT::VecOps::RVec<bool> available(module.size(), 1);
     ROOT::VecOps::RVec<int>  indices  (module.size());
 
-    std::vector<TrackerProtoCluster*> outputProtoClusters;
+    std::vector<eicrecon::TrackerProtoCluster*> outputProtoClusters;
 
     for(ulong i = 0; i<indices.size(); i++)
       indices[i] = i;

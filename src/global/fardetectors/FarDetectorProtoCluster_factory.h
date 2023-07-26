@@ -11,7 +11,7 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <algorithms/fardetectors/TrackerProtoCluster.h>
-#include <algorithms/fardetectors/TrackerProtoClusterConfig.h>
+#include <algorithms/fardetectors/TrackerClusterConfig.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -20,7 +20,7 @@
 namespace eicrecon {
 
   class FarDetectorProtoCluster_factory : 
-  public JChainFactoryT<eicrecon::TrackerProtoCluster, eicrecon::TrackerProtoClusterConfig, JFactoryT>{
+  public JChainFactoryT<eicrecon::TrackerProtoCluster, eicrecon::TrackerClusterConfig, JFactoryT>{
 
   public:
 
@@ -37,16 +37,6 @@ namespace eicrecon {
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
-
-      //----- Define constants here ------
-      std::string m_readout{"TaggerTrackerHits"};
-      std::string m_moduleField{"module"};
-      std::string m_layerField{"layer"};
-      std::string m_xField{"x"};
-      std::string m_yField{"y"};
-
-
-      std::shared_ptr<JDD4hep_service> m_geoSvc;
 
 
   private:
