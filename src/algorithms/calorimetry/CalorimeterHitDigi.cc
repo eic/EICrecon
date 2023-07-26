@@ -30,6 +30,7 @@ namespace eicrecon {
 
 
 void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+    m_detector = detector;
     m_log = logger;
 
     // Gaudi implements a random number generator service. It is not clear to me how this
