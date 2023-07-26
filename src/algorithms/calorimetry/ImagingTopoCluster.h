@@ -14,17 +14,17 @@
 #include "fmt/format.h"
 #include <algorithm>
 
-#include "DD4hep/BitFieldCoder.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/BitFieldCoder.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
-#include "edm4eic/CalorimeterHit.h"
-#include "edm4eic/ProtoCluster.h"
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/vector_utils.h>
 
 
 //namespace Jug::Reco {

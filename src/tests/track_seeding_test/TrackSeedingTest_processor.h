@@ -5,9 +5,9 @@
 
 #include <Acts/Surfaces/DiscSurface.hpp>
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/tracking/TrackPropagation.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/tracking/TrackPropagation.h"
 
 #include <TDirectory.h>
 

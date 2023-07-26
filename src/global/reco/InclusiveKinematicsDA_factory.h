@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/reco/InclusiveKinematicsDA.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/reco/InclusiveKinematicsDA.h"
 
 namespace eicrecon {
 

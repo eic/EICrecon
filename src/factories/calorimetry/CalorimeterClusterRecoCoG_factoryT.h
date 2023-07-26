@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {

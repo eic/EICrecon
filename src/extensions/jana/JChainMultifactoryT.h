@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 #include <JANA/JMultifactory.h>
-#include <extensions/jana/JChainFactoryT.h>  // Just to pull in struct NoConfig
+#include "extensions/jana/JChainFactoryT.h"  // Just to pull in struct NoConfig
 #include "extensions/string/StringHelpers.h"
 
 

@@ -2,16 +2,16 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
 #include <spdlog/spdlog.h>
-#include <services/rootfile/RootFile_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/rootfile/RootFile_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication *app) :
 	JEventProcessor(app)

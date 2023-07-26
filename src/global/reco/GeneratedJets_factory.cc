@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <JANA/JEvent.h>
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 
 #include <edm4hep/MCParticle.h>
 

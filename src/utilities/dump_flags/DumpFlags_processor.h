@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JANA/JEventProcessor.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/spdlog/SpdlogMixin.h"
 
 class JEvent;
 class JApplication;

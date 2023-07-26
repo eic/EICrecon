@@ -12,11 +12,11 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JEvent.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterHitDigi.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/CalorimeterHitDigi.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 
 

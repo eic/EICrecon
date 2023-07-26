@@ -2,9 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/string/StringHelpers.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/string/StringHelpers.h"
 #include "SiliconTrackerDigi_factory.h"
 
 

@@ -8,10 +8,10 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/tracking/TrackProjector.h>
-#include <algorithms/tracking/TrackProjectorConfig.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/tracking/TrackProjector.h"
+#include "algorithms/tracking/TrackProjectorConfig.h"
 
 namespace eicrecon {
 

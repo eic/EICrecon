@@ -9,14 +9,14 @@
 #include "Boost.h"
 #include "InclusiveKinematicsDA.h"
 
-#include "Math/Vector4D.h"
+#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/InclusiveKinematicsCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 
 namespace eicrecon {
 

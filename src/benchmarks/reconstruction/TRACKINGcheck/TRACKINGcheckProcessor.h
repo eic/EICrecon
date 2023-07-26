@@ -7,7 +7,7 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include <edm4hep//MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>

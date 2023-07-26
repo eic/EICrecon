@@ -2,26 +2,26 @@
 #include <algorithm>
 
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
 
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/TrackerHitCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 
 
-#include "Acts/Utilities/Helpers.hpp"
+#include <Acts/Utilities/Helpers.hpp>
 
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 
 #include <cmath>
 

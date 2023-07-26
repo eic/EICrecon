@@ -12,7 +12,7 @@
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/string/StringHelpers.h"
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
     auto app = GetApplication();

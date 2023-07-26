@@ -8,7 +8,7 @@
  *  Author: Chao Peng (ANL), 03/31/2021
  */
 
-#include <algorithms/calorimetry/CalorimeterHitsMerger.h>
+#include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 
 void CalorimeterHitsMerger::initialize() {
 

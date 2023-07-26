@@ -21,7 +21,7 @@
 #include <map>
 #include <spdlog/spdlog.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterClusterRecoCoGConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }

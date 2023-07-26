@@ -6,10 +6,10 @@
 
 #include <vector>
 
-#include "Acts/Seeding/SeedFilterConfig.hpp"
-#include "Acts/Seeding/SeedFinderOrthogonalConfig.hpp"
-#include "Acts/Seeding/SeedFilter.hpp"
-#include "Acts/Seeding/SeedConfirmationRangeConfig.hpp"
+#include <Acts/Seeding/SeedFilterConfig.hpp>
+#include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SeedFilter.hpp>
+#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 
 #include "SpacePoint.h"
 

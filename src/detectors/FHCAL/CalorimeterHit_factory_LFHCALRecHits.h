@@ -6,10 +6,10 @@
 
 #include <JANA/JFactoryT.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <algorithms/calorimetry/CalorimeterHitReco.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "algorithms/calorimetry/CalorimeterHitReco.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 class CalorimeterHit_factory_LFHCALRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 

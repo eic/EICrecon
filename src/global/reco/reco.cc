@@ -6,8 +6,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"

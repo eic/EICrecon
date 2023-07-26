@@ -7,7 +7,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <spdlog/logger.h>
 
-#include <algorithms/pid/MergeTracks.h>
+#include "algorithms/pid/MergeTracks.h"
 
 TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
   eicrecon::MergeTracks algo;

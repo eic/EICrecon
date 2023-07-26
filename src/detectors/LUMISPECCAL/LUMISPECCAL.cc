@@ -3,10 +3,10 @@
 //
 //
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 
 #include "RawCalorimeterHit_factory_EcalLumiSpecRawHits.h"
 #include "CalorimeterHit_factory_EcalLumiSpecRecHits.h"

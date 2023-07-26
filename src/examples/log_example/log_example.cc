@@ -6,9 +6,9 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEvent.h>
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 // This header is important if you want to print objects with custom overloaded ostr stream operator
 // i.e. objects that knows how to print self when used with cout<<object

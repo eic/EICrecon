@@ -5,10 +5,10 @@
 #pragma once
 
 #include <edm4eic/ReconstructedParticle.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <spdlog/logger.h>
-#include <algorithms/reco/MatchClusters.h>
+#include "algorithms/reco/MatchClusters.h"
 
 
 

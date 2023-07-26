@@ -8,7 +8,7 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 
-#include <algorithms/reco/MC2SmearedParticle.h>
+#include "algorithms/reco/MC2SmearedParticle.h"
 #include "extensions/jana/JChainFactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 

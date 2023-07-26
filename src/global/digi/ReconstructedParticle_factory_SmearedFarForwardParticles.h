@@ -8,8 +8,8 @@
 #include <spdlog/spdlog.h>
 
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <services/io/podio/JFactoryPodioT.h>
-#include <algorithms/digi/SmearedFarForwardParticles.h>
+#include "services/io/podio/JFactoryPodioT.h"
+#include "algorithms/digi/SmearedFarForwardParticles.h"
 
 
 namespace eicrecon {

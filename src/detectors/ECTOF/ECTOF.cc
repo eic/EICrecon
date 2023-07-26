@@ -5,13 +5,13 @@
 
 #include <JANA/JApplication.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 
-#include <global/digi/SiliconTrackerDigi_factory.h>
-#include <global/tracking/TrackerHitReconstruction_factory.h>
+#include "global/digi/SiliconTrackerDigi_factory.h"
+#include "global/tracking/TrackerHitReconstruction_factory.h"
 
-#include <algorithms/digi/SiliconTrackerDigiConfig.h>
-#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
+#include "algorithms/digi/SiliconTrackerDigiConfig.h"
+#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
 
 
 extern "C" {

@@ -3,7 +3,7 @@
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -19,9 +19,9 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/ReconstructedParticle.h>
 
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <services/rootfile/RootFile_service.h>
+#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
+#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
 

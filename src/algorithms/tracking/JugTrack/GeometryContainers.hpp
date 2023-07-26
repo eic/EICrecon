@@ -13,8 +13,8 @@
 
 #include "Utilities/GroupBy.hpp"
 #include "Utilities/Range.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 #include <algorithm>
 #include <cstddef>

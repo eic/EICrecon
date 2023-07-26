@@ -1,11 +1,11 @@
 
 #pragma once
 
-#include <extensions/jana/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 
-#include <algorithms/calorimetry/ImagingPixelReco.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "algorithms/calorimetry/ImagingPixelReco.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 class CalorimeterHit_factory_EcalBarrelImagingRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, ImagingPixelReco {
 

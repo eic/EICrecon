@@ -9,12 +9,12 @@
 
 
 // Event Model related classes
-#include "edm4hep/MCParticle.h"
-#include "edm4eic/MCRecoParticleAssociation.h"
-#include "edm4eic/ReconstructedParticle.h"
-#include "edm4eic/MutableReconstructedParticle.h"
-#include "edm4eic/MutableMCRecoParticleAssociation.h"
-#include "edm4eic/vector_utils.h"
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/MutableMCRecoParticleAssociation.h>
+#include <edm4eic/vector_utils.h>
 
 namespace {
     enum DetectorTags { kTagB0 = 1, kTagRP = 2, kTagOMD = 3, kTagZDC = 4 };
