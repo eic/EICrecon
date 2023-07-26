@@ -26,8 +26,8 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Vertex.h>
 
-#include <extensions/spdlog/SpdlogFormatters.h>
-#include <extensions/spdlog/SpdlogToActs.h>
+#include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 #include <TDatabasePDG.h>
 #include <tuple>

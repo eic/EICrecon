@@ -13,7 +13,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 
-#include <algorithms/interfaces/ICollectionProducer.h>
+#include "algorithms/interfaces/ICollectionProducer.h"
 
 #include "TrackerHitReconstructionConfig.h"
 #include "algorithms/interfaces/IObjectProducer.h"

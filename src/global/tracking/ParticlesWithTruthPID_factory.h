@@ -7,8 +7,8 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <algorithms/tracking/ParticlesWithTruthPID.h>
-#include <algorithms/tracking/ParticlesWithTruthPIDConfig.h>
+#include "algorithms/tracking/ParticlesWithTruthPID.h"
+#include "algorithms/tracking/ParticlesWithTruthPIDConfig.h"
 #include <spdlog/logger.h>
 
 

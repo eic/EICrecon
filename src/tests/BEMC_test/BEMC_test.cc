@@ -8,7 +8,7 @@
 
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/RawCalorimeterHit.h>
-#include <detectors/BEMC/RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits.h>
+#include "detectors/BEMC/RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits.h"
 
 
 /// This class is used to demonstrate getting data objects that

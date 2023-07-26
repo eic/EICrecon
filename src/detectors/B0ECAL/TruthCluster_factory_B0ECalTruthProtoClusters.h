@@ -6,9 +6,9 @@
 
 #include <random>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterTruthClustering.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/CalorimeterTruthClustering.h"
 
 class TruthCluster_factory_B0ECalTruthProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 

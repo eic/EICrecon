@@ -6,19 +6,19 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 #include <JANA/JEvent.h>
 
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
 
 // algorithms
-#include <algorithms/pid/MergeParticleID.h>
+#include "algorithms/pid/MergeParticleID.h"
 
 // services
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

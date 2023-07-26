@@ -13,7 +13,7 @@
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 
 #include <edm4eic/TrackSegmentCollection.h>
 

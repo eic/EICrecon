@@ -30,7 +30,7 @@
 #include "Acts/TrackFinding/MeasurementSelector.hpp"
 #include "CKFTrackingConfig.h"
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
 

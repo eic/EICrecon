@@ -31,7 +31,7 @@
 #include "DDRec/SurfaceManager.h"
 #include "DDRec/Surface.h"
 #include "DD4hep/DD4hepUnits.h"
-#include <algorithms/tracking/ActsGeometryProvider.h>
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 
 class ACTSGeo_service : public JService

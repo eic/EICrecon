@@ -10,13 +10,13 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <services/rootfile/RootFile_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/rootfile/RootFile_service.h"
 #include <spdlog/spdlog.h>
 
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <services/log/Log_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
 #include "DD4hep/DetElement.h"
@@ -38,7 +38,7 @@
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
-// #include <extensions/spdlog/SpdlogMixin.h>
+// #include "extensions/spdlog/SpdlogMixin.h"
 
 // The following just makes this a JANA plugin
 extern "C" {

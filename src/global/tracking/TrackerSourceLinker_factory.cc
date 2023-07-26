@@ -3,9 +3,9 @@
 //
 
 #include "TrackerSourceLinker_factory.h"
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 #include "JANA/JEvent.h"
 #include "services/log/Log_service.h"

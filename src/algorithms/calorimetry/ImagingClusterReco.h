@@ -18,7 +18,7 @@
 #include "DDRec/Surface.h"
 #include "DDRec/SurfaceManager.h"
 
-#include <algorithms/calorimetry/ClusterTypes.h>
+#include "algorithms/calorimetry/ClusterTypes.h"
 
 // Event Model related classes
 #include "edm4hep/MCParticleCollection.h"

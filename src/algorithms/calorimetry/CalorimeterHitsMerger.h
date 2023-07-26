@@ -16,7 +16,7 @@
 #include <tuple>
 #include <unordered_map>
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>

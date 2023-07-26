@@ -19,7 +19,7 @@
 #include "edm4eic/CalorimeterHit.h"
 #include "edm4eic/RawCalorimeterHit.h"
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <spdlog/spdlog.h>
 
 /** Imaging calorimeter pixel hit reconstruction.

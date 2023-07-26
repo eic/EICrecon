@@ -5,7 +5,7 @@
 #include <edm4hep/MutableSimCalorimeterHit.h>
 #include <spdlog/logger.h>
 
-#include <algorithms/calorimetry/CalorimeterHitDigi.h>
+#include "algorithms/calorimetry/CalorimeterHitDigi.h"
 
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {

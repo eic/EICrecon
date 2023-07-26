@@ -13,11 +13,11 @@
 #include <edm4eic/MutableTrackerHit.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
-#include <algorithms/tracking/TrackerHitReconstruction.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
+#include "algorithms/tracking/TrackerHitReconstruction.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 class TrackerHitReconstruction_factory :

@@ -10,8 +10,8 @@
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 
 #include <spdlog/spdlog.h>
-#include <services/rootfile/RootFile_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/rootfile/RootFile_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication *app) :
 	JEventProcessor(app)

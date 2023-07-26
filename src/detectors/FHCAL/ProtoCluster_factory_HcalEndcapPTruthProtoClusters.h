@@ -8,9 +8,9 @@
 
 #include <edm4eic/ProtoClusterCollection.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterTruthClustering.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/CalorimeterTruthClustering.h"
 
 
 

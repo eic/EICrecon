@@ -13,7 +13,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
@@ -22,8 +22,8 @@
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/SimTrackerHit.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <spdlog/logger.h>
 
 namespace eicrecon {

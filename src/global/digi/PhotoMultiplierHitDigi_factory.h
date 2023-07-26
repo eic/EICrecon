@@ -4,7 +4,7 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainMultifactoryT.h>
+#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
 
 // data model
@@ -14,15 +14,15 @@
 #include <edm4eic/MCRecoTrackerHitAssociation.h>
 
 // algorithms
-#include <algorithms/digi/PhotoMultiplierHitDigi.h>
-#include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include "algorithms/digi/PhotoMultiplierHitDigi.h"
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
 // services
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <services/geometry/richgeo/RichGeo_service.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

@@ -28,7 +28,7 @@
 
 #include "edm4eic/vector_utils.h"
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/logger.h>
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"

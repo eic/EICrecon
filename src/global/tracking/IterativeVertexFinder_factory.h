@@ -6,13 +6,13 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/IterativeVertexFinder.h>
+#include "algorithms/tracking/IterativeVertexFinder.h"
 
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/VertexCollection.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

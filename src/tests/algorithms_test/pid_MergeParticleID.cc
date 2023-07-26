@@ -7,7 +7,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <spdlog/logger.h>
 
-#include <algorithms/pid/MergeParticleID.h>
+#include "algorithms/pid/MergeParticleID.h"
 
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>

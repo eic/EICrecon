@@ -5,8 +5,8 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 #include <TDirectory.h>
 
