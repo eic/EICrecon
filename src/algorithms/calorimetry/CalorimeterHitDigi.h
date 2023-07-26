@@ -16,7 +16,7 @@
 #include <memory>
 #include <random>
 
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include <DD4hep/Detector.h>
 
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
@@ -51,6 +51,7 @@ namespace eicrecon {
 
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
-};
+
+  };
 
 } // namespace eicrecon
