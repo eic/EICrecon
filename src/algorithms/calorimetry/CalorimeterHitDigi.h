@@ -39,6 +39,9 @@ public:
     // Name of input data type (collection)
     std::string              m_input_tag;
 
+    // random seed
+    unsigned int             m_seed = 0;
+
     // additional smearing resolutions
     std::vector<double>      u_eRes;
     double                   m_tRes;

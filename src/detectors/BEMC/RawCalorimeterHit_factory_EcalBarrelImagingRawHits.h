@@ -36,6 +36,9 @@ public:
 
         auto app = GetApplication();
 
+        // random seed
+        m_seed=0x0C613B15;
+
         // Set default values for all config. parameters in CalorimeterHitDigi algorithm
         u_eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV};
         m_tRes = 0.0 * dd4hep::ns;

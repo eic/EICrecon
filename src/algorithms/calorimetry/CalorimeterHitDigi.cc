@@ -53,6 +53,9 @@ void CalorimeterHitDigi::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     // generator. Ideally, this would be seeded with the run number+event number, but for
     // now, just use default values defined in header file.
 
+    // set random seed
+    generator.seed(m_seed);
+
     // set energy resolution numbers
     m_log=logger;
 
