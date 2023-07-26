@@ -43,7 +43,6 @@ class CalorimeterHitDigi_factoryT :
 
         // Use JDD4hep_service to get dd4hep::Detector
         auto geoSvc = app->template GetService<JDD4hep_service>();
-        m_detector = geoSvc->detector();
 
         // SpdlogMixin logger initialization, sets m_log
         SpdlogMixin<CalorimeterHitDigi_factoryT>::InitLogger(JChainMultifactoryT<CalorimeterHitDigiConfig>::GetPrefix(), "info");
@@ -63,7 +62,7 @@ class CalorimeterHitDigi_factoryT :
         app->SetDefaultParameter(param_prefix + ":readoutClass",     cfg.readout);
 
         m_algo.applyConfig(cfg);
-        m_algo.init(m_detector, logger());
+        m_algo.init(geoSvc->detector(), logger());
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
@@ -80,7 +79,6 @@ class CalorimeterHitDigi_factoryT :
     }
 
     private:
-      const dd4hep::Detector* m_detector;
       CalorimeterHitDigi m_algo;
 
 };
