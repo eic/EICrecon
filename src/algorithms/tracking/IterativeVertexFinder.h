@@ -21,7 +21,7 @@
 #include <edm4eic/Vertex.h>
 #include <spdlog/logger.h>
 
-#include "Acts/Definitions/Common.hpp"
+#include <Acts/Definitions/Common.hpp>
 #include "algorithms/interfaces/IObjectProducer.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include <edm4eic/TrackParameters.h>

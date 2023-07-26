@@ -7,7 +7,7 @@
 
 #include "lfhcal_studiesProcessor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
@@ -20,23 +20,23 @@
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
-#include "DD4hep/DetElement.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/Objects.h"
-#include "DDG4/Geant4Data.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <DDG4/Geant4Data.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TVector3.h"
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TVector3.h>
 
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 
 #include "clusterizer_MA.h"
 

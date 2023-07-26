@@ -8,9 +8,9 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
-#include "edm4hep/MCParticle.h"
-#include "edm4eic/Cluster.h"
-#include "edm4eic/MCRecoClusterParticleAssociation.h"
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/vector_utils.h>
 
 //using namespace Gaudi::Units;

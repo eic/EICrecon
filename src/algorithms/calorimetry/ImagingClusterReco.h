@@ -14,19 +14,19 @@
 #include <Eigen/Dense>
 #include <algorithm>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
-#include "edm4eic/CalorimeterHitCollection.h"
-#include "edm4eic/ClusterCollection.h"
-#include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4eic/ProtoClusterCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 
 /** Imaging cluster reconstruction.
  *

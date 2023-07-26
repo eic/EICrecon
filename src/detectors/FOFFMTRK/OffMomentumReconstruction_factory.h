@@ -9,7 +9,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "DD4hep/Detector.h"
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>

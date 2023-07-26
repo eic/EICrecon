@@ -6,17 +6,17 @@
 #include "TrackerSourceLinker.h"
 #include "TrackerSourceLinkerResult.h"
 
-#include "DD4hep/DD4hepUnits.h"
-#include "DD4hep/Volumes.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DD4hepUnits.h>
+#include <DD4hep/Volumes.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>

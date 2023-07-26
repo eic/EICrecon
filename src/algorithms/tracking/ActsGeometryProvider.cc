@@ -6,9 +6,9 @@
 
 #include "ActsGeometryProvider.h"
 
-#include "TGeoManager.h"
+#include <TGeoManager.h>
 
-#include "DD4hep/Printout.h"
+#include <DD4hep/Printout.h>
 
 //#include "JugBase/ACTSLogger.h"
 #include "JugBase/Acts/MaterialWiper.hpp"

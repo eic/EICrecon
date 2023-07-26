@@ -3,23 +3,23 @@
 
 #include "CKFTracking.h"
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
-#include "Acts/TrackFitting/GainMatrixSmoother.hpp"
-#include "Acts/TrackFitting/GainMatrixUpdater.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "Acts/Definitions/Units.hpp"
+#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
+#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Definitions/Units.hpp>
 
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
@@ -35,7 +35,7 @@
 
 #include "ActsGeometryProvider.h"
 
-#include "edm4eic/TrackerHitCollection.h"
+#include <edm4eic/TrackerHitCollection.h>
 
 #include <spdlog/fmt/ostr.h>
 

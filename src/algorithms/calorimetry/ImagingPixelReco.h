@@ -11,13 +11,13 @@
 #include <bitset>
 #include <memory>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
 // Event Model related classes
-#include "edm4eic/CalorimeterHit.h"
-#include "edm4eic/RawCalorimeterHit.h"
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/RawCalorimeterHit.h>
 
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <spdlog/spdlog.h>
