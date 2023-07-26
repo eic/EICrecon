@@ -26,15 +26,15 @@ namespace eicrecon {
 
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        std::vector<edm4eic::InclusiveKinematics*> execute(
-                std::vector<const edm4hep::MCParticle*> mcparts,
-                std::vector<const edm4eic::ReconstructedParticle*> rcparts,
-                std::vector<const edm4eic::MCRecoParticleAssociation*> rcassoc
+        std::unique_ptr<edm4eic::InclusiveKinematicsCollection> execute(
+                const edm4hep::MCParticleCollection& mcparts,
+                const edm4eic::ReconstructedParticleCollection& rcparts,
+                const edm4eic::MCRecoParticleAssociationCollection& rcassoc
         );
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
         double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-        };
+    };
 
 } // namespace eicrecon

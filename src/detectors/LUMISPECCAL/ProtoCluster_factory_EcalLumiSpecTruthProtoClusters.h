@@ -8,30 +8,26 @@
 
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
 
 
-class ProtoCluster_factory_EcalLumiSpecTruthProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class ProtoCluster_factory_EcalLumiSpecTruthProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalLumiSpecTruthProtoClusters(){
-        SetTag("EcalLumiSpecTruthProtoClusters");
+    ProtoCluster_factory_EcalLumiSpecTruthProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
-        m_inputHit_tag="EcalLumiSpecRecHits";
-        m_inputMCHit_tag="LumiSpecCALHits";
-
-        app->SetDefaultParameter("LUMISPECCAL:EcalLumiSpecTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
         AlgorithmInit(m_log);
     }
@@ -45,20 +41,14 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
-        m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
+        // Get input collection
+        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto sim_coll = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
         // Call Process for generic algorithm
-        AlgorithmProcess();
+        auto protoclust_coll = AlgorithmProcess(*hits_coll, *sim_coll);
 
-        // Hand owner of algorithm objects over to JANA
-        Set(m_outputProtoClusters);
-        m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(protoclust_coll));
     }
-
-private:
-    // Name of input data type (collection)
-    std::string              m_inputHit_tag;
-    std::string              m_inputMCHit_tag;
 };

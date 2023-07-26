@@ -12,13 +12,13 @@
 
 #include <algorithm>
 #include <bitset>
+#include <memory>
 #include <tuple>
 #include <unordered_map>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/RawCalorimeterHit.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
@@ -33,16 +33,13 @@ public:
     std::shared_ptr<JDD4hep_service> m_geoSvc;
     uint64_t id_mask{0}, ref_mask{0};
 
-    std::vector<const edm4eic::CalorimeterHit *> m_inputs;
-    std::vector<edm4eic::CalorimeterHit *> m_outputs;
-
     std::shared_ptr<spdlog::logger> m_log;
 
 public:
     CalorimeterHitsMerger() = default;
-    virtual ~CalorimeterHitsMerger() {}
+    ~CalorimeterHitsMerger() {}
 
-    virtual void initialize();
-    virtual void execute();
+    void initialize();
+    std::unique_ptr<edm4eic::CalorimeterHitCollection> execute(const edm4eic::CalorimeterHitCollection &input);
 
 }; // class CalorimeterHitsMerger
