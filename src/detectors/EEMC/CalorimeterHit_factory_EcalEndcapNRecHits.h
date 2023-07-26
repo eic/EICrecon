@@ -3,27 +3,27 @@
 
 #include <edm4eic/CalorimeterHitCollection.h>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/calorimetry/CalorimeterHitReco.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class CalorimeterHit_factory_EcalEndcapNRecHits : public eicrecon::JFactoryPodioT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
+class CalorimeterHit_factory_EcalEndcapNRecHits : public JChainFactoryT<edm4eic::CalorimeterHit>, CalorimeterHitReco {
 
 public:
     //------------------------------------------
     // Constructor
-    CalorimeterHit_factory_EcalEndcapNRecHits(){
-        SetTag("EcalEndcapNRecHits");
+    CalorimeterHit_factory_EcalEndcapNRecHits(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::CalorimeterHit>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
-        m_input_tag = "EcalEndcapNRawHits";
+        auto app = GetApplication();
 
         // digitization settings, must be consistent with digi class
         m_capADC=16384;//{this, "capacityADC", 8096};
@@ -48,8 +48,6 @@ public:
         m_localDetElement="";         // from ATHENA's reconstruction.py (i.e. not defined there)
         u_localDetFields={};          // from ATHENA's reconstruction.py (i.e. not defined there)
 
-//        app->SetDefaultParameter("EEMC:tag",              m_input_tag);
-        app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:input_tag",        m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:capacityADC",      m_capADC);
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:dynamicRangeADC",  m_dyRangeADC);
         app->SetDefaultParameter("EEMC:EcalEndcapNRecHits:pedestalMean",     m_pedMeanADC);
@@ -78,15 +76,14 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        rawhits = event->Get<edm4hep::RawCalorimeterHit>(m_input_tag);
+        // Get input collection
+        auto rawhits_coll = static_cast<const edm4hep::RawCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
         // Call Process for generic algorithm
-        AlgorithmProcess();
+        auto recohits_coll = AlgorithmProcess(*rawhits_coll);
 
-        // Hand owner of algorithm objects over to JANA
-        Set(hits);
-        hits.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(recohits_coll));
     }
 
 };

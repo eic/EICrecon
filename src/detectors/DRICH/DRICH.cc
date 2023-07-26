@@ -11,11 +11,13 @@
 #include <global/pid/RichTrack_factory.h>
 #include <global/pid/MergeTrack_factory.h>
 #include <global/pid/IrtCherenkovParticleID_factory.h>
+#include <global/pid/MergeCherenkovParticleID_factory.h>
 
 // algorithm configurations
 #include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
 #include <global/pid/RichTrackConfig.h>
 #include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
+#include <algorithms/pid/MergeParticleIDConfig.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -89,6 +91,10 @@ extern "C" {
     irt_cfg.cheatPhotonVertex  = true;
     irt_cfg.cheatTrueRadiator  = true;
 
+    // Merge PID from radiators
+    MergeParticleIDConfig merge_cfg;
+    merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
+
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
 
@@ -125,6 +131,13 @@ extern "C" {
           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
           irt_cfg,
           app
+          ));
+
+    // merge aerogel and gas PID results
+    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          "DRICHMergedIrtCherenkovParticleID",
+          merge_cfg
           ));
 
     // clang-format on

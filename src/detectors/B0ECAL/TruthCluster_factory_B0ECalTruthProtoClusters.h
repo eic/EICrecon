@@ -6,28 +6,24 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/CalorimeterTruthClustering.h>
 
-class TruthCluster_factory_B0ECalTruthProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
+class TruthCluster_factory_B0ECalTruthProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterTruthClustering {
 
 public:
     //------------------------------------------
     // Constructor
-    TruthCluster_factory_B0ECalTruthProtoClusters(){
-        SetTag("B0ECalTruthProtoClusters");
+    TruthCluster_factory_B0ECalTruthProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
-        m_inputHit_tag = "B0ECalTruthProtoClusters";
-        m_inputMCHit_tag = "B0ECalHits";
-
-        app->SetDefaultParameter("EEMC:B0ECalTruthProtoClusters:inputHit_tag",        m_inputHit_tag, "Name of input collection to use");
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
         AlgorithmInit(m_log);
     }
@@ -41,21 +37,14 @@ public:
     //------------------------------------------
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_inputHit_tag);
-        m_mcHits = event->Get<edm4hep::SimCalorimeterHit>(m_inputMCHit_tag);
+        // Get input collection
+        auto hits_coll = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0][0]));
+        auto sim_coll = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0][1]));
 
         // Call Process for generic algorithm
-        AlgorithmProcess();
+        auto protoclust_coll = AlgorithmProcess(*hits_coll, *sim_coll);
 
-        // Hand owner of algorithm objects over to JANA
-        Set(m_outputProtoClusters);
-        m_outputProtoClusters.clear(); // not really needed, but better to not leave dangling pointers around
+        // Hand algorithm objects over to JANA
+        SetCollection(std::move(protoclust_coll));
     }
-
-private:
-    // Name of input data type (collection)
-    std::string              m_inputHit_tag;
-    std::string              m_inputMCHit_tag;
-
 };

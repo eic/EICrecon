@@ -6,31 +6,28 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainFactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/calorimetry/ImagingTopoCluster.h>
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 
-class ProtoCluster_factory_EcalBarrelImagingProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, ImagingTopoCluster {
+class ProtoCluster_factory_EcalBarrelImagingProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, ImagingTopoCluster {
 
 public:
-
-    std::string m_input_tag;
-
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_EcalBarrelImagingProtoClusters(){
-        SetTag("EcalBarrelImagingProtoClusters");
+    ProtoCluster_factory_EcalBarrelImagingProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
-        auto app = GetApplication();
+        InitDataTags(GetPluginName() + ":" + GetTag());
 
-        m_input_tag = "EcalBarrelImagingRecHits";
+        auto app = GetApplication();
 
         // from https://eicweb.phy.anl.gov/EIC/benchmarks/physics_benchmarks/-/blob/master/options/reconstruction.py#L593
         u_localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm};     //  # same layer
@@ -42,7 +39,6 @@ public:
         m_minClusterCenterEdep = 0;
         m_minClusterHitEdep    = 0;
 
-        app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters:input_tag", m_input_tag, "Name of input collection to use");
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::localDistXY",    u_localDistXY);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::layerDistEtaPhi",    u_layerDistEtaPhi);
         app->SetDefaultParameter("BEMC:EcalBarrelImagingProtoClusters::neighbourLayersRange",    m_neighbourLayersRange);
@@ -59,7 +55,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        m_inputHits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        m_inputHits = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         execute();
