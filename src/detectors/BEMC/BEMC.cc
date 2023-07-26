@@ -9,12 +9,12 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 
 #include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
 
-#include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
 #include "CalorimeterHit_factory_EcalBarrelImagingRecHits.h"
@@ -28,6 +28,7 @@ namespace eicrecon {
   using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
   using CalorimeterHit_factory_EcalBarrelSciGlassRecHits = CalorimeterHitReco_factoryT<>;
   using CalorimeterHit_factory_EcalBarrelScFiRecHits = CalorimeterHitReco_factoryT<>;
+  using CalorimeterHit_factory_EcalBarrelScFiMergedHits = CalorimeterHitsMerger_factoryT<>;
   using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
