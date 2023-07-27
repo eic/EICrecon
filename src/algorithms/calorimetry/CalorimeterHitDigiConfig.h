@@ -14,7 +14,7 @@ namespace eicrecon {
     double                   tRes;
 
     // single hit energy deposition threshold
-    double                   threshold{0};
+    double                   threshold{1.0*dd4hep::keV};
 
     // digitization settings
     unsigned int             capADC{1};
