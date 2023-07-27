@@ -9,11 +9,6 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 
-#include "CalorimeterHit_factory_EcalBarrelSciGlassRecHits.h"
-#include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
-#include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
-#include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
-
 #include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
@@ -25,11 +20,8 @@
 
 
 namespace eicrecon {
-  using RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
-  using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-  using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
@@ -39,49 +31,6 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>(
-           "EcalBarrelSciGlassRawHits",
-           {"EcalBarrelSciGlassHits"},
-           {"EcalBarrelSciGlassRawHits"},
-           {
-             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-             .tRes = 0.0 * dd4hep::ns,
-             .capADC = 16384,
-             .dyRangeADC = 20 * dd4hep::GeV,
-             .pedMeanADC = 100,
-             .pedSigmaADC = 1,
-             .resolutionTDC = 10 * dd4hep::picosecond,
-             .corrMeanScale = 1.0,
-             .fields = {},
-           },
-           app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>(
-          {"EcalBarrelSciGlassRawHits"}, "EcalBarrelSciGlassRecHits"
-        ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>(
-          {"EcalBarrelSciGlassRecHits"}, "EcalBarrelSciGlassProtoClusters"
-        ));
-        app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassClusters>(
-             "EcalBarrelSciGlassClusters",
-            {"EcalBarrelSciGlassProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"EcalBarrelSciGlassClusters",             // edm4eic::Cluster
-             "EcalBarrelSciGlassClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 0.92,
-              .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = true
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
 
         app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
            "EcalBarrelScFiRawHits",
@@ -166,38 +115,5 @@ extern "C" {
         // Inserted types (so they can be written to output podio file)
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
-
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>(
-	    {
-              "EcalBarrelSciGlassRecHits",
-              "EcalBarrelSciGlassHits",
-            },
-	    "EcalBarrelSciGlassTruthProtoClusters"
-	));
-        app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(
-             "EcalBarrelSciGlassTruthClusters",
-            {"EcalBarrelSciGlassTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"EcalBarrelSciGlassTruthClusters",             // edm4eic::Cluster
-             "EcalBarrelSciGlassTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-             {
-               .energyWeight = "log",
-               .moduleDimZName = "",
-               .sampFrac = 1.0,
-               .logWeightBase = 6.2,
-               .depthCorrection = 0.0,
-               .enableEtaBounds = true
-             },
-            app   // TODO: Remove me once fixed
-          )
-        );
-        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>(
-          {
-            "EcalBarrelSciGlassTruthClusters",
-            "EcalBarrelSciGlassTruthClusterAssociations"
-          },
-	  "EcalBarrelSciGlassMergedTruthCluster"
-	));
     }
 }
