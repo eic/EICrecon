@@ -107,8 +107,19 @@ extern "C" {
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>(
           {"EcalBarrelImagingRawHits"}, "EcalBarrelImagingRecHits"
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>(
-          {"EcalBarrelImagingRecHits"}, "EcalBarrelImagingProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>(
+          "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"}, {"EcalBarrelImagingProtoClusters"},
+          {
+            .neighbourLayersRange = 2,                    //  # id diff for adjacent layer
+            .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+            .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+            .sectorDist           = 3.0 * dd4hep::cm,
+            .minClusterHitEdep    = 0,
+            .minClusterCenterEdep = 0,
+            .minClusterEdep       = 100 * dd4hep::MeV,
+            .minClusterNhits      = 10, // From Maria Z. comment in PR
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>(
