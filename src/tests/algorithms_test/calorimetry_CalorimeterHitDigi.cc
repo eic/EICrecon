@@ -7,6 +7,8 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 
+using eicrecon::CalorimeterHitDigi;
+using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   CalorimeterHitDigi algo;
@@ -14,21 +16,22 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
-  algo.m_threshold = 0. /* GeV */;
-  algo.m_corrMeanScale = 1.;
+  CalorimeterHitDigiConfig cfg;
+  cfg.threshold = 0. /* GeV */;
+  cfg.corrMeanScale = 1.;
 
   // Keep smearing parameters at zero
-  algo.m_pedSigmaADC = 0;
-  algo.m_tRes = 0. * dd4hep::ns;
-  algo.u_eRes = {0. * sqrt(dd4hep::GeV), 0., 0. * dd4hep::GeV};
+  cfg.pedSigmaADC = 0;
+  cfg.tRes = 0. * dd4hep::ns;
+  cfg.eRes = {0. * sqrt(dd4hep::GeV), 0., 0. * dd4hep::GeV};
 
   SECTION( "single hit with couple contributions" ) {
-    algo.m_capADC = 555;
-    algo.m_dyRangeADC = 5.0 /* GeV */;
-    algo.m_pedMeanADC = 123;
-    algo.m_resolutionTDC = 1.0 * dd4hep::ns;
-    algo.AlgorithmInit(logger);
-    algo.AlgorithmChangeRun();
+    cfg.capADC = 555;
+    cfg.dyRangeADC = 5.0 /* GeV */;
+    cfg.pedMeanADC = 123;
+    cfg.resolutionTDC = 1.0 * dd4hep::ns;
+    algo.applyConfig(cfg);
+    algo.init(nullptr, logger);
 
     edm4hep::SimCalorimeterHitCollection simhits;
     auto mhit = simhits.create(
@@ -49,7 +52,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
       {0. /* mm */, 0. /* mm */, 0. /* mm */}, // edm4hep::Vector3f stepPosition
     });
 
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits = algo.AlgorithmProcess(simhits);
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits = algo.process(simhits);
 
     REQUIRE( (*rawhits).size() == 1 );
     REQUIRE( (*rawhits)[0].getCellID() == 0xABABABAB);
