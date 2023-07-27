@@ -50,7 +50,7 @@ namespace eicrecon {
 
         // create output collections
         std::vector<edm4eic::TrackSegment *> track_segments;
-        m_log->debug("Track projector evnet process. Num of input trajectories: {}", std::size(trajectories));
+        m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
         for (const auto &traj: trajectories) {
@@ -194,7 +194,7 @@ namespace eicrecon {
             track_segments.push_back(new edm4eic::TrackSegment(track_segment));
         }
 
-        m_log->debug("END OF Track projector evnet process");
+        m_log->debug("END OF Track projector event process");
         return track_segments;
     }
 

@@ -222,7 +222,7 @@ namespace {
                 } else if (part->getPDG() == 22) { // EMCAL expected to have slightly better performance
                     conTerm = 0.03;                 // default 3%
                     stoTerm = 0.10;                 // default 10% for WSciFi
-                    angTerm = 0.001;                // 1mrad is the detault for the block size
+                    angTerm = 0.001;                // 1mrad is the default for the block size
                 }
 
                 // explicit double precision due to E*E - m*m

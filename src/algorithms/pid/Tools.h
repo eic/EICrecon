@@ -25,7 +25,7 @@
 
 namespace eicrecon {
 
-  // Tools class, filled with miscellanous helper functions
+  // Tools class, filled with miscellaneous helper functions
   class Tools {
     public:
 

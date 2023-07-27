@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Christopher Dilks
 
-// Merge CherenkovParticleID results from each radiator, for a given Cherenkov PID subystem
+// Merge CherenkovParticleID results from each radiator, for a given Cherenkov PID subsystem
 
 #pragma once
 

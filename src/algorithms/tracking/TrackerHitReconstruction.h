@@ -24,7 +24,7 @@
 namespace eicrecon {
 
     /**
-     * Produces edm4eic::TrackerHit with geometric infor from edm4eic::RawTrackerHit
+     * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
      *
      * IObjectProducer means that this class produces edm4eic::TrackerHit out of edm4eic::RawTrackerHit
      */

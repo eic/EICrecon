@@ -19,7 +19,7 @@ void eicrecon::TrackerHitReconstruction::init(dd4hep::Detector* detector, std::s
 
     m_log = logger;
 
-    // Create CellID convertor
+    // Create CellID converter
     m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
 }
 

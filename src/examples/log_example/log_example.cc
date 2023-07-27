@@ -144,7 +144,7 @@ public:
         /// The function is executed every event
 
         // In general one doesn't need to manually check log debug leel
-        m_log->debug("Processing evnet #{}", event->GetEventNumber());
+        m_log->debug("Processing event #{}", event->GetEventNumber());
 
         // Sometimes one needs to know current log level to calculate debugging values
         // Use  <= operator to check level.

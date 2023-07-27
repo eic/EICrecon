@@ -56,7 +56,7 @@ namespace eicrecon {
                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // output collection
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
-        m_log->trace("Track propagation evnet process. Num of input trajectories: {}", std::size(trajectories));
+        m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
         for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
