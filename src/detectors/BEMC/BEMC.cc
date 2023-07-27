@@ -19,14 +19,6 @@
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
-namespace eicrecon {
-  using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
-  using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_EcalBarrelScFiRecHits = CalorimeterHitReco_factoryT<>;
-  using CalorimeterHit_factory_EcalBarrelScFiMergedHits = CalorimeterHitsMerger_factoryT<>;
-  using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -78,7 +70,7 @@ extern "C" {
           {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
         ));
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT<>>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
