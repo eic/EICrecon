@@ -24,7 +24,7 @@ namespace eicrecon {
 
   class MergeTrack_factory :
     public JChainFactoryT<edm4eic::TrackSegment>,
-    public SpdlogMixin<MergeTrack_factory>
+    public SpdlogMixin
   {
 
     public:

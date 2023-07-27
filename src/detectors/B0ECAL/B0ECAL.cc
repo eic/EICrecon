@@ -13,16 +13,6 @@
 
 #include "ProtoCluster_factory_B0ECalIslandProtoClusters.h"
 
-
-namespace eicrecon {
-  using RawCalorimeterHit_factory_B0ECalRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_B0ECalRecHits = CalorimeterHitReco_factoryT<>;
-  using ProtoCluster_factory_B0ECalTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
-  using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-  using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -30,7 +20,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_B0ECalRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
@@ -44,7 +34,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
           {
             .capADC = 16384,
@@ -60,7 +50,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalHits"}, {"B0ECalTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -69,7 +59,7 @@ extern "C" {
         ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_B0ECalClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "B0ECalClusters",
             {"B0ECalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -88,7 +78,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_B0ECalTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "B0ECalTruthClusters",
             {"B0ECalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                     // edm4hep::SimCalorimeterHitCollection

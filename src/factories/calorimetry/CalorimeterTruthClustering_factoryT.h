@@ -12,15 +12,11 @@
 
 namespace eicrecon {
 
-// variadic template parameter T unused
-template<template<typename> typename... T>
 class CalorimeterTruthClustering_factoryT :
     public JChainMultifactoryT<NoConfig>,
-    public SpdlogMixin<CalorimeterTruthClustering_factoryT<T...>>,
-    public T<CalorimeterTruthClustering_factoryT<T...>>... {
+    public SpdlogMixin {
 
   public:
-    using SpdlogMixin<CalorimeterTruthClustering_factoryT>::logger;
 
     explicit CalorimeterTruthClustering_factoryT(
         std::string tag,
@@ -37,7 +33,7 @@ class CalorimeterTruthClustering_factoryT :
         auto app = GetApplication();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<CalorimeterTruthClustering_factoryT>::InitLogger(JChainMultifactoryT<NoConfig>::GetPrefix(), "info");
+        InitLogger(app, GetPrefix(), "info");
 
         m_algo.init(logger());
     }

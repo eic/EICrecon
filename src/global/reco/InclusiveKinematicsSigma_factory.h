@@ -11,7 +11,7 @@ namespace eicrecon {
 
     class InclusiveKinematicsSigma_factory :
             public JChainFactoryT<edm4eic::InclusiveKinematics>,
-            public SpdlogMixin<InclusiveKinematicsSigma_factory> {
+            public SpdlogMixin {
 
     public:
         explicit InclusiveKinematicsSigma_factory(std::vector<std::string> default_input_tags):

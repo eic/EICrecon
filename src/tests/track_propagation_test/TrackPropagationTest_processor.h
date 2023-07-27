@@ -16,7 +16,7 @@ class JApplication;
 
 class TrackPropagationTest_processor:
         public JEventProcessor,
-        public eicrecon::SpdlogMixin<TrackPropagationTest_processor>   // this automates proper log initialization
+        public eicrecon::SpdlogMixin   // this automates proper log initialization
 {
 public:
     explicit TrackPropagationTest_processor(JApplication *);

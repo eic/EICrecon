@@ -15,7 +15,7 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     InitDataTags(param_prefix);
 
     // Initialize logger
-    InitLogger(param_prefix, "info");
+    InitLogger(app, param_prefix, "info");
 
     // Algorithm configuration
     auto cfg = GetDefaultConfig();

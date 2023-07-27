@@ -26,7 +26,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
            {"EcalBarrelScFiRawHits"},
@@ -44,7 +44,7 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
           {
             .capADC = 16384,
@@ -70,7 +70,7 @@ extern "C" {
           {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
         ));
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT<>>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -88,7 +88,7 @@ extern "C" {
           )
         );
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
           {"EcalBarrelImagingRawHits"},

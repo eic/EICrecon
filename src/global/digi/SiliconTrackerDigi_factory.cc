@@ -26,7 +26,7 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
     InitDataTags(param_prefix);
 
     // Logger. Get plugin level sub-log
-    InitLogger(param_prefix, "info");
+    InitLogger(app, param_prefix, "info");
 
     // Setup digitization algorithm
     auto cfg = GetDefaultConfig();

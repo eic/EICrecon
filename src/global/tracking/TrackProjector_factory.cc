@@ -20,7 +20,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix);
+        InitLogger(GetApplication(), param_prefix);
 
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 

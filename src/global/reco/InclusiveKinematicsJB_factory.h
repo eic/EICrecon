@@ -11,7 +11,7 @@ namespace eicrecon {
 
     class InclusiveKinematicsJB_factory :
             public JChainFactoryT<edm4eic::InclusiveKinematics>,
-            public SpdlogMixin<InclusiveKinematicsJB_factory> {
+            public SpdlogMixin {
 
     public:
         explicit InclusiveKinematicsJB_factory(std::vector<std::string> default_input_tags):

@@ -18,7 +18,7 @@ namespace eicrecon {
 
     class CKFTracking_factory :
             public JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig, JFactoryT>,
-            public SpdlogMixin<CKFTracking_factory> {
+            public SpdlogMixin {
 
     public:
         CKFTracking_factory( std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):

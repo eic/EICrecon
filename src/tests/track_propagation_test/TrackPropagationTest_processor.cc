@@ -49,7 +49,7 @@ void TrackPropagationTest_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
-    InitLogger(plugin_name);
+    InitLogger(app, plugin_name);
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 

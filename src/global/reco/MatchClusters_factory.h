@@ -16,7 +16,7 @@ namespace eicrecon {
 
     class MatchClusters_factory :
             public JChainMultifactoryT<NoConfig>,
-            public SpdlogMixin<MatchClusters_factory> {
+            public SpdlogMixin {
 
     public:
         explicit MatchClusters_factory(std::string tag,

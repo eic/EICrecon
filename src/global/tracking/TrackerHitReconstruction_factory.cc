@@ -22,7 +22,7 @@ void TrackerHitReconstruction_factory::Init() {
     app->SetDefaultParameter(param_prefix + ":TimeResolution", m_reco_algo.getConfig().time_resolution, "threshold");
 
     // Init logger from default or user parameters
-    InitLogger(param_prefix);
+    InitLogger(app, param_prefix);
 
     // Init input collections tags and read from user parameters
     InitDataTags(param_prefix);

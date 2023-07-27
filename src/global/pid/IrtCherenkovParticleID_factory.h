@@ -28,7 +28,7 @@ namespace eicrecon {
 
   class IrtCherenkovParticleID_factory :
     public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,
-    public SpdlogMixin<IrtCherenkovParticleID_factory>
+    public SpdlogMixin
   {
 
     public:

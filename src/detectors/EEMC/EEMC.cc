@@ -13,14 +13,6 @@
 
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
-namespace eicrecon {
-  using RawCalorimeterHit_factory_EcalEndcapNRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_EcalEndcapNRecHits = CalorimeterHitReco_factoryT<>;
-  using ProtoCluster_factory_EcalEndcapNTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
-  using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-  using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -28,7 +20,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapNRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
@@ -42,7 +34,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
           {
             .capADC = 16384,
@@ -58,7 +50,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNHits"}, {"EcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -67,7 +59,7 @@ extern "C" {
 	));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapNTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapNTruthClusters",
             {"EcalEndcapNTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalEndcapNHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -86,7 +78,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapNClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapNClusters",
             {"EcalEndcapNIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "EcalEndcapNHits"},                // edm4hep::SimCalorimeterHitCollection

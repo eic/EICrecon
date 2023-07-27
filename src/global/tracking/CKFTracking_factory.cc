@@ -26,7 +26,7 @@ void eicrecon::CKFTracking_factory::Init() {
     InitDataTags(param_prefix);
 
     // Initialize logger
-    InitLogger(param_prefix, "info");
+    InitLogger(app, param_prefix, "info");
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = app->GetService<ACTSGeo_service>();

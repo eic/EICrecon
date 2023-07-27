@@ -22,7 +22,7 @@
 
 class TrackerHitReconstruction_factory :
         public JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig>,
-        public eicrecon::SpdlogMixin<TrackerHitReconstruction_factory> {
+        public eicrecon::SpdlogMixin {
 
 public:
     TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags, eicrecon::TrackerHitReconstructionConfig cfg):
