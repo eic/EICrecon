@@ -16,7 +16,7 @@
 
 namespace eicrecon {
 
-        /** Extrac the particles form fit trajectories.
+        /** Extract the particles form fit trajectories.
          *
          * \ingroup tracking
          */

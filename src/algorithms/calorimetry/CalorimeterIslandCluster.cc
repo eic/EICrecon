@@ -41,10 +41,10 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 
     // Assume all configuration parameter data members have been filled in already.
 
-    // Gaudi implments a random number generator service. It is not clear to me how this
+    // Gaudi implements a random number generator service. It is not clear to me how this
     // can work. There are multiple race conditions that occur in parallel event processing:
     // 1. The exact same events processed by a given thread in one invocation will not
-    //    neccessarily be the combination of events any thread sees in a subsequest
+    //    necessarily be the combination of events any thread sees in a subsequent
     //    invocation. Thus, you can't rely on thread_local storage.
     // 2. Its possible for the factory execution order to be modified by the presence of
     //    a processor (e.g. monitoring plugin). This is not as serious since changing the

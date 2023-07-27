@@ -67,7 +67,7 @@ public:
     //    mycalohitdigi->SetJANAConfigParameters( japp, "BEMC");
     //
     // The above will register config. parameters like: "BEMC:tag".
-    // The configuration parameter members of this class should be set to thier
+    // The configuration parameter members of this class should be set to their
     // defaults *before* calling this.
     //-----------------------------------------------
 

@@ -1,4 +1,4 @@
-// Hits distribuition of detectors
+// Hits distribution of detectors
 // Shyam Kumar:INFN Bari, shyam.kumar@ba.infn.it; shyam055119@gmail.com
 
 #include <TGraphErrors.h>

@@ -72,7 +72,7 @@ namespace eicrecon {
     Propagator propagator(std::move(stepper), std::move(navigator));
     CKF        trackFinder(std::move(propagator));
 
-    // build the track finder functions. onws the track finder object.
+    // build the track finder functions. owns the track finder object.
     return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
   }
 

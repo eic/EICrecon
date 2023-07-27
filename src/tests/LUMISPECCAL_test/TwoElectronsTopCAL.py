@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from pyHepMC3 import HepMC3
 
-# generates 2 electrons from different vertices relevent for the lumi Pair Spectrometer
+# generates 2 electrons from different vertices relevant for the lumi Pair Spectrometer
 outfilename = sys.argv[1]
 mass = 0.511e-3
 pz = -10 # GeV
