@@ -157,12 +157,21 @@ std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,
 		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3))
     / (square(X0) + square(Y0));
 
+  //If one of the calculated y values is farther than R from the circle center, return the other pair
+  if( square(R) - square(miny - Y0) < 0 )
+	return std::make_pair(-std::sqrt(square(R) - square(miny2 - Y0)) + X0 , miny2);
+  if( square(R) - square(miny2 - Y0) < 0 )
+	return std::make_pair(std::sqrt(square(R) - square(miny - Y0)) + X0 , miny);
+
+  //If both pairs are possible, return the one closest to the origin
   const double minx = std::sqrt(square(R) - square(miny - Y0)) + X0;
   const double minx2 = -std::sqrt(square(R) - square(miny2 - Y0)) + X0;
 
-  /// Figure out which of the two roots is actually closer to the origin
-  const float x = ( std::abs(minx) < std::abs(minx2)) ? minx:minx2;
-  const float y = ( std::abs(miny) < std::abs(miny2)) ? miny:miny2;
+  const double dist = std::sqrt(square(minx) + square(miny));
+  const double dist2 = std::sqrt(square(minx2) + square(miny2));
+
+  const float x = ( dist < dist2) ? minx:minx2;
+  const float y = ( dist < dist2) ? miny:miny2;
   return std::make_pair(x,y);
 }
 
