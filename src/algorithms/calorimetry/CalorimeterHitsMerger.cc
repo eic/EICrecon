@@ -10,35 +10,40 @@
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 
-void CalorimeterHitsMerger::initialize() {
+namespace eicrecon {
 
-    if (m_readout.empty()) {
+void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+    m_detector = detector;
+    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_log = logger;
+
+    if (m_cfg.readout.empty()) {
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
         return;
     }
 
     try {
-        auto id_desc = m_geoSvc->detector()->readout(m_readout).idSpec();
+        auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
         id_mask = 0;
         std::vector<std::pair<std::string, int>> ref_fields;
-        for (size_t i = 0; i < u_fields.size(); ++i) {
-            id_mask |= id_desc.field(u_fields[i])->mask();
+        for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
+            id_mask |= id_desc.field(m_cfg.fields[i])->mask();
             // use the provided id number to find ref cell, or use 0
-            int ref = i < u_refs.size() ? u_refs[i] : 0;
-            ref_fields.emplace_back(u_fields[i], ref);
+            int ref = i < m_cfg.refs.size() ? m_cfg.refs[i] : 0;
+            ref_fields.emplace_back(m_cfg.fields[i], ref);
         }
         ref_mask = id_desc.encode(ref_fields);
         // debug() << fmt::format("Reference id mask for the fields {:#064b}", ref_mask) << endmsg;
     } catch (...) {
-        auto mess = fmt::format("Failed to load ID decoder for {}", m_readout);
+        auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
         m_log->warn(mess);
 //        throw std::runtime_error(mess);
     }
     id_mask = ~id_mask;
-    m_log->info(fmt::format("ID mask in {:s}: {:#064b}", m_readout, id_mask));
+    m_log->info(fmt::format("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask));
 }
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::execute(const edm4eic::CalorimeterHitCollection &input) {
+std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::process(const edm4eic::CalorimeterHitCollection &input) {
     auto output = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
     // find the hits that belong to the same group (for merging)
@@ -60,14 +65,13 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::execut
 
     // reconstruct info for merged hits
     // dd4hep decoders
-    auto poscon = m_geoSvc->cellIDPositionConverter();
-    auto volman = m_geoSvc->detector()->volumeManager();
+    auto volman = m_detector->volumeManager();
 
     for (const auto &[id, ixs] : merge_map) {
         // reference fields id
         const uint64_t ref_id = id | ref_mask;
         // global positions
-        const auto gpos = poscon->position(ref_id);
+        const auto gpos = m_converter->position(ref_id);
         // local positions
         auto alignment = volman.lookupDetElement(ref_id).nominal();
         const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
@@ -115,3 +119,5 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::execut
 
     return output;
 }
+
+} // namespace eicrecon

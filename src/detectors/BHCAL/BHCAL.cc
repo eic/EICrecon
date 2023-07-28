@@ -15,12 +15,10 @@
 
 
 namespace eicrecon {
-    using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
-    using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
+  using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
