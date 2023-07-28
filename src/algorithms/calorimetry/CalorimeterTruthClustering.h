@@ -13,17 +13,18 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <spdlog/spdlog.h>
 
+namespace eicrecon {
 
+  class CalorimeterTruthClustering {
 
-class CalorimeterTruthClustering {
-
-protected:
+  protected:
     // Insert any member variables here
     std::shared_ptr<spdlog::logger> m_log;
 
-public:
-    CalorimeterTruthClustering() = default;
-    void AlgorithmInit(std::shared_ptr<spdlog::logger> &logger);
-    void AlgorithmChangeRun();
-    std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
-};
+  public:
+    void init(std::shared_ptr<spdlog::logger> &logger);
+    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
+
+  };
+
+} // namespace eicrecon

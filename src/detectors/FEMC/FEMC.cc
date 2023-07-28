@@ -9,11 +9,10 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "ProtoCluster_factory_EcalEndcapPTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapPIslandProtoClusters.h"
 
-#include "ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters.h"
 
 namespace eicrecon {
@@ -21,6 +20,8 @@ namespace eicrecon {
   using RawCalorimeterHit_factory_EcalEndcapPInsertRawHits = CalorimeterHitDigi_factoryT<>;
   using CalorimeterHit_factory_EcalEndcapPRecHits = CalorimeterHitReco_factoryT<>;
   using CalorimeterHit_factory_EcalEndcapPInsertRecHits = CalorimeterHitReco_factoryT<>;
+  using ProtoCluster_factory_EcalEndcapPTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
+  using ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
   using Cluster_factory_EcalEndcapPTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalEndcapPInsertTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
@@ -64,8 +65,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPTruthProtoClusters>(
-          {"EcalEndcapPRecHits", "EcalEndcapPHits"}, "EcalEndcapPTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_EcalEndcapPTruthProtoClusters>(
+          "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"}, {"EcalEndcapPTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPIslandProtoClusters>(
           {"EcalEndcapPRecHits"}, "EcalEndcapPIslandProtoClusters"
@@ -138,8 +140,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters>(
-          {"EcalEndcapPInsertRecHits", "EcalEndcapPInsertHits"}, "EcalEndcapPInsertTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters>(
+          "EcalEndcapPInsertTruthProtoClusters", {"EcalEndcapPInsertRecHits", "EcalEndcapPInsertHits"}, {"EcalEndcapPInsertTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>(
           {"EcalEndcapPInsertRecHits"}, "EcalEndcapPInsertIslandProtoClusters"

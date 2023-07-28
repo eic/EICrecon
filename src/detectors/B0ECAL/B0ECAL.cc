@@ -9,14 +9,15 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "ProtoCluster_factory_B0ECalTruthProtoClusters.h"
 #include "ProtoCluster_factory_B0ECalIslandProtoClusters.h"
 
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_B0ECalRawHits = CalorimeterHitDigi_factoryT<>;
   using CalorimeterHit_factory_B0ECalRecHits = CalorimeterHitReco_factoryT<>;
+  using ProtoCluster_factory_B0ECalTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
   using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
@@ -59,8 +60,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
-          {"B0ECalRecHits", "B0ECalHits"}, "B0ECalTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
+          "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalHits"}, {"B0ECalTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalIslandProtoClusters>(
           {"B0ECalRecHits"}, "B0ECalIslandProtoClusters"
