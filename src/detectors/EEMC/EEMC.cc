@@ -9,13 +9,14 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "ProtoCluster_factory_EcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_EcalEndcapNRawHits = CalorimeterHitDigi_factoryT<>;
   using CalorimeterHit_factory_EcalEndcapNRecHits = CalorimeterHitReco_factoryT<>;
+  using ProtoCluster_factory_EcalEndcapNTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
   using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
@@ -57,8 +58,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
-	    {"EcalEndcapNRecHits", "EcalEndcapNHits"}, "EcalEndcapNTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
+          "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNHits"}, {"EcalEndcapNTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>(
 	    {"EcalEndcapNRecHits"}, "EcalEndcapNIslandProtoClusters"

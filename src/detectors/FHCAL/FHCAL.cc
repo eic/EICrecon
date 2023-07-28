@@ -9,16 +9,13 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "CalorimeterHit_factory_HcalEndcapPMergedHits.h"
-#include "ProtoCluster_factory_HcalEndcapPTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalEndcapPIslandProtoClusters.h"
 
-#include "CalorimeterHit_factory_HcalEndcapPInsertMergedHits.h"
-#include "ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters.h"
 
-#include "ProtoCluster_factory_LFHCALTruthProtoClusters.h"
 #include "ProtoCluster_factory_LFHCALIslandProtoClusters.h"
 
 namespace eicrecon {
@@ -28,6 +25,11 @@ namespace eicrecon {
   using CalorimeterHit_factory_HcalEndcapPRecHits = CalorimeterHitReco_factoryT<>;
   using CalorimeterHit_factory_HcalEndcapPInsertRecHits = CalorimeterHitReco_factoryT<>;
   using CalorimeterHit_factory_LFHCALRecHits = CalorimeterHitReco_factoryT<>;
+  using CalorimeterHit_factory_HcalEndcapPMergedHits = CalorimeterHitsMerger_factoryT<>;
+  using CalorimeterHit_factory_HcalEndcapPInsertMergedHits = CalorimeterHitsMerger_factoryT<>;
+  using ProtoCluster_factory_HcalEndcapPTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
+  using ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
+  using ProtoCluster_factory_LFHCALTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
   using Cluster_factory_HcalEndcapPTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_HcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_HcalEndcapPInsertTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
@@ -72,11 +74,18 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>(
-          {"HcalEndcapPRecHits"}, "HcalEndcapPMergedHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>(
+          "HcalEndcapPMergedHits", {"HcalEndcapPRecHits"}, {"HcalEndcapPMergedHits"},
+          {
+            .readout = "HcalEndcapPHits",
+            .fields = {"layer", "slice"},
+            .refs = {1, 0},
+          },
+          app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>(
-          {"HcalEndcapPRecHits", "HcalEndcapPHits"}, "HcalEndcapPTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_HcalEndcapPTruthProtoClusters>(
+          "HcalEndcapPTruthProtoClusters", {"HcalEndcapPRecHits", "HcalEndcapPHits"}, {"HcalEndcapPTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>(
           {"HcalEndcapPRecHits"}, "HcalEndcapPIslandProtoClusters"
@@ -149,11 +158,18 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>(
-          {"HcalEndcapPInsertRecHits"}, "HcalEndcapPInsertMergedHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>(
+          "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
+          {
+            .readout = "HcalEndcapPInsertHits",
+            .fields = {"layer", "slice"},
+            .refs = {1, 0},
+          },
+          app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>(
-          {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, "HcalEndcapPInsertTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters>(
+          "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>(
           {"HcalEndcapPInsertMergedHits"}, "HcalEndcapPInsertIslandProtoClusters"
@@ -245,8 +261,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>(
-          {"LFHCALRecHits", "LFHCALHits"}, "LFHCALTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>(
+          "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>(
           {"LFHCALRecHits"}, "LFHCALIslandProtoClusters"

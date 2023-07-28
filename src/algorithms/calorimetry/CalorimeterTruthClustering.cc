@@ -10,26 +10,14 @@
 
 using namespace dd4hep;
 
-//------------------------
-// AlgorithmInit
-//------------------------
-void CalorimeterTruthClustering::AlgorithmInit(std::shared_ptr<spdlog::logger> &logger) {
+namespace eicrecon{
 
+void CalorimeterTruthClustering::init(std::shared_ptr<spdlog::logger> &logger) {
     m_log = logger;
-
-    return;
 }
 
-//------------------------
-// AlgorithmChangeRun
-//------------------------
-void CalorimeterTruthClustering::AlgorithmChangeRun() {
-}
 
-//------------------------
-// AlgorithmProcess
-//------------------------
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc) {
+std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::process(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc) {
     // Create output collections
     auto output = std::make_unique<edm4eic::ProtoClusterCollection>();
 
@@ -87,3 +75,5 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::Alg
 
     return std::move(output);
 }
+
+} // namespace eicrecon

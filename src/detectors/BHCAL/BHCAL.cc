@@ -9,18 +9,17 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 
 
 namespace eicrecon {
-    using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
-    using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
+  using ProtoCluster_factory_HcalBarrelTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
+  using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
+  using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
 extern "C" {
@@ -63,8 +62,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
-	    {"HcalBarrelRecHits", "HcalBarrelHits"}, "HcalBarrelTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
+          "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>(
 	    {"HcalBarrelRecHits"}, "HcalBarrelIslandProtoClusters"
