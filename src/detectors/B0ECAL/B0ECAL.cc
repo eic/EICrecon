@@ -8,14 +8,15 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_B0ECalRecHits.h"
 #include "ProtoCluster_factory_B0ECalTruthProtoClusters.h"
 #include "ProtoCluster_factory_B0ECalIslandProtoClusters.h"
 
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_B0ECalRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_B0ECalRecHits = CalorimeterHitReco_factoryT<>;
   using Cluster_factory_B0ECalTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_B0ECalClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
@@ -42,8 +43,21 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>(
-          {"B0ECalRawHits"}, "B0ECalRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_B0ECalRecHits>(
+          "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 20. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 1e-11,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 0.998,
+            .readout = "B0ECalHits",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_B0ECalTruthProtoClusters>(
           {"B0ECalRecHits", "B0ECalHits"}, "B0ECalTruthProtoClusters"

@@ -8,13 +8,12 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_EcalBarrelSciGlassRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
 #include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
 
-#include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
@@ -23,11 +22,12 @@
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
-
 namespace eicrecon {
   using RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_EcalBarrelSciGlassRecHits = CalorimeterHitReco_factoryT<>;
+  using CalorimeterHit_factory_EcalBarrelScFiRecHits = CalorimeterHitReco_factoryT<>;
   using Cluster_factory_EcalBarrelSciGlassTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalBarrelSciGlassClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
@@ -57,8 +57,21 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>(
-          {"EcalBarrelSciGlassRawHits"}, "EcalBarrelSciGlassRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>(
+          "EcalBarrelSciGlassRecHits", {"EcalBarrelSciGlassRawHits"}, {"EcalBarrelSciGlassRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 20. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 3.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 0.98,
+            .readout = "EcalBarrelSciGlassHits",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>(
           {"EcalBarrelSciGlassRecHits"}, "EcalBarrelSciGlassProtoClusters"
@@ -101,8 +114,27 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
-          {"EcalBarrelScFiRawHits"}, "EcalBarrelScFiRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
+          "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 750. * dd4hep::MeV,
+            .pedMeanADC = 20,
+            .pedSigmaADC = 0.3,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 36.0488,
+            .thresholdValue = 0.0,
+            .sampFrac = 0.10200085,
+            .readout = "EcalBarrelScFiHits",
+            .layerField = "layer",
+            .sectorField = "module",
+            .localDetFields = {"system"},
+            // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+            // TODO: a more realistic way to get z is to reconstruct it from timing
+            .maskPos = "xy",
+            .maskPosFields = {"fiber", "z"},
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>(
           {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
