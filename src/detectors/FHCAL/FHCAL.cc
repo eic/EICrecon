@@ -8,18 +8,16 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_HcalEndcapPRecHits.h"
 #include "CalorimeterHit_factory_HcalEndcapPMergedHits.h"
 #include "ProtoCluster_factory_HcalEndcapPTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalEndcapPIslandProtoClusters.h"
 
-#include "CalorimeterHit_factory_HcalEndcapPInsertRecHits.h"
 #include "CalorimeterHit_factory_HcalEndcapPInsertMergedHits.h"
 #include "ProtoCluster_factory_HcalEndcapPInsertTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters.h"
 
-#include "CalorimeterHit_factory_LFHCALRecHits.h"
 #include "ProtoCluster_factory_LFHCALTruthProtoClusters.h"
 #include "ProtoCluster_factory_LFHCALIslandProtoClusters.h"
 
@@ -27,6 +25,9 @@ namespace eicrecon {
   using RawCalorimeterHit_factory_HcalEndcapPRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_HcalEndcapPInsertRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_LFHCALRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_HcalEndcapPRecHits = CalorimeterHitReco_factoryT<>;
+  using CalorimeterHit_factory_HcalEndcapPInsertRecHits = CalorimeterHitReco_factoryT<>;
+  using CalorimeterHit_factory_LFHCALRecHits = CalorimeterHitReco_factoryT<>;
   using Cluster_factory_HcalEndcapPTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_HcalEndcapPClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_HcalEndcapPInsertTruthClusters =  CalorimeterClusterRecoCoG_factoryT<>;
@@ -56,8 +57,20 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>(
-          {"HcalEndcapPRawHits"}, "HcalEndcapPRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPRecHits>(
+          "HcalEndcapPRecHits", {"HcalEndcapPRawHits"}, {"HcalEndcapPRecHits"},
+          {
+            .capADC = 65536,
+            .dyRangeADC = 1 * dd4hep::GeV,
+            .pedMeanADC = 20,
+            .pedSigmaADC = 0.8,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 1.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 0.033,
+            .readout = "HcalEndcapPHits",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPMergedHits>(
           {"HcalEndcapPRecHits"}, "HcalEndcapPMergedHits"
@@ -121,8 +134,20 @@ extern "C" {
            },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>(
-          {"HcalEndcapPInsertRawHits"}, "HcalEndcapPInsertRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertRecHits>(
+          "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
+          {
+            .capADC = 32768,
+            .dyRangeADC = 200. * dd4hep::MeV,
+            .pedMeanADC = 400,
+            .pedSigmaADC = 10.,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 0.,
+            .thresholdValue = -100.,
+            .sampFrac = 0.0098,
+            .readout = "HcalEndcapPInsertHits",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalEndcapPInsertMergedHits>(
           {"HcalEndcapPInsertRecHits"}, "HcalEndcapPInsertMergedHits"
@@ -189,8 +214,36 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_LFHCALRecHits>(
-          {"LFHCALRawHits"}, "LFHCALRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_LFHCALRecHits>(
+          "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
+          {
+            .capADC = 65536,
+            .dyRangeADC = 1 * dd4hep::GeV,
+            .pedMeanADC = 20,
+            .pedSigmaADC = 0.8,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 1.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 0.033,
+            .sampFracLayer = {
+              0.019, //  0
+              0.037, //  1
+              0.037, //  2
+              0.037, //  3
+              0.037, //  4
+              0.037, //  5
+              0.037, //  6
+              0.037, //  7
+              0.037, //  8
+              0.037, //  9
+              0.037, // 10
+              0.037, // 11
+              0.037, // 12
+              0.037, // 13
+            },
+            .readout = "LFHCALHits",
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALTruthProtoClusters>(
           {"LFHCALRecHits", "LFHCALHits"}, "LFHCALTruthProtoClusters"
