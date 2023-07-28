@@ -86,8 +86,10 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float R = std::get<0>(RX0Y0);
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
-      if (R > std::sqrt(std::cbrt(std::numeric_limits<float>::max()))) {
-        // avoid future float overflow for hits on a line
+      if (R > std::numeric_limits<float>::max() || 
+	std::abs(X0) > std::numeric_limits<float>::max() ||
+	std::abs(Y0) > std::numeric_limits<float>::max()) {
+        // avoid float overflow for hits on a line
         continue;
       }
       auto slopeZ0 = lineFit(rzHitPositions);
@@ -149,30 +151,19 @@ std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,
   const float R = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
-  const double miny = (std::sqrt(square(X0) * square(R) * square(Y0) + square(R)
-		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3))
-    / (square(X0) + square(Y0));
+  
+  const double R0 = std::hypot(X0, Y0);
 
-  const double miny2 = (-std::sqrt(square(X0) * square(R) * square(Y0) + square(R)
-		      * pow(Y0,4)) + square(X0) * Y0 + pow(Y0, 3))
-    / (square(X0) + square(Y0));
+  //If center of circle is at origin, there is no point-of-closest approch 
+  //-- just return (x,y) = (R,0)
+  if(R0 < std::numeric_limits<double>::epsilon())
+	return std::make_pair(R , 0.);
 
-  //If one of the calculated y values is farther than R from the circle center, return the other pair
-  if( square(R) - square(miny - Y0) < 0 )
-	return std::make_pair(-std::sqrt(square(R) - square(miny2 - Y0)) + X0 , miny2);
-  if( square(R) - square(miny2 - Y0) < 0 )
-	return std::make_pair(std::sqrt(square(R) - square(miny - Y0)) + X0 , miny);
+  //Otherwise calculate point on circle closest to origin
+  const double xmin = X0 * (1. - R/R0);
+  const double ymin = Y0 * (1. - R/R0);
 
-  //If both pairs are possible, return the one closest to the origin
-  const double minx = std::sqrt(square(R) - square(miny - Y0)) + X0;
-  const double minx2 = -std::sqrt(square(R) - square(miny2 - Y0)) + X0;
-
-  const double dist = std::sqrt(square(minx) + square(miny));
-  const double dist2 = std::sqrt(square(minx2) + square(miny2));
-
-  const float x = ( dist < dist2) ? minx:minx2;
-  const float y = ( dist < dist2) ? miny:miny2;
-  return std::make_pair(x,y);
+  return std::make_pair(xmin,ymin);
 }
 
 int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions) const
