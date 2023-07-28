@@ -7,7 +7,6 @@ else()
     message(STATUS "Catch2 is not found. Skipping algorithms_test...")
 endif()
 
-add_subdirectory(pyjano)
 add_subdirectory(reco_test)
 add_subdirectory(tracking_test)
 add_subdirectory(track_propagation_test)
