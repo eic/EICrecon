@@ -8,13 +8,14 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_EcalEndcapNRecHits.h"
 #include "ProtoCluster_factory_EcalEndcapNTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
 
 namespace eicrecon {
   using RawCalorimeterHit_factory_EcalEndcapNRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_EcalEndcapNRecHits = CalorimeterHitReco_factoryT<>;
   using Cluster_factory_EcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
   using Cluster_factory_EcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
@@ -40,8 +41,21 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
-	    {"EcalEndcapNRawHits"}, "EcalEndcapNRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalEndcapNRecHits>(
+          "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 20. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 0.998,
+            .readout = "EcalEndcapNHits",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
 	));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNTruthProtoClusters>(
 	    {"EcalEndcapNRecHits", "EcalEndcapNHits"}, "EcalEndcapNTruthProtoClusters"

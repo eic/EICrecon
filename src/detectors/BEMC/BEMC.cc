@@ -8,8 +8,8 @@
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 
-#include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
 #include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
@@ -18,10 +18,10 @@
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
-
 namespace eicrecon {
   using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
   using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
+  using CalorimeterHit_factory_EcalBarrelScFiRecHits = CalorimeterHitReco_factoryT<>;
   using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
 }
 
@@ -50,8 +50,27 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
-          {"EcalBarrelScFiRawHits"}, "EcalBarrelScFiRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
+          "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 750. * dd4hep::MeV,
+            .pedMeanADC = 20,
+            .pedSigmaADC = 0.3,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 36.0488,
+            .thresholdValue = 0.0,
+            .sampFrac = 0.10200085,
+            .readout = "EcalBarrelScFiHits",
+            .layerField = "layer",
+            .sectorField = "module",
+            .localDetFields = {"system"},
+            // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+            // TODO: a more realistic way to get z is to reconstruct it from timing
+            .maskPos = "xy",
+            .maskPosFields = {"fiber", "z"},
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>(
           {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
