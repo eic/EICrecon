@@ -239,7 +239,6 @@ void femc_studiesProcessor::Init() {
 //******************************************************************************************
 void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void femc_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  using namespace std;
 
   // ===============================================================================================
   // process MC particles
