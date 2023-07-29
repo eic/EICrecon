@@ -113,10 +113,10 @@ namespace eicrecon {
 
                 // create const vectors for passing to hit initializer list
                 const decltype(edm4eic::CalorimeterHitData::position) position(
-                        gpos.x(), gpos.y(), gpos.z()
+                        gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm
                 );
                 const decltype(edm4eic::CalorimeterHitData::local) local(
-                        pos.x(), pos.y(), pos.z()
+                        pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm
                 );
 
                 recohits->create(id,                         // cellID
