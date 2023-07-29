@@ -5,7 +5,6 @@
 
 #include <limits>
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 // Event Model related classes

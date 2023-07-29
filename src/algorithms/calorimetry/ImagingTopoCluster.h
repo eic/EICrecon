@@ -11,7 +11,6 @@
  */
 #pragma once
 
-#include <fmt/format.h>
 #include <algorithm>
 
 #include <DD4hep/BitFieldCoder.h>
