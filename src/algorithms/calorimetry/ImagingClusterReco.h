@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include <fmt/format.h>
 #include <Eigen/Dense>
 #include <algorithm>
 
