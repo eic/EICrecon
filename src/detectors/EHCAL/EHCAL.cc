@@ -14,16 +14,6 @@
 
 #include "ProtoCluster_factory_HcalEndcapNIslandProtoClusters.h"
 
-
-namespace eicrecon {
-  using RawCalorimeterHit_factory_HcalEndcapNRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_HcalEndcapNRecHits = CalorimeterHitReco_factoryT<>;
-  using CalorimeterHit_factory_HcalEndcapNMergedHits = CalorimeterHitsMerger_factoryT<>;
-  using ProtoCluster_factory_HcalEndcapNTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
-  using Cluster_factory_HcalEndcapNTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-  using Cluster_factory_HcalEndcapNClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -31,7 +21,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_HcalEndcapNRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "HcalEndcapNRawHits", {"HcalEndcapNHits"}, {"HcalEndcapNRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
@@ -44,7 +34,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalEndcapNRecHits", {"HcalEndcapNRawHits"}, {"HcalEndcapNRecHits"},
           {
             .capADC = 1024,
@@ -59,7 +49,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalEndcapNMergedHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitsMerger_factoryT>(
           "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
           {
             .readout = "HcalEndcapNHits",
@@ -68,7 +58,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_HcalEndcapNTruthProtoClusters>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "HcalEndcapNTruthProtoClusters", {"HcalEndcapNRecHits", "HcalEndcapNHits"}, {"HcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -76,7 +66,7 @@ extern "C" {
           {"HcalEndcapNRecHits"}, "HcalEndcapNIslandProtoClusters"
         ));
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapNTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalEndcapNTruthClusters",
             {"HcalEndcapNTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "HcalEndcapNHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -95,7 +85,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalEndcapNClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalEndcapNClusters",
             {"HcalEndcapNIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalEndcapNHits"},                // edm4hep::SimCalorimeterHitCollection

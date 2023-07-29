@@ -16,7 +16,7 @@ void eicrecon::ParticlesWithTruthPID_factory::Init() {
     std::string param_prefix = plugin_name + ":" + GetTag();
 
     // SpdlogMixin logger initialization, sets m_log
-    InitLogger(GetPrefix(), "info");
+    InitLogger(app, GetPrefix(), "info");
     m_matching_algo.init(m_log);
 }
 

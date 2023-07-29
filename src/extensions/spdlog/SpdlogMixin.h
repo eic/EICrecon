@@ -11,17 +11,14 @@
 #include "SpdlogExtensions.h"
 
 namespace eicrecon {
-    template <class T>
     class SpdlogMixin {
-        /** Is it a bird? Is it a plane? No! It is CRTP logger mixin...
-         *
-         * How to use it?
+        /** Logger mixin
          *
          * @example:
-         *      class MyFactory : JFactory, SpdlogMixin<MyFactory> {
+         *      class MyFactory : JFactory, SpdlogMixin {
          *
          *          void Init() {
-         *              InitLogger("MyPlugin:MyFactory");
+         *              InitLogger(GetApplication(), "MyPlugin:MyFactory");
          *
          *              // Logger is ready and can be used:
          *              m_log->info("MyFactory logger initialized");
@@ -35,6 +32,7 @@ namespace eicrecon {
     public:
         /**
          * Initializes logger through current LogService
+         * @param app - JApplication pointer, as obtained from GetApplication()
          * @param param_prefix - name of both logger and user parameter
          * @param default_level - optional - default log level, overrides default logging level
          *                          : trace, debug, info, warn, err, critical, off
@@ -45,14 +43,12 @@ namespace eicrecon {
          *          if no user flag is provided
          *
          * @example:
-         *      InitLogger("BTRK:TrackerHits")           // Default log level is set the same as in system
-         *      InitLogger("BTRK:TrackerHits", "info")   // By default log level is info
+         *      InitLogger(GetApplication(), "BTRK:TrackerHits")           // Default log level is set the same as in system
+         *      InitLogger(GetApplication(), "BTRK:TrackerHits", "info")   // By default log level is info
          *
          *  will create "BTRK:TrackerHits" logger and check -PBTRK:TrackerHits:LogLevel user parameter
          */
-        void InitLogger(const std::string &param_prefix, const std::string &default_level = "") {
-
-            JApplication* app = static_cast<T*>(this)->GetApplication();
+        void InitLogger(JApplication* app, const std::string &param_prefix, const std::string &default_level = "") {
 
             // Logger. Get plugin level sub-log
             m_log = app->GetService<Log_service>()->logger(param_prefix);

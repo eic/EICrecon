@@ -26,7 +26,7 @@ namespace eicrecon {
 
   class MergeCherenkovParticleID_factory :
     public JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>,
-    public SpdlogMixin<MergeCherenkovParticleID_factory>
+    public SpdlogMixin
   {
 
     public:

@@ -16,7 +16,7 @@ namespace eicrecon {
 
     class ParticlesWithTruthPID_factory :
             public JChainMultifactoryT<ParticlesWithTruthPIDConfig>,
-            public SpdlogMixin<ParticlesWithTruthPID_factory> {
+            public SpdlogMixin {
 
     public:
         explicit ParticlesWithTruthPID_factory( std::string tag,

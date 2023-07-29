@@ -32,7 +32,7 @@ void DumpFlags_processor::Init()
     app->SetDefaultParameter("dump_flags:screen", m_print_to_screen, "If not empty, print summary to screen at end of job");
 
 
-    InitLogger("dump_flags", "info");
+    InitLogger(app, "dump_flags", "info");
 }
 
 

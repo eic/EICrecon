@@ -19,14 +19,6 @@
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
-namespace eicrecon {
-  using RawCalorimeterHit_factory_EcalBarrelScFiRawHits = CalorimeterHitDigi_factoryT<>;
-  using RawCalorimeterHit_factory_EcalBarrelImagingRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_EcalBarrelScFiRecHits = CalorimeterHitReco_factoryT<>;
-  using CalorimeterHit_factory_EcalBarrelScFiMergedHits = CalorimeterHitsMerger_factoryT<>;
-  using Cluster_factory_EcalBarrelScFiClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -34,7 +26,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
            {"EcalBarrelScFiRawHits"},
@@ -52,7 +44,7 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
           {
             .capADC = 16384,
@@ -78,7 +70,7 @@ extern "C" {
           {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
         ));
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -96,7 +88,7 @@ extern "C" {
           )
         );
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
           {"EcalBarrelImagingRawHits"},

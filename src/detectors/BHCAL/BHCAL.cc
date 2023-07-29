@@ -13,15 +13,6 @@
 
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
 
-
-namespace eicrecon {
-  using RawCalorimeterHit_factory_HcalBarrelRawHits = CalorimeterHitDigi_factoryT<>;
-  using CalorimeterHit_factory_HcalBarrelRecHits = CalorimeterHitReco_factoryT<>;
-  using ProtoCluster_factory_HcalBarrelTruthProtoClusters = CalorimeterTruthClustering_factoryT<>;
-  using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-  using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
-
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -29,7 +20,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
           {
             .eRes = {},
@@ -45,7 +36,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
           {
             .capADC = 65536,
@@ -62,7 +53,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainMultifactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -71,7 +62,7 @@ extern "C" {
 	));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalBarrelClusters",
             {"HcalBarrelIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -90,7 +81,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalBarrelTruthClusters",
             {"HcalBarrelTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                     // edm4hep::SimCalorimeterHitCollection

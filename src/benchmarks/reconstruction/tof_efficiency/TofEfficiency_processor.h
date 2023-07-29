@@ -20,7 +20,7 @@
 #include <edm4eic/TrackerHit.h>
 
 
-class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin<TofEfficiency_processor>  {
+class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin  {
 private:
 
     // Data objects we will need from JANA

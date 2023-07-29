@@ -18,7 +18,7 @@ namespace eicrecon {
 
 class IterativeVertexFinder_factory
     : public JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>,
-      public SpdlogMixin<IterativeVertexFinder_factory> {
+      public SpdlogMixin {
 
 public:
   explicit IterativeVertexFinder_factory(std::vector<std::string> default_input_tags,

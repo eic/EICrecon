@@ -11,15 +11,11 @@
 
 namespace eicrecon {
 
-// variadic template parameter T unused
-template<template<typename> typename... T>
 class CalorimeterHitsMerger_factoryT :
     public JChainMultifactoryT<CalorimeterHitsMergerConfig>,
-    public SpdlogMixin<CalorimeterHitsMerger_factoryT<T...>>,
-    public T<CalorimeterHitsMerger_factoryT<T...>>... {
+    public SpdlogMixin {
 
   public:
-    using SpdlogMixin<CalorimeterHitsMerger_factoryT>::logger;
 
     explicit CalorimeterHitsMerger_factoryT(
         std::string tag,
@@ -44,7 +40,7 @@ class CalorimeterHitsMerger_factoryT :
         auto geoSvc = app->template GetService<JDD4hep_service>();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<CalorimeterHitsMerger_factoryT>::InitLogger(JChainMultifactoryT<CalorimeterHitsMergerConfig>::GetPrefix(), "info");
+        InitLogger(app, GetPrefix(), "info");
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();

@@ -26,7 +26,7 @@
 namespace eicrecon {
   class RichTrack_factory :
     public JChainMultifactoryT<RichTrackConfig>,
-    public SpdlogMixin<RichTrack_factory>
+    public SpdlogMixin
   {
     public:
 

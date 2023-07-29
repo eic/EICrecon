@@ -12,7 +12,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // services
   auto geo_service = app->GetService<JDD4hep_service>();
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_log->debug("PhotoMultiplierHitDigi_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // get readout info (if a RICH)
