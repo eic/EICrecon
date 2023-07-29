@@ -22,6 +22,11 @@
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <spdlog/spdlog.h>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "ImagingPixelRecoConfig.h"
+
+namespace eicrecon {
+
 /** Imaging calorimeter pixel hit reconstruction.
  *
  * Reconstruct digitized outputs of ImagingCalorimeter
@@ -29,59 +34,49 @@
  *
  * \ingroup reco
  */
-class ImagingPixelReco {
-protected:
-    // geometry service
-//    std::string m_geoSvcName; // ; // {this, "geoServiceName", "GeoSvc"};
-    std::string m_readout; // {this, "readoutClass", ""};
-    std::string m_layerField; // {this, "layerField", "layer"};
-    std::string m_sectorField; // {this, "sectorField", "sector"};
-    // length unit (from dd4hep geometry service)
-    double m_lUnit; // {this, "lengthUnit", dd4hep::mm};
-    // digitization parameters
-    unsigned int m_capADC; // {this, "capacityADC", 8096};
-    unsigned int m_pedMeanADC; // {this, "pedestalMean", 400};
-    double m_dyRangeADC; // {this, "dynamicRangeADC", 100 * dd4hep::MeV};
-    double m_pedSigmaADC; // {this, "pedestalSigma", 3.2};
-    double m_thresholdFactor; // {this, "thresholdFactor", 3.0};
-    // Calibration!
-    double m_sampFrac; // {this, "samplingFraction", 1.0};
+  class ImagingPixelReco : public WithPodConfig<ImagingPixelRecoConfig> {
 
-    // Pointer to the geometry service
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
-
-    // logger
+  private:
+    const dd4hep::Detector* m_detector;
+    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
     std::shared_ptr<spdlog::logger> m_log;
+
+  protected:
 
     // visit readout fields
     dd4hep::BitFieldCoder *id_dec;
     size_t sector_idx{0}, layer_idx{0};
 
-public:
-    ImagingPixelReco() = default;
+  public:
 
-    void initialize() {
-        if (!m_geoSvc) {
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+        m_detector = detector;
+        m_log = logger;
+
+        if (m_detector == nullptr) {
             m_log->error("Unable to locate Geometry Service. \nMake sure you have GeoSvc and SimSvc in the right order in the configuration.");
             throw std::runtime_error("Unable to locate Geometry Service. \nMake sure you have GeoSvc and SimSvc in the right order in the configuration.");
         }
 
-        if (m_readout.empty()) {
+        m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+
+        if (m_cfg.readout.empty()) {
             m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
             throw std::runtime_error("readoutClass is not provided, it is needed to know the fields in readout ids");
         }
 
         try {
-            id_dec = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
-            sector_idx = id_dec->index(m_sectorField);
-            layer_idx = id_dec->index(m_layerField);
+            id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
+            sector_idx = id_dec->index(m_cfg.sectorField);
+            layer_idx = id_dec->index(m_cfg.layerField);
         } catch (...) {
-            m_log->warn(fmt::format("Failed to load ID decoder for {}", m_readout));
+            m_log->warn("Failed to load ID decoder for {}", m_cfg.readout);
             throw;
         }
     }
 
-    std::unique_ptr<edm4eic::CalorimeterHitCollection> execute(const edm4hep::RawCalorimeterHitCollection &rawhits) {
+    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4hep::RawCalorimeterHitCollection& rawhits) {
+
         auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
         // energy time reconstruction
@@ -91,13 +86,13 @@ public:
 #pragma GCC diagnostic error "-Wsign-conversion"
 
             // did not pass the threshold
-            if (rh.getAmplitude() < m_pedMeanADC + m_thresholdFactor * m_pedSigmaADC) {
+            if (rh.getAmplitude() < m_cfg.pedMeanADC + m_cfg.thresholdFactor * m_cfg.pedSigmaADC) {
                 continue;
             }
             const double energy =
-                    (((signed) rh.getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * m_dyRangeADC /
-                    m_sampFrac; // convert ADC -> energy
-            const double time = rh.getTimeStamp() * 1.e-6;                                       // dd4hep::ns
+                    (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / (double) m_cfg.capADC * m_cfg.dyRangeADC /
+                    m_cfg.sampFrac; // convert ADC -> energy
+            const double time = rh.getTimeStamp() * 1.e-6; // dd4hep::ns
 
 #pragma GCC diagnostic pop
 
@@ -108,9 +103,9 @@ public:
                 const int sid = (int) id_dec->get(id, sector_idx);
 
                 // global positions
-                const auto gpos = m_geoSvc->cellIDPositionConverter()->position(id);
+                const auto gpos = m_converter->position(id);
                 // local positions
-                const auto volman = m_geoSvc->detector()->volumeManager();
+                const auto volman = m_detector->volumeManager();
                 // TODO remove
                 const auto alignment = volman.lookupDetElement(id).nominal();
                 const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
@@ -118,10 +113,10 @@ public:
 
                 // create const vectors for passing to hit initializer list
                 const decltype(edm4eic::CalorimeterHitData::position) position(
-                        gpos.x() / m_lUnit, gpos.y() / m_lUnit, gpos.z() / m_lUnit
+                        gpos.x(), gpos.y(), gpos.z()
                 );
                 const decltype(edm4eic::CalorimeterHitData::local) local(
-                        pos.x() / m_lUnit, pos.y() / m_lUnit, pos.z() / m_lUnit
+                        pos.x(), pos.y(), pos.z()
                 );
 
                 recohits->create(id,                         // cellID
@@ -140,3 +135,5 @@ public:
         return recohits;
     }
 };
+
+} // namespace eicrecon

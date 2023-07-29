@@ -9,16 +9,17 @@
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
+
 namespace eicrecon {
 
-  class ProtoCluster_factory_EcalBarrelImagingProtoClusters :
+  class ImagingTopoCluster_factoryT :
     public JChainMultifactoryT<ImagingTopoClusterConfig>,
-    public SpdlogMixin<ProtoCluster_factory_EcalBarrelImagingProtoClusters> {
+    public SpdlogMixin {
 
   public:
-    using SpdlogMixin<ProtoCluster_factory_EcalBarrelImagingProtoClusters>::logger;
+    using SpdlogMixin::logger;
 
-    explicit ProtoCluster_factory_EcalBarrelImagingProtoClusters(
+    explicit ImagingTopoCluster_factoryT(
         std::string tag,
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
@@ -40,7 +41,7 @@ namespace eicrecon {
         std::string param_prefix = plugin_name + ":" + GetTag();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<ProtoCluster_factory_EcalBarrelImagingProtoClusters>::InitLogger(JChainMultifactoryT<ImagingTopoClusterConfig>::GetPrefix(), "info");
+        SpdlogMixin::InitLogger(app, GetPrefix(), "info");
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();

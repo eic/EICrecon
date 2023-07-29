@@ -77,17 +77,17 @@ namespace eicrecon {
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
         // summarize the clustering parameters
-        m_log->info( fmt::format("Local clustering (same sector and same layer): "
-                              "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-                              localDistXY[0], localDistXY[1])
+        m_log->info("Local clustering (same sector and same layer): "
+                    "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+                    localDistXY[0], localDistXY[1]
         );
-        m_log->info( fmt::format("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                              "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-                              m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1])
+        m_log->info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+                    "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+                    m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
         );
-        m_log->info( fmt::format("Neighbour sectors clustering (different sector): "
-                              "Global distance between hits <= {:.4f} mm.",
-                              sectorDist)
+        m_log->info("Neighbour sectors clustering (different sector): "
+                    "Global distance between hits <= {:.4f} mm.",
+                    sectorDist
         );
     }
 
@@ -97,11 +97,11 @@ namespace eicrecon {
 
         // group neighboring hits
         std::vector<bool> visits(hits.size(), false);
-        std::vector<std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit&>>> groups;
+        std::vector<std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit>>> groups;
         for (size_t i = 0; i < hits.size(); ++i) {
-            m_log->debug(fmt::format("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
-                                    hits[i].getLocal().x, hits[i].getLocal().y, hits[i].getPosition().z,
-                                    hits[i].getPosition().x, hits[i].getPosition().y, hits[i].getPosition().z)
+            m_log->debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
+                         hits[i].getLocal().x, hits[i].getLocal().y, hits[i].getPosition().z,
+                         hits[i].getPosition().x, hits[i].getPosition().y, hits[i].getPosition().z
             );
             // already in a group, or not energetic enough to form a cluster
             if (visits[i] || hits[i].getEnergy() < minClusterCenterEdep) {
@@ -111,11 +111,9 @@ namespace eicrecon {
             groups.emplace_back();
             dfs_group(groups.back(), i, hits, visits);
         }
-        if (m_log->level() == SPDLOG_LEVEL_DEBUG) {
-            m_log->debug(fmt::format("found {} potential clusters (groups of hits)", groups.size() ));
-            for (size_t i = 0; i < groups.size(); ++i) {
-                m_log->debug( fmt::format("group {}: {} hits", i, groups[i].size()) );
-            }
+        m_log->debug("found {} potential clusters (groups of hits)", groups.size());
+        for (size_t i = 0; i < groups.size(); ++i) {
+            m_log->debug("group {}: {} hits", i, groups[i].size());
         }
 
         // form clusters
@@ -168,7 +166,7 @@ namespace eicrecon {
     }
 
     // grouping function with Depth-First Search
-    void dfs_group(std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit&>>& group, int idx,
+    void dfs_group(std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit>>& group, int idx,
                    const edm4eic::CalorimeterHitCollection& hits, std::vector<bool> &visits) const {
         // not a qualified hit to participate in clustering, stop here
         if (hits[idx].getEnergy() < minClusterHitEdep) {
