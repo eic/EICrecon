@@ -36,8 +36,7 @@ namespace eicrecon {
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-        std::string param_prefix = plugin_name + ":" + GetTag();
+        std::string param_prefix = GetPluginName() + ":" + GetTag();
 
         // SpdlogMixin logger initialization, sets m_log
         SpdlogMixin::InitLogger(app, GetPrefix(), "info");

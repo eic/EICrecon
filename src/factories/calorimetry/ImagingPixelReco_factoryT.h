@@ -36,8 +36,7 @@ class ImagingPixelReco_factoryT :
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
-        std::string param_prefix = plugin_name + ":" + GetTag();
+        std::string param_prefix = GetPluginName() + ":" + GetTag();
 
         // Use JDD4hep_service to get dd4hep::Detector
         auto geoSvc = app->template GetService<JDD4hep_service>();
