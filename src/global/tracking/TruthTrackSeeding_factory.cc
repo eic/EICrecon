@@ -11,11 +11,10 @@
 
 #include "TruthTrackSeeding_factory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "extensions/string/StringHelpers.h"
 
 void eicrecon::TruthTrackSeeding_factory::Init() {
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Create plugin level sub-log

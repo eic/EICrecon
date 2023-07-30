@@ -33,7 +33,7 @@ class CalorimeterHitReco_factoryT :
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string plugin_name  = GetPluginName();
         std::string param_prefix = plugin_name + ":" + GetTag();
 
         // Use JDD4hep_service to get dd4hep::Detector
