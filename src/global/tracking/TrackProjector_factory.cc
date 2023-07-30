@@ -6,7 +6,6 @@
 #include <JANA/JEvent.h>
 
 #include "TrackProjector_factory.h"
-#include "extensions/string/StringHelpers.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
