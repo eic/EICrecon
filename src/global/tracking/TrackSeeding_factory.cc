@@ -11,14 +11,13 @@
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/log/Log_service.h"
-#include "extensions/string/StringHelpers.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
     auto app = GetApplication();
 
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Initialize input tags

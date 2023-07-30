@@ -8,7 +8,7 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     auto app = GetApplication();
 
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
     // Initialize input tags

@@ -5,7 +5,6 @@
 #include "TrackingResult_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include <JANA/JEvent.h>
 
 void TrackingResult_factory::Init() {
