@@ -139,7 +139,7 @@ namespace eicrecon {
             new_clus.setTime(eclus.getTime());
             new_clus.setNhits(eclus.getNhits());
             // FIXME use nominal dd4hep::radius of 110cm, and use start vertex theta and phi
-            new_clus.setPosition(edm4eic::sphericalToVector(110. * dd4hep::cm, theta, phi));
+            new_clus.setPosition(edm4eic::sphericalToVector(78.5 * dd4hep::cm / dd4hep::mm, theta, phi));
             new_clus.addToClusters(eclus);
 
             m_log->debug(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.id(), mcID ,eclus.getEnergy() );
