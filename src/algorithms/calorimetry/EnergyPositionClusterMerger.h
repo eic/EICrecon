@@ -78,6 +78,7 @@ namespace eicrecon {
                 if (consumed[ie]) {
                     continue;
                 }
+
                 const auto& ec = energy_clus[ie];
 
                 m_log->trace("  --> Evaluating energy cluster {}, energy: {}", ec.getObjectID().index, ec.getEnergy());
@@ -85,10 +86,13 @@ namespace eicrecon {
                 // 1. stop if not within tolerance
                 //    (make sure to handle rollover of phi properly)
                 const double de_rel = std::abs((pc.getEnergy() - ec.getEnergy()) / ec.getEnergy());
+                const double deta = std::abs(edm4eic::eta(pc.getPosition())
+                                           - edm4eic::eta(ec.getPosition()));
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
-                const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(pc.getPosition()) - edm4eic::angleAzimuthal(ec.getPosition()))));
-                const double deta = edm4eic::eta(pc.getPosition()) - edm4eic::eta(ec.getPosition());
+                const double dphi = edm4eic::angleAzimuthal(pc.getPosition())
+                                  - edm4eic::angleAzimuthal(ec.getPosition());
+                const double dsphi = std::abs(sin(0.5 * dphi));
                 if ((m_cfg.energyRelTolerance > 0 && de_rel > m_cfg.energyRelTolerance) ||
                     (m_cfg.etaTolerance > 0 && deta > m_cfg.etaTolerance) ||
                     (m_cfg.phiTolerance > 0 && dsphi > sin(0.5 * m_cfg.phiTolerance))) {
@@ -104,8 +108,10 @@ namespace eicrecon {
                     best_match = ie;
                 }
             }
+
             // Create a merged cluster if we find a good match
             if (best_match >= 0) {
+
                 const auto& ec = energy_clus[best_match];
 
                 auto new_clus  = merged_clus->create();
