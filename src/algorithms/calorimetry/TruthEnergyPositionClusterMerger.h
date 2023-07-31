@@ -64,14 +64,24 @@ namespace eicrecon {
         m_log->debug( "Step 0/2: Getting indexed list of clusters..." );
 
         // get an indexed map of all clusters
+        m_log->debug(" --> Indexing energy clusters");
         auto energyMap = indexedClusters(energy_clus, energy_assoc);
+        m_log->trace(" --> Found these energy clusters:");
+        for (const auto &[mcID, eclus]: energyMap) {
+            m_log->trace("   --> energy cluster {}, mcID: {}, energy: {}", eclus.getObjectID().index, mcID, eclus.getEnergy());
+        }
+        m_log->debug(" --> Indexing position clusters");
         auto posMap = indexedClusters(pos_clus, pos_assoc);
+        m_log->trace(" --> Found these position clusters:");
+        for (const auto &[mcID, pclus]: posMap) {
+            m_log->trace("   --> position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index, mcID, pclus.getEnergy());
+        }
 
         // loop over all position clusters and match with energy clusters
         m_log->debug( "Step 1/2: Matching all position clusters to the available energy clusters..." );
         for (const auto &[mcID, pclus]: posMap) {
 
-            m_log->debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.id(), mcID, pclus.getEnergy());
+            m_log->debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index, mcID, pclus.getEnergy());
             if (energyMap.count(mcID)) {
 
                 const auto &eclus = energyMap[mcID];
@@ -94,8 +104,8 @@ namespace eicrecon {
                 for (const auto &param: pclus.getShapeParameters()) {
                     new_clus.addToShapeParameters(param);
                 }
-                m_log->debug("   --> Found matching energy cluster {}, energy: {}", eclus.id(), eclus.getEnergy() );
-                m_log->debug("   --> Created new combined cluster {}, energy: ", new_clus.id(), new_clus.getEnergy() );
+                m_log->debug("   --> Found matching energy cluster {}, energy: {}", eclus.getObjectID().index, eclus.getEnergy() );
+                m_log->debug("   --> Created new combined cluster {}, energy: {}", new_clus.getObjectID().index, new_clus.getEnergy() );
 
                 // set association
                 auto clusterassoc = merged_assoc->create();
@@ -142,8 +152,8 @@ namespace eicrecon {
             new_clus.setPosition(edm4eic::sphericalToVector(78.5 * dd4hep::cm / dd4hep::mm, theta, phi));
             new_clus.addToClusters(eclus);
 
-            m_log->debug(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.id(), mcID ,eclus.getEnergy() );
-            m_log->debug("   --> Created new 'combined' cluster {}, energy: {}", new_clus.id(), new_clus.getEnergy() );
+            m_log->debug(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.getObjectID().index, mcID, eclus.getEnergy() );
+            m_log->debug("   --> Created new 'combined' cluster {}, energy: {}", new_clus.getObjectID().index, new_clus.getEnergy() );
 
             // set association
             auto clusterassoc = merged_assoc->create();
@@ -186,7 +196,7 @@ namespace eicrecon {
 
             const bool duplicate = matched.count(mcID);
             if (duplicate) {
-                m_log->trace( "   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster" );
+                m_log->trace( "   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
                 if (cluster.getEnergy() < matched[mcID].getEnergy()) {
                     continue;
                 }
