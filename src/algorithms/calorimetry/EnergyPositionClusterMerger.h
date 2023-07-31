@@ -127,14 +127,14 @@ namespace eicrecon {
                     clusterassoc.setRec(new_clus);
                     clusterassoc.setSim(ea->getSim());
                 }
-                // add association from position cluster
+                // add association from position cluster if different
                 auto pa = pos_assoc.begin();
                 for (; pa != pos_assoc.end(); ++pa) {
                     if (pa->getRec() == pc) {
                         break;
                     }
                 }
-                if (pa != pos_assoc.end()) {
+                if (pa != pos_assoc.end() && pa->getSimID() != ea->getSimID()) {
                     auto clusterassoc = merged_assoc->create();
                     clusterassoc.setRecID(new_clus.getObjectID().index);
                     clusterassoc.setSimID(pa->getSimID());
