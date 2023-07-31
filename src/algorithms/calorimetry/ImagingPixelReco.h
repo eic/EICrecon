@@ -92,7 +92,7 @@ namespace eicrecon {
             const double energy =
                     (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / (double) m_cfg.capADC * m_cfg.dyRangeADC /
                     m_cfg.sampFrac; // convert ADC -> energy
-            const double time = rh.getTimeStamp() * 1.e-6; // dd4hep::ns
+            const double time = rh.getTimeStamp() * 1.e-3; // FIXME assume default 1000 ns range
 
 #pragma GCC diagnostic pop
 
