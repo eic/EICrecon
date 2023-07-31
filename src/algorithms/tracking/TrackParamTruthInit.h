@@ -10,7 +10,7 @@
 #include <spdlog/logger.h>
 
 #include "TrackParamTruthInitConfig.h"
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 #include <random>
 #include <TDatabasePDG.h>

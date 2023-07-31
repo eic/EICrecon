@@ -6,11 +6,11 @@
 
 #include <random>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/ImagingClusterReco.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/ImagingClusterReco.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 
 

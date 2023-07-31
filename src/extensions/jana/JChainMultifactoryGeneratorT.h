@@ -60,8 +60,8 @@ public:
 
 
     void Init() {
-        std::string plugin_name = eicrecon::str::ReplaceAll(this->GetPluginName(), ".so", "");
-        m_prefix = plugin_name+ ":" + m_tag;
+        std::string plugin_name = this->GetPluginName();
+        m_prefix = plugin_name + ":" + m_tag;
 
         // Get input data tags
         m_app->SetDefaultParameter(m_prefix + ":InputTags", m_input_tags, "Input data tag names");

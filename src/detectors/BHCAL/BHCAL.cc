@@ -3,21 +3,15 @@
 //
 //
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "RawCalorimeterHit_factory_HcalBarrelRawHits.h"
-#include "CalorimeterHit_factory_HcalBarrelRecHits.h"
-#include "ProtoCluster_factory_HcalBarrelTruthProtoClusters.h"
 #include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
-
-
-namespace eicrecon {
-    using Cluster_factory_HcalBarrelTruthClusters = CalorimeterClusterRecoCoG_factoryT<>;
-    using Cluster_factory_HcalBarrelClusters = CalorimeterClusterRecoCoG_factoryT<>;
-}
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -26,21 +20,49 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainFactoryGeneratorT<RawCalorimeterHit_factory_HcalBarrelRawHits>(
-	    {"HcalBarrelHits"}, "HcalBarrelRawHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          {
+            .eRes = {},
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 65536,
+            .capTime = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC = 1.0 * dd4hep::GeV,
+            .pedMeanADC = 10,
+            .pedSigmaADC = 2.0,
+            .resolutionTDC = 1.0 * dd4hep::picosecond,
+            .corrMeanScale = 1.0,
+            .readout = "HcalBarrelHits",
+          },
+          app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_HcalBarrelRecHits>(
-	    {"HcalBarrelRawHits"}, "HcalBarrelRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
+          {
+            .capADC = 65536,
+            .dyRangeADC = 1.0 * dd4hep::GeV,
+            .pedMeanADC = 10,
+            .pedSigmaADC = 2.0,
+            .resolutionTDC = 1.0 * dd4hep::picosecond,
+            .thresholdFactor = 5.0,
+            .thresholdValue = 1.0,
+            .sampFrac = 0.033, // average, from sPHENIX simulations
+            .readout = "HcalBarrelHits",
+            .layerField = "tower",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
 	));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelTruthProtoClusters>(
-	    {"HcalBarrelRecHits", "HcalBarrelHits"}, "HcalBarrelTruthProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+          "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>(
 	    {"HcalBarrelRecHits"}, "HcalBarrelIslandProtoClusters"
 	));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalBarrelClusters",
             {"HcalBarrelIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -59,7 +81,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_HcalBarrelTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "HcalBarrelTruthClusters",
             {"HcalBarrelTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "HcalBarrelHits"},                     // edm4hep::SimCalorimeterHitCollection

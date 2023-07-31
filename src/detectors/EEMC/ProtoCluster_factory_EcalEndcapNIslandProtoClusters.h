@@ -6,11 +6,11 @@
 
 #include <random>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterIslandCluster.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/CalorimeterIslandCluster.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 class ProtoCluster_factory_EcalEndcapNIslandProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 

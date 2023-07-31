@@ -13,7 +13,7 @@
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 
 #include <edm4eic/TrackSegmentCollection.h>
 
@@ -27,7 +27,7 @@ namespace eicrecon {
 
     using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
 
-    /** Extrac the particles form fit trajectories.
+    /** Extract the particles form fit trajectories.
      *
      * \ingroup tracking
      */
@@ -43,7 +43,7 @@ namespace eicrecon {
         std::unique_ptr<edm4eic::TrackPoint> propagate(const eicrecon::TrackingResultTrajectory *, const std::shared_ptr<const Acts::Surface>& targetSurf);
 
         /** Propagates a collection of trajectories to a given surface
-         * @remark: being a simple wrapper of propagate(...) this method is more sutable for factories */
+         * @remark: being a simple wrapper of propagate(...) this method is more suitable for factories */
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
                                                          const std::shared_ptr<const Acts::Surface> &targetSurf);
 

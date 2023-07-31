@@ -8,8 +8,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"

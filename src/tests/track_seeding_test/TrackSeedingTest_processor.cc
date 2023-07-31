@@ -11,9 +11,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <services/rootfile/RootFile_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
+#include "services/rootfile/RootFile_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 
 
@@ -49,7 +49,7 @@ void TrackSeedingTest_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
-    InitLogger(plugin_name);
+    InitLogger(app, plugin_name);
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 

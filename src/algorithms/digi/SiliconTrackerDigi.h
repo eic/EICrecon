@@ -4,7 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/interfaces/ICollectionProducer.h>
+#include "algorithms/interfaces/ICollectionProducer.h"
 
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>

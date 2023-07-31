@@ -4,23 +4,19 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {
 
-// variadic template parameter T unused
-template<template<typename> typename... T>
 class CalorimeterClusterRecoCoG_factoryT :
     public JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>,
-    public SpdlogMixin<CalorimeterClusterRecoCoG_factoryT<T...>>,
-    public T<CalorimeterClusterRecoCoG_factoryT<T...>>... {
+    public SpdlogMixin {
 
   public:
-    using SpdlogMixin<CalorimeterClusterRecoCoG_factoryT>::logger;
 
     explicit CalorimeterClusterRecoCoG_factoryT(
         std::string tag,
@@ -41,7 +37,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string plugin_name  = GetPluginName();
         std::string param_prefix = plugin_name + ":" + GetTag();
 
         // Use JDD4hep_service to get dd4hep::Detector
@@ -49,7 +45,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         m_detector = geoSvc->detector();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<CalorimeterClusterRecoCoG_factoryT>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
+        InitLogger(app, GetPrefix(), "info");
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();

@@ -1,10 +1,10 @@
 
 #include "JEventProcessorPODIO.h"
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 #include <JANA/Services/JComponentManager.h>
 #include <podio/Frame.h>
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 #include <algorithm>
 
 
@@ -109,12 +109,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertTruthClusterAssociations",
             "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertClusterAssociations",
-            "EcalBarrelSciGlassRawHits",
-            "EcalBarrelSciGlassRecHits",
-            "EcalBarrelSciGlassClusters",
-            "EcalBarrelSciGlassClusterAssociations",
-            "EcalBarrelSciGlassTruthClusters",
-            "EcalBarrelSciGlassTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",

@@ -54,9 +54,9 @@ cmake --build build --target install -- -j8
 ```
 
 If you are not familiar with cmake, the first command above (cmake -S . -B build) will create a directory "build"
-and place files there to drive the build of the project in the source directory "." (i.e. the current dirctory).
+and place files there to drive the build of the project in the source directory "." (i.e. the current directory).
 The second cmake command (cmake --build build --target install -- -j8) actually performs the build and installs
-the compiled plugins, exectuables, etc. Note that the "-j8" option tells it to use 8 threads to compile. If you
+the compiled plugins, executables, etc. Note that the "-j8" option tells it to use 8 threads to compile. If you
 have more cores available, then set this number to an appropriate value.
 
 ### Exercise 1:
@@ -108,7 +108,7 @@ The usage statement gives several command line options. Two of the most importan
 in the job. These are how you can modify the behavior of the job. Configuration parameters
 will pretty much always have default values set by algorithm authors so it is often not necessary
 to set this yourself. If you need to though, these are how you do it. Use the "-Pkey=value"
-form if you want to set the value directly on the command line. You may pass mutiple options like
+form if you want to set the value directly on the command line. You may pass multiple options like
 this. The "-l" option is used to specify a configuration file where you may set a large number
 of values. The file format is one parameter per line with one or more spaces separating the
 configuration parameter name and its value. Empty lines are OK and "#" can be used to specify

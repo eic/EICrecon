@@ -26,12 +26,12 @@
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
 
-#include "DD4hep/Detector.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
-#include "DD4hep/DD4hepUnits.h"
-#include <algorithms/tracking/ActsGeometryProvider.h>
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
+#include <DD4hep/DD4hepUnits.h>
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 
 class ACTSGeo_service : public JService
