@@ -68,6 +68,9 @@ namespace eicrecon {
 
         // use position clusters as starting point
         for (const auto& pc : pos_clus) {
+
+            m_log->trace(" --> Processing position cluster {}, energy: {}", pc.getObjectID().index, pc.getEnergy());
+
             // check if we find a good match
             int best_match    = -1;
             double best_delta = std::numeric_limits<double>::max();
@@ -76,6 +79,9 @@ namespace eicrecon {
                     continue;
                 }
                 const auto& ec = energy_clus[ie];
+
+                m_log->trace("  --> Evaluating energy cluster {}, energy: {}", ec.getObjectID().index, ec.getEnergy());
+
                 // 1. stop if not within tolerance
                 //    (make sure to handle rollover of phi properly)
                 const double de_rel = std::abs((pc.getEnergy() - ec.getEnergy()) / ec.getEnergy());
@@ -112,7 +118,10 @@ namespace eicrecon {
                 new_clus.addToClusters(pc);
                 new_clus.addToClusters(ec);
 
-                // add association from energy cluster
+                m_log->trace("   --> Found matching energy cluster {}, energy: {}", ec.getObjectID().index, ec.getEnergy() );
+                m_log->trace("   --> Created a new combined cluster {}, energy: {}", new_clus.getObjectID().index, new_clus.getEnergy() );
+
+                // find association from energy cluster
                 auto ea = energy_assoc.begin();
                 for (; ea != energy_assoc.end(); ++ea) {
                     if (ea->getRec() == ec) {
@@ -146,13 +155,19 @@ namespace eicrecon {
                 // label our energy cluster as consumed
                 consumed[best_match] = true;
 
-                m_log->debug("Matched position cluster {} with energy cluster {}\n", pc.getObjectID().index, ec.getObjectID().index);
+                m_log->debug("  Matched position cluster {} with energy cluster {}", pc.getObjectID().index, ec.getObjectID().index);
                 m_log->debug("  - Position cluster: (E: {}, phi: {}, z: {})", pc.getEnergy(),
                              edm4eic::angleAzimuthal(pc.getPosition()), pc.getPosition().z);
                 m_log->debug("  - Energy cluster: (E: {}, phi: {}, z: {})", ec.getEnergy(),
                              edm4eic::angleAzimuthal(ec.getPosition()), ec.getPosition().z);
                 m_log->debug("  ---> Merged cluster: (E: {}, phi: {}, z: {})", new_clus.getEnergy(),
                              edm4eic::angleAzimuthal(new_clus.getPosition()), new_clus.getPosition().z);
+
+
+            } else {
+
+                m_log->debug("  Unmatched position cluster {}", pc.getObjectID().index);
+
             }
 
         }
