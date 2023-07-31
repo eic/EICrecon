@@ -11,7 +11,7 @@ void eicrecon::ParticlesWithPID_factory::Init() {
     auto app = GetApplication();
 
     // SpdlogMixin logger initialization, sets m_log
-    InitLogger(GetPrefix(), "info");
+    InitLogger(app, GetPrefix(), "info");
     m_matching_algo.init(m_log);
 }
 

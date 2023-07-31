@@ -4,7 +4,7 @@
 //
 #include "Log_service.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include <JANA/JException.h>
 
 

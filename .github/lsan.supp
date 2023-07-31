@@ -1,0 +1,2 @@
+leak:libCore.so
+leak:edm4hep::*::createBuffers

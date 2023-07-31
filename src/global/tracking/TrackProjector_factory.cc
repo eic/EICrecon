@@ -6,7 +6,6 @@
 #include <JANA/JEvent.h>
 
 #include "TrackProjector_factory.h"
-#include "extensions/string/StringHelpers.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
@@ -20,7 +19,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix);
+        InitLogger(GetApplication(), param_prefix);
 
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 

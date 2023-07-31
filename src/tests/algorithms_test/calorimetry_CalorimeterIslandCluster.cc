@@ -7,7 +7,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <spdlog/logger.h>
 
-#include <algorithms/calorimetry/CalorimeterIslandCluster.h>
+#include "algorithms/calorimetry/CalorimeterIslandCluster.h"
 
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {

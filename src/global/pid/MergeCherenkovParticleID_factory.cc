@@ -1,5 +1,5 @@
-// Copyright 2023, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Christopher Dilks
 
 #include "MergeCherenkovParticleID_factory.h"
 
@@ -13,7 +13,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
   InitDataTags(prefix);
 
   // services
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_log->debug("MergeCherenkovParticleID_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // config

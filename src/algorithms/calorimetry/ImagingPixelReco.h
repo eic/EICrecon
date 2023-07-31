@@ -9,16 +9,17 @@
 
 #include <algorithm>
 #include <bitset>
+#include <memory>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
 // Event Model related classes
-#include "edm4eic/CalorimeterHit.h"
-#include "edm4eic/RawCalorimeterHit.h"
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/RawCalorimeterHit.h>
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <spdlog/spdlog.h>
 
 /** Imaging calorimeter pixel hit reconstruction.
@@ -45,10 +46,6 @@ protected:
     double m_thresholdFactor; // {this, "thresholdFactor", 3.0};
     // Calibration!
     double m_sampFrac; // {this, "samplingFraction", 1.0};
-
-    // hits containers
-    std::vector<const edm4hep::RawCalorimeterHit*> m_inputHits;
-    std::vector<edm4eic::CalorimeterHit *> m_outputHits;
 
     // Pointer to the geometry service
     std::shared_ptr<JDD4hep_service> m_geoSvc;
@@ -84,11 +81,8 @@ public:
         }
     }
 
-    void execute() {
-        // input collections
-        const auto &rawhits = m_inputHits;
-        // Create output collections
-        auto &hits = m_outputHits;
+    std::unique_ptr<edm4eic::CalorimeterHitCollection> execute(const edm4hep::RawCalorimeterHitCollection &rawhits) {
+        auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
         // energy time reconstruction
         for (const auto &rh: rawhits) {
@@ -97,18 +91,18 @@ public:
 #pragma GCC diagnostic error "-Wsign-conversion"
 
             // did not pass the threshold
-            if (rh->getAmplitude() < m_pedMeanADC + m_thresholdFactor * m_pedSigmaADC) {
+            if (rh.getAmplitude() < m_pedMeanADC + m_thresholdFactor * m_pedSigmaADC) {
                 continue;
             }
             const double energy =
-                    (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * m_dyRangeADC /
+                    (((signed) rh.getAmplitude() - (signed) m_pedMeanADC)) / (double) m_capADC * m_dyRangeADC /
                     m_sampFrac; // convert ADC -> energy
-            const double time = rh->getTimeStamp() * 1.e-6;                                       // dd4hep::ns
+            const double time = rh.getTimeStamp() * 1.e-6;                                       // dd4hep::ns
 
 #pragma GCC diagnostic pop
 
             try {
-                const auto id = rh->getCellID();
+                const auto id = rh.getCellID();
                 // @TODO remove
                 const int lid = (int) id_dec->get(id, layer_idx);
                 const int sid = (int) id_dec->get(id, sector_idx);
@@ -130,18 +124,19 @@ public:
                         pos.x() / m_lUnit, pos.y() / m_lUnit, pos.z() / m_lUnit
                 );
 
-                hits.push_back(new edm4eic::CalorimeterHit{id,                         // cellID
-                                                           static_cast<float>(energy), // energy
-                                                           0,                          // energyError
-                                                           static_cast<float>(time),   // time
-                                                           0,                          // timeError TODO
-                                                           position,                   // global pos
-                                                           {0, 0, 0}, // @TODO: add dimension
-                                                           sid, lid,
-                                                           local});                    // local pos
-            }catch(std::exception &e){
+                recohits->create(id,                         // cellID
+                            static_cast<float>(energy), // energy
+                            0,                          // energyError
+                            static_cast<float>(time),   // time
+                            0,                          // timeError TODO
+                            position,                   // global pos
+                            edm4hep::Vector3f({0, 0, 0}), // @TODO: add dimension
+                            sid, lid,
+                            local);                    // local pos
+            } catch(std::exception &e) {
                 m_log->error("ImagingPixelReco::execute {}", e.what());
             }
         }
+        return recohits;
     }
 };

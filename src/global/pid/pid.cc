@@ -3,13 +3,13 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 // factories
-#include <global/pid/ParticlesWithPID_factory.h>
+#include "global/pid/ParticlesWithPID_factory.h"
 
 // algorithm configurations
-#include <algorithms/pid/ParticlesWithPIDConfig.h>
+#include "algorithms/pid/ParticlesWithPIDConfig.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -41,6 +41,22 @@ extern "C" {
             "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
             "ReconstructedChargedParticleIDs"           // edm4hep::ParticleID
+          },
+          link_cfg,
+          app
+          ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithPID_factory>(
+          "ChargedParticlesWithAssociations",
+          {
+            "MCParticles",                      // edm4hep::MCParticle
+            "outputSeededTrackParameters",      // edm4eic::TrackParameters
+            "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
+          },
+          {
+            "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
+            "ReconstructedSeededChargedParticleIDs"           // edm4hep::ParticleID
           },
           link_cfg,
           app

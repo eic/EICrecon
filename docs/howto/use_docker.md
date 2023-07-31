@@ -159,7 +159,7 @@ and may have some issues with user id's and permissions on Posix (max & linux).
 It might look complex, but actually it is not that bad and works most of the time.
 
 
-**Requirements**: X11 cliens (windows and mac), additional docker flags (see of each OS)
+**Requirements**: X11 clients (windows and mac), additional docker flags (see of each OS)
 
 You can use X11 natively (as natively as possible) with this docker image in your system:
 
@@ -198,7 +198,7 @@ Afterwards, open a terminal and run the following commands:
 ```bash
 ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
 
-echo $ip   # To make sure it was successfull
+echo $ip   # To make sure it was successful
            # If nothing is displayed, replace en0 with en1 and so on
 
 xhost + $ip  # start XQuartz and whitelist your local IP address
@@ -223,7 +223,7 @@ action needed. For the most optimal experience, you can install your software to
 ``/usr/local`` is a symlink to ``/opt/view``).
 
 ```
-FROM eicweb/jug_xl:nighlty
+FROM eicweb/jug_xl:nightly
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install git gdb

@@ -4,15 +4,15 @@
 
 #include "TrackSeeding.h"
 
-#include "Acts/Seeding/InternalSeed.hpp"
-#include "Acts/Seeding/SeedFilterConfig.hpp"
-#include "Acts/Seeding/SeedFinderOrthogonalConfig.hpp"
-#include "Acts/Seeding/SpacePointGrid.hpp"
-#include "Acts/Utilities/KDTree.hpp"
-#include "Acts/Seeding/Seed.hpp"
-#include "Acts/Seeding/SeedFilter.hpp"
-#include "Acts/Seeding/SeedFinderOrthogonal.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Seeding/InternalSeed.hpp>
+#include <Acts/Seeding/SeedFilterConfig.hpp>
+#include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SpacePointGrid.hpp>
+#include <Acts/Utilities/KDTree.hpp>
+#include <Acts/Seeding/Seed.hpp>
+#include <Acts/Seeding/SeedFilter.hpp>
+#include <Acts/Seeding/SeedFinderOrthogonal.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
 #include <TDatabasePDG.h>
 #include <tuple>
@@ -78,14 +78,18 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       std::vector<std::pair<float,float>> rzHitPositions;
       for(auto& spptr : seed.sp())
 	{
-	  xyHitPositions.push_back(std::make_pair(spptr->x(), spptr->y()));
-	  rzHitPositions.push_back(std::make_pair(spptr->r(), spptr->z()));
+	  xyHitPositions.emplace_back(spptr->x(), spptr->y());
+	  rzHitPositions.emplace_back(spptr->r(), spptr->z());
 	}
 
       auto RX0Y0 = circleFit(xyHitPositions);
       float R = std::get<0>(RX0Y0);
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
+      if (R > std::sqrt(std::cbrt(std::numeric_limits<float>::max()))) {
+        // avoid future float overflow for hits on a line
+        continue;
+      }
       auto slopeZ0 = lineFit(rzHitPositions);
 
       int charge = determineCharge(xyHitPositions);

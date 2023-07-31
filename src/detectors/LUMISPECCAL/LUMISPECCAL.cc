@@ -3,30 +3,15 @@
 //
 //
 
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "RawCalorimeterHit_factory_EcalLumiSpecRawHits.h"
-#include "CalorimeterHit_factory_EcalLumiSpecRecHits.h"
-#include "ProtoCluster_factory_EcalLumiSpecTruthProtoClusters.h"
 #include "ProtoCluster_factory_EcalLumiSpecIslandProtoClusters.h"
-
-namespace eicrecon {
-    class Cluster_factory_EcalLumiSpecTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalLumiSpecClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalLumiSpecClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalLumiSpecClusters>(std::forward<Args>(args)...) { }
-    };
-}
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -35,13 +20,46 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalLumiSpecRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalLumiSpecRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>());
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+          "EcalLumiSpecRawHits", {"LumiSpecCALHits"}, {"EcalLumiSpecRawHits"},
+          {
+            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 16384,
+            .dyRangeADC = 20 * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .corrMeanScale = 1.0,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "EcalLumiSpecRecHits", {"EcalLumiSpecRawHits"}, {"EcalLumiSpecRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 20. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 1,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 3.0,
+            .sampFrac = 1.0,
+            .readout = "LumiSpecCALHits",
+            .sectorField = "sector",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+          "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "LumiSpecCALHits"}, {"EcalLumiSpecTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>(
+          {"EcalLumiSpecRecHits"}, "EcalLumiSpecIslandProtoClusters"
+        ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalLumiSpecClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalLumiSpecClusters",
             {"EcalLumiSpecIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "LumiSpecCALHits"},                 // edm4hep::SimCalorimeterHitCollection
@@ -60,7 +78,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalLumiSpecTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalLumiSpecTruthClusters",
             {"EcalLumiSpecTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "LumiSpecCALHits"},                      // edm4hep::SimCalorimeterHitCollection

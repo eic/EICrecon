@@ -63,7 +63,7 @@ code of each plugin cmake scripts. Macros mimic CMake functions like `target_lin
 plugin_add(my_plugin)
 ```
 
-It is possible to also automatically crate a static library from a plugin
+It is possible to also automatically create a static library from a plugin
 sources in addition to the plugin itself. Adding `WITH_STATIC_LIBRARY` to
 `plugin_add`. All other `plugin_xxx` functions will know about the second target then.
 

@@ -1,5 +1,5 @@
-// Copyright 2023, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Christopher Dilks
 
 #include "MergeParticleID.h"
 
@@ -73,7 +73,6 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
     // loop over this PID collection
     for(size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
-
       // make the index pair
       const auto& in_pid = in_pid_collection->at(idx_pid);
       auto& charged_particle_track_segment = in_pid.getChargedParticle();
@@ -119,9 +118,9 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
     // create mutable output `CherenkovParticleID` object `out_pid`
     auto out_pid = out_pids->create();
-    out_pid.setNpe(0.0);
-    out_pid.setRefractiveIndex(0.0);
-    out_pid.setPhotonEnergy(0.0);
+    decltype(edm4eic::CherenkovParticleIDData::npe)             out_npe             = 0.0;
+    decltype(edm4eic::CherenkovParticleIDData::refractiveIndex) out_refractiveIndex = 0.0;
+    decltype(edm4eic::CherenkovParticleIDData::photonEnergy)    out_photonEnergy    = 0.0;
 
     // define `pdg_2_out_hyp`: map of PDG => merged output hypothesis
     std::unordered_map< decltype(edm4eic::CherenkovParticleIDHypothesis::PDG), edm4eic::CherenkovParticleIDHypothesis > pdg_2_out_hyp;
@@ -135,9 +134,9 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
       Tools::PrintHypothesisTableHead(m_log,6);
 
       // merge scalar members
-      out_pid.setNpe(out_pid.getNpe() + in_pid.getNpe()); // sum
-      out_pid.setRefractiveIndex( out_pid.getRefractiveIndex() + in_pid.getNpe() * in_pid.getRefractiveIndex() ); // NPE-weighted average
-      out_pid.setPhotonEnergy(    out_pid.getPhotonEnergy()    + in_pid.getNpe() * in_pid.getPhotonEnergy()    ); // NPE-weighted average
+      out_npe             += in_pid.getNpe(); // sum
+      out_refractiveIndex += in_pid.getNpe() * in_pid.getRefractiveIndex(); // NPE-weighted average
+      out_photonEnergy    += in_pid.getNpe() * in_pid.getPhotonEnergy();    // NPE-weighted average
 
       // merge photon Cherenkov angles
       for(auto in_photon_vec : in_pid.getThetaPhiPhotons())
@@ -170,7 +169,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
               out_hyp.weight *= in_hyp.weight;
               break;
             default:
-              m_log->error("unknown MergeParticleIDConfig::mergeMode setting; weights not combined");
+              throw std::runtime_error("unknown MergeParticleIDConfig::mergeMode setting; weights not combined");
           }
         }
       } // end `in_pid.getHypotheses()` loop, for this charged particle
@@ -178,9 +177,10 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
     } // end `in_pid` loop, for this charged particle
 
     // finish computing averages of scalar members
-    if(out_pid.getNpe() > 0) {
-      out_pid.setRefractiveIndex( out_pid.getRefractiveIndex() / out_pid.getNpe() );
-      out_pid.setPhotonEnergy(    out_pid.getPhotonEnergy()    / out_pid.getNpe() );
+    out_pid.setNpe(out_npe);
+    if(out_npe > 0) {
+      out_pid.setRefractiveIndex( out_refractiveIndex / out_npe );
+      out_pid.setPhotonEnergy(    out_photonEnergy    / out_npe );
     }
 
     // append hypotheses

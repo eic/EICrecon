@@ -6,9 +6,9 @@
 
 #include "ActsGeometryProvider.h"
 
-#include "TGeoManager.h"
+#include <TGeoManager.h>
 
-#include "DD4hep/Printout.h"
+#include <DD4hep/Printout.h>
 
 //#include "JugBase/ACTSLogger.h"
 #include "JugBase/Acts/MaterialWiper.hpp"
@@ -21,8 +21,8 @@
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 
 
-#include <extensions/spdlog/SpdlogToActs.h>
-#include <extensions/spdlog/SpdlogFormatters.h>
+#include "extensions/spdlog/SpdlogToActs.h"
+#include "extensions/spdlog/SpdlogFormatters.h"
 
 void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
                    const std::string &fname) {

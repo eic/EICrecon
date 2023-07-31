@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
-#include <algorithms/tracking/JugTrack/IndexSourceLink.hpp>
-#include <algorithms/tracking/JugTrack/Measurement.hpp>
+#include "algorithms/tracking/JugTrack/GeometryContainers.hpp"
+#include "algorithms/tracking/JugTrack/IndexSourceLink.hpp"
+#include "algorithms/tracking/JugTrack/Measurement.hpp"
 
 namespace eicrecon {
     struct TrackerSourceLinkerResult {

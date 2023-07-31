@@ -1,10 +1,10 @@
 
 #include "JEventProcessorPODIO.h"
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 #include <JANA/Services/JComponentManager.h>
 #include <podio/Frame.h>
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 #include <algorithm>
 
 
@@ -59,6 +59,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "BackwardMPGDEndcapRecHits",
+            "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
             "ForwardOffMTrackerRecHits",
@@ -77,6 +80,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
             "ReconstructedChargedParticleIDs",
+            // FIXME: Disable default inclusion of realistic seeding
+            // until the seed finder does not emit NaNs.
+            //"ReconstructedSeededChargedParticles",
+	    //"ReconstructedSeededChargedParticleAssociations",
+            //"ReconstructedSeededChargedParticleIDs",
             "CentralTrackSegments",
 	    "CentralTrackVertices",
             "InclusiveKinematicsDA",
@@ -87,6 +95,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsTruth",
             "GeneratedJets",
             "ReconstructedJets",
+            "ReconstructedElectrons",
 
             // Ecal stuff
             "EcalEndcapNRawHits",
@@ -107,12 +116,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertTruthClusterAssociations",
             "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertClusterAssociations",
-            "EcalBarrelSciGlassRawHits",
-            "EcalBarrelSciGlassRecHits",
-            "EcalBarrelSciGlassClusters",
-            "EcalBarrelSciGlassClusterAssociations",
-            "EcalBarrelSciGlassTruthClusters",
-            "EcalBarrelSciGlassTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",

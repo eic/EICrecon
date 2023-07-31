@@ -44,7 +44,7 @@ for arg in sys.argv:
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
-    print("ERROR: EDM4HEP_INCLUDE_DIR not spcified on command line (with \n"
+    print("ERROR: EDM4HEP_INCLUDE_DIR not specified on command line (with \n"
           "EDM4HEP_INCLUDE_DIR=/path/to/edm4hep/include) and EDM4HEP_ROOT\n"
           "env. variable is None or empty\n"
           "       Please specify the EDM4HEP_INCLUDE_DIR value explicitly\n"
@@ -55,7 +55,7 @@ if not EDM4HEP_INCLUDE_DIR:
 
 # Check if EDM4EIC_ROOT is set
 if not EDM4EIC_INCLUDE_DIR:
-    print("ERROR: EDM4EIC_INCLUDE_DIR not spcified on command line (with \n"
+    print("ERROR: EDM4EIC_INCLUDE_DIR not specified on command line (with \n"
           "EDM4EIC_INCLUDE_DIR=/path/to/EDM4EIC/include) and EDM4EIC_ROOT\n"
           "env. variable is None or empty\n"
           "       Please specify the EDM4EIC_INCLUDE_DIR value explicitly\n"

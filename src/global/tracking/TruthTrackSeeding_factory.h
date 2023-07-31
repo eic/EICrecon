@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 #include "extensions/jana/JChainFactoryT.h"
 
-#include <algorithms/tracking/TruthTrackSeeding.h>
+#include "algorithms/tracking/TruthTrackSeeding.h"
 
 
 

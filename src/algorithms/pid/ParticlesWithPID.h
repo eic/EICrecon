@@ -18,7 +18,7 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "ParticlesWithPIDConfig.h"
 #include "ConvertParticleID.h"
 #include "Tools.h"

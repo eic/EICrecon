@@ -7,8 +7,8 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <algorithms/pid/ParticlesWithPID.h>
-#include <algorithms/pid/ParticlesWithPIDConfig.h>
+#include "algorithms/pid/ParticlesWithPID.h"
+#include "algorithms/pid/ParticlesWithPIDConfig.h"
 #include <spdlog/logger.h>
 
 
@@ -16,7 +16,7 @@ namespace eicrecon {
 
     class ParticlesWithPID_factory :
             public JChainMultifactoryT<ParticlesWithPIDConfig>,
-            public SpdlogMixin<ParticlesWithPID_factory> {
+            public SpdlogMixin {
 
     public:
         explicit ParticlesWithPID_factory( std::string tag,

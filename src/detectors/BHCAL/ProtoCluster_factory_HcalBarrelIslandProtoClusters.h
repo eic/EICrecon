@@ -6,27 +6,28 @@
 
 #include <random>
 
-#include <services/io/podio/JFactoryPodioT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <algorithms/calorimetry/CalorimeterIslandCluster.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "algorithms/calorimetry/CalorimeterIslandCluster.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
-class ProtoCluster_factory_HcalBarrelIslandProtoClusters : public eicrecon::JFactoryPodioT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
+class ProtoCluster_factory_HcalBarrelIslandProtoClusters : public JChainFactoryT<edm4eic::ProtoCluster>, CalorimeterIslandCluster {
 
 public:
     //------------------------------------------
     // Constructor
-    ProtoCluster_factory_HcalBarrelIslandProtoClusters(){
-        SetTag("HcalBarrelIslandProtoClusters");
+    ProtoCluster_factory_HcalBarrelIslandProtoClusters(std::vector<std::string> default_input_tags)
+    : JChainFactoryT<edm4eic::ProtoCluster>(std::move(default_input_tags)) {
         m_log = japp->GetService<Log_service>()->logger(GetTag());
     }
 
     //------------------------------------------
     // Init
     void Init() override{
+        InitDataTags(GetPluginName() + ":" + GetTag());
+
         auto app = GetApplication();
-        m_input_tag = "HcalBarrelRecHits";
 
         // adjacency matrix
         m_geoSvcName = "GeoSvc";
@@ -93,7 +94,7 @@ public:
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override{
         // Prefill inputs
-        hits = event->Get<edm4eic::CalorimeterHit>(m_input_tag);
+        hits = event->Get<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         AlgorithmProcess();

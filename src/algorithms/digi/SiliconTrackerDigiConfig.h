@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DD4hep/DD4hepUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 
 namespace eicrecon {
 

@@ -33,8 +33,8 @@ jobs:
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -104,13 +104,13 @@ jobs:
         name: build-clang-eic-shell-Debug
         path: build/
     - uses: eic/run-cvmfs-osg-eic-shell@main
-      if: ${{ github.event_name == 'pull_request'}}
+      if: ${{ github.event_name == 'pull_request' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -clang-tidy-binary run-clang-tidy
+          git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
     - uses: eic/run-cvmfs-osg-eic-shell@main
-      if: ${{ github.event_name == 'push'}}
+      if: ${{ github.event_name == 'push' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
@@ -119,6 +119,13 @@ jobs:
       with:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
+    - uses: platisd/clang-tidy-pr-comments@1.4.0
+      if: ${{ github.event_name == 'pull_request' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        clang_tidy_fixes: clang_tidy_fixes.yml
+        request_changes: true
+        suggestions_per_comment: 10
 
   llvm-cov:
     runs-on: ubuntu-latest
@@ -131,6 +138,7 @@ jobs:
       with:
         name: build-clang-eic-shell-Debug
         path: build/
+    - run: sudo apt-get update
     - run: sudo apt-get install -y llvm-15 jq
     - name: llvm-cov
       run: |
@@ -148,16 +156,20 @@ jobs:
           COV_PERCENT=$(llvm-cov-15 export $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
-          curl --request POST \
-            --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --data '{
-              "state": "success",
-              "context": "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%"
-              }' \
-            --fail-with-body
+          if [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
+            curl --request POST \
+              --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --data '{
+                "state": "success",
+                "context": "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%"
+                }' \
+              --fail-with-body
+          else
+            echo 'PR submitted from a fork. Skipping posting the "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%" status.'
+          fi
         done
         llvm-cov-15 show "${LIB_PATHS[@]/#/--object=}" \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
@@ -173,7 +185,7 @@ jobs:
     strategy:
       matrix:
         particle: [pi, e]
-        detector_config: [arches, brycecanyon]
+        detector_config: [brycecanyon, craterlake]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Get detector info
@@ -193,7 +205,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -227,7 +239,7 @@ jobs:
         setup: /opt/detector/setup.sh
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
-          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -N 100
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --random.seed 1 --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -N 100 -v WARNING
     - uses: actions/upload-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
@@ -240,7 +252,7 @@ jobs:
       matrix:
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
-        detector_config: [arches, brycecanyon]
+        detector_config: [brycecanyon, craterlake]
         exclude:
         - beam: 5x41
           minq2: 1000
@@ -264,7 +276,7 @@ jobs:
         setup: /opt/detector/setup.sh
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
-          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+          ddsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v3
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
@@ -280,10 +292,10 @@ jobs:
       matrix:
         CC: [gcc, clang]
         particle: [pi, e]
-        detector_config: [arches, brycecanyon]
+        detector_config: [brycecanyon, craterlake]
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -301,10 +313,13 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          dot -Tsvg jana.dot > jana.svg
+          mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
+          mv jana.svg rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.svg
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
@@ -314,9 +329,31 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
-        path: jana.dot
+        name: jana.dot
+        path: |
+          *.dot
+          *.svg
         if-no-files-found: error
+    - uses: dawidd6/action-download-artifact@v2
+      with:
+        branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
+        path: ref/
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        if_no_artifact_found: warn
+    - uses: actions/checkout@v3
+      with:
+        repository: 'eic/epic-capybara'
+        path: epic-capybara
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          echo "::group::pip install"
+          python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
+          echo "::endgroup::"
+          python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+
 
   eicrecon-gun-EcalLumiSpec:
     runs-on: ubuntu-latest
@@ -329,8 +366,8 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -348,10 +385,10 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
+        name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
@@ -361,7 +398,7 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: eicrecon_rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
+        name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
         path: jana.dot
         if-no-files-found: error
 
@@ -375,13 +412,13 @@ jobs:
         CC: [gcc, clang]
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
-        detector_config: [arches, brycecanyon]
+        detector_config: [brycecanyon, craterlake]
         exclude:
         - beam: 5x41
           minq2: 1000
     env:
-      ASAN_OPTIONS: malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: exitcode=0
+      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -399,23 +436,52 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pplugins=janadot
+          $PWD/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pplugins=janadot -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          dot -Tsvg jana.dot > jana.svg
+          mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
+          mv jana.svg rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.svg
     - uses: actions/upload-artifact@v3
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_dis_${{matrix.beam}}_${{ matrix.detector_config }}.edm4eic.root
+        path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
-        path: jana.dot
+        name: jana.dot
+        path: |
+          *.dot
+          *.svg
         if-no-files-found: error
+    - uses: actions/checkout@v3
+      with:
+        repository: 'eic/epic-capybara'
+        path: epic-capybara
+    - uses: dawidd6/action-download-artifact@v2
+      with:
+        branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
+        path: ref/
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+        if_no_artifact_found: warn
+    - uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          echo "::group::pip install"
+          python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
+          echo "::endgroup::"
+          echo "::group::diff ref -> new"
+          python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+          echo "::endgroup::"
 
   # build-docs and deploy-docs copy doxygen.yml functionality
   # the difference is that these jobs use resulting artifacts from EICrecon runs
   # to embed into docs
   build-docs-advanced:
     runs-on: ubuntu-latest
+    needs:
+      - eicrecon-gun
+      - eicrecon-dis
     container:
       image: alpine:latest
       volumes:
@@ -434,6 +500,10 @@ jobs:
           name: docs
           path: publishing_docs/
           if-no-files-found: error
+      - uses: actions/download-artifact@v3
+        with:
+          name: jana.dot
+          path: publishing_docs/dot/
       - run:
           apk add tar bash
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14

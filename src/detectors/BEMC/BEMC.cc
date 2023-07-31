@@ -3,51 +3,21 @@
 //
 //
 
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
-#include "RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits.h"
-#include "CalorimeterHit_factory_EcalBarrelSciGlassRecHits.h"
-#include "ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters.h"
-#include "ProtoCluster_factory_EcalBarrelSciGlassProtoClusters.h"
-#include "Cluster_factory_EcalBarrelSciGlassMergedTruthClusters.h"
-
-#include "RawCalorimeterHit_factory_EcalBarrelScFiRawHits.h"
-#include "CalorimeterHit_factory_EcalBarrelScFiRecHits.h"
-#include "CalorimeterHit_factory_EcalBarrelScFiMergedHits.h"
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
-#include "RawCalorimeterHit_factory_EcalBarrelImagingRawHits.h"
 #include "CalorimeterHit_factory_EcalBarrelImagingRecHits.h"
 #include "ProtoCluster_factory_EcalBarrelImagingProtoClusters.h"
 #include "Cluster_factory_EcalBarrelImagingClusters.h"
 #include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
-
-
-namespace eicrecon {
-    class Cluster_factory_EcalBarrelSciGlassTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelSciGlassClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelSciGlassClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelSciGlassClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalBarrelScFiClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalBarrelScFiClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalBarrelScFiClusters>(std::forward<Args>(args)...) { }
-    };
-
-}
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -56,34 +26,51 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelSciGlassRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelSciGlassRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassProtoClusters>());
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+           "EcalBarrelScFiRawHits",
+           {"EcalBarrelScFiHits"},
+           {"EcalBarrelScFiRawHits"},
+           {
+             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 16384,
+             .dyRangeADC = 750 * dd4hep::MeV,
+             .pedMeanADC = 20,
+             .pedSigmaADC = 0.3,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+             .readout = "EcalBarrelScFiHits",
+             .fields = {"fiber", "z"},
+           },
+           app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 750. * dd4hep::MeV,
+            .pedMeanADC = 20,
+            .pedSigmaADC = 0.3,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 36.0488,
+            .thresholdValue = 0.0,
+            .sampFrac = 0.10200085,
+            .readout = "EcalBarrelScFiHits",
+            .layerField = "layer",
+            .sectorField = "module",
+            .localDetFields = {"system"},
+            // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+            // TODO: a more realistic way to get z is to reconstruct it from timing
+            .maskPos = "xy",
+            .maskPosFields = {"fiber", "z"},
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>(
+          {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
+        ));
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassClusters>(
-             "EcalBarrelSciGlassClusters",
-            {"EcalBarrelSciGlassProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"EcalBarrelSciGlassClusters",             // edm4eic::Cluster
-             "EcalBarrelSciGlassClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 0.92,
-              .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = true
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
-
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelScFiRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelScFiRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>());
-        app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelScFiClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -101,36 +88,45 @@ extern "C" {
           )
         );
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalBarrelImagingRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>());
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+           "EcalBarrelImagingRawHits",
+          {"EcalBarrelImagingHits"},
+          {"EcalBarrelImagingRawHits"},
+          {
+             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 8192,
+             .dyRangeADC = 3 * dd4hep::MeV,
+             .pedMeanADC = 100,
+             .pedSigmaADC = 14,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+           },
+           app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>(
+          {"EcalBarrelImagingRawHits"}, "EcalBarrelImagingRecHits"
+        ));
+        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>(
+          {"EcalBarrelImagingRecHits"}, "EcalBarrelImagingProtoClusters"
+        ));
 
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>());
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>());
+        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>(
+          {"EcalBarrelImagingProtoClusters"}, "EcalBarrelImagingClusters"
+        ));
+        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>(
+          {
+            "MCParticles",
+            "EcalBarrelScFiClusters",
+            "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelImagingClusters",
+            "EcalBarrelImagingClusterAssociations"
+          },
+          "EcalBarrelImagingMergedClusters"
+        ));
 
         // Inserted types (so they can be written to output podio file)
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
         app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
-
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalBarrelSciGlassTruthProtoClusters>());
-        app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassTruthClusters>(
-             "EcalBarrelSciGlassTruthClusters",
-            {"EcalBarrelSciGlassTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelSciGlassHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"EcalBarrelSciGlassTruthClusters",             // edm4eic::Cluster
-             "EcalBarrelSciGlassTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-             {
-               .energyWeight = "log",
-               .moduleDimZName = "",
-               .sampFrac = 1.0,
-               .logWeightBase = 6.2,
-               .depthCorrection = 0.0,
-               .enableEtaBounds = true
-             },
-            app   // TODO: Remove me once fixed
-          )
-        );
-        app->Add(new JFactoryGeneratorT<Cluster_factory_EcalBarrelSciGlassMergedTruthClusters>());
     }
 }

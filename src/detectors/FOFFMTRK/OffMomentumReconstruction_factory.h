@@ -9,30 +9,30 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "DD4hep/Detector.h"
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/SimTrackerHit.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <spdlog/logger.h>
 
 namespace eicrecon {
 
-    class OffMomentumReconstruction_factory : public JFactoryT<edm4eic::ReconstructedParticle>{
+    class OffMomentumReconstruction_factory : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>{
 
     public:
 
-	OffMomentumReconstruction_factory(); //constructer
+	OffMomentumReconstruction_factory(); //constructor
 
         /** One time initialization **/
         void Init() override;
@@ -45,8 +45,8 @@ namespace eicrecon {
 
 	//----- Define constants here ------
 
-	const double local_x_offset = -11.9872; // in mm --> this is from mis-alignment of the detector
-	const double local_y_offset = -0.0146;  //in mm --> this is from mis-alignment of the detector
+	const double local_x_offset = -11.9872; // in mm --> this is from misalignment of the detector
+	const double local_y_offset = -0.0146;  //in mm --> this is from misalignment of the detector
 	const double local_x_slope_offset = -14.75315; //in mrad
 	const double local_y_slope_offset = -0.0073; //in mrad
 	const double crossingAngle = -0.025; //in mrad
