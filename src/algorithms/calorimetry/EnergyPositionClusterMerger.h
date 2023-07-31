@@ -134,28 +134,60 @@ namespace eicrecon {
                         break;
                     }
                 }
-                if (ea != energy_assoc.end()) {
-                    auto clusterassoc = merged_assoc->create();
-                    clusterassoc.setRecID(new_clus.getObjectID().index);
-                    clusterassoc.setSimID(ea->getSimID());
-                    clusterassoc.setWeight(1.0);
-                    clusterassoc.setRec(new_clus);
-                    clusterassoc.setSim(ea->getSim());
-                }
-                // add association from position cluster if different
+                // find association from position cluster if different
                 auto pa = pos_assoc.begin();
                 for (; pa != pos_assoc.end(); ++pa) {
                     if (pa->getRec() == pc) {
                         break;
                     }
                 }
-                if (pa != pos_assoc.end() && pa->getSimID() != ea->getSimID()) {
-                    auto clusterassoc = merged_assoc->create();
-                    clusterassoc.setRecID(new_clus.getObjectID().index);
-                    clusterassoc.setSimID(pa->getSimID());
-                    clusterassoc.setWeight(1.0);
-                    clusterassoc.setRec(new_clus);
-                    clusterassoc.setSim(pa->getSim());
+                if (ea != energy_assoc.end() || pa != pos_assoc.end()) {
+                    // we must write an association
+                    if (ea != energy_assoc.end() && pa != pos_assoc.end()) {
+                        // we have two associations
+                        if (pa->getSimID() == ea->getSimID()) {
+                            // both associations agree on the MCParticles entry
+                            auto clusterassoc = merged_assoc->create();
+                            clusterassoc.setRecID(new_clus.getObjectID().index);
+                            clusterassoc.setSimID(ea->getSimID());
+                            clusterassoc.setWeight(1.0);
+                            clusterassoc.setRec(new_clus);
+                            clusterassoc.setSim(ea->getSim());
+                        } else {
+                            // both associations disagree on the MCParticles entry
+                            m_log->debug("   --> Two associations added to {} and {}", ea->getSimID(), pa->getSimID());
+                            auto clusterassoc1 = merged_assoc->create();
+                            clusterassoc1.setRecID(new_clus.getObjectID().index);
+                            clusterassoc1.setSimID(ea->getSimID());
+                            clusterassoc1.setWeight(0.5);
+                            clusterassoc1.setRec(new_clus);
+                            clusterassoc1.setSim(ea->getSim());
+                            auto clusterassoc2 = merged_assoc->create();
+                            clusterassoc2.setRecID(new_clus.getObjectID().index);
+                            clusterassoc2.setSimID(pa->getSimID());
+                            clusterassoc2.setWeight(0.5);
+                            clusterassoc2.setRec(new_clus);
+                            clusterassoc2.setSim(pa->getSim());
+                        }
+                    } else if (ea != energy_assoc.end()) {
+                        // no position association
+                        m_log->debug("   --> Only added energy cluster association to {}", ea->getSimID());
+                        auto clusterassoc = merged_assoc->create();
+                        clusterassoc.setRecID(new_clus.getObjectID().index);
+                        clusterassoc.setSimID(ea->getSimID());
+                        clusterassoc.setWeight(1.0);
+                        clusterassoc.setRec(new_clus);
+                        clusterassoc.setSim(ea->getSim());
+                    } else if (pa != pos_assoc.end()) {
+                        // no energy association
+                        m_log->debug("   --> Only added position cluster association to {}", pa->getSimID());
+                        auto clusterassoc = merged_assoc->create();
+                        clusterassoc.setRecID(new_clus.getObjectID().index);
+                        clusterassoc.setSimID(pa->getSimID());
+                        clusterassoc.setWeight(1.0);
+                        clusterassoc.setRec(new_clus);
+                        clusterassoc.setSim(pa->getSim());
+                    }
                 }
 
                 // label our energy cluster as consumed
