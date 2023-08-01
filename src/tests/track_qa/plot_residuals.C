@@ -52,6 +52,9 @@ double*** makeDGFits(TH1* hist, double*** fit_widths, int i, int j, double param
 	return fit_widths; 
 }
 
+double*** makeSGfits(TH1* hist, double*** fit_widths, int i, int j, double a, double b, double c) {
+	return fit_widths
+}
 
 
 
