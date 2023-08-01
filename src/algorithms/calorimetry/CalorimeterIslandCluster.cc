@@ -4,14 +4,15 @@
 //  Sections Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <sstream>
+
+#include <TInterpreter.h>
+#include <TInterpreterValue.h>
+
 #include "CalorimeterIslandCluster.h"
 
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-
-// Expression evaluator from DD4hep
-#include <Evaluator/Evaluator.h>
-#include <Evaluator/detail/Evaluator.h>
 
 #include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -33,6 +34,7 @@ using namespace edm4eic;
 //   values here. This needs to be confirmed.
 
 
+unsigned int CalorimeterIslandCluster::function_id = 0;
 
 //------------------------
 // AlgorithmInit
@@ -111,24 +113,40 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
-      is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
-        dd4hep::tools::Evaluator::Object evaluator;
+
+      std::string func_name = fmt::format("_CalorimeterIslandCluster_{}", function_id++);
+      std::ostringstream sstr;
+      sstr << "bool " << func_name << "(double params[]){";
+      unsigned int param_ix = 0;
+      for(const auto &p : m_idSpec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        sstr << "double " << name << "_1 = params[" << (param_ix++) << "];";
+        sstr << "double " << name << "_2 = params[" << (param_ix++) << "];";
+      }
+      sstr << "return " << u_adjacencyMatrix << ";";
+      sstr << "}";
+      m_log->debug("Compiling {}", sstr.str());
+
+      TInterpreter *interp = TInterpreter::Instance();
+      interp->ProcessLine(sstr.str().c_str());
+      std::unique_ptr<TInterpreterValue> func_val { gInterpreter->CreateTemporary() };
+      interp->Evaluate(func_name.c_str(), *func_val);
+      typedef bool (*func_t)(double params[]);
+      func_t func = ((func_t)(func_val->GetAsPointer()));
+
+      is_neighbour = [this, func, param_ix](const CaloHit* h1, const CaloHit* h2) {
+        std::vector<double> params;
+        params.reserve(param_ix);
         for(const auto &p : m_idSpec.fields()) {
           const std::string &name = p.first;
           const dd4hep::IDDescriptor::Field* field = p.second;
-          evaluator.setVariable((name + "_1").c_str(), field->value(h1->getCellID()));
-          evaluator.setVariable((name + "_2").c_str(), field->value(h2->getCellID()));
-          m_log->trace("setVariable(\"{}_1\", {});", name, field->value(h1->getCellID()));
-          m_log->trace("setVariable(\"{}_2\", {});", name, field->value(h2->getCellID()));
+          params.push_back(field->value(h1->getCellID()));
+          params.push_back(field->value(h2->getCellID()));
+          m_log->trace("{}_1 = {}", name, field->value(h1->getCellID()));
+          m_log->trace("{}_2 = {}", name, field->value(h2->getCellID()));
         }
-        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
-        if (eval.status()) {
-          std::stringstream sstr;
-          eval.print_error(sstr);
-          throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: {}", sstr.str()));
-        }
-        m_log->trace("Evaluated {} to {}", u_adjacencyMatrix, eval.result());
-        return eval.result();
+        return func(params.data());
       };
       method_found = true;
     }

@@ -151,6 +151,8 @@ private:
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
+    static unsigned int function_id;
+
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
     void dfs_group(std::vector<std::pair<uint32_t, const CaloHit*>>& group, int idx,
