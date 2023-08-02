@@ -238,7 +238,7 @@ void CalorimeterIslandCluster::AlgorithmChangeRun() {
 //------------------------
 std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits) {
     // group neighboring hits
-    std::vector<std::set<std::size_t>> groups;
+    std::vector<std::vector<std::size_t>> groups;
 
     std::vector<bool> visits(hits.size(), false);
     //TODO: use the right logger
