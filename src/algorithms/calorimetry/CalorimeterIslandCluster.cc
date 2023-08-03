@@ -1,8 +1,8 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//  Sections Copyright (C) 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin
-//  under SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin, David Lawrence
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
+#include <vector>
+#include <set>
 
 #include <sstream>
 
@@ -21,20 +21,53 @@
 
 using namespace edm4eic;
 
-//
-// This algorithm converted from:
-//
-//  https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugDigi/src/components/CalorimeterHitDigi.cpp
-//
-// TODO:
-// - Array type configuration parameters are not yet supported in JANA (needs to be added)
-// - Random number service needs to bew resolved (on global scale)
-// - It is possible standard running of this with Gaudi relied on a number of parameters
-//   being set in the config. If that is the case, they should be moved into the default
-//   values here. This needs to be confirmed.
-
-
 unsigned int CalorimeterIslandCluster::function_id = 0;
+
+static double Phi_mpi_pi(double phi) {
+  return std::remainder(phi, 2 * M_PI);
+}
+
+static edm4hep::Vector2f localDistXY(const CaloHit &h1, const CaloHit &h2) {
+  const auto delta =h1.getLocal() - h2.getLocal();
+  return {delta.x, delta.y};
+}
+static edm4hep::Vector2f localDistXZ(const CaloHit &h1, const CaloHit &h2) {
+  const auto delta = h1.getLocal() - h2.getLocal();
+  return {delta.x, delta.z};
+}
+static edm4hep::Vector2f localDistYZ(const CaloHit &h1, const CaloHit &h2) {
+  const auto delta = h1.getLocal() - h2.getLocal();
+  return {delta.y, delta.z};
+}
+static edm4hep::Vector2f dimScaledLocalDistXY(const CaloHit &h1, const CaloHit &h2) {
+  const auto delta = h1.getLocal() - h2.getLocal();
+
+  const auto dimsum = h1.getDimension() + h2.getDimension();
+
+  return {2 * delta.x / dimsum.x, 2 * delta.y / dimsum.y};
+}
+static edm4hep::Vector2f globalDistRPhi(const CaloHit &h1, const CaloHit &h2) {
+  using vector_type = decltype(edm4hep::Vector2f::a);
+  return {
+    static_cast<vector_type>(
+      edm4eic::magnitude(h1.getPosition()) - edm4eic::magnitude(h2.getPosition())
+    ),
+    static_cast<vector_type>(
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
+    )
+  };
+}
+static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) {
+  using vector_type = decltype(edm4hep::Vector2f::a);
+  return {
+    static_cast<vector_type>(
+      edm4eic::eta(h1.getPosition()) - edm4eic::eta(h2.getPosition())
+    ),
+    static_cast<vector_type>(
+      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
+    )
+  };
+}
 
 //------------------------
 // AlgorithmInit
@@ -61,7 +94,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     m_log=logger;
 
     static std::map<std::string,
-                std::tuple<std::function<edm4hep::Vector2f(const CaloHit*, const CaloHit*)>, std::vector<double>>>
+                std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>, std::vector<double>>>
     distMethods{
         {"localDistXY", {localDistXY, {dd4hep::mm, dd4hep::mm}}},        {"localDistXZ", {localDistXZ, {dd4hep::mm, dd4hep::mm}}},
         {"localDistYZ", {localDistYZ, {dd4hep::mm, dd4hep::mm}}},        {"dimScaledLocalDistXY", {dimScaledLocalDistXY, {1., 1.}}},
@@ -135,16 +168,16 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
       typedef bool (*func_t)(double params[]);
       func_t func = ((func_t)(func_val->GetAsPointer()));
 
-      is_neighbour = [this, func, param_ix](const CaloHit* h1, const CaloHit* h2) {
+      is_neighbour = [this, func, param_ix](const CaloHit &h1, const CaloHit &h2) {
         std::vector<double> params;
         params.reserve(param_ix);
         for(const auto &p : m_idSpec.fields()) {
           const std::string &name = p.first;
           const dd4hep::IDDescriptor::Field* field = p.second;
-          params.push_back(field->value(h1->getCellID()));
-          params.push_back(field->value(h2->getCellID()));
-          m_log->trace("{}_1 = {}", name, field->value(h1->getCellID()));
-          m_log->trace("{}_2 = {}", name, field->value(h2->getCellID()));
+          params.push_back(field->value(h1.getCellID()));
+          params.push_back(field->value(h2.getCellID()));
+          m_log->trace("{}_1 = {}", name, field->value(h1.getCellID()));
+          m_log->trace("{}_2 = {}", name, field->value(h2.getCellID()));
         }
         return func(params.data());
       };
@@ -157,16 +190,16 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
         if (set_dist_method(uprop)) {
           method_found = true;
 
-          is_neighbour = [this](const CaloHit* h1, const CaloHit* h2) {
+          is_neighbour = [this](const CaloHit &h1, const CaloHit &h2) {
             // in the same sector
-            if (h1->getSector() == h2->getSector()) {
+            if (h1.getSector() == h2.getSector()) {
               auto dist = hitsDist(h1, h2);
               return (fabs(dist.a) <= neighbourDist[0]) && (fabs(dist.b) <= neighbourDist[1]);
               // different sector, local coordinates do not work, using global coordinates
             } else {
               // sector may have rotation (barrel), so z is included
               // (EDM4hep units are mm, so convert sectorDist to mm)
-              return (edm4eic::magnitude(h1->getPosition() - h2->getPosition()) <= m_sectorDist / dd4hep::mm);
+              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= m_sectorDist / dd4hep::mm);
             }
           };
 
@@ -202,33 +235,21 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 // AlgorithmChangeRun
 //------------------------
 void CalorimeterIslandCluster::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
 }
 
 //------------------------
 // AlgorithmProcess
 //------------------------
-void CalorimeterIslandCluster::AlgorithmProcess()  {
-// input collections
-    //const auto& hits = event
-    // Create output collections
-    //auto& proto = *(m_outputProtoCollection.createAndPut());
-
+std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits) {
     // group neighboring hits
-    std::vector<std::vector<std::pair<uint32_t, const CaloHit*>>> groups;
-
-    //FIXME: protocluster collection to this?
-    std::vector<edm4eic::ProtoCluster> proto;
+    std::vector<std::set<std::size_t>> groups;
 
     std::vector<bool> visits(hits.size(), false);
-    //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
 
       {
         const auto& hit = hits[i];
-        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit->getEnergy() * 1000., hit->getLocal().x, hit->getLocal().y, hit->getPosition().x,  hit->getPosition().y, hit->getPosition().z);
+        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
       }
       // already in a group
       if (visits[i]) {
@@ -236,19 +257,21 @@ void CalorimeterIslandCluster::AlgorithmProcess()  {
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      dfs_group(groups.back(), i, hits, visits);
+      dfs_group(hits, groups.back(), i, visits);
     }
+
+    auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();
 
     for (auto& group : groups) {
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(group, !m_splitCluster);
-      split_group(group, maxima, protoClusters);
+      auto maxima = find_maxima(hits, group, !m_splitCluster);
+      split_group(hits, group, maxima, protoClusters.get());
 
       m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
 
-    return;
+    return protoClusters;
 
 }
