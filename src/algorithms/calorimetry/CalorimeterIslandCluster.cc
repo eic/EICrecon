@@ -24,37 +24,22 @@ static double Phi_mpi_pi(double phi) {
   return std::remainder(phi, 2 * M_PI);
 }
 
-//TODO:Reconcile edm4hep::Vector2f and edm4eic::Vector3f especially with regards to the operators and sign convention
 static edm4hep::Vector2f localDistXY(const CaloHit &h1, const CaloHit &h2) {
-  //edm4eic::Vector3f h1_pos=geo_converter->position(h1.getCellID());
-  //edm4eic::Vector3f h2_pos=geo_converter->position(h2.getCellID());
   const auto delta =h1.getLocal() - h2.getLocal();
   return {delta.x, delta.y};
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
-  //return {delta.x, delta.y,0};
-  //return {deltax,deltay};
 }
 static edm4hep::Vector2f localDistXZ(const CaloHit &h1, const CaloHit &h2) {
   const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltaz = h1.getLocal()[2] - h2.getLocal()[2];
   return {delta.x, delta.z};
 }
 static edm4hep::Vector2f localDistYZ(const CaloHit &h1, const CaloHit &h2) {
   const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
-  //const auto deltaz = h1.getLocal()[2] - h2.getLocal()[2];
   return {delta.y, delta.z};
 }
 static edm4hep::Vector2f dimScaledLocalDistXY(const CaloHit &h1, const CaloHit &h2) {
   const auto delta = h1.getLocal() - h2.getLocal();
-  //const auto deltax = h1.getLocal()[0] - h2.getLocal()[0];
-  //const auto deltay = h1.getLocal()[1] - h2.getLocal()[1];
 
   const auto dimsum = h1.getDimension() + h2.getDimension();
-  //const auto dimsumx = h1.getDimension()[0] + h2.getDimension()[0];
-  //const auto dimsumy = h1.getDimension()[1] + h2.getDimension()[1];
 
   return {2 * delta.x / dimsum.x, 2 * delta.y / dimsum.y};
 }
