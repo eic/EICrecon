@@ -41,11 +41,11 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             // Get material map from user parameter
             std::string material_map_file;
             try {
-              material_map_file = m_dd4hepGeo->constant<string>("materials-map");
+              material_map_file = m_dd4hepGeo->constant<std::string>("materials-map");
             } catch (const std::runtime_error& e) {
               material_map_file = "calibrations/materials-map.cbor";
             } catch (...) {
-              throw e;
+              throw;
             }
             m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSON/CBOR material map file path");
 
