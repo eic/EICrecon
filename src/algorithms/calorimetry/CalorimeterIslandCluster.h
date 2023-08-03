@@ -175,8 +175,9 @@ private:
     // split between maxima
     // TODO, here we can implement iterations with profile, or even ML for better splits
     std::vector<double> weights(maxima.size(), 1.);
+    std::vector<edm4eic::MutableProtoCluster> pcls;
     for (size_t k = 0; k < maxima.size(); ++k) {
-      protoClusters->create();
+      pcls.push_back(protoClusters->create());
     }
 
     for (std::size_t idx : group) {
@@ -206,8 +207,8 @@ private:
         if (weight <= 1e-6) {
           continue;
         }
-        (*protoClusters)[k].addToHits(hits[idx]);
-        (*protoClusters)[k].addToWeights(weight);
+        pcls[k].addToHits(hits[idx]);
+        pcls[k].addToWeights(weight);
       }
     }
     m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
