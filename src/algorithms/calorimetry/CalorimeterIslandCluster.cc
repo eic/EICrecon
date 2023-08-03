@@ -241,7 +241,6 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::Algor
     std::vector<std::set<std::size_t>> groups;
 
     std::vector<bool> visits(hits.size(), false);
-    //TODO: use the right logger
     for (size_t i = 0; i < hits.size(); ++i) {
 
       {
