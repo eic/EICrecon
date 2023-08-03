@@ -130,7 +130,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
 
       TInterpreter *interp = TInterpreter::Instance();
       interp->ProcessLine(sstr.str().c_str());
-      std::unique_ptr<TInterpreterValue> func_val { gInterpreter->CreateTemporary() };
+      std::unique_ptr<TInterpreterValue> func_val { gInterpreter->MakeInterpreterValue() };
       interp->Evaluate(func_name.c_str(), *func_val);
       typedef bool (*func_t)(double params[]);
       func_t func = ((func_t)(func_val->GetAsPointer()));
