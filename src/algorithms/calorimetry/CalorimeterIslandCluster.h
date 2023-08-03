@@ -81,13 +81,13 @@ private:
 
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
-    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::vector<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
         // not a qualified hit to particpate clustering, stop here
         if (hits[idx].getEnergy() < m_minClusterHitEdep) {
             visits[idx] = true;
             return;
         }
-        group.push_back(idx);
+        group.insert(idx);
         visits[idx] = true;
         for (size_t i = 0; i < hits.size(); ++i) {
             if (visits[i] || !is_neighbour(hits[idx], hits[i])) {
@@ -98,7 +98,7 @@ private:
     }
 
     // find local maxima that above a certain threshold
-  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection &hits, const std::vector<std::size_t> &group, bool global = false) const {
+  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t> &group, bool global = false) const {
     std::vector<std::size_t> maxima;
     if (group.empty()) {
       return maxima;
@@ -155,7 +155,7 @@ private:
 
     // split a group of hits according to the local maxima
     //TODO: confirm protoclustering without protoclustercollection
-  void split_group(const edm4eic::CalorimeterHitCollection &hits, std::vector<std::size_t>& group, const std::vector<std::size_t>& maxima, edm4eic::ProtoClusterCollection *protoClusters) const {
+  void split_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, const std::vector<std::size_t>& maxima, edm4eic::ProtoClusterCollection *protoClusters) const {
     // special cases
     if (maxima.empty()) {
       m_log->debug("No maxima found, not building any clusters");
