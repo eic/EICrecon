@@ -243,9 +243,12 @@ namespace eicrecon {
         // shower radius estimate (eta-phi plane)
         double radius = 0.;
         for (const auto &hit: hits) {
-            radius += std::hypot(
+            radius += std::pow(
+              std::hypot(
                 (edm4eic::eta(hit.getPosition()) - edm4eic::eta(cluster.getPosition())),
                 (edm4eic::angleAzimuthal(hit.getPosition()) - edm4eic::angleAzimuthal(cluster.getPosition()))
+              ),
+              2.0
             );
         }
         cluster.addToShapeParameters(std::sqrt(radius / cluster.getNhits()));
