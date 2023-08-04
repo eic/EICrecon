@@ -25,11 +25,11 @@ flowchart LR
   MCParticles --> MC2SmearedParticle[MC2SmearedParticle]:::alg
   MC2SmearedParticle --> GeneratedParticles
 
-  MCParticles --> ParticlesWithTruthPID[ParticlesWithTruthPID]:::alg
-  TrackingOutput --> ParticlesWithTruthPID
+  MCParticles --> ParticlesWithPID[ParticlesWithPID]:::alg
+  TrackingOutput --> ParticlesWithPID
 
-  ParticlesWithTruthPID --> ReconstructedChargedParticles(ReconstructedChargedParticles)
-  ParticlesWithTruthPID --> ReconstructedChargedParticlesAssoc(ReconstructedChargedParticlesAssoc)
+  ParticlesWithPID --> ReconstructedChargedParticles(ReconstructedChargedParticles)
+  ParticlesWithPID --> ReconstructedChargedParticlesAssoc(ReconstructedChargedParticlesAssoc)
 
   MCParticles --> MatchClusters[MatchClusters]:::alg
   ReconstructedChargedParticles --> MatchClusters

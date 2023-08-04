@@ -18,8 +18,6 @@
 #include "TrackSeeding_factory.h"
 #include "TrackerHitCollector_factory.h"
 #include "TrackProjector_factory.h"
-#include "TrackSeeding_factory.h"
-#include "ParticlesWithTruthPID_factory.h"
 #include "IterativeVertexFinder_factory.h"
 
 //
@@ -76,32 +74,12 @@ void InitPlugin(JApplication *app) {
              "outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
 
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            "ChargedParticlesWithAssociations",                // Tag name for multifactory
-            {"MCParticles",                                    // edm4hep::MCParticle
-            "outputTrackParameters"},                          // edm4eic::TrackParameters
-            {"ReconstructedChargedParticles",                  //
-             "ReconstructedChargedParticleAssociations"       // edm4eic::MCRecoParticleAssociation
-            },
-            app  // TODO: Remove me once fixed
-            ));
-
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory
             {"CentralCKFSeededTrajectories"},                 // eicrecon::TrackingResultTrajectory
             {"outputSeededParticles",                         // edm4eic::ReconstructedParticle
              "outputSeededTrackParameters"},                  // edm4eic::TrackParameters
             app));
-
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            "ChargedParticlesWithAssociations",                // Tag name for multifactory
-            {"MCParticles",                                    // edm4hep::MCParticle
-            "outputSeededTrackParameters"},                    // edm4eic::TrackParameters
-            {"ReconstructedSeededChargedParticles",            //
-             "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
-            },
-            app  // TODO: Remove me once fixed
-            ));
 
 }
 } // extern "C"
