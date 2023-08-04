@@ -263,13 +263,8 @@ extern "C" {
         ));
 
         // Magic constants:
-        //  24 - number of sectors
-        //  5  - number of towers per sector
-        //  moduleIDx
-        //  moduleIDy
-        //  towerx
-        //  towery
-        //  rlayerz
+        //  54 - number of modules in a row/column
+        //  2  - number of towers in a module
         std::string cellIdx_1  = "(54*2-moduleIDx_1*2+towerx_1)";
         std::string cellIdx_2  = "(54*2-moduleIDx_2*2+towerx_2)";
         std::string cellIdy_1  = "(54*2-moduleIDy_1*2+towery_1)";

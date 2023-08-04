@@ -58,6 +58,9 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
+            // Magic constants:
+            //  24 - number of sectors
+            //  5  - number of towers per sector
             .adjacencyMatrix =
               "("
               "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
