@@ -3,7 +3,6 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
@@ -11,12 +10,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_HcalEndcapPIslandProtoClusters.h"
-
-#include "ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters.h"
-
-#include "ProtoCluster_factory_LFHCALIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -67,8 +61,19 @@ extern "C" {
           "HcalEndcapPTruthProtoClusters", {"HcalEndcapPRecHits", "HcalEndcapPHits"}, {"HcalEndcapPTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPIslandProtoClusters>(
-          {"HcalEndcapPRecHits"}, "HcalEndcapPIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "HcalEndcapPIslandProtoClusters", {"HcalEndcapPRecHits"}, {"HcalEndcapPIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(
@@ -151,8 +156,19 @@ extern "C" {
           "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapPInsertIslandProtoClusters>(
-          {"HcalEndcapPInsertMergedHits"}, "HcalEndcapPInsertIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
+            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(
@@ -245,8 +261,43 @@ extern "C" {
           "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_LFHCALIslandProtoClusters>(
-          {"LFHCALRecHits"}, "LFHCALIslandProtoClusters"
+
+        // Magic constants:
+        //  24 - number of sectors
+        //  5  - number of towers per sector
+        //  moduleIDx
+        //  moduleIDy
+        //  towerx
+        //  towery
+        //  rlayerz
+        std::string cellIdx_1  = "(54*2-moduleIDx_1*2+towerx_1)";
+        std::string cellIdx_2  = "(54*2-moduleIDx_2*2+towerx_2)";
+        std::string cellIdy_1  = "(54*2-moduleIDy_1*2+towery_1)";
+        std::string cellIdy_2  = "(54*2-moduleIDy_2*2+towery_2)";
+        std::string cellIdz_1  = "rlayerz_1";
+        std::string cellIdz_2  = "rlayerz_2";
+        std::string deltaX     = Form("abs(%s-%s)", cellIdx_2.data(), cellIdx_1.data());
+        std::string deltaY     = Form("abs(%s-%s)", cellIdy_2.data(), cellIdy_1.data());
+        std::string deltaZ     = Form("abs(%s-%s)", cellIdz_2.data(), cellIdz_1.data());
+        std::string neighbor   = Form("(%s+%s+%s==1)", deltaX.data(), deltaY.data(), deltaZ.data());
+        std::string corner2D   = Form("((%s==0&&%s==1&&%s==1)||(%s==1&&%s==0&&%s==1)||(%s==1&&%s==1&&%s==0))",
+                                  deltaZ.data(), deltaX.data(), deltaY.data(),
+                                  deltaZ.data(), deltaX.data(), deltaY.data(),
+                                  deltaZ.data(), deltaX.data(), deltaY.data());
+
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "LFHCALIslandProtoClusters", {"LFHCALRecHits"}, {"LFHCALIslandProtoClusters"},
+          {
+            .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
+            .readout = "LFHCALHits",
+            .sectorDist = 0 * dd4hep::cm,
+            .splitCluster = false,
+            .minClusterHitEdep = 1 * dd4hep::MeV,
+            .minClusterCenterEdep = 100.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(

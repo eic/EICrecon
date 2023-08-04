@@ -3,15 +3,13 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_HcalBarrelIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -35,7 +33,7 @@ extern "C" {
             .readout = "HcalBarrelHits",
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
           {
@@ -52,14 +50,34 @@ extern "C" {
             .sectorField = "sector",
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalBarrelIslandProtoClusters>(
-	    {"HcalBarrelRecHits"}, "HcalBarrelIslandProtoClusters"
-	));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
+          {
+            .adjacencyMatrix =
+              "("
+              "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+              "  + min("
+              "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
+              "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
+              "    )"
+              ") == 1",
+            .readout = "HcalBarrelHits",
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
+            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
+            .splitCluster = false,
+            .minClusterHitEdep = 3.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
