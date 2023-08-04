@@ -11,6 +11,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "factories/calorimetry/ImagingPixelReco_factoryT.h"
 #include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
 #include "factories/calorimetry/ImagingClusterReco_factoryT.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
@@ -97,19 +98,18 @@ extern "C" {
              .dyRangeADC = 3 * dd4hep::MeV,
              .pedMeanADC = 100,
              .pedSigmaADC = 14,
-             .resolutionTDC = 3.25 * dd4hep::nanosecond,
+             .resolutionTDC = 10 * dd4hep::picosecond,
              .corrMeanScale = 1.0,
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+        app->Add(new JChainMultifactoryGeneratorT<ImagingPixelReco_factoryT>(
           "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
           {
             .capADC = 8192,
             .dyRangeADC = 3 * dd4hep::MeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 14,
-            .resolutionTDC = 3.25 * dd4hep::nanosecond,
             .thresholdFactor = 3.0,
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
