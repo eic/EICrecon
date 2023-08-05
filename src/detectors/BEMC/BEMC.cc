@@ -12,7 +12,6 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
-#include "factories/calorimetry/ImagingPixelReco_factoryT.h"
 #include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
 #include "factories/calorimetry/ImagingClusterReco_factoryT.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
