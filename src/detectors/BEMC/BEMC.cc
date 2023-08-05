@@ -11,13 +11,12 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "factories/calorimetry/ImagingPixelReco_factoryT.h"
+#include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
+#include "factories/calorimetry/ImagingClusterReco_factoryT.h"
+#include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
 
 #include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
-
-#include "CalorimeterHit_factory_EcalBarrelImagingRecHits.h"
-#include "ProtoCluster_factory_EcalBarrelImagingProtoClusters.h"
-#include "Cluster_factory_EcalBarrelImagingClusters.h"
-#include "Cluster_factory_EcalBarrelImagingMergedClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -104,17 +103,51 @@ extern "C" {
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<CalorimeterHit_factory_EcalBarrelImagingRecHits>(
-          {"EcalBarrelImagingRawHits"}, "EcalBarrelImagingRecHits"
+        app->Add(new JChainMultifactoryGeneratorT<ImagingPixelReco_factoryT>(
+          "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
+          {
+            .capADC = 8192,
+            .dyRangeADC = 3 * dd4hep::MeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 14,
+            .thresholdFactor = 3.0,
+            .sampFrac = 0.00619766,
+            .readout = "EcalBarrelImagingHits",
+            .layerField = "layer",
+            .sectorField = "module",
+          },
+           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelImagingProtoClusters>(
-          {"EcalBarrelImagingRecHits"}, "EcalBarrelImagingProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ImagingTopoCluster_factoryT>(
+          "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"}, {"EcalBarrelImagingProtoClusters"},
+          {
+            .neighbourLayersRange = 2,                    //  # id diff for adjacent layer
+            .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+            .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+            .sectorDist           = 3.0 * dd4hep::cm,
+            .minClusterHitEdep    = 0,
+            .minClusterCenterEdep = 0,
+            .minClusterEdep       = 100 * dd4hep::MeV,
+            .minClusterNhits      = 10, // From Maria Z. comment in PR
+          },
+          app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingClusters>(
-          {"EcalBarrelImagingProtoClusters"}, "EcalBarrelImagingClusters"
+        app->Add(new JChainMultifactoryGeneratorT<ImagingClusterReco_factoryT>(
+           "EcalBarrelImagingClusters",
+          {"EcalBarrelImagingProtoClusters",
+           "EcalBarrelImagingHits"},
+          {"EcalBarrelImagingClusters",
+           "EcalBarrelImagingClusterAssociations",
+           "EcalBarrelImagingLayers"
+          },
+          {
+            .trackStopLayer = 6,
+          },
+          app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<Cluster_factory_EcalBarrelImagingMergedClusters>(
+        app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
+          "EcalBarrelImagingMergedClusters",
           {
             "MCParticles",
             "EcalBarrelScFiClusters",
@@ -122,11 +155,11 @@ extern "C" {
             "EcalBarrelImagingClusters",
             "EcalBarrelImagingClusterAssociations"
           },
-          "EcalBarrelImagingMergedClusters"
+          {
+            "EcalBarrelImagingMergedClusters",
+            "EcalBarrelImagingMergedClusterAssociations"
+          },
+          app   // TODO: Remove me once fixed
         ));
-
-        // Inserted types (so they can be written to output podio file)
-        app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::Cluster>>("EcalBarrelImagingLayers"));
-        app->Add(new JFactoryGeneratorT<JFactoryT<edm4eic::MCRecoClusterParticleAssociation>>("EcalBarrelImagingClusterAssociations"));
     }
 }
