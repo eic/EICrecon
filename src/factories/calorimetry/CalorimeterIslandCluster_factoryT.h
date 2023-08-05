@@ -50,9 +50,6 @@ class CalorimeterIslandCluster_factoryT :
           std::remove_if(cfg.adjacencyMatrix.begin(), cfg.adjacencyMatrix.end(), ::isspace),
           cfg.adjacencyMatrix.end());
 
-        app->SetDefaultParameter(param_prefix + ":splitCluster", cfg.splitCluster);
-        app->SetDefaultParameter(param_prefix + ":minClusterHitEdep", cfg.minClusterHitEdep);
-        app->SetDefaultParameter(param_prefix + ":minClusterCenterEdep", cfg.minClusterCenterEdep);
         app->SetDefaultParameter(param_prefix + ":sectorDist", cfg.sectorDist);
         app->SetDefaultParameter(param_prefix + ":localDistXY", cfg.localDistXY);
         app->SetDefaultParameter(param_prefix + ":localDistXZ", cfg.localDistXZ);
@@ -62,6 +59,11 @@ class CalorimeterIslandCluster_factoryT :
         app->SetDefaultParameter(param_prefix + ":dimScaledLocalDistXY", cfg.dimScaledLocalDistXY);
         app->SetDefaultParameter(param_prefix + ":adjacencyMatrix", cfg.adjacencyMatrix);
         app->SetDefaultParameter(param_prefix + ":readoutClass", cfg.readout);
+        app->SetDefaultParameter(param_prefix + ":splitCluster", cfg.splitCluster);
+        app->SetDefaultParameter(param_prefix + ":minClusterHitEdep", cfg.minClusterHitEdep);
+        app->SetDefaultParameter(param_prefix + ":minClusterCenterEdep", cfg.minClusterCenterEdep);
+        app->SetDefaultParameter(param_prefix + ":transverseEnergyProfileMetric", cfg.transverseEnergyProfileMetric);
+        app->SetDefaultParameter(param_prefix + ":transverseEnergyProfileScale", cfg.transverseEnergyProfileScale);
 
         m_algo.applyConfig(cfg);
         m_algo.init(geoSvc->detector(), logger());
