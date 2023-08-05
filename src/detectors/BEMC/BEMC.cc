@@ -106,18 +106,19 @@ extern "C" {
              .dyRangeADC = 3 * dd4hep::MeV,
              .pedMeanADC = 100,
              .pedSigmaADC = 14,
-             .resolutionTDC = 10 * dd4hep::picosecond,
+             .resolutionTDC = 3.25 * dd4hep::nanosecond,
              .corrMeanScale = 1.0,
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<ImagingPixelReco_factoryT>(
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
           {
             .capADC = 8192,
             .dyRangeADC = 3 * dd4hep::MeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 14,
+            .resolutionTDC = 3.25 * dd4hep::nanosecond,
             .thresholdFactor = 3.0,
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
