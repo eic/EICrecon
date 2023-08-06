@@ -45,13 +45,13 @@ add_custom_command(
 # Add include directories (works same as target_include_directories)
 eicrecon_include_directories(${PLUGIN_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-# Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined. Without
+# Create a ROOT dictionary with the datamodel types defined. Without
 # this, root will complain about not having a compiled CollectionProxy.
-root_generate_dictionary(G__datamodel_vectors ${datamodel_BINARY_DIR}/datamodel_includes.h MODULE ${PLUGIN_NAME}_plugin LINKDEF datamodel_LinkDef.h)
+root_generate_dictionary(G__${PLUGIN_NAME} ${datamodel_BINARY_DIR}/datamodel_includes.h MODULE ${PLUGIN_NAME}_library LINKDEF datamodel_LinkDef.h)
 
 # Install root dictionaries made by PODIO
-set(my_root_dict_files
-    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin_rdict.pcm
-    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin.rootmap
+set(${PLUGIN_NAME}_dict_files
+    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_library_rdict.pcm
+    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_library.rootmap
 )
-install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+install(FILES ${${PLUGIN_NAME}_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
