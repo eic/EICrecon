@@ -17,7 +17,7 @@ namespace eicrecon {
 
     class TrackProjector_factory:
     public JChainFactoryT<edm4eic::TrackSegment, TrackProjectorConfig>,
-            public SpdlogMixin<TrackProjector_factory> {
+            public SpdlogMixin {
 
     public:
         explicit TrackProjector_factory( std::vector<std::string> default_input_tags, TrackProjectorConfig cfg):

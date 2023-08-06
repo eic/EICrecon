@@ -282,7 +282,6 @@ void lfhcal_studiesProcessor::Init() {
 //******************************************************************************************
 void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void lfhcal_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  using namespace std;
 
   // ===============================================================================================
   // process MC particles

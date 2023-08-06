@@ -4,17 +4,14 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include "SiliconTrackerDigi_factory.h"
 
 
 void eicrecon::SiliconTrackerDigi_factory::Init() {
-    using namespace eicrecon::str;
-
     auto app = GetApplication();
     auto pm = app->GetJParameterManager();
 
-    std::string plugin_name = ReplaceAll(GetPluginName(), ".so", "");
+    std::string plugin_name = GetPluginName();
 
     // We will use plugin name to get parameters for correct factory
     // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
@@ -26,7 +23,7 @@ void eicrecon::SiliconTrackerDigi_factory::Init() {
     InitDataTags(param_prefix);
 
     // Logger. Get plugin level sub-log
-    InitLogger(param_prefix, "info");
+    InitLogger(app, param_prefix, "info");
 
     // Setup digitization algorithm
     auto cfg = GetDefaultConfig();

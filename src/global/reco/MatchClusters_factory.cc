@@ -24,7 +24,7 @@ namespace eicrecon {
     void MatchClusters_factory::Init() {
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(GetPrefix(), "info");
+        InitLogger(GetApplication(), GetPrefix(), "info");
 
         m_match_algo.init(m_log);
 
@@ -49,7 +49,7 @@ namespace eicrecon {
 
     void MatchClusters_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-        // TODO make input tags changable
+        // TODO make input tags changeable
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
         auto charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
         auto charged_particle_assocs = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");

@@ -30,7 +30,7 @@ namespace eicrecon {
 
     class PhotoMultiplierHitDigi_factory :
             public JChainMultifactoryT<PhotoMultiplierHitDigiConfig>,
-            public SpdlogMixin<PhotoMultiplierHitDigi_factory> {
+            public SpdlogMixin {
 
     public:
 

@@ -14,7 +14,7 @@ namespace eicrecon {
 
     class TrackParamTruthInit_factory :
             public JChainFactoryT<edm4eic::TrackParameters, TrackParamTruthInitConfig>,
-            public SpdlogMixin<TrackParamTruthInit_factory> {
+            public SpdlogMixin {
 
     public:
         TrackParamTruthInit_factory( std::vector<std::string> default_input_tags, TrackParamTruthInitConfig cfg):

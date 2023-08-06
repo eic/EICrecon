@@ -92,7 +92,7 @@ namespace eicrecon {
     // -----------------------------------------------------------------
     // Right now, everything is taken from Reconstructed particles branches.
     //
-    // This means the tracking detector is used for charged particles to caculate the momentum,
+    // This means the tracking detector is used for charged particles to calculate the momentum,
     // and the magnitude of this momentum plus the true PID to calculate the energy.
     // No requirement is made that these particles produce a hit in any other detector
     //

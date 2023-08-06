@@ -32,7 +32,7 @@ namespace eicrecon {
 
     public:
 
-	RomanPotsReconstruction_factory(); //constructer
+	RomanPotsReconstruction_factory(); //constructor
 
         /** One time initialization **/
         void Init() override;

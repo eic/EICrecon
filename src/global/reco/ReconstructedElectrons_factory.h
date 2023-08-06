@@ -19,7 +19,7 @@ namespace eicrecon {
 
   class ReconstructedElectrons_factory :
     public JChainFactoryT<edm4eic::ReconstructedParticle>,
-    public SpdlogMixin<ReconstructedElectrons_factory>
+    public SpdlogMixin
   {
 
     public:
@@ -37,7 +37,7 @@ namespace eicrecon {
         InitDataTags(prefix);
 
         // services
-        InitLogger(prefix, "info");
+        InitLogger(app, prefix, "info");
         m_algo.init(m_log);
       }
 

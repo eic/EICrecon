@@ -10,7 +10,7 @@
 void TofEfficiency_processor::InitWithGlobalRootLock(){
     std::string plugin_name=("tof_efficiency");
 
-    InitLogger(plugin_name);
+    InitLogger(GetApplication(), plugin_name);
 
     // Get JANA application
     auto app = GetApplication();

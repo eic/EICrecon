@@ -26,7 +26,7 @@ namespace eicrecon {
 
     class SiliconTrackerDigi_factory :
             public JChainFactoryT<edm4eic::RawTrackerHit, SiliconTrackerDigiConfig>,
-            public SpdlogMixin<SiliconTrackerDigi_factory> {
+            public SpdlogMixin {
 
     public:
 

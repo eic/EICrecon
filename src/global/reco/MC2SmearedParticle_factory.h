@@ -16,7 +16,7 @@ namespace eicrecon {
 
     class MC2SmearedParticle_factory:
             public JChainFactoryT<edm4eic::ReconstructedParticle>,
-            public SpdlogMixin<MC2SmearedParticle_factory> {
+            public SpdlogMixin {
     public:
 
         explicit MC2SmearedParticle_factory(const std::vector<std::string> &default_input_tags)

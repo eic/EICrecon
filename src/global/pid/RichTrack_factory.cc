@@ -14,7 +14,7 @@ void eicrecon::RichTrack_factory::Init() {
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
   m_log->debug("RichTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 

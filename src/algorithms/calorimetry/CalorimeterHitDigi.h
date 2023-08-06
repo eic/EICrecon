@@ -16,72 +16,42 @@
 #include <memory>
 #include <random>
 
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include <DD4hep/Detector.h>
 
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <spdlog/spdlog.h>
 
-class CalorimeterHitDigi {
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "CalorimeterHitDigiConfig.h"
 
-    // Insert any member variables here
+namespace eicrecon {
 
-public:
-    CalorimeterHitDigi() = default;
-    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    void AlgorithmChangeRun() ;
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> AlgorithmProcess(const edm4hep::SimCalorimeterHitCollection &simhits) ;
+  class CalorimeterHitDigi : public WithPodConfig<CalorimeterHitDigiConfig> {
 
-    //-------- Configuration Parameters ------------
-    //instantiate new spdlog logger
-    std::shared_ptr<spdlog::logger> m_log;
+  public:
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> process(const edm4hep::SimCalorimeterHitCollection &simhits) ;
 
-    // Name of input data type (collection)
-    std::string              m_input_tag;
-
-    // additional smearing resolutions
-    std::vector<double>      u_eRes;
-    double                   m_tRes;
-
-    // single hit energy deposition threshold
-    double                   m_threshold=1.0*dd4hep::keV; // {this, "threshold", 1. * keV};
-
-    // digitization settings
-    unsigned int             m_capADC;
-    double                   m_capTime = 1000.;
-    double                   m_dyRangeADC;
-    unsigned int             m_pedMeanADC;
-    double                   m_pedSigmaADC;
-    double                   m_resolutionTDC;
-    double                   m_corrMeanScale;
-
-    // signal sums
-    std::vector<std::string> u_fields;
-    std::string              m_geoSvcName;
-    std::string              m_readout;
-
-    // This may be used to declare the data members as JANA configuration parameters.
-    // This should compile OK even without JANA so long as you don't try using it.
-    // To use it, do something like the following:
-    //
-    //    mycalohitdigi->SetJANAConfigParameters( japp, "BEMC");
-    //
-    // The above will register config. parameters like: "BEMC:tag".
-    // The configuration parameter members of this class should be set to thier
-    // defaults *before* calling this.
-    //-----------------------------------------------
+  private:
 
     // unitless counterparts of inputs
     double           dyRangeADC{0}, stepTDC{0}, tRes{0};
     // variables for merging at digitization step
     bool             merge_hits = false;
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
+
     uint64_t         id_mask{0};
 
-private:
+  private:
+    const dd4hep::Detector* m_detector;
+    std::shared_ptr<spdlog::logger> m_log;
+
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
-};
+
+  };
+
+} // namespace eicrecon
