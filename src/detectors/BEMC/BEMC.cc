@@ -11,11 +11,11 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 #include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
 #include "factories/calorimetry/ImagingClusterReco_factoryT.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
 
-#include "ProtoCluster_factory_EcalBarrelScFiProtoClusters.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -64,8 +64,16 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalBarrelScFiProtoClusters>(
-          {"EcalBarrelScFiRecHits"}, "EcalBarrelScFiProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
+          {
+            .sectorDist = 50. * dd4hep::mm,
+            .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
+            .splitCluster = false,
+            .minClusterHitEdep = 1.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(

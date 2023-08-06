@@ -9,6 +9,8 @@
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
 
+using eicrecon::CalorimeterIslandCluster;
+using eicrecon::CalorimeterIslandClusterConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   CalorimeterIslandCluster algo;
@@ -16,14 +18,15 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterIslandCluster");
   logger->set_level(spdlog::level::trace);
 
-  algo.m_minClusterHitEdep = 0. * dd4hep::GeV;
-  algo.m_minClusterCenterEdep = 0. * dd4hep::GeV;
+  CalorimeterIslandClusterConfig cfg;
+  cfg.minClusterHitEdep = 0. * dd4hep::GeV;
+  cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
 
   SECTION( "without splitting" ) {
-    algo.m_splitCluster = false;
-    algo.u_localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
-    algo.AlgorithmInit(logger);
-    algo.AlgorithmChangeRun();
+    cfg.splitCluster = false;
+    cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
+    algo.applyConfig(cfg);
+    algo.init(nullptr, logger);
 
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
@@ -39,7 +42,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.AlgorithmProcess(hits_coll);
+      auto protoclust_coll = algo.process(hits_coll);
 
       REQUIRE( (*protoclust_coll).size() == 1 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
@@ -72,7 +75,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(1.1 /* mm */, 1.1 /* mm */, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.AlgorithmProcess(hits_coll);
+      auto protoclust_coll = algo.process(hits_coll);
 
       REQUIRE( (*protoclust_coll).size() == 2 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
@@ -107,7 +110,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.AlgorithmProcess(hits_coll);
+      auto protoclust_coll = algo.process(hits_coll);
 
       REQUIRE( (*protoclust_coll).size() == 1 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 2 );
@@ -117,16 +120,16 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
 
   SECTION( "run on three adjacent cells" ) {
     SECTION( "with splitting" ) {
-      algo.m_splitCluster = true;
-      algo.u_transverseEnergyProfileMetric = "localDistXY";
-      algo.u_transverseEnergyProfileScale = std::numeric_limits<decltype(algo.u_transverseEnergyProfileScale)>::infinity();
+      cfg.splitCluster = true;
+      cfg.transverseEnergyProfileMetric = "localDistXY";
+      cfg.transverseEnergyProfileScale = std::numeric_limits<decltype(cfg.transverseEnergyProfileScale)>::infinity();
     }
     SECTION( "without splitting" ) {
-      algo.m_splitCluster = false;
+      cfg.splitCluster = false;
     }
-    algo.u_localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
-    algo.AlgorithmInit(logger);
-    algo.AlgorithmChangeRun();
+    cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
+    algo.applyConfig(cfg);
+    algo.init(nullptr, logger);
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(
@@ -165,9 +168,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       0, // std::int32_t layer,
       edm4hep::Vector3f(1.8 /* mm */, 1.8 /* mm */, 0.0) // edm4hep::Vector3f local
     );
-    auto protoclust_coll = algo.AlgorithmProcess(hits_coll);
+    auto protoclust_coll = algo.process(hits_coll);
 
-    if (algo.m_splitCluster) {
+    if (cfg.splitCluster) {
       REQUIRE( (*protoclust_coll).size() == 2 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 3 );
       REQUIRE( (*protoclust_coll)[0].weights_size() == 3 );
