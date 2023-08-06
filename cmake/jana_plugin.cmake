@@ -66,8 +66,9 @@ macro(eicrecon_library_add _name)
 
     target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
     target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
-    target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
-    target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
+    target_link_libraries(${_name}_library PRIVATE ${JANA_LIB})
+    target_link_libraries(${_name}_library PRIVATE spdlog::spdlog)
+    target_link_libraries(${_name}_library PRIVATE fmt::fmt)
 
     # Install library
     install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
@@ -95,8 +96,9 @@ macro(eicrecon_plugin_add _name)
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
     target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
     set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
-    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+    target_link_libraries(${_name}_plugin PRIVATE ${JANA_LIB})
+    target_link_libraries(${_name}_plugin PRIVATE spdlog::spdlog)
+    target_link_libraries(${_name}_plugin PRIVATE fmt::fmt)
 
     # Install plugin
     install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -107,11 +109,11 @@ endmacro()
 # target_link_libraries for both a plugin and a library
 macro(eicrecon_link_libraries _name)
     if(TARGET ${_name}_plugin)
-        target_link_libraries(${_name}_plugin ${ARGN})
+        target_link_libraries(${_name}_plugin PRIVATE ${ARGN})
     endif()
 
     if(TARGET ${_name}_library)
-        target_link_libraries(${_name}_library ${ARGN})
+        target_link_libraries(${_name}_library PRIVATE ${ARGN})
     endif()
 endmacro()
 
