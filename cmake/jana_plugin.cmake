@@ -18,7 +18,7 @@ macro(eicrecon_add _name)
     endif()
 
     # Add plugin if <plugin_name>.cc if found
-    if(EXISTS ${PLUGIN_CC_FILE})
+    if(EXISTS ${PLUGIN_CC_FILE_ABS})
         eicrecon_plugin_add(${_name})
     endif()
 endmacro()
