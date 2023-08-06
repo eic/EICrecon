@@ -10,9 +10,5 @@ eicrecon_add(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 eicrecon_glob_all(${PLUGIN_NAME})
 
-# Find dependencies
-eicrecon_add_dd4hep(${PLUGIN_NAME})
-eicrecon_add_event_model(${PLUGIN_NAME})
-
 # Add libraries (works same as target_include_directories)
 eicrecon_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library)
