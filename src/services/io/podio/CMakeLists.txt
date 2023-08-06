@@ -1,7 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-
 # Automatically set plugin name the same as the directory name
-get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+eicrecon_set_plugin_name()
 
 project(datamodel)
 

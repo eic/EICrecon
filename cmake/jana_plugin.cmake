@@ -1,3 +1,11 @@
+# Common macro to get plugin name from directory
+macro(eicrecon_set_plugin_name)
+    # Automatically set plugin name the same as the directory name
+    get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+    string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME})
+    set(PLUGIN_NAME PARENT_SCOPE)
+endmacro()
+
 # Common macro to add plugins and libraries
 macro(eicrecon_add _name)
     # Libraries don't need <plugin_name>.cc
