@@ -86,9 +86,9 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float R = std::get<0>(RX0Y0);
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
-      if (R > std::numeric_limits<float>::max() ||
-	std::abs(X0) > std::numeric_limits<float>::max() ||
-	std::abs(Y0) > std::numeric_limits<float>::max()) {
+      if (!(std::isfinite(R) &&
+	std::isfinite(std::abs(X0)) &&
+	std::isfinite(std::abs(Y0))) {
         // avoid float overflow for hits on a line
         continue;
       }
@@ -154,7 +154,7 @@ std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,
 
   const double R0 = std::hypot(X0, Y0);
 
-  //If center of circle is at origin, there is no point-of-closest approch
+  //If center of circle is at origin, there is no point-of-closest approach
   //-- just return (x,y) = (R,0)
   if(R0 < std::numeric_limits<double>::epsilon())
 	return std::make_pair(R , 0.);
