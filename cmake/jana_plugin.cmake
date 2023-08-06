@@ -288,10 +288,6 @@ macro(eicrecon_add_event_model _name)
         find_package(podio REQUIRED)
     endif()
 
-    if(NOT EDM4HEP_FOUND)
-        find_package(EDM4HEP REQUIRED)
-    endif()
-
     if(NOT EDM4EIC_FOUND)
         find_package(EDM4EIC REQUIRED)
     endif()
@@ -305,7 +301,6 @@ macro(eicrecon_add_event_model _name)
     eicrecon_link_libraries(${PLUGIN_NAME}
         podio::podio
         EDM4EIC::edm4eic
-        EDM4HEP::edm4hep
     )
 
 endmacro()
