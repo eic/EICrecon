@@ -29,6 +29,7 @@ macro(eicrecon_add _name)
     if(EXISTS ${PLUGIN_CC_FILE_ABS})
         eicrecon_plugin_add(${_name})
     endif()
+
 endmacro()
 
 # Common macro to add libraries
@@ -47,10 +48,7 @@ macro(eicrecon_library_add _name)
 
     # Check if build with library
     foreach(arg IN ITEMS ${ARGN})
-        if(${arg} STREQUAL "WITH_STATIC_LIBRARY")
-            set(${_name}_WITH_STATIC_LIB ON)
-        endif()
-        if(${arg} STREQUAL "WITH_STATIC_LIB")       # alternative
+        if(${arg} STREQUAL "WITH_STATIC_LIB")
             set(${_name}_WITH_STATIC_LIB ON)
         endif()
     endforeach()
