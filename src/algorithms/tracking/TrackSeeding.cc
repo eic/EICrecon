@@ -88,7 +88,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float Y0 = std::get<2>(RX0Y0);
       if (!(std::isfinite(R) &&
 	std::isfinite(std::abs(X0)) &&
-	std::isfinite(std::abs(Y0))) {
+	std::isfinite(std::abs(Y0)))) {
         // avoid float overflow for hits on a line
         continue;
       }
