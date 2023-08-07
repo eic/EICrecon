@@ -501,11 +501,14 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         t_fEMC_cluster_Phi[iCl]     = (float)cluster.cluster_Phi;
       }
       hRecClusterEcalib_E_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);
-      for (int iCell = 0; iCell < (int)cluster.cluster_towers.size(); iCell++){
+      for (auto & cluster_tower : cluster.cluster_towers){
         int pSav = 0;
-        while(cluster.cluster_towers.at(iCell).cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
-        if (cluster.cluster_towers.at(iCell).cellID == input_tower_recSav.at(pSav).cellID)
+        while(cluster_tower.cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) {
+	  pSav++;
+        }
+        if (cluster_tower.cellID == input_tower_recSav.at(pSav).cellID) {
           input_tower_recSav.at(pSav).tower_clusterIDA = iCl;
+        }
       }
 
       if (iCl == 0){
