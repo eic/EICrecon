@@ -76,8 +76,8 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
         try {
             auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
             id_mask = 0;
-            for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
-                id_mask |= id_desc.field(m_cfg.fields[i])->mask();
+            for (auto & field : m_cfg.fields) {
+                id_mask |= id_desc.field(field)->mask();
             }
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations

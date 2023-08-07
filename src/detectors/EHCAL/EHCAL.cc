@@ -3,7 +3,6 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
@@ -11,8 +10,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_HcalEndcapNIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -62,8 +60,19 @@ extern "C" {
           "HcalEndcapNTruthProtoClusters", {"HcalEndcapNRecHits", "HcalEndcapNHits"}, {"HcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_HcalEndcapNIslandProtoClusters>(
-          {"HcalEndcapNRecHits"}, "HcalEndcapNIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "HcalEndcapNIslandProtoClusters", {"HcalEndcapNRecHits"}, {"HcalEndcapNIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
+            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
