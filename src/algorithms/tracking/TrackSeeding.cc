@@ -92,6 +92,13 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
         // avoid float overflow for hits on a line
         continue;
       }
+      if ( std::hypot(X0,Y0) < std::numeric_limits<double>::epsilon() ||
+	!std::isfinite(std::hypot(X0,Y0)) ) {
+	//Avoid center of circle at origin, where there is no point-of-closest approach
+	//Also, avoid float overfloat on circle center
+	continue;
+      }
+
       auto slopeZ0 = lineFit(rzHitPositions);
 
       int charge = determineCharge(xyHitPositions);
@@ -104,7 +111,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float p = pt * cosh(eta);
       float qOverP = charge / p;
 
-      const auto xypos = findRoot(RX0Y0);
+      const auto xypos = findPCA(RX0Y0);
 
       //Calculate phi at xypos
       auto xpos = xypos.first;
@@ -146,7 +153,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
 
   return trackparams;
 }
-std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,float>& circleParams) const
+std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,float>& circleParams) const
 {
   const float R = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
@@ -154,12 +161,7 @@ std::pair<float, float> eicrecon::TrackSeeding::findRoot(std::tuple<float,float,
 
   const double R0 = std::hypot(X0, Y0);
 
-  //If center of circle is at origin, there is no point-of-closest approach
-  //-- just return (x,y) = (R,0)
-  if(R0 < std::numeric_limits<double>::epsilon())
-	return std::make_pair(R , 0.);
-
-  //Otherwise calculate point on circle closest to origin
+  //Calculate point on circle closest to origin
   const double xmin = X0 * (1. - R/R0);
   const double ymin = Y0 * (1. - R/R0);
 
