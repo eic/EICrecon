@@ -3,15 +3,13 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_EcalLumiSpecIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -54,8 +52,19 @@ extern "C" {
           "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "LumiSpecCALHits"}, {"EcalLumiSpecTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalLumiSpecIslandProtoClusters>(
-          {"EcalLumiSpecRecHits"}, "EcalLumiSpecIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalLumiSpecIslandProtoClusters", {"EcalLumiSpecRecHits"}, {"EcalLumiSpecIslandProtoClusters"},
+          {
+            .adjacencyMatrix = "(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)",
+            .readout = "LumiSpecCALHits",
+            .sectorDist = 0.0 * dd4hep::cm,
+            .splitCluster=true,
+            .minClusterHitEdep = 1.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "localDistXY",
+            .transverseEnergyProfileScale = 10. * dd4hep::mm,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(

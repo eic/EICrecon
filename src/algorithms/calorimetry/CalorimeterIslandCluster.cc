@@ -20,6 +20,8 @@
 
 using namespace edm4eic;
 
+namespace eicrecon {
+
 static double Phi_mpi_pi(double phi) {
   return std::remainder(phi, 2 * M_PI);
 }
@@ -69,26 +71,9 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) 
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
-
-    // Assume all configuration parameter data members have been filled in already.
-
-    // Gaudi implements a random number generator service. It is not clear to me how this
-    // can work. There are multiple race conditions that occur in parallel event processing:
-    // 1. The exact same events processed by a given thread in one invocation will not
-    //    necessarily be the combination of events any thread sees in a subsequent
-    //    invocation. Thus, you can't rely on thread_local storage.
-    // 2. Its possible for the factory execution order to be modified by the presence of
-    //    a processor (e.g. monitoring plugin). This is not as serious since changing the
-    //    command line should cause one not to expect reproducibility. Still, one may
-    //    expect the inclusion of an "observer" plugin not to have such side affects.
-    //
-    // More information will be needed. In the meantime, we implement a local random number
-    // generator. Ideally, this would be seeded with the run number+event number, but for
-    // now, just use default values defined in header file.
-
-
-    m_log=logger;
+void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+    m_log = logger;
+    m_detector = detector;
 
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>, std::vector<double>>>
@@ -119,30 +104,24 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     };
 
     std::map<std::string, std::vector<double>> uprops{
-            {"localDistXY", u_localDistXY},
-            {"localDistXZ", u_localDistXZ},
-            {"localDistYZ", u_localDistYZ},
-            {"globalDistRPhi", u_globalDistRPhi},
-            {"globalDistEtaPhi", u_globalDistEtaPhi},
+            {"localDistXY", m_cfg.localDistXY},
+            {"localDistXZ", m_cfg.localDistXZ},
+            {"localDistYZ", m_cfg.localDistYZ},
+            {"globalDistRPhi", m_cfg.globalDistRPhi},
+            {"globalDistEtaPhi", m_cfg.globalDistEtaPhi},
             // default one should be the last one
-            {"dimScaledLocalDistXY", u_dimScaledLocalDistXY}
+            {"dimScaledLocalDistXY", m_cfg.dimScaledLocalDistXY}
     };
 
     bool method_found = false;
 
     // Adjacency matrix methods
-    if (!u_adjacencyMatrix.empty()) {
+    if (!m_cfg.adjacencyMatrix.empty()) {
       // sanity checks
-      if (!m_geoSvc) {
-        m_log->error("Unable to locate Geometry Service. ",
-                     "Make sure you have GeoSvc and SimSvc",
-                     "in the right order in the configuration.");
-        return;
-      }
-      if (m_readout.empty()) {
+      if (m_cfg.readout.empty()) {
         m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
-      m_idSpec = m_geoSvc->detector()->readout(m_readout).idSpec();
+      m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
       is_neighbour = [this](const CaloHit &h1, const CaloHit &h2) {
         dd4hep::tools::Evaluator::Object evaluator;
         for(const auto &p : m_idSpec.fields()) {
@@ -153,13 +132,13 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
           m_log->trace("setVariable(\"{}_1\", {});", name, field->value(h1.getCellID()));
           m_log->trace("setVariable(\"{}_2\", {});", name, field->value(h2.getCellID()));
         }
-        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(u_adjacencyMatrix.c_str());
+        dd4hep::tools::Evaluator::Object::EvalStatus eval = evaluator.evaluate(m_cfg.adjacencyMatrix.c_str());
         if (eval.status()) {
           std::stringstream sstr;
           eval.print_error(sstr);
           throw std::runtime_error(fmt::format("Error evaluating adjacencyMatrix: {}", sstr.str()));
         }
-        m_log->trace("Evaluated {} to {}", u_adjacencyMatrix, eval.result());
+        m_log->trace("Evaluated {} to {}", m_cfg.adjacencyMatrix, eval.result());
         return eval.result();
       };
       method_found = true;
@@ -180,7 +159,7 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
             } else {
               // sector may have rotation (barrel), so z is included
               // (EDM4hep units are mm, so convert sectorDist to mm)
-              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= m_sectorDist / dd4hep::mm);
+              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= m_cfg.sectorDist / dd4hep::mm);
             }
           };
 
@@ -194,16 +173,16 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
       throw std::runtime_error("Cannot determine the clustering coordinates");
     }
 
-    if (m_splitCluster) {
-      auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return u_transverseEnergyProfileMetric == p.first; });
+    if (m_cfg.splitCluster) {
+      auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
       if (transverseEnergyProfileMetric_it == distMethods.end()) {
-          throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", u_transverseEnergyProfileMetric));
+          throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", m_cfg.transverseEnergyProfileMetric));
       }
       transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
       std::vector<double> &units = std::get<1>(transverseEnergyProfileMetric_it->second);
       for (auto unit : units) {
         if (unit != units[0]) {
-          throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units", u_transverseEnergyProfileMetric));
+          throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units", m_cfg.transverseEnergyProfileMetric));
         }
       }
       transverseEnergyProfileScaleUnits = units[0];
@@ -212,16 +191,8 @@ void CalorimeterIslandCluster::AlgorithmInit(std::shared_ptr<spdlog::logger>& lo
     return;
 }
 
-//------------------------
-// AlgorithmChangeRun
-//------------------------
-void CalorimeterIslandCluster::AlgorithmChangeRun() {
-}
 
-//------------------------
-// AlgorithmProcess
-//------------------------
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits) {
+std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::process(const edm4eic::CalorimeterHitCollection &hits) {
     // group neighboring hits
     std::vector<std::set<std::size_t>> groups;
 
@@ -247,7 +218,7 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::Algor
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(hits, group, !m_splitCluster);
+      auto maxima = find_maxima(hits, group, !m_cfg.splitCluster);
       split_group(hits, group, maxima, protoClusters.get());
 
       m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
@@ -256,3 +227,5 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::Algor
     return protoClusters;
 
 }
+
+} // namespace eicrecon
