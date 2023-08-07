@@ -92,7 +92,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
         // avoid float overflow for hits on a line
         continue;
       }
-      if ( std::hypot(X0,Y0) < std::numeric_limits<double>::epsilon() ||
+      if ( std::hypot(X0,Y0) < std::numeric_limits<decltype(std::hypot(X0,Y0))>::epsilon() ||
 	!std::isfinite(std::hypot(X0,Y0)) ) {
 	//Avoid center of circle at origin, where there is no point-of-closest approach
 	//Also, avoid float overfloat on circle center
