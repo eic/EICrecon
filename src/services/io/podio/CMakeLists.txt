@@ -17,6 +17,9 @@ eicrecon_add_event_model(${PLUGIN_NAME})
 # Adds headers to the correct installation directory
 eicrecon_glob_all(${PLUGIN_NAME})
 
+# Add libraries (works same as target_include_directories)
+eicrecon_link_libraries(${PLUGIN_NAME} log)
+
 # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
 # generator expression would include multiple additional paths from transitive
 # dependencies such as PODIO and ROOT.
