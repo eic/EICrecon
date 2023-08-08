@@ -74,10 +74,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
-            // FIXME: Disable default inclusion of realistic seeding
-            // until the seed finder does not emit NaNs.
-            //"ReconstructedSeededChargedParticles",
-	    //"ReconstructedSeededChargedParticleAssociations",
+            "ReconstructedSeededChargedParticles",
+	    "ReconstructedSeededChargedParticleAssociations",
             "CentralTrackSegments",
 	    "CentralTrackVertices",
             "InclusiveKinematicsDA",
