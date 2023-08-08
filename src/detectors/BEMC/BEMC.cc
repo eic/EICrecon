@@ -56,7 +56,7 @@ extern "C" {
             .sampFrac = 0.10200085,
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
-            .sectorField = "module",
+            .sectorField = "sector",
             .localDetFields = {"system"},
             // here we want to use grid center position (XY) but keeps the z information from fiber-segment
             // TODO: a more realistic way to get z is to reconstruct it from timing
@@ -123,7 +123,7 @@ extern "C" {
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
-            .sectorField = "module",
+            .sectorField = "sector",
           },
            app   // TODO: Remove me once fixed
         ));
@@ -156,7 +156,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<EnergyPositionClusterMerger_factoryT>(
-          "EcalBarrelImagingMergedClusters",
+          "EcalBarrelClusters",
           {
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
@@ -164,8 +164,8 @@ extern "C" {
             "EcalBarrelImagingClusterAssociations"
           },
           {
-            "EcalBarrelImagingMergedClusters",
-            "EcalBarrelImagingMergedClusterAssociations"
+            "EcalBarrelClusters",
+            "EcalBarrelClusterAssociations"
           },
           {
             .energyRelTolerance = 0.5,
@@ -175,7 +175,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
-          "EcalBarrelImagingMergedTruthClusters",
+          "EcalBarrelTruthClusters",
           {
             "MCParticles",
             "EcalBarrelScFiClusters",
@@ -184,8 +184,8 @@ extern "C" {
             "EcalBarrelImagingClusterAssociations"
           },
           {
-            "EcalBarrelImagingMergedTruthClusters",
-            "EcalBarrelImagingMergedTruthClusterAssociations"
+            "EcalBarrelTruthClusters",
+            "EcalBarrelTruthClusterAssociations"
           },
           app   // TODO: Remove me once fixed
         ));
