@@ -51,6 +51,8 @@ namespace eicrecon {
 
   private:
 
+    static unsigned int function_id;
+
    // grouping function with Depth-First Search
    //TODO: confirm grouping without calohitcollection
     void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
