@@ -155,7 +155,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
-          "EcalBarrelImagingMergedClusters",
+          "EcalBarrelClusters",
           {
             "MCParticles",
             "EcalBarrelScFiClusters",
@@ -164,8 +164,8 @@ extern "C" {
             "EcalBarrelImagingClusterAssociations"
           },
           {
-            "EcalBarrelImagingMergedClusters",
-            "EcalBarrelImagingMergedClusterAssociations"
+            "EcalBarrelClusters",
+            "EcalBarrelClusterAssociations"
           },
           app   // TODO: Remove me once fixed
         ));
