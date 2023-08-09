@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 
 #include "OffMomentumReconstruction_factory.h"
 

@@ -25,10 +25,10 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <services/rootfile/RootFile_service.h>
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
+#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
 

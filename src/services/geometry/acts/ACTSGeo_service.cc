@@ -10,12 +10,12 @@
 #include <algorithm>
 
 #include "ACTSGeo_service.h"
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <services/log/Log_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/log/Log_service.h"
 
 #include <DD4hep/Printout.h>
 #include <JANA/JException.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
@@ -39,9 +39,13 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             }
 
             // Get material map from user parameter
-            // By default DD4Hep downloads material map to <run-dir>
-            std::string material_map_file = "calibrations/materials-map.cbor";
-            m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSon material map file path");
+            std::string material_map_file;
+            try {
+              material_map_file = m_dd4hepGeo->constant<std::string>("materials-map");
+            } catch (const std::runtime_error& e) {
+              material_map_file = "calibrations/materials-map.cbor";
+            }
+            m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSON/CBOR material map file path");
 
             // Initialize m_acts_provider
             m_acts_provider = std::make_shared<ActsGeometryProvider>();
@@ -60,20 +64,18 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
 
 void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
 
-    using namespace std;
-
     auto log_service = srv_locator->get<Log_service>();
 
     // ACTS general log level:
     m_log = log_service->logger("acts");
-    string log_level_str = log_service->getDefaultLevelStr();
+    std::string log_level_str = log_service->getDefaultLevelStr();
     m_app->SetDefaultParameter("acts:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
     m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str, m_log->level());
 
     // ACTS init log level (geometry conversion):
     m_init_log = log_service->logger("acts_init");
-    string init_log_level_str = eicrecon::LogLevelToString(m_log->level());  // set general acts log level, if not given by user
+    std::string init_log_level_str = eicrecon::LogLevelToString(m_log->level());  // set general acts log level, if not given by user
     m_app->SetDefaultParameter("acts:InitLogLevel", init_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
     m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, m_init_log->level());

@@ -14,7 +14,7 @@
 
 // Include appropirate class headers. e.g.
 // #include <edm4hep/SimCalorimeterHit.h>
-// #include <detectors/BEMC/BEMCRawCalorimeterHit.h>
+// #include "detectors/BEMC/BEMCRawCalorimeterHit.h"
 
 
 class BEMCcheckProcessor: public JEventProcessorSequentialRoot {

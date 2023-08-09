@@ -6,32 +6,32 @@
 
 #include "TrackPropagation.h"
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
-#include "edm4eic/TrackerHitCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "edm4eic/TrajectoryCollection.h"
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include "JugTrack/IndexSourceLink.hpp"
 #include "JugTrack/Track.hpp"
 #include "JugTrack/TrackingResultTrajectory.hpp"
 
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
 
 #include "ActsGeometryProvider.h"
 
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -56,7 +56,7 @@ namespace eicrecon {
                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // output collection
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
-        m_log->trace("Track propagation evnet process. Num of input trajectories: {}", std::size(trajectories));
+        m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
         for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {

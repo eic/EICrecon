@@ -3,7 +3,7 @@
 
 /*
  *  Reconstruct the cluster with Center of Gravity method
- *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
+ *  Logarithmic weighting is used for mimicking energy deposit in transverse direction
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
@@ -21,7 +21,7 @@
 #include <map>
 #include <spdlog/spdlog.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterClusterRecoCoGConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
@@ -55,9 +55,6 @@ namespace eicrecon {
   private:
     const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
-
-    std::string m_input_simhit_tag;
-    std::string m_input_protoclust_tag;
 
     std::function<double(double, double, double, int)> weightFunc;
 

@@ -4,29 +4,29 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainMultifactoryT.h>
+#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
 
 // algorithms
-#include <algorithms/tracking/TrackPropagation.h>
+#include "algorithms/tracking/TrackPropagation.h"
 
 // configuration
-#include <global/pid/RichTrackConfig.h>
+#include "global/pid/RichTrackConfig.h"
 
 // services
-#include <services/geometry/richgeo/RichGeo_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
   class RichTrack_factory :
     public JChainMultifactoryT<RichTrackConfig>,
-    public SpdlogMixin<RichTrack_factory>
+    public SpdlogMixin
   {
     public:
 

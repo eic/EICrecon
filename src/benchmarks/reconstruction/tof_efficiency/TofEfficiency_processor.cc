@@ -1,5 +1,5 @@
 #include "TofEfficiency_processor.h"
-#include <services/rootfile/RootFile_service.h>
+#include "services/rootfile/RootFile_service.h"
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
@@ -10,7 +10,7 @@
 void TofEfficiency_processor::InitWithGlobalRootLock(){
     std::string plugin_name=("tof_efficiency");
 
-    InitLogger(plugin_name);
+    InitLogger(GetApplication(), plugin_name);
 
     // Get JANA application
     auto app = GetApplication();

@@ -5,13 +5,12 @@
 #include "TrackingResult_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include <JANA/JEvent.h>
 
 void TrackingResult_factory::Init() {
 
     // SpdlogMixin logger initialization, sets m_log
-    InitLogger(GetPrefix(), "info");
+    InitLogger(GetApplication(), GetPrefix(), "info");
 
     m_particle_maker_algo.init(m_log);
 }

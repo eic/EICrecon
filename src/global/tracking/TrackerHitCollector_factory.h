@@ -6,8 +6,8 @@
 
 #include <spdlog/logger.h>
 #include <edm4eic/TrackerHit.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
 
 namespace eicrecon {
 

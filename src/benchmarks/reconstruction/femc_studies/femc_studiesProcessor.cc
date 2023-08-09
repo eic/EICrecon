@@ -6,39 +6,39 @@
 
 #include "femc_studiesProcessor.h"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <services/rootfile/RootFile_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/rootfile/RootFile_service.h"
 #include <spdlog/spdlog.h>
 
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <services/log/Log_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
-#include "DD4hep/DetElement.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/Objects.h"
-#include "DDG4/Geant4Data.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <DDG4/Geant4Data.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TVector3.h"
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TVector3.h>
 
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
-// #include <extensions/spdlog/SpdlogMixin.h>
+// #include "extensions/spdlog/SpdlogMixin.h"
 
 // The following just makes this a JANA plugin
 extern "C" {
@@ -239,7 +239,6 @@ void femc_studiesProcessor::Init() {
 //******************************************************************************************
 void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void femc_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  using namespace std;
 
   // ===============================================================================================
   // process MC particles
@@ -502,11 +501,14 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         t_fEMC_cluster_Phi[iCl]     = (float)cluster.cluster_Phi;
       }
       hRecClusterEcalib_E_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);
-      for (int iCell = 0; iCell < (int)cluster.cluster_towers.size(); iCell++){
+      for (auto & cluster_tower : cluster.cluster_towers){
         int pSav = 0;
-        while(cluster.cluster_towers.at(iCell).cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
-        if (cluster.cluster_towers.at(iCell).cellID == input_tower_recSav.at(pSav).cellID)
+        while(cluster_tower.cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) {
+	  pSav++;
+        }
+        if (cluster_tower.cellID == input_tower_recSav.at(pSav).cellID) {
           input_tower_recSav.at(pSav).tower_clusterIDA = iCl;
+        }
       }
 
       if (iCl == 0){

@@ -1,12 +1,12 @@
-// Hits distribuition of detectors
+// Hits distribution of detectors
 // Shyam Kumar:INFN Bari, shyam.kumar@ba.infn.it; shyam055119@gmail.com
 
-#include "TGraphErrors.h"
-#include "TF1.h"
-#include "TRandom.h"
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "TMath.h"
+#include <TGraphErrors.h>
+#include <TF1.h>
+#include <TRandom.h>
+#include <TCanvas.h>
+#include <TLegend.h>
+#include <TMath.h>
 
 void draw_hits()
 {

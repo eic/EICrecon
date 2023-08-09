@@ -6,19 +6,19 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/CKFTracking.h>
-#include <algorithms/tracking/CKFTrackingConfig.h>
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
+#include "algorithms/tracking/CKFTracking.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainFactoryT.h>
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 
 namespace eicrecon {
 
     class CKFTracking_factory :
             public JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig, JFactoryT>,
-            public SpdlogMixin<CKFTracking_factory> {
+            public SpdlogMixin {
 
     public:
         CKFTracking_factory( std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):

@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/ParticlesFromTrackFit.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
+#include "algorithms/tracking/ParticlesFromTrackFit.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 class TrackingResult_factory:
         public JChainMultifactoryT<NoConfig>,
-        public eicrecon::SpdlogMixin<TrackingResult_factory> {
+        public eicrecon::SpdlogMixin {
 public:
     explicit TrackingResult_factory(std::string tag,
                                     const std::vector<std::string>& input_tags,

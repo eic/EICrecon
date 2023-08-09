@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <JANA/JEvent.h>
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 
 
 namespace eicrecon {
@@ -20,7 +20,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
+        InitLogger(GetApplication(), param_prefix, "info");
 
         m_jet_algo.init(m_log);
     }
