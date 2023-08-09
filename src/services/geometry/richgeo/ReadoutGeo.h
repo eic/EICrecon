@@ -52,11 +52,11 @@ namespace richgeo {
       void VisitAllRngPixels(std::function<void(CellIDType)> lambda, float p) { m_rngCellIDs(lambda, p); }
 
       // pixel gap mask
-      bool PixelGapMask(uint64_t cellID, dd4hep::Position pos_hit_global);
+      bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global);
 
       // transform global position `pos` to sensor `id` frame position
       // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-      dd4hep::Position GetSensorLocalPosition(uint64_t id, dd4hep::Position pos);
+      dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos);
 
       // set RNG seed
       void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
