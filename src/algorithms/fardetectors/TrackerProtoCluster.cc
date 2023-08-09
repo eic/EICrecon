@@ -8,49 +8,16 @@
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ROOT/RVec.hxx"
+#include "TrackerProtoCluster.h"
 
 namespace eicrecon {
 
 
-  void FarDetectorProtoCluster_factory::Init() {
-
-    auto app = GetApplication();
-
-    m_log = app->GetService<Log_service>()->logger(m_output_tag);
-
-    m_geoSvc = app->GetService<JDD4hep_service>();
-
-    if (m_readout.empty()) {
-      throw JException("Readout is empty");
-    }
-
-    try {
-      id_dec = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
-      if (!m_moduleField.empty()) {
-	module_idx = id_dec->index(m_moduleField);
-	m_log->debug("Find module field {}, index = {}", m_moduleField, module_idx);
-      }
-      if (!m_layerField.empty()) {
-	layer_idx = id_dec->index(m_layerField);
-	m_log->debug("Find layer field {}, index = {}", m_layerField, layer_idx);
-      }
-      if (!m_xField.empty()) {
-	x_idx = id_dec->index(m_xField);
-	m_log->debug("Find layer field {}, index = {}",  m_xField, x_idx);
-      }
-      if (!m_yField.empty()) {
-	y_idx = id_dec->index(m_yField);
-	m_log->debug("Find layer field {}, index = {}", m_yField, y_idx);
-      }
-    } catch (...) {
-      m_log->error("Failed to load ID decoder for {}", m_readout);
-      throw JException("Failed to load ID decoder");
-    }
-
+  void TrackerProtoClusterGen::init() {
 
   }
 
-  std::vector<eicrecon::TrackerProtoCluster*> TrackerProtoCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
+  std::vector<eicrecon::TrackerProtoCluster*> TrackerProtoClusterGen::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
     ROOT::VecOps::RVec<int>   module;
@@ -62,13 +29,13 @@ namespace eicrecon {
 
     // Gather detector id positions
     for(auto hit: inputhits){
-      auto cellID = hit->getCellID();
-      module.push_back(id_dec->get( cellID, module_idx ));
-      layer.push_back (id_dec->get( cellID, layer_idx  ));
-      x.push_back     (id_dec->get( cellID, x_idx      ));
-      y.push_back     (id_dec->get( cellID, y_idx      ));
-      e.push_back     (hit->getCharge());
-      t.push_back     (hit->getTimeStamp());
+      auto cellID = hit.getCellID();
+      module.push_back(m_id_dec->get( cellID, m_cfg.module_idx ));
+      layer.push_back (m_id_dec->get( cellID, m_cfg.layer_idx  ));
+      x.push_back     (m_id_dec->get( cellID, m_cfg.x_idx      ));
+      y.push_back     (m_id_dec->get( cellID, m_cfg.y_idx      ));
+      e.push_back     (hit.getCharge());
+      t.push_back     (hit.getTimeStamp());
     }
 
     // Set up clustering variables
@@ -108,7 +75,7 @@ namespace eicrecon {
 
 	indexList.erase(indexList.begin());
 
-	pCluster->associatedHits.push_back(*inputhits[index]);
+	pCluster->associatedHits.push_back(inputhits[index]);
 
       }
 

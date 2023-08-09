@@ -9,7 +9,6 @@
 #include <extensions/jana/JChainFactoryT.h>
 #include <algorithms/tracking/TrackerHitReconstructionConfig.h>
 
-
 namespace eicrecon {
 
     /// This factory just collects reconstructed hits edm4eic::TrackerHit from different sources

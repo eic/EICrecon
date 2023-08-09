@@ -8,51 +8,57 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
-#include <edm4eic/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
+
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "TrackerClusterConfig.h"
 
 namespace eicrecon {
 
   struct TrackerProtoCluster {
     int layer;
     int module;
+    //edm4eic::RawTrackerHitCollection associatedHits;
     std::vector<edm4eic::RawTrackerHit> associatedHits;
   };
 
-  class TrackerProtoCluster {
+  class TrackerProtoClusterGen {
 
   public:
 
-    TrackerProtoCluster() = default;
+    TrackerProtoClusterGen() = default;
 
 
       /** One time initialization **/
-      void init() override;
+      void init();
 
       /** Event by event processing **/
-      std::vector<eicrecon::TrackerProtoCluster*> produce(const std::shared_ptr<const JEvent> &event) override;
+      std::vector<eicrecon::TrackerProtoCluster*> produce(const edm4eic::RawTrackerHitCollection &inputhits);
 
       //----- Define constants here ------
 
-      dd4hep::BitFieldCoder *id_dec{nullptr};
-      size_t module_idx{0}, layer_idx{0}, x_idx{0}, y_idx{0};
+    // Get bit encoder
+    dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
 
-      std::shared_ptr<JDD4hep_service> m_geoSvc;
+    // Set bit encoder
+    void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
 
     // Get a configuration to be changed
-    eicrecon::MatrixTransferStaticConfig& getConfig() {return m_cfg;}
+    eicrecon::TrackerClusterConfig& getConfig() {return m_cfg;}
     
     // Sets a configuration (config is properly copyible)
-    eicrecon::MatrixTransferStaticConfig& applyConfig(eicrecon::MatrixTransferStaticConfig cfg) { m_cfg = cfg; return m_cfg;}
+    eicrecon::TrackerClusterConfig& applyConfig(eicrecon::TrackerClusterConfig cfg) { m_cfg = cfg; return m_cfg;}
 
   private:
-      eicrecon::TrackerProtoClusterConfig m_cfg;
+      eicrecon::TrackerClusterConfig m_cfg;
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 	
+      dd4hep::BitFieldCoder *m_id_dec{nullptr};
   };
 
 } // eicrecon

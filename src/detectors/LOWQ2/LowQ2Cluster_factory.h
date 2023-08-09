@@ -10,7 +10,8 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
-#include "LowQ2ProtoCluster_factory.h"
+//#include "LowQ2ProtoCluster_factory.h"
+#include <global/fardetectors/FarDetectorProtoCluster_factory.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>

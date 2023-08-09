@@ -11,14 +11,14 @@
 
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
-#include "LowQ2ProtoCluster_factory.h"
+//#include "LowQ2ProtoCluster_factory.h"
 #include "LowQ2Cluster_factory.h"
 #include "LowQ2Tracking_factory.h"
 #include "LowQ2Reconstruction_factory.h"
 
 #include <global/digi/SiliconTrackerDigi_factory.h>
 #include <global/tracking/TrackerHitReconstruction_factory.h>
-#include <global/fardetectors/TrackerProtoCluster_factory.h>
+#include "global/fardetectors/FarDetectorProtoCluster_factory.h"
 
 
 extern "C" {
@@ -46,7 +46,7 @@ extern "C" {
     
     // Clustering of hits
     //    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters" ));
-    app->Add(new JChainFactoryGeneratorT<TrackerProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters", cluster_cfg));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters", cluster_cfg));
 
     // Cluster position generation
     app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));

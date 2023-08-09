@@ -5,3 +5,5 @@ add_subdirectory( tracking )
 add_subdirectory( digi )
 add_subdirectory( reco )
 add_subdirectory( pid )
+add_subdirectory( fardetectors )
+

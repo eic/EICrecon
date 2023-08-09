@@ -110,14 +110,12 @@ namespace eicrecon {
 
       ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[LowQ2NNIndexOut::MomX]*m_electron_beamE,values[LowQ2NNIndexOut::MomY]*m_electron_beamE,values[LowQ2NNIndexOut::MomZ]*m_electron_beamE);
 
-      float energy = sqrt(values[LowQ2NNIndexOut::MomX]*m_electron_beamE*values[LowQ2NNIndexOut::MomX]*m_electron_beamE+
-			  values[LowQ2NNIndexOut::MomY]*m_electron_beamE*values[LowQ2NNIndexOut::MomY]*m_electron_beamE+
-			  values[LowQ2NNIndexOut::MomZ]*m_electron_beamE*values[LowQ2NNIndexOut::MomZ]*m_electron_beamE
-			  +mass*mass);
-
       float momMag2 = values[LowQ2NNIndexOut::MomX]*m_electron_beamE*values[LowQ2NNIndexOut::MomX]*m_electron_beamE+
 	values[LowQ2NNIndexOut::MomY]*m_electron_beamE*values[LowQ2NNIndexOut::MomY]*m_electron_beamE+
 	values[LowQ2NNIndexOut::MomZ]*m_electron_beamE*values[LowQ2NNIndexOut::MomZ]*m_electron_beamE;
+
+      float energy = sqrt(momMag2+mass*mass);
+
 
       // Track parameter variables
       // TODO: Add time and momentum errors
