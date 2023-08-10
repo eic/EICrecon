@@ -47,9 +47,11 @@ namespace eicrecon {
           std::vector<const edm4hep::LorentzVectorE*> momenta;
           for (const auto& particle : input) {
 
-            // select only final state particles
+            // select only final state charged particles
             const bool is_final_state = (particle->getGeneratorStatus() == 1);
-            if (!is_final_state) continue;
+            const bool is_charged = (particle->getCharge() != 0.);
+            std::cout << "CHECK: charge = " << particle -> getCharge() << ", is_charged = " << is_charged << std::endl;
+            if (!is_final_state || !is_charged) continue;
 
             const auto& momentum = particle->getMomentum();
             const auto& energy = particle->getEnergy();
