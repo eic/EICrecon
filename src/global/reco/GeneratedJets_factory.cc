@@ -50,7 +50,6 @@ namespace eicrecon {
             // select only final state charged particles
             const bool is_final_state = (particle->getGeneratorStatus() == 1);
             const bool is_charged = (particle->getCharge() != 0.);
-            std::cout << "CHECK: charge = " << particle -> getCharge() << ", is_charged = " << is_charged << std::endl;
             if (!is_final_state || !is_charged) continue;
 
             const auto& momentum = particle->getMomentum();
