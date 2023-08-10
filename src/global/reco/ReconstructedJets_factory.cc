@@ -3,7 +3,6 @@
 
 // standard c includes
 #include <memory>
-// jana includes
 #include <JANA/JEvent.h>
 #include <services/log/Log_service.h>
 // event data model definitions
@@ -22,7 +21,6 @@ namespace eicrecon {
 
         // initialize jet reconstruction algorithm
         m_jet_algo.init(m_log);
-        return;
 
     }  // end 'Init()'
 
@@ -31,7 +29,6 @@ namespace eicrecon {
     void ReconstructedJets_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
 
         // Nothing to do here
-        return;
 
     }  // end 'BeginRun(std::shared_ptr<JEvent&>)'
 
@@ -44,15 +41,15 @@ namespace eicrecon {
         for (const std::string& input_tag : GetInputTags()) {
 
           // grab input collection
-          auto input = event -> Get<edm4eic::ReconstructedParticle>(input_tag);
+          auto input = event->Get<edm4eic::ReconstructedParticle>(input_tag);
 
           // extract particle momenta
           std::vector<const edm4hep::LorentzVectorE*> momenta;
           for (const auto& particle : input) {
 
             // TODO: Need to exclude the scattered electron
-            const auto& momentum = particle -> getMomentum();
-            const auto& energy   = particle -> getEnergy();
+            const auto& momentum = particle->getMomentum();
+            const auto& energy = particle->getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
           }  // end particle loop
 
@@ -63,12 +60,9 @@ namespace eicrecon {
           }
 
           // set output collection
-          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::unique_ptr<edm4eic::ReconstructedParticleCollection>(rec_jets));
+          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::move(rec_jets));
           ++iInput;
-
         }  // end input tag loop
-        return;
-
     }  // end 'Process(shared_ptr<JEvent>)'
 
 }  // eicrecon namespace

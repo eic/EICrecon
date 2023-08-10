@@ -3,7 +3,6 @@
 
 // standard c includes
 #include <memory>
-// jana includes
 #include <JANA/JEvent.h>
 #include <services/log/Log_service.h>
 // event data model definitions
@@ -22,7 +21,6 @@ namespace eicrecon {
 
         // initialize jet reconstruction algorithm
         m_jet_algo.init(m_log);
-        return;
 
     }  // end 'Init()'
 
@@ -31,7 +29,6 @@ namespace eicrecon {
     void GeneratedJets_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
 
       // nothing to do here
-      return;
 
     }  // end 'BeginRun(std::shared_ptr<JEvent&>)'
 
@@ -44,18 +41,18 @@ namespace eicrecon {
         for (const std::string& input_tag : GetInputTags()) {  
 
           // grab input collection
-          auto input = event -> Get<edm4hep::MCParticle>(input_tag);
+          auto input = event->Get<edm4hep::MCParticle>(input_tag);
 
           // extract particle momenta
           std::vector<const edm4hep::LorentzVectorE*> momenta;
           for (const auto& particle : input) {
 
             // select only final state particles
-            const bool is_final_state = (particle -> getGeneratorStatus() == 1);
+            const bool is_final_state = (particle->getGeneratorStatus() == 1);
             if (!is_final_state) continue;
 
-            const auto& momentum = particle -> getMomentum();
-            const auto& energy   = particle -> getEnergy();
+            const auto& momentum = particle->getMomentum();
+            const auto& energy = particle->getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
           }  // end particle loop
 
@@ -66,12 +63,9 @@ namespace eicrecon {
           }
 
           // set output collection
-          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::unique_ptr<edm4eic::ReconstructedParticleCollection>(gen_jets));
+          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::move(gen_jets));
           ++iInput;
-
         }  // end input tag loop
-        return;
-
     }  // end 'Process(shared_ptr<JEvent>)'
 
 }  // end eicrecon namespace

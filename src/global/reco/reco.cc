@@ -71,8 +71,8 @@ void InitPlugin(JApplication *app) {
             app
     ));
     app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
-            "ReconstrucctedJets",
-            {"ReconstructedParticles"},
+            "ReconstructedJets",
+            {"ReconstructedChargedParticles"},
             {"ReconstructedJets"},
             app
     ));
