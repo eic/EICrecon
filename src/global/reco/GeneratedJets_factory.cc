@@ -38,7 +38,7 @@ namespace eicrecon {
 
         // loop over input tags
         size_t iInput = 0;
-        for (const std::string& input_tag : GetInputTags()) {  
+        for (const std::string& input_tag : GetInputTags()) {
 
           // grab input collection
           auto input = event->Get<edm4hep::MCParticle>(input_tag);

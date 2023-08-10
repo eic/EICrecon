@@ -3,7 +3,7 @@
 
 #pragma once
 
-// jana includes 
+// jana includes
 #include <spdlog/logger.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <extensions/jana/JChainMultifactoryT.h>
