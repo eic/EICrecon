@@ -1,46 +1,36 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
+
 #pragma once
 
-#include <vector>
-
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <spdlog/spdlog.h>
-
-#include "algorithms/interfaces/ICollectionProducer.h"
-
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
 #include <TRandomGen.h>
 
 #include "SiliconTrackerDigiConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
     /** digitization algorithm for a silicon trackers **/
-    class SiliconTrackerDigi:ICollectionProducer<edm4hep::SimTrackerHit, edm4eic::RawTrackerHit> {
+    class SiliconTrackerDigi : public WithPodConfig<SiliconTrackerDigiConfig>  {
+
     public:
-        SiliconTrackerDigi() = default;
-
-        /// Initialization function is called once (probably from corresponding factories)
         void init(std::shared_ptr<spdlog::logger>& logger);
-
-        /// ICollectionProducer processes RawTrackerHit collection from SimTrackerHit
-        virtual std::vector<edm4eic::RawTrackerHit*> produce(const std::vector<const edm4hep::SimTrackerHit *>& sim_hits);
-
-        /// Get a configuration to be changed
-        eicrecon::SiliconTrackerDigiConfig& getConfig() {return m_cfg;}
-
-        /// Sets a configuration (config is properly copyible)
-        eicrecon::SiliconTrackerDigiConfig& applyConfig(eicrecon::SiliconTrackerDigiConfig cfg) { m_cfg = cfg; return m_cfg;}
+        std::unique_ptr<edm4eic::RawTrackerHitCollection> process(const edm4hep::SimTrackerHitCollection& sim_hits);
 
     private:
-        /** configuration parameters **/
-        eicrecon::SiliconTrackerDigiConfig m_cfg;
-
         /** algorithm logger */
         std::shared_ptr<spdlog::logger> m_log;
 
         /** Random number generation*/
         TRandomMixMax m_random;
         std::function<double()> m_gauss;
+
+        // FIXME replace with standard random engine
+        //std::default_random_engine generator; // TODO: need something more appropriate here
+        //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
     };
 
