@@ -94,7 +94,7 @@ namespace eicrecon {
 
         auto proto = std::make_unique<edm4eic::ProtoClusterCollection>();
 
-        // group neighboring hits
+        // group neighbouring hits
         std::vector<bool> visits(hits.size(), false);
         std::vector<std::set<std::size_t>> groups;
         for (size_t i = 0; i < hits.size(); ++i) {
@@ -106,9 +106,9 @@ namespace eicrecon {
             if (visits[i] || hits[i].getEnergy() < minClusterCenterEdep) {
                 continue;
             }
-            // create a new group, and group all the neighboring hits
+            // create a new group, and group all the neighbouring hits
             groups.emplace_back();
-            dfs_group(hits, groups.back(), i, visits);
+            bfs_group(hits, groups.back(), i, visits);
         }
         m_log->debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -140,7 +140,7 @@ namespace eicrecon {
   private:
 
     // helper function to group hits
-    bool is_neighbor(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const {
+    bool is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const {
         // different sectors, simple distance check
         if (h1.getSector() != h2.getSector()) {
             return std::hypot((h1.getPosition().x - h2.getPosition().x),
@@ -164,24 +164,35 @@ namespace eicrecon {
         return false;
     }
 
-    // grouping function with Depth-First Search
-    void dfs_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
-                   std::size_t idx, std::vector<bool> &visits) const {
-        // not a qualified hit to participate in clustering, stop here
-        if (hits[idx].getEnergy() < minClusterHitEdep) {
-            visits[idx] = true;
-            return;
-        }
+    // grouping function with Breadth-First Search
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+      visits[idx] = true;
 
-        group.insert(idx);
-        visits[idx] = true;
-        for (size_t i = 0; i < hits.size(); ++i) {
-            // visited, or not a neighbor
-            if (visits[i] || !is_neighbor(hits[idx], hits[i])) {
-                continue;
+      // not a qualified hit to particpate clustering, stop here
+      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
+        return;
+      }
+
+      group.insert(idx);
+      size_t prev_size = 0;
+
+      while (prev_size != group.size()) {
+        prev_size = group.size();
+        for (std::size_t idx1 : group) {
+          // check neighbours
+          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
+            // not a qualified hit to particpate clustering, skip
+            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+              continue;
             }
-            dfs_group(hits, group, i, visits);
+            if ((!visits[idx2])
+                && is_neighbour(hits[idx1], hits[idx2])) {
+              group.insert(idx2);
+              visits[idx2] = true;
+            }
+          }
         }
+      }
     }
   };
 
