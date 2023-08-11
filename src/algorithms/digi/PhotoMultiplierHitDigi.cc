@@ -267,6 +267,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 
 
 // add a hit to local `hit_groups` data structure
+// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 void eicrecon::PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
     CellIDType       id,
@@ -274,7 +275,7 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
     TimeType         time,
     std::size_t      sim_hit_index,
     bool             is_noise_hit
-    )
+    ) // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
   if (it != hit_groups.end()) {
