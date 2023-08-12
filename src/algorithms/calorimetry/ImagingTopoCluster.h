@@ -96,7 +96,7 @@ namespace eicrecon {
 
         // group neighboring hits
         std::vector<bool> visits(hits.size(), false);
-        std::vector<std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit>>> groups;
+        std::vector<std::set<std::size_t>> groups;
         for (size_t i = 0; i < hits.size(); ++i) {
             m_log->debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
                          hits[i].getLocal().x, hits[i].getLocal().y, hits[i].getPosition().z,
@@ -108,7 +108,7 @@ namespace eicrecon {
             }
             // create a new group, and group all the neighboring hits
             groups.emplace_back();
-            dfs_group(groups.back(), i, hits, visits);
+            dfs_group(hits, groups.back(), i, visits);
         }
         m_log->debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -116,20 +116,20 @@ namespace eicrecon {
         }
 
         // form clusters
-        for (const auto &group: groups) {
+        for (const auto &group : groups) {
             if (static_cast<int>(group.size()) < m_cfg.minClusterNhits) {
                 continue;
             }
             double energy = 0.;
-            for (const auto &[idx, hit]: group) {
-                energy += hit.getEnergy();
+            for (std::size_t idx : group) {
+                energy += hits[idx].getEnergy();
             }
             if (energy < minClusterEdep) {
                 continue;
             }
             auto pcl = proto->create();
-            for (const auto &[idx, hit]: group) {
-                pcl.addToHits(hit);
+            for (std::size_t idx : group) {
+                pcl.addToHits(hits[idx]);
                 pcl.addToWeights(1);
             }
         }
@@ -165,22 +165,22 @@ namespace eicrecon {
     }
 
     // grouping function with Depth-First Search
-    void dfs_group(std::vector<std::pair<uint32_t, const edm4eic::CalorimeterHit>>& group, int idx,
-                   const edm4eic::CalorimeterHitCollection& hits, std::vector<bool> &visits) const {
+    void dfs_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
+                   std::size_t idx, std::vector<bool> &visits) const {
         // not a qualified hit to participate in clustering, stop here
         if (hits[idx].getEnergy() < minClusterHitEdep) {
             visits[idx] = true;
             return;
         }
 
-        group.emplace_back(idx, hits[idx]);
+        group.insert(idx);
         visits[idx] = true;
         for (size_t i = 0; i < hits.size(); ++i) {
             // visited, or not a neighbor
             if (visits[i] || !is_neighbor(hits[idx], hits[i])) {
                 continue;
             }
-            dfs_group(group, i, hits, visits);
+            dfs_group(hits, group, i, visits);
         }
     }
   };

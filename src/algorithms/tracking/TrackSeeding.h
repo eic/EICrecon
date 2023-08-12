@@ -55,7 +55,7 @@ namespace eicrecon {
 
 	int determineCharge(std::vector<std::pair<float,float>>& positions) const;
 	SeedContainer runSeeder(std::vector<const edm4eic::TrackerHit*>& trk_hits);
-	std::pair<float,float> findRoot(std::tuple<float,float,float>& circleParams) const;
+	std::pair<float,float> findPCA(std::tuple<float,float,float>& circleParams) const;
 	std::vector<const eicrecon::SpacePoint*> getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits);
 	std::vector<edm4eic::TrackParameters*> makeTrackParams(SeedContainer& seeds);
 
