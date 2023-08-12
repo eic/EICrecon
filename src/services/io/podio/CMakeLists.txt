@@ -33,12 +33,15 @@ get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic INTER
 
 # Generate the datamodel header files.
 add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_glue.h ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h
-        COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
-                WORKING_DIR=${CMAKE_CURRENT_BINARY_DIR}
-                EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
-                EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
-        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_glue.h ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h
+    COMMAND python3 ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+        WORKING_DIR=${CMAKE_CURRENT_BINARY_DIR}
+        EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
+        EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
+    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
+    DEPENDS
+        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4HEPVersion.h
+        ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4EICVersion.h
 )
 
 # Add include directories (works same as target_include_directories)
@@ -53,7 +56,7 @@ root_generate_dictionary(G__datamodel_vectors ${datamodel_BINARY_DIR}/datamodel_
 
 # Install root dictionaries made by PODIO
 set(my_root_dict_files
-        ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin_rdict.pcm
-        ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin.rootmap
-        )
+    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin_rdict.pcm
+    ${PROJECT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin.rootmap
+)
 install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
