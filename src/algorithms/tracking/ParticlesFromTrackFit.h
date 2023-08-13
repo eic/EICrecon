@@ -4,10 +4,12 @@
 
 #pragma once
 
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 
 #include <spdlog/logger.h>
+
 #include "JugTrack/TrackingResultTrajectory.hpp"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 
 
 using ParticlesFromTrackFitResultNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
