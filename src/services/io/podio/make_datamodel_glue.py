@@ -37,7 +37,6 @@ if EDM4EIC_ROOT :
 for arg in sys.argv:
     if arg.startswith('WORKING_DIR'):
         if '=' in arg: WORKING_DIR = arg.split('=',1)[1]
-        print(WORKING_DIR)
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
         if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4EIC_INCLUDE_DIR'):
