@@ -3,12 +3,6 @@
 //
 //
 
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <algorithm>
-
 #include "ACTSGeo_service.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
@@ -31,7 +25,7 @@ ACTSGeo_service::~ACTSGeo_service() {};
 std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
 
     try{
-        std::call_once( init_flag, [this](){
+        std::call_once(m_init_flag, [this](){
             // Assemble everything on the first call
 
             if(!m_dd4hepGeo) {
@@ -47,10 +41,18 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             }
             m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSON/CBOR material map file path");
 
+            // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
+            // while no other output is coming which makes it look like something is wrong. Disable the ticker
+            // while parsing and loading the geometry
+            auto tickerEnabled = m_app->IsTickerEnabled();
+            m_app->SetTicker(false);
+
             // Initialize m_acts_provider
             m_acts_provider = std::make_shared<ActsGeometryProvider>();
             m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
 
+            // Enable ticker back
+            m_app->SetTicker(tickerEnabled);
         });
     }
     catch (std::exception &ex) {
