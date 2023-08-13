@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 
@@ -14,7 +15,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "algorithms/tracking/JugTrack/Track.hpp"
 #include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
 #include "services/rootfile/RootFile_service.h"
