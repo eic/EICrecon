@@ -67,15 +67,13 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE I
     // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
+    auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("outputParticles");
 
-    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
+    m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
 
-    auto reco_particles = trk_result->particles();
-
-    for(size_t i=0; i < reco_particles->size(); i++) {
-        auto particle = (*reco_particles)[i];
+    for(size_t i=0; i < reco_particles.size(); i++) {
+        auto& particle = *(reco_particles[i]);
 
         double px = particle.getMomentum().x;
         double py = particle.getMomentum().y;
