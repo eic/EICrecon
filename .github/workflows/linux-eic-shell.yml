@@ -305,6 +305,7 @@ jobs:
     - build
     - ddsim-gun
     strategy:
+      fail-fast: false
       matrix:
         CC: [gcc]
         particle: [e]
