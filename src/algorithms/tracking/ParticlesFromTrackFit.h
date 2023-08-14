@@ -4,14 +4,16 @@
 
 #pragma once
 
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 
 #include <spdlog/logger.h>
+
 #include "JugTrack/TrackingResultTrajectory.hpp"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 
 
-using ParticlesFromTrackFitResultNew = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
-                                                 std::unique_ptr<edm4eic::TrackParametersCollection>>;
+using ParticlesFromTrackFitResult = std::pair<std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
+                                              std::unique_ptr<edm4eic::TrackParametersCollection>>;
 
 namespace eicrecon::Reco {
 
@@ -27,7 +29,7 @@ namespace eicrecon::Reco {
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        ParticlesFromTrackFitResultNew execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
+        ParticlesFromTrackFitResult execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
 
     };
 } // namespace Jug::Reco
