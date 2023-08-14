@@ -36,11 +36,11 @@ if EDM4EIC_ROOT :
 # poor man's command line parsing
 for arg in sys.argv:
     if arg.startswith('WORKING_DIR'):
-        if '=' in arg: WORKING_DIR = arg.split('=')[1]
+        if '=' in arg: WORKING_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
-        if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=')[1]
+        if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4EIC_INCLUDE_DIR'):
-        if '=' in arg: EDM4EIC_INCLUDE_DIR = arg.split('=')[1]
+        if '=' in arg: EDM4EIC_INCLUDE_DIR = arg.split('=',1)[1]
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
