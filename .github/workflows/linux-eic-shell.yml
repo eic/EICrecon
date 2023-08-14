@@ -13,6 +13,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
+  LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,9 +36,6 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
-    env:
-      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
@@ -293,9 +294,6 @@ jobs:
         CC: [gcc, clang]
         particle: [pi, e]
         detector_config: [brycecanyon, craterlake]
-    env:
-      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -365,9 +363,6 @@ jobs:
         CC: [clang]
         particle: [e]
         detector_config: [ip6_extended]
-    env:
-      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -416,9 +411,6 @@ jobs:
         exclude:
         - beam: 5x41
           minq2: 1000
-    env:
-      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
