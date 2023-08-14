@@ -21,9 +21,6 @@ void eicrecon::CKFTracking_factory::Init() {
     std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
     InitLogger(app, param_prefix, "info");
 
@@ -41,10 +38,6 @@ void eicrecon::CKFTracking_factory::Init() {
     // Initialize algorithm
     m_tracking_algo.applyConfig(cfg);
     m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
-}
-
-void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
 }
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -113,7 +106,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
                 acts_track_params);
 
         // Save the result
-        Set(trajectories);
+        SetData(GetOutputTags()[0], trajectories);
     }
     catch(std::exception &e) {
         throw JException(e.what());
