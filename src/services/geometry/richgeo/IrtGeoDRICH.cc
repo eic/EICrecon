@@ -109,7 +109,9 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    mirror R = {:f} mm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = m_mirrorSphericalSurface;
+    auto rad = m_irtDetector->GetRadiator(RadiatorName(kGas).c_str());
+    if(rad) rad->m_Borders[isec].second = m_mirrorSphericalSurface;
+    else throw std::runtime_error("Gas radiator not built in IrtGeo");
 
     // sensor sphere (only used for validation of sensor normals)
     auto sensorSphRadius  = m_det->constant<double>("DRICH_sensor_sph_radius") / dd4hep::mm;
