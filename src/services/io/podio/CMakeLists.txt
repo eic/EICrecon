@@ -40,8 +40,8 @@ add_custom_command(
         EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
     MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
     DEPENDS
-        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4HEPVersion.h
-        ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4EICVersion.h
+        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h
+        ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h
 )
 
 # Add include directories (works same as target_include_directories)
