@@ -5,9 +5,9 @@
 
 #include <Acts/Surfaces/DiscSurface.hpp>
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/tracking/TrackPropagation.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/tracking/TrackPropagation.h"
 
 #include <TDirectory.h>
 
@@ -16,7 +16,7 @@ class JApplication;
 
 class TrackSeedingTest_processor:
         public JEventProcessor,
-        public eicrecon::SpdlogMixin<TrackSeedingTest_processor>   // this automates proper log initialization
+        public eicrecon::SpdlogMixin   // this automates proper log initialization
 {
 public:
     explicit TrackSeedingTest_processor(JApplication *);

@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);

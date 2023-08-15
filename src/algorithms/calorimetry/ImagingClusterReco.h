@@ -10,23 +10,27 @@
 
 #pragma once
 
-#include "fmt/format.h"
 #include <Eigen/Dense>
 #include <algorithm>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
-#include <algorithms/calorimetry/ClusterTypes.h>
+#include "algorithms/calorimetry/ClusterTypes.h"
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
-#include "edm4eic/CalorimeterHitCollection.h"
-#include "edm4eic/ClusterCollection.h"
-#include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4eic/ProtoClusterCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "ImagingClusterRecoConfig.h"
+
+namespace eicrecon {
 
 /** Imaging cluster reconstruction.
  *
@@ -35,41 +39,35 @@
  *
  *  \ingroup reco
  */
-class ImagingClusterReco {
-protected:
-    int m_trackStopLayer = 9; // {this, "trackStopLayer", 9};
+  class ImagingClusterReco : public WithPodConfig<ImagingClusterRecoConfig> {
 
-    std::vector<const edm4eic::ProtoCluster *> m_inputProtoClusters;
-    std::vector<edm4eic::Cluster *> m_outputLayers;
-    std::vector<edm4eic::Cluster *> m_outputClusters;
+  using ClustersWithAssociations = std::tuple<
+        std::unique_ptr<edm4eic::ClusterCollection>,
+        std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>,
+        std::unique_ptr<edm4eic::ClusterCollection>
+  >;
 
-    // Collection for MC hits when running on MC
-    std::string m_mcHits_name; // {this, "mcHits", ""};
-    // Optional handle to MC hits
-    std::vector<const edm4hep::SimCalorimeterHit *> m_mcHits;
-
-    // Collection for associations when running on MC
-    std::string m_outputAssociations_name; // {this, "outputAssociations", ""};
-    // Optional handle to MC hits
-    std::vector<edm4eic::MCRecoClusterParticleAssociation *> m_outputAssociations;
-
-    // logger
+  protected:
     std::shared_ptr<spdlog::logger> m_log;
 
-public:
-    ImagingClusterReco() = default;
+  public:
 
-    void initialize() {}
+    void init(std::shared_ptr<spdlog::logger>& logger) {
+        m_log = logger;
+    }
 
-    void execute() {
-        // input collections
-        const auto &proto = m_inputProtoClusters;
+    ClustersWithAssociations process(
+        const edm4eic::ProtoClusterCollection& proto,
+        const edm4hep::SimCalorimeterHitCollection& mchits
+    ) {
+
         // output collections
-        auto &layers = m_outputLayers;
-        auto &clusters = m_outputClusters;
+        auto layers = std::make_unique<edm4eic::ClusterCollection>();
+        auto clusters = std::make_unique<edm4eic::ClusterCollection>();
+        auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
 
-        for (auto pcl: proto) {
-            if (!pcl->getHits().empty() && !pcl->getHits(0).isAvailable()) {
+        for (const auto& pcl: proto) {
+            if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
                 m_log->warn("Protocluster hit relation is invalid, skipping protocluster");
                 continue;
             }
@@ -78,27 +76,23 @@ public:
             auto cl_layers = reconstruct_cluster_layers(pcl);
 
             // Get cluster direction from the layer profile
-            // TODO in fit_track causing eigen3 alignment issue at Eigen::JacobiSVD
-            // TODO For now this code is switched off (experts permission is given),
-            // TODO It should be reviewed and reinstated after PODIO works
-            // auto [theta, phi] = fit_track(cl_layers);
-            // cl.setIntrinsicTheta(theta);
-            // cl.setIntrinsicPhi(phi);
+            auto [theta, phi] = fit_track(cl_layers);
+            cl.setIntrinsicTheta(theta);
+            cl.setIntrinsicPhi(phi);
             // no error on the intrinsic direction TODO
 
             // store layer and clusters on the datastore
-            for (const auto &layer: cl_layers) {
-                auto layer_ptr = new edm4eic::Cluster( layer );
-                layers.push_back(layer_ptr);
-//                cl.addToClusters(*layer_ptr);
+            for (const auto& layer: cl_layers) {
+                layers->push_back(layer);
+                cl.addToClusters(layer);
             }
-            clusters.push_back(new edm4eic::Cluster( cl ));
+            clusters->push_back(cl);
 
             // If mcHits are available, associate cluster with MCParticle
-            if ( (!m_mcHits.empty()) && (!m_outputAssociations.empty()) ) {
+            if (mchits.size() > 0) {
 
                 // 1. find pclhit with the largest energy deposition
-                auto pclhits = pcl->getHits();
+                auto pclhits = pcl.getHits();
                 auto pclhit = std::max_element(
                         pclhits.begin(),
                         pclhits.end(),
@@ -109,15 +103,15 @@ public:
 
                 // 2. find mchit with same CellID
                 const edm4hep::SimCalorimeterHit* mchit = nullptr;
-                for( auto h : m_mcHits ){
-                    if (h->getCellID() == pclhit->getCellID()) {
-                        mchit = h;
+                for (auto h : mchits) {
+                    if (h.getCellID() == pclhit->getCellID()) {
+                        mchit = &h;
                         break;
                     }
                 }
                 if( !mchit ){
                     // break if no matching hit found for this CellID
-                    m_log->warn( fmt::format("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID() ));
+                    m_log->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
                     break;
                 }
 
@@ -125,35 +119,32 @@ public:
                 const auto &mcp = mchit->getContributions(0).getParticle();
 
                 // set association
-                edm4eic::MutableMCRecoClusterParticleAssociation clusterassoc;
+                auto clusterassoc = associations->create();
                 clusterassoc.setRecID(cl.getObjectID().index);
                 clusterassoc.setSimID(mcp.getObjectID().index);
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(cl);
                 clusterassoc.setSim(mcp);
-                m_outputAssociations.push_back(new edm4eic::MCRecoClusterParticleAssociation(clusterassoc));
             }
 
         }
 
         // debug output
-        if (m_log->level() == SPDLOG_LEVEL_DEBUG) {
-            for (const auto &cl: clusters) {
-                m_log->debug( fmt::format("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl->id(),
-                                       cl->getEnergy() * 1000., cl->getIntrinsicTheta() / M_PI * 180.,
-                                       cl->getIntrinsicPhi() / M_PI * 180.)
-                );
-            }
+        for (const auto& cl: *clusters) {
+            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.id(),
+                         cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
+                         cl.getIntrinsicPhi() / M_PI * 180.
+            );
         }
+
+        return std::make_tuple(std::move(clusters), std::move(associations), std::move(layers));
     }
 
-private:
-    template<typename T>
-    static inline T pow2(const T &x) { return x * x; }
+  private:
 
-    static std::vector<edm4eic::Cluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster *pcl) {
-        const auto &hits = pcl->getHits();
-        const auto &weights = pcl->getWeights();
+    static std::vector<edm4eic::Cluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
+        const auto& hits = pcl.getHits();
+        const auto& weights = pcl.getWeights();
         // using map to have hits sorted by layer
         std::map<int, std::vector<std::pair<const edm4eic::CalorimeterHit, float>>> layer_map;
         for (unsigned i = 0; i < hits.size(); ++i) {
@@ -175,7 +166,7 @@ private:
         return cl_layers;
     }
 
-    static edm4eic::Cluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>> &hits) {
+    static edm4eic::Cluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
         edm4eic::MutableCluster layer;
         layer.setType(Jug::Reco::ClusterType::kClusterSlice);
         // Calculate averages
@@ -214,11 +205,11 @@ private:
         return layer;
     }
 
-    edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster *pcl) {
+    edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
         edm4eic::MutableCluster cluster;
 
-        const auto &hits = pcl->getHits();
-        const auto &weights = pcl->getWeights();
+        const auto& hits = pcl.getHits();
+        const auto& weights = pcl.getWeights();
 
         cluster.setType(Jug::Reco::ClusterType::kCluster3D);
         double energy = 0.;
@@ -240,7 +231,7 @@ private:
             meta += edm4eic::eta(hit.getPosition()) * energyWeight;
             mphi += edm4eic::angleAzimuthal(hit.getPosition()) * energyWeight;
             r = std::min(edm4eic::magnitude(hit.getPosition()), r);
-//            cluster.addToHits(hit);
+            cluster.addToHits(hit);
         }
         cluster.setEnergy(energy);
         cluster.setEnergyError(std::sqrt(energyError));
@@ -252,8 +243,13 @@ private:
         // shower radius estimate (eta-phi plane)
         double radius = 0.;
         for (const auto &hit: hits) {
-            radius += pow2(edm4eic::eta(hit.getPosition()) - edm4eic::eta(cluster.getPosition())) +
-                      pow2(edm4eic::angleAzimuthal(hit.getPosition()) - edm4eic::angleAzimuthal(cluster.getPosition()));
+            radius += std::pow(
+              std::hypot(
+                (edm4eic::eta(hit.getPosition()) - edm4eic::eta(cluster.getPosition())),
+                (edm4eic::angleAzimuthal(hit.getPosition()) - edm4eic::angleAzimuthal(cluster.getPosition()))
+              ),
+              2.0
+            );
         }
         cluster.addToShapeParameters(std::sqrt(radius / cluster.getNhits()));
         // Skewedness not calculated TODO
@@ -272,7 +268,7 @@ private:
         int nrows = 0;
         decltype(edm4eic::ClusterData::position) mean_pos{0, 0, 0};
         for (const auto &layer: layers) {
-            if ((layer.getNhits() > 0) && (layer.getHits(0).getLayer() <= m_trackStopLayer)) {
+            if ((layer.getNhits() > 0) && (layer.getHits(0).getLayer() <= m_cfg.trackStopLayer)) {
                 mean_pos = mean_pos + layer.getPosition();
                 nrows += 1;
             }
@@ -288,7 +284,7 @@ private:
         Eigen::MatrixXd pos(nrows, 3);
         int ir = 0;
         for (const auto &layer: layers) {
-            if ((layer.getNhits() > 0) && (layer.getHits(0).getLayer() <= m_trackStopLayer)) {
+            if ((layer.getNhits() > 0) && (layer.getHits(0).getLayer() <= m_cfg.trackStopLayer)) {
                 auto delta = layer.getPosition() - mean_pos;
                 pos(ir, 0) = delta.x;
                 pos(ir, 1) = delta.y;
@@ -297,7 +293,6 @@ private:
             }
         }
 
-        // TODO Eigen::JacobiSVD <Eigen::MatrixXd> svd may cause eigen3 alignment issues, should be tested
         Eigen::JacobiSVD <Eigen::MatrixXd> svd(pos, Eigen::ComputeThinU | Eigen::ComputeThinV);
         const auto dir = svd.matrixV().col(0);
         // theta and phi
@@ -305,5 +300,4 @@ private:
     }
 };
 
-
-//} // namespace Jug::Reco
+} // namespace eicrecon

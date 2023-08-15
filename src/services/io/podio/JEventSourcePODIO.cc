@@ -24,8 +24,8 @@
 #include <fmt/format.h>
 
 // These files are generated automatically by make_datamodel_glue.py
-#include <datamodel_includes.h>
-#include <datamodel_glue.h>
+#include "datamodel_includes.h"
+#include "datamodel_glue.h"
 
 
 //------------------------------------------------------------------------------

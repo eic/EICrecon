@@ -80,7 +80,7 @@ std::vector<std::string> m_default_input_tags;
       // ...
 ```
 
-3- On factory level we allow users to change input tags and (maybe) even output tag and check if default or overriden values to be used:
+3- On factory level we allow users to change input tags and (maybe) even output tag and check if default or overridden values to be used:
 
 ```C++
 

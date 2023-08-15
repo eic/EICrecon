@@ -18,20 +18,20 @@
 #pragma once
 
 // ACTS
-#include "Acts/Utilities/Logger.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
+#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 
 // DD4Hep
-#include "DD4hep/Detector.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
-#include "DD4hep/DD4hepUnits.h"
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
+#include <DD4hep/DD4hepUnits.h>
 
 #include "JugBase/BField/DD4hepBField.h"
 

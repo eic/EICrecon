@@ -12,9 +12,9 @@
 
 #pragma once
 
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 // @note This file will go into the acts-core
 namespace Acts {

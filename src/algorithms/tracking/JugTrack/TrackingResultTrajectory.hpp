@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/VectorMultiTrajectory.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include "IndexSourceLink.hpp"
 #include "Track.hpp"
 

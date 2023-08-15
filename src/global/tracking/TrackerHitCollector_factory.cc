@@ -8,7 +8,6 @@
 #include "TrackerHitCollector_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
     void TrackerHitCollector_factory::Init() {
@@ -16,7 +15,7 @@ namespace eicrecon {
         auto app =  this->GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string plugin_name = GetPluginName();
         std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Now we check that user provided an input names

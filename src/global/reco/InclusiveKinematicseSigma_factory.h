@@ -3,19 +3,15 @@
 
 #pragma once
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/InclusiveKinematics.h>
-#include <algorithms/reco/InclusiveKinematicseSigma.h>
-
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/reco/InclusiveKinematicseSigma.h"
 
 namespace eicrecon {
 
     class InclusiveKinematicseSigma_factory :
             public JChainFactoryT<edm4eic::InclusiveKinematics>,
-            public SpdlogMixin<InclusiveKinematicseSigma_factory> {
+            public SpdlogMixin {
 
     public:
         explicit InclusiveKinematicseSigma_factory(std::vector<std::string> default_input_tags):
@@ -30,9 +26,8 @@ namespace eicrecon {
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
-    protected:
 
-        std::vector<std::string> m_input_assoc_tags = {"InclusiveKinematicseSigma"};
+    protected:
         InclusiveKinematicseSigma m_inclusive_kinematics_algo;
 
     };
