@@ -45,7 +45,7 @@ namespace eicrecon{
     CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
     eicrecon::CKFTracking::TrackFinderResult
-    operator()(const eicrecon::TrackParametersContainer& initialParameters,
+    operator()(const ActsExamples::TrackParametersContainer& initialParameters,
                const eicrecon::CKFTracking::TrackFinderOptions& options)
                const override
     {

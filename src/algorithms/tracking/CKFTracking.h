@@ -46,7 +46,7 @@ namespace eicrecon {
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
         using TrackFinderOptions =
-            Acts::CombinatorialKalmanFilterOptions<IndexSourceLinkAccessor::Iterator,
+            Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
                                                    Acts::VectorMultiTrajectory>;
         using TrackFinderResult = std::vector<Acts::Result<
             Acts::CombinatorialKalmanFilterResult<Acts::VectorMultiTrajectory>>>;
@@ -58,7 +58,7 @@ namespace eicrecon {
         public:
             virtual ~CKFTrackingFunction() = default;
 
-            virtual TrackFinderResult operator()(const eicrecon::TrackParametersContainer &,
+            virtual TrackFinderResult operator()(const ActsExamples::TrackParametersContainer &,
                                                  const TrackFinderOptions &) const = 0;
         };
 
@@ -73,9 +73,9 @@ namespace eicrecon {
 
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
 
-        std::vector<ActsExamples::Trajectories*> process(const eicrecon::IndexSourceLinkContainer &src_links,
-                                                                 const eicrecon::MeasurementContainer &measurements,
-                                                                 const eicrecon::TrackParametersContainer &init_trk_params);
+        std::vector<ActsExamples::Trajectories*> process(const ActsExamples::IndexSourceLinkContainer &src_links,
+                                                                 const ActsExamples::MeasurementContainer &measurements,
+                                                                 const ActsExamples::TrackParametersContainer &init_trk_params);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

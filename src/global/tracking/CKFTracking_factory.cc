@@ -50,7 +50,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         return;
     }
 
-    eicrecon::TrackParametersContainer acts_track_params;
+    ActsExamples::TrackParametersContainer acts_track_params;
     for (const auto& track_parameter: *track_parameters) {
 
         Acts::BoundVector params;
@@ -79,7 +79,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     }
 
     // Convert vector of source links to a sorted in geometry order container used in tracking
-    eicrecon::IndexSourceLinkContainer source_links;
+    ActsExamples::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
     for(auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,

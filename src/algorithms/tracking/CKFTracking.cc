@@ -73,9 +73,9 @@ namespace eicrecon {
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
     }
 
-    std::vector<ActsExamples::Trajectories*> CKFTracking::process(const eicrecon::IndexSourceLinkContainer &src_links,
+    std::vector<ActsExamples::Trajectories*> CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
                                                                           const ActsExamples::MeasurementContainer &measurements,
-                                                                          const eicrecon::TrackParametersContainer &init_trk_params) {
+                                                                          const ActsExamples::TrackParametersContainer &init_trk_params) {
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
@@ -101,7 +101,7 @@ namespace eicrecon {
 
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
                 extensions;
-        extensions.calibrator.connect<&eicrecon::MeasurementCalibrator::calibrate>(&calibrator);
+        extensions.calibrator.connect<&ActsExamples::MeasurementCalibrator::calibrate>(&calibrator);
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
                 &kfUpdater);
@@ -112,11 +112,11 @@ namespace eicrecon {
                 &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
                 &measSel);
 
-        eicrecon::IndexSourceLinkAccessor slAccessor;
+        ActsExamples::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;
-        Acts::SourceLinkAccessorDelegate<eicrecon::IndexSourceLinkAccessor::Iterator>
+        Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
-        slAccessorDelegate.connect<&eicrecon::IndexSourceLinkAccessor::range>(&slAccessor);
+        slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
 
         // Set the CombinatorialKalmanFilter options
         CKFTracking::TrackFinderOptions options(
