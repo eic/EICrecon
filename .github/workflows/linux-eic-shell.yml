@@ -332,7 +332,7 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
-        run:
+        run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
