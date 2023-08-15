@@ -50,7 +50,7 @@ void eicrecon::IterativeVertexFinder_factory::ChangeRun(
 void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<const JEvent>& event) {
 
   std::string input_tag = GetInputTags()[0];
-  auto trajectories     = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
+  auto trajectories     = event->Get<ActsExamples::Trajectories>(input_tag);
 
   m_log->debug("Process method");
 

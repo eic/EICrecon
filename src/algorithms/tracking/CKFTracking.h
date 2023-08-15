@@ -11,13 +11,13 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
-#include "JugBase/BField/DD4hepBField.h"
-#include "JugTrack/GeometryContainers.hpp"
-#include "JugTrack/Index.hpp"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Measurement.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "DD4hepBField.h"
+#include "ActsExamples/EventData/GeometryContainers.hpp"
+#include "ActsExamples/EventData/Index.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParameters.h>
@@ -73,7 +73,7 @@ namespace eicrecon {
 
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
 
-        std::vector<eicrecon::TrackingResultTrajectory*> process(const eicrecon::IndexSourceLinkContainer &src_links,
+        std::vector<ActsExamples::Trajectories*> process(const eicrecon::IndexSourceLinkContainer &src_links,
                                                                  const eicrecon::MeasurementContainer &measurements,
                                                                  const eicrecon::TrackParametersContainer &init_trk_params);
 
@@ -90,4 +90,4 @@ namespace eicrecon {
         Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
     };
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

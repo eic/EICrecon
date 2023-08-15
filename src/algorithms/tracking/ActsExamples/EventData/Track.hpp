@@ -12,7 +12,7 @@
 
 #include <vector>
 
-namespace eicrecon {
+namespace ActsExamples {
 
 /// (Reconstructed) track parameters e.g. close to the vertex.
 using TrackParameters = ::Acts::BoundTrackParameters;

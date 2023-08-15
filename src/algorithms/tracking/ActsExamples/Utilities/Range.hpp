@@ -11,7 +11,7 @@
 #include <iterator>
 #include <utility>
 
-namespace eicrecon {
+namespace ActsExamples {
 
 /// A wrapper around a pair of iterators to simplify range-based loops.
 ///
@@ -53,4 +53,4 @@ Range<Iterator> makeRange(std::pair<Iterator, Iterator> range) {
   return Range<Iterator>(range.first, range.second);
 }
 
-}  // namespace FW
+}  // namespace ActsExamples

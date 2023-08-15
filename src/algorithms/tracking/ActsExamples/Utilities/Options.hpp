@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-//namespace FW {
+//namespace ActsExamples {
 //namespace Options {
 //
 ///// Half open [lower,upper) interval type for user options.
@@ -58,7 +58,7 @@
 //                         const std::vector<Interval>& intervals);
 //
 //}  // namespace Options
-//}  // namespace FW
+//}  // namespace ActsExamples
 //
 //using read_series = std::vector<int>;
 //using read_range = std::vector<double>;

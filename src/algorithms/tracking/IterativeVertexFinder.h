@@ -11,10 +11,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include "JugBase/BField/DD4hepBField.h"
-#include "JugTrack/GeometryContainers.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "DD4hepBField.h"
+#include "ActsExamples/EventData/GeometryContainers.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
@@ -34,7 +34,7 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::vector<edm4eic::Vertex*>
-  produce(std::vector<const eicrecon::TrackingResultTrajectory*> trajectories);
+  produce(std::vector<const ActsExamples::Trajectories*> trajectories);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;

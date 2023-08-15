@@ -1,6 +1,6 @@
 
 #include "TrackingOccupancy_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
@@ -23,7 +23,7 @@
 #include <spdlog/spdlog.h>
 #include <edm4eic/TrackParameters.h>
 
-#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;

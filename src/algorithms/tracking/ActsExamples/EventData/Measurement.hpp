@@ -13,7 +13,7 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
-namespace eicrecon {
+namespace ActsExamplesExamples {
 
   /// Variable measurement type that can contain all possible combinations.
   using Measurement = ::Acts::BoundVariantMeasurement;
@@ -54,4 +54,4 @@ namespace eicrecon {
     const MeasurementContainer* m_measurements = nullptr;
   };
 
-} // namespace Jug
+} // namespace ActsExamplesExamples

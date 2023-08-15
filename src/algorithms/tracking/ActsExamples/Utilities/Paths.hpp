@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace Jug {
+namespace ActsExamples {
 
 /// Ensure that the given directory exists and is writable.
 ///
@@ -43,4 +43,4 @@ std::string perEventFilepath(const std::string& dir, const std::string& name,
 std::pair<size_t, size_t> determineEventFilesRange(const std::string& dir,
                                                    const std::string& name);
 
-}  // namespace FW
+} // namespace ActsExamples

@@ -9,7 +9,7 @@
 
 #include <spdlog/logger.h>
 
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 
 namespace eicrecon::Reco {
@@ -26,7 +26,7 @@ namespace eicrecon::Reco {
     public:
         void init(std::shared_ptr<spdlog::logger> log);
 
-        std::unique_ptr<edm4eic::TrackParametersCollection> execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories);
+        std::unique_ptr<edm4eic::TrackParametersCollection> execute(const std::vector<const ActsExamples::Trajectories *> &trajectories);
 
     };
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

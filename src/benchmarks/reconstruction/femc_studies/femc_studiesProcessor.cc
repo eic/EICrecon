@@ -5,7 +5,7 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "femc_studiesProcessor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include <edm4eic/vector_utils.h>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>

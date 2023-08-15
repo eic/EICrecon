@@ -89,7 +89,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
+            {"CentralCKFTrajectories"},                       // ActsExamples::Trajectories
             {"outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
 
@@ -105,7 +105,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFSeededTrajectories"},                 // eicrecon::TrackingResultTrajectory
+            {"CentralCKFSeededTrajectories"},                 // ActsExamples::Trajectories
             {"outputSeededTrackParameters"},                  // edm4eic::TrackParameters
             app));
 
