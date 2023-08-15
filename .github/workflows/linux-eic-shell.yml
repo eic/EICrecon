@@ -319,9 +319,6 @@ jobs:
         - TRACKINGcheck
         - tracking_efficiency
         - tracking_occupancy
-    env:
-      ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -339,7 +336,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Pplugins=${{ matrix.benchmarks_plugins }} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,jana>
+          $PWD/bin/eicrecon -Pplugins=${{ matrix.benchmark_plugins }} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,jana>
 
   eicrecon-gun:
     runs-on: ubuntu-latest
