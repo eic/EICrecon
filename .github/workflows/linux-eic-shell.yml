@@ -312,7 +312,7 @@ jobs:
         detector_config: [brycecanyon]
         benchmark_plugins:
         - RPOTScheck
-        - BEMCcheck
+        - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
         - tof_efficiency
