@@ -27,7 +27,7 @@ class JApplication;
 
 class trackqa_processor:
         public JEventProcessor,
-        public eicrecon::SpdlogMixin<trackqa_processor>   // this automates proper log initialization
+        public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
     explicit trackqa_processor(JApplication *);
