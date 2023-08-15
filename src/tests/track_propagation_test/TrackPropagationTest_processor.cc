@@ -11,7 +11,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "services/rootfile/RootFile_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 

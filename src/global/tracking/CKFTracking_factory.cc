@@ -21,9 +21,6 @@ void eicrecon::CKFTracking_factory::Init() {
     std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
     InitLogger(app, param_prefix, "info");
 
@@ -41,10 +38,6 @@ void eicrecon::CKFTracking_factory::Init() {
     // Initialize algorithm
     m_tracking_algo.applyConfig(cfg);
     m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
-}
-
-void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
 }
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -85,13 +78,6 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         acts_track_params.emplace_back(pSurface, params, charge, cov);
     }
 
-    // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
-    // while no other output is coming which makes it look like something is wrong. Disable the ticker
-    // while parsing and loading the geometry
-    auto tickerEnabled = GetApplication()->IsTickerEnabled();
-    GetApplication()->SetTicker( false );
-
-
     // Convert vector of source links to a sorted in geometry order container used in tracking
     eicrecon::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
@@ -120,12 +106,9 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
                 acts_track_params);
 
         // Save the result
-        Set(trajectories);
+        SetData(GetOutputTags()[0], trajectories);
     }
     catch(std::exception &e) {
         throw JException(e.what());
     }
-
-    // Enable ticker back
-    GetApplication()->SetTicker(tickerEnabled);
 }

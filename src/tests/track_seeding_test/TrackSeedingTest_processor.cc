@@ -9,9 +9,10 @@
 
 #include <Math/GenVector/PxPyPzM4D.h>
 
+#include <edm4eic/ClusterCollection.h>
+
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "services/rootfile/RootFile_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 

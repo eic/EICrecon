@@ -16,10 +16,9 @@
 #include <spdlog/spdlog.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "algorithms/tracking/JugTrack/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
