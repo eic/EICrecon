@@ -1,6 +1,5 @@
 
 add_subdirectory( detectors/EcalBarrelScFiCheck )
-add_subdirectory( detectors/RPOTScheck )
 add_subdirectory( reconstruction/TRACKINGcheck )
 add_subdirectory( reconstruction/tracking_occupancy )
 add_subdirectory( reconstruction/tracking_efficiency )

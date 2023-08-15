@@ -311,7 +311,6 @@ jobs:
         particle: [e]
         detector_config: [brycecanyon]
         benchmark_plugins:
-        - RPOTScheck
         - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
