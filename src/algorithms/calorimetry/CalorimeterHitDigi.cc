@@ -185,11 +185,6 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
             if (hit.getEnergy() > max_edep) {
                 max_edep = hit.getEnergy();
                 mid = hit.getCellID();
-                for (const auto& c : hit.getContributions()) {
-                    if (c.getTime() <= time) {
-                        time = c.getTime();
-                    }
-                }
                 if (timeC <= time) {
                     time = timeC;
                 }
