@@ -50,7 +50,7 @@ namespace eicrecon {
 	const double local_x_slope_offset = -14.75315; //in mrad
 	const double local_y_slope_offset = -0.0073; //in mrad
 	const double crossingAngle = -0.025; //in mrad
-	const double nomMomentum = 137.5; //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
+	const double nomMomentum = 110.0; //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
 	std::string m_readout;
 	std::string m_geoSvcName;

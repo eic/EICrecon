@@ -50,7 +50,7 @@ namespace eicrecon {
 	const double local_x_slope_offset = -0.00622147;
 	const double local_y_slope_offset = -0.0451035;
 	const double crossingAngle = -0.025;
-	const double nomMomentum = 275.0;
+	const double nomMomentum = 110.0; //change this number to the central value expected for your particles
 
 	std::string m_readout;
 	std::string m_geoSvcName;
