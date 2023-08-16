@@ -1,4 +1,4 @@
-// Copyright 2022, Christopher Dilks
+// Copyright 2022,2023 Christopher Dilks, Nilanga Wickramaarachchi
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -33,26 +33,11 @@ extern "C" {
     digi_cfg.speError        = 16.0;
     digi_cfg.pedMean         = 200.0;
     digi_cfg.pedError        = 3.0;
-    digi_cfg.enablePixelGaps = true;
+    digi_cfg.enablePixelGaps = false;
     digi_cfg.pixelSize       = 3.0; // [mm]
-    digi_cfg.safetyFactor    = 0.7;
+    digi_cfg.safetyFactor    = 1.0;
     digi_cfg.quantumEfficiency.clear();
-    /*digi_cfg.quantumEfficiency.push_back({325, 0.04}); // wavelength units are [nm]
-    digi_cfg.quantumEfficiency.push_back({340, 0.10});
-    digi_cfg.quantumEfficiency.push_back({350, 0.20});
-    digi_cfg.quantumEfficiency.push_back({370, 0.30});
-    digi_cfg.quantumEfficiency.push_back({400, 0.35});
-    digi_cfg.quantumEfficiency.push_back({450, 0.40});
-    digi_cfg.quantumEfficiency.push_back({500, 0.38});
-    digi_cfg.quantumEfficiency.push_back({550, 0.35});
-    digi_cfg.quantumEfficiency.push_back({600, 0.27});
-    digi_cfg.quantumEfficiency.push_back({650, 0.20});
-    digi_cfg.quantumEfficiency.push_back({700, 0.15});
-    digi_cfg.quantumEfficiency.push_back({750, 0.12});
-    digi_cfg.quantumEfficiency.push_back({800, 0.08});
-    digi_cfg.quantumEfficiency.push_back({850, 0.06});
-    digi_cfg.quantumEfficiency.push_back({900, 0.04});
-    */
+    
     double wavelength[250];
     double sensor_qe[250] = {
       0,    0,    14.0, 14.8, 14.5, 14.9, 14.4, 14.2, 13.9, 14.6, 15.2, 15.7, 16.4, 16.9, 17.5,
@@ -75,7 +60,7 @@ extern "C" {
 
     for(int i=0; i < 250; i++)
       {
-	wavelength[i] = 180 + i * 2;
+	wavelength[i] = 180 + i * 2; // wavelength units are [nm]
 	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]*0.01});
       }
     
@@ -88,8 +73,6 @@ extern "C" {
           digi_cfg,
           app
           ));
-
-    //app->Add(new JChainFactoryGeneratorT<PhotoMultiplierHitDigi_factory>({"DIRCBarHits"}, "DIRCRawHits", digi_cfg));
 
   }
 }
