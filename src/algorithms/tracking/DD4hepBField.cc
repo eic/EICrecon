@@ -9,17 +9,12 @@
 #include <DD4hep/DD4hepUnits.h>
 #include <DD4hep/Objects.h>
 
-//#include "JugBase/VectorHelpers.hpp"
-
-//using Vec        = Jug::Helpers::VectorToActs<ROOT::Math::XYZVector>;
-//using Vec2DD4hep = Jug::Helpers::ArrayToRoot<Acts::Vector3>;
-
 namespace eicrecon::BField {
 
   Acts::Result<Acts::Vector3> DD4hepBField::getField(const Acts::Vector3& position,
                                                      Acts::MagneticFieldProvider::Cache& /*cache*/) const
   {
-    dd4hep::Position pos(position[0]/10.0,position[1]/10.0,position[2]/10.0);
+    dd4hep::Position pos(position[0]/10.0,position[1]/10.0,position[2]/10.0); // FIXME
     auto fieldObj = m_det->field();
 
 
@@ -33,4 +28,5 @@ namespace eicrecon::BField {
   {
     return this->getField(position, cache);
   }
-} // namespace Jug::BField
+
+} // namespace eicrecon::BField

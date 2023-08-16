@@ -59,10 +59,10 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // collect all trajectories from all input tags
-  std::vector<const eicrecon::TrackingResultTrajectory*> trajectories;
+  std::vector<const ActsExamples::Trajectories*> trajectories;
   for(const auto& input_tag : GetInputTags()) {
     try {
-      for(const auto traj : event->Get<eicrecon::TrackingResultTrajectory>(input_tag))
+      for(const auto traj : event->Get<ActsExamples::Trajectories>(input_tag))
         trajectories.push_back(traj);
     } catch(std::exception &e) {
       m_log->critical(e.what());

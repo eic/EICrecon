@@ -25,7 +25,7 @@ void TrackingResult_factory::Process(const std::shared_ptr<const JEvent> &event)
 
     try {
         // Collect all hits
-        auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
+        auto trajectories = event->Get<ActsExamples::Trajectories>(input_tag);
         auto track_params = m_particle_maker_algo.execute(trajectories);
         SetCollection<edm4eic::TrackParameters>(GetOutputTags()[0], std::move(track_params));
     }

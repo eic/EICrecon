@@ -28,7 +28,7 @@ namespace eicrecon {
             CKFTrackingConfig cfg)
         : JChainMultifactoryT<CKFTrackingConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
-            DeclareOutput<eicrecon::TrackingResultTrajectory>(GetOutputTags()[0]);
+            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[0]);
 
         }
 

@@ -24,14 +24,13 @@
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
 
-//#include "JugBase/DataHandle.h"
-#include "JugBase/BField/DD4hepBField.h"
+#include "DD4hepBField.h"
 
-#include "JugTrack/GeometryContainers.hpp"
-#include "JugTrack/Measurement.hpp"
-#include "JugTrack/Index.hpp"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
+#include "ActsExamples/EventData/GeometryContainers.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
+#include "ActsExamples/EventData/Index.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
 
 #include "ActsGeometryProvider.h"
 
@@ -74,14 +73,14 @@ namespace eicrecon {
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
     }
 
-    std::vector<eicrecon::TrackingResultTrajectory*> CKFTracking::process(const eicrecon::IndexSourceLinkContainer &src_links,
-                                                                          const eicrecon::MeasurementContainer &measurements,
-                                                                          const eicrecon::TrackParametersContainer &init_trk_params) {
+    std::vector<ActsExamples::Trajectories*> CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
+                                                                          const ActsExamples::MeasurementContainer &measurements,
+                                                                          const ActsExamples::TrackParametersContainer &init_trk_params) {
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
 
-        std::vector<eicrecon::TrackingResultTrajectory *>trajectories;
+        std::vector<ActsExamples::Trajectories *>trajectories;
         trajectories.reserve(init_trk_params.size());
 
         //// Construct a perigee surface as the target surface
@@ -94,7 +93,7 @@ namespace eicrecon {
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
 
-        eicrecon::MeasurementCalibrator calibrator{measurements};
+        ActsExamples::MeasurementCalibrator calibrator{measurements};
         Acts::GainMatrixUpdater kfUpdater;
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
@@ -102,7 +101,7 @@ namespace eicrecon {
 
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
                 extensions;
-        extensions.calibrator.connect<&eicrecon::MeasurementCalibrator::calibrate>(&calibrator);
+        extensions.calibrator.connect<&ActsExamples::MeasurementCalibrator::calibrate>(&calibrator);
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
                 &kfUpdater);
@@ -113,25 +112,16 @@ namespace eicrecon {
                 &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
                 &measSel);
 
-        eicrecon::IndexSourceLinkAccessor slAccessor;
+        ActsExamples::IndexSourceLinkAccessor slAccessor;
         slAccessor.container = &src_links;
-        Acts::SourceLinkAccessorDelegate<eicrecon::IndexSourceLinkAccessor::Iterator>
+        Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
-        slAccessorDelegate.connect<&eicrecon::IndexSourceLinkAccessor::range>(&slAccessor);
+        slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
 
         // Set the CombinatorialKalmanFilter options
         CKFTracking::TrackFinderOptions options(
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
                 extensions, Acts::LoggerWrapper{logger()}, pOptions, &(*pSurface));
-
-        // TODO remove this hack...
-
-//        Jug::TrackParametersContainer init_trk_params_refs;
-//        init_trk_params_refs.reserve(init_trk_params.size());
-//
-//        for(auto init_track: init_trk_params) {
-//            init_trk_params_refs.push_back(*init_track);
-//        }
 
         auto results = (*m_trackFinderFunc)(init_trk_params, options);
 
@@ -143,7 +133,7 @@ namespace eicrecon {
                 // Get the track finding output object
                 auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
-                trajectories.push_back(new eicrecon::TrackingResultTrajectory(std::move(trackFindingOutput.fittedStates),
+                trajectories.push_back(new ActsExamples::Trajectories(std::move(trackFindingOutput.fittedStates),
                                                                               std::move(trackFindingOutput.lastMeasurementIndices),
                                                                               std::move(trackFindingOutput.fittedParameters)));
             } else {

@@ -15,8 +15,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
 
 
 #include <Acts/Utilities/Helpers.hpp>
@@ -29,7 +29,7 @@ void eicrecon::Reco::ParticlesFromTrackFit::init(std::shared_ptr<spdlog::logger>
     m_log = log;
 }
 
-std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories) {
+std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const ActsExamples::Trajectories *> &trajectories) {
 
     // create output collection
     auto track_pars = std::make_unique<edm4eic::TrackParametersCollection>();
