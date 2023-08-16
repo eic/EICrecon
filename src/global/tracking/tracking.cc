@@ -54,14 +54,32 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
 
-    app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
-            {"InitTrackParams", "CentralTrackerSourceLinker"}, "CentralCKFTrajectories"));
+    app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(
+        "CentralCKFTrajectories",
+        {
+            "InitTrackParams",
+            "CentralTrackerSourceLinker"
+        },
+        {
+            "CentralCKFTrajectories"
+        },
+        app
+    ));
 
     app->Add(new JChainFactoryGeneratorT<TrackSeeding_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackSeedingResults"));
 
-    app->Add(new JChainFactoryGeneratorT<CKFTracking_factory>(
-            {"CentralTrackSeedingResults", "CentralTrackerSourceLinker"}, "CentralCKFSeededTrajectories"));
+    app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(
+        "CentralCKFSeededTrajectories",
+        {
+            "CentralTrackSeedingResults",
+            "CentralTrackerSourceLinker"
+        },
+        {
+            "CentralCKFSeededTrajectories"
+        },
+        app
+    ));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
             {"CentralCKFTrajectories"}, "CentralTrackSegments"));
@@ -71,9 +89,8 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFTrajectories"},                       // eicrecon::TrackingResultTrajectory
-            {"outputParticles",                               // edm4eic::ReconstructedParticle
-             "outputTrackParameters"},                        // edm4eic::TrackParameters
+            {"CentralCKFTrajectories"},                       // ActsExamples::Trajectories
+            {"outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
@@ -88,9 +105,8 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
             "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFSeededTrajectories"},                 // eicrecon::TrackingResultTrajectory
-            {"outputSeededParticles",                         // edm4eic::ReconstructedParticle
-             "outputSeededTrackParameters"},                  // edm4eic::TrackParameters
+            {"CentralCKFSeededTrajectories"},                 // ActsExamples::Trajectories
+            {"outputSeededTrackParameters"},                  // edm4eic::TrackParameters
             app));
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(

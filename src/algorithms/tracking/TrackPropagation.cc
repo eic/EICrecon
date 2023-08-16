@@ -17,9 +17,9 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -52,7 +52,7 @@ namespace eicrecon {
 
 
     std::vector<std::unique_ptr<edm4eic::TrackPoint>>
-    TrackPropagation::propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
+    TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // output collection
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
@@ -76,8 +76,9 @@ namespace eicrecon {
 
 
     std::unique_ptr<edm4eic::TrackSegmentCollection> TrackPropagation::propagateToSurfaceList(
-        std::vector<const eicrecon::TrackingResultTrajectory*> trajectories,
+        std::vector<const ActsExamples::Trajectories*> trajectories,
         std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
+        std::shared_ptr<Acts::Surface> filterSurface,
         std::function<bool(edm4eic::TrackPoint)> trackPointCut,
         bool stopIfTrackPointCutFailed
         )
@@ -91,6 +92,19 @@ namespace eicrecon {
 
       // loop over input trajectories
       for(const auto& traj : trajectories) {
+
+        // check if this trajectory can be propagated to `filterSurface`
+        if(filterSurface) {
+          try {
+            if(!propagate(traj, filterSurface)) {
+              m_log->trace("<> Skip this trajectory, since it cannot be propagated to filterSurface");
+              continue;
+            }
+          } catch(std::exception &e) {
+            m_log->warn("<> Exception in TrackPropagation::propagateToSurfaceList: {}; skip this TrackPoint and surface", e.what());
+            continue;
+          }
+        }
 
         // start a mutable TrackSegment
         auto track_segment = track_segments->create();
@@ -106,6 +120,7 @@ namespace eicrecon {
             point = propagate(traj, targetSurf);
           } catch(std::exception &e) {
             m_log->warn("<> Exception in TrackPropagation::propagateToSurfaceList: {}; skip this TrackPoint and surface", e.what());
+            continue;
           }
           if(!point) {
             m_log->trace("<> Failed to propagate trajectory to this plane");
@@ -152,7 +167,7 @@ namespace eicrecon {
 
 
 
-    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const eicrecon::TrackingResultTrajectory *traj,
+    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const ActsExamples::Trajectories *traj,
                                                      const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory

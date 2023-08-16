@@ -30,7 +30,7 @@ flowchart TB
   subgraph Inputs
     direction LR
     SimHits(<strong>DRICHHits</strong><br/>MC dRICH photon hits<br/>edm4hep::SimTrackerHit):::col
-    Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
+    Trajectories(<strong>CentralCKFTrajectories</strong><br/>ActsExamples::Trajectories):::col
     MCParts(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
   end
 

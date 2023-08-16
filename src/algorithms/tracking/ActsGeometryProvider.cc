@@ -10,8 +10,7 @@
 
 #include <DD4hep/Printout.h>
 
-//#include "JugBase/ACTSLogger.h"
-#include "JugBase/Acts/MaterialWiper.hpp"
+#include "ActsExamples/Geometry/MaterialWiper.hpp"
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>

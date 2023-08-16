@@ -16,8 +16,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/Detector.h>
 
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Measurement.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
 
 #include "ActsGeometryProvider.h"
 

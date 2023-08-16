@@ -15,9 +15,9 @@ class variables_map;
 }  // namespace program_options
 }  // namespace boost
 
-namespace FW {
+namespace ActsExamples {
 namespace Options {
 using Description = ::boost::program_options::options_description;
 using Variables = ::boost::program_options::variables_map;
 }  // namespace Options
-}  // namespace FW
+}  // namespace ActsExamples

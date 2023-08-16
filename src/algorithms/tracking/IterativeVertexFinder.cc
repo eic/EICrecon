@@ -45,7 +45,7 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const eicrecon::TrackingResultTrajectory*> trajectories) {
+    std::vector<const ActsExamples::Trajectories*> trajectories) {
 
   std::vector<edm4eic::Vertex*> outputVertices;
 

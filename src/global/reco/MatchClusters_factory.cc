@@ -16,7 +16,6 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 
 
 namespace eicrecon {

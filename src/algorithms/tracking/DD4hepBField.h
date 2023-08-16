@@ -85,4 +85,4 @@ namespace eicrecon::BField {
 
 
 
-} // namespace Jug::BField
+} // namespace eicrecon::BField

@@ -59,10 +59,10 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // collect all trajectories from all input tags
-  std::vector<const eicrecon::TrackingResultTrajectory*> trajectories;
+  std::vector<const ActsExamples::Trajectories*> trajectories;
   for(const auto& input_tag : GetInputTags()) {
     try {
-      for(const auto traj : event->Get<eicrecon::TrackingResultTrajectory>(input_tag))
+      for(const auto traj : event->Get<ActsExamples::Trajectories>(input_tag))
         trajectories.push_back(traj);
     } catch(std::exception &e) {
       m_log->critical(e.what());
@@ -74,7 +74,13 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
       auto track_point_cut = m_track_point_cuts.at(output_tag);
-      auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes, track_point_cut, true);
+      auto result = m_propagation_algo.propagateToSurfaceList(
+          trajectories,
+          radiator_tracking_planes,
+          radiator_tracking_planes.back(), // `filterSurface`: assumes projectivity to radiator back-plane
+          track_point_cut,
+          true
+          );
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {

@@ -11,8 +11,6 @@ plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
-plugin_sources(${PLUGIN_NAME} JugBase/BField/DD4hepBField.cc)
-
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
@@ -24,6 +22,8 @@ plugin_add_event_model(${PLUGIN_NAME})
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+plugin_include_directories(${PLUGIN_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
 
 # Add libraries
 # (same as target_include_directories but for both plugin and library)
