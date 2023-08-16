@@ -31,6 +31,15 @@ plugin_glob_all(${PLUGIN_NAME})
 get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic INTERFACE_INCLUDE_DIRECTORIES)
 
+# Get the datamodel version headers
+set(EDM_VERSION_INCLUDES )
+if(${EDM4HEP_VERSION} VERSION_GREATER_EQUAL "0.9")
+  list(APPEND EDM_VERSION_INCLUDES ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h)
+endif()
+if(${EDM4EIC_VERSION} VERSION_GREATER_EQUAL "2.1.0")
+  list(APPEND EDM_VERSION_INCLUDES ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h)
+endif()
+
 # Generate the datamodel header files.
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_glue.h ${CMAKE_CURRENT_BINARY_DIR}/datamodel_includes.h
@@ -39,9 +48,7 @@ add_custom_command(
         EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
         EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
     MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/make_datamodel_glue.py
-    DEPENDS
-        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h
-        ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h
+    DEPENDS ${EDM_VERSION_INCLUDES}
 )
 
 # Add include directories (works same as target_include_directories)
