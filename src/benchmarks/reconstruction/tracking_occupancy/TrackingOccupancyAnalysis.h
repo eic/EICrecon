@@ -25,11 +25,11 @@ private:
             "VertexBarrelHits",     // Vertex
             "TrackerEndcapHits",    // End Cap tracker
           // MPGD
-            "MPGDBarrelRecHits",
-            "MPGDDIRCRecHits",
-            "OuterMPGDBarrelRecHits",
-            "ForwardMPGDEndcapRecHits",
-            "BackwardMPGDEndcapRecHits",
+            "MPGDBarrelHits",
+            "MPGDDIRCHits",
+            "OuterMPGDBarrelHits",
+            "ForwardMPGDEndcapHits",
+            "BackwardMPGDEndcapHits",
           // TOF
             "TOFEndcapHits",
             "TOFBarrelHits",
