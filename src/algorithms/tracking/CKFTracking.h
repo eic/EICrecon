@@ -20,8 +20,8 @@
 #include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Trajectory.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <spdlog/logger.h>
 
 #include <Acts/Definitions/Common.hpp>
@@ -75,7 +75,7 @@ namespace eicrecon {
 
         std::vector<ActsExamples::Trajectories*> process(const ActsExamples::IndexSourceLinkContainer &src_links,
                                                                  const ActsExamples::MeasurementContainer &measurements,
-                                                                 const ActsExamples::TrackParametersContainer &init_trk_params);
+                                                                 const edm4eic::TrackParametersCollection &init_trk_params);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
