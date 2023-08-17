@@ -171,7 +171,7 @@ namespace eicrecon {
                 auto &trackFindingOutput = result.value();
 
                 // Create a SimMultiTrajectory
-                ActsExamples::Trajectories multiTrajectory(
+                auto* multiTrajectory = new ActsExamples::Trajectories(
                     std::move(trackFindingOutput.fittedStates),
                     std::move(trackFindingOutput.lastMeasurementIndices),
                     std::move(trackFindingOutput.fittedParameters)
@@ -179,8 +179,8 @@ namespace eicrecon {
 
                 // Get the entry index for the single trajectory
                 // The trajectory entry indices and the multiTrajectory
-                const auto& mj        = multiTrajectory.multiTrajectory();
-                const auto& trackTips = multiTrajectory.tips();
+                const auto& mj        = multiTrajectory->multiTrajectory();
+                const auto& trackTips = multiTrajectory->tips();
                 if (trackTips.empty()) {
                     m_log->debug("Empty multiTrajectory.");
                     continue;
@@ -199,9 +199,9 @@ namespace eicrecon {
 
                 // Get the fitted track parameter
                 //
-                if (multiTrajectory.hasTrackParameters(trackTip)) {
+                if (multiTrajectory->hasTrackParameters(trackTip)) {
 
-                    const auto& boundParam = multiTrajectory.trackParameters(trackTip);
+                    const auto& boundParam = multiTrajectory->trackParameters(trackTip);
                     const auto& parameter  = boundParam.parameters();
                     const auto& covariance = *boundParam.covariance();
 
@@ -233,6 +233,8 @@ namespace eicrecon {
 
                     trajectory.addToTrackParameters(pars);
                 }
+
+                acts_trajectories.push_back(std::move(multiTrajectory));
 
             } else {
 
