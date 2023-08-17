@@ -22,7 +22,7 @@ void eicrecon::TrackPropagation_factory::Init() {
 
 	// SpdlogMixin logger initialization, sets m_log
 	InitLogger(app, GetTag());
-	
+
 	m_input_tag = "CentralCKFTrajectories";
 
 	auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
@@ -45,8 +45,8 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
 	edm4eic::TrackSegmentCollection propagated_tracks;
 
 	for(auto traj: trajectories) {
-		edm4eic::MutableTrackSegment this_propagated_track;	
-		for(unsigned short isurf = 0; auto surf: m_target_surface_list) {		  
+		edm4eic::MutableTrackSegment this_propagated_track;
+		for(unsigned short isurf = 0; auto surf: m_target_surface_list) {
 			try {
 				auto prop_point = m_track_propagation_algo.propagate(traj, surf);
 				if(!prop_point) continue;
@@ -57,9 +57,9 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
 			}
 			++isurf;
 		}
-		propagated_tracks.push_back(this_propagated_track); 
+		propagated_tracks.push_back(this_propagated_track);
 	}
-		
+
 	SetCollection(std::move(propagated_tracks));
 }
 
@@ -77,21 +77,21 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 	// extend in r for endcaps, extend in z for barrel
 	double extend = 1.1;
 
-	// Create propagation surface for EEMC 
+	// Create propagation surface for EEMC
 	std::shared_ptr<Acts::DiscSurface> m_EEMC_prop_surface;
 	const double EEMC_Z    = -(m_geoSvc->detector()->constant<double>("EcalEndcapN_zmin") / dd4hep::mm) - ECAL_avgClusterDepth;
-	const double EEMC_MinR = 0.0;    
+	const double EEMC_MinR = 0.0;
 	const double EEMC_MaxR = (m_geoSvc->detector()->constant<double>("EcalEndcapN_structure_Oring_min") / dd4hep::mm) * extend;
 	auto EEMC_Bounds       = std::make_shared<Acts::RadialBounds>(EEMC_MinR, EEMC_MaxR);
 	auto EEMC_Trf          = transform * Acts::Translation3(Acts::Vector3(0, 0, EEMC_Z));
 	m_EEMC_prop_surface    = Acts::Surface::makeShared<Acts::DiscSurface>(EEMC_Trf, EEMC_Bounds);
 	m_target_surface_list.push_back(m_EEMC_prop_surface);
 	m_target_surface_ID.push_back(m_geoSvc->detector()->constant<int32_t>("ECalEndcapN_ID"));
-	
+
 	// Create propagation surface for FEMC
 	std::shared_ptr<Acts::DiscSurface> m_FEMC_prop_surface;
 	const double FEMC_Z    = (m_geoSvc->detector()->constant<double>("EcalEndcapP_zmin") / dd4hep::mm) + ECAL_avgClusterDepth;
-	const double FEMC_MinR   = 0.0;      
+	const double FEMC_MinR   = 0.0;
 	const double FEMC_MaxR   = (m_geoSvc->detector()->constant<double>("EcalEndcapP_rmax") / dd4hep::mm) * extend;
 	auto FEMC_Bounds       = std::make_shared<Acts::RadialBounds>(FEMC_MinR, FEMC_MaxR);
 	auto FEMC_Trf          = transform * Acts::Translation3(Acts::Vector3(0, 0, FEMC_Z));
@@ -131,7 +131,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 	// Create propagation surface for EHCAL
 	std::shared_ptr<Acts::DiscSurface> m_EHCAL_prop_surface;
 	const double EHCAL_Z    = -(m_geoSvc->detector()->constant<double>("HcalEndcapN_zmin") / dd4hep::mm) - HCAL_avgClusterDepth;
-	const double EHCAL_MinR = 0.0;    
+	const double EHCAL_MinR = 0.0;
 	const double EHCAL_MaxR = (m_geoSvc->detector()->constant<double>("HcalEndcapN_rmax") / dd4hep::mm) * extend;
 	auto EHCAL_Bounds       = std::make_shared<Acts::RadialBounds>(EHCAL_MinR, EHCAL_MaxR);
 	auto EHCAL_Trf          = transform * Acts::Translation3(Acts::Vector3(0, 0, EHCAL_Z));
@@ -139,7 +139,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 	m_target_surface_list.push_back(m_EHCAL_prop_surface);
 	m_target_surface_ID.push_back(m_geoSvc->detector()->constant<int32_t>("HCalEndcapN_ID"));
 
-	/*	
+	/*
 	std::cout << std::endl;
 	std::cout << "Setting track propagation surfaces to:" << std::endl;
 	std::cout << std::endl;
@@ -147,7 +147,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 	std::cout << "EEMC_Z    = " << EEMC_Z << std::endl;
 	std::cout << "EEMC_MinR = " << EEMC_MinR << std::endl;
 	std::cout << "EEMC_MaxR = " << EEMC_MaxR << std::endl;
-	
+
 	std::cout << std::endl;
 
 	std::cout << "FEMC_Z    = " << FEMC_Z << std::endl;
@@ -181,7 +181,3 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 	*/
 
 }
-
-
-
-

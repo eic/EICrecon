@@ -22,9 +22,9 @@ namespace eicrecon {
 					 public SpdlogMixin {
 
 	    public:
-		
+
 		std::string m_input_tag;
-			    
+
 		explicit TrackPropagation_factory() {
 			SetTag("PropagatedTrackPoints");
 		}
@@ -37,7 +37,7 @@ namespace eicrecon {
 
 		/** Event by event processing **/
 		void Process(const std::shared_ptr<const JEvent> &event) override;
-	    
+
 		// Pointer to the geometry service
 		std::shared_ptr<JDD4hep_service> m_geoSvc;
 		dd4hep::IDDescriptor m_idSpec;
@@ -53,4 +53,3 @@ namespace eicrecon {
 	};
 
 } // eicrecon
-
