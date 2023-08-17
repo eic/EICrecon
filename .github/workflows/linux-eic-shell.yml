@@ -341,12 +341,12 @@ jobs:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if_no_artifact_found: warn
     - uses: actions/checkout@v3
-      if: steps.download_previous_artifact.outputs.found_artifact == true
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         repository: 'eic/epic-capybara'
         path: epic-capybara
     - uses: eic/run-cvmfs-osg-eic-shell@main
-      if: steps.download_previous_artifact.outputs.found_artifact == true
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
