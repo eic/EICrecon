@@ -72,13 +72,14 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     try {
         // RUN TRACKING ALGORITHM
-        auto trajectories = m_tracking_algo.process(
+        auto [trajectories, acts_trajectories] = m_tracking_algo.process(
                 source_links,
                 *source_linker_result->measurements,
                 *track_parameters);
 
         // Save the result
-        SetData(GetOutputTags()[0], trajectories);
+        SetCollection<edm4eic::Trajectory>(GetOutputTags()[0], std::move(trajectories));
+        SetData<ActsExamples::Trajectories>(GetOutputTags()[1], std::move(acts_trajectories));
     }
     catch(std::exception &e) {
         throw JException(e.what());

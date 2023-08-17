@@ -6,6 +6,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <edm4eic/TrackParametersCollection.h>
+
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
@@ -28,7 +30,8 @@ namespace eicrecon {
             CKFTrackingConfig cfg)
         : JChainMultifactoryT<CKFTrackingConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
-            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[0]);
+            DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
+            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[1]);
 
         }
 
