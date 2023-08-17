@@ -37,7 +37,7 @@ extern "C" {
     digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 1.0;
     digi_cfg.quantumEfficiency.clear();
-    
+
     double wavelength[250];
     double sensor_qe[250] = {
       0,    0,    14.0, 14.8, 14.5, 14.9, 14.4, 14.2, 13.9, 14.6, 15.2, 15.7, 16.4, 16.9, 17.5,
@@ -63,8 +63,8 @@ extern "C" {
 	wavelength[i] = 180 + i * 2; // wavelength units are [nm]
 	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]*0.01});
       }
-    
-    
+
+
     // digitization
     app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
           "DIRCRawHits",
