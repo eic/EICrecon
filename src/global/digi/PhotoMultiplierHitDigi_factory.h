@@ -4,24 +4,25 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainMultifactoryT.h>
+#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociation.h>
 
 // algorithms
-#include <algorithms/digi/PhotoMultiplierHitDigi.h>
-#include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include "algorithms/digi/PhotoMultiplierHitDigi.h"
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
 // services
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/string/StringHelpers.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
@@ -29,7 +30,7 @@ namespace eicrecon {
 
     class PhotoMultiplierHitDigi_factory :
             public JChainMultifactoryT<PhotoMultiplierHitDigiConfig>,
-            public SpdlogMixin<PhotoMultiplierHitDigi_factory> {
+            public SpdlogMixin {
 
     public:
 
@@ -56,6 +57,7 @@ namespace eicrecon {
     private:
 
         eicrecon::PhotoMultiplierHitDigi m_digi_algo;       /// Actual digitisation algorithm
+        std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
     };
 
 }

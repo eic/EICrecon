@@ -3,17 +3,19 @@
 
 #pragma once
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
-#include <algorithms/reco/JetReconstruction.h>
+
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/reco/JetReconstruction.h"
 
 
 namespace eicrecon {
 
     class GeneratedJets_factory :
             public JChainFactoryT<edm4eic::ReconstructedParticle>,
-            public SpdlogMixin<GeneratedJets_factory> {
+            public SpdlogMixin {
 
     public:
         explicit GeneratedJets_factory(std::vector<std::string> default_input_tags):

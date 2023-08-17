@@ -9,15 +9,14 @@
 #include "Boost.h"
 #include "InclusiveKinematicsTruth.h"
 
-#include "Math/Vector4D.h"
+#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/InclusiveKinematicsCollection.h"
-#include "edm4eic/vector_utils.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/vector_utils.h>
 
-#include "ParticlesWithAssociation.h"
 
 namespace eicrecon {
 
@@ -33,11 +32,11 @@ namespace eicrecon {
     // }
   }
 
-  std::vector<edm4eic::InclusiveKinematics*> InclusiveKinematicsTruth::execute(
-    std::vector<const edm4hep::MCParticle *> mcparts) {
+  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsTruth::execute(
+    const edm4hep::MCParticleCollection& mcparts) {
 
     // Resulting inclusive kinematics
-    std::vector<edm4eic::InclusiveKinematics *> kinematics;
+    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 
     // Loop over generated particles to get incoming electron and proton beams
     // and the scattered electron. In the presence of QED radition on the incoming
@@ -51,7 +50,7 @@ namespace eicrecon {
       m_log->debug("No beam electron found");
       return kinematics;
     }
-    const auto ei_p = ei_coll[0]->getMomentum();
+    const auto ei_p = ei_coll[0].getMomentum();
     const auto ei_p_mag = edm4eic::magnitude(ei_p);
     const auto ei_mass = m_electron;
     const PxPyPzEVector ei(ei_p.x, ei_p.y, ei_p.z, std::hypot(ei_p_mag, ei_mass));
@@ -62,9 +61,9 @@ namespace eicrecon {
       m_log->debug("No beam hadron found");
       return kinematics;
     }
-    const auto pi_p = pi_coll[0]->getMomentum();
+    const auto pi_p = pi_coll[0].getMomentum();
     const auto pi_p_mag = edm4eic::magnitude(pi_p);
-    const auto pi_mass = pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron;
+    const auto pi_mass = pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron;
     const PxPyPzEVector pi(pi_p.x, pi_p.y, pi_p.z, std::hypot(pi_p_mag, pi_mass));
 
     // Get first scattered electron
@@ -77,7 +76,7 @@ namespace eicrecon {
       m_log->debug("No truth scattered electron found");
       return kinematics;
     }
-    const auto ef_p = ef_coll[0]->getMomentum();
+    const auto ef_p = ef_coll[0].getMomentum();
     const auto ef_p_mag = edm4eic::magnitude(ef_p);
     const auto ef_mass = m_electron;
     const PxPyPzEVector ef(ef_p.x, ef_p.y, ef_p.z, std::hypot(ef_p_mag, ef_mass));
@@ -90,12 +89,10 @@ namespace eicrecon {
     const auto nu = q_dot_pi / pi_mass;
     const auto x = Q2 / (2.*q_dot_pi);
     const auto W = sqrt(pi_mass*pi_mass + 2.*q_dot_pi - Q2);
-    edm4eic::MutableInclusiveKinematics kin(x, Q2, W, y, nu);
+    auto kin = kinematics->create(x, Q2, W, y, nu);
 
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
 
     return kinematics;
   }

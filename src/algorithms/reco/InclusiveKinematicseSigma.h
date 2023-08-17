@@ -12,12 +12,11 @@
 
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/InclusiveKinematicsCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 
-#include "ParticlesWithAssociation.h"
 
 namespace eicrecon {
 
@@ -27,15 +26,15 @@ namespace eicrecon {
 
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        std::vector<edm4eic::InclusiveKinematics*> execute(
-                std::vector<const edm4hep::MCParticle*> mcparts,
-                std::vector<const edm4eic::ReconstructedParticle*> rcparts,
-                std::vector<const edm4eic::MCRecoParticleAssociation*> rcassoc
+        std::unique_ptr<edm4eic::InclusiveKinematicsCollection> execute(
+                const edm4hep::MCParticleCollection& mcparts,
+                const edm4eic::ReconstructedParticleCollection& rcparts,
+                const edm4eic::MCRecoParticleAssociationCollection& rcassoc
         );
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
         double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-        };
+    };
 
 } // namespace eicrecon

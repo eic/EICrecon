@@ -7,23 +7,22 @@
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MutableRawTrackerHit.h>
-
 #include <edm4eic/MutableTrackerHit.h>
+#include <edm4eic/TrackerHitCollection.h>
 
-#include <algorithms/tracking/TrackerHitReconstructionConfig.h>
-#include <algorithms/tracking/TrackerHitReconstruction.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
+#include "algorithms/tracking/TrackerHitReconstruction.h"
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 class TrackerHitReconstruction_factory :
         public JChainFactoryT<edm4eic::TrackerHit, eicrecon::TrackerHitReconstructionConfig>,
-        public eicrecon::SpdlogMixin<TrackerHitReconstruction_factory> {
+        public eicrecon::SpdlogMixin {
 
 public:
     TrackerHitReconstruction_factory( std::vector<std::string> default_input_tags, eicrecon::TrackerHitReconstructionConfig cfg):

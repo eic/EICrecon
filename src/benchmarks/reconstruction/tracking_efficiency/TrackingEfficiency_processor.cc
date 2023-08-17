@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 
@@ -14,11 +15,10 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
-#include <services/rootfile/RootFile_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+#include "services/rootfile/RootFile_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 //--------------------------------
 // OccupancyAnalysis (Constructor)
@@ -67,15 +67,13 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE I
     // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
+    auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
 
-    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
+    m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
 
-    auto reco_particles = trk_result->particles();
-
-    for(size_t i=0; i < reco_particles->size(); i++) {
-        auto particle = (*reco_particles)[i];
+    for(size_t i=0; i < reco_particles.size(); i++) {
+        auto& particle = *(reco_particles[i]);
 
         double px = particle.getMomentum().x;
         double py = particle.getMomentum().y;
@@ -87,7 +85,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE II
     // This gets access to more direct ACTS results from CFKTracking
-    auto acts_results = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+    auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
     m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
     m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}",
                  "[loc 0]","[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]", "[chi2]" );

@@ -14,50 +14,47 @@
 
 using namespace dd4hep;
 
-//this algorithm converted from https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/CalorimeterHitReco.cpp
+namespace eicrecon {
 
-
-//------------------------
-// AlgorithmInit
-//------------------------
-void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) {
-
-    m_log=logger;
+void CalorimeterHitReco::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+    m_detector = detector;
+    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_log = logger;
 
     // threshold for firing
-    thresholdADC = m_thresholdFactor * m_pedSigmaADC + m_thresholdValue;
+    thresholdADC = m_cfg.thresholdFactor * m_cfg.pedSigmaADC + m_cfg.thresholdValue;
     // TDC channels to timing conversion
-    stepTDC = dd4hep::ns / m_resolutionTDC;
+    stepTDC = dd4hep::ns / m_cfg.resolutionTDC;
 
     // do not get the layer/sector ID if no readout class provided
-    if (m_readout.empty()) {
+    if (m_cfg.readout.empty()) {
         return;
     }
 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
-    try{
-        auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
+    try {
+        auto id_spec = m_detector->readout(m_cfg.readout).idSpec();
     } catch(...) {
-        m_log->warn("Failed to get idSpec for {}", m_readout);
+        m_log->warn("Failed to get idSpec for {}", m_cfg.readout);
         return;
     }
 
     // Get id_spec again, but here it should always succeed.
     // TODO: This is a bit of a hack so should be cleaned up.
-    auto id_spec = m_geoSvc->detector()->readout(m_readout).idSpec();
+    auto id_spec = m_detector->readout(m_cfg.readout).idSpec();
     try {
         id_dec = id_spec.decoder();
-        if (!m_sectorField.empty()) {
-            sector_idx = id_dec->index(m_sectorField);
-            m_log->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
+        if (!m_cfg.sectorField.empty()) {
+            sector_idx = id_dec->index(m_cfg.sectorField);
+            m_log->info("Find sector field {}, index = {}", m_cfg.sectorField, sector_idx);
         }
-        if (!m_layerField.empty()) {
-            layer_idx = id_dec->index(m_layerField);
-            m_log->info("Find layer field {}, index = {}", m_layerField, sector_idx);
+        if (!m_cfg.layerField.empty()) {
+            layer_idx = id_dec->index(m_cfg.layerField);
+            m_log->info("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
         }
-        if (!u_maskPosFields.empty()) {
+        if (!m_cfg.maskPosFields.empty()) {
             size_t tmp_mask = 0;
-            for (auto &field : u_maskPosFields) {
+            for (auto &field : m_cfg.maskPosFields) {
                 tmp_mask |= id_spec.field(field)->mask();
             }
             // assign this mask if all fields succeed
@@ -65,16 +62,16 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
         }
     } catch (...) {
         if (!id_dec) {
-            m_log->warn("Failed to load ID decoder for {}", m_readout);
+            m_log->warn("Failed to load ID decoder for {}", m_cfg.readout);
             std::stringstream readouts;
-            for (auto r: m_geoSvc->detector()->readouts()) readouts << "\"" << r.first << "\", ";
+            for (auto r: m_detector->readouts()) readouts << "\"" << r.first << "\", ";
             m_log->warn("Available readouts: {}", readouts.str() );
         } else {
-            m_log->warn("Failed to find field index for {}.", m_readout);
-            if (!m_sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_sectorField); }
-            if (!m_layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_layerField); }
-            if (!u_maskPosFields.empty()) {
-                m_log->warn(" -- looking for masking fields  \"{}\".", fmt::join(u_maskPosFields, ", "));
+            m_log->warn("Failed to find field index for {}.", m_cfg.readout);
+            if (!m_cfg.sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_cfg.sectorField); }
+            if (!m_cfg.layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_cfg.layerField); }
+            if (!m_cfg.maskPosFields.empty()) {
+                m_log->warn(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
             }
             std::stringstream fields;
             for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
@@ -89,17 +86,17 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
 
 
     // local detector name has higher priority
-    if (!m_localDetElement.empty()) {
+    if (!m_cfg.localDetElement.empty()) {
         try {
-            local = m_geoSvc->detector()->detector(m_localDetElement);
-            m_log->info("local coordinate system from DetElement {}", m_localDetElement);
+            local = m_detector->detector(m_cfg.localDetElement);
+            m_log->info("local coordinate system from DetElement {}", m_cfg.localDetElement);
         } catch (...) {
-            m_log->error("failed to load local coordinate system from DetElement {}", m_localDetElement);
+            m_log->error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
             return;
         }
     } else {
         std::vector <std::pair<std::string, int >> fields;
-        for (auto f : u_localDetFields) {
+        for (auto f : m_cfg.localDetFields) {
             fields.emplace_back(f, 0);
         }
         local_mask = id_spec.get_mask(fields);
@@ -112,16 +109,9 @@ void CalorimeterHitReco::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger) 
     return;
 }
 
-//------------------------
-// AlgorithmChangeRun
-//------------------------
-void CalorimeterHitReco::AlgorithmChangeRun() {
-}
 
-//------------------------
-// AlgorithmProcess
-//------------------------
-void CalorimeterHitReco::AlgorithmProcess() {
+std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(const edm4hep::RawCalorimeterHitCollection &rawhits) {
+    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
     // For some detectors, the cellID in the raw hits may be broken
     // (currently this is the HcalBarrel). In this case, dd4hep
@@ -131,45 +121,43 @@ void CalorimeterHitReco::AlgorithmProcess() {
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    auto decoder = m_geoSvc->detector()->readout(m_readout).idSpec().decoder();
-    if (NcellIDerrors >= MaxCellIDerrors) return;
+    auto decoder = m_detector->readout(m_cfg.readout).idSpec().decoder();
+    if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
 
-    auto converter = m_geoSvc->cellIDPositionConverter();
-    for (const auto rh: rawhits) {
-//        #pragma GCC diagnostic push
-//        #pragma GCC diagnostic error "-Wsign-converstion"
+    for (const auto &rh: rawhits) {
 
         //did not pass the zero-suppresion threshold
-        const auto cellID = rh->getCellID();
-        if (rh->getAmplitude() < m_pedMeanADC + thresholdADC) {
+        const auto cellID = rh.getCellID();
+        if (rh.getAmplitude() < m_cfg.pedMeanADC + thresholdADC) {
             continue;
         }
 
         // convert ADC to energy
-        float energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
-                m_sampFrac;
-        if (m_readout == "LFHCALHits" && m_sampFracLayer[0] != 0.){
-          energy = (((signed) rh->getAmplitude() - (signed) m_pedMeanADC)) / static_cast<float>(m_capADC) * m_dyRangeADC /
-                    m_sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
+        float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
+                m_cfg.sampFrac;
+        if (m_cfg.readout == "LFHCALHits" && m_cfg.sampFracLayer[0] != 0.){
+          energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
+                    m_cfg.sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
         }
 
-        const float time = rh->getTimeStamp() / stepTDC;
-        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh->getTimeStamp(), time);
+        const float time = rh.getTimeStamp() / stepTDC;
+        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
 
         const int lid =
-                id_dec != nullptr && !m_layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
+                id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
         const int sid =
-                id_dec != nullptr && !m_sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
+                id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
+
         dd4hep::Position gpos;
         try {
             // global positions
-            gpos = converter->position(cellID);
+            gpos = m_converter->position(cellID);
 
             // masked position (look for a mother volume)
             if (gpos_mask != 0) {
-                auto mpos = converter->position(cellID & ~gpos_mask);
+                auto mpos = m_converter->position(cellID & ~gpos_mask);
                 // replace corresponding coords
-                for (const char &c : m_maskPos) {
+                for (const char &c : m_cfg.maskPos) {
                     switch (std::tolower(c)) {
                     case 'x':
                         gpos.SetX(mpos.X());
@@ -187,8 +175,8 @@ void CalorimeterHitReco::AlgorithmProcess() {
             }
 
             // local positions
-            if (m_localDetElement.empty()) {
-                auto volman = m_geoSvc->detector()->volumeManager();
+            if (m_cfg.localDetElement.empty()) {
+                auto volman = m_detector->volumeManager();
                 local = volman.lookupDetElement(cellID & local_mask);
             }
         } catch (...) {
@@ -205,38 +193,51 @@ void CalorimeterHitReco::AlgorithmProcess() {
         }
 
         const auto pos = local.nominal().worldToLocal(gpos);
-//                dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));//dd4hep::Position(gpos.x, gpos.y, gpos.z)
         std::vector<double> cdim;
         // get segmentation dimensions
-        if (converter->findReadout(local).segmentation().type() != "NoSegmentation") {
-            cdim = converter->cellDimensions(cellID);
+        auto segmentation_type = m_converter->findReadout(local).segmentation().type();
+        if (segmentation_type == "CartesianGridXY") {
+            auto cell_dim = m_converter->cellDimensions(cellID);
+            cdim.resize(3);
+            cdim[0] = cell_dim[0];
+            cdim[1] = cell_dim[1];
+            m_log->debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
+            if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
+                warned_unsupported_segmentation = true;
+            }
+
             // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
-            cdim = converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
+            cdim = m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
             std::transform(cdim.begin(), cdim.end(), cdim.begin(),
                            std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
+            m_log->debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
         }
 
         //create constant vectors for passing to hit initializer list
         //FIXME: needs to come from the geometry service/converter
-        const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / m_lUnit, gpos.y() / m_lUnit,
-                                                                    gpos.z() / m_lUnit);
-        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim[0] / m_lUnit, cdim[1] / m_lUnit,
-                                                                      cdim.size() > 2? cdim[2] / m_lUnit: 0);
-        const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / m_lUnit, pos.y() / m_lUnit,
-                                                                       pos.z() / m_lUnit);
+        const decltype(edm4eic::CalorimeterHitData::position) position(gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm,
+                                                                    gpos.z() / dd4hep::mm);
+        const decltype(edm4eic::CalorimeterHitData::dimension) dimension(cdim.at(0) / dd4hep::mm, cdim.at(1) / dd4hep::mm,
+                                                                      cdim.at(2) / dd4hep::mm);
+        const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / dd4hep::mm, pos.y() / dd4hep::mm,
+                                                                       pos.z() / dd4hep::mm);
 
-        auto hit = new edm4eic::CalorimeterHit(rh->getCellID(),
-                                            energy,
-                                            0,
-                                            time,
-                                            0,
-                                            position,
-                                            dimension,
-                                            sid,
-                                            lid,
-                                            local_position);
-        hits.push_back(hit);
+        recohits->create(
+            rh.getCellID(),
+            energy,
+            0,
+            time,
+            0,
+            position,
+            dimension,
+            sid,
+            lid,
+            local_position);
     }
-    return;
+
+    return recohits;
 }
+
+} // namespace eicrecon

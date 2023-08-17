@@ -1,8 +1,7 @@
 
 #include "GlobalReconstructionTest_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "algorithms/reco/ParticlesWithAssociation.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -26,10 +25,9 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <services/rootfile/RootFile_service.h>
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
 

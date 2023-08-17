@@ -12,16 +12,17 @@
 
 // JANA
 #include <JANA/JEvent.h>
-#include <services/io/podio/JFactoryPodioT.h>
+#include "services/io/podio/JFactoryPodioT.h"
 
 // data model
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/ParticleID.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 // services
-#include <services/geometry/richgeo/RichGeo_service.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
+#include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
   class IrtParticleID_factory : public eicrecon::JFactoryPodioT<edm4hep::ParticleID> {

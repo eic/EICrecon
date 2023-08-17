@@ -11,9 +11,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
-#include <services/rootfile/RootFile_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/rootfile/RootFile_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 
 
@@ -49,7 +48,7 @@ void TrackPropagationTest_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
-    InitLogger(plugin_name);
+    InitLogger(app, plugin_name);
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
@@ -77,7 +76,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     m_log->trace("TrackPropagationTest_processor event");
 
     // Get trajectories from tracking
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
 
     // Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());
@@ -85,13 +84,13 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
         auto &trajectory = trajectories[traj_index];
         m_log->trace(" -- trajectory {} --", traj_index);
 
-        edm4eic::TrackPoint* projection_point;
+        std::unique_ptr<edm4eic::TrackPoint> projection_point;
         try {
             // >>> try to propagate to surface <<<
             projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Trajectory is skipped", e.what());
+            throw JException(e.what());
         }
 
         if(!projection_point) {

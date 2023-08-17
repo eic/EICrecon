@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <algorithms/interfaces/IObjectProducer.h>
+#include "algorithms/interfaces/IObjectProducer.h"
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/TrackParameters.h>
 #include <TDatabasePDG.h>

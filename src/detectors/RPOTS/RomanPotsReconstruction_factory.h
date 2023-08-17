@@ -9,11 +9,11 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "DD4hep/Detector.h"
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
@@ -22,8 +22,8 @@
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/SimTrackerHit.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <spdlog/logger.h>
 
 namespace eicrecon {
@@ -32,7 +32,7 @@ namespace eicrecon {
 
     public:
 
-	RomanPotsReconstruction_factory(); //constructer
+	RomanPotsReconstruction_factory(); //constructor
 
         /** One time initialization **/
         void Init() override;
@@ -53,19 +53,14 @@ namespace eicrecon {
 	const double nomMomentum = 275.0;
 
 	std::string m_readout;
-	std::string m_layerField;
-	std::string m_sectorField;
 	std::string m_geoSvcName;
-
-	dd4hep::BitFieldCoder *id_dec = nullptr;
-	size_t sector_idx{0}, layer_idx{0};
 
 	std::shared_ptr<JDD4hep_service> m_geoSvc;
 	std::string m_localDetElement;
 	std::vector<std::string> u_localDetFields;
 
 	dd4hep::DetElement local;
-	size_t local_mask = ~0;
+	size_t local_mask = ~static_cast<size_t>(0);
 	dd4hep::Detector *detector = nullptr;
 
 	const double aXRP[2][2] = {{2.102403743, 29.11067626},

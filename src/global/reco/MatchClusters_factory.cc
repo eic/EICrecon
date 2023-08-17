@@ -16,7 +16,6 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 
 namespace eicrecon {
@@ -24,7 +23,7 @@ namespace eicrecon {
     void MatchClusters_factory::Init() {
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(GetPrefix(), "info");
+        InitLogger(GetApplication(), GetPrefix(), "info");
 
         m_match_algo.init(m_log);
 
@@ -49,7 +48,7 @@ namespace eicrecon {
 
     void MatchClusters_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-        // TODO make input tags changable
+        // TODO make input tags changeable
         auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
         auto charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
         auto charged_particle_assocs = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
@@ -57,8 +56,8 @@ namespace eicrecon {
         using ClustersVector = std::vector<const edm4eic::Cluster*>;
         using ClustersAssocVector = std::vector<const edm4eic::MCRecoClusterParticleAssociation*>;
 
-        std::vector<ClustersVector> input_cluster_vectors;//{"OutputClusters", Gaudi::DataHandle::Writer, this};
-        std::vector<ClustersAssocVector> input_cluster_assoc;//{"OutputAssociations", Gaudi::DataHandle::Writer, this};
+        std::vector<ClustersVector> input_cluster_vectors;
+        std::vector<ClustersAssocVector> input_cluster_assoc;
 
         for(auto &input_tag: GetInputTags()) {
             auto clusters = event->Get<edm4eic::Cluster>(input_tag);

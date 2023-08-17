@@ -3,32 +3,32 @@
 
 #include <algorithm>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
-#include "edm4eic/TrackerHitCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "edm4eic/TrajectoryCollection.h"
-#include "edm4eic/TrackSegmentCollection.h"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/logger.h>
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
@@ -46,11 +46,11 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
+    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
 
         // create output collections
         std::vector<edm4eic::TrackSegment *> track_segments;
-        m_log->debug("Track projector evnet process. Num of input trajectories: {}", std::size(trajectories));
+        m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
         for (const auto &traj: trajectories) {
@@ -194,9 +194,9 @@ namespace eicrecon {
             track_segments.push_back(new edm4eic::TrackSegment(track_segment));
         }
 
-        m_log->debug("END OF Track projector evnet process");
+        m_log->debug("END OF Track projector event process");
         return track_segments;
     }
 
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

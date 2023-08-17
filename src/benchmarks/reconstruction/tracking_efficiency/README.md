@@ -9,7 +9,7 @@ eicrecon
 -Pjana:timeout=0
 -Ptracking_efficiency:LogLevel=info
 -PTracking:CentralTrackerSourceLinker:LogLevel=info
--PCKFTracking:TrackingResultTrajectory:LogLevel=info
+-PCKFTracking:Trajectories:LogLevel=info
 -Ptracking_efficiency:LogLevel=debug
 -Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
 -Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml

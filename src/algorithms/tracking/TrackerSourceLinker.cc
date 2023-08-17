@@ -6,17 +6,17 @@
 #include "TrackerSourceLinker.h"
 #include "TrackerSourceLinkerResult.h"
 
-#include "DD4hep/DD4hepUnits.h"
-#include "DD4hep/Volumes.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DD4hepUnits.h>
+#include <DD4hep/Volumes.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>
@@ -30,6 +30,8 @@ void eicrecon::TrackerSourceLinker::init(std::shared_ptr<const dd4hep::rec::Cell
     m_cellid_converter = std::move(cellid_converter);
     m_log = std::move(logger);
     m_acts_context = std::move(acts_context);
+    m_dd4hepGeo = m_acts_context->dd4hepDetector();
+    m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
 }
 
 
@@ -41,9 +43,9 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     auto hits = trk_hits;
 
     // Create output collections
-    std::list<eicrecon::IndexSourceLink> linkStorage;
-    auto sourceLinks = std::vector<std::shared_ptr<eicrecon::IndexSourceLink>>();
-    auto measurements = std::make_shared<eicrecon::MeasurementContainer>();
+    std::list<ActsExamples::IndexSourceLink> linkStorage;
+    auto sourceLinks = std::vector<std::shared_ptr<ActsExamples::IndexSourceLink>>();
+    auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
@@ -80,19 +82,24 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
         Acts::Vector2 pos;
+        auto hit_det = hit->getCellID()&0xFF;
+        auto onSurfaceTolerance = 0.1*Acts::UnitConstants::um;      // By default, ACTS uses 0.1 micron as the on surface tolerance
+        if (hit_det==m_detid_b0tracker){
+         onSurfaceTolerance = 1*Acts::UnitConstants::um;           // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
+        }
+
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
             pos = surface->globalToLocal(
                     Acts::GeometryContext(),
                     {hit_pos.x, hit_pos.y, hit_pos.z},
-                    {0, 0, 0}).value();
+                    {0, 0, 0}, onSurfaceTolerance).value();
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
         }
         catch(std::exception &ex) {
-
             m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
                         vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
             continue;
@@ -114,7 +121,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
 
         // Create source links
-        auto sourceLink = std::make_shared<eicrecon::IndexSourceLink>(surface->geometryId(), hit_index);
+        auto sourceLink = std::make_shared<ActsExamples::IndexSourceLink>(surface->geometryId(), hit_index);
         sourceLinks.emplace_back(sourceLink);
 
         auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);

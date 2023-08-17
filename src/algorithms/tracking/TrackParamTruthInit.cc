@@ -23,81 +23,97 @@ void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &
     m_pdg_db = std::make_shared<TDatabasePDG>();
 }
 
-eicrecon::TrackParameters *eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticle *part) {
+std::unique_ptr<edm4eic::TrackParametersCollection>
+eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcparticles) {
+    // MCParticles uses numerical values in its specified units,
+    // while m_cfg is in the Acts unit system
     using Acts::UnitConstants::GeV;
     using Acts::UnitConstants::MeV;
     using Acts::UnitConstants::mm;
     using Acts::UnitConstants::um;
     using Acts::UnitConstants::ns;
 
-    // getGeneratorStatus = 1 means thrown G4Primary, but dd4gun uses getGeneratorStatus == 0
-    if (part->getGeneratorStatus() > 1 ) {
-        m_log->trace("ignoring particle with generatorStatus = {}", part->getGeneratorStatus());
-        return nullptr;
+    // Create output collection
+    auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
+
+    // Loop over input particles
+    for (const auto& mcparticle: *mcparticles) {
+
+        // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
+        if (mcparticle.getGeneratorStatus() != 1 ) {
+            m_log->trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
+            continue;
+        }
+
+        // require close to interaction vertex
+        auto v = mcparticle.getVertex();
+        if (abs(v.x) * mm > m_cfg.m_maxVertexX ||
+            abs(v.y) * mm > m_cfg.m_maxVertexY ||
+            abs(v.z) * mm > m_cfg.m_maxVertexZ) {
+            m_log->trace("ignoring particle with vs = {} [mm]", v);
+            continue;
+        }
+
+        // require minimum momentum
+        const auto& p = mcparticle.getMomentum();
+        const auto pmag = std::hypot(p.x, p.y, p.z);
+        if (pmag * GeV < m_cfg.m_minMomentum) {
+            m_log->trace("ignoring particle with p = {} GeV ", pmag);
+            continue;
+        }
+
+        // require minimum pseudorapidity
+        const auto phi   = std::atan2(p.y, p.x);
+        const auto theta = std::atan2(std::hypot(p.x, p.y), p.z);
+        const auto eta   = -std::log(std::tan(theta/2));
+        if (eta > m_cfg.m_maxEtaForward || eta < -std::abs(m_cfg.m_maxEtaBackward)) {
+            m_log->trace("ignoring particle with Eta = {}", eta);
+            continue;
+        }
+
+        // get the particle charge
+        // note that we cannot trust the mcparticles charge, as DD4hep
+        // sets this value to zero! let's lookup by PDGID instead
+        //const double charge = m_pidSvc->particle(mcparticle.getPDG()).charge;
+        const auto pdg = mcparticle.getPDG();
+        const auto* particle = m_pdg_db->GetParticle(pdg);
+        if (particle == nullptr) {
+            m_log->debug("particle with PDG {} not in TDatabasePDG", pdg);
+            continue;
+        }
+        double charge = std::copysign(1.0,particle->Charge());
+        if (abs(charge) < std::numeric_limits<double>::epsilon()) {
+            m_log->trace("ignoring neutral particle");
+            continue;
+        }
+
+        // modify initial momentum to avoid bleeding truth to results when fit fails
+        const auto pinit = pmag*(1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
+
+        // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
+        auto track_parameter = track_parameters->create();
+        track_parameter.setType(-1); // type --> seed(-1)
+        track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y)), static_cast<float>(v.z)}); // 2d location on surface [mm]
+        track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
+        track_parameter.setTheta(theta); //theta [rad]
+        track_parameter.setPhi(phi); // phi [rad]
+        track_parameter.setQOverP(charge / pinit); // Q/p [e/GeV]
+        track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
+        track_parameter.setTime(mcparticle.getTime()); // time [ns]
+        track_parameter.setTimeError(10e9); // error on time [ns]
+        track_parameter.setCharge(charge); // charge
+
+        // Debug output
+        if (m_log->level() <= spdlog::level::debug) {
+            m_log->debug("Invoke track finding seeded by truth particle with:");
+            m_log->debug("   p     = {} GeV (smeared to {} GeV)", pmag, pinit);
+            m_log->debug("   q     = {}", charge);
+            m_log->debug("   q/p   = {} e/GeV (smeared to {} e/GeV)", charge / pmag, charge / pinit);
+            m_log->debug("   theta = {}", theta);
+            m_log->debug("   phi   = {}", phi);
+        }
     }
 
-
-    // require close to interaction vertex
-    if (abs(part->getVertex().x) * mm > m_cfg.m_maxVertexX
-        || abs(part->getVertex().y) * mm > m_cfg.m_maxVertexY
-        || abs(part->getVertex().z) * mm > m_cfg.m_maxVertexZ) {
-        m_log->trace("ignoring particle with vs = {} [mm]", part->getVertex());
-        return nullptr;
-    }
-
-    // require minimum momentum
-    const auto& p = part->getMomentum();
-    const auto pmag = std::hypot(p.x, p.y, p.z);
-    if (pmag * GeV < m_cfg.m_minMomentum) {
-        m_log->trace("ignoring particle with p = {} GeV ", pmag);
-        return nullptr;
-    }
-
-    // require minimum pseudorapidity
-    const auto phi   = std::atan2(p.y, p.x);
-    const auto theta = std::atan2(std::hypot(p.x, p.y), p.z);
-    const auto eta   = -std::log(std::tan(theta/2));
-    if (eta > m_cfg.m_maxEtaForward || eta < -std::abs(m_cfg.m_maxEtaBackward)) {
-        m_log->trace("ignoring particle with Eta = {}", eta);
-        return nullptr;
-    }
-
-    // get the particle charge
-    // note that we cannot trust the mcparticles charge, as DD4hep
-    // sets this value to zero! let's lookup by PDGID instead
-    //const double charge = m_pidSvc->particle(part->getPDG()).charge;
-    double charge = std::copysign(1.0,m_pdg_db->GetParticle(part->getPDG())->Charge());
-    if (abs(charge) < std::numeric_limits<double>::epsilon()) {
-        m_log->trace("ignoring neutral particle");
-        return nullptr;
-    }
-
-    // modify initial momentum to avoid bleeding truth to results when fit fails
-    const auto pinit = pmag*(1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
-
-    // build some track cov matrix
-    Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
-    cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = 1000*um*1000*um;
-    cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = 1000*um*1000*um;
-    cov(Acts::eBoundPhi, Acts::eBoundPhi)       = 0.05*0.05;
-    cov(Acts::eBoundTheta, Acts::eBoundTheta)   = 0.01*0.01;
-    cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = (0.1*0.1) / (GeV*GeV);
-    cov(Acts::eBoundTime, Acts::eBoundTime)     = 10.0e9*ns*10.0e9*ns;
-
-    Acts::BoundVector  params;
-    params(Acts::eBoundLoc0)   = 0.0 * mm ;  // cylinder radius
-    params(Acts::eBoundLoc1)   = 0.0 * mm ;  // cylinder length
-    params(Acts::eBoundPhi)    = phi;
-    params(Acts::eBoundTheta)  = theta;
-    params(Acts::eBoundQOverP) = charge / (pinit * GeV);
-    params(Acts::eBoundTime)   = part->getTime() * ns;
-
-    //// Construct a perigee surface as the target surface
-    auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
-            Acts::Vector3{part->getVertex().x * mm, part->getVertex().y * mm, part->getVertex().z * mm});
-
-    //params(Acts::eBoundQOverP) = charge/p;
-    auto result = new eicrecon::TrackParameters({pSurface, params, charge, cov});
-    return result;
+    return std::move(track_parameters);
 
 }

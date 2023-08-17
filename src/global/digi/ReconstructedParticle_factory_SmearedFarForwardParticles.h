@@ -4,15 +4,17 @@
 
 #pragma once
 
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/spdlog.h>
+
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <services/io/podio/JFactoryPodioT.h>
-#include <algorithms/digi/SmearedFarForwardParticles.h>
+#include "services/io/podio/JFactoryPodioT.h"
+#include "algorithms/digi/SmearedFarForwardParticles.h"
 
 
 namespace eicrecon {
 
-class ReconstructedParticle_factory_SmearedFarForwardParticles : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>, SmearedFarForwardParticles {
+class ReconstructedParticle_factory_SmearedFarForwardParticles : public eicrecon::JFactoryPodioT<edm4eic::ReconstructedParticle>, public eicrecon::SpdlogMixin, SmearedFarForwardParticles {
 
 public:
 
@@ -25,9 +27,9 @@ public:
     /** One time initialization **/
     void Init() override{
 
-        InitLogger("Digi:SmearedFarForwardParticles", "info");
+        InitLogger(GetApplication(), "Digi:SmearedFarForwardParticles", "info");
         // (this line seems quite awkward)
-        this->SmearedFarForwardParticles::m_log = this->eicrecon::SpdlogMixin<ReconstructedParticle_factory_SmearedFarForwardParticles>::m_log;
+        this->SmearedFarForwardParticles::m_log = this->eicrecon::SpdlogMixin::m_log;
 
         initialize();
     }

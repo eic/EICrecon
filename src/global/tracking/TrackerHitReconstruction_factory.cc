@@ -1,14 +1,16 @@
 // Created by Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <JANA/JEvent.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
 #include "TrackerHitReconstruction_factory.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
-#include <edm4eic/RawTrackerHit.h>
-#include <JANA/JEvent.h>
 
 void TrackerHitReconstruction_factory::Init() {
 
@@ -19,7 +21,7 @@ void TrackerHitReconstruction_factory::Init() {
     app->SetDefaultParameter(param_prefix + ":TimeResolution", m_reco_algo.getConfig().time_resolution, "threshold");
 
     // Init logger from default or user parameters
-    InitLogger(param_prefix);
+    InitLogger(app, param_prefix);
 
     // Init input collections tags and read from user parameters
     InitDataTags(param_prefix);
@@ -52,6 +54,6 @@ void TrackerHitReconstruction_factory::Process(const std::shared_ptr<const JEven
         m_log->debug("End of process. Hits count: {}", hits.size());
     }
     catch(std::exception &e) {
-        m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+        throw JException(e.what());
     }
 }
