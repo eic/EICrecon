@@ -167,7 +167,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalClusters",
             "B0ECalClusterAssociations",
             "ZDCEcalTruthClusters",
-            "ZDCEcalTruthClusterAssociations"
+            "ZDCEcalTruthClusterAssociations",
+
+	    // DIRC
+	    "DIRCRawHits"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
