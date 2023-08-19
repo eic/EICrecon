@@ -10,13 +10,13 @@
 
 #include <string>
 
-#include "TEfficiency.h"
-#include "TFitResult.h"
-#include "TFitResultPtr.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TROOT.h"
+#include <TEfficiency.h>
+#include <TFitResult.h>
+#include <TFitResultPtr.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TProfile.h>
+#include <TROOT.h>
 
 namespace Jug {
 

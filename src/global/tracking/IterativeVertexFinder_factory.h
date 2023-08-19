@@ -6,19 +6,19 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/IterativeVertexFinder.h>
+#include "algorithms/tracking/IterativeVertexFinder.h"
 
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/VertexCollection.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
 class IterativeVertexFinder_factory
     : public JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>,
-      public SpdlogMixin<IterativeVertexFinder_factory> {
+      public SpdlogMixin {
 
 public:
   explicit IterativeVertexFinder_factory(std::vector<std::string> default_input_tags,

@@ -8,16 +8,16 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/tracking/TrackProjector.h>
-#include <algorithms/tracking/TrackProjectorConfig.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/tracking/TrackProjector.h"
+#include "algorithms/tracking/TrackProjectorConfig.h"
 
 namespace eicrecon {
 
     class TrackProjector_factory:
     public JChainFactoryT<edm4eic::TrackSegment, TrackProjectorConfig>,
-            public SpdlogMixin<TrackProjector_factory> {
+            public SpdlogMixin {
 
     public:
         explicit TrackProjector_factory( std::vector<std::string> default_input_tags, TrackProjectorConfig cfg):

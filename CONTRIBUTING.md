@@ -25,7 +25,7 @@ There are many coding guidelines which could be selected by the whole community,
 
 ### Sample
 
-(This code smaple is temporary and needs further development)
+(This code sample is temporary and needs further development)
 
 ```c++
 #include <vector>

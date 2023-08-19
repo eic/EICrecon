@@ -5,8 +5,8 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <JANA/JEvent.h>
 
 #include <edm4hep/SimTrackerHit.h>
@@ -17,8 +17,8 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MutableRawTrackerHit.h>
 
-#include <algorithms/digi/SiliconTrackerDigi.h>
-#include <algorithms/digi/SiliconTrackerDigiConfig.h>
+#include "algorithms/digi/SiliconTrackerDigi.h"
+#include "algorithms/digi/SiliconTrackerDigiConfig.h"
 
 namespace eicrecon {
 
@@ -26,7 +26,7 @@ namespace eicrecon {
 
     class SiliconTrackerDigi_factory :
             public JChainFactoryT<edm4eic::RawTrackerHit, SiliconTrackerDigiConfig>,
-            public SpdlogMixin<SiliconTrackerDigi_factory> {
+            public SpdlogMixin {
 
     public:
 

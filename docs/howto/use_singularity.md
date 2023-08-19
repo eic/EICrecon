@@ -71,7 +71,7 @@ The precompiled detector is installed in **/opt/detector** directory.
 And can be used like this:
 
 ```bash
-# Setup the proper detector environemnt
+# Setup the proper detector environment
 source /opt/detector/setup.sh
 
 # Run particle gun simulation
@@ -109,7 +109,7 @@ export SINGULARITY_BINDPATH=/home
 singularity exec $PREFIX/local/lib/jug_xl-nightly.sif eic-shell $@
 ```
 
-The **eic-shell** inside the container loads the proper environemnt and
+The **eic-shell** inside the container loads the proper environment and
 SHELL look correctly
 
 ```bash

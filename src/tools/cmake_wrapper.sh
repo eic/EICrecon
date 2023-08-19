@@ -10,7 +10,7 @@
 # exists, it will be sourced before running cmake.
 
 
-# Get directrory this script resides in
+# Get directory this script resides in
 SCRIPT_DIR=`readlink -f $(dirname -- "$0")`
 
 if [ -f ${SCRIPT_DIR}/../../custom_environment.sh ]; then

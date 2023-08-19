@@ -80,7 +80,7 @@ public:
             id_dec = id_spec.decoder();
             if (!m_sectorField.empty()) {
                 sector_idx = id_dec->index(m_sectorField);
-                m_log->info("Find sector field {}, indes = {}", m_sectorField, sector_idx);
+                m_log->info("Find sector field {}, index = {}", m_sectorField, sector_idx);
             }
             if (!m_layerField.empty()) {
                 layer_idx = id_dec->index(m_layerField);

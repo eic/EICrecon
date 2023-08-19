@@ -74,6 +74,7 @@ source ${JANA_HOME}/bin/jana-this.sh                # Set environment to use thi
 ~~~
 
 ### fmt
+~~~
 export FMT_VERSION=8.1.1
 mkdir -p ${EICTOPDIR}/detectors/fmt
 cd ${EICTOPDIR}/detectors/fmt
@@ -82,7 +83,7 @@ export LD_LIBRARY_PATH=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install/lib64:$
 git clone https://github.com/fmtlib/fmt -b ${FMT_VERSION} ${FMT_VERSION}
 cmake -S ${FMT_VERSION} -B build  -DCMAKE_INSTALL_PREFIX=${fmt_ROOT} -DCMAKE_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON
 cmake --build build --target install -- -j8
-
+~~~
 
 ### spdlog
 ~~~

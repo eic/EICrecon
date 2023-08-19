@@ -6,7 +6,7 @@
 
 #include <edm4eic/TrackSegment.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/logger.h>
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
@@ -16,7 +16,7 @@
 
 namespace eicrecon {
 
-        /** Extrac the particles form fit trajectories.
+        /** Extract the particles form fit trajectories.
          *
          * \ingroup tracking
          */

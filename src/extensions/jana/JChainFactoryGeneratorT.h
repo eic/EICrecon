@@ -17,7 +17,7 @@ class JChainFactoryGeneratorT : public JFactoryGenerator {
 
 public:
 
-    using FactoryOuptutType = typename FactoryT::OutputType;
+    using FactoryOutputType = typename FactoryT::OutputType;
     using FactoryConfigType = typename FactoryT::ConfigType;
 
     /// Constructor with config

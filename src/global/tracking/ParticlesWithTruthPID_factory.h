@@ -7,8 +7,8 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <algorithms/tracking/ParticlesWithTruthPID.h>
-#include <algorithms/tracking/ParticlesWithTruthPIDConfig.h>
+#include "algorithms/tracking/ParticlesWithTruthPID.h"
+#include "algorithms/tracking/ParticlesWithTruthPIDConfig.h"
 #include <spdlog/logger.h>
 
 
@@ -16,7 +16,7 @@ namespace eicrecon {
 
     class ParticlesWithTruthPID_factory :
             public JChainMultifactoryT<ParticlesWithTruthPIDConfig>,
-            public SpdlogMixin<ParticlesWithTruthPID_factory> {
+            public SpdlogMixin {
 
     public:
         explicit ParticlesWithTruthPID_factory( std::string tag,

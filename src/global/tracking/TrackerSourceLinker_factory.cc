@@ -3,14 +3,13 @@
 //
 
 #include "TrackerSourceLinker_factory.h"
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 #include "JANA/JEvent.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
 
@@ -21,7 +20,7 @@ namespace eicrecon {
         auto pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
-        std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string plugin_name = GetPluginName();
         std::string param_prefix = plugin_name+ ":" + GetTag();
 
         // Now we check that user provided an input names
@@ -73,7 +72,7 @@ namespace eicrecon {
             Insert(result);
         }
         catch(std::exception &e) {
-            m_log->warn("Exception in underlying algorithm: {}. Event data will be skipped", e.what());
+            throw JException(e.what());
         }
     }
 } // eicrecon

@@ -2,9 +2,10 @@ RICH Geometry Service
 =====================
 
 A common place for bindings between RICH geometry forms:
-- `DD4hep`: simulation geometry
-- `ACTS`:   track-projection planes
-- `IRT`:    optical surfaces for Indirect Ray Tracing
+- `DD4hep`:  simulation geometry
+- `Readout`: DD4hep readout pixel geometry
+- `ACTS`:    track-projection planes
+- `IRT`:     optical surfaces for Indirect Ray Tracing
 
 `RichGeo_service` provides a JANA service for these bindings, with `richgeo.cc`
 to define the plugin. All other source files are meant to be JANA-independent,

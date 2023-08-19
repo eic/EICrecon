@@ -8,9 +8,9 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
-#include <algorithms/tracking/TrackProjector.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/TrackProjector.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 #include <edm4hep//MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -20,7 +20,7 @@
 #include <edm4eic/TrackerHit.h>
 
 
-class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin<TofEfficiency_processor>  {
+class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin  {
 private:
 
     // Data objects we will need from JANA

@@ -23,8 +23,6 @@
 #include <spdlog/spdlog.h>
 #include <edm4eic/TrackParameters.h>
 
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "algorithms/tracking/JugTrack/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 

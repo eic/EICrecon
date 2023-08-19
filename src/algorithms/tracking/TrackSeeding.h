@@ -20,19 +20,19 @@
 #include "JugTrack/Track.hpp"
 #include "JugTrack/TrackingResultTrajectory.hpp"
 
-#include "edm4eic/TrackerHitCollection.h"
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
 #include <spdlog/logger.h>
 
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/TrackFinding/CombinatorialKalmanFilter.hpp"
-#include "Acts/TrackFinding/MeasurementSelector.hpp"
-#include <algorithms/interfaces/IObjectProducer.h>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
+#include <Acts/TrackFinding/MeasurementSelector.hpp>
+#include "algorithms/interfaces/IObjectProducer.h"
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/TrackParameters.h>
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "OrthogonalTrackSeedingConfig.h"
 
 
@@ -55,7 +55,7 @@ namespace eicrecon {
 
 	int determineCharge(std::vector<std::pair<float,float>>& positions) const;
 	SeedContainer runSeeder(std::vector<const edm4eic::TrackerHit*>& trk_hits);
-	std::pair<float,float> findRoot(std::tuple<float,float,float>& circleParams) const;
+	std::pair<float,float> findPCA(std::tuple<float,float,float>& circleParams) const;
 	std::vector<const eicrecon::SpacePoint*> getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits);
 	std::vector<edm4eic::TrackParameters*> makeTrackParams(SeedContainer& seeds);
 

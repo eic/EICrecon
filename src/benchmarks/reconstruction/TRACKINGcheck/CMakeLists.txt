@@ -16,15 +16,10 @@ plugin_add(${PLUGIN_NAME} )
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(Eigen3 REQUIRED)
 plugin_add_acts(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
+plugin_add_eigen3(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 
-set(Eigen3_INCLUDE_DIR ${Eigen3_DIR}/../../../include/eigen3)
-
-# Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIR})
-
 # Add libraries (works same as target_include_directories)
-# plugin_link_libraries(${PLUGIN_NAME} ... )
+plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen)
