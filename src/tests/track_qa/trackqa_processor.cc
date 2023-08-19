@@ -117,6 +117,11 @@ void trackqa_processor::Init()
     hchi2_vs_eta->GetYaxis()->SetTitle("Track #Chi^{2} Sum");hchi2_vs_eta->GetYaxis()->CenterTitle();
     hchi2_vs_eta->SetDirectory(m_dir_main);
 
+    hchi2SumNDF_vs_eta = new TH2D("hchi2NDF_vs_eta","", 50, -4, 4, 10, 0, 10);
+    hchi2SumNDF_vs_eta->GetXaxis()->SetTitle("#eta (Generated)");hchi2SumNDF_vs_eta->GetXaxis()->CenterTitle();
+    hchi2SumNDF_vs_eta->GetYaxis()->SetTitle("Track #Chi^{2} Sum/NDF");hchi2SumNDF_vs_eta->GetYaxis()->CenterTitle();
+    hchi2SumNDF_vs_eta->SetDirectory(m_dir_main);
+
     hchi2_vs_hits = new TH2D("hchi2_vs_hits","",50,0,50,50,0,50);
     hchi2_vs_hits->GetXaxis()->SetTitle("Number of Hits");hchi2_vs_hits->GetXaxis()->CenterTitle();
     hchi2_vs_hits->GetYaxis()->SetTitle("Track #Chi^{2} Sum");hchi2_vs_hits->GetYaxis()->CenterTitle();
@@ -187,6 +192,7 @@ void trackqa_processor::Init()
     hmeaschi2_vs_hits->GetXaxis()->SetTitle("Number of Hits");hmeaschi2_vs_hits->GetXaxis()->CenterTitle();
     hmeaschi2_vs_hits->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_hits->GetYaxis()->CenterTitle();
     hmeaschi2_vs_hits->SetDirectory(m_dir_main);
+
 
     const int n_eta_bins = 16;
     TVectorT<double> V_eta_edges(n_eta_bins+1);
@@ -555,8 +561,8 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     m_log->trace("Number of ACTS Seeds: {}", seed_parameters.size());
 
     //ACTS Trajectories
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
-    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
+    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
+    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
 
     m_log->trace("Number of ACTS Trajectories: {}", trajectories.size());
     m_log->trace("");
@@ -827,6 +833,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             hchi2_by_meas->Fill(m_chi2Sum/m_nMeasurements);
             
             hchi2_vs_eta->Fill(mceta, m_chi2Sum);
+            hchi2SumNDF_vs_eta->Fill(mceta, m_chi2Sum/m_NDF);
             hchi2_vs_hits->Fill(nHitsallTrackers, m_chi2Sum);
             hchi2_vs_hits_zoomed->Fill(nHitsallTrackers, m_chi2Sum);
             heta_vs_p_vs_chi2->Fill(mceta, mcp, m_chi2Sum);

@@ -2,6 +2,19 @@
 #include <vector>
 using namespace std;
 
+// customize tex label
+TPaveText* makeTexLabel(TString text, double x1=0.2, double y1=0.7, double x2=0.5, double y2=0.85,
+						int textsize=20, int textcolor=kBlack, int textfont=63){
+							//potentially make text an array
+	TPaveText* tex_label = new TPaveText(x1,y1,x2,y2,"NDCNB");
+	tex_label->AddText(text);
+	tex_label->SetFillStyle(4000);
+	tex_label->SetTextFont(textfont);
+	tex_label->SetTextSize(textsize);
+	tex_label->SetTextColor(textcolor);
+
+	return tex_label;
+}
 
 // ========================================================================================
 // Make gaussian fits
@@ -19,7 +32,6 @@ Double_t makeFits(TH1* hist){ //(vector<TH1F*> hists, Double_t* st_dev=NULL){
     return st_dev;
 }
 
-// Double gaussian fit - returns a 3D arr with larger width, smaller width, and calculated full width.
 double** makeDGFits(TH1* hist, double** fit_widths, int i, double param0=20., double param3=100.){
 	TF1 *dgfit = new TF1("dgfit","gaus(0)+gaus(3)",-0.1,0.1);
 
@@ -31,16 +43,52 @@ double** makeDGFits(TH1* hist, double** fit_widths, int i, double param0=20., do
 	dgfit->SetParLimits(5,0.,0.2);	
 	dgfit->SetParNames("Constant 1","Mean 1","Sigma 1","Constant 2","Mean 2","Sigma 2");
 
-	TFitResultPtr r1 = hist->Fit("dgfit", "RLMSI");
+	TFitResultPtr r1 = hist->Fit("dgfit", "RLMSIN");
 	double sigma1 = dgfit->GetParameter(2);
 	double sigma2 = dgfit->GetParameter(5);
 
 	// extract full width at half max
-	double max = dgfit->GetMaximum();
-	double x_maximum = dgfit->GetMaximumX();
-	double fwhm_left = dgfit->GetX(max/2,-0.2, x_maximum);
-	double fwhm_right = dgfit->GetX(max/2, x_maximum, 0.2);
+	double max = hist->GetMaximum();
+	int max_bin = hist->GetMaximumBin();
+	double x_maximum = hist->GetXaxis()->GetBinCenter(max_bin);
+	double half_max_height = max/2;
+
+	// find x position of left side of FWHM
+	double fwhm_left = 0;
+	for (int ibin=0; ibin<int(hist->GetNbinsX()/2); ibin++) {
+		double binheight = hist->GetBinContent(ibin);
+		double binheight_next = hist->GetBinContent(ibin+1);
+		if (binheight <= half_max_height && binheight_next >= half_max_height) { //
+			double bincenter = hist->GetBinCenter(binheight);
+			double bincenter_next = hist->GetBinCenter(binheight_next);
+			fwhm_left = (bincenter+bincenter_next)/2;
+		}
+	}
+
+	// find x position of right side of FWHM
+	double fwhm_right = 0;
+	for (int ibin=hist->GetNbinsX(); ibin>int(hist->GetNbinsX()/2); ibin--) {
+		double binheight = hist->GetBinContent(ibin);
+		double binheight_next = hist->GetBinContent(ibin-1);
+		if (binheight <= half_max_height && binheight_next >= half_max_height) { //
+			double bincenter = hist->GetBinCenter(binheight);
+			double bincenter_next = hist->GetBinCenter(binheight_next);
+			fwhm_right = (bincenter+bincenter_next)/2;
+		}
+	}
+
 	double FWHM = fwhm_right - fwhm_left;
+
+	// double max = dgfit->GetMaximum();
+	// double x_maximum = dgfit->GetMaximumX();
+	// double fwhm_left = dgfit->GetX(max/2,-0.2, x_maximum);
+	// double fwhm_right = dgfit->GetX(max/2, x_maximum, 0.2);
+	// double FWHM = fwhm_right - fwhm_left;
+	const char* fwhm = to_string(FWHM).c_str();
+	TPaveText* Pt2 = makeTexLabel(Form("%s%.4f", "FWHM = ", FWHM), 0.55, 0.65, 0.8, 0.8, 8);
+	// makeTexLabel(Form("FWHM = %.4f", fwhm_right - fwhm_left), 0.6, 0.62, 0.8, 0.72, 8)->Draw();
+	//Pt2->Draw();
+
 
 	// double widths[3] = {sigma1, sigma2, FWHM};
 	fit_widths[i][0] = sigma1;
@@ -61,19 +109,6 @@ double calcFullWidth(double st_dev){
 }
 
 
-// customize tex label
-TPaveText* makeTexLabel(TString text, double x1=0.2, double y1=0.7, double x2=0.5, double y2=0.85,
-						int textsize=20, int textcolor=kBlack, int textfont=63){
-							//potentially make text an array
-	TPaveText* tex_label = new TPaveText(x1,y1,x2,y2,"NDCNB");
-	tex_label->AddText(text);
-	tex_label->SetFillStyle(4000);
-	tex_label->SetTextFont(textfont);
-	tex_label->SetTextSize(textsize);
-	tex_label->SetTextColor(textcolor);
-
-	return tex_label;
-}
 
 
 // adjust label size
@@ -97,7 +132,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 				TString output_fname = "plot_hists_brycecanyon_etarange_flat_thresh5keV.pdf"){
 	// Variables that the user should specify
 	input_fname = "eicrecon.root"; 
-	output_fname = "plot_hists_brycecanyon_final.pdf"; //"plot_hists_etarange_flat.pdf";
+	output_fname = "plot_hists_brycecanyon_realistic_seeding.pdf"; //"plot_hists_etarange_flat.pdf";
 
 	//Define Style
 	gStyle->SetOptStat(0);
@@ -127,6 +162,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 	TH1 *hchi2_by_meas = (TH1*) f->Get("track_qa/hchi2_by_meas");
 
 	TH2 *hchi2_vs_eta = (TH2*) f->Get("track_qa/hchi2_vs_eta");
+	TH2 *hchi2NDF_vs_eta = (TH2*) f->Get("track_qa/hchi2NDF_vs_eta");
 	TH2 *hchi2_vs_hits = (TH2*) f->Get("track_qa/hchi2_vs_hits");
 	TH2 *hchi2_vs_hits_zoomed = (TH2*) f->Get("track_qa/hchi2_vs_hits_zoomed");
 	// vector<TH2*> hchi2_vs_hits_etabins = (vector<TH2*>) f->Get("track_qa/hchi2_vs_hits_etabins");
@@ -252,7 +288,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 
 		int layID = vollay_arr[i] % 10;
 		int volID = floor(vollay_arr[i] / 10);
-		tex_vollay[i] = makeTexLabel(Form("%s", vollay_identities[i]), 0.5, 0.75, 0.7, 0.9, 8);
+		tex_vollay[i] = makeTexLabel(Form("%s", vollay_identities[i]), 0.6, 0.75, 0.7, 0.9, 8);
 		// tex_vollay[i]->AddText(Form("Volume ID: %d, Layer ID: %d", volID, layID));
 	}
 
@@ -317,7 +353,8 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 	hpt->Draw();
 
 	c1[4] = new TCanvas("c4","c4");
-	hchi2_vs_eta->Draw("colz");
+	//hchi2_vs_eta->Draw("colz");
+	hchi2NDF_vs_eta->Draw("colz");
 
 	c1[5] = new TCanvas("c5","c5");
 	hchi2_vs_hits->Draw("colz");
@@ -474,7 +511,8 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		dgfit->SetParLimits(5,0.,0.2);
 	    dgfit->SetParNames("Constant 1","Mean 1","Sigma 1","Constant 2","Mean 2","Sigma 2");
 
-		TFitResultPtr r1 = hresiduals[i]->Fit("dgfit", "RLMSI"); // option "N" is do not draw
+		//TFitResultPtr r1 = hresiduals[i]->Fit("dgfit", "RLMSI"); // option "N" is do not draw
+		TFitResultPtr r1 = hresiduals[i]->Fit("dgfit", "RLMSIN"); // option "N" is do not draw
 		double const1 = r1->Parameter(0);
 		double mean1 = r1->Parameter(1);
 		double sigma1 = r1->Parameter(2);
@@ -488,7 +526,10 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		double x_maximum = dgfit->GetMaximumX();
 		double fwhm_left = dgfit->GetX(max/2,-0.2, x_maximum);
 		double fwhm_right = dgfit->GetX(max/2, x_maximum, 0.2);
-		makeTexLabel(Form("FWHM = %.4f", fwhm_right - fwhm_left), 0.6, 0.62, 0.8, 0.72, 8)->Draw();
+		const char* fwhm = to_string(fwhm_right - fwhm_left).c_str();
+		TPaveText* pt = makeTexLabel(Form("%s%s", "FWHM = ", fwhm), 0.0, 0.75, 0.7, 0.9, 8);
+		// makeTexLabel(Form("FWHM = %.4f", fwhm_right - fwhm_left), 0.6, 0.62, 0.8, 0.72, 8)->Draw();
+		pt->Draw();
 
 		c1[33]->cd(i+4); //4, 5, 6
 		gPad->SetLogy();
@@ -573,14 +614,13 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		// gStyle->SetOptFit(1111);
 		// gStyle->SetStatY(0.7);
 
-		// TFitResultPtr r1 = hresiduals_vollaybins[i+2]->Fit("dgfit", "RLMSI"); // option "N" is do not draw
+		// TFitResultPtr r1 = hresiduals_vollaybins[i+2]->Fit("dgfit", "RLMSIN"); // option "N" is do not draw
 		// double const1 = r1->Parameter(0);
 		// double mean1 = r1->Parameter(1);
 		// double sigma1 = r1->Parameter(2);
 		// double const2 = r1->Parameter(3);
 		// double mean2 = r1->Parameter(4);
 		// double sigma2 = r1->Parameter(5);
-
 		tex_vollay[i+2]->Draw();
 	}
 

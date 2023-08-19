@@ -73,6 +73,7 @@ public:
 
     //Looking at chi^2 and # of hits
     TH2 *hchi2_vs_eta; //chi^2 vs eta
+    TH2 *hchi2SumNDF_vs_eta; //chi^2/NDF vs eta
     TH2 *hchi2_vs_hits; //chi^2 vs # of hits (chi^2 is in y-axis, # of hits is in x-axis)
     TH2 *hchi2_vs_hits_zoomed; //chi^2 vs # of hits (chi^2 is in y-axis, # of hits is in x-axis) zoomed in
     vector<TH2*> hchi2_vs_hits_etabins; //chi^2 vs # of hits in 16 bins of eta
