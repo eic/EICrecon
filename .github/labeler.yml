@@ -51,6 +51,7 @@
 "topic: PID":
   - "src/algorithms/pid/**"
   - "src/detectors/BTOF/**"
+  - "src/detectors/DRICH/**"
   - "src/detectors/ECGEM/**"
   - "src/detectors/ECTOF/**"
   - "src/tests/algorithms_test/pid_*"
