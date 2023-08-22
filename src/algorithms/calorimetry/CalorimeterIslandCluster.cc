@@ -228,7 +228,7 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::proce
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      dfs_group(hits, groups.back(), i, visits);
+      bfs_group(hits, groups.back(), i, visits);
     }
 
     auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();

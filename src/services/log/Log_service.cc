@@ -16,6 +16,10 @@ Log_service::Log_service(JApplication *app) {
     m_log_level_str = "info";
     m_application->SetDefaultParameter("eicrecon:LogLevel", m_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
+
+    m_log_format_str = "[%n] [%^%l%$] %v";
+    m_application->SetDefaultParameter("eicrecon:LogFormat", m_log_level_str, "spdlog pattern string");
+    spdlog::set_pattern(m_log_format_str);
 }
 
 

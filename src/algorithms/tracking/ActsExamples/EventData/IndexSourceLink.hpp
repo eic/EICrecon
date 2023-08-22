@@ -16,7 +16,7 @@
 
 #include <cassert>
 
-namespace eicrecon {
+namespace ActsExamples {
 
   /// A source link that stores just an index.
   ///
@@ -67,4 +67,4 @@ namespace eicrecon {
   using IndexSourceLinkAccessor =
     GeometryIdMultisetAccessor<std::reference_wrapper<const IndexSourceLink>>;
 
-} // namespace Jug
+} // namespace ActsExamples

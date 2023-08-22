@@ -14,7 +14,7 @@
 #include <iterator>
 #include <utility>
 
-namespace eicrecon {
+namespace ActsExamples {
 
 /// Proxy for iterating over groups of elements within a container.
 ///
@@ -138,4 +138,4 @@ GroupBy<typename Container::const_iterator, KeyGetter> makeGroupBy(
   return {container.begin(), container.end(), std::move(keyGetter)};
 }
 
-}  // namespace FW
+}  // namespace ActsExamples

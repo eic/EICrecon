@@ -12,7 +12,7 @@
 
 #include <boost/container/flat_map.hpp>
 
-namespace eicrecon {
+namespace ActsExamples {
 
 /// Index type to reference elements in a container.
 ///

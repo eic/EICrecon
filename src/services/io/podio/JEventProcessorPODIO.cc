@@ -109,6 +109,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertClusterAssociations",
             "EcalBarrelClusters",
             "EcalBarrelClusterAssociations",
+            "EcalBarrelTruthClusters",
+            "EcalBarrelTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
