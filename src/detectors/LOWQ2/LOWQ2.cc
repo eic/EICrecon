@@ -12,13 +12,16 @@
 #include <extensions/jana/JChainFactoryGeneratorT.h>
 
 //#include "LowQ2ProtoCluster_factory.h"
-#include "LowQ2Cluster_factory.h"
-#include "LowQ2Tracking_factory.h"
-#include "LowQ2Reconstruction_factory.h"
+//#include "LowQ2Cluster_factory.h"
+// #include "LowQ2Tracking_factory.h"
+// #include "LowQ2Reconstruction_factory.h"
 
 #include <global/digi/SiliconTrackerDigi_factory.h>
 #include <global/tracking/TrackerHitReconstruction_factory.h>
-#include "global/fardetectors/FarDetectorProtoCluster_factory.h"
+//#include <global/fardetectors/FarDetectorProtoCluster_factory.h>
+#include <global/fardetectors/FarDetectorCluster_factory.h>
+#include <global/fardetectors/FarDetectorSimpleTracking_factory.h>
+#include <global/fardetectors/FarDetectorMLReconstruction_factory.h>
 
 
 extern "C" {
@@ -46,16 +49,17 @@ extern "C" {
     
     // Clustering of hits
     //    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters" ));
-    app->Add(new JChainFactoryGeneratorT<FarDetectorProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters", cluster_cfg));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerClusterPositions", cluster_cfg));
 
     // Cluster position generation
-    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));
+    //    app->Add(new JChainFactoryGeneratorT<FarDetectorCluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));
+    //    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));
 
     // Very basic reconstrution of a single track
-    app->Add(new JChainFactoryGeneratorT<LowQ2Tracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks"));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorSimpleTracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks"));
 
     // Initial particle reconstruction
-    app->Add(new JChainFactoryGeneratorT<LowQ2Reconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorMLReconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));
 
   }
 }
