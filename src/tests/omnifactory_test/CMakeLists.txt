@@ -13,9 +13,7 @@ find_package(fmt REQUIRED)
 # TODO: NWB: Did we ever fix this?
 target_include_directories(${TEST_NAME} PRIVATE ${PROJECT_BINARY_DIR} ${EICRECON_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${datamodel_BINARY_DIR})
 target_link_libraries(${TEST_NAME} PRIVATE
-  log
-  spdlog::spdlog
-  fmt::fmt
+  log_plugin
   EDM4EIC::edm4eic
   EDM4HEP::edm4hep
   podio
