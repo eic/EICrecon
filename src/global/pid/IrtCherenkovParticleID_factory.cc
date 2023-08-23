@@ -12,7 +12,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Init() {
   auto prefix = GetPrefix();
 
   // services
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_richGeoSvc   = app->GetService<RichGeo_service>();
   m_irt_det_coll = m_richGeoSvc->GetIrtGeo(plugin)->GetIrtDetectorCollection();
   m_log->debug("IrtCherenkovParticleID_factory: plugin='{}' prefix='{}'", plugin, prefix);

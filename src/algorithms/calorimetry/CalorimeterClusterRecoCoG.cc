@@ -3,7 +3,7 @@
 
 /*
  *  Reconstruct the cluster with Center of Gravity method
- *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
+ *  Logarithmic weighting is used for mimicking energy deposit in transverse direction
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
@@ -28,7 +28,7 @@ namespace eicrecon {
     m_detector = detector;
 
     // update depth correction if a name is provided
-    if (m_cfg.moduleDimZName != "") {
+    if (!m_cfg.moduleDimZName.empty()) {
       m_cfg.depthCorrection = m_detector->constantAsDouble(m_cfg.moduleDimZName);
     }
 

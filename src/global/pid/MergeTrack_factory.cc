@@ -13,7 +13,7 @@ void eicrecon::MergeTrack_factory::Init() {
   InitDataTags(prefix);
 
   // services
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_algo.AlgorithmInit(m_log);
   m_log->debug("MergeTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 

@@ -4,23 +4,21 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
-#include <algorithms/tracking/TrackParamTruthInit.h>
-
-
+#include "algorithms/tracking/TrackParamTruthInit.h"
+#include "algorithms/tracking/TrackParamTruthInitConfig.h"
 
 namespace eicrecon {
 
-class TrackParamTruthInit_factory :
-        public JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig, JFactoryT>,
-        public SpdlogMixin<TrackParamTruthInit_factory>  {
+    class TrackParamTruthInit_factory :
+            public JChainFactoryT<edm4eic::TrackParameters, TrackParamTruthInitConfig>,
+            public SpdlogMixin {
 
     public:
         TrackParamTruthInit_factory( std::vector<std::string> default_input_tags, TrackParamTruthInitConfig cfg):
-                JChainFactoryT<eicrecon::TrackParameters, TrackParamTruthInitConfig, JFactoryT>(std::move(default_input_tags), cfg ) {
+            JChainFactoryT<edm4eic::TrackParameters, TrackParamTruthInitConfig>(std::move(default_input_tags), cfg) {
         }
 
         /** One time initialization **/
@@ -33,8 +31,7 @@ class TrackParamTruthInit_factory :
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
     private:
-
-        eicrecon::TrackParamTruthInit m_truth_track_seeding_algo;  /// Truth track seeding algorithm
+        eicrecon::TrackParamTruthInit m_seeding_algo;
     };
 
 } // eicrecon

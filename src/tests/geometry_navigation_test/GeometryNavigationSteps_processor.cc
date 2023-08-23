@@ -2,16 +2,16 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
 #include <spdlog/spdlog.h>
-#include <services/rootfile/RootFile_service.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/rootfile/RootFile_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication *app) :
 	JEventProcessor(app)
@@ -38,7 +38,7 @@ void GeometryNavigationSteps_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
-    InitLogger(plugin_name);
+    InitLogger(app, plugin_name);
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 

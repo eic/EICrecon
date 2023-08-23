@@ -4,7 +4,7 @@
 //
 
 #include "RPOTScheckProcessor.h"
-#include <services/rootfile/RootFile_service.h>
+#include "services/rootfile/RootFile_service.h"
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>

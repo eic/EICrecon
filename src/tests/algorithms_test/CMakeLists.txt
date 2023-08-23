@@ -6,6 +6,7 @@ add_executable(${TEST_NAME}
   calorimetry_CalorimeterIslandCluster.cc
   calorimetry_CalorimeterHitDigi.cc
   pid_MergeTracks.cc
+  pid_MergeParticleID.cc
   )
 
 # Explicit linking to podio::podio is needed due to https://github.com/JeffersonLab/JANA2/issues/151

@@ -9,12 +9,11 @@
 
 #include "InclusiveKinematicseSigma_factory.h"
 
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/InclusiveKinematics.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <algorithms/tracking/ParticlesFromTrackFitResult.h>
 
 namespace eicrecon {
 
@@ -27,7 +26,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix, "info");
+        InitLogger(GetApplication(), param_prefix, "info");
 
         m_inclusive_kinematics_algo.init(m_log);
     }
@@ -37,16 +36,16 @@ namespace eicrecon {
     }
 
     void InclusiveKinematicseSigma_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-        auto rc_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-        auto rc_particles_assoc = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
+        const auto* mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        const auto* rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[1]));
+        const auto* rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[2]));
 
         auto inclusive_kinematics = m_inclusive_kinematics_algo.execute(
-            mc_particles,
-            rc_particles,
-            rc_particles_assoc
+            *mc_particles,
+            *rc_particles,
+            *rc_particles_assoc
         );
 
-        Set(inclusive_kinematics);
+        SetCollection(std::move(inclusive_kinematics));
     }
 } // eicrecon

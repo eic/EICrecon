@@ -6,9 +6,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
-#include <algorithms/reco/MC2SmearedParticleConfig.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
@@ -28,10 +27,8 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    MC2SmearedParticleConfig smearing_default_config {0};  // No momentum smearing by default
-
     app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
-            {"MCParticles"}, "GeneratedParticles", smearing_default_config));
+            {"MCParticles"}, "GeneratedParticles"));
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",

@@ -30,7 +30,7 @@ flowchart TB
   subgraph Inputs
     direction LR
     SimHits(<strong>DRICHHits</strong><br/>MC dRICH photon hits<br/>edm4hep::SimTrackerHit):::col
-    Trajectories(<strong>CentralCKFTrajectories</strong><br/>eicrecon::TrackingResultTrajectory):::col
+    Trajectories(<strong>CentralCKFTrajectories</strong><br/>ActsExamples::Trajectories):::col
     MCParts(<strong>MCParticles</strong><br/>MC True Particles<br/>edm4hep::MCParticles):::col
   end
 
@@ -182,7 +182,7 @@ flowchart TB
     - MC: average photon energy and refractive index at emission point
     - Link to charged particle and hit-associations
   - 1-1 relation to corresponding charged particle `edm4eic::TrackSegment`
-    - points to the _same_ `DRICHMergedTrack`, to facillitate merging aerogel and gas PID results
+    - points to the _same_ `DRICHMergedTrack`, to facilitate merging aerogel and gas PID results
 
 ```mermaid
 flowchart TB
@@ -233,7 +233,7 @@ flowchart TB
 ### User-level PID Output
 - Add `edm4hep::ParticleID` objects to `ReconstructedParticle`
   - `edm4hep::ParticleID` objects include a likelihood, PDG (and some index variables and `float` parameters for full generality)
-  - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specifiy the most-likely `edm4hep::ParticleID` object;
+  - Use 1-1 relation `ReconstructedParticle::particleIDUsed` to specify the most-likely `edm4hep::ParticleID` object;
     the diagram below exemplifies this for a pion
   - Use 1-N relation `ReconstructedParticle::particleIDs` to link all the `edm4hep::ParticleID` objects
 - User can then access PDG via:

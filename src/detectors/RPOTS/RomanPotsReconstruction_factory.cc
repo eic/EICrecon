@@ -8,7 +8,6 @@
 #include "RomanPotsReconstruction_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
 
@@ -17,7 +16,7 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Init() {
 
-	std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+	std::string plugin_name = GetPluginName();
 	std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
 
 	auto app = GetApplication();

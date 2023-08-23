@@ -1,10 +1,10 @@
 
 #include "JEventProcessorPODIO.h"
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 #include <JANA/Services/JComponentManager.h>
 #include <podio/Frame.h>
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 #include <algorithm>
 
 
@@ -74,6 +74,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedSeededChargedParticles",
+	    "ReconstructedSeededChargedParticleAssociations",
             "CentralTrackSegments",
 	    "CentralTrackVertices",
             "InclusiveKinematicsDA",
@@ -105,18 +107,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertTruthClusterAssociations",
             "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertClusterAssociations",
-            "EcalBarrelSciGlassRawHits",
-            "EcalBarrelSciGlassRecHits",
-            "EcalBarrelSciGlassClusters",
-            "EcalBarrelSciGlassClusterAssociations",
-            "EcalBarrelSciGlassTruthClusters",
-            "EcalBarrelSciGlassTruthClusterAssociations",
+            "EcalBarrelClusters",
+            "EcalBarrelClusterAssociations",
+            "EcalBarrelTruthClusters",
+            "EcalBarrelTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
             "EcalBarrelImagingClusterAssociations",
-            "EcalBarrelImagingMergedClusters",
-            "EcalBarrelImagingMergedClusterAssociations",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiMergedHits",
