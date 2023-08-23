@@ -17,7 +17,7 @@ namespace eicrecon {
     void ReconstructedJets_factory::Init() {
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(GetPrefix(), "info");
+        InitLogger(GetApplication(), GetPrefix(), "info");
 
         // initialize jet reconstruction algorithm
         m_jet_algo.init(m_log);
@@ -36,33 +36,28 @@ namespace eicrecon {
 
     void ReconstructedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-        // loop over input tags
-        size_t iInput = 0;
-        for (const std::string& input_tag : GetInputTags()) {
+        // grab input collection
+        auto input = event->Get<edm4eic::ReconstructedParticle>(GetInputTags()[0]);
 
-          // grab input collection
-          auto input = event->Get<edm4eic::ReconstructedParticle>(input_tag);
-
-          // extract particle momenta
-          std::vector<const edm4hep::LorentzVectorE*> momenta;
-          for (const auto& particle : input) {
+        // extract particle momenta
+        std::vector<const edm4hep::LorentzVectorE*> momenta;
+        for (const auto& particle : input) {
 
             // TODO: Need to exclude the scattered electron
             const auto& momentum = particle->getMomentum();
             const auto& energy = particle->getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
-          }  // end particle loop
+        }  // end particle loop
 
-          // run algorithm
-          auto rec_jets = m_jet_algo.execute(momenta);
-          for (const auto &momentum : momenta) {
+        // run algorithm
+        auto rec_jets = m_jet_algo.execute(momenta);
+        for (const auto &momentum : momenta) {
             delete momentum;
-          }
+        }
 
-          // set output collection
-          SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[iInput], std::move(rec_jets));
-          ++iInput;
-        }  // end input tag loop
+        // set output collection
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(rec_jets));
+
     }  // end 'Process(shared_ptr<JEvent>)'
 
 }  // eicrecon namespace

@@ -18,7 +18,7 @@ namespace eicrecon {
 
     class ReconstructedJets_factory :
             public JChainMultifactoryT<NoConfig>,
-            public SpdlogMixin<ReconstructedJets_factory> {
+            public SpdlogMixin {
 
     public:
 
@@ -27,9 +27,7 @@ namespace eicrecon {
                                            const std::vector<std::string>& input_tags,
                                            const std::vector<std::string>& output_tags) :
                  JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
-          for (const std::string& output_tag : GetOutputTags()) {
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(output_tag);
-          }
+            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
         }  // end ctor
 
         /** One time initialization **/
