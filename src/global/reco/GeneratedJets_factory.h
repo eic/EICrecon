@@ -8,7 +8,7 @@
 #include <extensions/jana/JChainMultifactoryT.h>
 // event data model definitions
 #include <edm4eic/ReconstructedParticleCollection.h>
-// necessary aglorithms
+// necessary algorithms
 #include "algorithms/reco/JetReconstruction.h"
 
 
