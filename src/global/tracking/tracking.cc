@@ -49,8 +49,8 @@ void InitPlugin(JApplication *app) {
             "ForwardMPGDEndcapRecHits",
             "B0TrackerRecHits"          // B0TRK
         },
-        {"CentralTrackingRecHits"},
-        app));    // Output collection name
+        {"CentralTrackingRecHits"}, // Output collection name
+        app));
 
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
