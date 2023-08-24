@@ -22,6 +22,7 @@
 #include <spdlog/logger.h>
 
 #include <Acts/Definitions/Common.hpp>
+#include "algorithms/interfaces/IObjectProducer.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include <edm4eic/TrackParameters.h>
 #include <edm4hep/MCParticle.h>
