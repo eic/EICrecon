@@ -41,6 +41,9 @@ namespace eicrecon {
         /// Get a configuration to be changed
         eicrecon::TrackerHitReconstructionConfig& getConfig() {return m_cfg;}
 
+        /// Set a configuration
+        eicrecon::TrackerHitReconstructionConfig& applyConfig(eicrecon::TrackerHitReconstructionConfig& cfg) {m_cfg = cfg; return m_cfg;}
+
     private:
         /** configuration parameters **/
         eicrecon::TrackerHitReconstructionConfig m_cfg;
