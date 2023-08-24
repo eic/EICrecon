@@ -5,10 +5,14 @@
 
 #include <JANA/JApplication.h>
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
-#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
+#include "global/digi/SiliconTrackerDigi_factory.h"
+#include "global/tracking/TrackerHitReconstruction_factory.h"
+
+#include "algorithms/digi/SiliconTrackerDigiConfig.h"
+#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
+
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -17,120 +21,74 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "MPGDBarrelRawHits",
-        {"MPGDBarrelHits"},
-        {"MPGDBarrelRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+    SiliconTrackerDigiConfig barrel_digi_default_cfg;
+    barrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    barrel_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDBarrelHits"}, "MPGDBarrelRawHits", barrel_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "MPGDBarrelRecHits",
-        {"MPGDBarrelRawHits"},     // Input data collection tags
-        {"MPGDBarrelRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+    TrackerHitReconstructionConfig tracker_hit_reco_cfg;
+    tracker_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"MPGDBarrelRawHits"},     // Input data collection tags
+            "MPGDBarrelRecHits",    // Output data tag
+             tracker_hit_reco_cfg));           // Hit reco default config for factories
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "MPGDDIRCRawHits",
-        {"MPGDDIRCHits"},
-        {"MPGDDIRCRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+    SiliconTrackerDigiConfig dirc_digi_default_cfg;
+    dirc_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    dirc_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"MPGDDIRCHits"}, "MPGDDIRCRawHits", dirc_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "MPGDDIRCRecHits",
-        {"MPGDDIRCRawHits"},    // Input data collection tags
-        {"MPGDDIRCRecHits"},    // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+    TrackerHitReconstructionConfig dirc_hit_reco_cfg;
+    dirc_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"MPGDDIRCRawHits"},     // Input data collection tags
+            "MPGDDIRCRecHits",   // Output data tag
+            dirc_hit_reco_cfg));          // Hit reco default config for factories
+
+    // Digitization
+    SiliconTrackerDigiConfig outerMPGDbarrel_digi_default_cfg;
+    outerMPGDbarrel_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    outerMPGDbarrel_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"OuterMPGDBarrelHits"}, "OuterMPGDBarrelRawHits", outerMPGDbarrel_digi_default_cfg));
+
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    TrackerHitReconstructionConfig outerMPGDbarrel_hit_reco_cfg;
+    outerMPGDbarrel_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"OuterMPGDBarrelRawHits"},     // Input data collection tags
+            "OuterMPGDBarrelRecHits",   // Output data tag
+            outerMPGDbarrel_hit_reco_cfg));          // Hit reco default config for factories
 
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "OuterMPGDBarrelRawHits",
-        {"OuterMPGDBarrelHits"},
-        {"OuterMPGDBarrelRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+    SiliconTrackerDigiConfig backwardMPGDendcap_digi_default_cfg;
+    backwardMPGDendcap_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    backwardMPGDendcap_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"BackwardMPGDEndcapHits"}, "BackwardMPGDEndcapRawHits", backwardMPGDendcap_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "OuterMPGDBarrelRecHits",
-        {"OuterMPGDBarrelRawHits"},     // Input data collection tags
-        {"OuterMPGDBarrelRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+    TrackerHitReconstructionConfig backwardMPGDendcap_hit_reco_cfg;
+    backwardMPGDendcap_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
+            "BackwardMPGDEndcapRecHits",   // Output data tag
+            backwardMPGDendcap_hit_reco_cfg));          // Hit reco default config for factories
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "BackwardMPGDEndcapRawHits",
-        {"BackwardMPGDEndcapHits"},
-        {"BackwardMPGDEndcapRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+    SiliconTrackerDigiConfig forwardMPGDendcap_digi_default_cfg;
+    forwardMPGDendcap_digi_default_cfg.threshold = 0.25 * dd4hep::keV;
+    forwardMPGDendcap_digi_default_cfg.timeResolution = 10;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"ForwardMPGDEndcapHits"}, "ForwardMPGDEndcapRawHits", forwardMPGDendcap_digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "BackwardMPGDEndcapRecHits",
-        {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
-        {"BackwardMPGDEndcapRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
-
-    // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "ForwardMPGDEndcapRawHits",
-        {"ForwardMPGDEndcapHits"},
-        {"ForwardMPGDEndcapRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
-        },
-        app
-    ));
-
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "ForwardMPGDEndcapRecHits",
-        {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
-        {"ForwardMPGDEndcapRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
-
+    TrackerHitReconstructionConfig forwardMPGDendcap_hit_reco_cfg;
+    forwardMPGDendcap_hit_reco_cfg.time_resolution = 10;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
+            {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
+            "ForwardMPGDEndcapRecHits",   // Output data tag
+            forwardMPGDendcap_hit_reco_cfg));          // Hit reco default config for factories
 }
 } // extern "C"

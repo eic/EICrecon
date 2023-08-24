@@ -4,11 +4,14 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
-#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
+#include "global/digi/SiliconTrackerDigi_factory.h"
+#include "global/tracking/TrackerHitReconstruction_factory.h"
+
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -17,27 +20,15 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-        "B0TrackerRawHits",
-        {"B0TrackerHits"},
-        {"B0TrackerRawHits"},
-        {
-            .threshold = 0 * dd4hep::keV,
-            .timeResolution = 8,
-        },
-        app
-    ));
+    SiliconTrackerDigiConfig digi_default_cfg;
+    digi_default_cfg.threshold = 0 * dd4hep::keV;
+    digi_default_cfg.timeResolution = 8;
+    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"B0TrackerHits"}, "B0TrackerRawHits", digi_default_cfg));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
-        "B0TrackerRecHits",
-        {"B0TrackerRawHits"},
-        {"B0TrackerRecHits"},
-        {
-            .timeResolution = 8,
-        },
-        app
-    ));
+    TrackerHitReconstructionConfig hit_reco_cfg;
+    hit_reco_cfg.time_resolution = 8;
+    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"B0TrackerRawHits"},"B0TrackerRecHits", hit_reco_cfg));
 
 }
 } // extern "C"

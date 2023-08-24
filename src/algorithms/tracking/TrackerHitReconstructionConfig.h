@@ -1,10 +1,11 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Created by Dmitry Romanov
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
 
 #pragma once
 
 namespace eicrecon {
     struct TrackerHitReconstructionConfig {
-        float timeResolution = 10;
+        float time_resolution = 10;
     };
 }
