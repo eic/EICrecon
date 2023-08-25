@@ -51,11 +51,11 @@ SiliconTrackerDigi::process(const edm4hep::SimTrackerHitCollection& sim_hits) {
 
         if (cell_hit_map.count(sim_hit.getCellID()) == 0) {
             // This cell doesn't have hits
-            cell_hit_map[sim_hit.getCellID()] = raw_hits->create(
+            cell_hit_map[sim_hit.getCellID()] = {
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
                 hit_time_stamp  // ns->ps
-            );
+            };
         } else {
             // There is previous values in the cell
             auto& hit = cell_hit_map[sim_hit.getCellID()];
@@ -69,6 +69,10 @@ SiliconTrackerDigi::process(const edm4hep::SimTrackerHitCollection& sim_hits) {
             auto charge = hit.getCharge();
             hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
         }
+    }
+
+    for (auto item : cell_hit_map) {
+        raw_hits->push_back(item.second);
     }
 
     return std::move(raw_hits);
