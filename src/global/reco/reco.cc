@@ -71,6 +71,7 @@ void InitPlugin(JApplication *app) {
          "EcalLumiSpecClusterAssociations",
          },
          "ReconstructedElectrons"
+    ));
 
     app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
              "GeneratedJets",
