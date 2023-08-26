@@ -18,7 +18,9 @@ void TrackerHitReconstruction_factory::Init() {
     auto param_prefix = GetDefaultParameterPrefix();
 
     // Set time resolution
-    app->SetDefaultParameter(param_prefix + ":TimeResolution", m_reco_algo.getConfig().time_resolution, "threshold");
+    auto cfg = GetDefaultConfig();
+    app->SetDefaultParameter(param_prefix + ":TimeResolution", cfg.time_resolution, "threshold");
+    m_reco_algo.applyConfig(cfg);
 
     // Init logger from default or user parameters
     InitLogger(app, param_prefix);

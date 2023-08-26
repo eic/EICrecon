@@ -190,6 +190,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
                 }
             }
         }
+        if (time > m_cfg.capTime) continue;
 
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
