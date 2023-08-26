@@ -43,7 +43,7 @@ namespace eicrecon {
 
       // Only cluster particles within the given pt Range
       if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
-        particles.emplace_back( PseudoJet(mom->px(), mom->py(), mom->pz(), mom->e()) );
+        particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e());
       }
     }
 

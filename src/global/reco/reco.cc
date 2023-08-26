@@ -19,6 +19,7 @@
 #include "InclusiveKinematicsSigma_factory.h"
 #include "GeneratedJets_factory.h"
 #include "ReconstructedJets_factory.h"
+#include "ReconstructedElectrons_factory.h"
 
 //
 extern "C" {
@@ -33,7 +34,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
         { "EcalEndcapNClusters",
-          "EcalBarrelSciFiClusters",
+          "EcalBarrelScFiClusters",
           "EcalEndcapPClusters",
         },
         { "ReconstructedParticles",           // edm4eic::ReconstructedParticle
@@ -60,6 +61,16 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
             {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsSigma"));
+
+    app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
+         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
+         "EcalBarrelScFiClusterAssociations",
+         "EcalEndcapNClusterAssociations",
+         "EcalEndcapPClusterAssociations",
+         "EcalEndcapPInsertClusterAssociations",
+         "EcalLumiSpecClusterAssociations",
+         },
+         "ReconstructedElectrons"
 
     app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
              "GeneratedJets",
