@@ -6,7 +6,7 @@
 #include <JANA/JEvent.h>
 #include <services/log/Log_service.h>
 // event data model definitions
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
 // factory-specific includes
 #include "GeneratedJets_factory.h"
 
