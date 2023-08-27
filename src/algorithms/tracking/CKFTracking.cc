@@ -74,8 +74,36 @@ namespace eicrecon {
     }
 
     std::vector<ActsExamples::Trajectories*> CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                                                                          const ActsExamples::MeasurementContainer &measurements,
-                                                                          const ActsExamples::TrackParametersContainer &init_trk_params) {
+                                                                  const ActsExamples::MeasurementContainer &measurements,
+                                                                  const edm4eic::TrackParametersCollection &init_trk_params) {
+
+        ActsExamples::TrackParametersContainer acts_init_trk_params;
+        for (const auto& track_parameter: init_trk_params) {
+
+            Acts::BoundVector params;
+            params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
+            params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
+            params(Acts::eBoundTheta)  = track_parameter.getTheta();
+            params(Acts::eBoundPhi)    = track_parameter.getPhi();
+            params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
+            params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
+
+            double charge = track_parameter.getCharge();
+
+            Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
+            cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
+            cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
+            cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
+            cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( track_parameter.getMomentumError().yy,2);
+            cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( track_parameter.getMomentumError().zz,2) / (Acts::UnitConstants::GeV*Acts::UnitConstants::GeV);
+            cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( track_parameter.getTimeError(),2)*Acts::UnitConstants::ns*Acts::UnitConstants::ns;
+
+            // Construct a perigee surface as the target surface
+            auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+
+            // Create parameters
+            acts_init_trk_params.emplace_back(pSurface, params, charge, cov);
+        }
 
         //// Prepare the output data with MultiTrajectory
         // TrajectoryContainer trajectories;
@@ -123,9 +151,9 @@ namespace eicrecon {
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
                 extensions, Acts::LoggerWrapper{logger()}, pOptions, &(*pSurface));
 
-        auto results = (*m_trackFinderFunc)(init_trk_params, options);
+        auto results = (*m_trackFinderFunc)(acts_init_trk_params, options);
 
-        for (std::size_t iseed = 0; iseed < init_trk_params.size(); ++iseed) {
+        for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
 
             auto &result = results[iseed];
 
@@ -134,8 +162,8 @@ namespace eicrecon {
                 auto &trackFindingOutput = result.value();
                 // Create a SimMultiTrajectory
                 trajectories.push_back(new ActsExamples::Trajectories(std::move(trackFindingOutput.fittedStates),
-                                                                              std::move(trackFindingOutput.lastMeasurementIndices),
-                                                                              std::move(trackFindingOutput.fittedParameters)));
+                                                                      std::move(trackFindingOutput.lastMeasurementIndices),
+                                                                      std::move(trackFindingOutput.fittedParameters)));
             } else {
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
             }
