@@ -27,7 +27,7 @@ namespace eicrecon {
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection(new edm4eic::ReconstructedParticleCollection());
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
 
     // Skip empty
     if (momenta.empty()) {
@@ -65,7 +65,7 @@ namespace eicrecon {
 
       // Type = 0 for jets, Type = 1 for constituents
       // Use PDG values to match jets and constituents
-      edm4eic::MutableReconstructedParticle jet_output = jet_collection -> create();;
+      edm4eic::MutableReconstructedParticle jet_output = jet_collection->create();
       jet_output.setType(0);
       jet_output.setPDG(i);
       jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));

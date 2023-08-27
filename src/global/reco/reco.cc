@@ -63,24 +63,22 @@ void InitPlugin(JApplication *app) {
             {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsSigma"));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
-         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
-         "EcalBarrelScFiClusterAssociations",
-         "EcalEndcapNClusterAssociations",
-         "EcalEndcapPClusterAssociations",
-         "EcalEndcapPInsertClusterAssociations",
-         "EcalLumiSpecClusterAssociations",
-         },
-         "ReconstructedElectrons"
+        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
+        "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapNClusterAssociations",
+        "EcalEndcapPClusterAssociations",
+        "EcalEndcapPInsertClusterAssociations",
+        "EcalLumiSpecClusterAssociations",
+        },
+        "ReconstructedElectrons"
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
-             "GeneratedJets",
             {"MCParticles"},
             {"GeneratedJets"},
             app
     ));
     app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
-            "ReconstructedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedJets"},
             app

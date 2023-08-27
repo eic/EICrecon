@@ -22,8 +22,7 @@ namespace eicrecon {
     public:
 
         // ctor
-        explicit GeneratedJets_factory(std::string tag,
-                                       const std::vector<std::string>& input_tags,
+        explicit GeneratedJets_factory(const std::vector<std::string>& input_tags,
                                        const std::vector<std::string>& output_tags) :
                  JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
 
@@ -41,7 +40,6 @@ namespace eicrecon {
 
     protected:
 
-        std::vector<std::string> m_input_tags;
         JetReconstruction        m_jet_algo;
 
   };  // end GeneratedJets_factory definition
