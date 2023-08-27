@@ -45,8 +45,7 @@ namespace eicrecon {
 
             // select only final state charged particles
             const bool is_final_state = (particle->getGeneratorStatus() == 1);
-            const bool is_charged = (particle->getCharge() != 0.);
-            if (!is_final_state || !is_charged) continue;
+            if (!is_final_state) continue;
 
             const auto& momentum = particle->getMomentum();
             const auto& energy = particle->getEnergy();
