@@ -81,7 +81,7 @@ namespace eicrecon {
 
         // Type = 0 for jets, Type = 1 for constituents
         // Use PDG values to match jets and constituents
-        edm4eic::MutableReconstructedParticle cst_output = jet_collection -> create();
+        edm4eic::MutableReconstructedParticle cst_output = jet_collection->create();
         cst_output.setType(1);
         cst_output.setPDG(i);
         cst_output.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
