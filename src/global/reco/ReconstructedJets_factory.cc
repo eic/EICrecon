@@ -41,7 +41,7 @@ namespace eicrecon {
 
         // extract particle momenta
         std::vector<const edm4hep::LorentzVectorE*> momenta;
-        for (const auto& particle : input) {
+        for (const auto& particle : *input) {
 
             // TODO: Need to exclude the scattered electron
             const auto& momentum = particle.getMomentum();
