@@ -44,8 +44,8 @@ namespace eicrecon {
         for (const auto& particle : input) {
 
             // TODO: Need to exclude the scattered electron
-            const auto& momentum = particle->getMomentum();
-            const auto& energy = particle->getEnergy();
+            const auto& momentum = particle.getMomentum();
+            const auto& energy = particle.getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
         }  // end particle loop
 

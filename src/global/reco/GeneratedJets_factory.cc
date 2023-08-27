@@ -44,11 +44,11 @@ namespace eicrecon {
         for (const auto& particle : input) {
 
             // select only final state charged particles
-            const bool is_final_state = (particle->getGeneratorStatus() == 1);
+            const bool is_final_state = (particle.getGeneratorStatus() == 1);
             if (!is_final_state) continue;
 
-            const auto& momentum = particle->getMomentum();
-            const auto& energy = particle->getEnergy();
+            const auto& momentum = particle.getMomentum();
+            const auto& energy = particle.getEnergy();
             momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
         }  // end particle loop
 
