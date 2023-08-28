@@ -21,9 +21,6 @@ void eicrecon::CKFTracking_factory::Init() {
     std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
     InitLogger(app, param_prefix, "info");
 
@@ -43,10 +40,6 @@ void eicrecon::CKFTracking_factory::Init() {
     m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
-void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
-}
-
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all inputs
     auto track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
@@ -57,36 +50,8 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         return;
     }
 
-    eicrecon::TrackParametersContainer acts_track_params;
-    for (const auto& track_parameter: *track_parameters) {
-
-        Acts::BoundVector params;
-        params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
-        params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
-        params(Acts::eBoundTheta)  = track_parameter.getTheta();
-        params(Acts::eBoundPhi)    = track_parameter.getPhi();
-        params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
-        params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
-
-        double charge = track_parameter.getCharge();
-
-        Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
-        cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-        cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-        cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
-        cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( track_parameter.getMomentumError().yy,2);
-        cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( track_parameter.getMomentumError().zz,2) / (Acts::UnitConstants::GeV*Acts::UnitConstants::GeV);
-        cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( track_parameter.getTimeError(),2)*Acts::UnitConstants::ns*Acts::UnitConstants::ns;
-
-        // Construct a perigee surface as the target surface
-        auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
-
-        // Create parameters
-        acts_track_params.emplace_back(pSurface, params, charge, cov);
-    }
-
     // Convert vector of source links to a sorted in geometry order container used in tracking
-    eicrecon::IndexSourceLinkContainer source_links;
+    ActsExamples::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
     for(auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,
@@ -110,10 +75,10 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         auto trajectories = m_tracking_algo.process(
                 source_links,
                 *source_linker_result->measurements,
-                acts_track_params);
+                *track_parameters);
 
         // Save the result
-        Set(trajectories);
+        SetData(GetOutputTags()[0], trajectories);
     }
     catch(std::exception &e) {
         throw JException(e.what());

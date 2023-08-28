@@ -14,6 +14,7 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 #include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
 #include "factories/calorimetry/ImagingClusterReco_factoryT.h"
+#include "factories/calorimetry/EnergyPositionClusterMerger_factoryT.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
 
 
@@ -154,10 +155,9 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
+        app->Add(new JChainMultifactoryGeneratorT<EnergyPositionClusterMerger_factoryT>(
           "EcalBarrelClusters",
           {
-            "MCParticles",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
             "EcalBarrelImagingClusters",
@@ -166,6 +166,26 @@ extern "C" {
           {
             "EcalBarrelClusters",
             "EcalBarrelClusterAssociations"
+          },
+          {
+            .energyRelTolerance = 0.5,
+            .phiTolerance = 0.1,
+            .etaTolerance = 0.2,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
+          "EcalBarrelTruthClusters",
+          {
+            "MCParticles",
+            "EcalBarrelScFiClusters",
+            "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelImagingClusters",
+            "EcalBarrelImagingClusterAssociations"
+          },
+          {
+            "EcalBarrelTruthClusters",
+            "EcalBarrelTruthClusterAssociations"
           },
           app   // TODO: Remove me once fixed
         ));

@@ -11,8 +11,8 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
-#include "Utilities/GroupBy.hpp"
-#include "Utilities/Range.hpp"
+#include "../Utilities/GroupBy.hpp"
+#include "../Utilities/Range.hpp"
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 
@@ -21,7 +21,7 @@
 #include <utility>
 
 
-namespace eicrecon {
+namespace ActsExamples {
 namespace detail {
 // extract the geometry identifier from a variety of types
 struct GeometryIdGetter {
@@ -186,4 +186,4 @@ struct GeometryIdMultisetAccessor {
   }
 };
 
-}  // namespace FW
+}  // namespace ActsExamples

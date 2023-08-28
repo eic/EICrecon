@@ -1,6 +1,10 @@
 // Copyright (C) 2022, 2023 Chao Peng, Wouter Deconinck, Sylvester Joosten, Dmitry Kalinkin, David Lawrence
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+// References:
+//   https://cds.cern.ch/record/687345/files/note01_034.pdf
+//   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
+
 #include <vector>
 #include <set>
 
@@ -228,7 +232,7 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::proce
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      dfs_group(hits, groups.back(), i, visits);
+      bfs_group(hits, groups.back(), i, visits);
     }
 
     auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();

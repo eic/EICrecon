@@ -1,6 +1,6 @@
 
 #include "TrackingTest_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include "datamodel_glue.h"
@@ -19,7 +19,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 
-#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
