@@ -194,8 +194,9 @@ namespace eicrecon {
                 // Create trajectory
                 auto trajectory = trajectories->create();
 
-                trajectory.setChi2(trajectoryState.chi2Sum / trajectoryState.NDF);
+                trajectory.setChi2(trajectoryState.chi2Sum);
                 trajectory.setNdf(trajectoryState.NDF);
+                trajectory.setNMeasurements(trajectoryState.nMeasurements);
 
                 // Get the fitted track parameter
                 //
