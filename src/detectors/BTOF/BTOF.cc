@@ -5,14 +5,10 @@
 
 #include <JANA/JApplication.h>
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include "global/digi/SiliconTrackerDigi_factory.h"
-#include "global/tracking/TrackerHitReconstruction_factory.h"
-
-#include "algorithms/digi/SiliconTrackerDigiConfig.h"
-#include "algorithms/tracking/TrackerHitReconstructionConfig.h"
-
+#include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -21,18 +17,27 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    SiliconTrackerDigiConfig digi_default_cfg;
-    digi_default_cfg.threshold = 0 * dd4hep::keV;
-    digi_default_cfg.timeResolution = 0.025;    // [ns]
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TOFBarrelHits"}, "TOFBarrelDigiHit", digi_default_cfg));
+    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+        "TOFBarrelDigiHit",
+        {"TOFBarrelHits"},
+        {"TOFBarrelDigiHit"},
+        {
+            .threshold = 0 * dd4hep::keV,
+            .timeResolution = 0.025,    // [ns]
+        },
+        app
+    ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    TrackerHitReconstructionConfig hit_reco_cfg;
-    hit_reco_cfg.time_resolution = 10;
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>(
-            {"TOFBarrelDigiHit"},    // Input data collection tags
-            "TOFBarrelRecHit",       // Output data tag
-             hit_reco_cfg));         // Hit reco default config for factories
+    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+        "TOFBarrelRecHit",
+        {"TOFBarrelDigiHit"},    // Input data collection tags
+        {"TOFBarrelRecHit"},     // Output data tag
+        {
+            .timeResolution = 10,
+        },
+        app
+    ));         // Hit reco default config for factories
 
 }
 } // extern "C"

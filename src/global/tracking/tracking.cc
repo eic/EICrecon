@@ -11,12 +11,13 @@
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
+#include "factories/tracking/TrackerHitCollector_factory.h"
+
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackingResult_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
-#include "TrackerHitCollector_factory.h"
 #include "TrackerParticleCollector_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackSeeding_factory.h"
@@ -34,22 +35,23 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"}, "InitTrackParams"));
 
     // Tracker hits collector
-    app->Add(new JChainFactoryGeneratorT<TrackerHitCollector_factory>(
-                      {
-                         "SiBarrelTrackerRecHits",          // Si tracker hits
-                         "SiBarrelVertexRecHits",
-                         "SiEndcapTrackerRecHits",
-                         "TOFBarrelRecHit",             // TOF hits
-                         "TOFEndcapRecHits",
-			 "MPGDBarrelRecHits",           // MPGD
-                         "MPGDDIRCRecHits",
-                         "OuterMPGDBarrelRecHits",
-                         "BackwardMPGDEndcapRecHits",
-                         "ForwardMPGDEndcapRecHits",
-                         "B0TrackerRecHits"          // B0TRK
-                      },
-
-                      "CentralTrackingRecHits"));    // Output collection name
+    app->Add(new JChainMultifactoryGeneratorT<TrackerHitCollector_factory>(
+        "CentralTrackingRecHits",
+        {
+            "SiBarrelTrackerRecHits",          // Si tracker hits
+            "SiBarrelVertexRecHits",
+            "SiEndcapTrackerRecHits",
+            "TOFBarrelRecHit",             // TOF hits
+            "TOFEndcapRecHits",
+            "MPGDBarrelRecHits",           // MPGD
+            "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "BackwardMPGDEndcapRecHits",
+            "ForwardMPGDEndcapRecHits",
+            "B0TrackerRecHits"          // B0TRK
+        },
+        {"CentralTrackingRecHits"}, // Output collection name
+        app));
 
     // Source linker
     app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
