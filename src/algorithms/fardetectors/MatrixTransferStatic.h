@@ -14,10 +14,8 @@
 
 
 // Event Model related classes
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MutableReconstructedParticle.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4hep/SimTrackerHit.h>
+#include <edm4eic/ReconstructedParticleCollection.h> 
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/vector_utils.h>
 
 #include "MatrixTransferStaticConfig.h"
@@ -50,7 +48,7 @@ namespace eicrecon {
 
     void init(std::shared_ptr<spdlog::logger> &logger);
 
-    std::vector<edm4eic::ReconstructedParticle*> produce(const std::vector<const edm4hep::SimTrackerHit *>&);    
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::SimTrackerHitCollection &inputhits);    
 
     // Get a configuration to be changed
     eicrecon::MatrixTransferStaticConfig& getConfig() {return m_cfg;}

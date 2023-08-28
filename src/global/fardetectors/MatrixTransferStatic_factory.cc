@@ -3,14 +3,13 @@
 //
 
 #include <JANA/JEvent.h>
-#include "FarDetectorReconstruction_factory.h"
+#include "MatrixTransferStatic_factory.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 
 namespace eicrecon {
 
-    void FarDetectorReconstruction_factory::Init() {
+    void MatrixTransferStatic_factory::Init() {
 
 	auto app = GetApplication();
 
@@ -20,22 +19,23 @@ namespace eicrecon {
 
 	m_geoSvc = app->GetService<JDD4hep_service>();
 
-	if (cfg.detconf.readout.empty()) {
+	m_readout = GetDefaultInputTags()[0];
+
+	if (m_readout.empty()) {
 	  throw JException("Readout is empty");
 	}
 
-	m_readout = GetDefaultInputTags()[0];
 
 	m_geoSvc = app->GetService<JDD4hep_service>();
 
     }
 
 
-    void FarDetectorReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void MatrixTransferStatic_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
     	// Nothing to do here
     }
 
-    void FarDetectorReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void MatrixTransferStatic_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
       auto inputhits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetDefaultInputTags()[0]));
 
@@ -47,4 +47,5 @@ namespace eicrecon {
 	throw JException(e.what());
       }
 
+    }
 }

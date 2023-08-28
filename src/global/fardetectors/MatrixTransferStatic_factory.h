@@ -28,21 +28,15 @@
 
 namespace eicrecon {
 
-    class FarDetectorReconstruction_factory :
-    public JChainFactoryT<edm4eic::ReconstructedParticle, MatrixTransferStaticConfig, JFactoryT>,
-             public SpdlogMixin<FarDetectorReconstruction_factory> {
+    class MatrixTransferStatic_factory :
+    public JChainFactoryT<edm4eic::ReconstructedParticle, MatrixTransferStaticConfig>{
 
     public:
 
-<<<<<<< HEAD:src/global/fardetectors/FarDetectorReconstruction_factory.h
-        explicit FarDetectorReconstruction_factory(const std::vector<std::string> &default_input_tags, MatrixTransferStaticConfig cfg ):
+        explicit MatrixTransferStatic_factory(const std::vector<std::string> &default_input_tags, MatrixTransferStaticConfig cfg ):
 	  JChainFactoryT(std::move(default_input_tags), cfg) {
 	}
 	
-=======
-	RomanPotsReconstruction_factory(); //constructor
-
->>>>>>> origin/main:src/detectors/RPOTS/RomanPotsReconstruction_factory.h
         /** One time initialization **/
         void Init() override;
 

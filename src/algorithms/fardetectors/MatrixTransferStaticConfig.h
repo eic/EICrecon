@@ -8,22 +8,22 @@
 namespace eicrecon {
   struct MatrixTransferStaticConfig {
     
-      float partMass   = .938272;
-      float partCharge = 1;
-      float partPDG    = 2122;
+    float partMass  {0.938272};
+    float partCharge{1};
+    float partPDG   {2122};
 
-      double local_x_offset = 0.0;
-      double local_y_offset = 0.0;
-      double local_x_slope_offset = -0.00622147;
-      double local_y_slope_offset = -0.0451035;
-      double crossingAngle = -0.025;
-      double nomMomentum = 275.0;
+    double local_x_offset      {0.0};
+    double local_y_offset      {0.0};
+    double local_x_slope_offset{-0.00622147};
+    double local_y_slope_offset{-0.0451035};
+    double crossingAngle       {0.025};
+    double nomMomentum         {275.0};
       
-      std::vector<std::vector<double>> aX = {{2.102403743, 29.11067626},
-					      {0.186640381, 0.192604619}};
-      std::vector<std::vector<double>> aY = {{0.0000159900, 3.94082098},
-					      {0.0000079946, -0.1402995}};
-      
+    std::vector<std::vector<double>> aX = {{2.102403743, 29.11067626},
+					   {0.186640381, 0.192604619}};
+    std::vector<std::vector<double>> aY = {{0.0000159900, 3.94082098},
+					   {0.0000079946, -0.1402995}};
+    
 /*       double aX[2][2] = {{2.102403743, 29.11067626}, */
 /* 			 {0.186640381, 0.192604619}}; */
 /*       double aY[2][2] = {{0.0000159900, 3.94082098}, */

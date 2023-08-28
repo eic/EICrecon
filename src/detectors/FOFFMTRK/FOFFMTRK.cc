@@ -8,7 +8,7 @@
 
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 
-#include <global/fardetectors/FarDetectorReconstruction_factory.h>
+#include <global/fardetectors/MatrixTransferStatic_factory.h>
 #include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
 
 
@@ -31,7 +31,7 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_y_slope_offset = -0.0073;   //in mrad
     recon_cfg.nomMomentum          =  137.5;    //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
-    app->Add(new JChainFactoryGeneratorT<FarDetectorReconstruction_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));
+    app->Add(new JChainFactoryGeneratorT<MatrixTransferStatic_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));
 
 }
 }
