@@ -8,10 +8,10 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 // factories
-#include <global/digi/PhotoMultiplierHitDigi_factory.h>
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
 
 // algorithm configurations
-#include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
 
 extern "C" {
