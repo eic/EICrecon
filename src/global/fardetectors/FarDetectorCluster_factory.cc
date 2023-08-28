@@ -72,9 +72,7 @@ namespace eicrecon {
     catch(std::exception &e) {
       throw JException(e.what());
     }
-    
+
   }
 
 }
-
-

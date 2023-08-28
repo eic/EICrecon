@@ -8,12 +8,12 @@
 
 namespace eicrecon {
   struct FarTrackerTrackingConfig {
-    
+
     FarTrackerClusterConfig detconf;
 
     int   layer_hits_max{4};
-    
+
     float chi2_max{4};
-      
+
   };
 }

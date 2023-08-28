@@ -20,7 +20,7 @@
 
 namespace eicrecon {
 
-  class FarDetectorCluster_factory : 
+  class FarDetectorCluster_factory :
   public JChainFactoryT<edm4hep::TrackerHit, FarTrackerClusterConfig>{
 
   public:
@@ -28,22 +28,22 @@ namespace eicrecon {
     explicit FarDetectorCluster_factory(const std::vector<std::string> default_input_tags, FarTrackerClusterConfig cfg):
       JChainFactoryT(std::move(default_input_tags),cfg ) {
     }
-      
-      
+
+
       /** One time initialization **/
       void Init() override;
-      
+
       /** On run change preparations **/
       void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
-      
+
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
-      
+
 
   private:
       std::shared_ptr<spdlog::logger> m_log;              // Logger for this factory
       eicrecon::TrackerClusterGen     m_reco_algo;        // Actual digitisation algorithm
-      
+
       dd4hep::BitFieldCoder *id_dec{nullptr};
       std::shared_ptr<JDD4hep_service> m_geoSvc;
 

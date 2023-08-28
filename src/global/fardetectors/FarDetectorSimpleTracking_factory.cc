@@ -33,7 +33,7 @@ namespace eicrecon {
 	if (cfg.detconf.readout.empty()) {
 	  throw JException("Readout is empty");
 	}
-	
+
 	try {
 	  id_dec = m_geoSvc->detector()->readout(cfg.detconf.readout).idSpec().decoder();
 	  if (!cfg.detconf.moduleField.empty()) {
@@ -58,7 +58,7 @@ namespace eicrecon {
 	}
 	m_reco_algo.setEncoder(id_dec);
 	m_reco_algo.applyConfig(cfg);
-	
+
     }
 
 
@@ -67,7 +67,7 @@ namespace eicrecon {
     }
 
     void FarDetectorSimpleTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    
+
 
         auto inputhits = static_cast<const edm4hep::TrackerHitCollection*>(event->GetCollectionBase(GetDefaultInputTags()[0]));
 

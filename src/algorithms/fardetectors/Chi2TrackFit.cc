@@ -144,10 +144,10 @@ namespace eicrecon {
 		  edm4eic::Cov3f momentumError;
 		  float time      = 0;
 		  float timeError = 0;
-		  float charge    = 0;	
+		  float charge    = 0;
 		  float path      = 0;
 		  float pathError = 0;
-		  
+
  		  edm4eic::TrackParameters outTrack(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
  		  outputTracks->push_back(outTrack);
 
@@ -155,7 +155,7 @@ namespace eicrecon {
 		  edm4hep::Vector3f pos(exitPos.x()*10,exitPos.y()*10,exitPos.z()*10); //Temp unit transform
 		  edm4eic::Cov3f    posError;
 
-		  
+
 		  edm4hep::Vector3f mom(outVec.x(),outVec.y(),outVec.z()); //Temp unit transform
 		  edm4eic::Cov3f    momError;
 

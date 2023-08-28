@@ -60,7 +60,7 @@ extern "C" {
          app
     ));
 
-    
+
     // Clustering of hits
     //    app->Add(new JChainFactoryGeneratorT<LowQ2ProtoCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerProtoClusters" ));
     app->Add(new JChainFactoryGeneratorT<FarDetectorCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerClusterPositions", cluster_cfg));

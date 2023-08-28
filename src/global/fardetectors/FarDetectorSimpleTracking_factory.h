@@ -17,7 +17,7 @@
 
 namespace eicrecon {
 
-    class FarDetectorSimpleTracking_factory : 
+    class FarDetectorSimpleTracking_factory :
     public JChainFactoryT<edm4eic::TrackParameters, FarTrackerTrackingConfig>{
 
     public:

@@ -44,7 +44,7 @@ namespace eicrecon {
   void FarDetectorMLReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     auto inputtracks = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetDefaultInputTags()[0]));
-   
+
     try {
       auto outputTracks = m_reco_algo.produce(*inputtracks);
       SetCollection(std::move(outputTracks));

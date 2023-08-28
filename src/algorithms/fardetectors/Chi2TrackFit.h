@@ -33,13 +33,13 @@ namespace eicrecon {
 
 	// Get bit encoder
 	dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
-    
+
 	// Set bit encoder
 	void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
 
 	// Get a configuration to be changed
 	eicrecon::FarTrackerTrackingConfig& getConfig() {return m_cfg;}
-	
+
 	// Sets a configuration (config is properly copyible)
 	eicrecon::FarTrackerTrackingConfig& applyConfig(eicrecon::FarTrackerTrackingConfig cfg) { m_cfg = cfg; return m_cfg;}
 
@@ -47,7 +47,7 @@ namespace eicrecon {
     private:
 	eicrecon::FarTrackerTrackingConfig m_cfg;
 	dd4hep::BitFieldCoder *m_id_dec{nullptr};
-  
+
 
     };
 
