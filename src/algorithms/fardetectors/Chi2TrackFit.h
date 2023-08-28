@@ -8,6 +8,7 @@
 
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
+//#include <edm4eic/TrackPointCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -28,6 +29,7 @@ namespace eicrecon {
 
 	/** Event by event processing **/
 	std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
+	//std::unique_ptr<edm4eic::TrackPointCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
 
 	// Get bit encoder
 	dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}

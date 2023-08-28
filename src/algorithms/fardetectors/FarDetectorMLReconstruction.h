@@ -8,7 +8,6 @@
 
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
-#include <algorithms/fardetectors/FarDetectorMLReconstruction.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -19,30 +18,28 @@
 
 namespace eicrecon {
 
-  class FarDetectorMLReconstruction_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
+  //  enum FarDetectorMLNNIndex{Energy,Theta,X,Y};
+  enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
+  enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
+
+  class FarDetectorMLReconstruction {
 
   public:
 
-    FarDetectorMLReconstruction_factory( std::vector<std::string> default_input_tags):
-      JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
-    }
-
-      FarDetectorMLReconstruction_factory(); //constructer
+      FarDetectorMLReconstruction() = default; //constructer
 
       /** One time initialization **/
-      void Init() override;
-
-      /** On run change preparations **/
-      void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+      void init();
 
       /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
+      std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4eic::TrackParametersCollection &inputtracks);
 
       //----- Define constants here ------
 
   private:
-      std::shared_ptr<spdlog::logger>       m_log;              // Logger for this factory
-      eicrecon::FarDetectorMLReconstruction m_reco_algo;        // ML reconstruction fitting algorithm
+      TMVA::Reader          m_reader{"!Color:!Silent"};
+      TMVA::MethodBase*     m_method{nullptr};
+      float nnInput[4];
 
       float m_electron_beamE = 10*dd4hep::GeV;
 

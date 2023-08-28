@@ -27,8 +27,10 @@ namespace eicrecon {
     }
 
     std::unique_ptr<edm4eic::TrackParametersCollection> Chi2TrackFit::produce(const edm4hep::TrackerHitCollection &inputhits) {
+      //    std::unique_ptr<edm4eic::TrackPointCollection> Chi2TrackFit::produce(const edm4hep::TrackerHitCollection &inputhits) {
 
         auto outputTracks = std::make_unique<edm4eic::TrackParametersCollection>();
+	//        auto outputTracks = std::make_unique<edm4eic::TrackPointCollection>();
 
 	std::map<int,std::map<int,std::vector<edm4hep::TrackerHit>>> sortedHits;
 
@@ -137,14 +139,29 @@ namespace eicrecon {
 		  edm4eic::Cov2f locError;
 		  float theta = outVec.Unit().Theta();
 		  float phi   = outVec.Unit().Phi();
+		  edm4eic::Cov2f dirError;
 		  float qOverP;
 		  edm4eic::Cov3f momentumError;
 		  float time      = 0;
 		  float timeError = 0;
-		  float charge    = 0;
+		  float charge    = 0;	
+		  float path      = 0;
+		  float pathError = 0;
+		  
+ 		  edm4eic::TrackParameters outTrack(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+ 		  outputTracks->push_back(outTrack);
 
-		  edm4eic::TrackParameters outTrack(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
-		  outputTracks->push_back(outTrack);
+		  // Plane Point
+		  edm4hep::Vector3f pos(exitPos.x()*10,exitPos.y()*10,exitPos.z()*10); //Temp unit transform
+		  edm4eic::Cov3f    posError;
+
+		  
+		  edm4hep::Vector3f mom(outVec.x(),outVec.y(),outVec.z()); //Temp unit transform
+		  edm4eic::Cov3f    momError;
+
+
+// 		  edm4eic::TrackPoint outTrack(pos,posError,mom,momError,time,timeError,theta,phi,dirError,path,pathError);
+// 		  outputTracks->push_back(outTrack);
 
 		}
 	      }

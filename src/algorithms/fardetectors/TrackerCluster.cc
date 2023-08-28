@@ -96,6 +96,7 @@ namespace eicrecon {
 	//auto id   = hit.getCellID();
 	esum += hitE;
 	auto pos = m_cellid_converter->position(id[index]);
+// 	std::cout << pos << std::endl;
 	//Weighted position
 	float weight = hitE; //Check appropriate weighting
 	weightSum += weight;
@@ -112,6 +113,11 @@ namespace eicrecon {
       xPos/=weightSum;
       yPos/=weightSum;
       zPos/=weightSum;
+//       xPos*=10;
+//       yPos*=10;
+//       zPos*=10;
+
+//       std::cout << xPos << " " << yPos << " " << zPos << std::endl << std::endl;
 
       // Finalise time
       t0      = Mean(clusterT);
