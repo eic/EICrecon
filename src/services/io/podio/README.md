@@ -139,7 +139,7 @@ Example: The command below will read in the primary (signal) events from _inputf
 and for each signal event, it will add objects from 3 events from the file _background.root_
 file.
 ~~~
-eicrecon inputfile.root -Ppodio:background_filename=bacground.root -Ppodio:num_background_events=3
+eicrecon inputfile.root -Ppodio:background_filename=background.root -Ppodio:num_background_events=3
 ~~~
 
 *NOTES:*
@@ -153,7 +153,7 @@ background file may be smaller than the number of events in the primary input fi
 events file. This not terribly efficient and will work fine up to about
 _num_background_events_ <= 10. For values much larger than that, you
 
-### Techincal notes
+### Technical notes
 
 
 * This uses a code generator to generate some routines that can take a class name

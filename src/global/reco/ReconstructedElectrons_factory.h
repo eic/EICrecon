@@ -4,22 +4,22 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainFactoryT.h>
+#include "extensions/jana/JChainFactoryT.h"
 #include <JANA/JEvent.h>
 
 // algorithms
-#include <algorithms/reco/ElectronReconstruction.h>
+#include "algorithms/reco/ElectronReconstruction.h"
 
 // services
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
   class ReconstructedElectrons_factory :
     public JChainFactoryT<edm4eic::ReconstructedParticle>,
-    public SpdlogMixin<ReconstructedElectrons_factory>
+    public SpdlogMixin
   {
 
     public:
@@ -37,7 +37,7 @@ namespace eicrecon {
         InitDataTags(prefix);
 
         // services
-        InitLogger(prefix, "info");
+        InitLogger(app, prefix, "info");
         m_algo.init(m_log);
       }
 

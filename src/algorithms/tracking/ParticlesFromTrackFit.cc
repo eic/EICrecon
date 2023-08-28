@@ -2,26 +2,26 @@
 #include <algorithm>
 
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
 
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/TrackerHitCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
 
 
-#include "Acts/Utilities/Helpers.hpp"
+#include <Acts/Utilities/Helpers.hpp>
 
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 
 #include <cmath>
 
@@ -29,10 +29,9 @@ void eicrecon::Reco::ParticlesFromTrackFit::init(std::shared_ptr<spdlog::logger>
     m_log = log;
 }
 
-ParticlesFromTrackFitResultNew eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const eicrecon::TrackingResultTrajectory *> &trajectories) {
+std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::Reco::ParticlesFromTrackFit::execute(const std::vector<const ActsExamples::Trajectories *> &trajectories) {
 
-    // create output collections
-    auto rec_parts = std::make_unique<edm4eic::ReconstructedParticleCollection >();
+    // create output collection
     auto track_pars = std::make_unique<edm4eic::TrackParametersCollection>();
 
     m_log->debug("Trajectories size: {}", std::size(trajectories));
@@ -107,35 +106,7 @@ ParticlesFromTrackFitResultNew eicrecon::Reco::ParticlesFromTrackFit::execute(co
             track_pars->push_back(pars);
         }
 
-        auto tsize = trackTips.size();
-        m_log->debug("# fitted parameters : {}", tsize);
-
-        if (tsize == 0) {
-            continue;
-        }
-
-        mj.visitBackwards(tsize - 1, [&](auto&& trackstate) {
-            // debug() << trackstate.hasPredicted() << endmsg;
-            // debug() << trackstate.predicted() << endmsg;
-            auto params = trackstate.predicted(); //<< endmsg;
-
-            double p0 = (1.0 / params[Acts::eBoundQOverP]) / Acts::UnitConstants::GeV;
-            m_log->debug("track predicted p = {} GeV", p0);
-            if (std::abs(p0) > 500) {
-                m_log->debug("skipping!");
-                return;
-            }
-
-            auto rec_part = rec_parts->create();
-            rec_part.setMomentum(
-                    edm4eic::sphericalToVector(
-                            1.0 / std::abs(params[Acts::eBoundQOverP]),
-                            params[Acts::eBoundTheta],
-                            params[Acts::eBoundPhi])
-            );
-            rec_part.setCharge(static_cast<int16_t>(std::copysign(1., params[Acts::eBoundQOverP])));
-        });
     }
 
-    return std::make_pair(std::move(rec_parts), std::move(track_pars));
+    return std::move(track_pars);
 }

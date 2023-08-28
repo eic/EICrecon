@@ -36,4 +36,5 @@ private:
     std::recursive_mutex m_lock;
     JApplication* m_application;
     std::string m_log_level_str;
+    std::string m_log_format_str;
 };

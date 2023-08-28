@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -26,7 +26,7 @@
 #include <functional>
 
 #include "PhotoMultiplierHitDigiConfig.h"
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

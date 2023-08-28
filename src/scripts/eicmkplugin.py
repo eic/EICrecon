@@ -52,7 +52,7 @@ processor_sequentialroot_header_template = """
 
 // Include appropirate class headers. e.g.
 // #include <edm4hep/SimCalorimeterHit.h>
-// #include <detectors/BEMC/BEMCRawCalorimeterHit.h>
+// #include "detectors/BEMC/BEMCRawCalorimeterHit.h"
 
 
 class {0}: public JEventProcessorSequentialRoot {{
@@ -81,7 +81,7 @@ processor_sequentialroot_implementation_template = """
 //
 
 #include "{0}.h"
-#include <services/rootfile/RootFile_service.h>
+#include "services/rootfile/RootFile_service.h"
 
 
 // The following just makes this a JANA plugin

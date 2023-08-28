@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "Math/Vector4D.h"
+#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
 
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <set>
 namespace eicrecon {
 

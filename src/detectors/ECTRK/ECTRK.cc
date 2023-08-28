@@ -5,11 +5,10 @@
 
 #include <JANA/JApplication.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <global/digi/SiliconTrackerDigi_factory.h>
-#include <global/tracking/TrackerHitReconstruction_factory.h>
-
+#include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -18,10 +17,22 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({"TrackerEndcapHits"}, "EndcapTrackerDigiHit"));
+    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+        "EndcapTrackerDigiHit",
+        {"TrackerEndcapHits"},
+        {"EndcapTrackerDigiHit"},
+        {}, // default config
+        app
+    ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainFactoryGeneratorT<TrackerHitReconstruction_factory>({"EndcapTrackerDigiHit"},"SiEndcapTrackerRecHits"));
+    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+        "SiEndcapTrackerRecHits",
+        {"EndcapTrackerDigiHit"},
+        {"SiEndcapTrackerRecHits"},
+        {}, // default config
+        app
+    ));
 
 }
 } // extern "C"

@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include <extensions/jana/JChainFactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
 
 #include <global/fardetectors/FarDetectorReconstruction_factory.h>
 #include <algorithms/fardetectors/MatrixTransferStaticConfig.h>

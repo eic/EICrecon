@@ -12,7 +12,7 @@
 // EICrecon
 #include "MergeParticleIDConfig.h"
 #include "Tools.h"
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {

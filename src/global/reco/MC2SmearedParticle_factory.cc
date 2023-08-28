@@ -17,7 +17,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // Logger. Get plugin level sub-log
-        InitLogger(param_prefix, "info");
+        InitLogger(app, param_prefix, "info");
 
         // Initialize digitization algorithm
         m_smearing_algo.init(m_log);

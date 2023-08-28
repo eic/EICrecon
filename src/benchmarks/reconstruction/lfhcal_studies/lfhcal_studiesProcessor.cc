@@ -6,37 +6,37 @@
 
 
 #include "lfhcal_studiesProcessor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
-#include "edm4eic/vector_utils.h"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+#include <edm4eic/vector_utils.h>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <services/rootfile/RootFile_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/rootfile/RootFile_service.h"
 #include <spdlog/spdlog.h>
 
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <services/log/Log_service.h>
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
-#include "DD4hep/DetElement.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/Objects.h"
-#include "DDG4/Geant4Data.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <DDG4/Geant4Data.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TVector3.h"
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TVector3.h>
 
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 
 #include "clusterizer_MA.h"
 
@@ -282,7 +282,6 @@ void lfhcal_studiesProcessor::Init() {
 //******************************************************************************************
 void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void lfhcal_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  using namespace std;
 
   // ===============================================================================================
   // process MC particles

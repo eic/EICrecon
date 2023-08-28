@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/reco/InclusiveKinematicseSigma.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "algorithms/reco/InclusiveKinematicseSigma.h"
 
 namespace eicrecon {
 
     class InclusiveKinematicseSigma_factory :
             public JChainFactoryT<edm4eic::InclusiveKinematics>,
-            public SpdlogMixin<InclusiveKinematicseSigma_factory> {
+            public SpdlogMixin {
 
     public:
         explicit InclusiveKinematicseSigma_factory(std::vector<std::string> default_input_tags):

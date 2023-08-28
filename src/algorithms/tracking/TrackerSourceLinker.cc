@@ -6,17 +6,17 @@
 #include "TrackerSourceLinker.h"
 #include "TrackerSourceLinkerResult.h"
 
-#include "DD4hep/DD4hepUnits.h"
-#include "DD4hep/Volumes.h"
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/Surface.h"
-#include "DDRec/SurfaceManager.h"
+#include <DD4hep/DD4hepUnits.h>
+#include <DD4hep/Volumes.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/Surface.h>
+#include <DDRec/SurfaceManager.h>
 
-#include "Acts/Definitions/Common.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>
@@ -43,9 +43,9 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
     auto hits = trk_hits;
 
     // Create output collections
-    std::list<eicrecon::IndexSourceLink> linkStorage;
-    auto sourceLinks = std::vector<std::shared_ptr<eicrecon::IndexSourceLink>>();
-    auto measurements = std::make_shared<eicrecon::MeasurementContainer>();
+    std::list<ActsExamples::IndexSourceLink> linkStorage;
+    auto sourceLinks = std::vector<std::shared_ptr<ActsExamples::IndexSourceLink>>();
+    auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
     m_log->debug("Hits size: {}  measurements->size: {}", trk_hits.size(), measurements->size());
 
@@ -121,7 +121,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
 
 
         // Create source links
-        auto sourceLink = std::make_shared<eicrecon::IndexSourceLink>(surface->geometryId(), hit_index);
+        auto sourceLink = std::make_shared<ActsExamples::IndexSourceLink>(surface->geometryId(), hit_index);
         sourceLinks.emplace_back(sourceLink);
 
         auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);

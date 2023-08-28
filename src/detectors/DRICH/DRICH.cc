@@ -3,21 +3,21 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 // factories
-#include <global/digi/PhotoMultiplierHitDigi_factory.h>
-#include <global/pid/RichTrack_factory.h>
-#include <global/pid/MergeTrack_factory.h>
-#include <global/pid/IrtCherenkovParticleID_factory.h>
-#include <global/pid/MergeCherenkovParticleID_factory.h>
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "global/pid/RichTrack_factory.h"
+#include "global/pid/MergeTrack_factory.h"
+#include "global/pid/IrtCherenkovParticleID_factory.h"
+#include "global/pid/MergeCherenkovParticleID_factory.h"
 
 // algorithm configurations
-#include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
-#include <global/pid/RichTrackConfig.h>
-#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
-#include <algorithms/pid/MergeParticleIDConfig.h>
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "global/pid/RichTrackConfig.h"
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "algorithms/pid/MergeParticleIDConfig.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
