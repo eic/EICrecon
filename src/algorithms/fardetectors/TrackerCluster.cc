@@ -20,6 +20,7 @@ namespace eicrecon {
   std::unique_ptr<edm4hep::TrackerHitCollection> TrackerClusterGen::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
+    ROOT::VecOps::RVec<long>  id;
     ROOT::VecOps::RVec<int>   module;
     ROOT::VecOps::RVec<int>   layer;
     ROOT::VecOps::RVec<int>   x;
@@ -30,6 +31,7 @@ namespace eicrecon {
     // Gather detector id positions
     for(auto hit: inputhits){
       auto cellID = hit.getCellID();
+      id.push_back    (cellID);
       module.push_back(m_id_dec->get( cellID, m_cfg.module_idx ));
       layer.push_back (m_id_dec->get( cellID, m_cfg.layer_idx  ));
       x.push_back     (m_id_dec->get( cellID, m_cfg.x_idx      ));
@@ -93,13 +95,13 @@ namespace eicrecon {
 	auto hitE = e[index];
 	//auto id   = hit.getCellID();
 	esum += hitE;
-
+	auto pos = m_cellid_converter->position(id[index]);
 	//Weighted position
 	float weight = hitE; //Check appropriate weighting
 	weightSum += weight;
-	xPos += xPos*weight;
-	yPos += yPos*weight;
-	zPos += zPos*weight;
+	xPos += pos.x()*weight;
+	yPos += pos.y()*weight;
+	zPos += pos.z()*weight;
 
 	//Time
 	clusterT.push_back(t[index]);
@@ -115,6 +117,7 @@ namespace eicrecon {
       t0      = Mean(clusterT);
       tError  = StdDev(clusterT);
 
+      cluster.setCellID  (id[maxIndex]);
       cluster.setPosition(edm4hep::Vector3d(xPos,yPos,zPos));
       cluster.setEDep    (esum);
       cluster.setTime    (t0);
