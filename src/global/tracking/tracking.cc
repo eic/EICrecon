@@ -93,9 +93,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFActsTrajectories"},                          // edm4eic::TrackParameters
+            "CentralCKFTrajectories"},                         // edm4eic::Trajectory
             {"ReconstructedChargedParticles",                  //
-             "ReconstructedChargedParticleAssociations"       // edm4eic::MCRecoParticleAssociation
+             "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
             },
             app  // TODO: Remove me once fixed
             ));
@@ -103,7 +103,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFSeededActsTrajectories"},                    // edm4eic::TrackParameters
+            "CentralCKFSeededTrajectories"},                   // edm4eic::Trajectory
             {"ReconstructedSeededChargedParticles",            //
              "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
             },
