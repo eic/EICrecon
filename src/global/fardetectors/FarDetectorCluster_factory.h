@@ -11,7 +11,7 @@
 #include <edm4hep/TrackerHitCollection.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <algorithms/fardetectors/TrackerCluster.h>
-#include <algorithms/fardetectors/TrackerClusterConfig.h>
+#include <algorithms/fardetectors/FarTrackerClusterConfig.h>
 
 //#include <extensions/jana/JChainMultifactoryT.h>
 #include <extensions/jana/JChainFactoryT.h>
@@ -21,11 +21,11 @@
 namespace eicrecon {
 
   class FarDetectorCluster_factory : 
-  public JChainFactoryT<edm4hep::TrackerHit, TrackerClusterConfig>{
+  public JChainFactoryT<edm4hep::TrackerHit, FarTrackerClusterConfig>{
 
   public:
 
-    explicit FarDetectorCluster_factory(const std::vector<std::string> default_input_tags, TrackerClusterConfig cfg):
+    explicit FarDetectorCluster_factory(const std::vector<std::string> default_input_tags, FarTrackerClusterConfig cfg):
       JChainFactoryT(std::move(default_input_tags),cfg ) {
     }
       

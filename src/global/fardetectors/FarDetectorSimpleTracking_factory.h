@@ -8,6 +8,8 @@
 
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
+#include <algorithms/fardetectors/Chi2TrackFit.h>
+#include <algorithms/fardetectors/FarTrackerTrackingConfig.h>
 
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
@@ -15,15 +17,14 @@
 
 namespace eicrecon {
 
-    class FarDetectorSimpleTracking_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
+    class FarDetectorSimpleTracking_factory : 
+    public JChainFactoryT<edm4eic::TrackParameters, FarTrackerTrackingConfig>{
 
     public:
 
-        FarDetectorSimpleTracking_factory( std::vector<std::string> default_input_tags):
-                JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
-        }
-
-        FarDetectorSimpleTracking_factory(); //constructer
+      explicit FarDetectorSimpleTracking_factory( std::vector<std::string> default_input_tags, FarTrackerTrackingConfig cfg):
+	JChainFactoryT(std::move(default_input_tags),cfg ) {
+      }
 
         /** One time initialization **/
         void Init() override;
@@ -34,8 +35,12 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
-	private:
-		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+    private:
+	std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
+	eicrecon::Chi2TrackFit          m_reco_algo;        // Actual digitisation algorithm
+
+	dd4hep::BitFieldCoder *id_dec{nullptr};
+	std::shared_ptr<JDD4hep_service> m_geoSvc;
 
     };
 

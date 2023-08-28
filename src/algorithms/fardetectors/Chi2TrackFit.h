@@ -12,32 +12,40 @@
 #include <extensions/jana/JChainFactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "FarTrackerTrackingConfig.h"
 
 namespace eicrecon {
 
-    class LowQ2Tracking_factory : public JChainFactoryT<edm4eic::TrackParameters, NoConfig>{
+    class Chi2TrackFit {
 
     public:
 
-        LowQ2Tracking_factory( std::vector<std::string> default_input_tags):
-                JChainFactoryT<edm4eic::TrackParameters, NoConfig>(std::move(default_input_tags) ) {
-        }
+        Chi2TrackFit() = default; //constructer
 
-        LowQ2Tracking_factory(); //constructer
+	/** One time initialization **/
+	void init();
 
-        /** One time initialization **/
-        void Init() override;
+	/** Event by event processing **/
+	std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
 
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+	// Get bit encoder
+	dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
+    
+	// Set bit encoder
+	void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+	// Get a configuration to be changed
+	eicrecon::FarTrackerTrackingConfig& getConfig() {return m_cfg;}
+	
+	// Sets a configuration (config is properly copyible)
+	eicrecon::FarTrackerTrackingConfig& applyConfig(eicrecon::FarTrackerTrackingConfig cfg) { m_cfg = cfg; return m_cfg;}
 
-	private:
-		std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-		std::string m_input_tag  = "TaggerTrackerClusterPositions";
-		std::string m_output_tag = "LowQ2Tracks";
+
+    private:
+	eicrecon::FarTrackerTrackingConfig m_cfg;
+	dd4hep::BitFieldCoder *m_id_dec{nullptr};
+  
 
     };
 

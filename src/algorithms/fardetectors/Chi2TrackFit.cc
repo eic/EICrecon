@@ -9,44 +9,34 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 
-#include "LowQ2Tracking_factory.h"
-//#include "LowQ2Cluster_factory.h"
+#include "Chi2TrackFit.h"
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <ROOT/RVec.hxx>
 #include <TDecompSVD.h>
 #include <TMatrixD.h>
+#include <Math/Point3D.h>
+#include <Math/Vector3D.h>
 
 
 namespace eicrecon {
 
 
-    void LowQ2Tracking_factory::Init() {
-
-	auto app = GetApplication();
-
-	m_log = app->GetService<Log_service>()->logger(m_output_tag);
+    void Chi2TrackFit::init() {
 
     }
 
+    std::unique_ptr<edm4eic::TrackParametersCollection> Chi2TrackFit::produce(const edm4hep::TrackerHitCollection &inputhits) {
 
-    void LowQ2Tracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-    	// Nothing to do here
-    }
+        auto outputTracks = std::make_unique<edm4eic::TrackParametersCollection>();
 
-    void LowQ2Tracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
-
-	std::vector<edm4eic::TrackParameters*> outputTracks;
-
-	auto inputhits = event->Get<edm4hep::TrackerHit>(m_input_tag);
-
-	std::map<int,std::map<int,std::vector<eicrecon::TrackerClusterPoint>>> sortedHits;
+	std::map<int,std::map<int,std::vector<edm4hep::TrackerHit>>> sortedHits;
 
 	// Sort the hits by module and layer
 	for(auto hit: inputhits){
-	  auto module = hit->pCluster->module;
-	  auto layer  = hit->pCluster->layer;
-	  sortedHits[module][layer].push_back(*hit);
+	  auto module = m_id_dec->get(hit.getCellID(),m_cfg.detconf.module_idx);
+	  auto layer  = m_id_dec->get(hit.getCellID(),m_cfg.detconf.layer_idx);
+	  sortedHits[module][layer].push_back(hit);
 	}
 
 	// Loop over module
@@ -79,22 +69,22 @@ namespace eicrecon {
 	  // Loop over hits in every layer
 	  // TODO - Implement more sensible solution
 	  for ( auto hit0c : moduleHits.second[0] ) {
-	    auto hit0 = ROOT::Math::XYZVector(hit0c.position.x,hit0c.position.y,hit0c.position.z);
+	    auto hit0 = ROOT::Math::XYZVector(hit0c.getPosition().x,hit0c.getPosition().y,hit0c.getPosition().z);
 	    x[0] = hit0.x()*layerWeights[0];
 	    y[0] = hit0.y()*layerWeights[0];
 	    z[0] = hit0.z()*layerWeights[0];
 	    for ( auto hit1c : moduleHits.second[1] ) {
-	      auto hit1 = ROOT::Math::XYZVector(hit1c.position.x,hit1c.position.y,hit1c.position.z);
+	      auto hit1 = ROOT::Math::XYZVector(hit1c.getPosition().x,hit1c.getPosition().y,hit1c.getPosition().z);
 	      x[1] = hit1.x()*layerWeights[1];
 	      y[1] = hit1.y()*layerWeights[1];
 	      z[1] = hit1.z()*layerWeights[1];
 	      for ( auto hit2c : moduleHits.second[2] ) {
-		auto hit2 = ROOT::Math::XYZVector(hit2c.position.x,hit2c.position.y,hit2c.position.z);
+		auto hit2 = ROOT::Math::XYZVector(hit2c.getPosition().x,hit2c.getPosition().y,hit2c.getPosition().z);
 		x[2] = hit2.x()*layerWeights[2];
 		y[2] = hit2.y()*layerWeights[2];
 		z[2] = hit2.z()*layerWeights[2];
 		for ( auto hit3c : moduleHits.second[3] ) {
-		  auto hit3 = ROOT::Math::XYZVector(hit3c.position.x,hit3c.position.y,hit3c.position.z);
+		  auto hit3 = ROOT::Math::XYZVector(hit3c.getPosition().x,hit3c.getPosition().y,hit3c.getPosition().z);
 		  x[3] = hit3.x()*layerWeights[3];
 		  y[3] = hit3.y()*layerWeights[3];
 		  z[3] = hit3.z()*layerWeights[3];
@@ -135,7 +125,7 @@ namespace eicrecon {
 		  // Make sure fit was pointing in the right direction
 		  if(outVec.Z()>0) outVec*=-1;
 
-		  //Position vector crosses x axis, swap to z exit later
+		  //position vector crosses x axis, swap to z exit later
 		  auto exitPos = outPos-(outPos.x()/outVec.x())*outVec;
 
 		  // Create track parameters edm4eic structure
@@ -153,9 +143,8 @@ namespace eicrecon {
 		  float timeError = 0;
 		  float charge    = 0;
 
-		  edm4eic::TrackParameters* outTrack =
-		    new edm4eic::TrackParameters(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
-		  outputTracks.push_back(outTrack);
+		  edm4eic::TrackParameters outTrack(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+		  outputTracks->push_back(outTrack);
 
 		}
 	      }
@@ -165,7 +154,7 @@ namespace eicrecon {
 
 	}
 
-	Set(outputTracks);
+	return outputTracks;
 
     }
 

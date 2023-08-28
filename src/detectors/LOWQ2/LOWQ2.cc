@@ -39,9 +39,12 @@ extern "C" {
     //digi_cfg.timeResolution = 2.5; // Change timing resolution.
 
     //Clustering config
-    TrackerClusterConfig cluster_cfg;
+    FarTrackerClusterConfig cluster_cfg;
     //Ensure same detector is passed to digi and clustering
     cluster_cfg.readout = "TaggerTrackerHits";
+
+    FarTrackerTrackingConfig tracking_cfg;
+    tracking_cfg.detconf = cluster_cfg;
 
     //Why isn't there the same for energy digitization, just std::llround(sim_hit->getEDep() * 1e6)? Whole Digi process isn't quite consistent.
     app->Add(new JChainFactoryGeneratorT<SiliconTrackerDigi_factory>({cluster_cfg.readout},      "TaggerTrackerRawHit", digi_cfg));
@@ -56,7 +59,7 @@ extern "C" {
     //    app->Add(new JChainFactoryGeneratorT<LowQ2Cluster_factory>({"TaggerTrackerProtoClusters"}, "TaggerTrackerClusterPositions"));
 
     // Very basic reconstrution of a single track
-    app->Add(new JChainFactoryGeneratorT<FarDetectorSimpleTracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks"));
+    app->Add(new JChainFactoryGeneratorT<FarDetectorSimpleTracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks", tracking_cfg));
 
     // Initial particle reconstruction
     app->Add(new JChainFactoryGeneratorT<FarDetectorMLReconstruction_factory>({"LowQ2Tracks"},"LowQ2Particles"));

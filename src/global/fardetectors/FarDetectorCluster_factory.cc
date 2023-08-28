@@ -65,14 +65,14 @@ namespace eicrecon {
 
     auto inputhits  = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetDefaultInputTags()[0]));
 
-  try {
-    auto outputclusters = m_reco_algo.produce(*inputhits);
-    SetCollection(std::move(outputclusters));
-  }
-  catch(std::exception &e) {
-    throw JException(e.what());
-  }
-
+    try {
+      auto outputclusters = m_reco_algo.produce(*inputhits);
+      SetCollection(std::move(outputclusters));
+    }
+    catch(std::exception &e) {
+      throw JException(e.what());
+    }
+    
   }
 
 }

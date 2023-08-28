@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
-  struct TrackerClusterConfig {
+  struct FarTrackerClusterConfig {
 
     std::string readout{""};
     std::string moduleField{"module"};
@@ -18,6 +18,9 @@ namespace eicrecon {
     int layer_idx{0};
     int x_idx{0};
     int y_idx{0};
+
+    int n_module{2};
+    int n_layer{4};
       
   };
 }

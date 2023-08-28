@@ -4,12 +4,12 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+#include "FarTrackerClusterConfig.h"
 
 namespace eicrecon {
-  struct FarTrackerClusterConfig {
+  struct FarTrackerTrackingConfig {
     
-    int   n_module{2};
-    int   n_layer{4};
+    FarTrackerClusterConfig detconf;
 
     int   layer_hits_max{4};
     

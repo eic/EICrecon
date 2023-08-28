@@ -17,7 +17,7 @@
 #include <spdlog/logger.h>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include "TrackerClusterConfig.h"
+#include "FarTrackerClusterConfig.h"
 
 namespace eicrecon {
 
@@ -47,13 +47,13 @@ namespace eicrecon {
     void setGeoConverter(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv) {m_cellid_converter=id_conv;}
 
     // Get a configuration to be changed
-    eicrecon::TrackerClusterConfig& getConfig() {return m_cfg;}
+    eicrecon::FarTrackerClusterConfig& getConfig() {return m_cfg;}
     
     // Sets a configuration (config is properly copyible)
-    eicrecon::TrackerClusterConfig& applyConfig(eicrecon::TrackerClusterConfig cfg) { m_cfg = cfg; return m_cfg;}
+    eicrecon::FarTrackerClusterConfig& applyConfig(eicrecon::FarTrackerClusterConfig cfg) { m_cfg = cfg; return m_cfg;}
 
   private:
-      eicrecon::TrackerClusterConfig m_cfg;
+      eicrecon::FarTrackerClusterConfig m_cfg;
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 	
       dd4hep::BitFieldCoder *m_id_dec{nullptr};
