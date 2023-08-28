@@ -75,6 +75,7 @@ namespace eicrecon {
 
         std::tuple<
             std::unique_ptr<edm4eic::TrajectoryCollection>,
+            std::unique_ptr<edm4eic::TrackParametersCollection>,
             std::vector<ActsExamples::Trajectories*>
         >
         process(const ActsExamples::IndexSourceLinkContainer &src_links,

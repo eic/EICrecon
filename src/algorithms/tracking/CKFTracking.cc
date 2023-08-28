@@ -81,6 +81,7 @@ namespace eicrecon {
 
     std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
+        std::unique_ptr<edm4eic::TrackParametersCollection>,
         std::vector<ActsExamples::Trajectories*>
     >
     CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
@@ -116,6 +117,8 @@ namespace eicrecon {
         }
 
         auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
+        auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
+
         std::vector<ActsExamples::Trajectories*> acts_trajectories;
         acts_trajectories.reserve(init_trk_params.size());
 
@@ -206,7 +209,7 @@ namespace eicrecon {
                     const auto& parameter  = boundParam.parameters();
                     const auto& covariance = *boundParam.covariance();
 
-                    edm4eic::TrackParameters pars{
+                    edm4eic::MutableTrackParameters pars{
                         0, // type: track head --> 0
                         {
                             static_cast<float>(parameter[Acts::eBoundLoc0]),
@@ -232,6 +235,7 @@ namespace eicrecon {
                         sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))),
                         static_cast<float>(boundParam.charge())};
 
+                    track_parameters->push_back(pars);
                     trajectory.addToTrackParameters(pars);
                 }
 
@@ -245,7 +249,7 @@ namespace eicrecon {
 
         }
 
-        return std::make_tuple(std::move(trajectories), std::move(acts_trajectories));
+        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories));
     }
 
 } // namespace eicrecon

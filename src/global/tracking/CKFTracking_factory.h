@@ -31,7 +31,8 @@ namespace eicrecon {
         : JChainMultifactoryT<CKFTrackingConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
             DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
-            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[1]);
+            DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
+            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
 
         }
 

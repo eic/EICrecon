@@ -42,7 +42,7 @@ void eicrecon::CKFTracking_factory::Init() {
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all inputs
-    auto track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto seed_track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
     auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(GetInputTags()[1]);
 
     if(!source_linker_result) {
@@ -72,14 +72,15 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     try {
         // RUN TRACKING ALGORITHM
-        auto [trajectories, acts_trajectories] = m_tracking_algo.process(
+        auto [trajectories, track_parameters, acts_trajectories] = m_tracking_algo.process(
                 source_links,
                 *source_linker_result->measurements,
-                *track_parameters);
+                *seed_track_parameters);
 
         // Save the result
         SetCollection<edm4eic::Trajectory>(GetOutputTags()[0], std::move(trajectories));
-        SetData<ActsExamples::Trajectories>(GetOutputTags()[1], std::move(acts_trajectories));
+        SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(track_parameters));
+        SetData<ActsExamples::Trajectories>(GetOutputTags()[2], std::move(acts_trajectories));
     }
     catch(std::exception &e) {
         throw JException(e.what());
