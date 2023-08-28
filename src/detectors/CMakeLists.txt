@@ -22,3 +22,4 @@ add_subdirectory(LUMISPECCAL)  # Lumi spectrometer calorimeter
 
 # PID detectors
 add_subdirectory(DRICH)
+add_subdirectory(DIRC)
