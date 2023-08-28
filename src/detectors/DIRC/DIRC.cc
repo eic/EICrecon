@@ -5,8 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 // factories
 #include <global/digi/PhotoMultiplierHitDigi_factory.h>
@@ -38,8 +37,7 @@ extern "C" {
     digi_cfg.safetyFactor    = 1.0;
     digi_cfg.quantumEfficiency.clear();
 
-    double wavelength[250];
-    double sensor_qe[250] = {
+    std::vector<double> sensor_qe{
       0,    0,    14.0, 14.8, 14.5, 14.9, 14.4, 14.2, 13.9, 14.6, 15.2, 15.7, 16.4, 16.9, 17.5,
       17.7, 18.1, 18.8, 19.3, 19.8, 20.6, 21.4, 22.4, 23.1, 23.6, 24.1, 24.2, 24.6, 24.8, 25.2,
       25.7, 26.5, 27.1, 28.2, 29.0, 29.9, 30.8, 31.1, 31.7, 31.8, 31.6, 31.5, 31.5, 31.3, 31.0,
@@ -58,10 +56,10 @@ extern "C" {
       1.8,  1.6,  1.5,  1.5,  1.6,  1.8,  1.9,  1.4,  0.8,  0.9,  0.8,  0.7,  0.6,  0.3,  0.3,
       0.5,  0.3,  0.4,  0.3,  0.1,  0.2,  0.1,  0.2,  0.3,  0.0};
 
-    for(int i=0; i < 250; i++)
+    for(size_t i=0; i < sensor_qe.size(); i++)
       {
-	wavelength[i] = 180 + i * 2; // wavelength units are [nm]
-	digi_cfg.quantumEfficiency.push_back({wavelength[i], sensor_qe[i]*0.01});
+	double wavelength = 180 + i * 2; // wavelength units are [nm]
+	digi_cfg.quantumEfficiency.push_back({wavelength, sensor_qe[i]*0.01});
       }
 
 
