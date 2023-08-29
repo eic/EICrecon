@@ -15,3 +15,6 @@ eicrecon_add_event_model(${PLUGIN_NAME})
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
 eicrecon_glob_all(${PLUGIN_NAME})
+
+# Add libraries (works same as target_include_directories)
+eicrecon_link_libraries(${PLUGIN_NAME} fmt)
