@@ -204,47 +204,6 @@ cmake -S ${DETECTOR_PATH} -B ${DETECTOR_PATH}/build -DCMAKE_INSTALL_PREFIX=${DET
 cmake --build ${DETECTOR_PATH}/build --target install -- -j8
 ~~~
 
-### Capture environment
-The jana_edm4hep plugin requires all of the above packages which means
-they must be set up in your environment. You will also need these in
-your environment whenever you rebuild or run the code so it is a good
-time to capture all of this into a file. Create a file in the EICTOPDIR
-directory called _custom_environment.sh_ with the following contents:
-
-_n.b. customize as needed if using any packages not built in the EICTOPDIR_
-~~~
-# scl enable devtoolset-9 rh-python38 bash
-
-export EICTOPDIR=/path/to/my/EICTOP
-
-source ${EICTOPDIR}/python/virtual_environments/venv/bin/activate
-source ${EICTOPDIR}/root/root-6.26.04/bin/thisroot.sh
-
-export BOOST_VERSION=boost-1.79.0
-export JANA_VERSION=v2.0.7
-export SPDLOG_VERSION=v1.9.2
-export PODIO_VERSION=v00-15
-export EDM4HEP_VERSION=v00-06
-export EDM4EIC_VERSION=v1.0.1
-export LCIO_VERSION=v02-17-01
-export DD4HEP_VERSION=v01-23
-export EIGEN_VERSION=3.4.0
-export ACTS_VERSION=v19.9.0
-export FMT_VERSION=8.1.1
-
-export Boost_ROOT=${EICTOPDIR}/BOOST/${BOOST_VERSION}/installed
-source ${EICTOPDIR}/JANA/${JANA_VERSION}/bin/jana-this.sh
-export spdlog_ROOT=${EICTOPDIR}/spdlog/${SPDLOG_VERSION}/install
-export LD_LIBRARY_PATH=${spdlog_ROOT}/lib64:${LD_LIBRARY_PATH}
-export PODIO_HOME=${EICTOPDIR}/PODIO/${PODIO_VERSION}
-export PODIO=${PODIO_HOME}/install
-source ${PODIO_HOME}/env.sh
-export podio_ROOT=${PODIO}
-export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
-export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
-export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
-export EDM4EIC_ROOT=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}/install
-
 ### EICrecon
 The EICrecon repository is where the reconstruction code will be kept.
 There is a top-level CMakeLists.txt file here that can sort-of build
