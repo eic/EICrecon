@@ -10,9 +10,9 @@ void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logge
   m_log = logger;
   
   // do not get the layer/sector ID if no readout class provided
-  if (m_readout.empty()) return;
+  if (m_cfg.readout.empty()) return;
   
-  auto id_spec = detector->readout(m_readout).idSpec();
+  auto id_spec = m_detector->readout(m_cfg.readout).idSpec();
   try {
     id_dec = id_spec.decoder();
     if (!m_sectorField.empty()) {
@@ -24,14 +24,14 @@ void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logge
       m_log->info("Find layer field {}, index = {}", m_layerField, layer_idx);
     }
   } catch (...) {
-    m_log->error("Failed to load ID decoder for {}", m_readout);
+    m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
     return;
   }
   
   // local detector name has higher priority
   if (!m_localDetElement.empty()) {
     try {
-      local = detector->detector(m_localDetElement);
+      m_local = m_detector->detector(m_localDetElement);
       m_log->info("Local coordinate system from DetElement {}", m_localDetElement);
     } catch (...) {
       m_log->error("Failed to locate local coordinate system from DetElement {}", m_localDetElement);
@@ -94,14 +94,14 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
     // auto pos0 = h.position();
-    
+
     auto gpos = m_cellid_converter->position(cellID);
     // local positions
     if (m_localDetElement.empty()) {
-      auto volman = detector->volumeManager();
-      local = volman.lookupDetElement(cellID);
+      auto volman = m_detector->volumeManager();
+      m_local = volman.lookupDetElement(cellID);
     }
-    auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
+    auto pos0 = m_local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
     
     // auto mom0 = h.momentum;
     // auto pidCode = h.g4ID;

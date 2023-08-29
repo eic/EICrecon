@@ -30,6 +30,7 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_x_slope_offset = -0.00622147; //in mrad
     recon_cfg.local_y_slope_offset = -0.0451035;  //in mrad
     recon_cfg.nomMomentum          =  275.0;      //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
+    recon_cfg.readout              = "ForwardRomanPotHits";
 
     app->Add(new JChainFactoryGeneratorT<MatrixTransferStatic_factory>({"ForwardRomanPotHits"},"ForwardRomanPotRecParticles",recon_cfg));
 

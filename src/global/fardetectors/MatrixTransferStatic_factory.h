@@ -33,7 +33,7 @@ namespace eicrecon {
 
     public:
 
-        explicit MatrixTransferStatic_factory(const std::vector<std::string> &default_input_tags, MatrixTransferStaticConfig cfg ):
+        explicit MatrixTransferStatic_factory(const std::vector<std::string> default_input_tags, MatrixTransferStaticConfig cfg ):
 	  JChainFactoryT(std::move(default_input_tags), cfg) {
 	}
 	
@@ -46,22 +46,10 @@ namespace eicrecon {
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
-	//----- Define constants here ------
-	std::string m_readout;
-	std::string m_geoSvcName;
-
+    private:
+	std::shared_ptr<spdlog::logger>  m_log;              // Logger for this factory
+	eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
 	std::shared_ptr<JDD4hep_service> m_geoSvc;
-	std::string m_localDetElement;
-	std::vector<std::string> u_localDetFields;
-
-	dd4hep::DetElement local;
-	size_t local_mask = ~0;
-	dd4hep::Detector *detector = nullptr;
-
-
-  private:
-	std::shared_ptr<spdlog::logger> m_log;              // Logger for this factory
-	eicrecon::MatrixTransferStatic  m_reco_algo;        // Actual digitisation algorithm
     };
 
 } // eicrecon

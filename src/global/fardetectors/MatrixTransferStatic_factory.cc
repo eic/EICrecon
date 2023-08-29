@@ -19,14 +19,10 @@ namespace eicrecon {
 
 	m_geoSvc = app->GetService<JDD4hep_service>();
 
-	m_readout = GetDefaultInputTags()[0];
-
-	if (m_readout.empty()) {
-	  throw JException("Readout is empty");
-	}
-
-
-	m_geoSvc = app->GetService<JDD4hep_service>();
+	m_reco_algo.setDetector(m_geoSvc->detector());
+	m_reco_algo.setGeoConverter(m_geoSvc->cellIDPositionConverter());
+	m_reco_algo.applyConfig(cfg);
+	m_reco_algo.init(m_log);
 
     }
 
