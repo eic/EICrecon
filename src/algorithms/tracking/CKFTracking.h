@@ -73,9 +73,14 @@ namespace eicrecon {
 
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
 
-        std::vector<ActsExamples::Trajectories*> process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                                                                 const ActsExamples::MeasurementContainer &measurements,
-                                                                 const edm4eic::TrackParametersCollection &init_trk_params);
+        std::tuple<
+            std::unique_ptr<edm4eic::TrajectoryCollection>,
+            std::unique_ptr<edm4eic::TrackParametersCollection>,
+            std::vector<ActsExamples::Trajectories*>
+        >
+        process(const ActsExamples::IndexSourceLinkContainer &src_links,
+                const ActsExamples::MeasurementContainer &measurements,
+                const edm4eic::TrackParametersCollection &init_trk_params);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
