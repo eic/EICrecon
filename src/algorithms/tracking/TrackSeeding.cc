@@ -52,6 +52,10 @@ eicrecon::SeedContainer eicrecon::TrackSeeding::runSeeder(std::vector<const edm4
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_cfg.m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
 
+  for (auto& sp: spacePoints) {
+    delete sp;
+  }
+
   return seeds;
 }
 
