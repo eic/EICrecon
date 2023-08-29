@@ -24,6 +24,11 @@ namespace eicrecon {
     std::vector<std::vector<double>> aY = {{0.0000159900, 3.94082098},
 					   {0.0000079946, -0.1402995}};
     
+    double hit1minZ{0};
+    double hit1maxZ{0};
+    double hit2minZ{0};
+    double hit2maxZ{0};
+    
     std::string readout{""};
 /*       double aX[2][2] = {{2.102403743, 29.11067626}, */
 /* 			 {0.186640381, 0.192604619}}; */

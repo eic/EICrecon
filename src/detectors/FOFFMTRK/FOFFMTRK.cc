@@ -30,6 +30,12 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_x_slope_offset = -14.75315; //in mrad
     recon_cfg.local_y_slope_offset = -0.0073;   //in mrad
     recon_cfg.nomMomentum          =  137.5;    //in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
+
+    recon_cfg.hit1minZ = 22499.0;
+    recon_cfg.hit1maxZ = 22522.0;
+    recon_cfg.hit2minZ = 24499.0;
+    recon_cfg.hit2maxZ = 24522.0;
+    
     recon_cfg.readout              = "ForwardOffMTrackerHits";
 
     app->Add(new JChainFactoryGeneratorT<MatrixTransferStatic_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));

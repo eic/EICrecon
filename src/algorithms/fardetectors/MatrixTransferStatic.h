@@ -69,8 +69,6 @@ namespace eicrecon {
     /** algorithm logger */
     std::shared_ptr<spdlog::logger>   m_log;
     dd4hep::Detector* m_detector{nullptr};
-    //    std::shared_ptr<const dd4hep::Detector> m_detector;
-    dd4hep::DetElement m_local;
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
   };
