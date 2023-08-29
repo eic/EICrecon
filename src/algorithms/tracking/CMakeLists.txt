@@ -14,7 +14,7 @@ eicrecon_glob_all(${PLUGIN_NAME})
 # Find dependencies
 eicrecon_add_dd4hep(${PLUGIN_NAME})
 eicrecon_add_acts(${PLUGIN_NAME})
-eicrecon_add_cern_root(${PLUGIN_NAME})
+eicrecon_add_cern_root(${PLUGIN_NAME} ROOT::EG)
 eicrecon_add_eigen3(${PLUGIN_NAME})
 eicrecon_add_event_model(${PLUGIN_NAME})
 

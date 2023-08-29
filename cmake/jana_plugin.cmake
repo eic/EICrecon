@@ -316,7 +316,7 @@ macro(eicrecon_add_cern_root _name)
     # Add libraries
     eicrecon_link_libraries(${PLUGIN_NAME}
         ROOT::Core
-        ROOT::EG
+        ${ARGN}
     )
 
 endmacro()
