@@ -66,7 +66,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
-            "SmearedFarForwardParticles",
 
             // Reconstructed data
             "GeneratedParticles",
