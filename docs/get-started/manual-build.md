@@ -244,31 +244,6 @@ export EDM4HEP=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export EDM4HEP_ROOT=${EICTOPDIR}/EDM4hep/${EDM4HEP_VERSION}/install
 export LD_LIBRARY_PATH=${EDM4HEP_ROOT}/lib64:${LD_LIBRARY_PATH}
 export EDM4EIC_ROOT=${EICTOPDIR}/edm4eic/${EDM4EIC_VERSION}/install
-export LD_LIBRARY_PATH=${EDM4EIC_ROOT}/lib:${EDM4EIC_ROOT}/lib64:${LD_LIBRARY_PATH}
-export LCIO_ROOT=${EICTOPDIR}/LCIO/${LCIO_VERSION}/install
-export LD_LIBRARY_PATH=${LCIO_ROOT}/lib64:${LD_LIBRARY_PATH}
-export IRT_ROOT=${EICTOPDIR}/irt/install
-source ${EICTOPDIR}/DD4hep/${DD4HEP_VERSION}/install/bin/thisdd4hep.sh
-export Eigen3_ROOT=${EICTOPDIR}/EIGEN/${EIGEN_VERSION}
-source ${EICTOPDIR}/ACTS/${ACTS_VERSION}/install/bin/this_acts.sh
-export fmt_ROOT=${EICTOPDIR}/detectors/fmt/${FMT_VERSION}/install
-export LD_LIBRARY_PATH=${fmt_ROOT}/lib64:${fmt_ROOT}/lib:${LD_LIBRARY_PATH}
-source ${EICTOPDIR}/detectors/epic/setup.sh
-
-export JANA_PLUGIN_PATH=${EICTOPDIR}/EICrecon/plugins
-~~~
-
-If you are using an IDE (e.g. CLion) then the easiest way to do ensure
-this environment is used is to use a wrapper script for cmake that sources
-the above file each time cmake is run. Such a wrapper is included in the
-_tools_ directory which automatically looks for and sources the file
-_custom_environment.sh_ if it is found. To make CLion use this, go to
-_Preferences->Build, Execution, Deployment->Toolchains_ and at the top
-next to _CMake_ put the full path to the wrapper script. It should be
-something like:
-~~~
-/path/to/my/EICrecon/tools/cmake_wrapper.sh
-~~~
 
 ### EICrecon
 The EICrecon repository is where the reconstruction code will be kept.
