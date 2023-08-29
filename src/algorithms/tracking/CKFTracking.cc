@@ -200,10 +200,19 @@ namespace eicrecon {
                 trajectory.setChi2(trajectoryState.chi2Sum);
                 trajectory.setNdf(trajectoryState.NDF);
                 trajectory.setNMeasurements(trajectoryState.nMeasurements);
-trajectory.setNStates(trajectoryState.nStates);
-trajectory.setNOutliers(trajectoryState.nOutliers);
-trajectory.setNHoles(trajectoryState.nHoles);
-trajectory.setNSharedHits(trajectoryState.nSharedHits);
+                trajectory.setNStates(trajectoryState.nStates);
+                trajectory.setNOutliers(trajectoryState.nOutliers);
+                trajectory.setNHoles(trajectoryState.nHoles);
+                trajectory.setNSharedHits(trajectoryState.nSharedHits);
+
+                for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
+                    trajectory.addToMeasurementChi2(measurementChi2);
+                }
+
+                for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
+                    trajectory.addToOutlierChi2(outlierChi2);
+                }
+
                 // Get the fitted track parameter
                 //
                 if (multiTrajectory->hasTrackParameters(trackTip)) {
