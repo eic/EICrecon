@@ -277,7 +277,9 @@ macro(eicrecon_add_irt _name)
         find_package(IRT REQUIRED)
     endif()
 
-    eicrecon_link_libraries(${PLUGIN_NAME} IRT)
+    eicrecon_link_libraries(${PLUGIN_NAME}
+        IRT
+    )
 
 endmacro()
 
