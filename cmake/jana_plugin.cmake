@@ -119,11 +119,11 @@ endmacro()
 # target_include_directories for both a plugin and a library
 macro(eicrecon_include_directories _name)
     if(TARGET ${_name}_plugin)
-        target_include_directories(${_name}_plugin  ${ARGN})
+        target_include_directories(${_name}_plugin PRIVATE ${ARGN})
     endif()
 
     if(TARGET ${_name}_library)
-        target_include_directories(${_name}_library ${ARGN})
+        target_include_directories(${_name}_library PRIVATE ${ARGN})
     endif()
 endmacro()
 
