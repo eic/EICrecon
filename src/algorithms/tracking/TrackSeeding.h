@@ -29,7 +29,6 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
-#include "algorithms/interfaces/IObjectProducer.h"
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/TrackParameters.h>
 #include "algorithms/interfaces/WithPodConfig.h"
