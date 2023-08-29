@@ -59,7 +59,7 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
     tRes       = m_cfg.tRes / dd4hep::ns;
     stepTDC    = dd4hep::ns / m_cfg.resolutionTDC;
 
-    id_mask = 0;
+    decltype(id_mask) id_inverse_mask = 0;
     // all these are for signal sum at digitization level
     if (!m_cfg.fields.empty()) {
         // sanity checks
@@ -76,7 +76,7 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
         try {
             auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
             for (auto & field : m_cfg.fields) {
-                id_mask |= id_desc.field(field)->mask();
+                id_inverse_mask |= id_desc.field(field)->mask();
             }
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
@@ -87,7 +87,7 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
         }
         m_log->info("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
     }
-    id_mask = ~id_mask;
+    id_mask = ~id_inverse_mask;
 }
 
 
