@@ -36,7 +36,7 @@ namespace eicrecon {
         explicit MatrixTransferStatic_factory(const std::vector<std::string> default_input_tags, MatrixTransferStaticConfig cfg ):
 	  JChainFactoryT(std::move(default_input_tags), cfg) {
 	}
-	
+
         /** One time initialization **/
         void Init() override;
 

@@ -35,7 +35,7 @@ void InitPlugin(JApplication *app) {
     recon_cfg.hit1maxZ = 22522.0;
     recon_cfg.hit2minZ = 24499.0;
     recon_cfg.hit2maxZ = 24522.0;
-    
+
     recon_cfg.readout              = "ForwardOffMTrackerHits";
 
     app->Add(new JChainFactoryGeneratorT<MatrixTransferStatic_factory>({"ForwardOffMTrackerHits"},"ForwardOffMRecParticles",recon_cfg));
