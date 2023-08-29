@@ -200,7 +200,10 @@ namespace eicrecon {
                 trajectory.setChi2(trajectoryState.chi2Sum);
                 trajectory.setNdf(trajectoryState.NDF);
                 trajectory.setNMeasurements(trajectoryState.nMeasurements);
-
+trajectory.setNStates(trajectoryState.nStates);
+trajectory.setNOutliers(trajectoryState.nOutliers);
+trajectory.setNHoles(trajectoryState.nHoles);
+trajectory.setNSharedHits(trajectoryState.nSharedHits);
                 // Get the fitted track parameter
                 //
                 if (multiTrajectory->hasTrackParameters(trackTip)) {
