@@ -1,12 +1,11 @@
-// Created by Tyler Kutz
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Tyler Kutz
 
 #pragma once
 
-#include <services/io/podio/JFactoryPodioT.h>
+#include <extensions/jana/JChainMultifactoryT.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <extensions/spdlog/SpdlogMixin.h>
 #include <algorithms/tracking/TrackPropagation.h>
 #include <spdlog/logger.h>
 
@@ -18,39 +17,38 @@
 
 namespace eicrecon {
 
-	class TrackPropagation_factory : public JFactoryPodioT<edm4eic::TrackSegment>,
-					 public SpdlogMixin {
+    class TrackPropagation_factory : public JChainMultifactoryT<NoConfig>,
+                                     public SpdlogMixin {
 
-	    public:
-		
-		std::string m_input_tag;
-			    
-		explicit TrackPropagation_factory() {
-			SetTag("PropagatedTrackPoints");
-		}
+    public:
+	     
+        explicit TrackPropagation_factory(std::string tag, 
+			const std::vector<std::string>& input_tags, 
+			const std::vector<std::string>& output_tags) :
+            JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+                DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
+	}
 
-		/** One time initialization **/
-		void Init() override;
+        /** One time initialization **/
+        void Init() override;
 
-		/** On run change preparations **/
-		void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+        /** Event by event processing **/
+        void Process(const std::shared_ptr<const JEvent> &event) override;
 
-		/** Event by event processing **/
-		void Process(const std::shared_ptr<const JEvent> &event) override;
-	    
-		// Pointer to the geometry service
-		std::shared_ptr<JDD4hep_service> m_geoSvc;
-		dd4hep::IDDescriptor m_idSpec;
+        // Pointer to the geometry service
+        std::shared_ptr<JDD4hep_service> m_geoSvc;
 
-	    private:
-		eicrecon::TrackPropagation m_track_propagation_algo;
+    private:
+	
+        eicrecon::TrackPropagation m_track_propagation_algo;
 
-		std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
-		std::vector<int32_t> m_target_surface_ID;
+        std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
+        std::vector<uint16_t> m_target_detector_ID;
+        std::vector<uint16_t> m_target_surface_ID;
 
-		void SetPropagationSurfaces();
+        void SetPropagationSurfaces();
 
-	};
+};
 
 } // eicrecon
 

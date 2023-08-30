@@ -77,7 +77,12 @@ void InitPlugin(JApplication *app) {
              "outputTrackParameters"},                        // edm4eic::TrackParameters
             app));
 
-    app->Add(new JFactoryGeneratorT<TrackPropagation_factory>());
+    app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
+            "PropagatedTracks",
+            {"CentralCKFTrajectories"},
+            {"PropagatedTrackPoints"},
+	    app
+	    ));
 
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
