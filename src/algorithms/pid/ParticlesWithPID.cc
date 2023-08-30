@@ -17,7 +17,7 @@ namespace eicrecon {
 
     ParticlesWithAssociationNew ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
-            const edm4eic::TrackParametersCollection* track_params,
+            const edm4eic::TrajectoryCollection* trajectories,
             std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
             ) {
 
@@ -34,7 +34,8 @@ namespace eicrecon {
 
         std::vector<bool> mc_prt_is_consumed(mc_particles->size(), false);         // MCParticle is already consumed flag
 
-        for (const auto &trk: *track_params) {
+        for (const auto &trajectory: *trajectories) {
+          for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4eic::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
             const auto charge_rec = trk.getCharge();
@@ -181,7 +182,7 @@ namespace eicrecon {
             else {
                 m_log->debug(" MCPart: Did not find a good match");
             }
-
+          }
         }
 
         return out_colls;

@@ -11,7 +11,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -40,7 +40,7 @@ namespace eicrecon {
 
         ParticlesWithAssociationNew process(
                 const edm4hep::MCParticleCollection* mc_particles,
-                const edm4eic::TrackParametersCollection* track_params,
+                const edm4eic::TrajectoryCollection* track_params,
                 std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
                 );
 
