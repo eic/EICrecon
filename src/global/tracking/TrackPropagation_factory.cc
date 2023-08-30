@@ -192,7 +192,3 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     m_log->info("OHCAL_Z     = {}", OHCAL_halfz);
    
 }
-
-
-
-
