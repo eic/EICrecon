@@ -310,7 +310,7 @@ namespace eicrecon {
             }
             in_part.addToParticleIDs(out_pid);
         }
-        in_part.setParticleIDUsed(in_part.getParticleIDs().front()); // highest likelihood is the first
+        in_part.setParticleIDUsed(in_part.getParticleIDs().at(0)); // highest likelihood is the first
         in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
 
         // trace logging
