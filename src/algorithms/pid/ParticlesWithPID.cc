@@ -302,7 +302,6 @@ namespace eicrecon {
         }
 
         // relate matched ParticleID objects to output particle
-        bool first = true;
         for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
             const auto& out_pid = out_pids->at(out_pids_index);
             if (out_pid.id() != out_pids_id) { // sanity check
@@ -310,12 +309,9 @@ namespace eicrecon {
                 return false;
             }
             in_part.addToParticleIDs(out_pid);
-            if (first) {
-                in_part.setParticleIDUsed(out_pid); // highest likelihood is the first
-                in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
-                first = false;
-            }
         }
+        in_part.setParticleIDUsed(in_part.getParticleIDs().front()); // highest likelihood is the first
+        in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
 
         // trace logging
         m_log->trace("    {:.^50}"," PID results ");
