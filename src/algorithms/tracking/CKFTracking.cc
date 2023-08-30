@@ -7,6 +7,10 @@
 #include <DDRec/SurfaceManager.h>
 #include <DDRec/Surface.h>
 
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
@@ -35,6 +39,8 @@
 #include "ActsGeometryProvider.h"
 
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 
 #include <spdlog/fmt/ostr.h>
 
@@ -43,7 +49,7 @@
 #include <vector>
 #include <random>
 #include <stdexcept>
-
+#include <unordered_map>
 
 namespace eicrecon {
 
@@ -73,9 +79,14 @@ namespace eicrecon {
         m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
     }
 
-    std::vector<ActsExamples::Trajectories*> CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                                                                  const ActsExamples::MeasurementContainer &measurements,
-                                                                  const edm4eic::TrackParametersCollection &init_trk_params) {
+    std::tuple<
+        std::unique_ptr<edm4eic::TrajectoryCollection>,
+        std::unique_ptr<edm4eic::TrackParametersCollection>,
+        std::vector<ActsExamples::Trajectories*>
+    >
+    CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
+                         const ActsExamples::MeasurementContainer &measurements,
+                         const edm4eic::TrackParametersCollection &init_trk_params) {
 
         ActsExamples::TrackParametersContainer acts_init_trk_params;
         for (const auto& track_parameter: init_trk_params) {
@@ -105,11 +116,11 @@ namespace eicrecon {
             acts_init_trk_params.emplace_back(pSurface, params, charge, cov);
         }
 
-        //// Prepare the output data with MultiTrajectory
-        // TrajectoryContainer trajectories;
+        auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
+        auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
 
-        std::vector<ActsExamples::Trajectories *>trajectories;
-        trajectories.reserve(init_trk_params.size());
+        std::vector<ActsExamples::Trajectories*> acts_trajectories;
+        acts_trajectories.reserve(init_trk_params.size());
 
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
@@ -158,17 +169,99 @@ namespace eicrecon {
             auto &result = results[iseed];
 
             if (result.ok()) {
+
                 // Get the track finding output object
                 auto &trackFindingOutput = result.value();
+
                 // Create a SimMultiTrajectory
-                trajectories.push_back(new ActsExamples::Trajectories(std::move(trackFindingOutput.fittedStates),
-                                                                      std::move(trackFindingOutput.lastMeasurementIndices),
-                                                                      std::move(trackFindingOutput.fittedParameters)));
+                auto* multiTrajectory = new ActsExamples::Trajectories(
+                    std::move(trackFindingOutput.fittedStates),
+                    std::move(trackFindingOutput.lastMeasurementIndices),
+                    std::move(trackFindingOutput.fittedParameters)
+                );
+
+                // Get the entry index for the single trajectory
+                // The trajectory entry indices and the multiTrajectory
+                const auto& mj        = multiTrajectory->multiTrajectory();
+                const auto& trackTips = multiTrajectory->tips();
+                if (trackTips.empty()) {
+                    m_log->debug("Empty multiTrajectory.");
+                    continue;
+                }
+
+                const auto& trackTip = trackTips.front();
+
+                // Collect the trajectory summary info
+                auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+
+                // Create trajectory
+                auto trajectory = trajectories->create();
+
+                trajectory.setChi2(trajectoryState.chi2Sum);
+                trajectory.setNdf(trajectoryState.NDF);
+                trajectory.setNMeasurements(trajectoryState.nMeasurements);
+                trajectory.setNStates(trajectoryState.nStates);
+                trajectory.setNOutliers(trajectoryState.nOutliers);
+                trajectory.setNHoles(trajectoryState.nHoles);
+                trajectory.setNSharedHits(trajectoryState.nSharedHits);
+
+                for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
+                    trajectory.addToMeasurementChi2(measurementChi2);
+                }
+
+                for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
+                    trajectory.addToOutlierChi2(outlierChi2);
+                }
+
+                // Get the fitted track parameter
+                //
+                if (multiTrajectory->hasTrackParameters(trackTip)) {
+
+                    const auto& boundParam = multiTrajectory->trackParameters(trackTip);
+                    const auto& parameter  = boundParam.parameters();
+                    const auto& covariance = *boundParam.covariance();
+
+                    edm4eic::MutableTrackParameters pars{
+                        0, // type: track head --> 0
+                        {
+                            static_cast<float>(parameter[Acts::eBoundLoc0]),
+                            static_cast<float>(parameter[Acts::eBoundLoc1])
+                        },
+                        {
+                            static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
+                            static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
+                            static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
+                        },
+                        static_cast<float>(parameter[Acts::eBoundTheta]),
+                        static_cast<float>(parameter[Acts::eBoundPhi]),
+                        static_cast<float>(parameter[Acts::eBoundQOverP]),
+                        {
+                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
+                            static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
+                            static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
+                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
+                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
+                            static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
+                        },
+                        static_cast<float>(parameter[Acts::eBoundTime]),
+                        sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))),
+                        static_cast<float>(boundParam.charge())};
+
+                    track_parameters->push_back(pars);
+                    trajectory.addToTrackParameters(pars);
+                }
+
+                acts_trajectories.push_back(std::move(multiTrajectory));
+
             } else {
+
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
+
             }
 
         }
-        return trajectories;
+
+        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories));
     }
+
 } // namespace eicrecon
