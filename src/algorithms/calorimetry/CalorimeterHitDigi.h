@@ -37,8 +37,6 @@ namespace eicrecon {
 
     // unitless counterparts of inputs
     double           dyRangeADC{0}, stepTDC{0}, tRes{0};
-    // variables for merging at digitization step
-    bool             merge_hits = false;
 
     uint64_t         id_mask{0};
 
@@ -48,9 +46,6 @@ namespace eicrecon {
 
     std::default_random_engine generator; // TODO: need something more appropriate here
     std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
-
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits);
 
   };
 
