@@ -204,12 +204,12 @@ namespace eicrecon {
 
         std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = m_geoSvc->trackingGeometry();
         std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-	using Stepper = Acts::EigenStepper<>;
-	using Propagator = Acts::Propagator<Stepper>;
+        using Stepper = Acts::EigenStepper<>;
+        using Propagator = Acts::Propagator<Stepper>;
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
-        // Acts::Logging::Level logLevel = Acts::Logging::FATAL
-        Acts::Logging::Level logLevel = Acts::Logging::INFO;
+        Acts::Logging::Level logLevel = Acts::Logging::FATAL;
+        //Acts::Logging::Level logLevel = Acts::Logging::INFO;
 
         ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("ProjectTrack Logger", logLevel));
 
@@ -290,7 +290,8 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
-        int32_t surfaceID = 0; // default value...will be set in TrackPropagation factory
+	uint16_t detectorID = 0; // default value...will be set in TrackPropagation factory
+        uint16_t surfaceID = targetSurf->geometryId().value();  
 
 	/*
          ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
@@ -317,7 +318,8 @@ namespace eicrecon {
                                                directionError,
                                                pathLength,
                                                pathLengthError,
-					       surfaceID
+                                               detectorID,
+                                               surfaceID
                                        });
     }
 
