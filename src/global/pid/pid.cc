@@ -35,7 +35,7 @@ extern "C" {
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "outputTrackParameters",            // edm4eic::TrackParameters
+            "CentralCKFTrackParameters",            // edm4eic::TrackParameters
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
@@ -51,7 +51,7 @@ extern "C" {
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "outputSeededTrackParameters",      // edm4eic::TrackParameters
+            "CentralCKFSeededTrackParameters",      // edm4eic::TrackParameters
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
