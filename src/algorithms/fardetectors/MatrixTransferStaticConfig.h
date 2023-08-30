@@ -7,7 +7,7 @@
 
 namespace eicrecon {
   struct MatrixTransferStaticConfig {
-    
+
     float     partMass  {0.938272};
     float     partCharge{1};
     long long partPDG   {2122};

@@ -43,11 +43,11 @@ namespace eicrecon {
 	  auto app = GetApplication();
 
 	  m_log = app->GetService<Log_service>()->logger(GetTag());
-	  
+
 	  auto cfg = GetDefaultConfig();
-	  
+
 	  m_geoSvc = app->GetService<JDD4hep_service>();
-	  
+
 	  m_reco_algo.setDetector(m_geoSvc->detector());
 	  m_reco_algo.setGeoConverter(m_geoSvc->cellIDPositionConverter());
 	  m_reco_algo.applyConfig(cfg);
@@ -59,7 +59,7 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override {
 
 	  auto inputhits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-	  
+
 	  try {
 	    auto outputTracks = m_reco_algo.produce(*inputhits);
 	    SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(outputTracks));
