@@ -4,13 +4,13 @@
 #ifndef EICRECON_JETRECONSTRUCTION_H
 #define EICRECON_JETRECONSTRUCTION_H
 
-// standard c includes
 #include <vector>
-// DD4hep includes
 #include <spdlog/spdlog.h>
 #include <DD4hep/DD4hepUnits.h>
+// event data model definitions
 #include <edm4hep/utils/kinematics.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 // fastjet includes
 #include <fastjet/config.h>
 #include <fastjet/JetDefinition.hh>
@@ -27,7 +27,7 @@ namespace eicrecon {
 
       void init(std::shared_ptr<spdlog::logger> logger);
 
-      std::vector<edm4eic::ReconstructedParticle*> execute(
+      std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
         const std::vector<const edm4hep::LorentzVectorE*> momenta
       );
 
@@ -51,7 +51,7 @@ namespace eicrecon {
 
       std::shared_ptr<spdlog::logger> m_log;
 
-  };  // end config struct
+  };  // end JetReconstruction definition
 
 }  // end eicrecon namespace
 

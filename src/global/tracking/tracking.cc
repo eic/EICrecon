@@ -15,7 +15,6 @@
 
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
-#include "TrackingResult_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackProjector_factory.h"
@@ -61,7 +60,9 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerSourceLinker"
         },
         {
-            "CentralCKFTrajectories"
+            "CentralCKFTrajectories",
+            "CentralCKFTrackParameters",
+            "CentralCKFActsTrajectories",
         },
         app
     ));
@@ -76,28 +77,18 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerSourceLinker"
         },
         {
-            "CentralCKFSeededTrajectories"
+            "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTrackParameters",
+            "CentralCKFSeededActsTrajectories",
         },
         app
     ));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
-            {"CentralCKFTrajectories"}, "CentralTrackSegments"));
+            {"CentralCKFActsTrajectories"}, "CentralTrackSegments"));
 
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
-            {"CentralCKFTrajectories"}, "CentralTrackVertices"));
-
-    app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
-            "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFTrajectories"},                       // ActsExamples::Trajectories
-            {"outputTrackParameters"},                        // edm4eic::TrackParameters
-            app));
-
-    app->Add(new JChainMultifactoryGeneratorT<TrackingResult_factory>(
-            "CentralTrackingParticles",                       // Tag name for multifactory
-            {"CentralCKFSeededTrajectories"},                 // ActsExamples::Trajectories
-            {"outputSeededTrackParameters"},                  // edm4eic::TrackParameters
-            app));
+            {"CentralCKFActsTrajectories"}, "CentralTrackVertices"));
 
 }
 } // extern "C"
