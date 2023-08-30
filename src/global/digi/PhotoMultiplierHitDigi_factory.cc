@@ -36,7 +36,6 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   set_param("pedMean",         cfg.pedMean,         "");
   set_param("pedError",        cfg.pedError,        "");
   set_param("enablePixelGaps", cfg.enablePixelGaps, "enable/disable removal of hits in gaps between pixels");
-  set_param("pixelSize",       cfg.pixelSize,       "pixel (active) size");
   set_param("safetyFactor",    cfg.safetyFactor,    "overall safety factor");
   set_param("enableNoise",     cfg.enableNoise,     "");
   set_param("noiseRate",       cfg.noiseRate,       "");
@@ -51,8 +50,12 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   if(use_richgeo) {
     m_readoutGeo->SetSeed(cfg.seed);
     m_digi_algo.SetVisitRngCellIDs(
-        [readoutGeo = this->m_readoutGeo] (std::function<void(uint64_t)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
+        [readoutGeo = this->m_readoutGeo] (std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
         );
+    m_digi_algo.SetPixelGapMask(
+        [readoutGeo = this->m_readoutGeo] (PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) { return readoutGeo->PixelGapMask(cellID, pos); }
+        );
+
   }
 }
 

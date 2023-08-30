@@ -30,13 +30,14 @@ namespace richgeo {
       ~ReadoutGeo() {}
 
       // define cellID encoding
-      CellIDType cellIDEncoding(int isec, int imod, int x, int y)
+      CellIDType cellIDEncoding(int isec, int ipdu, int isipm, int x, int y)
       {
 	// encode cellID
 	dd4hep::rec::CellID cellID_dd4hep;
 	m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
 	m_readoutCoder->set(cellID_dd4hep, "sector", isec);
-	m_readoutCoder->set(cellID_dd4hep, "module", imod);
+	m_readoutCoder->set(cellID_dd4hep, "pdu",    ipdu);
+	m_readoutCoder->set(cellID_dd4hep, "sipm",   isipm);
 	m_readoutCoder->set(cellID_dd4hep, "x",      x);
 	m_readoutCoder->set(cellID_dd4hep, "y",      y);
 	CellIDType cellID(cellID_dd4hep); // in case DD4hep CellID type differs from EDM type
@@ -50,8 +51,15 @@ namespace richgeo {
       // generated k rng cell IDs, executing `lambda(cellID)` on each
       void VisitAllRngPixels(std::function<void(CellIDType)> lambda, float p) { m_rngCellIDs(lambda, p); }
 
-// set RNG seed
-void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
+      // pixel gap mask
+      bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global);
+
+      // transform global position `pos` to sensor `id` frame position
+      // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
+      dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos);
+
+      // set RNG seed
+      void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
 
     protected:
 
@@ -61,10 +69,13 @@ void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
       dd4hep::Detector*      m_det;
       dd4hep::DetElement     m_detRich;
       dd4hep::BitFieldCoder* m_readoutCoder;
+      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
       int                    m_systemID;
       int                    m_num_sec;
-      int                    m_num_mod;
+      int                    m_num_pdus;
+      int                    m_num_sipms_per_pdu;
       int                    m_num_px;
+      double                 m_pixel_size;
 
       // local function to loop over cellIDs; defined in initialization and called by `VisitAllReadoutPixels`
       std::function< void(std::function<void(CellIDType)>) > m_loopCellIDs;
