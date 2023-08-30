@@ -26,7 +26,7 @@
 
 namespace eicrecon {
 
-    struct ParticlesWithAssociationNew {
+    struct ParticlesWithAssociation {
         std::unique_ptr<edm4eic::ReconstructedParticleCollection>     parts;
         std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection> assocs;
         std::unique_ptr<edm4hep::ParticleIDCollection>                pids;
@@ -38,7 +38,7 @@ namespace eicrecon {
 
         void init(std::shared_ptr<spdlog::logger> logger);
 
-        ParticlesWithAssociationNew process(
+        ParticlesWithAssociation process(
                 const edm4hep::MCParticleCollection* mc_particles,
                 const edm4eic::TrajectoryCollection* track_params,
                 std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections

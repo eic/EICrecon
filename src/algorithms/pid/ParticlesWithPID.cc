@@ -15,7 +15,7 @@ namespace eicrecon {
 
     }
 
-    ParticlesWithAssociationNew ParticlesWithPID::process(
+    ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
             const edm4eic::TrajectoryCollection* trajectories,
             std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
@@ -24,7 +24,7 @@ namespace eicrecon {
         // input collection
 
         /// Resulting reconstructed particles
-        ParticlesWithAssociationNew out_colls;
+        ParticlesWithAssociation out_colls;
         out_colls.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
         out_colls.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
         out_colls.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
