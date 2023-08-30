@@ -6,9 +6,9 @@
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <global/fardetectors/MatrixTransferStatic_factory.h>
+#include "factories/fardetectors/MatrixTransferStatic_factoryT.h"
 #include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
 
 
@@ -38,7 +38,7 @@ void InitPlugin(JApplication *app) {
 
     recon_cfg.readout              = "ForwardRomanPotHits";
 
-    app->Add(new JChainFactoryGeneratorT<MatrixTransferStatic_factory>({"ForwardRomanPotHits"},"ForwardRomanPotRecParticles",recon_cfg));
+    app->Add(new JChainMultifactoryGeneratorT<MatrixTransferStatic_factoryT>("ForwardRomanPotRecParticles",{"ForwardRomanPotHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 
 }
 }
