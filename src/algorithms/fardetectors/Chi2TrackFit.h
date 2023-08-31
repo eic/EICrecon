@@ -15,10 +15,12 @@
 #include <spdlog/logger.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include "FarTrackerTrackingConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
 
 namespace eicrecon {
 
-    class Chi2TrackFit {
+    class Chi2TrackFit : public WithPodConfig<FarTrackerTrackingConfig>  {
 
     public:
 
@@ -36,12 +38,6 @@ namespace eicrecon {
 
 	// Set bit encoder
 	void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
-
-	// Get a configuration to be changed
-	eicrecon::FarTrackerTrackingConfig& getConfig() {return m_cfg;}
-
-	// Sets a configuration (config is properly copyible)
-	eicrecon::FarTrackerTrackingConfig& applyConfig(eicrecon::FarTrackerTrackingConfig cfg) { m_cfg = cfg; return m_cfg;}
 
 
     private:

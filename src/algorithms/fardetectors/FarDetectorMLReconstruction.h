@@ -15,6 +15,9 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "FarDetectorMLReconstructionConfig.h"
+
 
 namespace eicrecon {
 
@@ -22,7 +25,7 @@ namespace eicrecon {
   enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
   enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
 
-  class FarDetectorMLReconstruction {
+  class FarDetectorMLReconstruction : public WithPodConfig<FarDetectorMLReconstructionConfig> {
 
   public:
 

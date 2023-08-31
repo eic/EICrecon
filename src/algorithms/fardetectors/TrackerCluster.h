@@ -18,10 +18,11 @@
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include "FarTrackerClusterConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class TrackerClusterGen {
+  class TrackerClusterGen : public WithPodConfig<FarTrackerClusterConfig>  {
 
   public:
 
@@ -45,12 +46,6 @@ namespace eicrecon {
 
     // Set position convertor
     void setGeoConverter(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv) {m_cellid_converter=id_conv;}
-
-    // Get a configuration to be changed
-    eicrecon::FarTrackerClusterConfig& getConfig() {return m_cfg;}
-
-    // Sets a configuration (config is properly copyible)
-    eicrecon::FarTrackerClusterConfig& applyConfig(eicrecon::FarTrackerClusterConfig cfg) { m_cfg = cfg; return m_cfg;}
 
   private:
       eicrecon::FarTrackerClusterConfig m_cfg;

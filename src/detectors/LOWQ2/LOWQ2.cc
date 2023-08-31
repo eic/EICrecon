@@ -6,18 +6,15 @@
 #include <Acts/Propagator/Navigator.hpp>
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
 #include <JANA/JEvent.h>
-
-#include <extensions/jana/JChainFactoryGeneratorT.h>
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 
 #include <factories/digi/SiliconTrackerDigi_factoryT.h>
-#include <global/fardetectors/FarDetectorCluster_factory.h>
-#include <global/fardetectors/FarDetectorSimpleTracking_factory.h>
-#include <global/fardetectors/FarDetectorMLReconstruction_factory.h>
+#include <factories/fardetectors/FarDetectorCluster_factoryT.h>
+#include <factories/fardetectors/FarDetectorSimpleTracking_factoryT.h>
+#include <factories/fardetectors/FarDetectorMLReconstruction_factoryT.h>
 
 
 extern "C" {
@@ -42,6 +39,8 @@ extern "C" {
     FarTrackerTrackingConfig tracking_cfg;
     tracking_cfg.detconf = cluster_cfg;
 
+    FarDetectorMLReconstructionConfig recon_cfg;
+
     app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
 	 "TaggerTrackerRawHit",
          {cluster_cfg.readout},
@@ -55,13 +54,13 @@ extern "C" {
 
 
     // Clustering of hits
-    app->Add(new JChainFactoryGeneratorT<FarDetectorCluster_factory>({"TaggerTrackerRawHit"},    "TaggerTrackerClusterPositions", cluster_cfg));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
 
     // Very basic reconstrution of a single track
-    app->Add(new JChainFactoryGeneratorT<FarDetectorSimpleTracking_factory>({"TaggerTrackerClusterPositions"},"LowQ2Tracks", tracking_cfg));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorSimpleTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
     // Initial particle reconstruction
-    app->Add(new JChainFactoryGeneratorT<FarDetectorMLReconstruction_factory>({"LowQ2Tracks"},"LowQ2TrackParameters"));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2TrackParameters",{"LowQ2Tracks"},{"LowQ2TrackParameters"}, recon_cfg, app));
 
   }
 }
