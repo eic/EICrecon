@@ -47,7 +47,6 @@ namespace eicrecon {
     void setGeoConverter(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv) {m_cellid_converter=id_conv;}
 
   private:
-      eicrecon::FarDetectorTrackerClusterConfig m_cfg;
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
       dd4hep::BitFieldCoder *m_id_dec{nullptr};

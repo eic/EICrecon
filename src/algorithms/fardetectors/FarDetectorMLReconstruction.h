@@ -29,8 +29,6 @@ namespace eicrecon {
 
   public:
 
-      FarDetectorMLReconstruction() = default; //constructer
-
       /** One time initialization **/
       void init();
 

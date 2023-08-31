@@ -22,8 +22,9 @@
 namespace eicrecon {
 
 
-    void FarDetectorLinearTracking::init() {
-
+    void FarDetectorLinearTracking::init(const dd4hep::BitFieldCoder *id_dec, std::shared_ptr<spdlog::logger>& logger) {
+      m_id_dec = id_dec;
+      m_log    = logger;
     }
 
     std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearTracking::produce(const edm4hep::TrackerHitCollection &inputhits) {

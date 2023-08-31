@@ -31,35 +31,45 @@ namespace eicrecon {
     // Locate and load the weight file
     // TODO - Add functionality to select passed by configiuration
     bool methodFound = false;
-    const char* env_p = getenv(m_environment_path.c_str());
-    if (env_p) {
+    if(!m_cfg.modelPath.empty()){
+      try{
+	m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath ));
+      }
+      catch(std::exception &e){
+	throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
+      }
+
+    }
+    else{
+      const char* env_p = getenv(m_cfg.environmentPath.c_str());
+      if (env_p) {
 
 	std::string dir_path;
         std::stringstream envvar_ss(env_p);
         while (getline(envvar_ss, dir_path, ':')) {
 	  std::cout << dir_path << std::endl;
-	    std::string weightName = dir_path +"/"+ m_file_path;
+	  std::string weightName = dir_path +"/"+ m_cfg.fileName;
 	  std::cout << weightName << std::endl;
-	    if (std::filesystem::exists(weightName)){
-   		try{
-      		    m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_method_name, weightName ));
-    		}
-    		catch(std::exception &e){
-      		    throw JException(fmt::format("Failed to load method {} from file {}",m_method_name,weightName));
-    		}
-		methodFound = true;
-		break;
+	  if (std::filesystem::exists(weightName)){
+	    try{
+	      m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, weightName ));
 	    }
+	    catch(std::exception &e){
+	      throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,weightName));
+	    }
+	    methodFound = true;
+	    break;
+	  }
         }
 	if(!methodFound){
-	  throw JException(fmt::format("File {} not found in any {} paths",m_file_path,m_environment_path));
+	  throw JException(fmt::format("File {} not found in any {} paths",m_cfg.fileName,m_cfg.environmentPath));
 	}
 
+      }
+      else {
+	throw JException(fmt::format("Environment variable {} not found",m_cfg.environmentPath));
+      }
     }
-    else {
-      throw JException(fmt::format("Environment variable {} not found",m_environment_path));
-    }
-
   }
 
 

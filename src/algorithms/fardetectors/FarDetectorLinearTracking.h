@@ -23,25 +23,15 @@ namespace eicrecon {
 
     public:
 
-        FarDetectorLinearTracking() = default; //constructer
-
 	/** One time initialization **/
-	void init();
+	void init(const dd4hep::BitFieldCoder *id_dec, std::shared_ptr<spdlog::logger>& logger);
 
 	/** Event by event processing **/
 	std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
 
-	// Get bit encoder
-	dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
-
-	// Set bit encoder
-	void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
-
-
     private:
-	eicrecon::FarDetectorLinearTrackingConfig m_cfg;
-	dd4hep::BitFieldCoder *m_id_dec{nullptr};
-
+	const dd4hep::BitFieldCoder *m_id_dec{nullptr};
+	std::shared_ptr<spdlog::logger> m_log;
 
     };
 

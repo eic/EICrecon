@@ -9,6 +9,9 @@ namespace eicrecon {
   struct FarDetectorMLReconstructionConfig {
 
     std::string modelPath{""};
+    std::string methodName{"DNN_CPU"};
+    std::string fileName{"LowQ2_DNN_CPU.weights.xml"};
+    std::string environmentPath{"JANA_PLUGIN_PATH"};
 
   };
 }
