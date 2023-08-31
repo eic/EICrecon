@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
-#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <algorithms/fardetectors/FarDetectorMLReconstruction.h>
 #include <algorithms/fardetectors/FarDetectorMLReconstructionConfig.h>
 
@@ -29,7 +29,7 @@ namespace eicrecon {
       FarDetectorMLReconstructionConfig cfg ):
       JChainMultifactoryT<FarDetectorMLReconstructionConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
-	 DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[0]);
+	 DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
 
       } //constructer
 
@@ -57,7 +57,7 @@ namespace eicrecon {
 
 	try {
 	  auto outputTracks = m_reco_algo.produce(*inputtracks);
-	  SetCollection<edm4eic::TrackParameters>(GetOutputTags()[0],std::move(outputTracks));
+	  SetCollection<edm4eic::Trajectory>(GetOutputTags()[0],std::move(outputTracks));
 	}
 	catch(std::exception &e) {
 	  throw JException(e.what());

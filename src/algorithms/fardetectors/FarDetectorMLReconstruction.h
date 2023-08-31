@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
+#include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 
 #include <extensions/jana/JChainFactoryT.h>
@@ -33,23 +34,18 @@ namespace eicrecon {
       void init();
 
       /** Event by event processing **/
-      std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4eic::TrackParametersCollection &inputtracks);
+      std::unique_ptr<edm4eic::TrajectoryCollection> produce(const edm4eic::TrackParametersCollection &inputtracks);
 
       //----- Define constants here ------
 
   private:
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
-      float nnInput[4];
+      float nnInput[4]      = {0.0,0.0,0.0,0.0};
 
       float m_electron_beamE = 10*dd4hep::GeV;
 
       float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
-
-      // Stuff to add to config
-      std::string m_method_name{"DNN_CPU"};
-      std::string m_file_path{"LowQ2_DNN_CPU.weights.xml"};
-      std::string m_environment_path{"JANA_PLUGIN_PATH"};
 
   };
 

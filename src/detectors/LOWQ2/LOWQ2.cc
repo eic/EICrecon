@@ -60,7 +60,7 @@ extern "C" {
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
     // Initial particle reconstruction
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2TrackParameters",{"LowQ2Tracks"},{"LowQ2TrackParameters"}, recon_cfg, app));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Tracks"},{"LowQ2Trajectories"}, recon_cfg, app));
 
   }
 }

@@ -73,11 +73,10 @@ namespace eicrecon {
   }
 
 
-  std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
+  std::unique_ptr<edm4eic::TrajectoryCollection> FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
-    //    auto outputFarDetectorMLParticles = std::make_unique<edm4eic::TrackParametersCollection>(inputtracks.size());
-    auto outputFarDetectorMLParticles = std::make_unique<edm4eic::TrackParametersCollection>();
+    auto outputFarDetectorMLParticles = std::make_unique<edm4eic::TrajectoryCollection>();
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
@@ -90,7 +89,6 @@ namespace eicrecon {
     edm4eic::Cov4f    covMatrix;
     float             mass = m_electron;
 
-    uint ipart = 0;
     for(auto track: inputtracks){
 
       auto pos        = track.getLoc();
@@ -112,7 +110,6 @@ namespace eicrecon {
 
       float energy = sqrt(momMag2+mass*mass);
 
-
       // Track parameter variables
       // TODO: Add time and momentum errors
       int type = 0;
@@ -130,8 +127,9 @@ namespace eicrecon {
 
       edm4eic::TrackParameters particle(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 
-      outputFarDetectorMLParticles->push_back(particle);
-      ipart++;
+      auto trajectory = outputFarDetectorMLParticles->create();
+      trajectory.addToTrackParameters(particle);
+
     }
 
     return outputFarDetectorMLParticles;

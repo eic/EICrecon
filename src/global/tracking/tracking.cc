@@ -12,6 +12,7 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/tracking/TrackerHitCollector_factory.h"
+#include "factories/tracking/TrackerTrajectoryCollector_factory.h"
 
 #include "TrackerSourceLinker_factory.h"
 #include "TrackParamTruthInit_factory.h"
@@ -92,10 +93,26 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
             {"CentralCKFActsTrajectories"}, "CentralTrackVertices"));
 
+    // Tracker hits collector from ACTS and other factories
+    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+										  "CombinedTrajectories",       
+     {"CentralCKFTrajectories",  // ACTS output
+             "LowQ2Trajectories"},            // Low Q2 output
+      {"CombinedTrajectories"},
+app));    // Output collection name
+
+    // Tracker hits collector from ACTS and other factories
+    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+										  "CombinedSeededTrajectories",
+{"CentralCKFSeededTrajectories",  // ACTS output
+             "LowQ2Trajectories"},            // Low Q2 output
+      {"CombinedSeededTrajectories"},
+app));  // Output collection name
+
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFTrajectories"},                         // edm4eic::Trajectory
+            "CombinedTrajectories"},                         // edm4eic::Trajectory
             {"ReconstructedChargedParticles",                  //
              "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
             },
@@ -105,7 +122,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFSeededTrajectories"},                   // edm4eic::Trajectory
+            "CombinedSeededTrajectories"},                   // edm4eic::Trajectory
             {"ReconstructedSeededChargedParticles",            //
              "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
             },
