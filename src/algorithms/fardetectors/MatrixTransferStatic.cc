@@ -5,38 +5,41 @@
 
 #include "MatrixTransferStatic.h"
 
-void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::MatrixTransferStatic::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv,
+					  const dd4hep::Detector* det,
+					  std::shared_ptr<spdlog::logger> &logger) {
 
-  m_log = logger;
-
+  m_log              = logger;
+  m_detector         = det;
+  m_cellid_converter = id_conv;
   //Calculate inverse of static transfer matrix
   std::vector<std::vector<double>> aX(m_cfg.aX);
   std::vector<std::vector<double>> aY(m_cfg.aY);
 
-  double det = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
+  double determinate = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
 
-  if (det == 0) {
+  if (determinate == 0) {
     m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
-  aXinv[0][0] =  aX[1][1] / det;
-  aXinv[0][1] = -aX[0][1] / det;
-  aXinv[1][0] = -aX[1][0] / det;
-  aXinv[1][1] =  aX[0][0] / det;
+  aXinv[0][0] =  aX[1][1] / determinate;
+  aXinv[0][1] = -aX[0][1] / determinate;
+  aXinv[1][0] = -aX[1][0] / determinate;
+  aXinv[1][1] =  aX[0][0] / determinate;
 
 
-  det = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
+  determinate = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
 
-  if (det == 0) {
+  if (determinate == 0) {
     m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
-  aYinv[0][0] =  aY[1][1] / det;
-  aYinv[0][1] = -aY[0][1] / det;
-  aYinv[1][0] = -aY[1][0] / det;
-  aYinv[1][1] =  aY[0][0] / det;
+  aYinv[0][0] =  aY[1][1] / determinate;
+  aYinv[0][1] = -aY[0][1] / determinate;
+  aYinv[1][0] = -aY[1][0] / determinate;
+  aYinv[1][1] =  aY[0][0] / determinate;
 
   return;
 
@@ -66,19 +69,22 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
 
     auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-    if(!goodHit2 && gpos.z()/dd4hep::mm > m_cfg.hit2minZ && gpos.z()/dd4hep::mm < m_cfg.hit2maxZ){
+    gpos = gpos/dd4hep::mm;
+    pos0 = pos0/dd4hep::mm;
 
-      goodHitX[1] = pos0.x()/dd4hep::mm;
-      goodHitY[1] = pos0.y()/dd4hep::mm;
-      goodHitZ[1] = gpos.z()/dd4hep::mm;
+    if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
+
+      goodHitX[1] = pos0.x();
+      goodHitY[1] = pos0.y();
+      goodHitZ[1] = gpos.z();
       goodHit2 = true;
 
     }
-    if(!goodHit1 && gpos.z()/dd4hep::mm > m_cfg.hit1minZ && gpos.z()/dd4hep::mm < m_cfg.hit1maxZ){
+    if(!goodHit1 && gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
 
-      goodHitX[0] = pos0.x()/dd4hep::mm;
-      goodHitY[0] = pos0.y()/dd4hep::mm;
-      goodHitZ[0] = gpos.z()/dd4hep::mm;
+      goodHitX[0] = pos0.x();
+      goodHitY[0] = pos0.y();
+      goodHitZ[0] = gpos.z();
       goodHit1 = true;
 
     }

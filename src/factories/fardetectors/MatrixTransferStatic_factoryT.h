@@ -2,10 +2,6 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
-
-#include <extensions/spdlog/SpdlogMixin.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <algorithms/fardetectors/MatrixTransferStatic.h>
@@ -17,12 +13,12 @@
 
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <spdlog/logger.h>
 
 namespace eicrecon {
 
     class MatrixTransferStatic_factoryT :
-    public JChainMultifactoryT<MatrixTransferStaticConfig>{
+      public JChainMultifactoryT<MatrixTransferStaticConfig>,
+      public SpdlogMixin{
 
     public:
 
@@ -42,16 +38,15 @@ namespace eicrecon {
 
 	  auto app = GetApplication();
 
-	  m_log = app->GetService<Log_service>()->logger(GetTag());
+	  // SpdlogMixin logger initialization, sets m_log
+	  InitLogger(app, GetPrefix(), "info");
 
 	  auto cfg = GetDefaultConfig();
 
 	  m_geoSvc = app->GetService<JDD4hep_service>();
 
-	  m_reco_algo.setDetector(m_geoSvc->detector());
-	  m_reco_algo.setGeoConverter(m_geoSvc->cellIDPositionConverter());
 	  m_reco_algo.applyConfig(cfg);
-	  m_reco_algo.init(m_log);
+	  m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),m_geoSvc->detector(),logger());
 
         }
 
@@ -72,9 +67,9 @@ namespace eicrecon {
 	}
 
     private:
-	std::shared_ptr<spdlog::logger>  m_log;              // Logger for this factory
 	eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
 	std::shared_ptr<JDD4hep_service> m_geoSvc;
+
     };
 
 } // eicrecon

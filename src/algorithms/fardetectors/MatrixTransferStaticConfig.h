@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 namespace eicrecon {
+
   struct MatrixTransferStaticConfig {
 
     float     partMass  {0.938272};
@@ -33,4 +32,5 @@ namespace eicrecon {
     std::string readout{""};
 
   };
+
 }
