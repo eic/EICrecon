@@ -82,7 +82,7 @@ namespace eicrecon {
       }
 
 
-  
+
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override {
 	auto inputhits  = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));

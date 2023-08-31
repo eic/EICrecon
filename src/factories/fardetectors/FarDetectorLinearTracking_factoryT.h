@@ -28,24 +28,24 @@ namespace eicrecon {
           const std::vector<std::string>& output_tags,
 	  FarDetectorLinearTrackingConfig cfg):
 	  JChainMultifactoryT(std::move(tag), input_tags, output_tags, cfg) {
-	
+
 	  DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[0]);
       }
-	
+
         /** One time initialization **/
         void Init() override {
 	  auto app = GetApplication();
-	  
+
 	  m_log = app->GetService<Log_service>()->logger(GetTag());
-	  
+
 	  auto cfg = GetDefaultConfig();
-	  
+
 	  m_geoSvc = app->GetService<JDD4hep_service>();
-	  
+
 	  if (cfg.detconf.readout.empty()) {
 	    throw JException("Readout is empty");
 	  }
-	  
+
 	  try {
 	    id_dec = m_geoSvc->detector()->readout(cfg.detconf.readout).idSpec().decoder();
 	    if (!cfg.detconf.moduleField.empty()) {
@@ -70,7 +70,7 @@ namespace eicrecon {
 	  }
 	  m_reco_algo.setEncoder(id_dec);
 	  m_reco_algo.applyConfig(cfg);
- 
+
 	}
 
         /** Event by event processing **/

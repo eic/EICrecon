@@ -30,7 +30,7 @@ namespace eicrecon {
 
 	/** Event by event processing **/
 	std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
-	
+
 	// Get bit encoder
 	dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
 
