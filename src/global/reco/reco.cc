@@ -95,5 +95,19 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
+    app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
+            "GeneratedChargedJets",
+            {"MCChargedParticles"},
+            {"GeneratedChargedJets"},
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
+            "ReconstructedChargedJets",
+            {"ReconstructedChargedParticles"},
+            {"ReconstructedChargedJets"},
+            app
+    ));
+
 }
 } // extern "C"
