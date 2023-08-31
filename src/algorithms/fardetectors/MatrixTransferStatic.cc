@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Alex Jentsch, Wouter Deconinck, Sylvester Joosten, David Lawrence
+// Copyright (C) 2022, 2023 Alex Jentsch, Wouter Deconinck, Sylvester Joosten, David Lawrence, Simon Gardner
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
@@ -8,9 +8,6 @@
 void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logger) {
 
   m_log = logger;
-
-  // do not get the layer/sector ID if no readout class provided
-  if (m_cfg.readout.empty()){m_log->error("READOUT IS EMPTY!"); return;}
 
   //Calculate inverse of static transfer matrix
   std::vector<std::vector<double>> aX(m_cfg.aX);
@@ -145,7 +142,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       reconTrack.setGoodnessOfPID(1.);
       reconTrack.setPDG(m_cfg.partPDG);
       //reconTrack.covMatrix(); // @TODO: Errors
-      outputParticles->push_back(edm4eic::ReconstructedParticle(reconTrack));
+      outputParticles->push_back(reconTrack);
     }
   } // end enough hits for matrix reco
 
