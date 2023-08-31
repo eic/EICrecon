@@ -43,8 +43,8 @@ namespace eicrecon {
         eicrecon::TrackPropagation m_track_propagation_algo;
 
         std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
-        std::vector<uint16_t> m_target_detector_ID;
-        std::vector<uint16_t> m_target_surface_ID;
+        std::vector<uint64_t> m_target_surface_ID;
+        std::vector<uint32_t> m_target_detector_ID;
 
         void SetPropagationSurfaces();
 

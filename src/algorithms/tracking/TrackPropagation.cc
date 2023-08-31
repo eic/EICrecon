@@ -290,7 +290,7 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
         uint64_t surface = targetSurf->geometryId().value();  
-	uint16_t system = 0; // default value...will be set in TrackPropagation factory
+	uint32_t system = 0; // default value...will be set in TrackPropagation factory
 
 	/*
          ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
@@ -306,6 +306,8 @@ namespace eicrecon {
           float pathlengthError{}; ///< Error on the pathlenght
          */
         return std::make_unique<edm4eic::TrackPoint>(edm4eic::TrackPoint{
+                                               surface,
+                                               system,
                                                position,
                                                positionError,
                                                momentum,
@@ -316,9 +318,7 @@ namespace eicrecon {
                                                phi,
                                                directionError,
                                                pathLength,
-                                               pathLengthError,
-                                               surface,
-                                               system
+                                               pathLengthError
                                        });
     }
 

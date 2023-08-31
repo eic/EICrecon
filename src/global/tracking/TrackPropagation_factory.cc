@@ -77,10 +77,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_BEMC_prop_surface1  = Acts::Surface::makeShared<Acts::CylinderSurface>(BEMC_Trf, BEMC_R, BEMC_halfz);
     auto m_BEMC_prop_surface2  = Acts::Surface::makeShared<Acts::CylinderSurface>(BEMC_Trf, BEMC_R + ECAL_avgClusterDepth, BEMC_halfz);
     m_target_surface_list.push_back(m_BEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalBarrel_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalBarrel_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_BEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalBarrel_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalBarrel_ID"));
     m_target_surface_ID.push_back(2);
 
     // Create propagation surface for FEMC
@@ -93,10 +93,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_FEMC_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(FEMC_Trf1, FEMC_Bounds);
     auto m_FEMC_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(FEMC_Trf2, FEMC_Bounds);
     m_target_surface_list.push_back(m_FEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalEndcapP_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapP_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_FEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalEndcapP_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapP_ID"));
     m_target_surface_ID.push_back(2);
     
     // Create propagation surface for EEMC 
@@ -109,10 +109,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_EEMC_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(EEMC_Trf1, EEMC_Bounds);
     auto m_EEMC_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(EEMC_Trf2, EEMC_Bounds);
     m_target_surface_list.push_back(m_EEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalEndcapN_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapN_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_EEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("ECalEndcapN_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapN_ID"));
     m_target_surface_ID.push_back(2);
       
     // Create propagation surface for OHCAL
@@ -123,10 +123,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_OHCAL_prop_surface1    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R, OHCAL_halfz);
     auto m_OHCAL_prop_surface2    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R + HCAL_avgClusterDepth, OHCAL_halfz);
     m_target_surface_list.push_back(m_OHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalBarrel_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_OHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalBarrel_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID"));
     m_target_surface_ID.push_back(2);
 
     // Create propagation surface for LFHCAL
@@ -139,10 +139,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_LFHCAL_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf1, LFHCAL_Bounds);
     auto m_LFHCAL_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf2, LFHCAL_Bounds);
     m_target_surface_list.push_back(m_LFHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalEndcapP_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapP_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_LFHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalEndcapP_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapP_ID"));
     m_target_surface_ID.push_back(2);
    
     // Create propagation surface for EHCAL
@@ -155,10 +155,10 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto m_EHCAL_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(EHCAL_Trf1, EHCAL_Bounds);
     auto m_EHCAL_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(EHCAL_Trf2, EHCAL_Bounds);
     m_target_surface_list.push_back(m_EHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalEndcapN_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID"));
     m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(m_EHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint16_t>("HCalEndcapN_ID"));
+    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID"));
     m_target_surface_ID.push_back(2);
     
     	

@@ -143,8 +143,13 @@ namespace eicrecon {
                 const float pathLength = static_cast<float>(trackstate.pathLength());
                 const float pathLengthError = 0;
 
-                // Store track point
-                track_segment.addToPoints({
+                uint64_t surface = trackstate.referenceSurface().geometryId().value();  
+	        uint32_t system = 0;
+
+		// Store track point
+                track_segment.addToPoints({       
+				                  surface,
+						  system,
                                                   position,
                                                   positionError,
                                                   momentum,
