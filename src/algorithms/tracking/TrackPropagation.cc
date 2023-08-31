@@ -208,9 +208,8 @@ namespace eicrecon {
         using Propagator = Acts::Propagator<Stepper>;
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
-        Acts::Logging::Level logLevel = Acts::Logging::FATAL;
-        //Acts::Logging::Level logLevel = Acts::Logging::INFO;
 
+	Acts::Logging::Level logLevel = Acts::Logging::FATAL;
         ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("ProjectTrack Logger", logLevel));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
@@ -290,8 +289,8 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
-	uint16_t detectorID = 0; // default value...will be set in TrackPropagation factory
-        uint16_t surfaceID = targetSurf->geometryId().value();  
+        uint64_t surface = targetSurf->geometryId().value();  
+	uint16_t system = 0; // default value...will be set in TrackPropagation factory
 
 	/*
          ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
@@ -318,8 +317,8 @@ namespace eicrecon {
                                                directionError,
                                                pathLength,
                                                pathLengthError,
-                                               detectorID,
-                                               surfaceID
+                                               surface,
+                                               system
                                        });
     }
 

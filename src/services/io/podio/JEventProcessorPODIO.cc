@@ -88,8 +88,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedElectrons",
 
-	    // Tracks propagated to calorimeters
-	    "PropagatedTrackPoints",
+	    // Track projections
+	    "CalorimeterTrackProjections",
 
             // Ecal stuff
             "EcalEndcapNRawHits",
