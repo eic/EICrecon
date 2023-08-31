@@ -17,7 +17,6 @@
 #include "TrackParamTruthInit_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
-#include "TrackerParticleCollector_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackSeeding_factory.h"
 #include "ParticlesWithTruthPID_factory.h"
@@ -93,23 +92,10 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
             {"CentralCKFActsTrajectories"}, "CentralTrackVertices"));
 
-
-    // Tracker hits collector from ACTS and other factories
-    app->Add(new JChainFactoryGeneratorT<TrackerParticleCollector_factory>(
-            {"CentralCKFSeededTrackParameters",  // ACTS output
-             "LowQ2TrackParameters"},            // Low Q2 output
-             "CombinedSeededTrackParameters"));    // Output collection name
-
-    // Tracker hits collector from ACTS and other factories
-    app->Add(new JChainFactoryGeneratorT<TrackerParticleCollector_factory>(
-            {"CentralCKFTrackParameters",  // ACTS output
-             "LowQ2TrackParameters"},            // Low Q2 output
-             "CombinedTrackParameters"));    // Output collection name
-
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CombinedTrackParameters"},                         // edm4eic::Trajectory
+            "CentralCKFTrajectories"},                         // edm4eic::Trajectory
             {"ReconstructedChargedParticles",                  //
              "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
             },
@@ -119,7 +105,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
             "ChargedParticlesWithAssociations",                // Tag name for multifactory
             {"MCParticles",                                    // edm4hep::MCParticle
-            "CombinedSeededTrackParameters"},                   // edm4eic::Trajectory
+            "CentralCKFSeededTrajectories"},                   // edm4eic::Trajectory
             {"ReconstructedSeededChargedParticles",            //
              "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
             },

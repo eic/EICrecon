@@ -24,10 +24,10 @@ void eicrecon::ParticlesWithTruthPID_factory::Process(const std::shared_ptr<cons
     // auto mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
     // auto track_params = event->GetCollection<edm4eic::TrackParameters>(GetInputTags()[1]);
     auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-    auto trackparams = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[1]));
+    auto trajectories = static_cast<const edm4eic::TrajectoryCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
     try {
-        auto prt_with_assoc = m_matching_algo.process(mc_particles, trackparams);
+        auto prt_with_assoc = m_matching_algo.process(mc_particles, trajectories);
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(prt_with_assoc.first));
         SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::move(prt_with_assoc.second));
     }
