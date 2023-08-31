@@ -95,7 +95,7 @@ void InitPlugin(JApplication *app) {
 
     // Tracker hits collector from ACTS and other factories
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
-										  "CombinedTrajectories",       
+										  "CombinedTrajectories",
      {"CentralCKFTrajectories",  // ACTS output
              "LowQ2Trajectories"},            // Low Q2 output
       {"CombinedTrajectories"},
