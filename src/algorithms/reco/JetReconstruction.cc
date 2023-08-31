@@ -6,7 +6,7 @@
 
 // standard c includes
 #include <cmath>
-// Event Model related classes
+// event data model related classes
 #include <edm4eic/vector_utils.h>
 #include <edm4eic/MutableReconstructedParticle.h>
 // fastjet includes
@@ -23,16 +23,16 @@ namespace eicrecon {
     m_log->trace("Initialized");
   }
 
-  std::vector<edm4eic::ReconstructedParticle*> JetReconstruction::execute(
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::execute(
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
-    std::vector<edm4eic::ReconstructedParticle*> jets_edm;
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
 
     // Skip empty
     if (momenta.empty()) {
       m_log->trace("  Empty particle list.");
-      return jets_edm;
+      return jet_collection;
     }
 
     m_log->trace("  Number of particles: {}", momenta.size());
@@ -40,9 +40,10 @@ namespace eicrecon {
     // Particles for jet reconstrution
     std::vector<PseudoJet> particles;
     for (const auto &mom : momenta) {
+
       // Only cluster particles within the given pt Range
       if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
-        particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e() );
+        particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e());
       }
     }
 
@@ -57,41 +58,41 @@ namespace eicrecon {
     // Print out some infos
     m_log->trace("  Clustering with : {}", jet_def.description());
 
+    // loop over jets
     for (unsigned i = 0; i < jets.size(); i++) {
 
       m_log->trace("  jet {}: pt = {}, y = {}, phi = {}", i, jets[i].pt(), jets[i].rap(), jets[i].phi());
-      edm4eic::MutableReconstructedParticle jet_edm;
+
       // Type = 0 for jets, Type = 1 for constituents
       // Use PDG values to match jets and constituents
-      jet_edm.setType(0);
-      jet_edm.setPDG(i);
-      jet_edm.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
-      jet_edm.setEnergy(jets[i].e());
-      jet_edm.setMass(jets[i].m());
+      edm4eic::MutableReconstructedParticle jet_output = jet_collection->create();
+      jet_output.setType(0);
+      jet_output.setPDG(i);
+      jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
+      jet_output.setEnergy(jets[i].e());
+      jet_output.setMass(jets[i].m());
 
+      // loop over constituents
       std::vector<PseudoJet> csts = jets[i].constituents();
       for (unsigned j = 0; j < csts.size(); j++) {
+
         const double cst_pt = csts[j].pt();
         m_log->trace("    constituent {}'s pt: {}", j, cst_pt);
 
-        edm4eic::MutableReconstructedParticle cst_edm;
         // Type = 0 for jets, Type = 1 for constituents
         // Use PDG values to match jets and constituents
-        cst_edm.setType(1);
-        cst_edm.setPDG(i);
-        cst_edm.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
-        cst_edm.setEnergy(csts[j].e());
-        cst_edm.setMass(csts[j].m());
-        //jet_edm.addToParticles(cst_edm);  // FIXME: global issue with podio reference
-        // Store constituents in jets due to the above issue
-        jets_edm.push_back(new edm4eic::ReconstructedParticle(cst_edm));
+        edm4eic::MutableReconstructedParticle cst_output = jet_collection->create();
+        cst_output.setType(1);
+        cst_output.setPDG(i);
+        cst_output.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
+        cst_output.setEnergy(csts[j].e());
+        cst_output.setMass(csts[j].m());
+        //jet_output.addToParticles(cst_output);  // FIXME: global issue with podio reference
       } // for constituent j
-
-      jets_edm.push_back(new edm4eic::ReconstructedParticle(jet_edm));
     } // for jet i
 
     // return the jets
-    return jets_edm;
+    return jet_collection;
   }
 
-} // namespace eicrecon
+} // end namespace eicrecon
