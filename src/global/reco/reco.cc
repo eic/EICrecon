@@ -9,6 +9,7 @@
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
+#include "ChargedParticleSelector_factory.h"
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
@@ -79,11 +80,34 @@ void InitPlugin(JApplication *app) {
             {"GeneratedJets"},
             app
     ));
+
     app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
             "ReconstructedJets",
             {"ReconstructedParticles"},
             {"ReconstructedJets"},
             app
     ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ChargedParticleSelector_factory>(
+            "MCChargedParticles",
+            {"MCParticles"},
+            {"MCChargedParticles"},
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
+            "GeneratedChargedJets",
+            {"MCChargedParticles"},
+            {"GeneratedChargedJets"},
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
+            "ReconstructedChargedJets",
+            {"ReconstructedChargedParticles"},
+            {"ReconstructedChargedJets"},
+            app
+    ));
+
 }
 } // extern "C"
