@@ -8,8 +8,7 @@
 namespace eicrecon {
   struct FarDetectorMLReconstructionConfig {
 
-    int n_module{2};
-    int n_layer{4};
+    std::string modelPath{""};
 
   };
 }
