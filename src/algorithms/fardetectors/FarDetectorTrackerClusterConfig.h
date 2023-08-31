@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
-  struct FarTrackerClusterConfig {
+  struct FarDetectorTrackerClusterConfig {
 
     std::string readout{""};
     std::string moduleField{"module"};

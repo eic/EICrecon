@@ -8,7 +8,6 @@
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
-#include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 
@@ -17,16 +16,16 @@
 #include <spdlog/logger.h>
 
 #include <services/geometry/dd4hep/JDD4hep_service.h>
-#include "FarTrackerClusterConfig.h"
+#include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class TrackerClusterGen : public WithPodConfig<FarTrackerClusterConfig>  {
+  class FarDetectorTrackerCluster : public WithPodConfig<FarDetectorTrackerClusterConfig>  {
 
   public:
 
-    TrackerClusterGen() = default;
+    FarDetectorTrackerCluster() = default;
 
     /** One time initialization **/
     void init();
@@ -48,7 +47,7 @@ namespace eicrecon {
     void setGeoConverter(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv) {m_cellid_converter=id_conv;}
 
   private:
-      eicrecon::FarTrackerClusterConfig m_cfg;
+      eicrecon::FarDetectorTrackerClusterConfig m_cfg;
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
 
       dd4hep::BitFieldCoder *m_id_dec{nullptr};

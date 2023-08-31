@@ -8,16 +8,16 @@
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ROOT/RVec.hxx"
-#include "TrackerCluster.h"
+#include "FarDetectorTrackerCluster.h"
 
 namespace eicrecon {
 
 
-  void TrackerClusterGen::init() {
+  void FarDetectorTrackerCluster::init() {
 
   }
 
-  std::unique_ptr<edm4hep::TrackerHitCollection> TrackerClusterGen::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
+  std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
     ROOT::VecOps::RVec<long>  id;

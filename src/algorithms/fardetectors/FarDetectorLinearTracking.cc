@@ -9,7 +9,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 
-#include "Chi2TrackFit.h"
+#include "FarDetectorLinearTracking.h"
 #include <services/log/Log_service.h>
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <ROOT/RVec.hxx>
@@ -22,15 +22,13 @@
 namespace eicrecon {
 
 
-    void Chi2TrackFit::init() {
+    void FarDetectorLinearTracking::init() {
 
     }
 
-    std::unique_ptr<edm4eic::TrackParametersCollection> Chi2TrackFit::produce(const edm4hep::TrackerHitCollection &inputhits) {
-      //    std::unique_ptr<edm4eic::TrackPointCollection> Chi2TrackFit::produce(const edm4hep::TrackerHitCollection &inputhits) {
+    std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearTracking::produce(const edm4hep::TrackerHitCollection &inputhits) {
 
         auto outputTracks = std::make_unique<edm4eic::TrackParametersCollection>();
-	//        auto outputTracks = std::make_unique<edm4eic::TrackPointCollection>();
 
 	std::map<int,std::map<int,std::vector<edm4hep::TrackerHit>>> sortedHits;
 

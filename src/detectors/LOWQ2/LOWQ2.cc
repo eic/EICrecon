@@ -12,8 +12,8 @@
 
 
 #include <factories/digi/SiliconTrackerDigi_factoryT.h>
-#include <factories/fardetectors/FarDetectorCluster_factoryT.h>
-#include <factories/fardetectors/FarDetectorSimpleTracking_factoryT.h>
+#include <factories/fardetectors/FarDetectorTrackerCluster_factoryT.h>
+#include <factories/fardetectors/FarDetectorLinearTracking_factoryT.h>
 #include <factories/fardetectors/FarDetectorMLReconstruction_factoryT.h>
 
 
@@ -32,11 +32,11 @@ extern "C" {
     //digi_cfg.timeResolution = 2.5; // Change timing resolution.
 
     //Clustering config
-    FarTrackerClusterConfig cluster_cfg;
+    FarDetectorTrackerClusterConfig cluster_cfg;
     //Ensure same detector is passed to digi and clustering
     cluster_cfg.readout = "TaggerTrackerHits";
 
-    FarTrackerTrackingConfig tracking_cfg;
+    FarDetectorLinearTrackingConfig tracking_cfg;
     tracking_cfg.detconf = cluster_cfg;
 
     FarDetectorMLReconstructionConfig recon_cfg;
@@ -54,10 +54,10 @@ extern "C" {
 
 
     // Clustering of hits
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
 
     // Very basic reconstrution of a single track
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorSimpleTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
     // Initial particle reconstruction
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2TrackParameters",{"LowQ2Tracks"},{"LowQ2TrackParameters"}, recon_cfg, app));
