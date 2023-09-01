@@ -1,5 +1,6 @@
 "topic: backward":
-  - "src/detectors/BHCAL/**"
+  - "src/detectors/EEMC/**"
+  - "src/detectors/EHCAL/**"
 
 "topic: barrel":
   - "src/detectors/BEMC/**"
