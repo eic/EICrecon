@@ -289,7 +289,7 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
-        uint64_t surface = targetSurf->geometryId().value();  
+        uint64_t surface = targetSurf->geometryId().value();
 	uint32_t system = 0; // default value...will be set in TrackPropagation factory
 
 	/*

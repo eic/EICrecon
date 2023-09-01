@@ -21,9 +21,9 @@ namespace eicrecon {
                                      public SpdlogMixin {
 
     public:
-	     
-        explicit TrackPropagation_factory(std::string tag, 
-			const std::vector<std::string>& input_tags, 
+
+        explicit TrackPropagation_factory(std::string tag,
+			const std::vector<std::string>& input_tags,
 			const std::vector<std::string>& output_tags) :
             JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
                 DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
@@ -39,7 +39,7 @@ namespace eicrecon {
         std::shared_ptr<JDD4hep_service> m_geoSvc;
 
     private:
-	
+
         eicrecon::TrackPropagation m_track_propagation_algo;
 
         std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
