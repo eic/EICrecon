@@ -1,3 +1,4 @@
+
 // Created by Simon Gardner to do FarDetectorML Tagger reconstruction
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
@@ -29,7 +30,7 @@ namespace eicrecon {
     m_reader.AddVariable( "cos(LowQ2Tracks[0].phi)*sin(LowQ2Tracks[0].theta)", &nnInput[FarDetectorMLNNIndexIn::DirY] );
 
     // Locate and load the weight file
-    // TODO - Add functionality to select passed by configiuration
+    // TODO - Add functionality to select passed by configuration
     bool methodFound = false;
     if(!m_cfg.modelPath.empty()){
       try{

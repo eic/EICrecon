@@ -25,30 +25,16 @@ namespace eicrecon {
 
   public:
 
-    FarDetectorTrackerCluster() = default;
-
     /** One time initialization **/
-    void init();
+    void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
+	      dd4hep::BitFieldCoder*,
+	      std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
     std::unique_ptr<edm4hep::TrackerHitCollection> produce(const edm4eic::RawTrackerHitCollection &inputhits);
 
-    // Get bit encoder
-    dd4hep::BitFieldCoder* getEncoder() {return m_id_dec;}
-
-    // Set bit encoder
-    void setEncoder(dd4hep::BitFieldCoder *id_dec) {m_id_dec=id_dec;}
-
-    // Get position convertor
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> getGeoConverter() {return m_cellid_converter;}
-    //    dd4hep::rec::CellIDPositionConverter* getGeoConverter() {return m_cellid_converter;}
-
-    // Set position convertor
-    void setGeoConverter(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv) {m_cellid_converter=id_conv;}
-
   private:
       std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-
       dd4hep::BitFieldCoder *m_id_dec{nullptr};
       std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter{nullptr};
 

@@ -20,7 +20,8 @@
 namespace eicrecon {
 
   class FarDetectorTrackerCluster_factoryT :
-  public JChainMultifactoryT<FarDetectorTrackerClusterConfig>{
+  public JChainMultifactoryT<FarDetectorTrackerClusterConfig>,
+  public SpdlogMixin {
 
   public:
 
@@ -41,7 +42,8 @@ namespace eicrecon {
 
 	auto app = GetApplication();
 
-	m_log = app->GetService<Log_service>()->logger(GetTag());
+	// SpdlogMixin logger initialization, sets m_log
+	InitLogger(app, GetPrefix(), "info");
 
 	auto cfg = GetDefaultConfig();
 
@@ -74,10 +76,9 @@ namespace eicrecon {
 	  throw JException("Failed to load ID decoder");
 	}
 
-	// Setup algorithm
-	m_reco_algo.setGeoConverter(m_geoSvc->cellIDPositionConverter());
-	m_reco_algo.setEncoder(id_dec);
+	// Setup algorithm	
 	m_reco_algo.applyConfig(cfg);
+	m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),id_dec,logger());
 
       }
 

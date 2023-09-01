@@ -13,8 +13,12 @@
 namespace eicrecon {
 
 
-  void FarDetectorTrackerCluster::init() {
-
+  void FarDetectorTrackerCluster::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+	      dd4hep::BitFieldCoder* id_dec,
+	      std::shared_ptr<spdlog::logger> log) {
+    m_log = log;
+    m_id_dec = id_dec;
+    m_cellid_converter = cellid;
   }
 
   std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {

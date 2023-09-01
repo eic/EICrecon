@@ -18,7 +18,9 @@
 
 namespace eicrecon {
 
-  class FarDetectorMLReconstruction_factoryT : public JChainMultifactoryT<FarDetectorMLReconstructionConfig>{
+  class FarDetectorMLReconstruction_factoryT :
+  public JChainMultifactoryT<FarDetectorMLReconstructionConfig>,
+  public SpdlogMixin {
 
   public:
 
@@ -31,14 +33,15 @@ namespace eicrecon {
 
 	 DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
 
-      } //constructer
+      }
 
       /** One time initialization **/
       void Init() override {
 
 	auto app = GetApplication();
 
-	m_log = app->GetService<Log_service>()->logger(GetTag());
+	// SpdlogMixin logger initialization, sets m_log
+	InitLogger(app, GetPrefix(), "info");
 
 	auto cfg = GetDefaultConfig();
 
@@ -47,6 +50,10 @@ namespace eicrecon {
 				  m_electron_beamE,
 				  "Electron beam energy [GeV]"
 				  );
+
+	// Setup algorithm	
+	m_reco_algo.applyConfig(cfg);
+
 	m_reco_algo.init();
 
       }
