@@ -66,7 +66,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
-	    "SmearedFarForwardParticles",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -75,9 +74,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
-	    "ReconstructedSeededChargedParticleAssociations",
+            "ReconstructedSeededChargedParticleAssociations",
             "CentralTrackSegments",
-	    "CentralTrackVertices",
+            "CentralTrackVertices",
+            "CentralCKFTrajectories",
+            "CentralCKFTrackParameters",
+            "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTrackParameters",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",

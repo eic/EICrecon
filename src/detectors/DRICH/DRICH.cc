@@ -38,7 +38,6 @@ extern "C" {
     digi_cfg.pedMean         = 200.0;
     digi_cfg.pedError        = 3.0;
     digi_cfg.enablePixelGaps = true;
-    digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
     digi_cfg.enableNoise     = false;
     digi_cfg.noiseRate       = 20000; // [Hz]
@@ -110,7 +109,7 @@ extern "C" {
     // charged particle tracks
     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
-          {"CentralCKFTrajectories"},
+          {"CentralCKFActsTrajectories"},
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app

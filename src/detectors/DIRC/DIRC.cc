@@ -33,7 +33,6 @@ extern "C" {
     digi_cfg.pedMean         = 200.0;
     digi_cfg.pedError        = 3.0;
     digi_cfg.enablePixelGaps = false;
-    digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 1.0;
     digi_cfg.quantumEfficiency.clear();
 
