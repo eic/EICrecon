@@ -51,7 +51,7 @@ namespace eicrecon {
 				  "Electron beam energy [GeV]"
 				  );
 
-	// Setup algorithm	
+	// Setup algorithm
 	m_reco_algo.applyConfig(cfg);
 
 	m_reco_algo.init();

@@ -76,7 +76,7 @@ namespace eicrecon {
 	  throw JException("Failed to load ID decoder");
 	}
 
-	// Setup algorithm	
+	// Setup algorithm
 	m_reco_algo.applyConfig(cfg);
 	m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),id_dec,logger());
 
