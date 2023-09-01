@@ -27,7 +27,7 @@ void InitPlugin(JApplication *app) {
         {"GEMRawHit"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            // .timeResolution = 10,
+            .timeResolution = 10,
         },
         app
     ));
