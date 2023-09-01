@@ -21,7 +21,10 @@ void InitPlugin(JApplication *app) {
         "SiBarrelRawHits",
         {"SiBarrelHits"},
         {"SiBarrelRawHits"},
-        {}, // default config
+        {
+            .threshold = 0.65 * dd4hep::keV,
+            // .timeResolution = 10,
+        },
         app
     ));
 

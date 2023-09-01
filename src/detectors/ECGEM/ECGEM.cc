@@ -25,7 +25,10 @@ void InitPlugin(JApplication *app) {
             "GEMTrackerEndcapHits3"
         },
         {"GEMRawHit"},
-        {}, // default config
+        {
+            .threshold = 0.25 * dd4hep::keV,
+            // .timeResolution = 10,
+        },
         app
     ));
 
