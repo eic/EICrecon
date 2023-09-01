@@ -59,8 +59,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
-            "ForwardOffMTrackerRecHits",
-            "ForwardRomanPotRecHits",
             "B0TrackerRecHits",
 
             //
@@ -120,7 +118,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelImagingClusterAssociations",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
-            "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
             "EcalLumiSpecRawHits",
