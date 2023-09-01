@@ -25,8 +25,8 @@ void InitPlugin(JApplication *app) {
     recon_cfg.aY = {{0.0001674, -28.6003},
 		    {0.0000837, -2.87985}};
 
-    recon_cfg.local_x_offset       = -11.9872;  // in mm --> this is from mis-alignment of the detector
-    recon_cfg.local_y_offset       = -0.0146;   // in mm --> this is from mis-alignment of the detector
+    recon_cfg.local_x_offset       = -11.9872;  // in mm --> this is from misalignment of the detector
+    recon_cfg.local_y_offset       = -0.0146;   // in mm --> this is from misalignment of the detector
     recon_cfg.local_x_slope_offset = -14.75315; // in mrad
     recon_cfg.local_y_slope_offset = -0.0073;   // in mrad
     recon_cfg.nomMomentum          =  137.5;    // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
