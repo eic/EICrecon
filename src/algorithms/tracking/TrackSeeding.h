@@ -12,13 +12,13 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
-#include "JugBase/BField/DD4hepBField.h"
-#include "JugTrack/GeometryContainers.hpp"
-#include "JugTrack/Index.hpp"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Measurement.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "DD4hepBField.h"
+#include "ActsExamples/EventData/GeometryContainers.hpp"
+#include "ActsExamples/EventData/Index.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParameters.h>
@@ -29,7 +29,6 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
-#include "algorithms/interfaces/IObjectProducer.h"
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/TrackParameters.h>
 #include "algorithms/interfaces/WithPodConfig.h"

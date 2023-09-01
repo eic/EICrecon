@@ -23,6 +23,7 @@ extern "C" {
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
+            .threshold = 5.0 * dd4hep::MeV,
             .capADC = 65536,
             .capTime = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = 1.0 * dd4hep::GeV,
@@ -74,7 +75,7 @@ extern "C" {
             .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
             .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = false,
-            .minClusterHitEdep = 3.0 * dd4hep::MeV,
+            .minClusterHitEdep = 5.0 * dd4hep::MeV,
             .minClusterCenterEdep = 30.0 * dd4hep::MeV,
             .transverseEnergyProfileMetric = "globalDistEtaPhi",
             .transverseEnergyProfileScale = 1.,

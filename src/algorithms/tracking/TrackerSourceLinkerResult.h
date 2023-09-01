@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "algorithms/tracking/JugTrack/GeometryContainers.hpp"
-#include "algorithms/tracking/JugTrack/IndexSourceLink.hpp"
-#include "algorithms/tracking/JugTrack/Measurement.hpp"
+#include "ActsExamples/EventData/GeometryContainers.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
 
 namespace eicrecon {
     struct TrackerSourceLinkerResult {
-        std::shared_ptr<eicrecon::MeasurementContainer> measurements;
-        std::vector<std::shared_ptr<eicrecon::IndexSourceLink>> sourceLinks;
+        std::shared_ptr<ActsExamples::MeasurementContainer> measurements;
+        std::vector<std::shared_ptr<ActsExamples::IndexSourceLink>> sourceLinks;
     };
 }

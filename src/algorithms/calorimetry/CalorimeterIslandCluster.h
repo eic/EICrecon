@@ -53,22 +53,35 @@ namespace eicrecon {
 
     static unsigned int function_id;
 
-   // grouping function with Depth-First Search
-   //TODO: confirm grouping without calohitcollection
-    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
-        // not a qualified hit to particpate clustering, stop here
-        if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
-            visits[idx] = true;
-            return;
-        }
-        group.insert(idx);
-        visits[idx] = true;
-        for (size_t i = 0; i < hits.size(); ++i) {
-            if (visits[i] || !is_neighbour(hits[idx], hits[i])) {
-                continue;
+    // grouping function with Breadth-First Search
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+      visits[idx] = true;
+
+      // not a qualified hit to particpate clustering, stop here
+      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
+        return;
+      }
+
+      group.insert(idx);
+      size_t prev_size = 0;
+
+      while (prev_size != group.size()) {
+        prev_size = group.size();
+        for (std::size_t idx1 : group) {
+          // check neighbours
+          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
+            // not a qualified hit to particpate clustering, skip
+            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+              continue;
             }
-            dfs_group(hits, group, i, visits);
+            if ((!visits[idx2])
+                && is_neighbour(hits[idx1], hits[idx2])) {
+              group.insert(idx2);
+              visits[idx2] = true;
+            }
+          }
         }
+      }
     }
 
     // find local maxima that above a certain threshold

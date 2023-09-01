@@ -17,9 +17,9 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -52,7 +52,7 @@ namespace eicrecon {
 
 
     std::vector<std::unique_ptr<edm4eic::TrackPoint>>
-    TrackPropagation::propagateMany(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories,
+    TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // output collection
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
@@ -76,7 +76,7 @@ namespace eicrecon {
 
 
     std::unique_ptr<edm4eic::TrackSegmentCollection> TrackPropagation::propagateToSurfaceList(
-        std::vector<const eicrecon::TrackingResultTrajectory*> trajectories,
+        std::vector<const ActsExamples::Trajectories*> trajectories,
         std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
         std::shared_ptr<Acts::Surface> filterSurface,
         std::function<bool(edm4eic::TrackPoint)> trackPointCut,
@@ -167,7 +167,7 @@ namespace eicrecon {
 
 
 
-    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const eicrecon::TrackingResultTrajectory *traj,
+    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const ActsExamples::Trajectories *traj,
                                                      const std::shared_ptr<const Acts::Surface> &targetSurf) {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory

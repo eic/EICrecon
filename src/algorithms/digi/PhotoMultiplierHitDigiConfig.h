@@ -31,7 +31,6 @@ namespace eicrecon {
 
       // SiPM pixels
       bool   enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels
-      double pixelSize       = 3.0;   // pixel (active) size // [mm]
 
       // overall safety factor
       /* simulations assume the detector is ideal and perfect, but reality is
@@ -87,7 +86,6 @@ namespace eicrecon {
         print_param("pedMean",pedMean);
         print_param("pedError",pedError);
         print_param("enablePixelGaps",enablePixelGaps);
-        print_param("pixelSize",pixelSize);
         print_param("safetyFactor",safetyFactor);
         print_param("enableNoise",enableNoise);
         print_param("noiseRate",noiseRate);

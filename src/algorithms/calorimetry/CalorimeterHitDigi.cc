@@ -59,8 +59,8 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
     tRes       = m_cfg.tRes / dd4hep::ns;
     stepTDC    = dd4hep::ns / m_cfg.resolutionTDC;
 
+    decltype(id_mask) id_inverse_mask = 0;
     // all these are for signal sum at digitization level
-    merge_hits = false;
     if (!m_cfg.fields.empty()) {
         // sanity checks
         if (!m_detector) {
@@ -75,9 +75,8 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
         // get decoders
         try {
             auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
-            id_mask = 0;
             for (auto & field : m_cfg.fields) {
-                id_mask |= id_desc.field(field)->mask();
+                id_inverse_mask |= id_desc.field(field)->mask();
             }
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
@@ -86,64 +85,13 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
             // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
             return;
         }
-        id_mask = ~id_mask;
         m_log->info("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
-        // all checks passed
-        merge_hits = true;
     }
+    id_mask = ~id_inverse_mask;
 }
 
 
 std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::process(const edm4hep::SimCalorimeterHitCollection &simhits)  {
-    if (merge_hits) {
-        return std::move(signal_sum_digi(simhits));
-    } else {
-        return std::move(single_hits_digi(simhits));
-    }
-}
-
-std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::single_hits_digi(const edm4hep::SimCalorimeterHitCollection &simhits)  {
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits { std::make_unique<edm4hep::RawCalorimeterHitCollection>() };
-
-     // Create output collections
-    for (const auto &ahit : simhits) {
-        // Note: juggler internal unit of energy is dd4hep::GeV
-        const double eDep    = ahit.getEnergy();
-
-        // apply additional calorimeter noise to corrected energy deposit
-        const double eResRel = (eDep > m_cfg.threshold)
-                               ? m_normDist(generator) * std::sqrt(
-                                    std::pow(m_cfg.eRes[0] / std::sqrt(eDep), 2) +
-                                    std::pow(m_cfg.eRes[1], 2) +
-                                    std::pow(m_cfg.eRes[2] / (eDep), 2)
-                                 )
-                               : 0;
-
-        const double ped    = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
-        const long long adc = std::llround(ped + eDep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-
-        double time = std::numeric_limits<double>::max();
-        for (const auto& c : ahit.getContributions()) {
-            if (c.getTime() <= time) {
-                time = c.getTime();
-            }
-        }
-        if (time > m_cfg.capTime) continue;
-
-        const long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
-
-        if (eDep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t cell ID {}", eDep, adc, time, m_cfg.capTime, tdc, ahit.getCellID());
-        rawhits->create(
-                ahit.getCellID(),
-                (adc > m_cfg.capADC ? m_cfg.capADC : adc),
-                tdc
-        );
-    }
-
-    return std::move(rawhits);
-}
-
-std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal_sum_digi(const edm4hep::SimCalorimeterHitCollection &simhits)  {
     auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
     // find the hits that belong to the same group (for merging)
@@ -185,23 +133,21 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::signal
             if (hit.getEnergy() > max_edep) {
                 max_edep = hit.getEnergy();
                 mid = hit.getCellID();
-                for (const auto& c : hit.getContributions()) {
-                    if (c.getTime() <= time) {
-                        time = c.getTime();
-                    }
-                }
                 if (timeC <= time) {
                     time = timeC;
                 }
             }
         }
+        if (time > m_cfg.capTime) continue;
 
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
-                ? m_normDist(generator) * m_cfg.eRes[0] / std::sqrt(edep) +
-                  m_normDist(generator) * m_cfg.eRes[1] +
-                  m_normDist(generator) * m_cfg.eRes[2] / edep
-                  : 0;
+                ? m_normDist(generator) * std::sqrt(
+                     std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
+                     std::pow(m_cfg.eRes[1], 2) +
+                     std::pow(m_cfg.eRes[2] / (edep), 2)
+                  )
+                : 0;
         double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);

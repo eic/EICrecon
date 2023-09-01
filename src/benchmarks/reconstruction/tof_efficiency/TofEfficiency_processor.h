@@ -8,10 +8,10 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "algorithms/tracking/TrackProjector.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <edm4hep//MCParticle.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>

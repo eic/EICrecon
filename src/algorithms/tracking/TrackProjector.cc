@@ -15,9 +15,9 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -46,7 +46,7 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
+    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
 
         // create output collections
         std::vector<edm4eic::TrackSegment *> track_segments;
@@ -204,4 +204,4 @@ namespace eicrecon {
     }
 
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco
