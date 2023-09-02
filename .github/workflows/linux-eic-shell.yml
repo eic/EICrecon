@@ -514,15 +514,15 @@ jobs:
           doxygen Doxyfile
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
+      - uses: actions/download-artifact@v3
+        with:
+          name: jana.dot
+          path: publishing_docs/dot/
       - uses: actions/upload-artifact@v3
         with:
           name: docs
           path: publishing_docs/
           if-no-files-found: error
-      - uses: actions/download-artifact@v3
-        with:
-          name: jana.dot
-          path: publishing_docs/dot/
       - run:
           apk add tar bash
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
