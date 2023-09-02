@@ -532,7 +532,7 @@ jobs:
           query: |
             query release($owner:String!,$repo:String!) {
               repository(owner:$owner,name:$repo) {
-                pullRequests(state:OPEN, last:10) {
+                pullRequests(states:OPEN, last:10) {
                   nodes {
                     number
                   }
