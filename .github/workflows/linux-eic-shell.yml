@@ -548,7 +548,7 @@ jobs:
         id: remap
         uses: nickofthyme/object-remap@v1
         with:
-          include.*.number: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
+          include.*.number: ${{ toJSON(fromJSON(steps.query.outputs.data).repository.pullRequests.*.number) }}
       - run: "echo 'open prs: ${{ steps.remap.outputs.data }}'"
 
   collect-docs:
