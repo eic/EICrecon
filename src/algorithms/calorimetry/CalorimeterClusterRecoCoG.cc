@@ -221,9 +221,9 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   //_______________________________________
   // Calculate cluster profile:
   //    radius,
-  //   	dispersion (energy weighted radius),
+  //    dispersion (energy weighted radius),
   //    theta-phi cluster widths (2D)
-  //   	x-y-z cluster widths (3D)
+  //    x-y-z cluster widths (3D)
   float radius = 0, dispersion = 0, w_sum = 0;
 
   Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
