@@ -527,6 +527,7 @@ jobs:
       data: ${{ steps.remap.outputs.data }}
     steps:
       - uses: octokit/request-action@v2.x
+        id: query
         with:
           route: GET /repos/{repo}/pulls?state=open
           repo: "eic/EICrecon"
