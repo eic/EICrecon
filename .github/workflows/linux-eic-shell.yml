@@ -521,6 +521,30 @@ jobs:
           path: publishing_docs/
           if-no-files-found: error
 
+  list-open-prs:
+    runs-on: ubuntu-latest
+    outputs:
+      data: ${{ steps.list-open-prs.outputs.data }}
+    steps:
+      - uses: octokit/graphql-action@v2.x
+        id: list-open-prs
+        with:
+          query: |
+            query release($owner:String!,$repo:String!) {
+              repository(owner:$owner,name:$repo) {
+                pullRequests(state:OPEN, last:10) {
+                  nodes {
+                    number
+                  }
+                }
+              }
+            }
+          owner: ${{ github.event.repository.owner.name }}
+          repo: ${{ github.event.repository.name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: "echo 'open prs: ${{ steps.list-open-prs.outputs.data }}'"
+
   collect-docs:
     runs-on: ubuntu-latest
     needs:
