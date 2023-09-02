@@ -526,7 +526,7 @@ jobs:
     outputs:
       data: ${{ steps.remap.outputs.data }}
     steps:
-      - uses: octokit/graphql-action@v2.x
+      - uses: octokit/request-action@v2.x
         with:
           route: GET /repos/{repo}/pulls?state=open
           repo: "eic/EICrecon"
