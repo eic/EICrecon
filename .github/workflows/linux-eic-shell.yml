@@ -527,20 +527,9 @@ jobs:
       data: ${{ steps.remap.outputs.data }}
     steps:
       - uses: octokit/graphql-action@v2.x
-        id: query
         with:
-          query: |
-            query release($owner:String!,$repo:String!) {
-              repository(owner:$owner,name:$repo) {
-                pullRequests(states:OPEN, last:10) {
-                  nodes {
-                    number
-                  }
-                }
-              }
-            }
-          owner: "eic" # ${{ github.event.repository.owner.name }}
-          repo: "EICrecon" # ${{ github.event.repository.name }}
+          route: GET /repos/{repo}/pulls?state=open
+          repo: "eic/EICrecon"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: "echo 'open prs: ${{ steps.query.outputs.data }}'"
@@ -548,7 +537,7 @@ jobs:
         id: remap
         uses: nickofthyme/object-remap@v1
         with:
-          include.*.number: ${{ toJSON(fromJSON(steps.query.outputs.data).repository.pullRequests.*.number) }}
+          include.*.number: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
       - run: "echo 'open prs: ${{ steps.remap.outputs.data }}'"
 
   collect-docs:
