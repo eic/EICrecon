@@ -81,7 +81,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
-            // "ReconstructedChargedParticleIDs",
+            "ReconstructedChargedParticleIDs",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
