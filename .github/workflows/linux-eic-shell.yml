@@ -533,7 +533,6 @@ jobs:
           repo: "eic/EICrecon"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo 'open prs: ${{ steps.query.outputs.data }}'"
       - name: Remap open PRs
         id: remap
         uses: nickofthyme/object-remap@v1
