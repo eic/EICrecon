@@ -529,8 +529,7 @@ jobs:
       - uses: octokit/request-action@v2.x
         id: query
         with:
-          route: GET /repos/{repo}/pulls?state=open
-          repo: ${{ github.repository }}
+          route: GET /repos/${{ github.repository }}/pulls?state=open
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Remap open PRs
