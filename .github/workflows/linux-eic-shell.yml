@@ -530,7 +530,7 @@ jobs:
         id: query
         with:
           route: GET /repos/{repo}/pulls?state=open
-          repo: "eic/EICrecon" # FIXME: ${{ github.repository }}
+          repo: ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Remap open PRs
@@ -549,7 +549,6 @@ jobs:
     steps:
       - uses: dawidd6/action-download-artifact@v2
         with:
-          repo: eic/EICrecon # FIXME ${{ github.repository }}
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
