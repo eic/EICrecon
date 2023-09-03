@@ -569,6 +569,8 @@ jobs:
 
   get-docs-from-main:
     runs-on: ubuntu-latest
+    needs:
+      - build-docs
     steps:
       - uses: dawidd6/action-download-artifact@v2
         if: github.ref_name != 'main'
