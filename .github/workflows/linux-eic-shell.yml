@@ -539,7 +539,7 @@ jobs:
         with:
           include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
 
-  collect-open-prs:
+  get-docs-from-open-prs:
     runs-on: ubuntu-latest
     needs:
       - list-open-prs
@@ -549,6 +549,7 @@ jobs:
     steps:
       - uses: dawidd6/action-download-artifact@v2
         with:
+          repo: eic/EICrecon # FIXME ${{ github.repository }}
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
@@ -563,6 +564,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-docs
+      - get-docs-from-open-prs
     container:
       image: alpine:latest
       volumes:
