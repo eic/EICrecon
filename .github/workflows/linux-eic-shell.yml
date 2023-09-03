@@ -530,15 +530,33 @@ jobs:
         id: query
         with:
           route: GET /repos/{repo}/pulls?state=open
-          repo: "eic/EICrecon"
+          repo: "eic/EICrecon" # FIXME: ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Remap open PRs
         id: remap
         uses: nickofthyme/object-remap@v1
         with:
-          include.*.number: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
-      - run: "echo 'open prs: ${{ steps.remap.outputs.data }}'"
+          include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
+
+  collect-open-prs:
+    runs-on: ubuntu-latest
+    needs:
+      - list-open-prs
+    strategy:
+      matrix: ${{ fromJson(needs.list-open-prs.outputs.data) }}
+    steps:
+      - uses: dawidd6/action-download-artifact@v2
+        with:
+          pr: ${{ matrix.pr }}
+          path: publishing_docs/pr/${{ matrix.pr }}/
+          name: docs
+          if_no_artifact_found: warn
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: warn
 
   collect-docs:
     runs-on: ubuntu-latest
