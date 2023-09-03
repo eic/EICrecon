@@ -555,7 +555,7 @@ jobs:
           if_no_artifact_found: warn
       - uses: actions/upload-artifact@v3
         with:
-          name: docs
+          name: github-pages-staging
           path: publishing_docs/
           if-no-files-found: warn
 
@@ -570,7 +570,7 @@ jobs:
           if_no_artifact_found: error
       - uses: actions/upload-artifact@v3
         with:
-          name: docs
+          name: github-pages-staging
           path: publishing_docs/
           if-no-files-found: error
 
@@ -588,7 +588,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: docs
+          name: github-pages-staging
           path: publishing_docs/
       - run:
           apk add tar bash
