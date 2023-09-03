@@ -495,9 +495,9 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
-    #needs:
-    #  - eicrecon-gun
-    #  - eicrecon-dis
+    needs:
+      - eicrecon-gun
+      - eicrecon-dis
     container:
       image: alpine:latest
       volumes:
@@ -511,10 +511,10 @@ jobs:
           doxygen Doxyfile
           cp -r docs publishing_docs
           mv html publishing_docs/doxygen
-      #- uses: actions/download-artifact@v3
-      #  with:
-      #    name: jana.dot
-      #    path: publishing_docs/dot/
+      - uses: actions/download-artifact@v3
+        with:
+          name: jana.dot
+          path: publishing_docs/dot/
       - uses: actions/upload-artifact@v3
         with:
           name: docs
