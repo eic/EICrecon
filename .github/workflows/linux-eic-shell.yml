@@ -542,17 +542,25 @@ jobs:
   get-docs-from-open-prs:
     runs-on: ubuntu-latest
     needs:
+      - build-docs
       - list-open-prs
     strategy:
       matrix: ${{ fromJson(needs.list-open-prs.outputs.json) }}
       fail-fast: false
     steps:
       - uses: dawidd6/action-download-artifact@v2
+        if: github.event.pull_request.number != matrix.pr
         with:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
           if_no_artifact_found: warn
+      - uses: actions/download-artifact@v3
+        if: github.event.pull_request.number == matrix.pr
+        with:
+          name: docs
+          path: publishing_docs/pr/${{ matrix.pr }}/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v3
         with:
           name: github-pages-staging
@@ -563,11 +571,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: dawidd6/action-download-artifact@v2
+        if: github.ref_name != 'main'
         with:
           branch: main
           path: publishing_docs/
           name: docs
           if_no_artifact_found: error
+      - uses: actions/download-artifact@v3
+        if: github.ref_name == 'main'
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v3
         with:
           name: github-pages-staging
