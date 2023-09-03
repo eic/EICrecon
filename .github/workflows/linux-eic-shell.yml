@@ -553,7 +553,7 @@ jobs:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
-          if_no_artifact_found: warn
+          if_no_artifact_found: ignore
       - uses: actions/download-artifact@v3
         if: github.event.pull_request.number == matrix.pr
         with:
@@ -563,7 +563,7 @@ jobs:
         with:
           name: github-pages-staging
           path: publishing_docs/
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
   get-docs-from-main:
     runs-on: ubuntu-latest
