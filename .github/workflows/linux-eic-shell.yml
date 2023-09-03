@@ -592,7 +592,6 @@ jobs:
   collect-docs:
     runs-on: ubuntu-latest
     needs:
-      - build-docs
       - get-docs-from-main
       - get-docs-from-open-prs
     container:
