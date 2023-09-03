@@ -121,6 +121,7 @@ jobs:
       with:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
+        if-no-files-found: ignore
     - uses: platisd/clang-tidy-pr-comments@1.4.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
