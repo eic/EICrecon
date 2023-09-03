@@ -524,7 +524,7 @@ jobs:
   list-open-prs:
     runs-on: ubuntu-latest
     outputs:
-      data: ${{ steps.remap.outputs.data }}
+      json: ${{ steps.remap.outputs.json }}
     steps:
       - uses: octokit/request-action@v2.x
         id: query
@@ -544,7 +544,7 @@ jobs:
     needs:
       - list-open-prs
     strategy:
-      matrix: ${{ fromJson(needs.list-open-prs.outputs.data) }}
+      matrix: ${{ fromJson(needs.list-open-prs.outputs.json) }}
     steps:
       - uses: dawidd6/action-download-artifact@v2
         with:
