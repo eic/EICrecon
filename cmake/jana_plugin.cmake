@@ -39,7 +39,7 @@ macro(plugin_add _name)
     if(${_name}_WITH_STATIC_LIB)
         # Define library
         add_library(${_name}_library STATIC "")
-	    target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
+            target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)

@@ -31,7 +31,7 @@ extern "C" {
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
           {
@@ -47,7 +47,7 @@ extern "C" {
             .sectorField = "sector",
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNHits"}, {"EcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed

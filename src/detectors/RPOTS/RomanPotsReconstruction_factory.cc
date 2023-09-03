@@ -16,19 +16,19 @@ namespace eicrecon {
 
     void RomanPotsReconstruction_factory::Init() {
 
-	std::string plugin_name = GetPluginName();
-	std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
+        std::string plugin_name = GetPluginName();
+        std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
 
-	auto app = GetApplication();
+        auto app = GetApplication();
 
-	m_log = app->GetService<Log_service>()->logger(m_output_tag);
+        m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
-	m_readout = m_input_tag;
+        m_readout = m_input_tag;
 
-	app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
-	m_geoSvc = app->GetService<JDD4hep_service>();
+        app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
+        m_geoSvc = app->GetService<JDD4hep_service>();
 
-	if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
+        if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
         double det = aXRP[0][0] * aXRP[1][1] - aXRP[0][1] * aXRP[1][0];
 
@@ -59,17 +59,17 @@ namespace eicrecon {
 
 
     void RomanPotsReconstruction_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-    	// Nothing to do here
+        // Nothing to do here
     }
 
     void RomanPotsReconstruction_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
 
-	std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
+        std::vector<edm4eic::ReconstructedParticle*> outputRPTracks;
 
-	auto converter = m_geoSvc->cellIDPositionConverter();
+        auto converter = m_geoSvc->cellIDPositionConverter();
 
-	auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
+        auto rawhits =  event->Get<edm4hep::SimTrackerHit>("ForwardRomanPotHits");
 
 
         //---- begin Roman Pot Reconstruction code ----
@@ -79,49 +79,49 @@ namespace eicrecon {
         std::vector<double> hity;
         std::vector<double> hitz;
 
-	double goodHitX[2] = {0.0, 0.0};
-	double goodHitY[2] = {0.0, 0.0};
-	double goodHitZ[2] = {0.0, 0.0};
+        double goodHitX[2] = {0.0, 0.0};
+        double goodHitY[2] = {0.0, 0.0};
+        double goodHitZ[2] = {0.0, 0.0};
 
-	bool goodHit1 = false;
-	bool goodHit2 = false;
+        bool goodHit1 = false;
+        bool goodHit2 = false;
 
         for (const auto h: rawhits) {
 
             auto cellID = h->getCellID();
 
-	    //global --> local begins here -----
+            //global --> local begins here -----
 
             auto gpos = converter->position(cellID);
 
-	    // local positions
+            // local positions
             //if (m_localDetElement.empty()) {
             auto volman = m_geoSvc->detector()->volumeManager();
             local = volman.lookupDetElement(cellID);
-	    //}
+            //}
 
             auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
-	    //information is stored in cm, we need mm - divide by dd4hep::mm
+            //information is stored in cm, we need mm - divide by dd4hep::mm
 
-	    if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
+            if(!goodHit2 && gpos.z()/dd4hep::mm > 27099.0 && gpos.z()/dd4hep::mm < 28022.0){
 
-		goodHitX[1] = pos0.x()/dd4hep::mm;
-		goodHitY[1] = pos0.y()/dd4hep::mm;
-		goodHitZ[1] = gpos.z()/dd4hep::mm;
-	    	goodHit2 = true;
+                goodHitX[1] = pos0.x()/dd4hep::mm;
+                goodHitY[1] = pos0.y()/dd4hep::mm;
+                goodHitZ[1] = gpos.z()/dd4hep::mm;
+                goodHit2 = true;
 
-	    }
-	    if(!goodHit1 && gpos.z()/dd4hep::mm > 25099.0 && gpos.z()/dd4hep::mm < 26022.0){
+            }
+            if(!goodHit1 && gpos.z()/dd4hep::mm > 25099.0 && gpos.z()/dd4hep::mm < 26022.0){
 
-		goodHitX[0] = pos0.x()/dd4hep::mm;
-		goodHitY[0] = pos0.y()/dd4hep::mm;
-		goodHitZ[0] = gpos.z()/dd4hep::mm;
-		goodHit1 = true;
+                goodHitX[0] = pos0.x()/dd4hep::mm;
+                goodHitY[0] = pos0.y()/dd4hep::mm;
+                goodHitZ[0] = gpos.z()/dd4hep::mm;
+                goodHit1 = true;
 
-	    }
+            }
 
-	}// end loop over hits
+        }// end loop over hits
 
         // NB:
         // This is a "dumb" algorithm - I am just checking the basic thing works with a simple single-proton test.
@@ -131,7 +131,7 @@ namespace eicrecon {
 
             // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
             // trajectory -- should eventually be in local coordinates.
-	    //
+            //
             double XL[2] = {goodHitX[0], goodHitX[1]};
             double YL[2] = {goodHitY[0], goodHitY[1]};
 
@@ -168,7 +168,7 @@ namespace eicrecon {
             float prec[3] = {static_cast<float>((p * rsx) / norm), static_cast<float>((p * rsy) / norm),
                                    static_cast<float>(p / norm)};
 
-	    float refPoint[3] = {static_cast<float>(goodHitX[0]), static_cast<float>(goodHitY[0]), static_cast<float>(goodHitZ[0])};
+            float refPoint[3] = {static_cast<float>(goodHitX[0]), static_cast<float>(goodHitY[0]), static_cast<float>(goodHitZ[0])};
 
             //----- end RP reconstruction code ------
 
@@ -187,7 +187,7 @@ namespace eicrecon {
 
         } // END matrix reco
 
-	Set(outputRPTracks);
+        Set(outputRPTracks);
 
     }
 

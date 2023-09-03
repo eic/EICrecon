@@ -14,7 +14,7 @@
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 

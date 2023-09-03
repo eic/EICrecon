@@ -57,8 +57,8 @@ extern "C" {
 
     for(size_t i=0; i < sensor_qe.size(); i++)
       {
-	double wavelength = 180 + i * 2; // wavelength units are [nm]
-	digi_cfg.quantumEfficiency.push_back({wavelength, sensor_qe[i]*0.01});
+        double wavelength = 180 + i * 2; // wavelength units are [nm]
+        digi_cfg.quantumEfficiency.push_back({wavelength, sensor_qe[i]*0.01});
       }
 
 

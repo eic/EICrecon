@@ -64,7 +64,7 @@ namespace eicrecon {
             return std::make_tuple(std::move(merged_clus), std::move(merged_assoc));;
         }
 
-	std::vector<bool> consumed(energy_clus.size(), false);
+        std::vector<bool> consumed(energy_clus.size(), false);
 
         // use position clusters as starting point
         for (const auto& pc : pos_clus) {
