@@ -559,10 +559,26 @@ jobs:
           path: publishing_docs/
           if-no-files-found: warn
 
+  get-docs-from-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-download-artifact@v2
+        with:
+          branch: main
+          path: publishing_docs/
+          name: docs
+          if_no_artifact_found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: publishing_docs/
+          if-no-files-found: error
+
   collect-docs:
     runs-on: ubuntu-latest
     needs:
       - build-docs
+      - get-docs-from-main
       - get-docs-from-open-prs
     container:
       image: alpine:latest
