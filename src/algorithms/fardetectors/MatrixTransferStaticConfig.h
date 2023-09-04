@@ -20,9 +20,9 @@ namespace eicrecon {
     double nomMomentum         {275.0};
 
     std::vector<std::vector<double>> aX = {{2.102403743, 29.11067626},
-					   {0.186640381, 0.192604619}};
+                                           {0.186640381, 0.192604619}};
     std::vector<std::vector<double>> aY = {{0.0000159900, 3.94082098},
-					   {0.0000079946, -0.1402995}};
+                                           {0.0000079946, -0.1402995}};
 
     double hit1minZ{0};
     double hit1maxZ{0};

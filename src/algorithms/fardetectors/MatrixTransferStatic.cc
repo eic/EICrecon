@@ -6,8 +6,8 @@
 #include "MatrixTransferStatic.h"
 
 void eicrecon::MatrixTransferStatic::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv,
-					  const dd4hep::Detector* det,
-					  std::shared_ptr<spdlog::logger> &logger) {
+                                          const dd4hep::Detector* det,
+                                          std::shared_ptr<spdlog::logger> &logger) {
 
   m_log              = logger;
   m_detector         = det;
@@ -121,10 +121,10 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       // Polar Angle and deltaP at the IP
 
       for (unsigned i0 = 0; i0 < 2; i0++) {
-	for (unsigned i1 = 0; i1 < 2; i1++) {
-	  Xip[i0] += aXinv[i0][i1] * Xrp[i1];
-	  Yip[i0] += aYinv[i0][i1] * Yrp[i1];
-	}
+        for (unsigned i1 = 0; i1 < 2; i1++) {
+          Xip[i0] += aXinv[i0][i1] * Xrp[i1];
+          Yip[i0] += aYinv[i0][i1] * Yrp[i1];
+        }
       }
 
       // convert polar angles to radians
@@ -136,7 +136,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
       edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
-				static_cast<float>(p / norm)};
+                                static_cast<float>(p / norm)};
       auto refPoint = goodHit[0];
 
       //----- end reconstruction code ------

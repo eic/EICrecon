@@ -22,9 +22,9 @@ namespace eicrecon {
 
     //----- Define constants here ------
     double aXinv[2][2] = {{0.0, 0.0},
-			  {0.0, 0.0}};
+                          {0.0, 0.0}};
     double aYinv[2][2] = {{0.0, 0.0},
-			  {0.0, 0.0}};
+                          {0.0, 0.0}};
 
     void init(const std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,const dd4hep::Detector* det,std::shared_ptr<spdlog::logger> &logger);
 

@@ -21,9 +21,9 @@ void InitPlugin(JApplication *app) {
 
     //Static transport matrix for Off Momentum detectors
     recon_cfg.aX = {{1.6248, 12.966293},
-		    {0.1832, -2.8636535}};
+                    {0.1832, -2.8636535}};
     recon_cfg.aY = {{0.0001674, -28.6003},
-		    {0.0000837, -2.87985}};
+                    {0.0000837, -2.87985}};
 
     recon_cfg.local_x_offset       = -11.9872;  // in mm --> this is from misalignment of the detector
     recon_cfg.local_y_offset       = -0.0146;   // in mm --> this is from misalignment of the detector

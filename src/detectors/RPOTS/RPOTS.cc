@@ -21,9 +21,9 @@ void InitPlugin(JApplication *app) {
 
     //Static transport matrix for Roman Pots detectors
     recon_cfg.aX = {{2.102403743, 29.11067626},
-		    {0.186640381, 0.192604619}};
+                    {0.186640381, 0.192604619}};
     recon_cfg.aY = {{0.0000159900, 3.94082098},
-		    {0.0000079946, -0.1402995}};
+                    {0.0000079946, -0.1402995}};
 
     recon_cfg.local_x_offset       =  0.0;        // in mm --> this is from misalignment of the detector
     recon_cfg.local_y_offset       =  0.0;        // in mm --> this is from misalignment of the detector

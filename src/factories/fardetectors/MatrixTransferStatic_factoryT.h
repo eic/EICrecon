@@ -23,52 +23,52 @@ namespace eicrecon {
     public:
 
         explicit MatrixTransferStatic_factoryT(
-	  std::string tag,
+          std::string tag,
           const std::vector<std::string>& input_tags,
           const std::vector<std::string>& output_tags,
           MatrixTransferStaticConfig cfg ):
-	  JChainMultifactoryT<MatrixTransferStaticConfig>(std::move(tag), input_tags, output_tags, cfg) {
+          JChainMultifactoryT<MatrixTransferStaticConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
-	  DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
+          DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
 
-	}
+        }
 
         /** One time initialization **/
-	void Init() override {
+        void Init() override {
 
-	  auto app = GetApplication();
+          auto app = GetApplication();
 
-	  // SpdlogMixin logger initialization, sets m_log
-	  InitLogger(app, GetPrefix(), "info");
+          // SpdlogMixin logger initialization, sets m_log
+          InitLogger(app, GetPrefix(), "info");
 
-	  auto cfg = GetDefaultConfig();
+          auto cfg = GetDefaultConfig();
 
-	  m_geoSvc = app->GetService<JDD4hep_service>();
+          m_geoSvc = app->GetService<JDD4hep_service>();
 
-	  m_reco_algo.applyConfig(cfg);
-	  m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),m_geoSvc->detector(),logger());
+          m_reco_algo.applyConfig(cfg);
+          m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),m_geoSvc->detector(),logger());
 
         }
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override {
 
-	  auto inputhits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+          auto inputhits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
-	  try {
-	    auto outputTracks = m_reco_algo.produce(*inputhits);
-	    SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(outputTracks));
-	  }
-	  catch(std::exception &e) {
-	    throw JException(e.what());
-	  }
+          try {
+            auto outputTracks = m_reco_algo.produce(*inputhits);
+            SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(outputTracks));
+          }
+          catch(std::exception &e) {
+            throw JException(e.what());
+          }
 
 
-	}
+        }
 
     private:
-	eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
-	std::shared_ptr<JDD4hep_service> m_geoSvc;
+        eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
+        std::shared_ptr<JDD4hep_service> m_geoSvc;
 
     };
 
