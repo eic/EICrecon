@@ -51,6 +51,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
 
+            // DRICH
+            "DRICHRawHits",
+            "DRICHRawHitsAssociations",
+            "DRICHAerogelTracks",
+            "DRICHGasTracks",
+            "DRICHAerogelIrtCherenkovParticleID",
+            "DRICHGasIrtCherenkovParticleID",
+
             // MPGD
             "MPGDBarrelRecHits",
             "MPGDDIRCRecHits",
@@ -59,8 +67,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
-            "ForwardOffMTrackerRecHits",
-            "ForwardRomanPotRecHits",
             "B0TrackerRecHits",
 
             //
@@ -75,6 +81,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
+            "ReconstructedChargedParticleIDs",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
@@ -120,7 +127,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelImagingClusterAssociations",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
-            "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
             "EcalLumiSpecRawHits",
@@ -172,8 +178,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ZDCEcalTruthClusters",
             "ZDCEcalTruthClusterAssociations",
 
-	    // DIRC
-	    "DIRCRawHits"
+            // DIRC
+            "DIRCRawHits"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(

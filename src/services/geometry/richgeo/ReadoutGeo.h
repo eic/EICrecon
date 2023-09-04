@@ -32,17 +32,17 @@ namespace richgeo {
       // define cellID encoding
       CellIDType cellIDEncoding(int isec, int ipdu, int isipm, int x, int y)
       {
-	// encode cellID
-	dd4hep::rec::CellID cellID_dd4hep;
-	m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
-	m_readoutCoder->set(cellID_dd4hep, "sector", isec);
-	m_readoutCoder->set(cellID_dd4hep, "pdu",    ipdu);
-	m_readoutCoder->set(cellID_dd4hep, "sipm",   isipm);
-	m_readoutCoder->set(cellID_dd4hep, "x",      x);
-	m_readoutCoder->set(cellID_dd4hep, "y",      y);
-	CellIDType cellID(cellID_dd4hep); // in case DD4hep CellID type differs from EDM type
-	return cellID;
-	// m_log->trace("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
+        // encode cellID
+        dd4hep::rec::CellID cellID_dd4hep;
+        m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
+        m_readoutCoder->set(cellID_dd4hep, "sector", isec);
+        m_readoutCoder->set(cellID_dd4hep, "pdu",    ipdu);
+        m_readoutCoder->set(cellID_dd4hep, "sipm",   isipm);
+        m_readoutCoder->set(cellID_dd4hep, "x",      x);
+        m_readoutCoder->set(cellID_dd4hep, "y",      y);
+        CellIDType cellID(cellID_dd4hep); // in case DD4hep CellID type differs from EDM type
+        return cellID;
+        // m_log->trace("    x={:<2} y={:<2} => cellID={:#018X}", x, y, cellID);
       }
 
       // loop over readout pixels, executing `lambda(cellID)` on each

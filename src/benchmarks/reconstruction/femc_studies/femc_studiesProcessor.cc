@@ -504,7 +504,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       for (auto & cluster_tower : cluster.cluster_towers){
         int pSav = 0;
         while(cluster_tower.cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) {
-	  pSav++;
+          pSav++;
         }
         if (cluster_tower.cellID == input_tower_recSav.at(pSav).cellID) {
           input_tower_recSav.at(pSav).tower_clusterIDA = iCl;
