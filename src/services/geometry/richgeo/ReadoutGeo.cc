@@ -73,15 +73,15 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
       int k = p * m_num_sec * m_num_pdus * m_num_sipms_per_pdu * m_num_px * m_num_px;
 
       for (int i = 0; i < k; i++) {
-	int isec = m_random.Uniform(0., m_num_sec);
-	int ipdu = m_random.Uniform(0., m_num_pdus);
-	int isipm = m_random.Uniform(0., m_num_sipms_per_pdu);
-	int x = m_random.Uniform(0., m_num_px);
-	int y = m_random.Uniform(0., m_num_px);
+        int isec = m_random.Uniform(0., m_num_sec);
+        int ipdu = m_random.Uniform(0., m_num_pdus);
+        int isipm = m_random.Uniform(0., m_num_sipms_per_pdu);
+        int x = m_random.Uniform(0., m_num_px);
+        int y = m_random.Uniform(0., m_num_px);
 
-	auto cellID = cellIDEncoding(isec, ipdu, isipm, x, y);
+        auto cellID = cellIDEncoding(isec, ipdu, isipm, x, y);
 
-	lambda(cellID);
+        lambda(cellID);
       }
     };
 

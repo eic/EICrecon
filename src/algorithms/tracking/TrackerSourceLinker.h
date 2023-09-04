@@ -39,10 +39,10 @@ namespace eicrecon {
 
         std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
-	dd4hep::Detector* m_dd4hepGeo;
+        dd4hep::Detector* m_dd4hepGeo;
 
-	/// Detector-specific information
-	int m_detid_b0tracker;
+        /// Detector-specific information
+        int m_detid_b0tracker;
     };
 
 }

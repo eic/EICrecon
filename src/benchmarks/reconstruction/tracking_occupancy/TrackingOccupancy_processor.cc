@@ -32,7 +32,7 @@ using namespace fmt;
 // OccupancyAnalysis (Constructor)
 //------------------
 TrackingOccupancy_processor::TrackingOccupancy_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -88,5 +88,5 @@ void TrackingOccupancy_processor::Process(const std::shared_ptr<const JEvent>& e
 //------------------
 void TrackingOccupancy_processor::Finish()
 {
-	// Nothing to do here
+        // Nothing to do here
 }

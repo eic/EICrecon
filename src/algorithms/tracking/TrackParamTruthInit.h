@@ -22,7 +22,7 @@ namespace eicrecon {
 
         void init(const std::shared_ptr<spdlog::logger> &logger);
 
-	std::unique_ptr<edm4eic::TrackParametersCollection>
+        std::unique_ptr<edm4eic::TrackParametersCollection>
             produce(const edm4hep::MCParticleCollection* parts);
 
     private:

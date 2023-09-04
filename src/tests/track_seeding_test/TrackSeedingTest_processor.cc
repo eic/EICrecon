@@ -23,7 +23,7 @@
 // OccupancyAnalysis (Constructor)
 //------------------
 TrackSeedingTest_processor::TrackSeedingTest_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 

@@ -18,8 +18,6 @@
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackProjector_factory.h"
-#include "TrackSeeding_factory.h"
-#include "ParticlesWithTruthPID_factory.h"
 #include "IterativeVertexFinder_factory.h"
 
 //
@@ -91,26 +89,6 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
             {"CentralCKFActsTrajectories"}, "CentralTrackVertices"));
-
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            "ChargedParticlesWithAssociations",                // Tag name for multifactory
-            {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFTrajectories"},                         // edm4eic::Trajectory
-            {"ReconstructedChargedParticles",                  //
-             "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
-            },
-            app  // TODO: Remove me once fixed
-            ));
-
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithTruthPID_factory>(
-            "ChargedParticlesWithAssociations",                // Tag name for multifactory
-            {"MCParticles",                                    // edm4hep::MCParticle
-            "CentralCKFSeededTrajectories"},                   // edm4eic::Trajectory
-            {"ReconstructedSeededChargedParticles",            //
-             "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
-            },
-            app  // TODO: Remove me once fixed
-            ));
 
 }
 } // extern "C"

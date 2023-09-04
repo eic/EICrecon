@@ -74,26 +74,26 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       std::vector<std::pair<float,float>> xyHitPositions;
       std::vector<std::pair<float,float>> rzHitPositions;
       for(auto& spptr : seed.sp())
-	{
-	  xyHitPositions.emplace_back(spptr->x(), spptr->y());
-	  rzHitPositions.emplace_back(spptr->r(), spptr->z());
-	}
+        {
+          xyHitPositions.emplace_back(spptr->x(), spptr->y());
+          rzHitPositions.emplace_back(spptr->r(), spptr->z());
+        }
 
       auto RX0Y0 = circleFit(xyHitPositions);
       float R = std::get<0>(RX0Y0);
       float X0 = std::get<1>(RX0Y0);
       float Y0 = std::get<2>(RX0Y0);
       if (!(std::isfinite(R) &&
-	std::isfinite(std::abs(X0)) &&
-	std::isfinite(std::abs(Y0)))) {
+        std::isfinite(std::abs(X0)) &&
+        std::isfinite(std::abs(Y0)))) {
         // avoid float overflow for hits on a line
         continue;
       }
       if ( std::hypot(X0,Y0) < std::numeric_limits<decltype(std::hypot(X0,Y0))>::epsilon() ||
-	!std::isfinite(std::hypot(X0,Y0)) ) {
-	//Avoid center of circle at origin, where there is no point-of-closest approach
-	//Also, avoid float overfloat on circle center
-	continue;
+        !std::isfinite(std::hypot(X0,Y0)) ) {
+        //Avoid center of circle at origin, where there is no point-of-closest approach
+        //Also, avoid float overfloat on circle center
+        continue;
       }
 
       auto slopeZ0 = lineFit(rzHitPositions);
@@ -102,7 +102,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
       if(theta < 0)
-	{ theta += M_PI; }
+        { theta += M_PI; }
       float eta = -log(tan(theta/2.));
       float pt = R * m_cfg.m_bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
       float p = pt * cosh(eta);
@@ -124,25 +124,25 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
       Acts::Vector3 global(xypos.first, xypos.second, z0);
 
       auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-					  global, Acts::Vector3(1,1,1));
+                                          global, Acts::Vector3(1,1,1));
 
       Acts::Vector2 localpos(sqrt(square(xypos.first) + square(xypos.second)), z0);
       if(local.ok())
-	{
-	  localpos = local.value();
-	}
+        {
+          localpos = local.value();
+        }
 
       edm4eic::TrackParameters *params = new edm4eic::TrackParameters{
-	-1, // type --> seed(-1)
-	{(float)localpos(0), (float)localpos(1)}, // 2d location on surface
-	{0.1,0.1}, //covariance of location
-	theta, //theta [rad]
-	(float)phi, // phi [rad]
-	qOverP, // Q/p [e/GeV]
-	{0.05,0.05,0.05}, // covariance on theta/phi/q/p
-	10, // time in ns
-	0.1, // error on time
-	(float)charge // charge
+        -1, // type --> seed(-1)
+        {(float)localpos(0), (float)localpos(1)}, // 2d location on surface
+        {0.1,0.1}, //covariance of location
+        theta, //theta [rad]
+        (float)phi, // phi [rad]
+        qOverP, // Q/p [e/GeV]
+        {0.05,0.05,0.05}, // covariance on theta/phi/q/p
+        10, // time in ns
+        0.1, // error on time
+        (float)charge // charge
       };
 
       trackparams.push_back(params);

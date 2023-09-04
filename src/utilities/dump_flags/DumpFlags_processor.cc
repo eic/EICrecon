@@ -12,7 +12,7 @@ using namespace fmt;
 // DefaultFlags_processor (Constructor)
 //------------------
 DumpFlags_processor::DumpFlags_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -21,7 +21,7 @@ DumpFlags_processor::DumpFlags_processor(JApplication *app) :
 //------------------
 void DumpFlags_processor::Init()
 {
-	// Ask service locator a file to write to
+        // Ask service locator a file to write to
 
     auto app = GetApplication();
     app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
