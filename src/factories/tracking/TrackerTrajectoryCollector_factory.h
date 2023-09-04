@@ -22,10 +22,10 @@ namespace eicrecon {
         std::string tag,
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags)
-	: JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+        : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
 
-	bool owns_data = false; // this produces a subset collection
-	DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0], owns_data);
+        bool owns_data = false; // this produces a subset collection
+        DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0], owns_data);
 
       }
 
@@ -67,7 +67,7 @@ namespace eicrecon {
     }
 
     private:
-	TrackerTrajectoryCollector m_algo;
+        TrackerTrajectoryCollector m_algo;
 
     };
 

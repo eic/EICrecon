@@ -93,17 +93,17 @@ void InitPlugin(JApplication *app) {
 
     // Tracker hits collector from ACTS and other factories
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
-										  "CombinedTrajectories",
+                                                                                  "CombinedTrajectories",
       {"CentralCKFTrajectories",  // ACTS output
-	  "LowQ2Trajectories"},            // Low Q2 output
+          "LowQ2Trajectories"},            // Low Q2 output
       {"CombinedTrajectories"},
-	app));    // Output collection name
-    
+        app));    // Output collection name
+
     // Tracker hits collector from ACTS and other factories
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
-										  "CombinedSeededTrajectories",
+                                                                                  "CombinedSeededTrajectories",
       {"CentralCKFSeededTrajectories",  // ACTS output
-	  "LowQ2Trajectories"},            // Low Q2 output
+          "LowQ2Trajectories"},            // Low Q2 output
       {"CombinedSeededTrajectories"},
         app));  // Output collection name
 

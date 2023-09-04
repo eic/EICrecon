@@ -35,10 +35,10 @@ namespace eicrecon {
 
       /** Event by event processing **/
       std::tuple<
-	std::unique_ptr<edm4eic::TrajectoryCollection>,
-	std::unique_ptr<edm4eic::TrackParametersCollection>
-	> 
-	produce(const edm4eic::TrackParametersCollection &inputtracks);
+        std::unique_ptr<edm4eic::TrajectoryCollection>,
+        std::unique_ptr<edm4eic::TrackParametersCollection>
+        >
+        produce(const edm4eic::TrackParametersCollection &inputtracks);
 
       //----- Define constants here ------
 

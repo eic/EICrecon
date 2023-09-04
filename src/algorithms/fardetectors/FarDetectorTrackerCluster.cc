@@ -14,8 +14,8 @@ namespace eicrecon {
 
 
   void FarDetectorTrackerCluster::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
-	      dd4hep::BitFieldCoder* id_dec,
-	      std::shared_ptr<spdlog::logger> log) {
+              dd4hep::BitFieldCoder* id_dec,
+              std::shared_ptr<spdlog::logger> log) {
     m_log = log;
     m_id_dec = id_dec;
     m_cellid_converter = cellid;
@@ -86,30 +86,30 @@ namespace eicrecon {
       // Loop over hits, adding neighbouring hits as relevant
       while(indexList.size()){
 
-	auto index = indexList[0];
-	auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
-	available = available*(!filter);
-	indexList = Concatenate(indexList,indices[filter]);
+        auto index = indexList[0];
+        auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
+        available = available*(!filter);
+        indexList = Concatenate(indexList,indices[filter]);
 
-	indexList.erase(indexList.begin());
+        indexList.erase(indexList.begin());
 
-	cluster.addToRawHits(inputhits[index].getObjectID());
+        cluster.addToRawHits(inputhits[index].getObjectID());
 
-	//Energy
-	auto hitE = e[index];
-	//auto id   = hit.getCellID();
-	esum += hitE;
-	auto pos = m_cellid_converter->position(id[index]);
-// 	std::cout << pos << std::endl;
-	//Weighted position
-	float weight = hitE; //Check appropriate weighting
-	weightSum += weight;
-	xPos += pos.x()*weight;
-	yPos += pos.y()*weight;
-	zPos += pos.z()*weight;
+        //Energy
+        auto hitE = e[index];
+        //auto id   = hit.getCellID();
+        esum += hitE;
+        auto pos = m_cellid_converter->position(id[index]);
+//      std::cout << pos << std::endl;
+        //Weighted position
+        float weight = hitE; //Check appropriate weighting
+        weightSum += weight;
+        xPos += pos.x()*weight;
+        yPos += pos.y()*weight;
+        zPos += pos.z()*weight;
 
-	//Time
-	clusterT.push_back(t[index]);
+        //Time
+        clusterT.push_back(t[index]);
 
       }
 

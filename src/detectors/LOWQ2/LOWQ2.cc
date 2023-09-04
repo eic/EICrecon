@@ -42,13 +42,13 @@ extern "C" {
     FarDetectorMLReconstructionConfig recon_cfg;
 
     app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-	 "TaggerTrackerRawHit",
+         "TaggerTrackerRawHit",
          {cluster_cfg.readout},
          {"TaggerTrackerRawHit"},
          {
-	   .threshold = 1 * dd4hep::keV,
-	   .timeResolution = 10,
-	 },
+           .threshold = 1 * dd4hep::keV,
+           .timeResolution = 10,
+         },
          app
     ));
 

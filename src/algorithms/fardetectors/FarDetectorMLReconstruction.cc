@@ -34,10 +34,10 @@ namespace eicrecon {
     bool methodFound = false;
     if(!m_cfg.modelPath.empty()){
       try{
-	m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath ));
+        m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath ));
       }
       catch(std::exception &e){
-	throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
+        throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
       }
 
     }
@@ -45,30 +45,30 @@ namespace eicrecon {
       const char* env_p = getenv(m_cfg.environmentPath.c_str());
       if (env_p) {
 
-	std::string dir_path;
+        std::string dir_path;
         std::stringstream envvar_ss(env_p);
         while (getline(envvar_ss, dir_path, ':')) {
-	  std::cout << dir_path << std::endl;
-	  std::string weightName = dir_path +"/"+ m_cfg.fileName;
-	  std::cout << weightName << std::endl;
-	  if (std::filesystem::exists(weightName)){
-	    try{
-	      m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, weightName ));
-	    }
-	    catch(std::exception &e){
-	      throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,weightName));
-	    }
-	    methodFound = true;
-	    break;
-	  }
+          std::cout << dir_path << std::endl;
+          std::string weightName = dir_path +"/"+ m_cfg.fileName;
+          std::cout << weightName << std::endl;
+          if (std::filesystem::exists(weightName)){
+            try{
+              m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, weightName ));
+            }
+            catch(std::exception &e){
+              throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,weightName));
+            }
+            methodFound = true;
+            break;
+          }
         }
-	if(!methodFound){
-	  throw JException(fmt::format("File {} not found in any {} paths",m_cfg.fileName,m_cfg.environmentPath));
-	}
+        if(!methodFound){
+          throw JException(fmt::format("File {} not found in any {} paths",m_cfg.fileName,m_cfg.environmentPath));
+        }
 
       }
       else {
-	throw JException(fmt::format("Environment variable {} not found",m_cfg.environmentPath));
+        throw JException(fmt::format("Environment variable {} not found",m_cfg.environmentPath));
       }
     }
   }
@@ -77,7 +77,7 @@ namespace eicrecon {
     std::tuple<
       std::unique_ptr<edm4eic::TrajectoryCollection>,
       std::unique_ptr<edm4eic::TrackParametersCollection>
-    > 
+    >
     FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
@@ -111,8 +111,8 @@ namespace eicrecon {
       ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE,values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE,values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE);
 
       float momMag2 = values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE+
-	values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE+
-	values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE;
+        values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE+
+        values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE;
 
       float energy = sqrt(momMag2+mass*mass);
 
@@ -133,7 +133,7 @@ namespace eicrecon {
 
       edm4eic::TrackParameters params =  outputFarDetectorMLTrackParameters->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 
-      auto trajectory = outputFarDetectorMLTrajectories->create(); 
+      auto trajectory = outputFarDetectorMLTrajectories->create();
       trajectory.addToTrackParameters(params);
 
     }

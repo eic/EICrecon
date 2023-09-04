@@ -27,8 +27,8 @@ namespace eicrecon {
 
     /** One time initialization **/
     void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
-	      dd4hep::BitFieldCoder*,
-	      std::shared_ptr<spdlog::logger>);
+              dd4hep::BitFieldCoder*,
+              std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
     std::unique_ptr<edm4hep::TrackerHitCollection> produce(const edm4eic::RawTrackerHitCollection &inputhits);
