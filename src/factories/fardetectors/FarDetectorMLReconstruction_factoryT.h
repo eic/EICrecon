@@ -32,6 +32,7 @@ namespace eicrecon {
       JChainMultifactoryT<FarDetectorMLReconstructionConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
 	 DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
+	 DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
 
       }
 
@@ -63,8 +64,9 @@ namespace eicrecon {
 	auto inputtracks = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
 	try {
-	  auto outputTracks = m_reco_algo.produce(*inputtracks);
-	  SetCollection<edm4eic::Trajectory>(GetOutputTags()[0],std::move(outputTracks));
+	  auto [outputTrajectories, outputTrackParameters] = m_reco_algo.produce(*inputtracks);
+	  SetCollection<edm4eic::Trajectory>     (GetOutputTags()[0], std::move(outputTrajectories)   );
+	  SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(outputTrackParameters));
 	}
 	catch(std::exception &e) {
 	  throw JException(e.what());
@@ -73,7 +75,6 @@ namespace eicrecon {
       }
 
   private:
-      std::shared_ptr<spdlog::logger>       m_log;              // Logger for this factory
       eicrecon::FarDetectorMLReconstruction m_reco_algo;        // ML reconstruction fitting algorithm
 
       float m_electron_beamE = 10*dd4hep::GeV;

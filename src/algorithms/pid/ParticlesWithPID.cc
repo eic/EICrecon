@@ -40,7 +40,6 @@ namespace eicrecon {
                                                         trk.getPhi());
             const auto charge_rec = trk.getCharge();
 
-
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");
             m_log->debug(" Track : {:<4} {:<8.3f} {:<8.3f} {:<8.2f} {:<4}",
                          trk.getObjectID().index, edm4eic::magnitude(mom), edm4eic::anglePolar(mom), edm4eic::angleAzimuthal(mom), charge_rec);
@@ -97,7 +96,6 @@ namespace eicrecon {
                if ((p_eta < -5) || (edm4eic::eta(mom) < -5)) {
                  is_matching = true;
                }
-
 
                 m_log->trace("    Decision: {}  dp: {:.4f} < {}  &&  d_eta: {:.6f} < {}  && d_sin_phi: {:.4e} < {:.4e} ",
                              is_matching? "Matching":"Ignoring",

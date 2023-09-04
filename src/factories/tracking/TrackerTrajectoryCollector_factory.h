@@ -29,6 +29,16 @@ namespace eicrecon {
 
       }
 
+    /** One time initialization **/
+    void Init() override {
+      auto app = GetApplication();
+
+      // SpdlogMixin logger initialization, sets m_log
+      InitLogger(app, GetPrefix(), "info");
+
+      m_algo.init(m_log);
+    }
+
     /** Event by event processing **/
     void Process(const std::shared_ptr<const JEvent> &event) override {
 
@@ -58,8 +68,6 @@ namespace eicrecon {
 
     private:
 	TrackerTrajectoryCollector m_algo;
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-        std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
 
     };
 

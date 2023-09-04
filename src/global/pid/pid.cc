@@ -35,7 +35,7 @@ extern "C" {
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "CombinedCKFTrajectories",           // edm4eic::Trajectory
+            "CombinedTrajectories",           // edm4eic::Trajectory
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
@@ -51,7 +51,7 @@ extern "C" {
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "CombinedCKFSeededTrajectories",     // edm4eic::Trajectory
+            "CombinedSeededTrajectories",     // edm4eic::Trajectory
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {

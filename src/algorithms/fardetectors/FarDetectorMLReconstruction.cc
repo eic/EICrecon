@@ -74,10 +74,15 @@ namespace eicrecon {
   }
 
 
-  std::unique_ptr<edm4eic::TrajectoryCollection> FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
+    std::tuple<
+      std::unique_ptr<edm4eic::TrajectoryCollection>,
+      std::unique_ptr<edm4eic::TrackParametersCollection>
+    > 
+    FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
-    auto outputFarDetectorMLParticles = std::make_unique<edm4eic::TrajectoryCollection>();
+    auto outputFarDetectorMLTrajectories    = std::make_unique<edm4eic::TrajectoryCollection>();
+    auto outputFarDetectorMLTrackParameters = std::make_unique<edm4eic::TrackParametersCollection>();
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
@@ -126,14 +131,14 @@ namespace eicrecon {
       float time  = 0;
       float timeError = 0;
 
-      edm4eic::TrackParameters particle(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+      edm4eic::TrackParameters params =  outputFarDetectorMLTrackParameters->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
 
-      auto trajectory = outputFarDetectorMLParticles->create();
-      trajectory.addToTrackParameters(particle);
+      auto trajectory = outputFarDetectorMLTrajectories->create(); 
+      trajectory.addToTrackParameters(params);
 
     }
 
-    return outputFarDetectorMLParticles;
+    return std::make_tuple( std::move(outputFarDetectorMLTrajectories), std::move(outputFarDetectorMLTrackParameters));
 
   }
 
