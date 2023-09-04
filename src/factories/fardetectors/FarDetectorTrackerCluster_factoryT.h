@@ -3,8 +3,6 @@
 //
 
 #pragma once
-#include <spdlog/spdlog.h>
-
 #include <services/geometry/dd4hep/JDD4hep_service.h>
 
 // Event Model related classes
@@ -30,7 +28,7 @@ namespace eicrecon {
           const std::vector<std::string>& input_tags,
           const std::vector<std::string>& output_tags,
 	  FarDetectorTrackerClusterConfig cfg ):
-          JChainMultifactoryT(std::move(tag),input_tags,output_tags,cfg ) {
+          JChainMultifactoryT<FarDetectorTrackerClusterConfig>(std::move(tag),input_tags,output_tags,cfg ) {
 
       DeclarePodioOutput<edm4hep::TrackerHit>(GetOutputTags()[0]);
 
@@ -100,7 +98,6 @@ namespace eicrecon {
 
 
   private:
-      std::shared_ptr<spdlog::logger>     m_log;              // Logger for this factory
       eicrecon::FarDetectorTrackerCluster m_reco_algo;        // Actual digitisation algorithm
 
       dd4hep::BitFieldCoder *id_dec{nullptr};
