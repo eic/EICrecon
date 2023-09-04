@@ -24,7 +24,7 @@
 // OccupancyAnalysis (Constructor)
 //--------------------------------
 TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -153,38 +153,38 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 //------------------
 void TrackingEfficiency_processor::Finish()
 {
-	fmt::print("OccupancyAnalysis::Finish() called\n");
+        fmt::print("OccupancyAnalysis::Finish() called\n");
 
 
 
-	// Next we want to create several pretty canvases (with histograms drawn on "same")
-	// But we don't want those canvases to pop up. So we set root to batch mode
-	// We will restore the mode afterwards
-	//bool save_is_batch = gROOT->IsBatch();
-	//gROOT->SetBatch(true);
+        // Next we want to create several pretty canvases (with histograms drawn on "same")
+        // But we don't want those canvases to pop up. So we set root to batch mode
+        // We will restore the mode afterwards
+        //bool save_is_batch = gROOT->IsBatch();
+        //gROOT->SetBatch(true);
 
-	// 3D hits distribution
-//	auto th3_by_det_canvas = new TCanvas("th3_by_det_cnv", "Occupancy of detectors");
-//	dir_main->Append(th3_by_det_canvas);
-//	for (auto& kv : th3_by_detector->GetMap()) {
-//		auto th3_hist = kv.second;
-//		th3_hist->Draw("same");
-//	}
-//	th3_by_det_canvas->GetPad(0)->BuildLegend();
+        // 3D hits distribution
+//      auto th3_by_det_canvas = new TCanvas("th3_by_det_cnv", "Occupancy of detectors");
+//      dir_main->Append(th3_by_det_canvas);
+//      for (auto& kv : th3_by_detector->GetMap()) {
+//              auto th3_hist = kv.second;
+//              th3_hist->Draw("same");
+//      }
+//      th3_by_det_canvas->GetPad(0)->BuildLegend();
 //
-//	// Hits Z by detector
+//      // Hits Z by detector
 //
-//	// Create pretty canvases
-//	auto z_by_det_canvas = new TCanvas("z_by_det_cnv", "Hit Z distribution by detector");
-//	dir_main->Append(z_by_det_canvas);
-//	th1_hits_z->Draw("PLC PFC");
+//      // Create pretty canvases
+//      auto z_by_det_canvas = new TCanvas("z_by_det_cnv", "Hit Z distribution by detector");
+//      dir_main->Append(z_by_det_canvas);
+//      th1_hits_z->Draw("PLC PFC");
 //
-//	for (auto& kv : th1_z_by_detector->GetMap()) {
-//		auto hist = kv.second;
-//		hist->Draw("SAME PLC PFC");
-//		hist->SetFillStyle(3001);
-//	}
-//	z_by_det_canvas->GetPad(0)->BuildLegend();
+//      for (auto& kv : th1_z_by_detector->GetMap()) {
+//              auto hist = kv.second;
+//              hist->Draw("SAME PLC PFC");
+//              hist->SetFillStyle(3001);
+//      }
+//      z_by_det_canvas->GetPad(0)->BuildLegend();
 //
-//	gROOT->SetBatch(save_is_batch);
+//      gROOT->SetBatch(save_is_batch);
 }
