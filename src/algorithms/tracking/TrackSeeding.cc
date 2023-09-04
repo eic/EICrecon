@@ -38,25 +38,18 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
 
 std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
 
-  eicrecon::SeedContainer seeds = runSeeder(trk_hits);
-
-  std::vector<edm4eic::TrackParameters*> result = makeTrackParams(seeds);
-
-  return result;
-}
-
-eicrecon::SeedContainer eicrecon::TrackSeeding::runSeeder(std::vector<const edm4eic::TrackerHit*>& trk_hits)
-{
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_cfg.m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
 
+  std::vector<edm4eic::TrackParameters*> result = makeTrackParams(seeds);
+
   for (auto& sp: spacePoints) {
     delete sp;
   }
 
-  return seeds;
+  return result;
 }
 
 std::vector<const eicrecon::SpacePoint*> eicrecon::TrackSeeding::getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits)
