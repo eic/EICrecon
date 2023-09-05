@@ -14,6 +14,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
@@ -289,8 +290,10 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
+#if EDM4EIC_VERSION_MAJOR >= 3
         uint64_t surface = targetSurf->geometryId().value();
 	uint32_t system = 0; // default value...will be set in TrackPropagation factory
+#endif
 
 	/*
          ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
@@ -306,8 +309,10 @@ namespace eicrecon {
           float pathlengthError{}; ///< Error on the pathlenght
          */
         return std::make_unique<edm4eic::TrackPoint>(edm4eic::TrackPoint{
+#if EDM4EIC_VERSION_MAJOR >= 3
                                                surface,
                                                system,
+#endif
                                                position,
                                                positionError,
                                                momentum,

@@ -13,6 +13,7 @@
 #include <extensions/spdlog/SpdlogExtensions.h>
 #include <services/log/Log_service.h>
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 
@@ -43,8 +44,10 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
         for(size_t isurf = 0; auto surf: m_target_surface_list) {
             auto prop_point = m_track_propagation_algo.propagate(traj, surf);
             if(!prop_point) continue;
+#if EDM4EIC_VERSION_MAJOR >= 3
             prop_point->surface = m_target_surface_ID[isurf];
             prop_point->system = m_target_detector_ID[isurf];
+#endif
             this_propagated_track.addToPoints(*prop_point);
             isurf++;
         }
