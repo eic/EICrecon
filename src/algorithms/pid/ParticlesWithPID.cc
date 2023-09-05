@@ -92,10 +92,10 @@ namespace eicrecon {
                                    deta < m_cfg.etaTolerance &&
                                    dsphi < sinPhiOver2Tolerance;
 
-		// Matching kinematics with the static variables doesn't work at low angles and within beam divergence
+                // Matching kinematics with the static variables doesn't work at low angles and within beam divergence
                 // TODO - Maybe reconsider variables used or divide into regions
                 if ((p_eta < -5) && (edm4eic::eta(mom) < -5)) {
-		  is_matching = true;
+                  is_matching = true;
                 }
 
                 m_log->trace("    Decision: {}  dp: {:.4f} < {}  &&  d_eta: {:.6f} < {}  && d_sin_phi: {:.4e} < {:.4e} ",
