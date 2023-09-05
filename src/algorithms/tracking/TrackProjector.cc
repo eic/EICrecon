@@ -37,6 +37,10 @@
 
 #include <cmath>
 
+#if FMT_VERSION >= 90000
+template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
+#endif // FMT_VERSION >= 90000
+
 namespace eicrecon {
 
     void
