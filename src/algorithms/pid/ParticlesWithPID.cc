@@ -278,7 +278,7 @@ namespace eicrecon {
 
         // check if at least one match was found
         if (prox_match_list.size() == 0) {
-            m_log->warn("no matching CherenkovParticleID found for this particle");
+            m_log->trace("  => no matching CherenkovParticleID found for this particle");
             return false;
         }
 
