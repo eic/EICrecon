@@ -23,7 +23,7 @@ void InitPlugin(JApplication *app) {
         {"BarrelVertexRawHits"},
         {
             .threshold = 0.65 * dd4hep::keV,
-	    .timeResolution = 10,
+            .timeResolution = 10,
         },
         app
     ));
