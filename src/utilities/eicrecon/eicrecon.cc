@@ -42,6 +42,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "FOFFMTRK",
         "BTOF",
         "ECTOF",
+        "LOWQ2",
         "LUMISPECCAL",
         "podio",
 };
