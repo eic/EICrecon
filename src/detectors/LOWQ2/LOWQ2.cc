@@ -33,11 +33,11 @@ extern "C" {
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
         "TaggerTrackerClusterPositions",
         {"TaggerTrackerRawHits"},
-        {"TaggerTrackerClusterPositions"}, 
+        {"TaggerTrackerClusterPositions"},
         {
-	  .readout = "TaggerTrackerHits"
+          .readout = "TaggerTrackerHits"
         },
-	app
+        app
     ));
 
 

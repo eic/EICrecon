@@ -68,7 +68,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // LOWQ2 hits
             "TaggerTrackerRawHits",
-	    "TaggerTrackerClusterPositions",
+            "TaggerTrackerClusterPositions",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",

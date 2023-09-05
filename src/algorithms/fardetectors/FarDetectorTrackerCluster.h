@@ -21,7 +21,7 @@ namespace eicrecon {
 
     /** One time initialization **/
     void init(const dd4hep::Detector* det,
-	      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
+              std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
               std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
@@ -32,7 +32,7 @@ namespace eicrecon {
       const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
       std::shared_ptr<spdlog::logger> m_log;
       std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter{nullptr};
-      
+
       int m_module_idx{0};
       int m_layer_idx{0};
       int m_x_idx{0};

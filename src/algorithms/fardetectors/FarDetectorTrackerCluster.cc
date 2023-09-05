@@ -14,7 +14,7 @@ namespace eicrecon {
 
 
   void FarDetectorTrackerCluster::init(const dd4hep::Detector* det,
-	      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+              std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
               std::shared_ptr<spdlog::logger> log) {
 
     m_log = log;
@@ -24,31 +24,31 @@ namespace eicrecon {
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
     }
-    
+
     try {
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
       if (!m_cfg.moduleField.empty()) {
-	m_module_idx = m_id_dec->index(m_cfg.moduleField);
-	m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
+        m_module_idx = m_id_dec->index(m_cfg.moduleField);
+        m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
       }
       if (!m_cfg.layerField.empty()) {
-	m_layer_idx = m_id_dec->index(m_cfg.layerField);
-	m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
+        m_layer_idx = m_id_dec->index(m_cfg.layerField);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
       }
       if (!m_cfg.xField.empty()) {
-	m_x_idx = m_id_dec->index(m_cfg.xField);
-	m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
+        m_x_idx = m_id_dec->index(m_cfg.xField);
+        m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
       }
       if (!m_cfg.yField.empty()) {
-	m_y_idx = m_id_dec->index(m_cfg.yField);
-	m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
+        m_y_idx = m_id_dec->index(m_cfg.yField);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
       }
     } catch (...) {
       m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
       throw JException("Failed to load ID decoder");
     }
-    
-    
+
+
 
   }
 
@@ -108,22 +108,22 @@ namespace eicrecon {
       // Loop over hits, adding neighbouring hits as relevant
       while(clusterList.size()){
 
-	// Takes first remaining hit in cluster list
+        // Takes first remaining hit in cluster list
         auto index  = clusterList[0];
 
-	// Finds neighbours of cluster within time limit
+        // Finds neighbours of cluster within time limit
         auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
-	
-	// Adds the found hits to the cluster
+
+        // Adds the found hits to the cluster
         clusterList = Concatenate(clusterList,indices[filter]);
 
-	// Removes the found hits from the list of still avaliable hits
+        // Removes the found hits from the list of still avaliable hits
         available = available*(!filter);
 
-	// Removes current hit from remaining found cluster hits 
+        // Removes current hit from remaining found cluster hits
         clusterList.erase(clusterList.begin());
-	
-	// Adds raw hit to TrackerHit contribution
+
+        // Adds raw hit to TrackerHit contribution
         cluster.addToRawHits(inputhits[index].getObjectID());
 
         //Energy
