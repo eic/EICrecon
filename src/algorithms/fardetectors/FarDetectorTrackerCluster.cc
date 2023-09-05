@@ -1,6 +1,5 @@
-// Created by Simon Gardner to do LowQ2 pixel clustering
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Simon Gardner
 
 #include <edm4hep/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -67,10 +66,10 @@ namespace eicrecon {
     for(auto hit: inputhits){
       auto cellID = hit.getCellID();
       id.push_back    (cellID);
-      module.push_back(m_id_dec->get( cellID, m_cfg.module_idx ));
-      layer.push_back (m_id_dec->get( cellID, m_cfg.layer_idx  ));
-      x.push_back     (m_id_dec->get( cellID, m_cfg.x_idx      ));
-      y.push_back     (m_id_dec->get( cellID, m_cfg.y_idx      ));
+      module.push_back(m_id_dec->get( cellID, m_module_idx ));
+      layer.push_back (m_id_dec->get( cellID, m_layer_idx  ));
+      x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
+      y.push_back     (m_id_dec->get( cellID, m_y_idx      ));
       e.push_back     (hit.getCharge());
       t.push_back     (hit.getTimeStamp());
     }

@@ -1,7 +1,5 @@
-
-// Created by Simon Gardner to do FarDetectorML Tagger reconstruction
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Simon Gardner
 
 #include <JANA/JEvent.h>
 #include <edm4hep/Vector2f.h>
@@ -125,7 +123,6 @@ namespace eicrecon {
       edm4eic::Cov2f locError;
       float theta   = momentum.Theta();;
       float phi     = momentum.Phi();
-      float charge  = -1;
       float qOverP  = charge/sqrt(momMag2);
       edm4eic::Cov3f momentumError;
       float time  = 0;

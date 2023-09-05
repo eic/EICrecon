@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-#include "FarDetectorTrackerClusterConfig.h"
-
 namespace eicrecon {
   struct FarDetectorLinearTrackingConfig {
 
-    FarDetectorTrackerClusterConfig detconf;
+    std::string readout{""};
+    std::string moduleField{"module"};
+    std::string layerField{"layer"};
 
     int   layer_hits_max{4};
 

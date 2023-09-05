@@ -27,7 +27,7 @@ extern "C" {
     cluster_cfg.readout = "TaggerTrackerHits";
 
     FarDetectorLinearTrackingConfig tracking_cfg;
-    tracking_cfg.detconf = cluster_cfg;
+    tracking_cfg.readout = cluster_cfg.readout;
 
     FarDetectorMLReconstructionConfig recon_cfg;
 

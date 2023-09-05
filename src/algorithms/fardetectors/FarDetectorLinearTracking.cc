@@ -1,6 +1,5 @@
-// Created by Simon Gardner to do LowQ2 tracking
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Simon Gardner
 
 #include <JANA/JEvent.h>
 #include <edm4hep/Vector2f.h>
@@ -27,22 +26,22 @@ namespace eicrecon {
       m_detector = det;
       m_log      = logger;
 
-      if (m_cfg.detconf.readout.empty()) {
+      if (m_cfg.readout.empty()) {
 	throw JException("Readout is empty");
       }
       
       try {
-	m_id_dec = det->readout(m_cfg.detconf.readout).idSpec().decoder();
-	if (!m_cfg.detconf.moduleField.empty()) {
-	  m_module_idx = m_id_dec->index(m_cfg.detconf.moduleField);
-	  m_log->debug("Find module field {}, index = {}", m_cfg.detconf.moduleField, m_module_idx);
+	m_id_dec = det->readout(m_cfg.readout).idSpec().decoder();
+	if (!m_cfg.moduleField.empty()) {
+	  m_module_idx = m_id_dec->index(m_cfg.moduleField);
+	  m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
 	}
-	if (!m_cfg.detconf.layerField.empty()) {
-	  m_layer_idx = m_id_dec->index(m_cfg.detconf.layerField);
-	  m_log->debug("Find layer field {}, index = {}", m_cfg.detconf.layerField, m_layer_idx);
+	if (!m_cfg.layerField.empty()) {
+	  m_layer_idx = m_id_dec->index(m_cfg.layerField);
+	  m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
 	}
       } catch (...) {
-        m_log->error("Failed to load ID decoder for {}", m_cfg.detconf.readout);
+        m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
 	throw JException("Failed to load ID decoder");
       }
 
@@ -56,8 +55,8 @@ namespace eicrecon {
 
         // Sort the hits by module and layer
         for(auto hit: inputhits){
-          auto module = m_id_dec->get(hit.getCellID(),m_cfg.detconf.module_idx);
-          auto layer  = m_id_dec->get(hit.getCellID(),m_cfg.detconf.layer_idx);
+          auto module = m_id_dec->get(hit.getCellID(),m_module_idx);
+          auto layer  = m_id_dec->get(hit.getCellID(),m_layer_idx);
           sortedHits[module][layer].push_back(hit);
         }
 
