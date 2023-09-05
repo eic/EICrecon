@@ -3,19 +3,13 @@
 //
 
 #pragma once
-#include <spdlog/spdlog.h>
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <DDRec/CellIDPositionConverter.h>
 
 // Event Model related classes
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
-
-#include <services/geometry/dd4hep/JDD4hep_service.h>
 #include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

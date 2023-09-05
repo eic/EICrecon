@@ -4,9 +4,10 @@
 #include <edm4hep/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 
+#include <ROOT/RVec.hxx>
+
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "ROOT/RVec.hxx"
 #include "FarDetectorTrackerCluster.h"
 
 namespace eicrecon {
