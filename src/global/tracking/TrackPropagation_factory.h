@@ -9,7 +9,6 @@
 #include <algorithms/tracking/TrackPropagation.h>
 #include <spdlog/logger.h>
 
-#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackSegmentCollection.h>
 
 #include <Acts/Surfaces/DiscSurface.hpp>
