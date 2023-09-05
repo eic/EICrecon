@@ -19,4 +19,3 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR})
-
