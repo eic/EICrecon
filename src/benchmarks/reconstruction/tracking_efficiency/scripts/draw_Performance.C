@@ -23,7 +23,7 @@ void draw_Performance(Int_t nevent=-1)
 
 //=======Reading the root file DD4HEP===========
    TFile* file = new TFile("tracking_test_gun.edm4eic.root"); // Tree with tracks and hits
-		// Create the tree reader and its data containers
+                // Create the tree reader and its data containers
    TTreeReader myReader("events", file); // name of tree and file
 
    TTreeReaderArray<Float_t> charge(myReader, "MCParticles.charge");

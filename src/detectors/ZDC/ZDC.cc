@@ -19,7 +19,7 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-	  "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
+          "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 8096,
@@ -30,9 +30,9 @@ extern "C" {
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
-	  "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
           {
             .capADC = 8096,
             .dyRangeADC = 100. * dd4hep::MeV,
@@ -51,7 +51,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
-	  "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
+          "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},

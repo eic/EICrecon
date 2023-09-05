@@ -110,7 +110,9 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    mirror R = {:f} mm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = m_mirrorSphericalSurface;
+    auto rad = m_irtDetector->GetRadiator(RadiatorName(kGas).c_str());
+    if(rad) rad->m_Borders[isec].second = m_mirrorSphericalSurface;
+    else throw std::runtime_error("Gas radiator not built in IrtGeo");
 
     // sensor modules: search the detector tree for sensors for this sector
     m_log->trace("  SENSORS:");
@@ -168,12 +170,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   } // sector loop
 
   // set reference refractive indices // NOTE: numbers may be overridden externally
-  std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorName(kGas).c_str(),     1.00076});
-  rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
-  rIndices.insert({"Filter",                       1.5017});
+  std::map<const std::string, double> rIndices;
+  rIndices.insert({RadiatorName(kGas),     1.00076});
+  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = m_irtDetector->GetRadiator(rName);
+    auto rad = m_irtDetector->GetRadiator(rName.c_str());
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }
