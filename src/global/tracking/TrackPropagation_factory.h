@@ -22,11 +22,11 @@ namespace eicrecon {
     public:
 
         explicit TrackPropagation_factory(std::string tag,
-			const std::vector<std::string>& input_tags,
-			const std::vector<std::string>& output_tags) :
+                        const std::vector<std::string>& input_tags,
+                        const std::vector<std::string>& output_tags) :
             JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
                 DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
-	}
+        }
 
         /** One time initialization **/
         void Init() override;
