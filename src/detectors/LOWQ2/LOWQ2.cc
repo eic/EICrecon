@@ -8,6 +8,7 @@
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
 
 
 extern "C" {
@@ -26,6 +27,17 @@ extern "C" {
            .timeResolution = 2 * dd4hep::ns,
          },
          app
+    ));
+
+    // Clustering of hits
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
+        "TaggerTrackerClusterPositions",
+        {"TaggerTrackerRawHits"},
+        {"TaggerTrackerClusterPositions"}, 
+        {
+	  .readout = "TaggerTrackerHits"
+        },
+	app
     ));
 
 
