@@ -22,9 +22,30 @@
 namespace eicrecon {
 
 
-    void FarDetectorLinearTracking::init(const dd4hep::BitFieldCoder *id_dec, std::shared_ptr<spdlog::logger>& logger) {
-      m_id_dec = id_dec;
-      m_log    = logger;
+    void FarDetectorLinearTracking::init(const dd4hep::Detector* det, std::shared_ptr<spdlog::logger>& logger) {
+
+      m_detector = det;
+      m_log      = logger;
+
+      if (m_cfg.detconf.readout.empty()) {
+	throw JException("Readout is empty");
+      }
+      
+      try {
+	m_id_dec = det->readout(m_cfg.detconf.readout).idSpec().decoder();
+	if (!m_cfg.detconf.moduleField.empty()) {
+	  m_module_idx = m_id_dec->index(m_cfg.detconf.moduleField);
+	  m_log->debug("Find module field {}, index = {}", m_cfg.detconf.moduleField, m_module_idx);
+	}
+	if (!m_cfg.detconf.layerField.empty()) {
+	  m_layer_idx = m_id_dec->index(m_cfg.detconf.layerField);
+	  m_log->debug("Find layer field {}, index = {}", m_cfg.detconf.layerField, m_layer_idx);
+	}
+      } catch (...) {
+        m_log->error("Failed to load ID decoder for {}", m_cfg.detconf.readout);
+	throw JException("Failed to load ID decoder");
+      }
+
     }
 
     std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearTracking::produce(const edm4hep::TrackerHitCollection &inputhits) {

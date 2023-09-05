@@ -24,14 +24,18 @@ namespace eicrecon {
     public:
 
         /** One time initialization **/
-        void init(const dd4hep::BitFieldCoder *id_dec, std::shared_ptr<spdlog::logger>& logger);
+        void init(const dd4hep::Detector* det, std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
         std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
 
     private:
-        const dd4hep::BitFieldCoder *m_id_dec{nullptr};
+	const dd4hep::Detector*         m_detector{nullptr};
+        const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
         std::shared_ptr<spdlog::logger> m_log;
+
+	int m_module_idx{0};
+	int m_layer_idx{0};
 
     };
 

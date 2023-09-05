@@ -39,37 +39,8 @@ namespace eicrecon {
 
           auto cfg = GetDefaultConfig();
 
-          m_geoSvc = app->GetService<JDD4hep_service>();
-
-          if (cfg.detconf.readout.empty()) {
-            throw JException("Readout is empty");
-          }
-
-          try {
-            id_dec = m_geoSvc->detector()->readout(cfg.detconf.readout).idSpec().decoder();
-            if (!cfg.detconf.moduleField.empty()) {
-              cfg.detconf.module_idx = id_dec->index(cfg.detconf.moduleField);
-              logger()->debug("Find module field {}, index = {}", cfg.detconf.moduleField, cfg.detconf.module_idx);
-            }
-            if (!cfg.detconf.layerField.empty()) {
-              cfg.detconf.layer_idx = id_dec->index(cfg.detconf.layerField);
-              logger()->debug("Find layer field {}, index = {}", cfg.detconf.layerField, cfg.detconf.layer_idx);
-            }
-            if (!cfg.detconf.xField.empty()) {
-              cfg.detconf.x_idx = id_dec->index(cfg.detconf.xField);
-              logger()->debug("Find layer field {}, index = {}",  cfg.detconf.xField, cfg.detconf.x_idx);
-            }
-            if (!cfg.detconf.yField.empty()) {
-              cfg.detconf.y_idx = id_dec->index(cfg.detconf.yField);
-              logger()->debug("Find layer field {}, index = {}", cfg.detconf.yField, cfg.detconf.y_idx);
-            }
-          } catch (...) {
-            logger()->error("Failed to load ID decoder for {}", cfg.detconf.readout);
-            throw JException("Failed to load ID decoder");
-          }
-
           m_reco_algo.applyConfig(cfg);
-          m_reco_algo.init(id_dec,logger());
+          m_reco_algo.init(app->GetService<JDD4hep_service>()->detector(),logger());
 
         }
 
@@ -91,9 +62,6 @@ namespace eicrecon {
     private:
 
         eicrecon::FarDetectorLinearTracking m_reco_algo;        // Actual digitisation algorithm
-
-        dd4hep::BitFieldCoder *id_dec{nullptr};
-        std::shared_ptr<JDD4hep_service> m_geoSvc;
 
     };
 

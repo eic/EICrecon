@@ -3,8 +3,6 @@
 //
 //
 
-#include <Acts/Propagator/Navigator.hpp>
-
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
@@ -23,14 +21,6 @@ extern "C" {
 
     using namespace eicrecon;
 
-    // -------------------------------
-    // TODO: Separate algorithms from factories and add config parameters
-    // -------------------------------
-
-    // Digitization
-    SiliconTrackerDigiConfig digi_cfg;
-    //digi_cfg.timeResolution = 2.5; // Change timing resolution.
-
     //Clustering config
     FarDetectorTrackerClusterConfig cluster_cfg;
     //Ensure same detector is passed to digi and clustering
@@ -41,6 +31,7 @@ extern "C" {
 
     FarDetectorMLReconstructionConfig recon_cfg;
 
+    // Digitization of silicon hits
     app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
          "TaggerTrackerRawHit",
          {cluster_cfg.readout},
@@ -56,10 +47,10 @@ extern "C" {
     // Clustering of hits
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
 
-    // Very basic reconstrution of a single track
+    // Reconstrution of tracks on common plane
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
-    // Initial particle reconstruction
+    // Vector reconstruction at origin
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Tracks"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
 
   }

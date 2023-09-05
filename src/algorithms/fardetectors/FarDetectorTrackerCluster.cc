@@ -13,12 +13,43 @@
 namespace eicrecon {
 
 
-  void FarDetectorTrackerCluster::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
-              dd4hep::BitFieldCoder* id_dec,
+  void FarDetectorTrackerCluster::init(const dd4hep::Detector* det,
+	      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
               std::shared_ptr<spdlog::logger> log) {
+
     m_log = log;
-    m_id_dec = id_dec;
+    m_detector = det;
     m_cellid_converter = cellid;
+
+    if (m_cfg.readout.empty()) {
+      throw JException("Readout is empty");
+    }
+    
+    try {
+      m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
+      if (!m_cfg.moduleField.empty()) {
+	m_module_idx = m_id_dec->index(m_cfg.moduleField);
+	m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
+      }
+      if (!m_cfg.layerField.empty()) {
+	m_layer_idx = m_id_dec->index(m_cfg.layerField);
+	m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
+      }
+      if (!m_cfg.xField.empty()) {
+	m_x_idx = m_id_dec->index(m_cfg.xField);
+	m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
+      }
+      if (!m_cfg.yField.empty()) {
+	m_y_idx = m_id_dec->index(m_cfg.yField);
+	m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
+      }
+    } catch (...) {
+      m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
+      throw JException("Failed to load ID decoder");
+    }
+    
+    
+
   }
 
   std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {

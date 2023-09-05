@@ -91,21 +91,27 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
             {"CentralCKFActsTrajectories"}, "CentralTrackVertices"));
 
-    // Tracker hits collector from ACTS and other factories
+    // Tracker trajectory collector from ACTS and other factories
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
-                                                                                  "CombinedTrajectories",
-      {"CentralCKFTrajectories",  // ACTS output
-          "LowQ2Trajectories"},            // Low Q2 output
-      {"CombinedTrajectories"},
-        app));    // Output collection name
+         "CombinedTrajectories",
+         {
+            "CentralCKFTrajectories",  // ACTS output
+            "LowQ2Trajectories"        // Low Q2 output
+	 },            
+         {"CombinedTrajectories"},
+         app
+    ));    // Output collection name
 
-    // Tracker hits collector from ACTS and other factories
+    // Tracker trajectory collector from ACTS and other factories
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
-                                                                                  "CombinedSeededTrajectories",
-      {"CentralCKFSeededTrajectories",  // ACTS output
-          "LowQ2Trajectories"},            // Low Q2 output
-      {"CombinedSeededTrajectories"},
-        app));  // Output collection name
+         "CombinedSeededTrajectories",
+         {
+	    "CentralCKFSeededTrajectories",  // ACTS output
+            "LowQ2Trajectories"              // Low Q2 output
+         },            
+         {"CombinedSeededTrajectories"},
+         app
+    ));  // Output collection name
 
 }
 } // extern "C"
