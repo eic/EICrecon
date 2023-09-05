@@ -93,7 +93,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
             "CalorimeterTrackPropagator",
-            {"CentralCKFTrajectories"},
+            {"CentralCKFActsTrajectories"},
             {"CalorimeterTrackProjections"},
 	    app
 	    ));
