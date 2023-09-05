@@ -3,17 +3,13 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_EcalEndcapPIslandProtoClusters.h"
-
-#include "ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -56,8 +52,19 @@ extern "C" {
           "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"}, {"EcalEndcapPTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPIslandProtoClusters>(
-          {"EcalEndcapPRecHits"}, "EcalEndcapPIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
+            .dimScaledLocalDistXY = {1.5, 1.5},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 0.04,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(
@@ -131,8 +138,19 @@ extern "C" {
           "EcalEndcapPInsertTruthProtoClusters", {"EcalEndcapPInsertRecHits", "EcalEndcapPInsertHits"}, {"EcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>(
-          {"EcalEndcapPInsertRecHits"}, "EcalEndcapPInsertIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalEndcapPInsertIslandProtoClusters", {"EcalEndcapPInsertRecHits"}, {"EcalEndcapPInsertIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
+            .dimScaledLocalDistXY = {1.5,1.5},
+            .splitCluster = false,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(

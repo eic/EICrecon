@@ -18,7 +18,7 @@
 
 #include "CKFTracking.h"
 
-#include "JugBase/BField/DD4hepBField.h"
+#include "DD4hepBField.h"
 
 
 #include <random>
@@ -45,7 +45,7 @@ namespace eicrecon{
     CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
     eicrecon::CKFTracking::TrackFinderResult
-    operator()(const eicrecon::TrackParametersContainer& initialParameters,
+    operator()(const ActsExamples::TrackParametersContainer& initialParameters,
                const eicrecon::CKFTracking::TrackFinderOptions& options)
                const override
     {
@@ -76,4 +76,4 @@ namespace eicrecon {
     return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
   }
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

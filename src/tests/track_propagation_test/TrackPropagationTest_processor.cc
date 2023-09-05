@@ -11,7 +11,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
 #include "services/rootfile/RootFile_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
@@ -22,7 +21,7 @@
 // OccupancyAnalysis (Constructor)
 //------------------
 TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -77,7 +76,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     m_log->trace("TrackPropagationTest_processor event");
 
     // Get trajectories from tracking
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
 
     // Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());

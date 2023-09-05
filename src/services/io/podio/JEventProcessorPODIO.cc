@@ -52,9 +52,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFEndcapRecHits",
 
             // DRICH
+            "DRICHRawHits",
+            "DRICHRawHitsAssociations",
+            "DRICHAerogelTracks",
+            "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
-            "DRICHMergedIrtCherenkovParticleID",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -64,14 +67,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRecHits",
 
             // Forward & Far forward hits
-            "ForwardOffMTrackerRecHits",
-            "ForwardRomanPotRecHits",
             "B0TrackerRecHits",
 
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
-	    "SmearedFarForwardParticles",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -79,14 +79,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedSeededChargedParticles",
+            "ReconstructedSeededChargedParticleAssociations",
             "ReconstructedChargedParticleIDs",
-            // FIXME: Disable default inclusion of realistic seeding
-            // until the seed finder does not emit NaNs.
-            //"ReconstructedSeededChargedParticles",
-	    //"ReconstructedSeededChargedParticleAssociations",
-            //"ReconstructedSeededChargedParticleIDs",
             "CentralTrackSegments",
-	    "CentralTrackVertices",
+            "CentralTrackVertices",
+            "CentralCKFTrajectories",
+            "CentralCKFTrackParameters",
+            "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTrackParameters",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
@@ -116,15 +117,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertTruthClusterAssociations",
             "EcalEndcapPInsertClusters",
             "EcalEndcapPInsertClusterAssociations",
+            "EcalBarrelClusters",
+            "EcalBarrelClusterAssociations",
+            "EcalBarrelTruthClusters",
+            "EcalBarrelTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
             "EcalBarrelImagingClusterAssociations",
-            "EcalBarrelImagingMergedClusters",
-            "EcalBarrelImagingMergedClusterAssociations",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
-            "EcalBarrelScFiMergedHits",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
             "EcalLumiSpecRawHits",
@@ -174,7 +176,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalClusters",
             "B0ECalClusterAssociations",
             "ZDCEcalTruthClusters",
-            "ZDCEcalTruthClusterAssociations"
+            "ZDCEcalTruthClusterAssociations",
+
+            // DIRC
+            "DIRCRawHits"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(

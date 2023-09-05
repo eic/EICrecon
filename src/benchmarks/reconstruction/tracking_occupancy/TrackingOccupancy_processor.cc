@@ -1,6 +1,6 @@
 
 #include "TrackingOccupancy_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
@@ -23,9 +23,7 @@
 #include <spdlog/spdlog.h>
 #include <edm4eic/TrackParameters.h>
 
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
-#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
@@ -34,7 +32,7 @@ using namespace fmt;
 // OccupancyAnalysis (Constructor)
 //------------------
 TrackingOccupancy_processor::TrackingOccupancy_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -90,5 +88,5 @@ void TrackingOccupancy_processor::Process(const std::shared_ptr<const JEvent>& e
 //------------------
 void TrackingOccupancy_processor::Finish()
 {
-	// Nothing to do here
+        // Nothing to do here
 }

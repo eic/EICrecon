@@ -16,8 +16,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/Detector.h>
 
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Measurement.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
 
 #include "ActsGeometryProvider.h"
 
@@ -39,10 +39,10 @@ namespace eicrecon {
 
         std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
-	dd4hep::Detector* m_dd4hepGeo;
+        dd4hep::Detector* m_dd4hepGeo;
 
-	/// Detector-specific information
-	int m_detid_b0tracker;
+        /// Detector-specific information
+        int m_detid_b0tracker;
     };
 
 }

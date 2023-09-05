@@ -3,15 +3,13 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_EcalEndcapNIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -33,7 +31,7 @@ extern "C" {
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
           {
@@ -49,14 +47,25 @@ extern "C" {
             .sectorField = "sector",
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNHits"}, {"EcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_EcalEndcapNIslandProtoClusters>(
-	    {"EcalEndcapNRecHits"}, "EcalEndcapNIslandProtoClusters"
-	));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
+          {
+            .adjacencyMatrix = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
+            .readout = "EcalEndcapNHits",
+            .sectorDist = 5.0 * dd4hep::cm,
+            .splitCluster = true,
+            .minClusterHitEdep = 1.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 0.08,
+          },
+          app   // TODO: Remove me once fixed
+        ));
 
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(

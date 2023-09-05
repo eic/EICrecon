@@ -15,16 +15,16 @@ namespace eicrecon {
 
     }
 
-    ParticlesWithAssociationNew ParticlesWithPID::process(
+    ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
-            const edm4eic::TrackParametersCollection* track_params,
+            const edm4eic::TrajectoryCollection* trajectories,
             std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
             ) {
 
         // input collection
 
         /// Resulting reconstructed particles
-        ParticlesWithAssociationNew out_colls;
+        ParticlesWithAssociation out_colls;
         out_colls.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
         out_colls.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
         out_colls.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
@@ -34,7 +34,8 @@ namespace eicrecon {
 
         std::vector<bool> mc_prt_is_consumed(mc_particles->size(), false);         // MCParticle is already consumed flag
 
-        for (const auto &trk: *track_params) {
+        for (const auto &trajectory: *trajectories) {
+          for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4eic::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
             const auto charge_rec = trk.getCharge();
@@ -181,7 +182,7 @@ namespace eicrecon {
             else {
                 m_log->debug(" MCPart: Did not find a good match");
             }
-
+          }
         }
 
         return out_colls;
@@ -277,7 +278,7 @@ namespace eicrecon {
 
         // check if at least one match was found
         if (prox_match_list.size() == 0) {
-            m_log->warn("no matching CherenkovParticleID found for this particle");
+            m_log->trace("  => no matching CherenkovParticleID found for this particle");
             return false;
         }
 
@@ -301,7 +302,6 @@ namespace eicrecon {
         }
 
         // relate matched ParticleID objects to output particle
-        bool first = true;
         for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
             const auto& out_pid = out_pids->at(out_pids_index);
             if (out_pid.id() != out_pids_id) { // sanity check
@@ -309,12 +309,9 @@ namespace eicrecon {
                 return false;
             }
             in_part.addToParticleIDs(out_pid);
-            if (first) {
-                in_part.setParticleIDUsed(out_pid); // highest likelihood is the first
-                in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
-                first = false;
-            }
         }
+        in_part.setParticleIDUsed(in_part.getParticleIDs().at(0)); // highest likelihood is the first
+        in_part.setGoodnessOfPID(1); // FIXME: not used yet, aside from 0=noPID vs 1=hasPID
 
         // trace logging
         m_log->trace("    {:.^50}"," PID results ");

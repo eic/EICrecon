@@ -16,44 +16,26 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <spdlog/spdlog.h>
 
-using CaloHit = edm4eic::CalorimeterHit;
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "CalorimeterIslandClusterConfig.h"
 
-class CalorimeterIslandCluster {
+namespace eicrecon {
 
-    // Insert any member variables here
+  using CaloHit = edm4eic::CalorimeterHit;
 
-public:
-    CalorimeterIslandCluster() = default;
-    void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-    void AlgorithmChangeRun();
-    std::unique_ptr<edm4eic::ProtoClusterCollection> AlgorithmProcess(const edm4eic::CalorimeterHitCollection &hits);
+  class CalorimeterIslandCluster : public WithPodConfig<CalorimeterIslandClusterConfig> {
 
-    //-------- Configuration Parameters ------------
-    //instantiate new spdlog logger
+  private:
+    const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
-    std::string m_input_tag;
+  public:
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits);
 
-    // geometry service to get ids
-    std::string m_geoSvcName; //{this, "geoServiceName", "GeoSvc"};
-    std::string m_readout; //{this, "readoutClass", ""};
-    std::string u_adjacencyMatrix; //{this, "adjacencyMatrix", ""};
-
-    // neighbour checking distances
-    double m_sectorDist;//{this, "sectorDist", 5.0 * dd4hep::cm};
-    std::vector<double> u_localDistXY;//{this, "localDistXY", {}};
-    std::vector<double> u_localDistXZ;//{this, "localDistXZ", {}};
-    std::vector<double> u_localDistYZ;//{this, "localDistYZ", {}};
-    std::vector<double> u_globalDistRPhi;//{this, "globalDistRPhi", {}};
-    std::vector<double> u_globalDistEtaPhi;//{this, "globalDistEtaPhi", {}};
-    std::vector<double> u_dimScaledLocalDistXY;//{this, "dimScaledLocalDistXY", {1.8, 1.8}};
     // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)> hitsDist;
 
-    bool m_splitCluster = false;
-    double m_minClusterHitEdep;
-    double m_minClusterCenterEdep;
-    std::string u_transverseEnergyProfileMetric;
     std::function<edm4hep::Vector2f(const CaloHit &h1, const CaloHit &h2)> transverseEnergyProfileMetric;
     double u_transverseEnergyProfileScale;
     double transverseEnergyProfileScaleUnits;
@@ -65,36 +47,41 @@ public:
     std::array<double, 2> neighbourDist;
 
     // Pointer to the geometry service
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
     dd4hep::IDDescriptor m_idSpec;
 
-    //-----------------------------------------------
+  private:
 
-    // unitless counterparts of inputs
-    double           stepTDC, tRes, eRes[3];
-    //Rndm::Numbers    m_normDist;
-    uint64_t         id_mask, ref_mask;
+    static unsigned int function_id;
 
-private:
-    std::default_random_engine generator; // TODO: need something more appropriate here
-    std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+    // grouping function with Breadth-First Search
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+      visits[idx] = true;
 
-   // grouping function with Depth-First Search
-   //TODO: confirm grouping without calohitcollection
-    void dfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
-        // not a qualified hit to particpate clustering, stop here
-        if (hits[idx].getEnergy() < m_minClusterHitEdep) {
-            visits[idx] = true;
-            return;
-        }
-        group.insert(idx);
-        visits[idx] = true;
-        for (size_t i = 0; i < hits.size(); ++i) {
-            if (visits[i] || !is_neighbour(hits[idx], hits[i])) {
-                continue;
+      // not a qualified hit to particpate clustering, stop here
+      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
+        return;
+      }
+
+      group.insert(idx);
+      size_t prev_size = 0;
+
+      while (prev_size != group.size()) {
+        prev_size = group.size();
+        for (std::size_t idx1 : group) {
+          // check neighbours
+          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
+            // not a qualified hit to particpate clustering, skip
+            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+              continue;
             }
-            dfs_group(hits, group, i, visits);
+            if ((!visits[idx2])
+                && is_neighbour(hits[idx1], hits[idx2])) {
+              group.insert(idx2);
+              visits[idx2] = true;
+            }
+          }
         }
+      }
     }
 
     // find local maxima that above a certain threshold
@@ -111,7 +98,7 @@ private:
           mpos = idx;
         }
       }
-      if (hits[mpos].getEnergy() >= m_minClusterCenterEdep) {
+      if (hits[mpos].getEnergy() >= m_cfg.minClusterCenterEdep) {
         maxima.push_back(mpos);
       }
       return maxima;
@@ -119,7 +106,7 @@ private:
 
     for (std::size_t idx1 : group) {
       // not a qualified center
-      if (hits[idx1].getEnergy() < m_minClusterCenterEdep) {
+      if (hits[idx1].getEnergy() < m_cfg.minClusterCenterEdep) {
         continue;
       }
 
@@ -186,7 +173,7 @@ private:
       for (std::size_t cidx : maxima) {
         double energy   = hits[cidx].getEnergy();
         double dist     = edm4eic::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
-        weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / u_transverseEnergyProfileScale) * energy;
+        weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) * energy;
         j += 1;
       }
 
@@ -214,3 +201,5 @@ private:
     m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
   }
 };
+
+} // namespace eicrecon

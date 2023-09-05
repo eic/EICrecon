@@ -1,6 +1,6 @@
 
 #include "TrackingTest_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include "datamodel_glue.h"
@@ -16,11 +16,10 @@
 #include <spdlog/spdlog.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
-#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
@@ -29,7 +28,7 @@ using namespace fmt;
 // OccupancyAnalysis (Constructor)
 //------------------
 TrackingTest_processor::TrackingTest_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -82,7 +81,7 @@ void TrackingTest_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 void TrackingTest_processor::Finish()
 {
-	fmt::print("OccupancyAnalysis::Finish() called\n");
+        fmt::print("OccupancyAnalysis::Finish() called\n");
 
 }
 

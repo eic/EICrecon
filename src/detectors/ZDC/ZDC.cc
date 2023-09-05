@@ -3,15 +3,13 @@
 //
 //
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-
-#include "ProtoCluster_factory_ZDCEcalIslandProtoClusters.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -21,7 +19,7 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-	  "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
+          "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 8096,
@@ -32,9 +30,9 @@ extern "C" {
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
-	  "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
           {
             .capADC = 8096,
             .dyRangeADC = 100. * dd4hep::MeV,
@@ -52,8 +50,19 @@ extern "C" {
           "ZDCEcalTruthProtoClusters", {"ZDCEcalRecHits", "ZDCEcalHits"}, {"ZDCEcalTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainFactoryGeneratorT<ProtoCluster_factory_ZDCEcalIslandProtoClusters>(
-	  {"ZDCEcalRecHits"}, "ZDCEcalIslandProtoClusters"
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
+            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.1 * dd4hep::MeV,
+            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
         ));
 
         app->Add(

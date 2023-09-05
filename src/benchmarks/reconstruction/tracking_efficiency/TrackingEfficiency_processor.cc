@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 
@@ -14,9 +15,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
-#include "algorithms/tracking/JugTrack/Track.hpp"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "services/rootfile/RootFile_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
@@ -24,7 +24,7 @@
 // OccupancyAnalysis (Constructor)
 //--------------------------------
 TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -67,15 +67,13 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE I
     // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-    auto trk_result = event->GetSingle<ParticlesFromTrackFitResult>("CentralTrackingParticles");
+    auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
 
-    m_log->debug("Tracking reconstructed particles N={}: ", trk_result->particles()->size());
+    m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
 
-    auto reco_particles = trk_result->particles();
-
-    for(size_t i=0; i < reco_particles->size(); i++) {
-        auto particle = (*reco_particles)[i];
+    for(size_t i=0; i < reco_particles.size(); i++) {
+        auto& particle = *(reco_particles[i]);
 
         double px = particle.getMomentum().x;
         double py = particle.getMomentum().y;
@@ -87,7 +85,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE II
     // This gets access to more direct ACTS results from CFKTracking
-    auto acts_results = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
+    auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
     m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
     m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}",
                  "[loc 0]","[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]", "[chi2]" );
@@ -155,38 +153,38 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 //------------------
 void TrackingEfficiency_processor::Finish()
 {
-	fmt::print("OccupancyAnalysis::Finish() called\n");
+        fmt::print("OccupancyAnalysis::Finish() called\n");
 
 
 
-	// Next we want to create several pretty canvases (with histograms drawn on "same")
-	// But we don't want those canvases to pop up. So we set root to batch mode
-	// We will restore the mode afterwards
-	//bool save_is_batch = gROOT->IsBatch();
-	//gROOT->SetBatch(true);
+        // Next we want to create several pretty canvases (with histograms drawn on "same")
+        // But we don't want those canvases to pop up. So we set root to batch mode
+        // We will restore the mode afterwards
+        //bool save_is_batch = gROOT->IsBatch();
+        //gROOT->SetBatch(true);
 
-	// 3D hits distribution
-//	auto th3_by_det_canvas = new TCanvas("th3_by_det_cnv", "Occupancy of detectors");
-//	dir_main->Append(th3_by_det_canvas);
-//	for (auto& kv : th3_by_detector->GetMap()) {
-//		auto th3_hist = kv.second;
-//		th3_hist->Draw("same");
-//	}
-//	th3_by_det_canvas->GetPad(0)->BuildLegend();
+        // 3D hits distribution
+//      auto th3_by_det_canvas = new TCanvas("th3_by_det_cnv", "Occupancy of detectors");
+//      dir_main->Append(th3_by_det_canvas);
+//      for (auto& kv : th3_by_detector->GetMap()) {
+//              auto th3_hist = kv.second;
+//              th3_hist->Draw("same");
+//      }
+//      th3_by_det_canvas->GetPad(0)->BuildLegend();
 //
-//	// Hits Z by detector
+//      // Hits Z by detector
 //
-//	// Create pretty canvases
-//	auto z_by_det_canvas = new TCanvas("z_by_det_cnv", "Hit Z distribution by detector");
-//	dir_main->Append(z_by_det_canvas);
-//	th1_hits_z->Draw("PLC PFC");
+//      // Create pretty canvases
+//      auto z_by_det_canvas = new TCanvas("z_by_det_cnv", "Hit Z distribution by detector");
+//      dir_main->Append(z_by_det_canvas);
+//      th1_hits_z->Draw("PLC PFC");
 //
-//	for (auto& kv : th1_z_by_detector->GetMap()) {
-//		auto hist = kv.second;
-//		hist->Draw("SAME PLC PFC");
-//		hist->SetFillStyle(3001);
-//	}
-//	z_by_det_canvas->GetPad(0)->BuildLegend();
+//      for (auto& kv : th1_z_by_detector->GetMap()) {
+//              auto hist = kv.second;
+//              hist->Draw("SAME PLC PFC");
+//              hist->SetFillStyle(3001);
+//      }
+//      z_by_det_canvas->GetPad(0)->BuildLegend();
 //
-//	gROOT->SetBatch(save_is_batch);
+//      gROOT->SetBatch(save_is_batch);
 }

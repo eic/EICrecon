@@ -1,6 +1,6 @@
 
 #include "GlobalReconstructionTest_processor.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
@@ -26,8 +26,7 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
-#include "algorithms/tracking/ParticlesFromTrackFitResult.h"
-#include "algorithms/tracking/JugTrack/Track.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
@@ -36,7 +35,7 @@ using namespace fmt;
 // OccupancyAnalysis (Constructor)
 //------------------
 GlobalReconstructionTest_processor::GlobalReconstructionTest_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -117,7 +116,7 @@ void GlobalReconstructionTest_processor::Process(const std::shared_ptr<const JEv
 //------------------
 void GlobalReconstructionTest_processor::Finish()
 {
-	fmt::print("GlobalReconstructionTest_processor::Finish() called\n");
+        fmt::print("GlobalReconstructionTest_processor::Finish() called\n");
 
 }
 
