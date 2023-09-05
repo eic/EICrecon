@@ -8,6 +8,16 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "FarDetectorTrackerCluster.h"// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Simon Gardner
+
+#include <edm4hep/TrackerHit.h>
+#include <edm4eic/RawTrackerHit.h>
+
+#include <ROOT/RVec.hxx>
+
+#include "services/log/Log_service.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "FarDetectorTrackerCluster.h"
 
 namespace eicrecon {
@@ -117,7 +127,7 @@ namespace eicrecon {
         // Adds the found hits to the cluster
         clusterList = Concatenate(clusterList,indices[filter]);
 
-        // Removes the found hits from the list of still avaliable hits
+        // Removes the found hits from the list of still available hits
         available = available*(!filter);
 
         // Removes current hit from remaining found cluster hits
