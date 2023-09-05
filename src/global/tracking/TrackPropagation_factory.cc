@@ -4,7 +4,7 @@
 #include "TrackPropagation_factory.h"
 
 #include <JANA/JEvent.h>
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
+#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
 #include <services/geometry/acts/ACTSGeo_service.h>
 
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
@@ -34,7 +34,7 @@ void eicrecon::TrackPropagation_factory::Init() {
 
 void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(GetInputTags()[0]);
+    auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
 
     edm4eic::TrackSegmentCollection propagated_tracks;
 
