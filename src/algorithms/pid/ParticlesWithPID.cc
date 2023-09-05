@@ -94,7 +94,12 @@ namespace eicrecon {
 
                 // Matching kinematics with the static variables doesn't work at low angles and within beam divergence
                 // TODO - Maybe reconsider variables used or divide into regions
+		// Backward going
                 if ((p_eta < -5) && (edm4eic::eta(mom) < -5)) {
+                  is_matching = true;
+                }
+		// Forward going
+                if ((p_eta >  5) && (edm4eic::eta(mom) >  5)) {
                   is_matching = true;
                 }
 
