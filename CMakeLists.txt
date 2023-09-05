@@ -96,7 +96,7 @@ add_compile_definitions(HAVE_PODIO)
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
-find_package(EDM4EIC 2.1 REQUIRED)
+find_package(EDM4EIC REQUIRED)
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
