@@ -27,22 +27,22 @@ namespace eicrecon {
       m_log      = logger;
 
       if (m_cfg.readout.empty()) {
-	throw JException("Readout is empty");
+        throw JException("Readout is empty");
       }
-      
+
       try {
-	m_id_dec = det->readout(m_cfg.readout).idSpec().decoder();
-	if (!m_cfg.moduleField.empty()) {
-	  m_module_idx = m_id_dec->index(m_cfg.moduleField);
-	  m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
-	}
-	if (!m_cfg.layerField.empty()) {
-	  m_layer_idx = m_id_dec->index(m_cfg.layerField);
-	  m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
-	}
+        m_id_dec = det->readout(m_cfg.readout).idSpec().decoder();
+        if (!m_cfg.moduleField.empty()) {
+          m_module_idx = m_id_dec->index(m_cfg.moduleField);
+          m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
+        }
+        if (!m_cfg.layerField.empty()) {
+          m_layer_idx = m_id_dec->index(m_cfg.layerField);
+          m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
+        }
       } catch (...) {
         m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
-	throw JException("Failed to load ID decoder");
+        throw JException("Failed to load ID decoder");
       }
 
     }

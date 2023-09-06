@@ -97,7 +97,7 @@ void InitPlugin(JApplication *app) {
          {
             "CentralCKFTrajectories",  // ACTS output
             "LowQ2Trajectories"        // Low Q2 output
-	 },            
+         },
          {"CombinedTrajectories"},
          app
     ));    // Output collection name
@@ -106,9 +106,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
          "CombinedSeededTrajectories",
          {
-	    "CentralCKFSeededTrajectories",  // ACTS output
+            "CentralCKFSeededTrajectories",  // ACTS output
             "LowQ2Trajectories"              // Low Q2 output
-         },            
+         },
          {"CombinedSeededTrajectories"},
          app
     ));  // Output collection name
