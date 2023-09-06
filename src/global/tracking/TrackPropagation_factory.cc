@@ -65,7 +65,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
 
     // shift projection surface to average cluster depth
     // shift in z for endcaps, shift in r for barrel
-    double ECAL_avgClusterDepth = 50.;	  // mm
+    double ECAL_avgClusterDepth = 50.;    // mm
     double HCAL_avgClusterDepth = 150.;   // mm
 
     // extend surfaces by ten percent for tracks close to the edge
@@ -75,7 +75,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     // Create propagation surface for BEMC
     const double BEMC_R     = (m_geoSvc->detector()->constant<double>("EcalBarrel_rmin") / dd4hep::mm) * Acts::UnitConstants::mm;
     const double BEMC_halfz = (std::max(m_geoSvc->detector()->constant<double>("EcalBarrelBackward_zmax"),
-			    m_geoSvc->detector()->constant<double>("EcalBarrelForward_zmax")) / dd4hep::mm) * extend * Acts::UnitConstants::mm;
+                            m_geoSvc->detector()->constant<double>("EcalBarrelForward_zmax")) / dd4hep::mm) * extend * Acts::UnitConstants::mm;
     auto BEMC_Trf         = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
     auto m_BEMC_prop_surface1  = Acts::Surface::makeShared<Acts::CylinderSurface>(BEMC_Trf, BEMC_R, BEMC_halfz);
     auto m_BEMC_prop_surface2  = Acts::Surface::makeShared<Acts::CylinderSurface>(BEMC_Trf, BEMC_R + ECAL_avgClusterDepth, BEMC_halfz);
@@ -121,7 +121,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     // Create propagation surface for OHCAL
     const double OHCAL_R     = (m_geoSvc->detector()->constant<double>("HcalBarrel_rmin") / dd4hep::mm) * Acts::UnitConstants::mm;
     const double OHCAL_halfz = (std::max(m_geoSvc->detector()->constant<double>("HcalBarrelBackward_zmax"),
-			    m_geoSvc->detector()->constant<double>("HcalBarrelForward_zmax")) / dd4hep::mm) * extend * Acts::UnitConstants::mm;
+                            m_geoSvc->detector()->constant<double>("HcalBarrelForward_zmax")) / dd4hep::mm) * extend * Acts::UnitConstants::mm;
     auto OHCAL_Trf           = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
     auto m_OHCAL_prop_surface1    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R, OHCAL_halfz);
     auto m_OHCAL_prop_surface2    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R + HCAL_avgClusterDepth, OHCAL_halfz);

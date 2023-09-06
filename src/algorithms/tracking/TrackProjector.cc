@@ -145,13 +145,13 @@ namespace eicrecon {
                 const float pathLengthError = 0;
 
                 uint64_t surface = 0; // trackstate.referenceSurface().geometryId().value(); FIXME - ASAN is not happy with this
-	        uint32_t system = 0;
+                uint32_t system = 0;
 
-		// Store track point
+                // Store track point
                 track_segment.addToPoints({
 #if EDM4EIC_VERSION_MAJOR >= 3
-				                  surface,
-						  system,
+                                                  surface,
+                                                  system,
 #endif
                                                   position,
                                                   positionError,

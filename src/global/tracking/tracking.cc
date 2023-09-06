@@ -95,8 +95,8 @@ void InitPlugin(JApplication *app) {
             "CalorimeterTrackPropagator",
             {"CentralCKFActsTrajectories"},
             {"CalorimeterTrackProjections"},
-	    app
-	    ));
+            app
+            ));
 
 }
 } // extern "C"
