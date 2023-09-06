@@ -3,7 +3,7 @@
 //
 //
 
-#include <Acts/Propagator/Navigator.hpp>
+#include <boost/container/small_vector.hpp>
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
