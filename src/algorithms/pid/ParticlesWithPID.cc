@@ -79,9 +79,9 @@ namespace eicrecon {
                     continue;
                 }
 
-                const auto p_mag = std::hypot(p.x, p.y, p.z);
-                const auto p_phi = std::atan2(p.y, p.x);
-                const auto p_eta = std::atanh(p.z / p_mag);
+                const auto p_mag = edm4eic::magnitude(p);
+                const auto p_phi = edm4eic::angleAzimuthal(p);
+                const auto p_eta = edm4eic::eta(p);
                 const double dp_rel = std::abs((edm4eic::magnitude(mom) - p_mag) / p_mag);
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
@@ -91,6 +91,17 @@ namespace eicrecon {
                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance &&
                                    deta < m_cfg.etaTolerance &&
                                    dsphi < sinPhiOver2Tolerance;
+
+                // Matching kinematics with the static variables doesn't work at low angles and within beam divergence
+                // TODO - Maybe reconsider variables used or divide into regions
+                // Backward going
+                if ((p_eta < -5) && (edm4eic::eta(mom) < -5)) {
+                  is_matching = true;
+                }
+                // Forward going
+                if ((p_eta >  5) && (edm4eic::eta(mom) >  5)) {
+                  is_matching = true;
+                }
 
                 m_log->trace("    Decision: {}  dp: {:.4f} < {}  &&  d_eta: {:.6f} < {}  && d_sin_phi: {:.4e} < {:.4e} ",
                              is_matching? "Matching":"Ignoring",
@@ -278,7 +289,7 @@ namespace eicrecon {
 
         // check if at least one match was found
         if (prox_match_list.size() == 0) {
-            m_log->warn("no matching CherenkovParticleID found for this particle");
+            m_log->trace("  => no matching CherenkovParticleID found for this particle");
             return false;
         }
 
