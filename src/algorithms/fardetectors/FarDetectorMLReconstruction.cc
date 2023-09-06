@@ -106,11 +106,11 @@ namespace eicrecon {
 
       auto values = m_method->GetRegressionValues();
 
-      ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE,values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE,values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE);
+      ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE,values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE,values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE);
 
-      float momMag2 = values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomX]*m_electron_beamE+
-        values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomY]*m_electron_beamE+
-        values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE*values[FarDetectorMLNNIndexOut::MomZ]*m_electron_beamE;
+      float momMag2 = values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE+
+        values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE+
+        values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE;
 
       float energy = sqrt(momMag2+mass*mass);
 

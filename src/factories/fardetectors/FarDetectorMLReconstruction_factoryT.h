@@ -44,13 +44,14 @@ namespace eicrecon {
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
 
+        // This prefix will be used for parameters
+        std::string param_prefix = GetPluginName() + ":" + GetTag();
+
         auto cfg = GetDefaultConfig();
 
-        japp->SetDefaultParameter(
-                                  "lowq2:electron_energy",
-                                  m_electron_beamE,
-                                  "Electron beam energy [GeV]"
-                                  );
+        japp->SetDefaultParameter(param_prefix+":electron_beamE", cfg.electron_beamE,"Electron beam energy [GeV]"             );
+        japp->SetDefaultParameter(param_prefix+":model_path",     cfg.modelPath,     "Path to the model file"                 );
+        japp->SetDefaultParameter(param_prefix+":method_name",    cfg.methodName,    "Name of the method to use from the file");
 
         // Setup algorithm
         m_reco_algo.applyConfig(cfg);
@@ -76,8 +77,6 @@ namespace eicrecon {
 
   private:
       eicrecon::FarDetectorMLReconstruction m_reco_algo;        // ML reconstruction fitting algorithm
-
-      float m_electron_beamE = 10*dd4hep::GeV;
 
   };
 
