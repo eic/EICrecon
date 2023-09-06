@@ -21,7 +21,9 @@ void InitPlugin(JApplication *app) {
         "BarrelVertexRawHits",
         {"VertexBarrelHits"},
         {"BarrelVertexRawHits"},
-        {}, // default config
+        {
+            .threshold = 0.65 * dd4hep::keV,
+        },
         app
     ));
 

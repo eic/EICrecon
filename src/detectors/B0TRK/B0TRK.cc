@@ -22,7 +22,7 @@ void InitPlugin(JApplication *app) {
         {"B0TrackerHits"},
         {"B0TrackerRawHits"},
         {
-            .threshold = 0 * dd4hep::keV,
+            .threshold = 1.0 * dd4hep::keV,
             .timeResolution = 8,
         },
         app

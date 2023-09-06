@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 project(LOWQ2)
 
 # Automatically set plugin name the same as the directory name

@@ -22,7 +22,7 @@ void InitPlugin(JApplication *app) {
         {"TOFBarrelHits"},
         {"TOFBarrelDigiHit"},
         {
-            .threshold = 0 * dd4hep::keV,
+            .threshold = 0.5 * dd4hep::keV,
             .timeResolution = 0.025,    // [ns]
         },
         app

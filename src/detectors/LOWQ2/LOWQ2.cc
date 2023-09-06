@@ -8,11 +8,10 @@
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-
-#include <factories/digi/SiliconTrackerDigi_factoryT.h>
-#include <factories/fardetectors/FarDetectorTrackerCluster_factoryT.h>
-#include <factories/fardetectors/FarDetectorLinearTracking_factoryT.h>
-#include <factories/fardetectors/FarDetectorMLReconstruction_factoryT.h>
+#include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factoryT.h"
+#include "factories/fardetectors/FarDetectorMLReconstruction_factoryT.h"
 
 
 extern "C" {
@@ -33,16 +32,15 @@ extern "C" {
 
     // Digitization of silicon hits
     app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
-         "TaggerTrackerRawHit",
-         {cluster_cfg.readout},
-         {"TaggerTrackerRawHit"},
+         "TaggerTrackerRawHits",
+         {"TaggerTrackerHits"},
+         {"TaggerTrackerRawHits"},
          {
            .threshold = 1 * dd4hep::keV,
-           .timeResolution = 10,
+           .timeResolution = 2 * dd4hep::ns,
          },
          app
     ));
-
 
     // Clustering of hits
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
