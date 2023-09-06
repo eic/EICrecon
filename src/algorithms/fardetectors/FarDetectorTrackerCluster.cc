@@ -8,16 +8,6 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "FarDetectorTrackerCluster.h"// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
-
-#include <edm4hep/TrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-
-#include <ROOT/RVec.hxx>
-
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "FarDetectorTrackerCluster.h"
 
 namespace eicrecon {
@@ -34,7 +24,6 @@ namespace eicrecon {
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
     }
-
     try {
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
       if (!m_cfg.moduleField.empty()) {
@@ -57,8 +46,6 @@ namespace eicrecon {
       m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
       throw JException("Failed to load ID decoder");
     }
-
-
 
   }
 
@@ -104,7 +91,6 @@ namespace eicrecon {
       float esum   = 0;
       float t0     = 0;
       float tError = 0;
-
       auto maxIndex = ROOT::VecOps::ArgMax(e*available);
 
       available[maxIndex] = 0;
@@ -150,7 +136,6 @@ namespace eicrecon {
 
         //Time
         clusterT.push_back(t[index]);
-
 
       }
 
