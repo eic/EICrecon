@@ -544,7 +544,7 @@ jobs:
       - build-docs
       - list-open-prs
     strategy:
-      matrix: ${{ fromJson(needs.list-open-prs.outputs.json) }}
+      matrix: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
       fail-fast: false
     steps:
       - uses: dawidd6/action-download-artifact@v2
