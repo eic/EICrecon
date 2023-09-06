@@ -4,15 +4,10 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 // Event Model related classes
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
@@ -22,7 +17,6 @@
 
 namespace eicrecon {
 
-  //  enum FarDetectorMLNNIndex{Energy,Theta,X,Y};
   enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
   enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
 
@@ -37,8 +31,8 @@ namespace eicrecon {
       std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
         std::unique_ptr<edm4eic::TrackParametersCollection>
-        >
-        produce(const edm4eic::TrackParametersCollection &inputtracks);
+      >
+      produce(const edm4eic::TrackParametersCollection &inputtracks);
 
       //----- Define constants here ------
 
@@ -46,10 +40,6 @@ namespace eicrecon {
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
       float nnInput[4]      = {0.0,0.0,0.0,0.0};
-
-      float m_electron_beamE = 10*dd4hep::GeV;
-
-      float m_electron{0.000510998928}; //TODO: Link to constant elsewhere?
 
   };
 

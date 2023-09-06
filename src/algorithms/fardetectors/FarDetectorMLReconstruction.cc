@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Simon Gardner
-
-#include <JANA/JEvent.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov4f.h>
+#include <edm4eic/vector_utils.h>
+
 #include <filesystem>
 
 #include "FarDetectorMLReconstruction.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <ROOT/RVec.hxx>
-#include <TDecompSVD.h>
-#include <TMatrixD.h>
-#include "Math/Vector3D.h"
 
 namespace eicrecon {
 
@@ -72,11 +68,11 @@ namespace eicrecon {
   }
 
 
-    std::tuple<
-      std::unique_ptr<edm4eic::TrajectoryCollection>,
-      std::unique_ptr<edm4eic::TrackParametersCollection>
-    >
-    FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
+  std::tuple<
+    std::unique_ptr<edm4eic::TrajectoryCollection>,
+    std::unique_ptr<edm4eic::TrackParametersCollection>
+  >
+  FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
     auto outputFarDetectorMLTrajectories    = std::make_unique<edm4eic::TrajectoryCollection>();
@@ -84,14 +80,7 @@ namespace eicrecon {
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
-    std::int32_t PDG    = 11;
     float        charge = -1;
-
-    // Reconstructed particle members which don't change yet
-    float             goodnessOfPID = 1;
-    edm4hep::Vector3f referencePoint(0,0,0);
-    edm4eic::Cov4f    covMatrix;
-    float             mass = m_electron;
 
     for(auto track: inputtracks){
 
@@ -106,24 +95,18 @@ namespace eicrecon {
 
       auto values = m_method->GetRegressionValues();
 
-      ROOT::Math::XYZVector momentum = ROOT::Math::XYZVector(values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE,values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE,values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE);
-
-      float momMag2 = values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomX]*m_cfg.electron_beamE+
-        values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomY]*m_cfg.electron_beamE+
-        values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE*values[FarDetectorMLNNIndexOut::MomZ]*m_cfg.electron_beamE;
-
-      float energy = sqrt(momMag2+mass*mass);
+      edm4hep::Vector3f momentum = {values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]};
+      momentum = momentum*m_cfg.electron_beamE;
 
       // Track parameter variables
       // TODO: Add time and momentum errors
-      int type = 0;
       // Plane Point
       edm4hep::Vector2f loc(0,0); // Vertex estimate
       // Point Error
       edm4eic::Cov2f locError;
-      float theta   = momentum.Theta();;
-      float phi     = momentum.Phi();
-      float qOverP  = charge/sqrt(momMag2);
+      float theta   = edm4eic::anglePolar(momentum);
+      float phi     = edm4eic::angleAzimuthal(momentum);
+      float qOverP  = charge/edm4eic::magnitude(momentum);
       edm4eic::Cov3f momentumError;
       float time  = 0;
       float timeError = 0;
