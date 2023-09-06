@@ -534,7 +534,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Remap open PRs
         id: remap
-        uses: nickofthyme/object-remap@v1
+        uses: nickofthyme/object-remap@v2
         with:
           include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
 
