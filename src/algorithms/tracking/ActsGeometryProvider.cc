@@ -19,9 +19,21 @@
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 
-
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
+
+// Formatter for Eigen matrices
+#if FMT_VERSION >= 90000
+#include <Eigen/Core>
+template <typename T>
+struct fmt::formatter<
+    T,
+    std::enable_if_t<
+        std::is_base_of_v<Eigen::MatrixBase<T>, T>,
+        char
+    >
+> : fmt::ostream_formatter {};
+#endif // FMT_VERSION >= 90000
 
 void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
                    const std::string &fname) {
