@@ -291,7 +291,7 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
 #if EDM4EIC_VERSION_MAJOR >= 3
-        uint64_t surface = targetSurf->geometryId().value();
+        uint64_t surface = 0; // targetSurf->geometryId().value(); // FIXME - ASAN is not happy with this
         uint32_t system = 0; // default value...will be set in TrackPropagation factory
 #endif
 
