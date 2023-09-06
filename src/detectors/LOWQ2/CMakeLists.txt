@@ -1,3 +1,4 @@
+
 project(LOWQ2)
 
 # Automatically set plugin name the same as the directory name

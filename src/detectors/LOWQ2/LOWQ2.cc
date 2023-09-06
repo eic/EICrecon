@@ -43,7 +43,15 @@ extern "C" {
     ));
 
     // Clustering of hits
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>("TaggerTrackerClusterPositions",{"TaggerTrackerRawHit"},{"TaggerTrackerClusterPositions"}, cluster_cfg, app));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
+        "TaggerTrackerClusterPositions",
+        {"TaggerTrackerRawHits"},
+        {"TaggerTrackerClusterPositions"},
+        {
+          .readout = "TaggerTrackerHits"
+        },
+        app
+    ));
 
     // Reconstrution of tracks on common plane
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));

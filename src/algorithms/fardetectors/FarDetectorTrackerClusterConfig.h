@@ -15,5 +15,7 @@ namespace eicrecon {
     int n_module{2};
     int n_layer{4};
 
+    double time_limit{10};
+
   };
 }

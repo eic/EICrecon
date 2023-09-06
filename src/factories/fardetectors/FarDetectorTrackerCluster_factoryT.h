@@ -3,17 +3,16 @@
 //
 
 #pragma once
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 // Event Model related classes
 #include <edm4hep/TrackerHitCollection.h>
 #include <edm4eic/RawTrackerHit.h>
-#include <algorithms/fardetectors/FarDetectorTrackerCluster.h>
-#include <algorithms/fardetectors/FarDetectorTrackerClusterConfig.h>
 
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <spdlog/logger.h>
+#include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
+
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

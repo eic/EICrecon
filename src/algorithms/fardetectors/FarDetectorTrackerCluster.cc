@@ -4,16 +4,17 @@
 #include <edm4hep/TrackerHit.h>
 #include <edm4eic/RawTrackerHit.h>
 
+#include <ROOT/RVec.hxx>
+
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "ROOT/RVec.hxx"
 #include "FarDetectorTrackerCluster.h"
 
 namespace eicrecon {
 
 
   void FarDetectorTrackerCluster::init(const dd4hep::Detector* det,
-	      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+              std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
               std::shared_ptr<spdlog::logger> log) {
 
     m_log = log;
@@ -23,31 +24,28 @@ namespace eicrecon {
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
     }
-    
     try {
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
       if (!m_cfg.moduleField.empty()) {
-	m_module_idx = m_id_dec->index(m_cfg.moduleField);
-	m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
+        m_module_idx = m_id_dec->index(m_cfg.moduleField);
+        m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
       }
       if (!m_cfg.layerField.empty()) {
-	m_layer_idx = m_id_dec->index(m_cfg.layerField);
-	m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
+        m_layer_idx = m_id_dec->index(m_cfg.layerField);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
       }
       if (!m_cfg.xField.empty()) {
-	m_x_idx = m_id_dec->index(m_cfg.xField);
-	m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
+        m_x_idx = m_id_dec->index(m_cfg.xField);
+        m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
       }
       if (!m_cfg.yField.empty()) {
-	m_y_idx = m_id_dec->index(m_cfg.yField);
-	m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
+        m_y_idx = m_id_dec->index(m_cfg.yField);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
       }
     } catch (...) {
       m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
       throw JException("Failed to load ID decoder");
     }
-    
-    
 
   }
 
@@ -76,19 +74,14 @@ namespace eicrecon {
 
     // Set up clustering variables
     ROOT::VecOps::RVec<bool> available(module.size(), 1);
-    ROOT::VecOps::RVec<int>  indices  (module.size());
+    auto indices = Enumerate(module);
 
-//     std::vector<eicrecon::TrackerCluster*> outputClusters;
     auto outputClusters = std::make_unique<edm4hep::TrackerHitCollection>();
-
-    for(ulong i = 0; i<indices.size(); i++)
-      indices[i] = i;
 
     // Loop while there are unclustered hits
     while(ROOT::VecOps::Any(available)){
 
-      //      auto cluster = new edm4hep::MutableTrackerHit();
-      edm4hep::MutableTrackerHit cluster;
+      auto cluster = outputClusters->create();
 
       double xPos      = 0;
       double yPos      = 0;
@@ -98,41 +91,44 @@ namespace eicrecon {
       float esum   = 0;
       float t0     = 0;
       float tError = 0;
-      //pCluster->associatedHits = std::vector<edm4eic::RawTrackerHit>;
-
       auto maxIndex = ROOT::VecOps::ArgMax(e*available);
 
       available[maxIndex] = 0;
 
-      ROOT::VecOps::RVec<ulong> indexList = {maxIndex};
+      ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
-
-//       pCluster->module = module[maxIndex];
-//       pCluster->layer  = layer[maxIndex];
 
       // Filter to make sure everything is on the same detector layer
       auto layerFilter = (module==module[maxIndex])*(layer==layer[maxIndex]);
 
       // Loop over hits, adding neighbouring hits as relevant
-      while(indexList.size()){
+      while(clusterList.size()){
 
-        auto index = indexList[0];
-        auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<1);
+        // Takes first remaining hit in cluster list
+        auto index  = clusterList[0];
+
+        // Finds neighbours of cluster within time limit
+        auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
+
+        // Adds the found hits to the cluster
+        clusterList = Concatenate(clusterList,indices[filter]);
+
+        // Removes the found hits from the list of still available hits
         available = available*(!filter);
-        indexList = Concatenate(indexList,indices[filter]);
 
-        indexList.erase(indexList.begin());
+        // Removes current hit from remaining found cluster hits
+        clusterList.erase(clusterList.begin());
 
+        // Adds raw hit to TrackerHit contribution
         cluster.addToRawHits(inputhits[index].getObjectID());
 
         //Energy
         auto hitE = e[index];
-        //auto id   = hit.getCellID();
         esum += hitE;
         auto pos = m_cellid_converter->position(id[index]);
-//      std::cout << pos << std::endl;
+
         //Weighted position
-        float weight = hitE; //Check appropriate weighting
+        float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
         weightSum += weight;
         xPos += pos.x()*weight;
         yPos += pos.y()*weight;
@@ -147,22 +143,16 @@ namespace eicrecon {
       xPos/=weightSum;
       yPos/=weightSum;
       zPos/=weightSum;
-//       xPos*=10;
-//       yPos*=10;
-//       zPos*=10;
-
-//       std::cout << xPos << " " << yPos << " " << zPos << std::endl << std::endl;
 
       // Finalise time
       t0      = Mean(clusterT);
       tError  = StdDev(clusterT);
 
+      // Set cluster members
       cluster.setCellID  (id[maxIndex]);
       cluster.setPosition(edm4hep::Vector3d(xPos,yPos,zPos));
       cluster.setEDep    (esum);
       cluster.setTime    (t0);
-
-      outputClusters->push_back(edm4hep::TrackerHit(cluster));
 
     }
 
