@@ -125,7 +125,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
         return obj;
     }
     FAIL("ERROR: cannot find CherenkovParticleID given track");
-    if(coll->empty())
+    if(coll->size() == 0)
       throw std::runtime_error("empty collection used in pid_MergeParticleID::find_cherenkov_pid_for_track");
     return coll->at(0);
   };
