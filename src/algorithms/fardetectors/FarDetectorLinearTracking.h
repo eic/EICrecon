@@ -3,18 +3,16 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
+#include <DDRec/CellIDPositionConverter.h>
+#include <Eigen/Dense>
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
 
-#include <extensions/jana/JChainFactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
 #include "FarDetectorLinearTrackingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+typedef std::map<int,std::vector<edm4hep::TrackerHit>> LayerMap;
 
 namespace eicrecon {
 
@@ -23,10 +21,12 @@ namespace eicrecon {
     public:
 
         /** One time initialization **/
-        void init(const dd4hep::Detector* det, std::shared_ptr<spdlog::logger>& logger);
+        void init(const dd4hep::Detector* det,
+		  std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
         std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
+
 
     private:
         const dd4hep::Detector*         m_detector{nullptr};
@@ -35,7 +35,19 @@ namespace eicrecon {
 
         int m_module_idx{0};
         int m_layer_idx{0};
+	Eigen::VectorXd m_layerWeights;
 
+
+	bool checkLayerHitLimits(LayerMap hits);
+
+	void makeHitCombination(int level,
+				Eigen::MatrixXd* hitMatrix, 
+				std::vector<int> layerKeys,
+				LayerMap hits, 
+				std::unique_ptr<edm4eic::TrackParametersCollection>* outputTracks);
+
+	void checkHitCombination(Eigen::MatrixXd* hitMatrix, 
+				 std::unique_ptr<edm4eic::TrackParametersCollection>* outputTracks);
     };
 
 } // eicrecon

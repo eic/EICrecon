@@ -12,7 +12,9 @@ namespace eicrecon {
 
     int   layer_hits_max{4};
 
-    float chi2_max{4};
+    float chi2_max{0.001};
+
+    int   n_layer{4};
 
   };
 }
