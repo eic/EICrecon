@@ -4,13 +4,7 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-
 #include "lfhcal_studiesProcessor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include <edm4eic/vector_utils.h>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/RadialBounds.hpp>
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/rootfile/RootFile_service.h"
 #include <spdlog/spdlog.h>
@@ -20,23 +14,23 @@
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
-#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-#include <DD4hep/Objects.h>
-#include <DDG4/Geant4Data.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
+
+// Include appropriate class headers. e.g.
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/vector_utils.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TVector3.h>
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/TrackingVolume.hpp>
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 
 #include "clusterizer_MA.h"
 
@@ -49,9 +43,9 @@ extern "C" {
 }
 
 
-//******************************************************************************************
+//******************************************************************************************//
 // InitWithGlobalRootLock
-//******************************************************************************************
+//******************************************************************************************//
 void lfhcal_studiesProcessor::Init() {
   std::string plugin_name = ("lfhcal_studies");
 
@@ -60,7 +54,6 @@ void lfhcal_studiesProcessor::Init() {
   // Get JANA application and seup general variables
   // ===============================================================================================
   auto app          = GetApplication();
-  auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
   std::string log_level_str = "info";
   m_log                     = app->GetService<Log_service>()->logger(plugin_name);
@@ -277,9 +270,9 @@ void lfhcal_studiesProcessor::Init() {
 
 }
 
-//******************************************************************************************
+//******************************************************************************************//
 // ProcessSequential
-//******************************************************************************************
+//******************************************************************************************//
 void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void lfhcal_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
 
@@ -748,9 +741,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
 
 }
 
-//******************************************************************************************
+//******************************************************************************************//
 // Finish
-//******************************************************************************************
+//******************************************************************************************//
 void lfhcal_studiesProcessor::Finish() {
   std::cout << "------> LFHCal " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   // Do any final calculations here.

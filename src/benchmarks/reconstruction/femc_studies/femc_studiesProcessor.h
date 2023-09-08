@@ -6,37 +6,14 @@
 
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <TH2D.h>
 #include <TH3D.h>
 #include <TFile.h>
 #include <TTree.h>
 
-// Include appropirate class headers. e.g.
-#include <edm4hep/SimCalorimeterHit.h>
-// #include "detectors/BEMC/BEMCRawCalorimeterHit.h"
-
-#include <Acts/Utilities/Logger.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
-// #include "extensions/spdlog/SpdlogMixin.h"
-#include <edm4hep//MCParticle.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/ProtoCluster.h>
-
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include <spdlog/spdlog.h>
 
