@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include <random>
-
 #include <DD4hep/Detector.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
