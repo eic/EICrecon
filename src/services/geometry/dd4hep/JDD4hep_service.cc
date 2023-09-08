@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <sstream>
-#include <algorithm>
 #include <filesystem>
 #include <fmt/color.h>
 #include <fmt/format.h>

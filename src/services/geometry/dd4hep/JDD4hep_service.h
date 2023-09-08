@@ -18,8 +18,6 @@
 
 #pragma once
 
-
-#include <iostream>
 #include <vector>
 #include <string>
 
@@ -28,10 +26,6 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-#include <DD4hep/DD4hepUnits.h>
-
 
 class JDD4hep_service : public JService
 {
