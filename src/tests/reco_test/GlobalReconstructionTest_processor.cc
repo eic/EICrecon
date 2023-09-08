@@ -27,6 +27,7 @@
 
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;

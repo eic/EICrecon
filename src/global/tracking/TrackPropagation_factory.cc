@@ -13,7 +13,6 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 
 #include <extensions/spdlog/SpdlogExtensions.h>
-#include <services/log/Log_service.h>
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>

@@ -3,7 +3,6 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "algorithms/tracking/TrackPropagation.h"
 

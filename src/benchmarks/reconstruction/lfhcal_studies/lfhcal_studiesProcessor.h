@@ -12,7 +12,6 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include <spdlog/spdlog.h>
