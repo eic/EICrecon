@@ -45,6 +45,9 @@ namespace eicrecon {
 
         auto geoSvc = app->GetService<JDD4hep_service>();
 
+        // This prefix will be used for parameters
+        std::string param_prefix = GetPluginName() + ":" + GetTag();
+
         japp->SetDefaultParameter(param_prefix+":hit_time_limit", cfg.time_limit,"Time limit for adding a hit to a cluster [ns]");
 
         // Setup algorithm
