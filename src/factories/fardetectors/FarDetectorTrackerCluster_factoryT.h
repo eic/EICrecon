@@ -45,6 +45,8 @@ namespace eicrecon {
 
         auto geoSvc = app->GetService<JDD4hep_service>();
 
+        japp->SetDefaultParameter(param_prefix+":hit_time_limit", cfg.time_limit,"Time limit for adding a hit to a cluster [ns]");
+
         // Setup algorithm
         m_reco_algo.applyConfig(cfg);
         m_reco_algo.init(geoSvc->detector(),geoSvc->cellIDPositionConverter(),logger());
