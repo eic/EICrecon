@@ -1,6 +1,5 @@
-// Created by Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Wouter Deconinck
 
 #pragma once
 #include "services/geometry/dd4hep/JDD4hep_service.h"
@@ -26,7 +25,7 @@ namespace eicrecon {
           std::string tag,
           const std::vector<std::string>& input_tags,
           const std::vector<std::string>& output_tags,
-          FarDetectorTrackerClusterConfig cfg ):
+          FarDetectorTrackerClusterConfig cfg ) :
           JChainMultifactoryT<FarDetectorTrackerClusterConfig>(std::move(tag),input_tags,output_tags,cfg ) {
 
       DeclarePodioOutput<edm4hep::TrackerHit>(GetOutputTags()[0]);
@@ -52,8 +51,6 @@ namespace eicrecon {
 
       }
 
-
-
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override {
         auto inputhits  = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
@@ -65,7 +62,6 @@ namespace eicrecon {
         catch(std::exception &e) {
           throw JException(e.what());
         }
-
       }
 
 

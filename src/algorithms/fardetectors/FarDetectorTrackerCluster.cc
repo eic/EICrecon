@@ -122,7 +122,7 @@ namespace eicrecon {
         // Adds raw hit to TrackerHit contribution
         cluster.addToRawHits(inputhits[index].getObjectID());
 
-        //Energy
+        // Energy
         auto hitE = e[index];
         esum += hitE;
         auto pos = m_cellid_converter->position(id[index]);
@@ -146,7 +146,7 @@ namespace eicrecon {
 
       // Finalise time
       t0      = Mean(clusterT);
-      tError  = StdDev(clusterT);
+      tError  = StdDev(clusterT); // TODO fold detector timing resolution into error
 
       // Set cluster members
       cluster.setCellID  (id[maxIndex]);
