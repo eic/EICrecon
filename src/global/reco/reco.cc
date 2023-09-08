@@ -45,23 +45,83 @@ void InitPlugin(JApplication *app) {
     ));
 
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsElectron"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+        "InclusiveKinematicsElectron",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicsElectron"
+        },
+        app
+    ));
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsTruth"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsTruth_factory>(
+        "InclusiveKinematicsTruth",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicsTruth"
+        },
+        app
+    ));
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsJB_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsJB"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsJB_factory>(
+        "InclusiveKinematicsJB",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicsJB"
+        },
+        app
+    ));
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsDA_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsDA"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsDA_factory>(
+        "InclusiveKinematicsDA",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicsDA"
+        },
+        app
+    ));
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicseSigma"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicseSigma_factory>(
+        "InclusiveKinematicseSigma",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicseSigma"
+        },
+        app
+    ));
 
-    app->Add(new JChainFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
-            {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"}, "InclusiveKinematicsSigma"));
+    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+        "InclusiveKinematicsSigma",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "InclusiveKinematicsSigma"
+        },
+        app
+    ));
 
     app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
