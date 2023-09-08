@@ -13,7 +13,6 @@
 #include <map>
 #include <Eigen/Dense>
 
-#include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/MCParticle.h>
 
