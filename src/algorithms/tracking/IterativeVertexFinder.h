@@ -6,9 +6,6 @@
 
 #include "ActsGeometryProvider.h"
 #include "IterativeVertexFinderConfig.h"
-#include <functional>
-#include <random>
-#include <stdexcept>
 #include <vector>
 
 #include "DD4hepBField.h"

@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <random>
-
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 

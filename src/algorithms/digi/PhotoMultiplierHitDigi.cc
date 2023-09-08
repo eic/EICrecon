@@ -15,8 +15,6 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
-#include <JANA/JEvent.h>
-
 //------------------------
 // AlgorithmInit
 //------------------------

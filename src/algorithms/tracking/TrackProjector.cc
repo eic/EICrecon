@@ -11,6 +11,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
@@ -147,8 +148,15 @@ namespace eicrecon {
                 const float pathLength = static_cast<float>(trackstate.pathLength());
                 const float pathLengthError = 0;
 
+                uint64_t surface = 0; // trackstate.referenceSurface().geometryId().value(); FIXME - ASAN is not happy with this
+                uint32_t system = 0;
+
                 // Store track point
                 track_segment.addToPoints({
+#if EDM4EIC_VERSION_MAJOR >= 3
+                                                  surface,
+                                                  system,
+#endif
                                                   position,
                                                   positionError,
                                                   momentum,
