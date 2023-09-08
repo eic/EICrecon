@@ -47,8 +47,6 @@ private:
     TrackingOccupancyAnalysis m_occupancy_analysis;
     HitReconstructionAnalysis m_hit_reco_analysis;
 
-
-
     TDirectory* m_dir_main;               /// Main TDirectory for this plugin 'occupancy_ana'
     TH1F * m_th1_prt_pz;                  /// MC Particles pz
     TH1F * m_th1_prt_energy;              /// MC Particles total E
