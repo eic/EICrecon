@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstddef> // FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
+#include <vector>
 
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
