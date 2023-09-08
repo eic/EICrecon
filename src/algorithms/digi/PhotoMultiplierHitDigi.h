@@ -21,6 +21,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <cstddef>
 #include <functional>
