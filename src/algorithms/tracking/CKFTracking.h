@@ -5,9 +5,6 @@
 
 #include <vector>
 
-#include <boost/container/flat_map.hpp>
-#include <boost/container/flat_set.hpp>
-
 #include "DD4hepBField.h"
 #include "ActsExamples/EventData/GeometryContainers.hpp"
 #include "ActsExamples/EventData/Index.hpp"
