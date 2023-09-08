@@ -9,7 +9,7 @@
 #ifdef alignas
 // FIXME may be removed when minimum version in CMakeLists.txt includes the PR below
 #error JANA defines alignas macro; for patch see https://github.com/JeffersonLab/JANA2/pull/239
-#enfif
+#endif
 
 namespace jana {
 
