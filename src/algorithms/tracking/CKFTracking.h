@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <functional>
-#include <stdexcept>
 #include <vector>
 
 #include <boost/container/flat_map.hpp>

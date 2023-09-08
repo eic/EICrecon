@@ -44,12 +44,6 @@
 
 #include <spdlog/fmt/ostr.h>
 
-#include <functional>
-#include <stdexcept>
-#include <vector>
-#include <stdexcept>
-#include <unordered_map>
-
 namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
