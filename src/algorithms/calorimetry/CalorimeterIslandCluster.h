@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <random>
 #include <memory>
 
 #include <DD4hep/Detector.h>

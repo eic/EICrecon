@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <random>
-
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/CalorimeterHitCollection.h>
