@@ -3,7 +3,6 @@
 
 #include "CalorimeterTruthClustering.h"
 
-#include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
 #include <edm4hep/MCParticle.h>

@@ -13,7 +13,6 @@
 
 #include "CalorimeterHitDigi.h"
 
-#include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
 using namespace dd4hep;

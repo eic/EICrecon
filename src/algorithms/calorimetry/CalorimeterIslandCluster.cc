@@ -18,7 +18,6 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 
-#include <JANA/JEvent.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
