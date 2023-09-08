@@ -102,6 +102,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedElectrons",
 
+            // Track projections
+            "CalorimeterTrackProjections",
+
             // Ecal stuff
             "EcalEndcapNRawHits",
             "EcalEndcapNRecHits",

@@ -7,7 +7,6 @@
 
 #include "CalorimeterHitReco.h"
 
-#include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
 #include <cctype>

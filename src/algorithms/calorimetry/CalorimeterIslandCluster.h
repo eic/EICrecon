@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include <random>
 #include <memory>
 
-#include "services/geometry/dd4hep/JDD4hep_service.h"
-
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 
 #include <edm4hep/Vector2f.h>
