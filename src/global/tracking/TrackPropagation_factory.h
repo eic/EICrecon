@@ -11,8 +11,10 @@
 
 #include <edm4eic/TrackSegmentCollection.h>
 
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/CylinderSurface.hpp>
+// Forward declarations
+namespace Acts {
+    class Surface;
+}
 
 namespace eicrecon {
 

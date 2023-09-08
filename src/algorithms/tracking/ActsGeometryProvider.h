@@ -12,7 +12,6 @@
 // ACTS
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
@@ -28,6 +27,11 @@
 #include "DD4hepBField.h"
 
 #include <spdlog/spdlog.h>
+
+// Forward declarations
+namespace Acts {
+    class Surface;
+}
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
