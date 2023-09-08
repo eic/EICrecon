@@ -15,12 +15,12 @@
 
 #pragma once
 
-#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <cstddef>
 #include <functional>
