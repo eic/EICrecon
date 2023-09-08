@@ -5,7 +5,6 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#undef alignas
 
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
