@@ -21,10 +21,10 @@ void eicrecon::ParticlesWithPID_factory::Init() {
 }
 
 void eicrecon::ParticlesWithPID_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags().at(0)));
-    auto trajectories = static_cast<const edm4eic::TrajectoryCollection*>(event->GetCollectionBase(GetInputTags().at(1)));
+    auto mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags().at(0));
+    auto trajectories = event->GetCollection<edm4eic::Trajectory>(GetInputTags().at(1));
     std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids;
-    cherenkov_pids.push_back(static_cast<const edm4eic::CherenkovParticleIDCollection*>(event->GetCollectionBase(GetInputTags().at(2)))); // DRICH
+    cherenkov_pids.push_back(event->GetCollection<edm4eic::CherenkovParticleID>(GetInputTags().at(2))); // DRICH
 
     try {
         auto result = m_matching_algo.process(mc_particles, trajectories, cherenkov_pids);

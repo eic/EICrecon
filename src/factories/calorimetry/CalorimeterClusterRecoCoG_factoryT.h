@@ -65,9 +65,8 @@ class CalorimeterClusterRecoCoG_factoryT :
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
 
-        // TODO: NWB: We are using GetCollectionBase because GetCollection is temporarily out of commission due to JFactoryPodioTFixed
-        auto proto = static_cast<const edm4eic::ProtoClusterCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-        auto mchits = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[1]));
+        auto proto = event->GetCollection<edm4eic::ProtoCluster>(GetInputTags()[0]);
+        auto mchits = event->GetCollection<edm4hep::SimCalorimeterHit>(GetInputTags()[1]);
 
         try {
             auto clusters_with_assocs = m_algo.process(proto, mchits);

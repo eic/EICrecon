@@ -59,7 +59,7 @@ namespace eicrecon {
     void ReconstructedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
         // grab input collection
-        auto input = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto input = event->GetCollection<edm4eic::ReconstructedParticle>(GetInputTags()[0]);
 
         // extract particle momenta
         std::vector<const edm4hep::LorentzVectorE*> momenta;

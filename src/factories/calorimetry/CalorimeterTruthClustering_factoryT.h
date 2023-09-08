@@ -38,8 +38,8 @@ class CalorimeterTruthClustering_factoryT :
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
-        auto rc_hits = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-        auto mc_hits = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[1]));
+        auto rc_hits = event->GetCollection<edm4eic::CalorimeterHit>(GetInputTags()[0]);
+        auto mc_hits = event->GetCollection<edm4hep::SimCalorimeterHit>(GetInputTags()[1]);
 
         try {
             auto clusters = m_algo.process(*rc_hits, *mc_hits);

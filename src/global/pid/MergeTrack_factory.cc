@@ -36,7 +36,7 @@ void eicrecon::MergeTrack_factory::Process(const std::shared_ptr<const JEvent> &
   std::vector<const edm4eic::TrackSegmentCollection*> in_track_collections;
   for(auto& input_tag : GetInputTags())
     in_track_collections.push_back(
-        static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag))
+        event->GetCollection<edm4eic::TrackSegment>(input_tag)
         );
 
   // call the MergeTracks algorithm

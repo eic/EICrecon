@@ -56,11 +56,10 @@ class EnergyPositionClusterMerger_factoryT :
     // Process
     void Process(const std::shared_ptr<const JEvent> &event) override {
 
-        // TODO: NWB: We are using GetCollectionBase because GetCollection is temporarily out of commission due to JFactoryPodioTFixed
-        auto energy_clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-        auto energy_assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[1]));
-        auto position_clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(GetInputTags()[2]));
-        auto position_assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[3]));
+        auto energy_clusters = event->GetCollection<edm4eic::Cluster>(GetInputTags()[0]);
+        auto energy_assocs = event->GetCollection<edm4eic::MCRecoClusterParticleAssociation>(GetInputTags()[1]);
+        auto position_clusters = event->GetCollection<edm4eic::Cluster>(GetInputTags()[2]);
+        auto position_assocs = event->GetCollection<edm4eic::MCRecoClusterParticleAssociation>(GetInputTags()[3]);
 
         try {
             auto clusters = m_algo.process(*energy_clusters, *energy_assocs, *position_clusters, *position_assocs);

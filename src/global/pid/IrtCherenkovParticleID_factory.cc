@@ -70,7 +70,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
     if(radiator_id >= 0 && radiator_id < richgeo::nRadiators)
       charged_particles.insert({
           richgeo::RadiatorName(radiator_id),
-          static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag))
+          event->GetCollection<edm4eic::TrackSegment>(input_tag)
           });
     else m_log->error("Unknown input RICH track collection '{}'", input_tag);
   }
@@ -79,7 +79,7 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   if(GetInputTags()[tag_num].find("Merge") != std::string::npos)
     charged_particles.insert({
         "Merged",
-        static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]))
+        event->GetCollection<edm4eic::TrackSegment>(GetInputTags()[tag_num++])
         });
   else {
     m_log->critical("input tag {} should be merged tracks", tag_num);
@@ -87,8 +87,8 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   }
 
   // get input hit collections
-  const auto *raw_hits   = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
-  const auto *hit_assocs = static_cast<const edm4eic::MCRecoTrackerHitAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
+  const auto *raw_hits   = event->GetCollection<edm4eic::RawTrackerHit>(GetInputTags()[tag_num++]);
+  const auto *hit_assocs = event->GetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetInputTags()[tag_num++]);
 
   try {
     // run the IrtCherenkovParticleID algorithm

@@ -80,7 +80,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<co
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+  const auto *sim_hits = event->GetCollection<edm4hep::SimTrackerHit>(GetInputTags()[0]);
 
   try {
     auto result = m_digi_algo.AlgorithmProcess(sim_hits);

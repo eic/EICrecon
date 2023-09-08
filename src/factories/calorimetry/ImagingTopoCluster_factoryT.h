@@ -58,7 +58,7 @@ namespace eicrecon {
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
         // Get input collection
-        auto* hits = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto* hits = event->GetCollection<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         // Call Process for generic algorithm
         auto proto = m_algo.process(*hits);

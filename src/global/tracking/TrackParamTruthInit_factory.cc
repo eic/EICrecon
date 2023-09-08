@@ -44,7 +44,7 @@ void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<cons
 }
 
 void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
 
     try {
         auto output = m_seeding_algo.produce(mc_particles);

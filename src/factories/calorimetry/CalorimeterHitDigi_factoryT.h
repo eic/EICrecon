@@ -62,7 +62,7 @@ namespace eicrecon {
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
-        auto hits = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto hits = event->GetCollection<edm4hep::SimCalorimeterHit>(GetInputTags()[0]);
 
         try {
             auto raw_hits = m_algo.process(*hits);

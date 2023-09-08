@@ -33,7 +33,7 @@ namespace eicrecon {
 
     void MC2SmearedParticle_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits from different tags
-        const auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        const auto mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
         auto reco_particles = m_smearing_algo.produce(mc_particles);
 
         // Set the result

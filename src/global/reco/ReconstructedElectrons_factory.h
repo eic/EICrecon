@@ -54,16 +54,16 @@ namespace eicrecon {
           }
           m_log->trace( "Adding cluster associations from: {}", input_tag );
           in_clu_assoc.push_back(
-            static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag))
+            event->GetCollection<edm4eic::MCRecoClusterParticleAssociation>(input_tag)
           );
         }
 
         // Step 2. Get MC, RC, and MC-RC association info
         // This is needed as a bridge to get RecoCluster - RC Particle associations
 
-        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
-        auto rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
-        auto rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
+        auto mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
+        auto rc_particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+        auto rc_particles_assoc = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
 
         // Step 3. Pass everything to "the algorithm"
         // in the future, select appropriate algorithm (truth, fully reco, etc.)

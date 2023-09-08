@@ -23,7 +23,7 @@ namespace eicrecon {
     }
 
     void InclusiveKinematicsTruth_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        const auto* mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        const auto* mc_particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
 
         auto inclusive_kinematics = m_inclusive_kinematics_algo.execute(
             *mc_particles

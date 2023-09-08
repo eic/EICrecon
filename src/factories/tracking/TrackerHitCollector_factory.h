@@ -49,7 +49,7 @@ class TrackerHitCollector_factory :
         // not that much benefit to that approach since it requires searching through
         // a std::vector of names.
         try {
-          hit_collections.emplace_back(static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag)));
+          hit_collections.emplace_back(event->GetCollection<edm4eic::TrackerHit>(input_tag));
         }
         catch(std::exception &e) {
           // ignore missing collections, but notify them in debug mode

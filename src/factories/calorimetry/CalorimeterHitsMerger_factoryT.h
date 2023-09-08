@@ -53,7 +53,7 @@ class CalorimeterHitsMerger_factoryT :
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
-        auto raw_hits = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto raw_hits = event->GetCollection<edm4eic::CalorimeterHit>(GetInputTags()[0]);
 
         try {
             auto rec_hits = m_algo.process(*raw_hits);

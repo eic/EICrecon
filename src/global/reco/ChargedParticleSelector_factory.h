@@ -41,7 +41,7 @@ class ChargedParticleSelector_factory :
 
     /** Event by event processing **/
     void Process(const std::shared_ptr<const JEvent> &event) override {
-      auto particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+      auto particles = event->GetCollection<edm4hep::MCParticle>(GetInputTags()[0]);
 
       try {
         auto charged_particles = m_algo.process(*particles);

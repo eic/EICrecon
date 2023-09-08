@@ -22,7 +22,7 @@ namespace eicrecon {
         std::vector<const edm4eic::TrackerHitCollection*> hit_collections;
         for (const auto& input_tag : GetInputTags()) {
             try {
-                hit_collections.emplace_back(static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag)));
+                hit_collections.emplace_back(event->GetCollection<edm4eic::TrackerHit>(input_tag));
             }
             catch(std::exception &e) {
                 // ignore missing collections, but print them in debug mode

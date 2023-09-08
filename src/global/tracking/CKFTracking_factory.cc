@@ -53,7 +53,7 @@ void eicrecon::CKFTracking_factory::Init() {
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all inputs
-    auto seed_track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto seed_track_parameters = event->GetCollection<edm4eic::TrackParameters>(GetInputTags()[0]);
     auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(GetInputTags()[1]);
 
     if(!source_linker_result) {
