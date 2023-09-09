@@ -5,7 +5,6 @@
 
 // JANA
 #include "extensions/jana/JChainMultifactoryT.h"
-#include <JANA/JEvent.h>
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
