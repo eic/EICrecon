@@ -6,11 +6,7 @@
 
 #include <spdlog/spdlog.h>
 #include "extensions/jana/JChainFactoryT.h"
-#include "algorithms/tracking/ActsExamples/EventData/GeometryContainers.hpp"
 #include "algorithms/tracking/TrackerSourceLinker.h"
-
-#include "algorithms/tracking/TrackerSourceLinker.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 

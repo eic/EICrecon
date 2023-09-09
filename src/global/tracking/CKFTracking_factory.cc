@@ -4,11 +4,11 @@
 
 #include "CKFTracking_factory.h"
 
-#include <Acts/Propagator/Navigator.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <edm4eic/TrackParametersCollection.h>
 #include <JANA/JEvent.h>
 
+#include <edm4eic/TrackParametersCollection.h>
+
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
