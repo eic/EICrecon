@@ -8,7 +8,7 @@
 
 #include <TDirectory.h>
 
-// Forward declartions
+// Forward declarations
 class JEvent;
 class JApplication;
 namespace Acts {
