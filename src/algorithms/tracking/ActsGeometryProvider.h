@@ -10,18 +10,12 @@
 #pragma once
 
 // ACTS
-#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Utilities/Logger.hpp>
 
 // DD4Hep
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
 #include <DD4hep/DD4hepUnits.h>
 
 #include "DD4hepBField.h"
@@ -30,6 +24,13 @@
 
 // Forward declarations
 namespace Acts {
+    class IMaterialDecorator;
+    class Surface;
+    class TrackingGeometry;
+}
+
+namespace dd4hep::rec {
+    class CellIDPositionConverter;
     class Surface;
 }
 
