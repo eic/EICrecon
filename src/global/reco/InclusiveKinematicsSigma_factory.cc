@@ -22,17 +22,10 @@ namespace eicrecon {
         // This prefix will be used for parameters
         std::string param_prefix = "reco:" + GetTag();
 
-        // Set input data tags properly
-        InitDataTags(param_prefix);
-
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(GetApplication(), param_prefix, "info");
 
         m_inclusive_kinematics_algo.init(m_log);
-    }
-
-    void InclusiveKinematicsSigma_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        // Nothing to do here
     }
 
     void InclusiveKinematicsSigma_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -46,6 +39,6 @@ namespace eicrecon {
             *rc_particles_assoc
         );
 
-        SetCollection(std::move(inclusive_kinematics));
+        SetCollection<edm4eic::InclusiveKinematics>(GetOutputTags()[0], std::move(inclusive_kinematics));
     }
 } // eicrecon
