@@ -3,9 +3,10 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
+#include <spdlog/fwd.h>
+
 #include "TrackingOccupancyAnalysis.h"
 #include "HitReconstructionAnalysis.h"
-#include "services/log/Log_service.h"
 
 class JEvent;
 class JApplication;

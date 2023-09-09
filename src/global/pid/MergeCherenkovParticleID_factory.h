@@ -16,8 +16,6 @@
 #include "algorithms/pid/MergeParticleID.h"
 
 // services
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {

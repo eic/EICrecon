@@ -18,8 +18,6 @@
 
 // services
 #include "services/geometry/richgeo/RichGeo_service.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
