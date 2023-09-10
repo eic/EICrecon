@@ -7,4 +7,3 @@ extern "C" {
         app->Add(new EcalBarrelScFiCheckProcessor);
     }
 }
-
