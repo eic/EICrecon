@@ -22,7 +22,7 @@ namespace eicrecon {
 
         /** One time initialization **/
         void init(const dd4hep::Detector* det,
-		  std::shared_ptr<spdlog::logger>& logger);
+                  std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
         std::unique_ptr<edm4eic::TrackSegmentCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
@@ -35,19 +35,19 @@ namespace eicrecon {
 
         int m_module_idx{0};
         int m_layer_idx{0};
-	Eigen::VectorXd m_layerWeights;
+        Eigen::VectorXd m_layerWeights;
 
 
-	bool checkLayerHitLimits(LayerMap hits);
+        bool checkLayerHitLimits(LayerMap hits);
 
-	void makeHitCombination(int level,
-				Eigen::MatrixXd* hitMatrix, 
-				std::vector<int> layerKeys,
-				LayerMap hits, 
-				std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
+        void makeHitCombination(int level,
+                                Eigen::MatrixXd* hitMatrix,
+                                std::vector<int> layerKeys,
+                                LayerMap hits,
+                                std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
 
-	void checkHitCombination(Eigen::MatrixXd* hitMatrix, 
-				 std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
+        void checkHitCombination(Eigen::MatrixXd* hitMatrix,
+                                 std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
     };
 
 } // eicrecon

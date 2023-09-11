@@ -34,30 +34,30 @@ namespace eicrecon {
 
       for( auto segment: inputSegments ) {
 
-	auto inputPoint = segment.getPoints()[0];
+        auto inputPoint = segment.getPoints()[0];
 
-	Eigen::Vector3d point_position(inputPoint.position.x,inputPoint.position.y,inputPoint.position.z);
-	Eigen::Vector3d positionDiff = point_position - m_plane_position;
-	m_directions.block<3,1>(0,2) << inputPoint.momentum.x,inputPoint.momentum.y,inputPoint.momentum.z;
+        Eigen::Vector3d point_position(inputPoint.position.x,inputPoint.position.y,inputPoint.position.z);
+        Eigen::Vector3d positionDiff = point_position - m_plane_position;
+        m_directions.block<3,1>(0,2) << inputPoint.momentum.x,inputPoint.momentum.y,inputPoint.momentum.z;
 
-	auto projectedPoint = m_directions.inverse()*positionDiff;
+        auto projectedPoint = m_directions.inverse()*positionDiff;
 
-	// Create track parameters edm4eic structure
-	// TODO - populate more of the fields correctly
-	std::int32_t type = 0;
-	// Plane Point
-	edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
-	// Point Error
-	edm4eic::Cov2f locError;
-	float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
-	float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
-	float qOverP;
-	edm4eic::Cov3f momentumError;
-	float time      = 0;
-	float timeError = 0;
-	float charge    = -1;
-	
-	outputTracks->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+        // Create track parameters edm4eic structure
+        // TODO - populate more of the fields correctly
+        std::int32_t type = 0;
+        // Plane Point
+        edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
+        // Point Error
+        edm4eic::Cov2f locError;
+        float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
+        float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
+        float qOverP;
+        edm4eic::Cov3f momentumError;
+        float time      = 0;
+        float timeError = 0;
+        float charge    = -1;
+
+        outputTracks->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
       }
 
       return outputTracks;

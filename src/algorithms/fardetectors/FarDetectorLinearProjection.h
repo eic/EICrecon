@@ -29,10 +29,10 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-	Eigen::Vector3d  m_plane_position;
-	Eigen::Vector3d  m_plane_a;
-	Eigen::Vector3d  m_plane_b;
-	Eigen::Matrix3d  m_directions;
+        Eigen::Vector3d  m_plane_position;
+        Eigen::Vector3d  m_plane_a;
+        Eigen::Vector3d  m_plane_b;
+        Eigen::Matrix3d  m_directions;
 
     };
 

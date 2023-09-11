@@ -67,74 +67,74 @@ namespace eicrecon {
         // Loop over module
         for ( auto &[key,moduleHits] : sortedHits ) {
 
-	  // Check the number of hits in the module/layer is appropriate for the algortihm
-	  if(!checkLayerHitLimits(moduleHits)) continue;
+          // Check the number of hits in the module/layer is appropriate for the algortihm
+          if(!checkLayerHitLimits(moduleHits)) continue;
 
-	  std::vector<int> layerKeys;
-	  for( auto &[key2,layerHits] : moduleHits){
-	    layerKeys.push_back(key2);
-	  }
+          std::vector<int> layerKeys;
+          for( auto &[key2,layerHits] : moduleHits){
+            layerKeys.push_back(key2);
+          }
 
           //double meanWeight = 1;
 
-	  Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
-	  makeHitCombination(m_cfg.n_layer-1,&hitMatrix,layerKeys,moduleHits,&outputTracks);
+          Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
+          makeHitCombination(m_cfg.n_layer-1,&hitMatrix,layerKeys,moduleHits,&outputTracks);
 
-	}
+        }
 
         return outputTracks;
 
     }
 
-    // Check there is 
+    // Check there is
     bool FarDetectorLinearTracking::checkLayerHitLimits(LayerMap hits){
       // Check there is a hit in each layer of the module
       if(hits.size()<m_cfg.n_layer) return 0;
-      
+
       // Check there aren't too many hits in any layer to handle
       // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
       // TODO - Implement more sensible solution
       for(auto &[key,layerHits]: hits){
-	if(layerHits.size()>m_cfg.layer_hits_max) return 0;
+        if(layerHits.size()>m_cfg.layer_hits_max) return 0;
       }
       return 1;
     }
 
-    void FarDetectorLinearTracking::makeHitCombination(int level,			    
-						       Eigen::MatrixXd* hitMatrix,
-						       std::vector<int> layerKeys,
-						       LayerMap hits,
-						       std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
+    void FarDetectorLinearTracking::makeHitCombination(int level,
+                                                       Eigen::MatrixXd* hitMatrix,
+                                                       std::vector<int> layerKeys,
+                                                       LayerMap hits,
+                                                       std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
 
       // Iterate over hits in this layer
       for(auto hit : hits[layerKeys[level]]){
-	auto pos = hit.getPosition();
- 	hitMatrix->col(level) << pos.x, pos.y, pos.z;
-		
-	if(level>0){ 
-	  makeHitCombination(level-1,
-			     hitMatrix,
-			     layerKeys,
-			     hits,
-			     outputTracks);
-	}
-	else{
-	  checkHitCombination(hitMatrix,outputTracks);
-	}
+        auto pos = hit.getPosition();
+        hitMatrix->col(level) << pos.x, pos.y, pos.z;
+
+        if(level>0){
+          makeHitCombination(level-1,
+                             hitMatrix,
+                             layerKeys,
+                             hits,
+                             outputTracks);
+        }
+        else{
+          checkHitCombination(hitMatrix,outputTracks);
+        }
       }
 
     }
 
 
     void FarDetectorLinearTracking::checkHitCombination(Eigen::MatrixXd* hitMatrix,
-							std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
+                                                        std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
 
       Eigen::Vector3d weightedAnchor = (*hitMatrix)*m_layerWeights/(m_layerWeights.sum());
 
       auto localMatrix = (*hitMatrix).colwise()-weightedAnchor;
 
       Eigen::BDCSVD<Eigen::MatrixXd> svd(localMatrix.transpose(), Eigen::ComputeThinU | Eigen::ComputeThinV);
-            
+
       auto V = svd.matrixV();
 
       // Rotate into principle components and calculate chi2/ndf
@@ -163,12 +163,12 @@ namespace eicrecon {
       edm4eic::Cov2f    directionError;  // Error on the polar and azimuthal angles
       float             pathlength{0};      // Pathlength from the origin to this point
       float             pathlengthError{0}; // Error on the pathlength
-      
+
       edm4eic::TrackPoint point({surface,system,position,positionError,momentum,momentumError,time,timeError,theta,phi,directionError,pathlength,pathlengthError});
       auto segment = (*outputTracks)->create(0,0);
 
       segment.addToPoints(point);
-      
+
 
     }
 
