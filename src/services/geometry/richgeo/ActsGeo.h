@@ -15,13 +15,13 @@
 // data model
 #include <edm4eic/TrackPoint.h>
 
-// ACTS
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/RadialBounds.hpp>
-
 // local
 #include "RichGeo.h"
+
+// Forward declarations
+namespace Acts {
+  class Surface;
+}
 
 namespace richgeo {
   class ActsGeo {

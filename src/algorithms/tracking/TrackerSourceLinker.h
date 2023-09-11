@@ -7,17 +7,13 @@
 
 #pragma once
 
-#include "TrackerSourceLinkerResult.h"
-
-#include <vector>
-#include <edm4eic/TrackerHit.h>
 #include <spdlog/logger.h>
-#include <list>
+
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/Detector.h>
 
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Measurement.hpp"
+#include <edm4eic/TrackerHit.h>
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 
 #include "ActsGeometryProvider.h"
 

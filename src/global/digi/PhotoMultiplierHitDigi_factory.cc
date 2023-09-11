@@ -3,6 +3,10 @@
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
+// services
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
+
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // get app and user info

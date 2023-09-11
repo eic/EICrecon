@@ -3,6 +3,11 @@
 
 #include "ActsGeo.h"
 
+// ACTS
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
+
 // constructor
 richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
   : m_detName(detName_), m_det(det_), m_log(log_)

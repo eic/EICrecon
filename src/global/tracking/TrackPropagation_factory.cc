@@ -8,10 +8,11 @@
 #include <services/geometry/acts/ACTSGeo_service.h>
 
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/Surfaces/CylinderSurface.hpp>
+#include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 
 #include <extensions/spdlog/SpdlogExtensions.h>
-#include <services/log/Log_service.h>
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>

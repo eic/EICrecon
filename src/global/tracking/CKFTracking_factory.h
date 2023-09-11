@@ -10,7 +10,6 @@
 
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "extensions/jana/JChainMultifactoryT.h"
