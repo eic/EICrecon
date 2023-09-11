@@ -98,7 +98,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
             "GeneratedJets",
+            "GeneratedChargedJets",
             "ReconstructedJets",
+            "ReconstructedChargedJets",
             "ReconstructedElectrons",
 
             // Track projections
