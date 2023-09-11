@@ -7,12 +7,8 @@
 #include <TH2.h>
 #include <TFile.h>
 
+#include <edm4hep/MCParticle.h>
 #include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include <edm4hep//MCParticle.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/ReconstructedParticle.h>
 
 
 class TRACKINGcheckProcessor: public JEventProcessorSequentialRoot {

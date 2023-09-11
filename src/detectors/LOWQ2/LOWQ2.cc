@@ -4,7 +4,6 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"

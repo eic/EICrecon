@@ -6,12 +6,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include "algorithms/tracking/TrackSeeding.h"
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include <edm4eic/TrackParameters.h>
 
+#include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "extensions/jana/JChainFactoryT.h"
-#include <edm4eic/TrackParameters.h>
 
 
 namespace eicrecon {

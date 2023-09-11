@@ -5,7 +5,6 @@
 
 // JANA
 #include "extensions/jana/JChainFactoryT.h"
-#include <JANA/JEvent.h>
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
@@ -14,8 +13,6 @@
 #include "algorithms/pid/MergeTracks.h"
 
 // services
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {

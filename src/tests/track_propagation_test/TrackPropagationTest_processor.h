@@ -3,16 +3,17 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-#include <Acts/Surfaces/DiscSurface.hpp>
-
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "algorithms/tracking/TrackPropagation.h"
 
 #include <TDirectory.h>
 
+// Forward declarations
 class JEvent;
 class JApplication;
+namespace Acts {
+    class DiscSurface;
+}
 
 class TrackPropagationTest_processor:
         public JEventProcessor,

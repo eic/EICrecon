@@ -4,17 +4,16 @@
 //
 
 #include "ACTSGeo_service.h"
+
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
 
-#include <DD4hep/Printout.h>
 #include <JANA/JException.h>
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
 ACTSGeo_service::~ACTSGeo_service() {};
-
 
 //----------------------------------------------------------------
 // detector

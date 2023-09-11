@@ -1,16 +1,8 @@
-
 #include "TrackingOccupancy_processor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <fmt/core.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -21,12 +13,8 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
-#include <edm4eic/TrackParameters.h>
 
-#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
-
-using namespace fmt;
 
 //------------------
 // OccupancyAnalysis (Constructor)

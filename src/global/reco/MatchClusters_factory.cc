@@ -14,7 +14,6 @@
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 

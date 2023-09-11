@@ -1,4 +1,3 @@
-
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
@@ -7,7 +6,6 @@
 #include <JANA/JEvent.h>
 
 #include <edm4eic/ReconstructedParticle.h>
-#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 
 #include <Math/LorentzVector.h>

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 

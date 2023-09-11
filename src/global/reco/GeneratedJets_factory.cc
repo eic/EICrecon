@@ -4,7 +4,6 @@
 // standard c includes
 #include <memory>
 #include <JANA/JEvent.h>
-#include <services/log/Log_service.h>
 // event data model definitions
 #include <edm4hep/MCParticleCollection.h>
 // factory-specific includes

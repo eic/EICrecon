@@ -12,7 +12,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {

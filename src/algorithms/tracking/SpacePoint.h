@@ -2,6 +2,7 @@
 
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Seeding/Seed.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include "ActsGeometryProvider.h"
 namespace eicrecon {
 

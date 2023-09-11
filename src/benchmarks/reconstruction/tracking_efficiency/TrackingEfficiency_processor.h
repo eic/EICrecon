@@ -7,7 +7,7 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
-#include "services/log/Log_service.h"
+#include <spdlog/fwd.h>
 
 class JEvent;
 class JApplication;
