@@ -86,7 +86,7 @@ if [[ ! ":$PATH:" == *":$SCRIPT_DIR:"* ]]; then
 fi
 
 # Add lib to LD_LIBRARY_PATH if not already there
-LIB_DIR=$( readlink -f ${EICrecon_ROOT}/lib )
+LIB_DIR=$( readlink -f ${EICrecon_ROOT}/@PLUGIN_LIBRARY_OUTPUT_DIRECTORY@ )
 if [[ ! ":$LD_LIBRARY_PATH:" == *":$LIB_DIR:"* ]]; then
     export LD_LIBRARY_PATH="${LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
