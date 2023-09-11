@@ -43,18 +43,6 @@ endif()
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Use, i.e. don't skip the full RPATH for the build tree
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-# When building, don't use the install RPATH already
-# (but later on when installing)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
-# Add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 # This PROJECT_SOURCE_DIR at this point corresponds to repository root.
 # Saving it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake
 # to correctly set plugin includes (and in other places as needed)
@@ -93,6 +81,22 @@ if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
+
+# When building, don't use the install RPATH already
+# (but later on when installing)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${PLUGIN_LIBRARY_OUTPUT_DIRECTORY};${CMAKE_INSTALL_PREFIX}/${PLUGIN_OUTPUT_DIRECTORY}"
+)
+
+# Add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# This PROJECT_SOURCE_DIR at this point corresponds to repository root.
+# Saving it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake
+# to correctly set plugin includes (and in other places as needed)
+set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 
 
 # Check and print what JANA2 is used
