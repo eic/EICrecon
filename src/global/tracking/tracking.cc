@@ -3,8 +3,6 @@
 //
 //
 
-#include <Acts/Propagator/Navigator.hpp>
-
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 

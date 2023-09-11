@@ -4,17 +4,15 @@
 
 #include "TrackSeeding.h"
 
-#include <Acts/Seeding/InternalSeed.hpp>
-#include <Acts/Seeding/SeedFilterConfig.hpp>
-#include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
-#include <Acts/Seeding/SpacePointGrid.hpp>
-#include <Acts/Utilities/KDTree.hpp>
+#include <Acts/Utilities/KDTree.hpp> // FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Seeding/Seed.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
+#include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
+#include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SpacePointGrid.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 
-#include <TDatabasePDG.h>
 #include <tuple>
 
 namespace
@@ -33,14 +31,92 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
     m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
     m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 
-    m_cfg.configure();
+    configure();
+}
+
+void eicrecon::TrackSeeding::configure() {
+
+    // Filter parameters
+    m_seedFilterConfig.maxSeedsPerSpM = m_cfg.m_maxSeedsPerSpM_filter;
+    m_seedFilterConfig.deltaRMin = m_cfg.m_deltaRMin;
+    m_seedFilterConfig.seedConfirmation = m_cfg.m_seedConfirmation;
+    m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.m_deltaInvHelixDiameter;
+    m_seedFilterConfig.impactWeightFactor = m_cfg.m_impactWeightFactor;
+    m_seedFilterConfig.zOriginWeightFactor = m_cfg.m_zOriginWeightFactor;
+    m_seedFilterConfig.compatSeedWeight = m_cfg.m_compatSeedWeight;
+    m_seedFilterConfig.compatSeedLimit = m_cfg.m_compatSeedLimit;
+    m_seedFilterConfig.curvatureSortingInFilter = m_cfg.m_curvatureSortingInFilter;
+    m_seedFilterConfig.seedWeightIncrement = m_cfg.m_seedWeightIncrement;
+
+    m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+      m_cfg.m_zMinSeedConf_cent,
+      m_cfg.m_zMaxSeedConf_cent,
+      m_cfg.m_rMaxSeedConf_cent,
+      m_cfg.m_nTopForLargeR_cent,
+      m_cfg.m_nTopForSmallR_cent,
+      m_cfg.m_seedConfMinBottomRadius_cent,
+      m_cfg.m_seedConfMaxZOrigin_cent,
+      m_cfg.m_minImpactSeedConf_cent
+    };
+
+    m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+      m_cfg.m_zMinSeedConf_forw,
+      m_cfg.m_zMaxSeedConf_forw,
+      m_cfg.m_rMaxSeedConf_forw,
+      m_cfg.m_nTopForLargeR_forw,
+      m_cfg.m_nTopForSmallR_forw,
+      m_cfg.m_seedConfMinBottomRadius_forw,
+      m_cfg.m_seedConfMaxZOrigin_forw,
+      m_cfg.m_minImpactSeedConf_forw
+    };
+
+    // Finder parameters
+    m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
+    m_seedFinderConfig.rMax = m_cfg.m_rMax;
+    m_seedFinderConfig.deltaRMinTopSP = m_cfg.m_deltaRMinTopSP;
+    m_seedFinderConfig.deltaRMaxTopSP = m_cfg.m_deltaRMaxTopSP;
+    m_seedFinderConfig.deltaRMinBottomSP = m_cfg.m_deltaRMinBottomSP;
+    m_seedFinderConfig.deltaRMaxBottomSP = m_cfg.m_deltaRMaxBottomSP;
+    m_seedFinderConfig.collisionRegionMin = m_cfg.m_collisionRegionMin;
+    m_seedFinderConfig.collisionRegionMax = m_cfg.m_collisionRegionMax;
+    m_seedFinderConfig.zMin = m_cfg.m_zMin;
+    m_seedFinderConfig.zMax = m_cfg.m_zMax;
+    m_seedFinderConfig.maxSeedsPerSpM = m_cfg.m_maxSeedsPerSpM;
+    m_seedFinderConfig.cotThetaMax = m_cfg.m_cotThetaMax;
+    m_seedFinderConfig.sigmaScattering = m_cfg.m_sigmaScattering;
+    m_seedFinderConfig.radLengthPerSeed = m_cfg.m_radLengthPerSeed;
+    m_seedFinderConfig.minPt = m_cfg.m_minPt;
+    m_seedFinderConfig.bFieldInZ = m_cfg.m_bFieldInZ;
+    m_seedFinderConfig.beamPos = Acts::Vector2(m_cfg.m_beamPosX, m_cfg.m_beamPosY);
+    m_seedFinderConfig.impactMax = m_cfg.m_impactMax;
+    m_seedFinderConfig.rMinMiddle = m_cfg.m_rMinMiddle;
+    m_seedFinderConfig.rMaxMiddle = m_cfg.m_rMaxMiddle;
+
+    // Taken from SeedingOrthogonalAlgorithm.cpp, e.g.
+    // calculation of scattering using the highland formula
+    // convert pT to p once theta angle is known
+    m_seedFinderConfig.highland =
+      (13.6 * Acts::UnitConstants::MeV) * std::sqrt(m_seedFinderConfig.radLengthPerSeed) *
+      (1 + 0.038 * std::log(m_seedFinderConfig.radLengthPerSeed));
+    float maxScatteringAngle = m_seedFinderConfig.highland / m_seedFinderConfig.minPt;
+    m_seedFinderConfig.maxScatteringAngle2 = maxScatteringAngle * maxScatteringAngle;
+
+    // Helix radius in homogeneous magnetic field
+    // in ACTS Units of GeV, mm, and GeV/(e*mm)
+    m_seedFinderConfig.pTPerHelixRadius = m_seedFinderConfig.bFieldInZ;
+
+    m_seedFinderConfig.minHelixDiameter2 =
+      std::pow(m_seedFinderConfig.minPt * 2 / m_seedFinderConfig.pTPerHelixRadius,2);
+
+    m_seedFinderConfig.pT2perRadius =
+      std::pow(m_seedFinderConfig.highland / m_seedFinderConfig.pTPerHelixRadius,2);
 }
 
 std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
-  Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_cfg.m_seedFinderConfig);
+  Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
 
   std::vector<edm4eic::TrackParameters*> result = makeTrackParams(seeds);
