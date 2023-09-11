@@ -93,11 +93,6 @@ set(CMAKE_INSTALL_RPATH
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# This PROJECT_SOURCE_DIR at this point corresponds to repository root.
-# Saving it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake
-# to correctly set plugin includes (and in other places as needed)
-set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-
 
 # Check and print what JANA2 is used
 find_package(JANA 2.0.8 REQUIRED)
