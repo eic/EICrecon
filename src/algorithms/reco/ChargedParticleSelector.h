@@ -8,11 +8,9 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 
-#include "algorithms/interfaces/WithPodConfig.h"
-
 namespace eicrecon {
 
-  class ChargedParticleSelector : public WithPodConfig<NoConfig> {
+  class ChargedParticleSelector {
 
   private:
 
