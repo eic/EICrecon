@@ -10,24 +10,31 @@
 #pragma once
 
 // ACTS
-#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Utilities/Logger.hpp>
 
 // DD4Hep
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
 #include <DD4hep/DD4hepUnits.h>
 
 #include "DD4hepBField.h"
 
 #include <spdlog/spdlog.h>
+
+// Forward declarations
+namespace Acts {
+    class IMaterialDecorator;
+    class Surface;
+    class TrackingGeometry;
+}
+
+namespace dd4hep {
+    class Detector;
+}
+namespace dd4hep::rec {
+    class CellIDPositionConverter;
+    class Surface;
+}
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
@@ -45,14 +52,7 @@ public:
                             std::shared_ptr<spdlog::logger> log,
                             std::shared_ptr<spdlog::logger> init_log) final;
 
-
-    /** Get the top level DetElement.
-     *   DD4hep Geometry
-     */
-    dd4hep::DetElement getDD4HepGeo() const { return (m_dd4hepDetector->world()); }
-
     dd4hep::Detector*  dd4hepDetector() const {return m_dd4hepDetector; }
-
 
     /** Gets the ACTS tracking geometry.
      */
@@ -80,7 +80,6 @@ public:
     std::shared_ptr<spdlog::logger> getActsInitRelatedLogger()  const { return m_init_log; }
 
 private:
-
 
     /** DD4hep detector interface class.
      * This is the main dd4hep detector handle.
@@ -122,18 +121,5 @@ private:
     /// By default its level the same as ACTS general logger (m_log)
     /// But it might be customized to solely printout geometry information
     std::shared_ptr<spdlog::logger> m_init_log;
-
-
-
-//  /// XML-files with the detector description
-//  Gaudi::Property<std::vector<std::string>> m_xmlFileNames{
-//      this, "detectors", {}, "Detector descriptions XML-files"};
-//
-//  /// JSON-file with the material map
-//  Gaudi::Property<std::string> m_jsonFileName{
-//      this, "materials", "", "Material map JSON-file"};
-//
-//  /// Gaudi logging output
-//  MsgStream m_log;
 
 };

@@ -3,6 +3,8 @@
 //
 //
 
+#include <JANA/JApplication.h>
+
 #include "JDD4hep_service.h"
 
 extern "C" {
