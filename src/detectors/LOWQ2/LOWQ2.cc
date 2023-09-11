@@ -4,13 +4,13 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factoryT.h"
+#include "factories/fardetectors/FarDetectorLinearProjection_factoryT.h"
 #include "factories/fardetectors/FarDetectorMLReconstruction_factoryT.h"
 
 
@@ -27,6 +27,8 @@ extern "C" {
 
     FarDetectorLinearTrackingConfig tracking_cfg;
     tracking_cfg.readout = cluster_cfg.readout;
+
+    FarDetectorLinearProjectionConfig projection_cfg;
 
     FarDetectorMLReconstructionConfig recon_cfg;
 
@@ -56,8 +58,11 @@ extern "C" {
     // Reconstrution of tracks on common plane
     app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
+    // Reconstrution of tracks on common plane
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearProjection_factoryT>("LowQ2Projections",{"LowQ2Tracks"},{"LowQ2Projections"}, projection_cfg, app));
+
     // Vector reconstruction at origin
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Tracks"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
+    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Projections"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
 
   }
 }

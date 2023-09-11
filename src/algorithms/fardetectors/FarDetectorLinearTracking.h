@@ -6,7 +6,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Eigen/Dense>
 // Event Model related classes
-#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
 
 #include <spdlog/logger.h>
 #include "FarDetectorLinearTrackingConfig.h"
@@ -25,7 +25,7 @@ namespace eicrecon {
 		  std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
-        std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
+        std::unique_ptr<edm4eic::TrackSegmentCollection> produce(const edm4hep::TrackerHitCollection &inputhits);
 
 
     private:
@@ -44,10 +44,10 @@ namespace eicrecon {
 				Eigen::MatrixXd* hitMatrix, 
 				std::vector<int> layerKeys,
 				LayerMap hits, 
-				std::unique_ptr<edm4eic::TrackParametersCollection>* outputTracks);
+				std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
 
 	void checkHitCombination(Eigen::MatrixXd* hitMatrix, 
-				 std::unique_ptr<edm4eic::TrackParametersCollection>* outputTracks);
+				 std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
     };
 
 } // eicrecon
