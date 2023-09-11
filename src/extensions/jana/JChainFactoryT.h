@@ -16,12 +16,6 @@
 #include "services/io/podio/JFactoryPodioT.h"
 
 
-/// This struct might be used for factories that has no underlying config class
-/// @example:
-///    JChainFactoryT<OutputType, NoConfig>
-struct NoConfig {
-};
-
 template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
 class JChainFactoryT : public BaseT<OutT> {
 public:
