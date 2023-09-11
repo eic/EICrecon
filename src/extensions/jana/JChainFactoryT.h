@@ -13,10 +13,11 @@
 #include <string>
 #include <vector>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/io/podio/JFactoryPodioT.h"
 
 
-template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
+template <typename OutT, typename ConfigT = eicrecon::NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
 class JChainFactoryT : public BaseT<OutT> {
 public:
 
