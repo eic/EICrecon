@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Dmitry Kalinkin
 
-#include <extensions/jana/JChainMultifactoryT.h>
-
 #include "ChargedParticleSelector.h"
 
 namespace eicrecon {
