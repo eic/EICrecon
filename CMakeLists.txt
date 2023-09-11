@@ -82,6 +82,17 @@ if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
 
+# When building, don't use the install RPATH already
+# (but later on when installing)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH
+    "${CMAKE_INSTALL_PREFIX}/${PLUGIN_LIBRARY_OUTPUT_DIRECTORY};${CMAKE_INSTALL_PREFIX}/${PLUGIN_OUTPUT_DIRECTORY}"
+)
+
+# Add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 
 # Check and print what JANA2 is used
 find_package(JANA 2.0.8 REQUIRED)
