@@ -7,7 +7,8 @@ namespace eicrecon {
   struct FarDetectorLinearProjectionConfig {
 
     float plane_position[3]{0.0, 0.0, 0.0};
-    float plane_tangent[3] {1.0, 0.0, 0.0};
+    float plane_a[3]       {0.0, 1.0, 0.0};
+    float plane_b[3]       {0.0, 0.0, 1.0};
 
   };
 }

@@ -6,6 +6,7 @@
 
 // Event Model related classes
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackSegment.h>
 #include <algorithms/fardetectors/FarDetectorLinearTracking.h>
 
 #include <extensions/jana/JChainMultifactoryT.h>
@@ -27,7 +28,7 @@ namespace eicrecon {
           FarDetectorLinearTrackingConfig cfg):
           JChainMultifactoryT(std::move(tag), input_tags, output_tags, cfg) {
 
-          DeclarePodioOutput<edm4eic::TrackSegmentCollection>(GetOutputTags()[0]);
+          DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
       }
 
         /** One time initialization **/

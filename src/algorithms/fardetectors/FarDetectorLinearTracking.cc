@@ -150,29 +150,11 @@ namespace eicrecon {
       // Make sure fit was pointing in the right direction
       if(outVec.z>0) outVec = outVec*-1;
 
-
-      //      auto exitPos = outPos-(outPos.x/outVec.x)*outVec;
-
-//       // Create track parameters edm4eic structure
-//       // TODO - populate more of the fields correctly
-//       std::int32_t type = 0;
-//       // Plane Point
-//       edm4hep::Vector2f loc(exitPos.y/dd4hep::mm,exitPos.z/dd4hep::mm); //Temp unit transform
-//       // Point Error
-//       edm4eic::Cov2f locError;
-//       float theta = edm4eic::anglePolar(outVec);
-//       float phi   = edm4eic::angleAzimuthal(outVec);
-//       float qOverP;
-//       edm4eic::Cov3f momentumError;
-//       float time      = 0;
-//       float timeError = 0;
-//       float charge    = -1;
-
       uint64_t          surface{0};     // Surface track was propagated to (possibly multiple per detector)
       uint32_t          system{0};      // Detector system track was propagated to
-      edm4hep::Vector3f position(outPos.y/dd4hep::mm,outPos.y/dd4hep::mm,outPos.z/dd4hep::mm);        // Position of the trajectory point [mm]
+      edm4hep::Vector3f position(outPos.x/dd4hep::mm,outPos.y/dd4hep::mm,outPos.z/dd4hep::mm);        // Position of the trajectory point [mm]
       edm4eic::Cov3f    positionError;  // Error on the position
-      edm4hep::Vector3f momentum;       // 3-momentum at the point [GeV]
+      edm4hep::Vector3f momentum = {(float)outVec.x,(float)outVec.y,(float)outVec.z};       // 3-momentum at the point [GeV]
       edm4eic::Cov3f    momentumError;  // Error on the 3-momentum
       float             time{0};        // Time at this point [ns]
       float             timeError{0};   // Error on the time at this point
@@ -183,7 +165,6 @@ namespace eicrecon {
       float             pathlengthError{0}; // Error on the pathlength
       
       edm4eic::TrackPoint point({surface,system,position,positionError,momentum,momentumError,time,timeError,theta,phi,directionError,pathlength,pathlengthError});
-      //      (*outputTracks)->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
       auto segment = (*outputTracks)->create(0,0);
 
       segment.addToPoints(point);
