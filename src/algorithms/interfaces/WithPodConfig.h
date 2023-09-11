@@ -6,13 +6,21 @@
 namespace eicrecon {
 
     /**
+     * This struct might be used for factories that has no underlying config class,
+     * for example:
+     *    WithPodConfig<NoConfig>
+     */
+    struct NoConfig {
+    };
+
+    /**
      * Small helper class that brings common functions interface for classes that have POD type config
      * @tparam ConfigT
      *
      * @example:
      *
      */
-    template<typename ConfigT>
+    template<typename ConfigT = NoConfgi>
     class WithPodConfig {
     public:
         using ConfigType = ConfigT;
