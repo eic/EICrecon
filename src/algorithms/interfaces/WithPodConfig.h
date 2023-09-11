@@ -20,7 +20,7 @@ namespace eicrecon {
      * @example:
      *
      */
-    template<typename ConfigT = NoConfgi>
+    template<typename ConfigT = NoConfig>
     class WithPodConfig {
     public:
         using ConfigType = ConfigT;
