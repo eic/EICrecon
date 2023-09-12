@@ -118,7 +118,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+        auto logLevel = eicrecon::SpdlogToActsLevel(m_log->level());
 
         ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
 

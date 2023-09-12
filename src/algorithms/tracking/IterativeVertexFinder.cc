@@ -60,7 +60,7 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
 
   Acts::EigenStepper<> stepper(m_BField);
   auto propagator = std::make_shared<Propagator>(stepper);
-  auto logLevel   = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+  auto logLevel   = eicrecon::SpdlogToActsLevel(m_log->level());
 
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});

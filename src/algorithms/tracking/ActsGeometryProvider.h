@@ -9,17 +9,13 @@
 //
 #pragma once
 
+#include <spdlog/spdlog.h>
+
 // ACTS
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Utilities/Logger.hpp>
 
 // DD4Hep
-#include <DD4hep/DD4hepUnits.h>
-
 #include "DD4hepBField.h"
-
-#include <spdlog/spdlog.h>
 
 // Forward declarations
 namespace Acts {
@@ -57,13 +53,7 @@ public:
 
     const Acts::GeometryContext& getActsGeometryContext() const {return m_trackingGeoCtx;}
 
-    ///  ACTS general logger that is used for running ACTS
-    std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
-
 private:
-
-    /// ACTS Logging Level
-    Acts::Logging::Level acts_log_level = Acts::Logging::INFO;
 
     /// ACTS Tracking Geometry Context
     Acts::GeometryContext m_trackingGeoCtx;
@@ -76,13 +66,4 @@ private:
 
     /// Acts magnetic field
     std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
-
-    ///  ACTS general logger that is used for running ACTS
-    std::shared_ptr<spdlog::logger> m_log;
-
-    /// Logger that is used for geometry initialization
-    /// By default its level the same as ACTS general logger (m_log)
-    /// But it might be customized to solely printout geometry information
-    std::shared_ptr<spdlog::logger> m_init_log;
-
 };

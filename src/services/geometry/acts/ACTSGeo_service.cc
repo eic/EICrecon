@@ -64,7 +64,7 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
 
 
 void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
-
+    // Log service
     auto log_service = srv_locator->get<Log_service>();
 
     // ACTS general log level:
@@ -81,7 +81,7 @@ void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
     m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
     m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, m_init_log->level());
 
-    // DD4Hep geometry
+    // DD4hep geometry
     auto dd4hep_service = srv_locator->get<JDD4hep_service>();
     m_dd4hepGeo = dd4hep_service->detector();
 }
