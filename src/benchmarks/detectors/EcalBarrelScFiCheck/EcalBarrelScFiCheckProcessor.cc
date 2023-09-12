@@ -21,9 +21,9 @@ void EcalBarrelScFiCheckProcessor::InitWithGlobalRootLock(){
     hist2D["EcalBarrelScFiHits_occupancy"]  =  new TH2I("EcalBarrelScFiHits_occupancy",  "EcalBarrelScFi Simulated hit occupancy;column;row",  70, -700.0, 700.0,  70, -700.0, 700.0);
     hist1D["EcalBarrelScFiHits_hit_energy"] =  new TH1D("EcalBarrelScFiHits_hit_energy",  "EcalBarrelScFi Simulated hit energy;GeV",  1000, 0.0, 2.0);
 
-    hist1D["EcalBarrelScFiRawhits_hits_per_event"]  =  new TH1I("EcalBarrelScFiRawhits_hits_per_event",  "EcalBarrelScFi Simulated digitized hit Nhits/event;Nhits",  300, 0.0, 3000);
-    hist1D["EcalBarrelScFiRawhits_amplitude"] =  new TH1D("EcalBarrelScFiRawhits_amplitude",  "EcalBarrelScFi Simulated digitized hit amplitude;amplitude",  1000, 0.0, 8200.0);
-    hist1D["EcalBarrelScFiRawhits_timestamp"] =  new TH1I("EcalBarrelScFiRawhits_timestamp",  "EcalBarrelScFi Simulated digitized hit timestamp;timestamp",  1024, 0.0, 8191.0);
+    hist1D["EcalBarrelScFiRawHits_hits_per_event"]  =  new TH1I("EcalBarrelScFiRawHits_hits_per_event",  "EcalBarrelScFi Simulated digitized hit Nhits/event;Nhits",  300, 0.0, 3000);
+    hist1D["EcalBarrelScFiRawHits_amplitude"] =  new TH1D("EcalBarrelScFiRawHits_amplitude",  "EcalBarrelScFi Simulated digitized hit amplitude;amplitude",  1000, 0.0, 8200.0);
+    hist1D["EcalBarrelScFiRawHits_timestamp"] =  new TH1I("EcalBarrelScFiRawHits_timestamp",  "EcalBarrelScFi Simulated digitized hit timestamp;timestamp",  1024, 0.0, 8191.0);
 
     hist1D["EcalBarrelScFiRechits_hits_per_event"]  =  new TH1I("EcalBarrelScFiRechits_hits_per_event",  "EcalBarrelScFi Reconstructed hit Nhits/event;Nhits",  300, 0.0, 3000);
     hist1D["EcalBarrelScFiRecHits_hit_energy"] =  new TH1D("EcalBarrelScFiRecHits_hit_energy",  "EcalBarrelScFi Reconstructed hit energy;MeV",  1000, 0.0, 100.0);
@@ -56,11 +56,11 @@ void EcalBarrelScFiCheckProcessor::ProcessSequential(const std::shared_ptr<const
         hist1D["EcalBarrelScFiHits_hit_energy"]->Fill(hit->getEnergy());
     }
 
-    // EcalBarrelScFiRawhits
-    hist1D["EcalBarrelScFiRawhits_hits_per_event"]->Fill(EcalBarrelScFiRawhits().size());
-    for( auto hit : EcalBarrelScFiRawhits()  ){
-        hist1D["EcalBarrelScFiRawhits_amplitude"]->Fill( hit->getAmplitude() );
-        hist1D["EcalBarrelScFiRawhits_timestamp"]->Fill( hit->getTimeStamp() );
+    // EcalBarrelScFiRawHits
+    hist1D["EcalBarrelScFiRawHits_hits_per_event"]->Fill(EcalBarrelScFiRawHits().size());
+    for( auto hit : EcalBarrelScFiRawHits()  ){
+        hist1D["EcalBarrelScFiRawHits_amplitude"]->Fill( hit->getAmplitude() );
+        hist1D["EcalBarrelScFiRawHits_timestamp"]->Fill( hit->getTimeStamp() );
     }
 
     // EcalBarrelScFiRechits

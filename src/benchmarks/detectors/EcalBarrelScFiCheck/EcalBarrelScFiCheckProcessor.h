@@ -16,7 +16,7 @@ private:
 
     // Data objects we will need from JANA e.g.
     PrefetchT<edm4hep::SimCalorimeterHit> EcalBarrelScFiHits           = {this, "EcalBarrelScFiHits"};
-    PrefetchT<edm4hep::RawCalorimeterHit> EcalBarrelScFiRawhits        = {this, "EcalBarrelScFiRawHits"};
+    PrefetchT<edm4hep::RawCalorimeterHit> EcalBarrelScFiRawHits        = {this, "EcalBarrelScFiRawHits"};
     PrefetchT<edm4eic::CalorimeterHit>    EcalBarrelScFiRecHits        = {this, "EcalBarrelScFiRecHits"};
     PrefetchT<edm4eic::ProtoCluster>      EcalBarrelScFiProtoClusters  = {this, "EcalBarrelScFiProtoClusters"};
 
