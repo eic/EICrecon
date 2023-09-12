@@ -7,8 +7,6 @@
 
 #include <TGeoManager.h>
 
-#include <DD4hep/Printout.h>
-
 #include "ActsExamples/Geometry/MaterialWiper.hpp"
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
