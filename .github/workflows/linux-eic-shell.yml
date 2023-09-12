@@ -560,7 +560,7 @@ jobs:
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
-      - run: rm -r publishing_docs/pr/*/doxygen
+      - run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v3
         with:
           name: github-pages-staging
