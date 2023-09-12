@@ -145,7 +145,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* detector,
         draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
 
         m_init_log->debug("visiting all the surfaces  ");
-        m_trackingGeo->visitSurfaces([this](const Acts::Surface *surface) {
+        m_trackingGeo->visitSurfaces([this,detector](const Acts::Surface *surface) {
             // for now we just require a valid surface
             if (surface == nullptr) {
                 m_init_log->info("no surface??? ");
