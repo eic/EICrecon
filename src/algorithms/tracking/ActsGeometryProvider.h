@@ -33,7 +33,6 @@ namespace dd4hep {
 }
 namespace dd4hep::rec {
     class CellIDPositionConverter;
-    class Surface;
 }
 
 /** Draw the surfaces and save to obj file.
