@@ -64,11 +64,6 @@ public:
     ///  ACTS general logger that is used for running ACTS
     std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
 
-    /// Logger that is used for geometry initialization
-    /// By default its level the same as ACTS general logger (m_log)
-    /// But it might be customized to solely printout geometry information
-    std::shared_ptr<spdlog::logger> getActsInitRelatedLogger()  const { return m_init_log; }
-
 private:
 
     /** DD4hep detector interface class.
