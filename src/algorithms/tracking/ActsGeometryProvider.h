@@ -26,12 +26,8 @@ namespace Acts {
     class Surface;
     class TrackingGeometry;
 }
-
 namespace dd4hep {
     class Detector;
-}
-namespace dd4hep::rec {
-    class CellIDPositionConverter;
 }
 
 /** Draw the surfaces and save to obj file.
@@ -83,12 +79,6 @@ private:
 
     /// ACTS surface lookup container for hit surfaces that generate smeared hits
     VolumeSurfaceMap m_surfaces;
-
-    /** DD4hep CellID tool.
-     *  Use to lookup geometry information for a hit with cellid number (int64_t).
-     *  <a href="https://dd4hep.web.cern.ch/dd4hep/reference/classdd4hep_1_1rec_1_1CellIDPositionConverter.html">See DD4hep CellIDPositionConverter documentation</a>
-     */
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
 
     /// Acts magnetic field
     std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
