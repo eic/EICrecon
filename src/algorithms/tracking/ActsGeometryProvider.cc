@@ -96,25 +96,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
 
     m_detector = dd4hep_geo;
 
-    // create a list of all surfaces in the detector:
-//  dd4hep::rec::SurfaceManager surfMan( *m_detector ) ;
-//
-//  m_log->debug(" surface manager ");
-//  const auto* const sM = surfMan.map("tracker") ;
-//  if (sM != nullptr) {
-//      m_log->debug(" surface map  size: {}", sM->size());
-//    // setup  dd4hep surface map
-//    //for( dd4hep::rec::SurfaceMap::const_iterator it = sM->begin() ; it != sM->end() ; ++it ){
-//    for( const auto& [id, s] :   *sM) {
-//      //dd4hep::rec::Surface* surf = s ;
-//      m_surfaceMap[ id ] = dynamic_cast<dd4hep::rec::Surface*>(s) ;
-//        //m_log->debug(" surface : {}", *s );
-////      m_detPlaneMap[id] = std::shared_ptr<genfit::DetPlane>(
-////          new genfit::DetPlane({s->origin().x(), s->origin().y(), s->origin().z()}, {s->u().x(), s->u().y(), s->u().z()},
-////                               {s->v().x(), s->v().y(), s->v().z()}));
-//    }
-//  }
-
     // Load ACTS materials maps
     if (!material_file.empty()) {
         m_init_log->info("loading materials map from file: '{}'", material_file);

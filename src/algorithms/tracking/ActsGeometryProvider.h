@@ -79,9 +79,6 @@ private:
      */
     const dd4hep::Detector *m_detector = nullptr;
 
-    /// DD4hep surface map
-    std::map<int64_t, dd4hep::rec::Surface *> m_surfaceMap;
-
     /// ACTS Logging Level
     Acts::Logging::Level acts_log_level = Acts::Logging::INFO;
 
