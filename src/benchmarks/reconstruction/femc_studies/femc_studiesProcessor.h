@@ -78,7 +78,7 @@ public:
 
     int nEventsWithCaloHits = 0;
     std::shared_ptr<spdlog::logger> m_log;
-    dd4hep::BitFieldCoder* m_decoder;
+    dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
     std::string nameSimHits         = "EcalEndcapPHits";
     std::string nameRecHits         = "EcalEndcapPRecHits";
     std::string nameClusters        = "EcalEndcapPClusters";
