@@ -41,7 +41,7 @@ public:
     ActsGeometryProvider() {}
     using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
 
-    virtual void initialize(const dd4hep::Detector* dd4hep_geo,
+    virtual void initialize(const dd4hep::Detector* detector,
                             std::string material_file,
                             std::shared_ptr<spdlog::logger> log,
                             std::shared_ptr<spdlog::logger> init_log) final;
@@ -61,12 +61,6 @@ public:
     std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
 
 private:
-
-    /** DD4hep detector interface class.
-     * This is the main dd4hep detector handle.
-     * <a href="https://dd4hep.web.cern.ch/dd4hep/reference/classdd4hep_1_1Detector.html">See DD4hep Detector documentation</a>
-     */
-    const dd4hep::Detector *m_detector = nullptr;
 
     /// ACTS Logging Level
     Acts::Logging::Level acts_log_level = Acts::Logging::INFO;

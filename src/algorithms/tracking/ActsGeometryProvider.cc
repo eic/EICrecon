@@ -72,7 +72,7 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 }
 
 
-void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
+void ActsGeometryProvider::initialize(const dd4hep::Detector* detector,
                                       std::string material_file,
                                       std::shared_ptr<spdlog::logger> log,
                                       std::shared_ptr<spdlog::logger> init_log) {
@@ -93,8 +93,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
 
     // Surfaces conversion log level
     uint printoutLevel = (uint) m_init_log->level();
-
-    m_detector = dd4hep_geo;
 
     // Load ACTS materials maps
     std::shared_ptr<const Acts::IMaterialDecorator> materialDeco{nullptr};
@@ -121,7 +119,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
 
     try {
         m_trackingGeo = Acts::convertDD4hepDetector(
-                m_detector->world(),
+                detector->world(),
                 acts_init_log_level,
                 bTypePhi,
                 bTypeR,
@@ -163,7 +161,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
 
             // more verbose output is lower enum value
             m_init_log->debug(" det_element->identifier() = {} ", det_element->identifier());
-            auto volman = m_detector->volumeManager();
+            auto volman = detector->volumeManager();
             auto *vol_ctx = volman.lookupContext(det_element->identifier());
             auto vol_id = vol_ctx->identifier;
 
@@ -182,7 +180,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector *dd4hep_geo,
 
     // Load ACTS magnetic field
     m_init_log->info("Loading magnetic field...");
-    m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(m_detector);
+    m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(detector);
     Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_magneticField)};
     auto bCache = m_magneticField->makeCache(m_fieldctx);
     for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
