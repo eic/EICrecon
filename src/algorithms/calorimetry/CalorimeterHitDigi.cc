@@ -30,6 +30,7 @@ namespace eicrecon {
 
 void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
+    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
     m_log = logger;
 
     // Gaudi implements a random number generator service. It is not clear to me how this
@@ -155,7 +156,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
-        double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
+        double             ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 

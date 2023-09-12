@@ -42,6 +42,7 @@ namespace eicrecon {
 
   private:
     const dd4hep::Detector* m_detector;
+    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
     std::default_random_engine generator; // TODO: need something more appropriate here
