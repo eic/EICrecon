@@ -19,14 +19,7 @@
 #include <DD4hep/DD4hepUnits.h>
 
 
-
-
 namespace eicrecon::BField {
-
-  ///// The Context to be handed around
-  //struct ScalableBFieldContext {
-  //  double scalor = 1.;
-  //};
 
   /** Use the dd4hep magnetic field in acts.
    *
