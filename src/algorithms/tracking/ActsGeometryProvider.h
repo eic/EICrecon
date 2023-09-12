@@ -23,7 +23,6 @@
 
 // Forward declarations
 namespace Acts {
-    class IMaterialDecorator;
     class Surface;
     class TrackingGeometry;
 }
