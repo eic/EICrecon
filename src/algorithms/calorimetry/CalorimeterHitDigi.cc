@@ -125,12 +125,20 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                 }
             }
             if (timeC > m_cfg.capTime) continue;
-            edep += hit.getEnergy();
-            m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
+
+            double hit_energy = hit.getEnergy();
+            // attenuated signal
+            if (m_cfg.attenuation > 0.) {
+                ;
+            }
+
+            // energy sum
+            edep += hit_energy;
+            m_log->trace("adding {} \t total: {}", hit_energy, edep);
 
             // change maximum hit energy & time if necessary
-            if (hit.getEnergy() > max_edep) {
-                max_edep = hit.getEnergy();
+            if (hit_energy > max_edep) {
+                max_edep = hit_energy;
                 mid = hit.getCellID();
                 if (timeC <= time) {
                     time = timeC;
