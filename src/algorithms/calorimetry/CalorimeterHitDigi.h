@@ -17,6 +17,7 @@
 #include <random>
 
 #include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
