@@ -35,7 +35,7 @@ namespace eicrecon::BField {
    */
   class DD4hepBField final : public Acts::MagneticFieldProvider {
   public:
-      dd4hep::Detector* m_det;
+    const dd4hep::Detector* m_det;
 
   public:
     struct Cache {
@@ -51,7 +51,7 @@ namespace eicrecon::BField {
     *
     * @param [in] DD4hep detector instance
     */
-    explicit DD4hepBField(dd4hep::Detector* det) : m_det(det) {}
+    explicit DD4hepBField(const dd4hep::Detector* det) : m_det(det) {}
 
     /**  retrieve magnetic field value.
      *
