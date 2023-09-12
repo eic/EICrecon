@@ -127,13 +127,13 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
             if (timeC > m_cfg.capTime) continue;
 
             double hit_energy = hit.getEnergy();
-            // attenuated signal
+            // TODO: apply attenuation
             if (m_cfg.attenuation > 0.) {
                 ;
             }
 
             // energy sum
-            edep += hit_energy;
+            edep += hit_energy*m_cfg.collectionEff;
             m_log->trace("adding {} \t total: {}", hit_energy, edep);
 
             // change maximum hit energy & time if necessary
