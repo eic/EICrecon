@@ -506,11 +506,14 @@ jobs:
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
       - uses: actions/checkout@v3
+      - name: Copy docs
+        run: |
+          cp -r docs publishing_docs
       - name: Run Doxygen
+        if: github.ref_name == 'main'
         run: |
           apk add doxygen graphviz ttf-freefont
           doxygen Doxyfile
-          cp -r docs publishing_docs
           mv html publishing_docs/doxygen
       - uses: actions/download-artifact@v3
         with:
