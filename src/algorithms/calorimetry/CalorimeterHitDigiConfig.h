@@ -25,6 +25,11 @@ namespace eicrecon {
     double                   resolutionTDC{1};
     double                   corrMeanScale{1};
 
+    // attenuation and light collection efficiency
+    bool                     reversedDir{false};
+    double                   attenuation{0.0};   // per meter
+    double                   collectionEff{1.0}; // light collection efficiency at end
+
     // signal sums
     std::string              readout{""};
     std::vector<std::string> fields{};
