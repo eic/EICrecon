@@ -25,7 +25,7 @@ void EcalBarrelScFiCheckProcessor::InitWithGlobalRootLock(){
     hist1D["EcalBarrelScFiRawHits_amplitude"] =  new TH1D("EcalBarrelScFiRawHits_amplitude",  "EcalBarrelScFi Simulated digitized hit amplitude;amplitude",  1000, 0.0, 8200.0);
     hist1D["EcalBarrelScFiRawHits_timestamp"] =  new TH1I("EcalBarrelScFiRawHits_timestamp",  "EcalBarrelScFi Simulated digitized hit timestamp;timestamp",  1024, 0.0, 8191.0);
 
-    hist1D["EcalBarrelScFiRechits_hits_per_event"]  =  new TH1I("EcalBarrelScFiRechits_hits_per_event",  "EcalBarrelScFi Reconstructed hit Nhits/event;Nhits",  300, 0.0, 3000);
+    hist1D["EcalBarrelScFiRecHits_hits_per_event"]  =  new TH1I("EcalBarrelScFiRecHits_hits_per_event",  "EcalBarrelScFi Reconstructed hit Nhits/event;Nhits",  300, 0.0, 3000);
     hist1D["EcalBarrelScFiRecHits_hit_energy"] =  new TH1D("EcalBarrelScFiRecHits_hit_energy",  "EcalBarrelScFi Reconstructed hit energy;MeV",  1000, 0.0, 100.0);
     hist2D["EcalBarrelScFiRecHits_xy"]  =  new TH2D("EcalBarrelScFiRecHits_xy",  "EcalBarrelScFi Reconstructed hit Y vs. X (energy weighted);x;y",  128, -1100.0, 1100.0,  128, -1100.0, 1100.0);
     hist1D["EcalBarrelScFiRecHits_z"]  =  new TH1D("EcalBarrelScFiRecHits_z",  "EcalBarrelScFi Reconstructed hit Z;z",  400, -3000.0, 1600.0);
@@ -63,8 +63,8 @@ void EcalBarrelScFiCheckProcessor::ProcessSequential(const std::shared_ptr<const
         hist1D["EcalBarrelScFiRawHits_timestamp"]->Fill( hit->getTimeStamp() );
     }
 
-    // EcalBarrelScFiRechits
-    hist1D["EcalBarrelScFiRechits_hits_per_event"]->Fill(EcalBarrelScFiRecHits().size());
+    // EcalBarrelScFiRecHits
+    hist1D["EcalBarrelScFiRecHits_hits_per_event"]->Fill(EcalBarrelScFiRecHits().size());
     for( auto hit : EcalBarrelScFiRecHits()  ){
         auto &pos = hit->getPosition();
         hist1D["EcalBarrelScFiRecHits_hit_energy"]->Fill(hit->getEnergy() / dd4hep::MeV);
