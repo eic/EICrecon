@@ -5,7 +5,6 @@
 
 #include <vector>
 
-#include "DD4hepBField.h"
 #include "ActsExamples/EventData/GeometryContainers.hpp"
 #include "ActsExamples/EventData/Index.hpp"
 #include "ActsExamples/EventData/IndexSourceLink.hpp"
@@ -26,7 +25,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
-class ActsGeometryProvider;
+#include "ActsGeometryProvider.h"
 
 namespace eicrecon {
 
@@ -81,7 +80,7 @@ namespace eicrecon {
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-        std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+        std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
         Acts::GeometryContext m_geoctx;
         Acts::CalibrationContext m_calibctx;
         Acts::MagneticFieldContext m_fieldctx;

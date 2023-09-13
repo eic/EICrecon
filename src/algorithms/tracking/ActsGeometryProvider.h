@@ -13,12 +13,11 @@
 
 // ACTS
 #include <Acts/Geometry/GeometryContext.hpp>
-
-// DD4Hep
-#include "DD4hepBField.h"
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 
 // Forward declarations
 namespace Acts {
+    class MagneticFieldProvider;
     class Surface;
     class TrackingGeometry;
 }
@@ -52,11 +51,13 @@ public:
 
 
     const Acts::GeometryContext& getActsGeometryContext() const {return m_trackingGeoCtx;}
+    const Acts::MagneticFieldContext& getActsMagneticFieldContext() const {return m_magneticFieldCtx;}
 
 private:
 
     /// ACTS Tracking Geometry Context
     Acts::GeometryContext m_trackingGeoCtx;
+    Acts::MagneticFieldContext m_magneticFieldCtx;
 
     /// ACTS Tracking Geometry
     std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
@@ -65,5 +66,5 @@ private:
     VolumeSurfaceMap m_surfaces;
 
     /// Acts magnetic field
-    std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
+    std::shared_ptr<const Acts::MagneticFieldProvider> m_magneticField = nullptr;
 };

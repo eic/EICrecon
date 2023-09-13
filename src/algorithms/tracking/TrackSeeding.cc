@@ -28,8 +28,8 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
 
     m_geoSvc = geo_svc;
 
-    m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-    m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+    m_BField = m_geoSvc->getFieldProvider();
+    m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
 
     configure();
 }

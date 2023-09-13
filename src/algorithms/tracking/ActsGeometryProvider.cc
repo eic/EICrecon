@@ -19,8 +19,12 @@
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
+#include <DD4hep/Detector.h>
+
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
+
+#include "DD4hepBField.h"
 
 // Formatter for Eigen matrices
 #if FMT_VERSION >= 90000
@@ -174,8 +178,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* detector,
     // Load ACTS magnetic field
     init_log->info("Loading magnetic field...");
     m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(detector);
-    Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_magneticField)};
-    auto bCache = m_magneticField->makeCache(m_fieldctx);
+    auto bCache = m_magneticField->makeCache(m_magneticFieldCtx);
     for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
         auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
         init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose());

@@ -10,8 +10,6 @@
 
 #include "CKFTracking.h"
 
-#include "DD4hepBField.h"
-
 namespace eicrecon{
   using Updater  = Acts::GainMatrixUpdater;
   using Smoother = Acts::GainMatrixSmoother;
