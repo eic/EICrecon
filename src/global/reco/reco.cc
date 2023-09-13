@@ -20,6 +20,7 @@
 #include "GeneratedJets_factory.h"
 #include "ReconstructedJets_factory.h"
 #include "ReconstructedElectrons_factory.h"
+#include "factories/reco/MCParticleIsolator_factory.h"
 
 //
 extern "C" {
@@ -165,6 +166,39 @@ void InitPlugin(JApplication *app) {
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
+            "BeamElectronMC",
+            {"MCParticles"},
+            {"BeamElectronMC"},
+            {
+	      .genStatus = 4,
+	      .pdg       = 11,
+	    },
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
+            "BeamProtonMC",
+            {"MCParticles"},
+            {"BeamProtonMC"},
+            {
+	      .genStatus = 4,
+	      .pdg       = 2212,
+	    },
+            app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
+            "ScatteredElectronMC",
+            {"MCParticles"},
+            {"ScatteredElectronMC"},
+            {
+	      .genStatus = 1,
+	      .pdg       = 11,
+	    },
             app
     ));
 
