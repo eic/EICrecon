@@ -198,7 +198,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
     auto frame_data = m_reader.readEntry("events", Nevents_read);
     auto frame = std::make_unique<podio::Frame>(std::move(frame_data));
 
-    auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
+    const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
     if (event_headers.size() != 1) {
         throw JException("Bad event headers: Entry %d contains %d items, but 1 expected.", Nevents_read, event_headers.size());
     }

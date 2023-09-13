@@ -149,7 +149,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
     {
       std::vector<std::pair<float,float>> xyHitPositions;
       std::vector<std::pair<float,float>> rzHitPositions;
-      for(auto& spptr : seed.sp())
+      for(const auto& spptr : seed.sp())
         {
           xyHitPositions.emplace_back(spptr->x(), spptr->y());
           rzHitPositions.emplace_back(spptr->r(), spptr->z());
@@ -208,7 +208,7 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
           localpos = local.value();
         }
 
-      edm4eic::TrackParameters *params = new edm4eic::TrackParameters{
+      auto *params = new edm4eic::TrackParameters{
         -1, // type --> seed(-1)
         {(float)localpos(0), (float)localpos(1)}, // 2d location on surface
         {0.1,0.1}, //covariance of location

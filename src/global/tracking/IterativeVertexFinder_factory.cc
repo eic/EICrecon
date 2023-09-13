@@ -11,7 +11,7 @@
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 
 void eicrecon::IterativeVertexFinder_factory::Init() {
-  auto app = GetApplication();
+  auto *app = GetApplication();
 
   // This prefix will be used for parameters
   std::string plugin_name  = GetPluginName();

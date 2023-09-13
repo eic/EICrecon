@@ -67,7 +67,7 @@ void lfhcal_studiesProcessor::Init() {
   // Get TDirectory for histograms root file
   auto globalRootLock = app->GetService<JGlobalRootLock>();
   globalRootLock->acquire_write_lock();
-  auto file = root_file_service->GetHistFile();
+  auto *file = root_file_service->GetHistFile();
   globalRootLock->release_lock();
 
   // ===============================================================================================
@@ -288,7 +288,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   for (auto mcparticle : mcParticles) {
     if (mcparticle->getGeneratorStatus() != 1)
       continue;
-    auto& mom = mcparticle->getMomentum();
+    const auto& mom = mcparticle->getMomentum();
     // get particle energy
     mcenergy = mcparticle->getEnergy();
     //determine mceta from momentum
@@ -318,7 +318,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
   auto simHits = event -> Get<edm4hep::SimCalorimeterHit>(nameSimHits.data());
-  for (auto caloHit : simHits) {
+  for (const auto *caloHit : simHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -401,7 +401,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
   // process rec hits
-  for (auto caloHit : recHits) {
+  for (const auto *caloHit : recHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -618,7 +618,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
     m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
-    for (auto& hit: cluster->getHits()){
+    for (const auto& hit: cluster->getHits()){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)

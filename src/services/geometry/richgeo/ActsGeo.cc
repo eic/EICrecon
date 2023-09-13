@@ -138,7 +138,7 @@ std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int rad
 
     // beyond the mirror cut
     return [mirror_centers, mirror_radius] (edm4eic::TrackPoint p) {
-      for(auto& c : mirror_centers) {
+      for(const auto& c : mirror_centers) {
         auto dist = std::hypot(
             c.x() - p.position.x,
             c.y() - p.position.y,

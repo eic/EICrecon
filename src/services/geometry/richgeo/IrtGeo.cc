@@ -75,8 +75,8 @@ void richgeo::IrtGeo::SetRefractiveIndexTable() {
   m_log->debug("{:-^60}"," Refractive Index Tables ");
   for(auto rad_obj : m_irtDetector->Radiators()) {
     m_log->debug("{}:", rad_obj.first);
-    const auto rad = rad_obj.second;
-    auto rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    auto *const rad = rad_obj.second;
+    const auto *rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
     for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
       auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
       auto rindex = rindex_matrix->Get(row,1);

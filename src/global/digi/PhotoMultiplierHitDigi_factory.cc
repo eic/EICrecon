@@ -10,7 +10,7 @@
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = GetPrefix();
 
@@ -69,7 +69,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<co
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  auto sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+  const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
   try {
     auto result = m_digi_algo.AlgorithmProcess(sim_hits);

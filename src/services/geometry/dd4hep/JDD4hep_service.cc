@@ -55,8 +55,8 @@ void JDD4hep_service::Initialize() {
     // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
     // Look for those first, so we can use it for the default
     // config parameter. (see https://github.com/eic/EICrecon/issues/22)
-    auto detector_config_env = std::getenv("DETECTOR_CONFIG");
-    auto detector_path_env = std::getenv("DETECTOR_PATH");
+    auto *detector_config_env = std::getenv("DETECTOR_CONFIG");
+    auto *detector_path_env = std::getenv("DETECTOR_PATH");
 
     std::string detector_config;
     // Check if detector_config_env is set

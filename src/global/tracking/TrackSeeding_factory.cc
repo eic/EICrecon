@@ -11,7 +11,7 @@
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
     std::string plugin_name = GetPluginName();
@@ -67,7 +67,7 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
 
     for(auto input_tag: GetInputTags()) {
         auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-        for (const auto hit : hits) {
+        for (const auto *const hit : hits) {
             total_hits.push_back(hit);
         }
     }

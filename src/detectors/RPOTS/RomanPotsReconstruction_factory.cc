@@ -19,7 +19,7 @@ namespace eicrecon {
         std::string plugin_name = GetPluginName();
         std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
 
-        auto app = GetApplication();
+        auto *app = GetApplication();
 
         m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
@@ -86,7 +86,7 @@ namespace eicrecon {
         bool goodHit1 = false;
         bool goodHit2 = false;
 
-        for (const auto h: rawhits) {
+        for (const auto *const h: rawhits) {
 
             auto cellID = h->getCellID();
 

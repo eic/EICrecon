@@ -13,7 +13,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
     InitLogger(GetApplication(), plugin_name);
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -21,7 +21,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -51,8 +51,8 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     // List TOF Barrel hits from barrel
     logger()->trace("TOF barrel hits:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
-    for (auto hit: barrelHits()) {
-        auto& pos = hit->getPosition();
+    for (const auto *hit: barrelHits()) {
+        const auto& pos = hit->getPosition();
         float r=sqrt(pos.x*pos.x+pos.y*pos.y);
         float phi=acos(pos.x/r); if(pos.y<0) phi+=3.1415927;
         m_th2_btof_phiz->Fill(phi, pos.z);
@@ -62,8 +62,8 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     // List TOF endcap hits
     logger()->trace("TOF endcap hits:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
-    for (auto hit: endcapHits()) {
-        auto& pos = hit->getPosition();
+    for (const auto *hit: endcapHits()) {
+        const auto& pos = hit->getPosition();
         float r=sqrt(pos.x*pos.x+pos.y*pos.y);
         float phi=acos(pos.x/r); if(pos.y<0) phi+=3.1415927;
         m_th2_ftof_rphi->Fill(r, phi);
@@ -73,7 +73,7 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     // Now go through reconstructed tracks points
     logger()->trace("Going over tracks:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-    for( auto track_segment : trackSegments() ){
+    for( const auto *track_segment : trackSegments() ){
         logger()->trace(" Track trajectory");
 
         for(auto point: track_segment->getPoints()) {
@@ -85,8 +85,8 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
             float hit_x=-1000, hit_y=-1000, hit_z=-1000, hit_t=-1000;
             float hit_px=-1000, hit_py=-1000, hit_pz=-1000, hit_e=-1000;
             if(det==1) {
-                for (auto hit: barrelHits()) {
-                    auto& hitpos = hit->getPosition();
+                for (const auto *hit: barrelHits()) {
+                    const auto& hitpos = hit->getPosition();
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;
@@ -98,8 +98,8 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
                 }
             }
             if(det==2) {
-                for (auto hit: endcapHits()) {
-                    auto& hitpos = hit->getPosition();
+                for (const auto *hit: endcapHits()) {
+                    const auto& hitpos = hit->getPosition();
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;

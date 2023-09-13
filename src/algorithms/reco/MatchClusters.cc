@@ -43,8 +43,8 @@ namespace eicrecon {
         m_log->debug("Processing cluster info for new event");
 
         // Resulting reconstructed particles and associations
-        edm4eic::ReconstructedParticleCollection* outparts = new edm4eic::ReconstructedParticleCollection();
-        edm4eic::MCRecoParticleAssociationCollection* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
+        auto* outparts = new edm4eic::ReconstructedParticleCollection();
+        auto* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
 
         m_log->debug("Step 0/2: Getting indexed list of clusters...");
 
