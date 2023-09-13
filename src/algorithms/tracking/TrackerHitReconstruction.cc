@@ -55,15 +55,15 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
         //      - XYZ segmentation: xx -> sigma_x, yy-> sigma_y, zz -> sigma_z, tt -> 0
         //    This is properly in line with how we get the local coordinates for the hit
         //    in the TrackerSourceLinker.
-	auto rec_hit = rec_hits->create();
-	
+        auto rec_hit = rec_hits->create();
+
         rec_hit.setCellID(raw_hit.getCellID()); // Raw DD4hep cell ID
-	rec_hit.setPosition(edm4hep::Vector3f{static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm), static_cast<float>(pos.z() / mm)}); // mm
-	rec_hit.setPositionError(edm4eic::CovDiag3f{get_variance(dim[0] / mm), get_variance(dim[1] / mm), std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.});  // variance (see note above)
-	rec_hit.setTime(static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0)); // ns
-	rec_hit.setTimeError(m_cfg.timeResolution);                                     // in ns
-	rec_hit.setEdep(static_cast<float>(raw_hit.getCharge() / 1.0e6));   // Collected energy (GeV)
-	rec_hit.setEdepError(0.0F);                                       // Error on the energy
+        rec_hit.setPosition(edm4hep::Vector3f{static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm), static_cast<float>(pos.z() / mm)}); // mm
+        rec_hit.setPositionError(edm4eic::CovDiag3f{get_variance(dim[0] / mm), get_variance(dim[1] / mm), std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.});  // variance (see note above)
+        rec_hit.setTime(static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0)); // ns
+        rec_hit.setTimeError(m_cfg.timeResolution);                                     // in ns
+        rec_hit.setEdep(static_cast<float>(raw_hit.getCharge() / 1.0e6));   // Collected energy (GeV)
+        rec_hit.setEdepError(0.0F);                                       // Error on the energy
 
     }
 
