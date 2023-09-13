@@ -23,7 +23,7 @@ extern "C" {
          {
            .threshold = 1 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,
-	   .sumCellHits = false,
+           .sumCellHits = false,
          },
          app
     ));

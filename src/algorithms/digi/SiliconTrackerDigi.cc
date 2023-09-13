@@ -50,12 +50,12 @@ SiliconTrackerDigi::process(const edm4hep::SimTrackerHitCollection& sim_hits) {
             continue;
         }
 
-	if(m_cfg.sumCellHits==true){
-	  mapID = sim_hit.getCellID();
-	}
-	else{
-	  mapID++;
-	}
+        if(m_cfg.sumCellHits==true){
+          mapID = sim_hit.getCellID();
+        }
+        else{
+          mapID++;
+        }
 
         if (cell_hit_map.count(mapID) == 0) {
             // This cell doesn't have hits
