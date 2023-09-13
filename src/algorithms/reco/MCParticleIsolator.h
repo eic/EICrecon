@@ -39,7 +39,7 @@ namespace eicrecon {
 /* 	std::cout << part.getPDG() << " " << m_cfg.pdg << std::endl; */
 	if(part.getGeneratorStatus()==m_cfg.genStatus && part.getPDG()==m_cfg.pdg){
 /* 	  std::cout << "GOOD" << std::endl; */
-	  parts->push_back(part);
+	  parts->push_back(part.clone());
 	}
       }
 
