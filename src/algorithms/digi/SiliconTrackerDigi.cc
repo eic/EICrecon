@@ -24,6 +24,7 @@ SiliconTrackerDigi::process(const edm4hep::SimTrackerHitCollection& sim_hits) {
     // A map of unique cellIDs with temporary structure RawHit
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
 
+    std::uint64_t mapID = 0;
 
     for (const auto& sim_hit : sim_hits) {
 
@@ -49,20 +50,26 @@ SiliconTrackerDigi::process(const edm4hep::SimTrackerHitCollection& sim_hits) {
             continue;
         }
 
-        if (cell_hit_map.count(sim_hit.getCellID()) == 0) {
+	if(m_cfg.sumCellHits==true){
+	  mapID = sim_hit.getCellID();
+	}
+	else{
+	  mapID++;
+	}
+
+        if (cell_hit_map.count(mapID) == 0) {
             // This cell doesn't have hits
-            cell_hit_map[sim_hit.getCellID()] = {
+            cell_hit_map[mapID] = {
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
                 hit_time_stamp  // ns->ps
             };
         } else {
             // There is previous values in the cell
-            auto& hit = cell_hit_map[sim_hit.getCellID()];
-            m_log->debug("  Hit already exists in cell ID={}, prev. hit time: {}", sim_hit.getCellID(), hit.getTimeStamp());
+            auto& hit = cell_hit_map[mapID];
+            m_log->debug("  Hit already exists in cell ID={}, prev. hit time: {}", mapID, hit.getTimeStamp());
 
             // keep earliest time for hit
-            auto time_stamp = hit.getTimeStamp();
             hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
 
             // sum deposited energy
