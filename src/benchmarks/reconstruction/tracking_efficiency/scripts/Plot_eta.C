@@ -71,7 +71,7 @@ void Plot_eta()
    tree->Draw(FwdMM_hits.Data(),"ForwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
    tree->Draw(BwdMM_hits.Data(),"BackwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
    tree->Draw(B0_hits.Data(),"B0TrackerHits.position.y>0","goff"); // B0 Tracker
-  
+
    c1->cd();
    c1->SetLogy();
    hits_vtx_si->Scale(1./hits_vtx_si->Integral());
@@ -127,11 +127,11 @@ void Plot_eta()
   c1->cd();
   l1->Draw();
   c1->SaveAs("eta_DD4HEP.png");
-  
- // Timer Stop     
+
+ // Timer Stop
   timer.Stop();
   Double_t realtime = timer.RealTime();
   Double_t cputime = timer.CpuTime();
-  printf("RealTime=%f seconds, CpuTime=%f seconds\n",realtime,cputime);  
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",realtime,cputime);
 
 }
