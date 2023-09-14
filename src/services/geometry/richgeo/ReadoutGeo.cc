@@ -119,7 +119,7 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID, 
   auto context = m_cellid_converter->findContext(cellID);
 
   // transformation vector buffers
-  double xyz_l[3], xyz_e[3], xyz_g[2];
+  double xyz_l[3], xyz_e[3], xyz_g[3];
   double pv_g[3], pv_l[3];
 
   // get sensor position w.r.t. its parent
