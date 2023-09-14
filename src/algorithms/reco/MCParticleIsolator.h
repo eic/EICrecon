@@ -26,7 +26,7 @@ namespace eicrecon {
         m_log = logger;
     }
 
-    
+
     std::unique_ptr<edm4hep::MCParticleCollection> process(
         const edm4hep::MCParticleCollection& part_collection
     ) {
@@ -35,18 +35,18 @@ namespace eicrecon {
       //parts->setSubsetCollection();
 
       for (const auto& part : part_collection) {
-	if(part.getGeneratorStatus()==m_cfg.genStatus){
-	  if(m_cfg.abovePDG){
-	    if(part.getPDG()>=m_cfg.pdg){
-	      parts->push_back(part.clone());
-	    }
-	  }
-	  else{
-	    if(part.getPDG()==m_cfg.pdg){
-	      parts->push_back(part.clone());
-	    }
-	  }
-	}
+        if(part.getGeneratorStatus()==m_cfg.genStatus){
+          if(m_cfg.abovePDG){
+            if(part.getPDG()>=m_cfg.pdg){
+              parts->push_back(part.clone());
+            }
+          }
+          else{
+            if(part.getPDG()==m_cfg.pdg){
+              parts->push_back(part.clone());
+            }
+          }
+        }
       }
 
       return std::move(parts);

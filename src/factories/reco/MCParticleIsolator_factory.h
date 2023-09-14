@@ -21,7 +21,7 @@ class MCParticleIsolator_factory :
         std::string tag,
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
-	MCParticleIsolatorConfig cfg)
+        MCParticleIsolatorConfig cfg)
       : JChainMultifactoryT<MCParticleIsolatorConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
       bool owns_data = true; // this produces a subset collection
@@ -35,7 +35,7 @@ class MCParticleIsolator_factory :
 
       // SpdlogMixin logger initialization, sets m_log
       InitLogger(app, GetPrefix(), "info");
-      
+
       auto cfg = GetDefaultConfig();
 
       m_algo.applyConfig(cfg);
@@ -47,7 +47,7 @@ class MCParticleIsolator_factory :
     void Process(const std::shared_ptr<const JEvent> &event) override {
 
       auto particle_collection = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-    
+
       try {
         auto particles = m_algo.process(*particle_collection);
         SetCollection<edm4hep::MCParticle>(GetOutputTags()[0], std::move(particles));

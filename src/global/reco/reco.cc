@@ -174,9 +174,9 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"},
             {"MCBeamElectrons"},
             {
-	      .genStatus = 4,
-	      .pdg       = 11,
-	    },
+              .genStatus = 4,
+              .pdg       = 11,
+            },
             app
     ));
 
@@ -185,10 +185,10 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"},
             {"MCBeamIons"},
             {
-	      .genStatus = 4,
-	      .pdg       = 2212,
-	      .abovePDG  = true,
-	    },
+              .genStatus = 4,
+              .pdg       = 2212,
+              .abovePDG  = true,
+            },
             app
     ));
 
@@ -197,9 +197,9 @@ void InitPlugin(JApplication *app) {
             {"MCParticles"},
             {"MCPrimaryElectrons"},
             {
-	      .genStatus = 1,
-	      .pdg       = 11,
-	    },
+              .genStatus = 1,
+              .pdg       = 11,
+            },
             app
     ));
 
