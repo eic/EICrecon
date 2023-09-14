@@ -216,10 +216,10 @@ class JEventProcessorJANATOP : public JEventProcessor
                   < (b.second.time_waited_on - b.second.time_waiting));
         };
         std::sort(factory_stats_vector.begin(), factory_stats_vector.end(), factory_stats_compare);
-        for (auto fiter = factory_stats_vector.end() - std::min(factory_stats_vector.size(), 10ul);
-                  fiter != factory_stats_vector.end(); fiter++) {
-            FactoryCallStats &fcall_stats = fiter->second;
-            std::string nodename = fiter->first;
+        for (auto iter = factory_stats_vector.end() - std::min(factory_stats_vector.size(), 10ul);
+                  iter != factory_stats_vector.end(); iter++) {
+            FactoryCallStats &fcall_stats = iter->second;
+            std::string nodename = iter->first;
 
             // Get time spent in this factory proper
             double time_spent_in_factory = fcall_stats.time_waited_on - fcall_stats.time_waiting;
