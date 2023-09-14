@@ -5,9 +5,11 @@
 
 namespace eicrecon {
 
+  // Defualt values for beam electron
   struct MCParticleIsolatorConfig {
-    int genStatus;
-    int pdg;
+    int  genStatus{4};
+    int  pdg{11};
+    bool abovePDG{false};
   };
 
 } // eicrecon

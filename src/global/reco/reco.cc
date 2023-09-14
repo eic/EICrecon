@@ -170,9 +170,9 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
-            "BeamElectronMC",
+            "MCBeamElectrons",
             {"MCParticles"},
-            {"BeamElectronMC"},
+            {"MCBeamElectrons"},
             {
 	      .genStatus = 4,
 	      .pdg       = 11,
@@ -181,20 +181,21 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
-            "BeamProtonMC",
+            "MCBeamIons",
             {"MCParticles"},
-            {"BeamProtonMC"},
+            {"MCBeamIons"},
             {
 	      .genStatus = 4,
 	      .pdg       = 2212,
+	      .abovePDG  = true,
 	    },
             app
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<MCParticleIsolator_factory>(
-            "ScatteredElectronMC",
+            "MCPrimaryElectrons",
             {"MCParticles"},
-            {"ScatteredElectronMC"},
+            {"MCPrimaryElectrons"},
             {
 	      .genStatus = 1,
 	      .pdg       = 11,

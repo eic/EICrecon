@@ -35,11 +35,17 @@ namespace eicrecon {
       //parts->setSubsetCollection();
 
       for (const auto& part : part_collection) {
-/* 	std::cout << part.getGeneratorStatus() << " " << m_cfg.genStatus << std::endl; */
-/* 	std::cout << part.getPDG() << " " << m_cfg.pdg << std::endl; */
-	if(part.getGeneratorStatus()==m_cfg.genStatus && part.getPDG()==m_cfg.pdg){
-/* 	  std::cout << "GOOD" << std::endl; */
-	  parts->push_back(part.clone());
+	if(part.getGeneratorStatus()==m_cfg.genStatus){
+	  if(m_cfg.abovePDG){
+	    if(part.getPDG()>=m_cfg.pdg){
+	      parts->push_back(part.clone());
+	    }
+	  }
+	  else{
+	    if(part.getPDG()==m_cfg.pdg){
+	      parts->push_back(part.clone());
+	    }
+	  }
 	}
       }
 
