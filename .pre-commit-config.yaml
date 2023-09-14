@@ -1,3 +1,5 @@
+ci:
+    skip: [clang-format]
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
@@ -16,3 +18,7 @@ repos:
   - id: forbid-tabs
   - id: remove-tabs
     args: [--whitespaces-count, '8']
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  - id: clang-format
