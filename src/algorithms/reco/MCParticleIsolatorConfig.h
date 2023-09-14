@@ -5,7 +5,7 @@
 
 namespace eicrecon {
 
-  // Defualt values for beam electron
+  // Default values for beam electron
   struct MCParticleIsolatorConfig {
     int  genStatus{4};
     int  pdg{11};
