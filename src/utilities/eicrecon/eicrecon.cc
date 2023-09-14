@@ -45,6 +45,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "LOWQ2",
         "LUMISPECCAL",
         "podio",
+        "janatop",
 };
 
 int main( int narg, char **argv)
