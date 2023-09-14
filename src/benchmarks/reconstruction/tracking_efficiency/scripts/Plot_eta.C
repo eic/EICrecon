@@ -90,10 +90,10 @@ void Plot_eta()
    hits_barrel_tof->SetLineColor(kBlack);
    hits_disks_si->SetLineColor(kGreen);
    hits_endcap_tof->SetLineColor(kCyan);
-   hits_barrel_mpgd_out->SetLineColor(9);
-   hits_fwd_mpgd->SetLineColor(28);
-   hits_bwd_mpgd->SetLineColor(46);
-   hits_b0tracker->SetLineColor(38);
+   hits_barrel_mpgd_out->SetLineColor(kOrange);
+   hits_fwd_mpgd->SetLineColor(kBlue-7);
+   hits_bwd_mpgd->SetLineColor(kRed-9);
+   hits_b0tracker->SetLineColor(kGreen+3);
 
 
    hits_vtx_si->SetMaximum(0.2);
