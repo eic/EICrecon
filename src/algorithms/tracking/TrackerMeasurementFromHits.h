@@ -43,9 +43,6 @@ private:
 
   const algorithms::ActsSvc& m_acts{algorithms::ActsSvc::instance()};
   std::shared_ptr<const ActsGeometryProvider> m_acts_context{m_acts.acts_geometry_provider()};
-
-  /// Detector-specific information
-  unsigned long m_detid_b0tracker;
 };
 
 } // namespace eicrecon
