@@ -324,8 +324,8 @@ namespace jana {
         }
 
         std::cout << "\nConfiguration Parameters:" << std::endl;
-        std::cout << "Name" + (max_key_length >= 4 ? std::string(max_key_length-4, ' ') : "") << " : ";
-        std::cout << "Value" + (max_val_length >= 5 ? std::string(max_val_length-5, ' ') : "") << " : ";
+        std::cout << "Name" + std::string(std::max(max_key_length, 4) - 4, ' ') << " : ";
+        std::cout << "Value" + std::string(std::max(max_val_length, 5) - 5, ' ') << " : ";
         std::cout << "Description" << std::endl;
         std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
         for( auto &[key, p] : params ){
