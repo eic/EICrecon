@@ -52,13 +52,16 @@ namespace eicrecon {
     auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
 
     for (const auto& pcl : *proto) {
-      auto *cl = reconstruct(pcl);
 
-      // skip null clusters
-      if (cl == nullptr) continue;
+      // skip protoclusters with no hits
+      if (pcl.hits_size() == 0) {
+        continue;
+      }
 
-      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
-      clusters->push_back(*cl);
+      auto cl = reconstruct(pcl);
+
+      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
+      clusters->push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
       // 1. find proto-cluster hit with largest energy deposition
@@ -124,10 +127,10 @@ namespace eicrecon {
 
         // set association
         auto clusterassoc = associations->create();
-        clusterassoc.setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
         clusterassoc.setSimID(mcp.getObjectID().index);
         clusterassoc.setWeight(1.0);
-        clusterassoc.setRec(*cl);
+        clusterassoc.setRec(cl);
         clusterassoc.setSim(mcp);
       } else {
         m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
@@ -138,7 +141,7 @@ namespace eicrecon {
 }
 
 //------------------------------------------------------------------------
-edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
+edm4eic::Cluster CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 
@@ -146,7 +149,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
 
   // no hits
   if (pcl.hits_size() == 0) {
-    return nullptr;
+    return cl;
   }
 
   // calculate total energy, find the cell with the maximum energy deposit
@@ -290,7 +293,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
 
-  return new edm4eic::Cluster(cl);
+  return std::move(cl);
 }
 
 } // eicrecon
