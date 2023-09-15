@@ -14,6 +14,7 @@
 #include <Eigen/Dense>
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 
 #include "CalorimeterClusterRecoCoG.h"
@@ -124,8 +125,10 @@ namespace eicrecon {
 
         // set association
         auto clusterassoc = associations->create();
+#if EDM4EIC_VERSION_MAJOR < 4
         clusterassoc.setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
         clusterassoc.setSimID(mcp.getObjectID().index);
+#endif
         clusterassoc.setWeight(1.0);
         clusterassoc.setRec(*cl);
         clusterassoc.setSim(mcp);

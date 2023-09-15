@@ -18,6 +18,7 @@
 
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -66,8 +67,8 @@ namespace eicrecon {
 
             // find associated particle
             for (const auto &assoc: inpartsassoc) {
-                if (assoc->getRecID() == inpart->getObjectID().index) {
-                    mcID = assoc->getSimID();
+                if (assoc->getRec().getObjectID().index == inpart->getObjectID().index) {
+                    mcID = assoc->getSim().getObjectID().index;
                     break;
                 }
             }
@@ -89,8 +90,10 @@ namespace eicrecon {
 
             // create truth associations
             auto assoc = outpartsassoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
             assoc.setRecID(outpart.getObjectID().index);
             assoc.setSimID(mcID);
+#endif
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
             assoc.setSim(*mcparticles[mcID]);
@@ -125,8 +128,10 @@ namespace eicrecon {
 
             // Create truth associations
             auto assoc = outpartsassoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
             assoc.setRecID(outpart.getObjectID().index);
             assoc.setSimID(mcID);
+#endif
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
             assoc.setSim(*mcparticles[mcID]);
@@ -158,7 +163,7 @@ namespace eicrecon {
                     // find associated particle
                     for (const auto &assoc: associations) {
                         if (assoc->getRec() == *cluster) {
-                            mcID = assoc->getSimID();
+                            mcID = assoc->getSim().getObjectID().index;
                             break;
                         }
                     }

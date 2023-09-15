@@ -20,6 +20,7 @@
 #include "algorithms/calorimetry/ClusterTypes.h"
 
 // Event Model related classes
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -120,8 +121,10 @@ namespace eicrecon {
 
                 // set association
                 auto clusterassoc = associations->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                 clusterassoc.setRecID(cl.getObjectID().index);
                 clusterassoc.setSimID(mcp.getObjectID().index);
+#endif
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(cl);
                 clusterassoc.setSim(mcp);

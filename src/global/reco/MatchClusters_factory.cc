@@ -74,7 +74,7 @@ namespace eicrecon {
 
             m_log->debug("Associations '{}' len: {}", input_tag, assocs.size());
             for(const auto *assoc: assocs) {
-                m_log->debug("  {} {} {} {}", assoc->getRecID(), assoc->getSimID(), assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
+                m_log->debug("  {} {} {} {}", assoc->getRec().getObjectID().index, assoc->getSim().getObjectID().index, assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
             }
         }
 

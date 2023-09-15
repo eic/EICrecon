@@ -9,6 +9,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>
@@ -145,45 +146,55 @@ namespace eicrecon {
                     // we must write an association
                     if (ea != energy_assoc.end() && pa != pos_assoc.end()) {
                         // we have two associations
-                        if (pa->getSimID() == ea->getSimID()) {
+                        if (pa->getSim().getObjectID().index == ea->getSim().getObjectID().index) {
                             // both associations agree on the MCParticles entry
                             auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                             clusterassoc.setRecID(new_clus.getObjectID().index);
-                            clusterassoc.setSimID(ea->getSimID());
+                            clusterassoc.setSimID(ea->getSim().getObjectID().index);
+#endif
                             clusterassoc.setWeight(1.0);
                             clusterassoc.setRec(new_clus);
                             clusterassoc.setSim(ea->getSim());
                         } else {
                             // both associations disagree on the MCParticles entry
-                            m_log->debug("   --> Two associations added to {} and {}", ea->getSimID(), pa->getSimID());
+                            m_log->debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index, pa->getSim().getObjectID().index);
                             auto clusterassoc1 = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                             clusterassoc1.setRecID(new_clus.getObjectID().index);
-                            clusterassoc1.setSimID(ea->getSimID());
+                            clusterassoc1.setSimID(ea->getSim().getObjectID().index);
+#endif
                             clusterassoc1.setWeight(0.5);
                             clusterassoc1.setRec(new_clus);
                             clusterassoc1.setSim(ea->getSim());
                             auto clusterassoc2 = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                             clusterassoc2.setRecID(new_clus.getObjectID().index);
-                            clusterassoc2.setSimID(pa->getSimID());
+                            clusterassoc2.setSimID(pa->getSim().getObjectID().index);
+#endif
                             clusterassoc2.setWeight(0.5);
                             clusterassoc2.setRec(new_clus);
                             clusterassoc2.setSim(pa->getSim());
                         }
                     } else if (ea != energy_assoc.end()) {
                         // no position association
-                        m_log->debug("   --> Only added energy cluster association to {}", ea->getSimID());
+                        m_log->debug("   --> Only added energy cluster association to {}", ea->getSim().getObjectID().index);
                         auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                         clusterassoc.setRecID(new_clus.getObjectID().index);
-                        clusterassoc.setSimID(ea->getSimID());
+                        clusterassoc.setSimID(ea->getSim().getObjectID().index);
+#endif
                         clusterassoc.setWeight(1.0);
                         clusterassoc.setRec(new_clus);
                         clusterassoc.setSim(ea->getSim());
                     } else if (pa != pos_assoc.end()) {
                         // no energy association
-                        m_log->debug("   --> Only added position cluster association to {}", pa->getSimID());
+                        m_log->debug("   --> Only added position cluster association to {}", pa->getSim().getObjectID().index);
                         auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                         clusterassoc.setRecID(new_clus.getObjectID().index);
-                        clusterassoc.setSimID(pa->getSimID());
+                        clusterassoc.setSimID(pa->getSim().getObjectID().index);
+#endif
                         clusterassoc.setWeight(1.0);
                         clusterassoc.setRec(new_clus);
                         clusterassoc.setSim(pa->getSim());

@@ -9,6 +9,7 @@
 
 // Event Model related classes
 #include <edm4hep/MCParticle.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/vector_utils.h>
@@ -109,8 +110,10 @@ namespace eicrecon {
 
                 // set association
                 auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                 clusterassoc.setRecID(new_clus.getObjectID().index);
                 clusterassoc.setSimID(mcID);
+#endif
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(new_clus);
                 clusterassoc.setSim(mcparticles[mcID]);
@@ -126,8 +129,10 @@ namespace eicrecon {
 
                 // set association
                 auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                 clusterassoc.setRecID(new_clus.getObjectID().index);
                 clusterassoc.setSimID(mcID);
+#endif
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(new_clus);
                 clusterassoc.setSim(mcparticles[mcID]);
@@ -157,8 +162,10 @@ namespace eicrecon {
 
             // set association
             auto clusterassoc = merged_assoc->create();
+#if EDM4EIC_VERSION_MAJOR < 4
             clusterassoc.setRecID(new_clus.getObjectID().index);
             clusterassoc.setSimID(mcID);
+#endif
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
             clusterassoc.setSim(mc);
@@ -182,7 +189,7 @@ namespace eicrecon {
             // find associated particle
             for (const auto &assoc: associations) {
                 if (assoc.getRec() == cluster) {
-                    mcID = assoc.getSimID();
+                    mcID = assoc.getSim().getObjectID().index;
                     break;
                 }
             }
