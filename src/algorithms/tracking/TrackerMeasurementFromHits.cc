@@ -43,8 +43,6 @@
 namespace eicrecon {
 
 void TrackerMeasurementFromHits::init() {
-  // ***** B0Tracker
-  m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
   // ***** OuterMPGDBarrel
   std::string readout = "OuterMPGDBarrelHits";
   //  If "CartesianGridUV" segmentation, we need to rotate the cov. matrix.
@@ -168,22 +166,9 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
     const auto& hit_pos = hit.getPosition(); // 3d position
 
     Acts::Vector2 pos;
-    auto onSurfaceTolerance =
-        0.1 *
-        Acts::UnitConstants::um; // By default, ACTS uses 0.1 micron as the on surface tolerance
-    if (hit_det == m_detid_b0tracker) {
-      onSurfaceTolerance =
-          1 *
-          Acts::UnitConstants::
-              um; // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
-    }
-
     try {
       // transform global position into local coordinates
-      pos = surface
-                ->globalToLocal(gctx, {hit_pos.x, hit_pos.y, hit_pos.z}, {0, 0, 0},
-                                onSurfaceTolerance)
-                .value();
+      pos = surface->globalToLocal(gctx, {hit_pos.x, hit_pos.y, hit_pos.z}, {0, 0, 0}).value();
 
     } catch (std::exception& ex) {
       warning("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
