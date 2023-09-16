@@ -74,7 +74,8 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          (cd build && ctest -V)
+          # Disable LD_LIBRARY_PATH to ensure R(UN)PATH use
+          (cd build && LD_LIBRARY_PATH="" ctest -V)
     - uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
