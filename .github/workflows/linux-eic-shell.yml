@@ -37,7 +37,7 @@ jobs:
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Debug
-            CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            CXXFLAGS: -fprofile-instr-generate -Wl,-fprofile-instr-generate -fcoverage-mapping
     steps:
     - uses: actions/checkout@v3
     - name: Prepare ccache timestamp
