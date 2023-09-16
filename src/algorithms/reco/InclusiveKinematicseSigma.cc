@@ -75,10 +75,10 @@ namespace eicrecon {
     //const auto ef_assoc = std::find_if(
     //  rcassoc.begin(),
     //  rcassoc.end(),
-    //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
+    //  [&ef_coll](const auto& a){ return a.getSim().getObjectID().index == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+      if (ef_assoc->getSim().getObjectID().index == (unsigned) ef_coll[0].getObjectID().index) {
         break;
       }
     }

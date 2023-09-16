@@ -3,6 +3,7 @@
 
 #include "ParticlesWithPID.h"
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/utils/vector_utils.h>
 
@@ -161,8 +162,10 @@ namespace eicrecon {
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
                 auto rec_assoc = out_colls.assocs->create();
+#if EDM4EIC_VERSION_MAJOR < 4
                 rec_assoc.setRecID(rec_part.getObjectID().index);
                 rec_assoc.setSimID((*mc_particles)[best_match].getObjectID().index);
+#endif
                 rec_assoc.setWeight(1);
                 rec_assoc.setRec(rec_part);
                 auto sim = (*mc_particles)[best_match];
@@ -180,7 +183,7 @@ namespace eicrecon {
                                  mcpart.getPDG());
 
                     m_log->debug(" Assoc: id={} SimId={} RecId={}",
-                                 rec_assoc.getObjectID().index, rec_assoc.getSimID(), rec_assoc.getSimID());
+                                 rec_assoc.getObjectID().index, rec_assoc.getSim().getObjectID().index, rec_assoc.getRec().getObjectID().index);
 
                     m_log->trace(" Assoc PDGs: sim.PDG | rec.PDG | rec.particleIDUsed.PDG = {:^6} | {:^6} | {:^6}",
                                  rec_assoc.getSim().getPDG(),
