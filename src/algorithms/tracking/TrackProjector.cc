@@ -51,10 +51,10 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
+    std::unique_ptr<edm4eic::TrackSegmentCollection> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
 
         // create output collections
-        std::vector<edm4eic::TrackSegment *> track_segments;
+        auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
         m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
@@ -81,7 +81,7 @@ namespace eicrecon {
             m_log->debug("  Num measurement in trajectory {}", m_nMeasurements);
             m_log->debug("  Num state in trajectory {}", m_nStates);
 
-            edm4eic::MutableTrackSegment track_segment;
+            auto track_segment = track_segments->create();
 
             // visit the track points
             mj.visitBackwards(trackTip, [&](auto &&trackstate) {
@@ -201,13 +201,10 @@ namespace eicrecon {
 
             m_log->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
             m_log->debug("------ end of trajectory process ------");
-
-            // Add to output collection
-            track_segments.push_back(new edm4eic::TrackSegment(track_segment));
         }
 
         m_log->debug("END OF Track projector event process");
-        return track_segments;
+        return std::move(track_segments);
     }
 
 
