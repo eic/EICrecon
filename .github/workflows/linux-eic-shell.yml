@@ -77,7 +77,7 @@ jobs:
         run: |
           for lib in lib/*.so lib/EICrecon/plugins/*.so ; do
             readelf -d $lib
-            ldd $lib
+            ldd -r $lib
           done
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -322,7 +322,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ldd lib/*.so lib/EICrecon/plugins/*.so
+          ldd -r lib/*.so lib/EICrecon/plugins/*.so
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
