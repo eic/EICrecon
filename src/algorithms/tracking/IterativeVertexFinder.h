@@ -15,7 +15,7 @@
 
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
-#include <edm4eic/Vertex.h>
+#include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 
 #include <Acts/Definitions/Common.hpp>
@@ -29,7 +29,7 @@ class IterativeVertexFinder
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
-  std::vector<edm4eic::Vertex*>
+  std::unique_ptr<edm4eic::VertexCollection>
   produce(std::vector<const ActsExamples::Trajectories*> trajectories);
 
 private:

@@ -54,8 +54,8 @@ void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<cons
   m_log->debug("Process method");
 
   try {
-    auto result = m_vertexing_algo.produce(trajectories);
-    Set(result); // Set() - is what factory produced
+    auto vertices = m_vertexing_algo.produce(trajectories);
+    SetCollection(std::move(vertices));
   } catch (std::exception& e) {
     throw JException(e.what());
   }
