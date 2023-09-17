@@ -75,7 +75,10 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         run: |
-          ldd lib/*.so lib/EICrecon/plugins/*.so
+          for lib in lib/*.so lib/EICrecon/plugins/*.so ; do
+            readelf -d $lib
+            ldd $lib
+          done
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
