@@ -101,7 +101,7 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, std::shared_ptr<
         local_mask = id_spec.get_mask(fields);
         // use all fields if nothing provided
         if (fields.empty()) {
-            local_mask = ~0;
+            local_mask = ~static_cast<size_t>(0);
         }
     }
 
