@@ -31,7 +31,7 @@ namespace eicrecon {
             public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
     public:
         void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
-        std::vector<edm4eic::TrackParameters*> produce(std::vector<const edm4eic::TrackerHit*> trk_hits);
+        std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4eic::TrackerHitCollection& trk_hits);
 
     private:
         void configure();
@@ -47,8 +47,8 @@ namespace eicrecon {
 
         int determineCharge(std::vector<std::pair<float,float>>& positions) const;
         std::pair<float,float> findPCA(std::tuple<float,float,float>& circleParams) const;
-        std::vector<const eicrecon::SpacePoint*> getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits);
-        std::vector<edm4eic::TrackParameters*> makeTrackParams(SeedContainer& seeds);
+        std::vector<const eicrecon::SpacePoint*> getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
+        std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);
 
         std::tuple<float,float,float> circleFit(std::vector<std::pair<float,float>>& positions) const;
         std::tuple<float,float> lineFit(std::vector<std::pair<float,float>>& positions) const;

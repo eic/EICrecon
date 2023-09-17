@@ -4,8 +4,6 @@
 
 #include <JANA/JEvent.h>
 
-#include <edm4eic/TrackParametersCollection.h>
-
 #include "TrackSeeding_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
@@ -63,20 +61,19 @@ void eicrecon::TrackSeeding_factory::ChangeRun(const std::shared_ptr<const JEven
 
 void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all hits
-    std::vector<const edm4eic::TrackerHit*> total_hits;
+    // FIXME Collection is better done with a TrackerHitCollector factory
+    edm4eic::TrackerHitCollection total_hits;
 
     for(auto input_tag: GetInputTags()) {
-        auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-        for (const auto *const hit : hits) {
+        auto hits = static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag));
+        for (const auto& hit : *hits) {
             total_hits.push_back(hit);
         }
     }
 
-    m_log->debug("Process method");
-
     try {
-        auto result = m_seeding_algo.produce(total_hits);
-        Set(result);    // Set() - is what factory produced
+        auto track_params = m_seeding_algo.produce(total_hits);
+        SetCollection(std::move(track_params));
     }
     catch(std::exception &e) {
         throw JException(e.what());
