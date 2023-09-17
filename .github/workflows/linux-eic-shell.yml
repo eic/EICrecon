@@ -69,6 +69,13 @@ jobs:
           # install this repo
           CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=OFF
           cmake --build build -- -j 2 install
+    - name: Check dynamic library loader paths
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          ldd lib/*.so lib/EICrecon/plugins/*.so
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -306,6 +313,13 @@ jobs:
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Check dynamic library loader paths
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          ldd lib/*.so lib/EICrecon/plugins/*.so
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
