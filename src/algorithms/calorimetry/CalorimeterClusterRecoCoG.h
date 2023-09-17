@@ -58,7 +58,7 @@ namespace eicrecon {
 
   private:
 
-    edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster& pcl) const;
+    edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster& pcl) const;
 
   };
 
