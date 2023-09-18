@@ -1,2 +1,1 @@
 interceptor_via_lib:libCore.so
-interceptor_via_lib:libpodioRootIO.so
