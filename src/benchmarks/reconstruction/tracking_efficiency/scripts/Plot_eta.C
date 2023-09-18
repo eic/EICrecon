@@ -12,7 +12,7 @@
 void Plot_eta()
 {
 
-////////////////////////////////////////////////////// style of the plot
+   //==style of the plot====
    gStyle->SetPalette(1);
    gStyle->SetOptTitle(0);
    gStyle->SetTitleOffset(.85,"X");gStyle->SetTitleOffset(1.0,"Y");
@@ -91,9 +91,9 @@ void Plot_eta()
    hits_disks_si->SetLineColor(kGreen);
    hits_endcap_tof->SetLineColor(kCyan);
    hits_barrel_mpgd_out->SetLineColor(kOrange);
-   hits_fwd_mpgd->SetLineColor(kBlue-7);
-   hits_bwd_mpgd->SetLineColor(kRed-9);
-   hits_b0tracker->SetLineColor(kGreen+3);
+   hits_fwd_mpgd->SetLineColor(kAzure);
+   hits_bwd_mpgd->SetLineColor(kTeal);
+   hits_b0tracker->SetLineColor(kViolet);
 
 
    hits_vtx_si->SetMaximum(0.2);
@@ -109,7 +109,7 @@ void Plot_eta()
    hits_bwd_mpgd->Draw("hist-same");
    hits_b0tracker->Draw("hist-same");
 
-  TLegend *l1=  new TLegend(0.11,0.70,0.70,0.90);
+  TLegend *l1=  new TLegend(0.11,0.75,0.70,0.94);
   l1->SetNColumns(2);
   l1->SetTextSize(0.025);
   l1->SetBorderSize(0);
