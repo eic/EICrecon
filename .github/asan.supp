@@ -1,2 +1,2 @@
 interceptor_via_lib:libCore.so
-interceptor_via_fun:podio::ROOTFrameReader::openFiles
+interceptor_via_lib:libpodioRootIO.so
