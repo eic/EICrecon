@@ -50,27 +50,27 @@ void Plot_eta()
    hits_vtx_si->GetXaxis()->CenterTitle();
    hits_vtx_si->GetYaxis()->CenterTitle();
 
-   TString vtx_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(VertexBarrelHits.position.x*VertexBarrelHits.position.x+VertexBarrelHits.position.y*VertexBarrelHits.position.y),VertexBarrelHits.position.z))/2))>>hits_vtx_si";
-   TString Barrel_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(SiBarrelHits.position.x*SiBarrelHits.position.x+SiBarrelHits.position.y*SiBarrelHits.position.y),SiBarrelHits.position.z))/2))>>hits_barrel_si";
-   TString BMM_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(MPGDBarrelHits.position.x*MPGDBarrelHits.position.x+MPGDBarrelHits.position.y*MPGDBarrelHits.position.y),MPGDBarrelHits.position.z))/2))>>hits_barrel_mpgd_in";
-   TString ToF_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TOFBarrelHits.position.x*TOFBarrelHits.position.x+TOFBarrelHits.position.y*TOFBarrelHits.position.y),TOFBarrelHits.position.z))/2))>>hits_barrel_tof";
-   TString ETracker_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TrackerEndcapHits.position.x*TrackerEndcapHits.position.x+TrackerEndcapHits.position.y*TrackerEndcapHits.position.y),TrackerEndcapHits.position.z))/2))>>hits_disks_si";
-   TString ETOF_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TOFEndcapHits.position.x*TOFEndcapHits.position.x+TOFEndcapHits.position.y*TOFEndcapHits.position.y),TOFEndcapHits.position.z))/2))>>hits_endcap_tof";
-   TString OutBMM_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(OuterMPGDBarrelHits.position.x*OuterMPGDBarrelHits.position.x+OuterMPGDBarrelHits.position.y*OuterMPGDBarrelHits.position.y),OuterMPGDBarrelHits.position.z))/2))>>hits_barrel_mpgd_out";
-   TString FwdMM_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(ForwardMPGDEndcapHits.position.x*ForwardMPGDEndcapHits.position.x+ForwardMPGDEndcapHits.position.y*ForwardMPGDEndcapHits.position.y),ForwardMPGDEndcapHits.position.z))/2))>>hits_fwd_mpgd";
-   TString BwdMM_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(BackwardMPGDEndcapHits.position.x*BackwardMPGDEndcapHits.position.x+BackwardMPGDEndcapHits.position.y*BackwardMPGDEndcapHits.position.y),BackwardMPGDEndcapHits.position.z))/2))>>hits_bwd_mpgd";
-   TString B0_hits = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(B0TrackerHits.position.x*B0TrackerHits.position.x+B0TrackerHits.position.y*B0TrackerHits.position.y),B0TrackerHits.position.z))/2))>>hits_b0tracker";
+   TString vtx_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(VertexBarrelHits.position.x*VertexBarrelHits.position.x+VertexBarrelHits.position.y*VertexBarrelHits.position.y),VertexBarrelHits.position.z))/2))>>hits_vtx_si";
+   TString Barrel_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(SiBarrelHits.position.x*SiBarrelHits.position.x+SiBarrelHits.position.y*SiBarrelHits.position.y),SiBarrelHits.position.z))/2))>>hits_barrel_si";
+   TString BMM_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(MPGDBarrelHits.position.x*MPGDBarrelHits.position.x+MPGDBarrelHits.position.y*MPGDBarrelHits.position.y),MPGDBarrelHits.position.z))/2))>>hits_barrel_mpgd_in";
+   TString ToF_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TOFBarrelHits.position.x*TOFBarrelHits.position.x+TOFBarrelHits.position.y*TOFBarrelHits.position.y),TOFBarrelHits.position.z))/2))>>hits_barrel_tof";
+   TString ETracker_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TrackerEndcapHits.position.x*TrackerEndcapHits.position.x+TrackerEndcapHits.position.y*TrackerEndcapHits.position.y),TrackerEndcapHits.position.z))/2))>>hits_disks_si";
+   TString ETOF_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(TOFEndcapHits.position.x*TOFEndcapHits.position.x+TOFEndcapHits.position.y*TOFEndcapHits.position.y),TOFEndcapHits.position.z))/2))>>hits_endcap_tof";
+   TString OutBMM_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(OuterMPGDBarrelHits.position.x*OuterMPGDBarrelHits.position.x+OuterMPGDBarrelHits.position.y*OuterMPGDBarrelHits.position.y),OuterMPGDBarrelHits.position.z))/2))>>hits_barrel_mpgd_out";
+   TString FwdMM_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(ForwardMPGDEndcapHits.position.x*ForwardMPGDEndcapHits.position.x+ForwardMPGDEndcapHits.position.y*ForwardMPGDEndcapHits.position.y),ForwardMPGDEndcapHits.position.z))/2))>>hits_fwd_mpgd";
+   TString BwdMM_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(BackwardMPGDEndcapHits.position.x*BackwardMPGDEndcapHits.position.x+BackwardMPGDEndcapHits.position.y*BackwardMPGDEndcapHits.position.y),BackwardMPGDEndcapHits.position.z))/2))>>hits_bwd_mpgd";
+   TString B0_hits_eta = "-TMath::Log(TMath::Tan((TMath::ATan2(sqrt(B0TrackerHits.position.x*B0TrackerHits.position.x+B0TrackerHits.position.y*B0TrackerHits.position.y),B0TrackerHits.position.z))/2))>>hits_b0tracker";
 
-   tree->Draw(vtx_hits.Data(),"VertexBarrelHits.position.y>0","goff"); // Vtx layers
-   tree->Draw(Barrel_hits.Data(),"SiBarrelHits.position.y>0 ","goff"); // Barrel Si layers
-   tree->Draw(BMM_hits.Data(),"MPGDBarrelHits.position.y>0 ","goff"); // MPGD Barrel
-   tree->Draw(ToF_hits.Data(),"TOFBarrelHits.position.y>0","goff"); // TOF Hits
-   tree->Draw(ETracker_hits.Data(),"TrackerEndcapHits.position.y>0","goff"); // Tracker Endcap
-   tree->Draw(ETOF_hits.Data(),"TOFEndcapHits.position.y>0","goff"); // TOF Endcap
-   tree->Draw(OutBMM_hits.Data(),"OuterMPGDBarrelHits.position.y>0","goff"); // Outer Barrel MPGD
-   tree->Draw(FwdMM_hits.Data(),"ForwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
-   tree->Draw(BwdMM_hits.Data(),"BackwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
-   tree->Draw(B0_hits.Data(),"B0TrackerHits.position.y>0","goff"); // B0 Tracker
+   tree->Draw(vtx_hits_eta.Data(),"VertexBarrelHits.position.y>0","goff"); // Vtx layers
+   tree->Draw(Barrel_hits_eta.Data(),"SiBarrelHits.position.y>0 ","goff"); // Barrel Si layers
+   tree->Draw(BMM_hits_eta.Data(),"MPGDBarrelHits.position.y>0 ","goff"); // MPGD Barrel
+   tree->Draw(ToF_hits_eta.Data(),"TOFBarrelHits.position.y>0","goff"); // TOF Hits
+   tree->Draw(ETracker_hits_eta.Data(),"TrackerEndcapHits.position.y>0","goff"); // Tracker Endcap
+   tree->Draw(ETOF_hits_eta.Data(),"TOFEndcapHits.position.y>0","goff"); // TOF Endcap
+   tree->Draw(OutBMM_hits_eta.Data(),"OuterMPGDBarrelHits.position.y>0","goff"); // Outer Barrel MPGD
+   tree->Draw(FwdMM_hits_eta.Data(),"ForwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
+   tree->Draw(BwdMM_hits_eta.Data(),"BackwardMPGDEndcapHits.position.y>0","goff"); // Forward MPGD
+   tree->Draw(B0_hits_eta.Data(),"B0TrackerHits.position.y>0","goff"); // B0 Tracker
   
    c1->cd();
    c1->SetLogy();
