@@ -134,7 +134,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
 
   // loop over charged particles ********************************************
   m_log->trace("{:#<70}","### CHARGED PARTICLES ");
-  std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->second;
+  std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->first;
   for(long i_charged_particle=0; i_charged_particle<num_charged_particles; i_charged_particle++) {
     m_log->trace("{:-<70}", fmt::format("--- charged particle #{} ", i_charged_particle));
 
