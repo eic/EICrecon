@@ -303,7 +303,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - build
-    - ddsim-gun
+    - npsim-gun
     strategy:
       matrix:
         CC: [gcc]
