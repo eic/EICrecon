@@ -28,7 +28,10 @@ void draw_hits()
  // Timer Start
   TStopwatch timer;
   timer.Start();
-  
+  	
+  TCanvas *c1 = new TCanvas("c1","c1",1200,1000);
+  c1->SetMargin(0.09, 0.03 ,0.1,0.06);
+   
  // X-Y Hits
   Int_t nbins = 320;
   Double_t x= 100., y = 100.; 
@@ -50,9 +53,6 @@ void draw_hits()
 	sim->Draw(tof_barrel_hitsXY.Data(),"","");
 	sim->Draw(barrel_mpgd_out_hitsXY.Data(),"",""); 
 	
-	TCanvas * c1 = new TCanvas("c1","coutput",1200,1000);
-        c1->SetMargin(0.09, 0.03 ,0.1,0.06);
-        c1->cd();
 	hitsxy_vtx_si->SetMarkerStyle(31);
 	hitsxy_vtx_si->SetTitle("Hit Points (XY)");
 	hitsxy_vtx_si->SetMarkerColor(kBlack);
@@ -80,6 +80,7 @@ void draw_hits()
 	hitsxy_barrel_mm_out->SetMarkerSize(0.1);
 	hitsxy_barrel_mm_out->SetMarkerColor(kBlue-7);
 	hitsxy_barrel_mm_out->SetLineColor(kBlue-7);
+	c1->cd();
         hitsxy_vtx_si->Draw();
         hitsxy_barrel_si->Draw("same");
         hitsxy_barrel_mm_in->Draw("same");
@@ -97,6 +98,8 @@ void draw_hits()
  l->Draw();
  c1->SaveAs("hitsxy_dd4hep.png");
  
+  TCanvas *c2 = new TCanvas("c2","c2",1200,1000);
+  c2->SetMargin(0.09, 0.03 ,0.1,0.06);
  // Y-Z Hits
  Int_t nbinsx = 400, nbinsy=1800.;
  x= 200.; y = 90.; 
@@ -179,10 +182,8 @@ void draw_hits()
         sim->Draw(fwd_mpgd_hitsrz_negR.Data(),"ForwardMPGDEndcapHits.position.y<0","");
 	sim->Draw(bwd_mpgd_hitsrz_negR.Data(),"BackwardMPGDEndcapHits.position.y<0","");
 
-  TCanvas * c2 = new TCanvas("c2","coutput",1200,1000);
-  c2->SetMargin(0.09, 0.03 ,0.1,0.06);
-  c2->cd();
-         hitsrz_vtx_si->SetMarkerStyle(31);
+     
+        hitsrz_vtx_si->SetMarkerStyle(31);
 	hitsrz_vtx_si->SetTitle("");
 	hitsrz_vtx_si->SetMarkerSize(0.1);
 	hitsrz_vtx_si->SetLineColor(kBlack);
@@ -262,6 +263,7 @@ void draw_hits()
 	hitsrz_bwd_mpgd_1->SetLineColor(kOrange);
 	hitsrz_bwd_mpgd_1->SetMarkerColor(kOrange);		
 
+     c2->cd();
  	hitsrz_vtx_si->Draw(); 
 	hitsrz_vtx_si_1->Draw("same");	
 	hitsrz_barrel_si->Draw("same");
@@ -281,20 +283,20 @@ void draw_hits()
 	hitsrz_bwd_mpgd->Draw("same");
 	hitsrz_bwd_mpgd_1->Draw("same");																	  
   
-  l= new TLegend(0.11,0.88,0.95,0.99);
-  l->SetNColumns(3);
-  l->SetTextSize(0.025);
-  l->SetBorderSize(0);
-  l->AddEntry(hitsrz_vtx_si,"VertexBarrelHits");
-  l->AddEntry(hitsrz_barrel_si,"SiBarrelHits");
-  l->AddEntry(hitsrz_barrel_mm_in,"MPGDBarrelHits");
-  l->AddEntry(hitsrz_barrel_tof,"TOFBarrelHits");
-  l->AddEntry(hitsrz_barrel_mm_out,"OuterMPGDBarrelHits");
-  l->AddEntry(hitsrz_disks_si,"TrackerEndcapHits");
-  l->AddEntry(hitsrz_endcap_tof,"TOFEndcapHits");
-  l->AddEntry(hitsrz_fwd_mpgd,"ForwardMPGDEndcapHits");
-  l->AddEntry(hitsrz_bwd_mpgd,"BackwardMPGDEndcapHits");
-  l->Draw();
+  TLegend *l1= new TLegend(0.11,0.88,0.95,0.99);
+  l1->SetNColumns(3);
+  l1->SetTextSize(0.025);
+  l1->SetBorderSize(0);
+  l1->AddEntry(hitsrz_vtx_si,"VertexBarrelHits");
+  l1->AddEntry(hitsrz_barrel_si,"SiBarrelHits");
+  l1->AddEntry(hitsrz_barrel_mm_in,"MPGDBarrelHits");
+  l1->AddEntry(hitsrz_barrel_tof,"TOFBarrelHits");
+  l1->AddEntry(hitsrz_barrel_mm_out,"OuterMPGDBarrelHits");
+  l1->AddEntry(hitsrz_disks_si,"TrackerEndcapHits");
+  l1->AddEntry(hitsrz_endcap_tof,"TOFEndcapHits");
+  l1->AddEntry(hitsrz_fwd_mpgd,"ForwardMPGDEndcapHits");
+  l1->AddEntry(hitsrz_bwd_mpgd,"BackwardMPGDEndcapHits");
+  l1->Draw();
   
   c2->SaveAs("hitsrz_dd4hep.png");
  // Timer Stop     
