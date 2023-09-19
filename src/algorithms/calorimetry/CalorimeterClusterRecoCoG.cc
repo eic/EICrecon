@@ -15,7 +15,7 @@
 #include <Eigen/Dense>
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
 
 #include "CalorimeterClusterRecoCoG.h"
 
