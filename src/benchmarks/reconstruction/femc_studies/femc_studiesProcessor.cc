@@ -34,14 +34,6 @@
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
 
-// The following just makes this a JANA plugin
-extern "C" {
-  void InitPlugin(JApplication* app) {
-    InitJANAPlugin(app);
-    app->Add(new femc_studiesProcessor());
-  }
-}
-
 
 //******************************************************************************************//
 // InitWithGlobalRootLock
