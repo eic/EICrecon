@@ -118,44 +118,53 @@ jobs:
       with:
         fetch-depth: ${{ env.FETCH_DEPTH }}
     - uses: cvmfs-contrib/github-action-cvmfs@v3
-    - uses: actions/download-artifact@v3
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
       with:
         name: build-clang-eic-shell-Debug
         path: build/
-    - uses: eic/run-cvmfs-osg-eic-shell@main
+    - name: Run clang-tidy on changed files
+      uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
           git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
-    - uses: eic/run-cvmfs-osg-eic-shell@main
+    - name: Run clang-tidy on all files
+      uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17'
-    - uses: actions/upload-artifact@v3
+    - name: Upload clang-tidy fixes as artifact
+      uses: actions/upload-artifact@v3
       with:
         name: clang-tidy-fixes.yml
         path: clang_tidy_fixes.yml
         if-no-files-found: ignore
-    - uses: platisd/clang-tidy-pr-comments@1.4.0
+    - name: Suggest clang-tidy fixes as PR comments
+      uses: platisd/clang-tidy-pr-comments@1.4.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         clang_tidy_fixes: clang_tidy_fixes.yml
         request_changes: true
         suggestions_per_comment: 10
-    - uses: eic/run-cvmfs-osg-eic-shell@main
+    - name: Run include-what-you-use (iwyu)
+      uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
         run: |
           iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.base.sha}}) -- -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
           fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
-    - uses: actions/upload-artifact@v3
+    - name: Upload iwyu log as artifact 
+      uses: actions/upload-artifact@v3
       with:
         name: iwyu_fixes.log
         path: iwyu_fixes.log
+    - name: Fail when iwyu suggested changes
+      run: git diff
 
   llvm-cov:
     runs-on: ubuntu-latest
