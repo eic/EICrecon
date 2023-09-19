@@ -150,7 +150,8 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.base.sha}}) -- -Xiwyu --no_comments -Xiwyu --cxx17ns > iwyu_fixes.log
+          iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.base.sha}}) -- -Xiwyu --no_comments -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
+          fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
     - uses: actions/upload-artifact@v3
       with:
         name: iwyu_fixes.log
