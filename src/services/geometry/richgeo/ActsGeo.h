@@ -4,19 +4,15 @@
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
-#include <string>
-#include <functional>
-#include <spdlog/spdlog.h>
-
 // DD4Hep
 #include <DD4hep/Detector.h>
-#include <DD4hep/DD4hepUnits.h>
-
 // data model
 #include <edm4eic/TrackPoint.h>
-
-// local
-#include "RichGeo.h"
+#include <spdlog/logger.h>
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
 // Forward declarations
 namespace Acts {

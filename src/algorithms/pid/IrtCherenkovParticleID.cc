@@ -3,6 +3,33 @@
 
 #include "IrtCherenkovParticleID.h"
 
+#include <ChargedParticle.h>
+#include <CherenkovDetectorCollection.h>
+#include <CherenkovPID.h>
+#include <CherenkovRadiator.h>
+#include <OpticalPhoton.h>
+#include <RadiatorHistory.h>
+#include <SinglePDF.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <exception>
+#include <functional>
+#include <set>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID::AlgorithmInit(

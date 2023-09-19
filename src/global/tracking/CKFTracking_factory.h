@@ -4,15 +4,19 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
+#include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "ActsExamples/EventData/Trajectories.hpp"
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

@@ -3,13 +3,22 @@
 
 #pragma once
 
-#include <spdlog/logger.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainMultifactoryT.h>
+#include <JANA/JEvent.h>
 // event data model definitions
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <extensions/jana/JChainMultifactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
 // necessary algorithms
 #include "algorithms/reco/JetReconstruction.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 
 

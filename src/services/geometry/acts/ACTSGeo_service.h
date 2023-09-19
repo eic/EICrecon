@@ -3,10 +3,12 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
-
-#include <DD4hep/Detector.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <mutex>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
 

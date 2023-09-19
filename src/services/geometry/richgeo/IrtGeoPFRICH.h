@@ -4,6 +4,13 @@
 // bind IRT and DD4hep geometries for the pfRICH
 #pragma once
 
+#include <CherenkovPhotonDetector.h>
+#include <DD4hep/Detector.h>
+#include <ParametricSurface.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <string>
+
 #include "IrtGeo.h"
 
 namespace richgeo {

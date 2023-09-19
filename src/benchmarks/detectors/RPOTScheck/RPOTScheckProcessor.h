@@ -3,14 +3,19 @@
 // Template for this file generated with eicmkplugin.py
 //
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
-
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <string>
 
 
 class RPOTScheckProcessor: public JEventProcessorSequentialRoot {

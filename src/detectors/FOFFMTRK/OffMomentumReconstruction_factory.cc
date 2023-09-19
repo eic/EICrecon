@@ -2,10 +2,21 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/VolumeManager.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <cmath>
+#include <map>
+
 #include "OffMomentumReconstruction_factory.h"
 #include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
 

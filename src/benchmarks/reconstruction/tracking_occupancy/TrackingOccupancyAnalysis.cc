@@ -2,16 +2,17 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <edm4hep/SimTrackerHit.h>
-
 #include <JANA/JEvent.h>
-#include "TrackingOccupancyAnalysis.h"
-
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TDirectory.h>
-
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <math.h>
+#include <stddef.h>
+#include <algorithm>
+#include <map>
 #include <memory>
+
+#include "TrackingOccupancyAnalysis.h"
 
 
 void TrackingOccupancyAnalysis::init(JApplication *app, TDirectory *plugin_tdir) {

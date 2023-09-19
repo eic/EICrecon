@@ -1,8 +1,17 @@
 #include "TofEfficiency_processor.h"
-#include "services/rootfile/RootFile_service.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <TVector3.h>
+#include <JANA/JApplication.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <spdlog/logger.h>
+#include <cmath>
+#include <exception>
+#include <vector>
+
+#include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
 // InitWithGlobalRootLock

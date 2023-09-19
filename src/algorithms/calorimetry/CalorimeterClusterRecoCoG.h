@@ -11,16 +11,21 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cmath>
+#include <functional>
 #include <map>
-#include <spdlog/spdlog.h>
+#include <memory>
+#include <string>
+#include <utility>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterClusterRecoCoGConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
 static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }

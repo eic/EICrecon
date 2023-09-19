@@ -1,13 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Dmitry Kalinkin
 
-#include <limits>
-
+#include <Evaluator/DD4hepUnits.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
 #include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
+#include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
 
 using eicrecon::CalorimeterIslandCluster;
 using eicrecon::CalorimeterIslandClusterConfig;

@@ -4,16 +4,19 @@
 
 #include "TrackParamTruthInit.h"
 
-#include <memory>
-#include <vector>
-
 #include <Acts/Definitions/Units.hpp>
-
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-
-#include "extensions/spdlog/SpdlogFormatters.h"
+#include <TParticlePDG.h>
+#include <bits/std_abs.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <stdlib.h>
+#include <cmath>
+#include <exception>
+#include <limits>
+#include <memory>
+#include <utility>
 
 
 void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &logger) {

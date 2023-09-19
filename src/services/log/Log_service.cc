@@ -3,9 +3,12 @@
 //
 //
 #include "Log_service.h"
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include "extensions/spdlog/SpdlogExtensions.h"
+
 #include <JANA/JException.h>
+#include <spdlog/spdlog.h>
+#include <exception>
+
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 
 Log_service::Log_service(JApplication *app) {

@@ -4,13 +4,24 @@
 
 #include "TrackerSourceLinker_factory.h"
 
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <DDRec/CellIDPositionConverter.h>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <JANA/Services/JParameterManager.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <fmt/core.h>
+#include <exception>
+#include <map>
 
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "TrackerSourceLinker.h"
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
 

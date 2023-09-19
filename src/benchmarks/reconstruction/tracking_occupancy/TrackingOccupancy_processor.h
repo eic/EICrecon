@@ -1,15 +1,15 @@
 #pragma once
 
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <JANA/JEventProcessorSequentialRoot.h>
-
+#include <TH1.h>
+#include <TH2.h>
 #include <spdlog/fwd.h>
+#include <memory>
 
-#include "TrackingOccupancyAnalysis.h"
 #include "HitReconstructionAnalysis.h"
-
-class JEvent;
-class JApplication;
+#include "TrackingOccupancyAnalysis.h"
 
 class TrackingOccupancy_processor:public JEventProcessor
 {

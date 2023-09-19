@@ -4,27 +4,21 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <fmt/format.h>
-#include <spdlog/spdlog.h>
-
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
-#include "services/geometry/dd4hep/JDD4hep_service.h"
-
-// Event Model related classes
-#include <edm4eic/MutableReconstructedParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/vector_utils.h>
-#include <edm4hep/SimTrackerHit.h>
-
-#include "extensions/jana/JChainFactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 namespace eicrecon {
 

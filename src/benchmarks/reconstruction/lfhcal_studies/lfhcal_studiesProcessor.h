@@ -4,17 +4,17 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <JANA/JEventProcessorSequentialRoot.h>
-#include <DDSegmentation/BitFieldCoder.h>
-#include <TH2D.h>
-#include <TH3D.h>
-#include <TFile.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <Parsers/Primitives.h>
+#include <TDirectory.h>
+#include <TH2.h>
+#include <TH3.h>
 #include <TTree.h>
-
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "algorithms/tracking/TrackPropagation.h"
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <string>
 
 class lfhcal_studiesProcessor: public JEventProcessor {
 public:

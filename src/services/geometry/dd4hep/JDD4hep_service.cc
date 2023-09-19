@@ -3,16 +3,21 @@
 //
 //
 
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <filesystem>
+#include <JANA/JException.h>
+#include <JANA/JLogger.h>
+#include <Parsers/Printout.h>
 #include <fmt/color.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
 
 #include "JDD4hep_service.h"
-
-#include <DD4hep/Printout.h>
 
 //----------------------------------------------------------------
 // destructor

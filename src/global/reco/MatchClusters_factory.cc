@@ -2,19 +2,19 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <memory>
-
 #include <JANA/JEvent.h>
-
-#include <spdlog/spdlog.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <map>
+#include <memory>
+#include <stdexcept>
 
 #include "MatchClusters_factory.h"
-
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 
 namespace eicrecon {

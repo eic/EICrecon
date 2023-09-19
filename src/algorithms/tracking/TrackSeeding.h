@@ -4,26 +4,25 @@
 
 #pragma once
 
-#include <cstddef> // FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
-#include <vector>
+// FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
+#include <cstddef> // IWYU pragma: keep
 
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
-
-#include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-
+#include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
-#include "OrthogonalTrackSeedingConfig.h"
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
+#include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {

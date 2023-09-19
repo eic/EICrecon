@@ -4,12 +4,24 @@
 
 #include "CKFTracking_factory.h"
 
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
+#include <JANA/JException.h>
+#include <boost/container/vector.hpp>
 #include <edm4eic/TrackParametersCollection.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <functional>
+#include <map>
 
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "CKFTracking.h"
+#include "CKFTrackingConfig.h"
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 

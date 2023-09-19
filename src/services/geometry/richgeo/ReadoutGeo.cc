@@ -5,6 +5,27 @@
 
 #include "ReadoutGeo.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/Fields.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TGeoMatrix.h>
+#include <bits/std_abs.h>
+#include <ctype.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <map>
+#include <type_traits>
+
+#include "services/geometry/richgeo/RichGeo.h"
+
 // constructor
 richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
   : m_detName(detName_), m_det(det_), m_log(log_)

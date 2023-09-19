@@ -3,18 +3,22 @@
 
 #pragma once
 
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include <Acts/Surfaces/Surface.hpp>
+#include <JANA/JEvent.h>
 #include <algorithms/tracking/TrackPropagation.h>
-#include <spdlog/logger.h>
-
 #include <edm4eic/TrackSegmentCollection.h>
+#include <extensions/jana/JChainMultifactoryT.h>
+#include <extensions/spdlog/SpdlogMixin.h>
+#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
-// Forward declarations
-namespace Acts {
-    class Surface;
-}
+#include "extensions/jana/JChainFactoryT.h"
 
 namespace eicrecon {
 

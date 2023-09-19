@@ -4,13 +4,21 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-#include "extensions/jana/JChainFactoryT.h"
+#include <JANA/JEvent.h>
+#include <JANA/JFactoryT.h>
+#include <spdlog/logger.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "TrackerSourceLinkerResult.h"
 #include "algorithms/tracking/TrackerSourceLinker.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 namespace eicrecon {
-
-    class TrackerSourceLinker;
 
     class TrackerSourceLinker_factory : public JChainFactoryT<TrackerSourceLinkerResult, NoConfig, JFactoryT> {
 

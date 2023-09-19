@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-
-#include <JANA/JApplication.h>
-#include <JANA/Services/JServiceLocator.h>
-
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <JANA/JApplication.h>
+#include <JANA/Services/JServiceLocator.h>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <vector>
 
 class JDD4hep_service : public JService
 {

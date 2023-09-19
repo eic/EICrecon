@@ -3,6 +3,13 @@
 
 #include "MergeTracks.h"
 
+#include <edm4eic/TrackPoint.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::MergeTracks::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)

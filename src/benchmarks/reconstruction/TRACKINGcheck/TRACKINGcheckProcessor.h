@@ -3,11 +3,17 @@
 // Template for this file generated with eicmkplugin.py
 //
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <string>
 
-#include <edm4hep/MCParticle.h>
 #include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 
 

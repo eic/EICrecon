@@ -4,11 +4,13 @@
 
 #pragma once
 
-#include <vector>
-#include <TH1F.h>
-#include <TH3F.h>
-#include <TH2F.h>
 #include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 class TrackingOccupancyAnalysis {
 

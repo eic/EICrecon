@@ -3,27 +3,26 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
-
-// data model
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociation.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/digi/PhotoMultiplierHitDigi.h"
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-
+// JANA
+#include "extensions/jana/JChainMultifactoryT.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
 
 namespace eicrecon {
-
-    class PhotoMultiplierHitDigi;
 
     class PhotoMultiplierHitDigi_factory :
             public JChainMultifactoryT<PhotoMultiplierHitDigiConfig>,

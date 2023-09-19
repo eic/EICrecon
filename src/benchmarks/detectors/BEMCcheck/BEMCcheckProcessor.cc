@@ -4,9 +4,15 @@
 //
 
 #include "BEMCcheckProcessor.h"
-#include "services/rootfile/RootFile_service.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <TDirectory.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
+#include <vector>
+
+#include "services/rootfile/RootFile_service.h"
 
 // The following just makes this a JANA plugin
 extern "C" {

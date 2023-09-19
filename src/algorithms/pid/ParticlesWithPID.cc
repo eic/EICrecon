@@ -3,8 +3,30 @@
 
 #include "ParticlesWithPID.h"
 
-#include <edm4eic/vector_utils.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <bits/std_abs.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils_legacy.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <limits>
+#include <map>
+#include <mutex>
+
+#include "algorithms/pid/ConvertParticleID.h"
+#include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "algorithms/pid/Tools.h"
 
 
 

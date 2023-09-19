@@ -2,12 +2,15 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <map>
 
-#include <edm4eic/TrackParametersCollection.h>
-
+#include "TrackSeeding.h"
 #include "TrackSeeding_factory.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {

@@ -3,15 +3,15 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <memory>
 
 #include "TrackerHitReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
 
 namespace eicrecon {
 

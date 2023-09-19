@@ -3,10 +3,13 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <string>
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 
 extern "C" {

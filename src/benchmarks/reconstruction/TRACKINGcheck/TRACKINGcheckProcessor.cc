@@ -4,10 +4,15 @@
 //
 
 #include "TRACKINGcheckProcessor.h"
-#include "services/rootfile/RootFile_service.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <TVector3.h>
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <JANA/JApplication.h>
+#include <TDirectory.h>
+#include <Eigen/Core>
+#include <vector>
+
+#include "services/rootfile/RootFile_service.h"
 
 // The following just makes this a JANA plugin
 extern "C" {

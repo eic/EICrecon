@@ -1,23 +1,28 @@
 // Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
-#include "extensions/jana/JChainFactoryGeneratorT.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
-// factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "global/pid/RichTrack_factory.h"
-#include "global/pid/MergeTrack_factory.h"
-#include "global/pid/IrtCherenkovParticleID_factory.h"
-#include "global/pid/MergeCherenkovParticleID_factory.h"
+#include <algorithm>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "global/pid/RichTrackConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+// factories
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "global/pid/IrtCherenkovParticleID_factory.h"
+#include "global/pid/MergeCherenkovParticleID_factory.h"
+#include "global/pid/MergeTrack_factory.h"
+#include "global/pid/RichTrackConfig.h"
+#include "global/pid/RichTrack_factory.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

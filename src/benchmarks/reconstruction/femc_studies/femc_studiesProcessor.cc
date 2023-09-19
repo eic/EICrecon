@@ -5,34 +5,39 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "femc_studiesProcessor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/rootfile/RootFile_service.h"
-#include <spdlog/spdlog.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/log/Log_service.h"
-#include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <DDRec/CellIDPositionConverter.h>
-
-// Include appropriate class headers. e.g.
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/vector_utils.h>
-
+#include <DDSegmentation/BitFieldCoder.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TVector3.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <RtypesCore.h>
+#include <TMath.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <iostream>
+#include <limits>
+#include <map>
+#include <stdexcept>
+#include <vector>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 // The following just makes this a JANA plugin
 extern "C" {

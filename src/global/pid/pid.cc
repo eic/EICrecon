@@ -3,13 +3,14 @@
 
 
 #include <JANA/JApplication.h>
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
-// factories
-#include "global/pid/ParticlesWithPID_factory.h"
+#include <string>
 
 // algorithm configurations
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+// factories
+#include "global/pid/ParticlesWithPID_factory.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

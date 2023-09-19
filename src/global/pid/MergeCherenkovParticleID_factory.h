@@ -5,21 +5,27 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainFactoryT.h"
-
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
 // data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/pid/MergeParticleID.h"
-
+#include "algorithms/pid/MergeParticleIDConfig.h"
+// JANA
+#include "extensions/jana/JChainFactoryT.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
-
-  class MergeParticleID;
 
   class MergeCherenkovParticleID_factory :
     public JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>,

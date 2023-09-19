@@ -5,11 +5,16 @@
 
 #include "ACTSGeo_service.h"
 
+#include <JANA/JException.h>
+#include <fmt/core.h>
+#include <exception>
+#include <stdexcept>
+#include <string>
+
+#include "ActsGeometryProvider.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/dd4hep/JDD4hep_service.h"
 #include "services/log/Log_service.h"
-
-#include <JANA/JException.h>
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit

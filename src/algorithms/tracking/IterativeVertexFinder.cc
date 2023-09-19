@@ -5,32 +5,36 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/EventData/Charge.hpp>
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/VertexFinderConcept.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-
 #include <edm4eic/Cov3f.h>
-#include <edm4eic/Vertex.h>
-
-#include "extensions/spdlog/SpdlogFormatters.h"
-#include "extensions/spdlog/SpdlogToActs.h"
-
-#include <TDatabasePDG.h>
+#include <math.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
+#include <array>
+#include <optional>
 #include <tuple>
+#include <utility>
+#include <variant>
+
+#include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {

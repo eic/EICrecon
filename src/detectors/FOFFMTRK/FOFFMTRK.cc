@@ -4,12 +4,13 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
+#include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
+#include <string>
+#include <vector>
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
 #include "factories/fardetectors/MatrixTransferStatic_factoryT.h"
-#include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
+#include "services/io/podio/JFactoryPodioT.h"
 
 
 extern "C" {

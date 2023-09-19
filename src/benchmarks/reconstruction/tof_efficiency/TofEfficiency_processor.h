@@ -3,16 +3,22 @@
 // Template for this file generated with eicmkplugin.py
 //
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
-#include <TNtuple.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TDirectory.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
+#include <TNtuple.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <string>
 
-#include "algorithms/tracking/TrackProjector.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackSegment.h>
-#include <edm4eic/TrackerHit.h>
 
 
 class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin  {

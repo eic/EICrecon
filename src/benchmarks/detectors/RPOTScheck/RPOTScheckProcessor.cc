@@ -4,10 +4,16 @@
 //
 
 #include "RPOTScheckProcessor.h"
-#include "services/rootfile/RootFile_service.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <TDirectory.h>
 #include <TVector3.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <vector>
+
+#include "services/rootfile/RootFile_service.h"
 
 // The following just makes this a JANA plugin
 extern "C" {

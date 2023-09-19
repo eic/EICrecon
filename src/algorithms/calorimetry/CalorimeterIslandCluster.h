@@ -3,19 +3,26 @@
 
 #pragma once
 
-#include <memory>
-
 #include <DD4hep/Detector.h>
-#include <Evaluator/DD4hepUnits.h>
-
-#include <edm4hep/Vector2f.h>
+#include <DD4hep/IDDescriptor.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <spdlog/spdlog.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <set>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterIslandClusterConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
