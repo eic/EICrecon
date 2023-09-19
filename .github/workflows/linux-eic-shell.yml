@@ -129,7 +129,7 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          git diff ${{github.event.pull_request.base.sha}} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
+          git diff ${{github.event.pull_request.base.sha}} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
@@ -151,20 +151,30 @@ jobs:
         clang_tidy_fixes: clang_tidy_fixes.yml
         request_changes: true
         suggestions_per_comment: 10
-    - name: Run include-what-you-use (iwyu)
+    - name: Run include-what-you-use (iwyu) on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
+      if: ${{ github.event_name == 'pull_request' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.base.sha}}) -- -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
+          iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.head.sha}} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
+          fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
+    - name: Run include-what-you-use (iwyu) on all files
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: ${{ github.event_name == 'push' }}
+      with:
+        platform-release: "jug_xl:nightly"
+        run: |
+          iwyu_tool -p build -- -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
           fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
     - name: Upload iwyu log as artifact
       uses: actions/upload-artifact@v3
       with:
         name: iwyu_fixes.log
         path: iwyu_fixes.log
-    - name: Fail when iwyu suggested changes
-      run: git diff
+    - name: Fail when iwyu suggested changes to pull request
+      if: ${{ github.event_name == 'pull_request' }}
+      run: git diff --exit-code
 
   llvm-cov:
     runs-on: ubuntu-latest
