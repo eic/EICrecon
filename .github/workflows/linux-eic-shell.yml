@@ -649,7 +649,6 @@ jobs:
           branch: main
           path: publishing_docs/
           name: docs
-          workflow_conclusion: "completed"
           if_no_artifact_found: fail
       - uses: actions/download-artifact@v3
         if: github.ref_name == 'main'
