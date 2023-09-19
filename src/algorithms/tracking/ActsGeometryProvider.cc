@@ -1,31 +1,52 @@
 // Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include <fmt/ostream.h>
-
-#include "ActsGeometryProvider.h"
-
-#include <TGeoManager.h>
-
-#include <DD4hep/Printout.h>
-
-#include "ActsExamples/Geometry/MaterialWiper.hpp"
-
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
+#include <Acts/Geometry/detail/DefaultDetectorElementBase.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
-#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
+#include <Acts/Surfaces/PlanarBounds.hpp>
+#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/SurfaceArray.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Utilities/BinningType.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/VolumeManager.h>
+#include <Eigen/src/Core/Assign.h>
+#include <Eigen/src/Core/GeneralProduct.h>
+#include <Eigen/src/Core/IO.h>
+#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/src/Core/Transpose.h>
+#include <JANA/JException.h>
+#include <TGeoManager.h>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <sys/types.h>
+#include <exception>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <type_traits>
+#include <vector>
 
+#include "ActsExamples/Geometry/MaterialWiper.hpp"
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
+#include "src/Core/DenseBase.h"
+
+namespace Eigen { template <typename Derived> class MatrixBase; }
 
 // Formatter for Eigen matrices
 #if FMT_VERSION >= 90000
-#include <Eigen/Core>
 template <typename T>
 struct fmt::formatter<
     T,

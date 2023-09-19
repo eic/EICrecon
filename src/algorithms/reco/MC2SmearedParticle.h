@@ -3,11 +3,14 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
 
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 
+
+#include <memory>
+
+namespace edm4eic { class ReconstructedParticleCollection; }
+namespace edm4hep { class MCParticleCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

@@ -9,14 +9,14 @@
 
 #pragma once
 
-#include <cstddef>
-#include <algorithm>
 
-// data model
-#include <edm4eic/TrackSegmentCollection.h>
 
-// EICrecon
-#include <spdlog/spdlog.h>
+
+#include <memory>
+#include <vector>
+
+namespace edm4eic { class TrackSegmentCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

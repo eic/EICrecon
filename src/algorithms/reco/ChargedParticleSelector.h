@@ -5,8 +5,8 @@
 
 #include <memory>
 
-#include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
+namespace edm4hep { class MCParticleCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

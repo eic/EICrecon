@@ -3,26 +3,24 @@
 
 #pragma once
 
-// data model
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
-
-// IRT
-#include <IRT/CherenkovRadiator.h>
-#include <IRT/CherenkovEvent.h>
-#include <IRT/CherenkovDetectorCollection.h>
-
-// DD4hep
-#include <Evaluator/DD4hepUnits.h>
+#include <stdint.h>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 // EICrecon
 #include "IrtCherenkovParticleIDConfig.h"
-#include "Tools.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include <spdlog/spdlog.h>
+
+class CherenkovDetector;
+class CherenkovDetectorCollection;
+class CherenkovRadiator;
+namespace edm4eic { class CherenkovParticleIDCollection; }
+namespace edm4eic { class MCRecoTrackerHitAssociationCollection; }
+namespace edm4eic { class RawTrackerHitCollection; }
+namespace edm4eic { class TrackSegmentCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

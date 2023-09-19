@@ -5,25 +5,26 @@
 // 1. Match clusters to their tracks using the mcID field
 // 2. For unmatched clusters create neutrals and add to the particle list
 
-#include <algorithm>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MutableMCRecoParticleAssociation.h>
+#include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <cmath>
-#include <vector>
+#include <exception>
 #include <map>
-
-#include <spdlog/spdlog.h>
-#include <fmt/format.h>
+#include <vector>
 
 #include "MatchClusters.h"
-
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/vector_utils.h>
 
 
 

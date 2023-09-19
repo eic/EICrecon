@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-
-#include <spdlog/logger.h>
+#include <memory>
+#include <random>
 
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#include <random>
-#include <TDatabasePDG.h>
+class TDatabasePDG;
+namespace edm4eic { class TrackParametersCollection; }
+namespace edm4hep { class MCParticleCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
     class TrackParamTruthInit: public WithPodConfig<TrackParamTruthInitConfig> {

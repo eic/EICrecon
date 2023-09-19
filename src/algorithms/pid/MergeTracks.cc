@@ -3,6 +3,17 @@
 
 #include "MergeTracks.h"
 
+#include <edm4eic/MutableTrackSegment.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::MergeTracks::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)

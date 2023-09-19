@@ -3,9 +3,22 @@
 
 #include "CalorimeterTruthClustering.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
+#include <DD4hep/config.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MutableProtoCluster.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <podio/ObjectID.h>
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <utility>
+
+namespace spdlog { class logger; }
 
 using namespace dd4hep;
 

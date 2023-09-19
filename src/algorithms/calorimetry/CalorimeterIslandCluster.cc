@@ -5,22 +5,27 @@
 //   https://cds.cern.ch/record/687345/files/note01_034.pdf
 //   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
 
-#include <vector>
-#include <set>
-
-#include <sstream>
-
+#include <DD4hep/Detector.h>
+#include <DD4hep/Readout.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-
-#include "CalorimeterIslandCluster.h"
-
+#include <bits/utility.h>
+#include <edm4eic/CalorimeterHitData.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "CalorimeterIslandCluster.h"
+#include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
 
 using namespace edm4eic;
 

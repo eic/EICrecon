@@ -5,32 +5,65 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/EventData/Charge.hpp>
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/EigenStepper.ipp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Propagator/Propagator.ipp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
+#include <Acts/Vertexing/FullBilloirVertexFitter.ipp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
+#include <Acts/Vertexing/HelicalTrackLinearizer.ipp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
+#include <Acts/Vertexing/ImpactPointEstimator.ipp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
+#include <Acts/Vertexing/IterativeVertexFinder.ipp>
 #include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/VertexFinderConcept.hpp>
+#include <Acts/Vertexing/Vertex.ipp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-
+#include <Acts/Vertexing/ZScanVertexFinder.ipp>
+#include <Eigen/src/Core/Assign.h>
+#include <Eigen/src/Core/AssignEvaluator.h>
+#include <Eigen/src/Core/CommaInitializer.h>
+#include <Eigen/src/Core/CwiseBinaryOp.h>
+#include <Eigen/src/Core/CwiseNullaryOp.h>
+#include <Eigen/src/Core/DenseCoeffsBase.h>
+#include <Eigen/src/Core/Dot.h>
+#include <Eigen/src/Core/GeneralProduct.h>
+#include <Eigen/src/Core/GenericPacketMath.h>
+#include <Eigen/src/Core/IO.h>
+#include <Eigen/src/Core/Redux.h>
+#include <Eigen/src/Core/SelfCwiseBinaryOp.h>
+#include <Eigen/src/Core/Transpose.h>
+#include <Eigen/src/Core/arch/SSE/PacketMath.h>
+#include <Eigen/src/Core/util/Memory.h>
+#include <Eigen/src/Geometry/OrthoMethods.h>
+#include <Eigen/src/LU/Determinant.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Vertex.h>
-
-#include "extensions/spdlog/SpdlogFormatters.h"
-#include "extensions/spdlog/SpdlogToActs.h"
-
-#include <TDatabasePDG.h>
+#include <math.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <array>
+#include <optional>
 #include <tuple>
+#include <utility>
+#include <variant>
+
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+#include "extensions/spdlog/SpdlogToActs.h"
+#include "src/Core/DenseBase.h"
+#include "src/Core/MatrixBase.h"
 
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {

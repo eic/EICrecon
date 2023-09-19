@@ -10,6 +10,34 @@
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <bits/utility.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitData.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
+
 namespace eicrecon {
 
 void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {

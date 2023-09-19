@@ -3,6 +3,25 @@
 
 #include "SiliconTrackerDigi.h"
 
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/MutableRawTrackerHit.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimTrackerHit.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <exception>
+#include <unordered_map>
+#include <utility>
+
+#include "algorithms/digi/SiliconTrackerDigiConfig.h"
+
 namespace eicrecon {
 
 void SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger) {

@@ -3,11 +3,14 @@
 
 #include "DD4hepBField.h"
 
-#include <cmath>
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/Definitions/Algebra.hpp>
-#include <DD4hep/DD4hepUnits.h>
+#include <Acts/Definitions/Units.hpp>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Fields.h>
 #include <DD4hep/Objects.h>
+#include <Eigen/src/Core/DenseCoeffsBase.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 
 namespace eicrecon::BField {
 

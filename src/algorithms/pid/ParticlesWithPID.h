@@ -4,24 +4,20 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <memory>
-#include <cstddef>
-
-#include <spdlog/spdlog.h>
-
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <memory>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "ParticlesWithPIDConfig.h"
-#include "ConvertParticleID.h"
-#include "Tools.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic { class CherenkovParticleIDCollection; }
+namespace edm4eic { class MutableReconstructedParticle; }
+namespace edm4eic { class TrajectoryCollection; }
+namespace edm4hep { class MCParticleCollection; }
+namespace spdlog { class logger; }
 
 
 namespace eicrecon {

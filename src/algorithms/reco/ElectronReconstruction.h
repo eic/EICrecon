@@ -3,17 +3,14 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
-#include <spdlog/spdlog.h>
-
-#include <edm4eic/vector_utils.h>
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+namespace edm4eic { class MCRecoClusterParticleAssociationCollection; }
+namespace edm4eic { class MCRecoParticleAssociationCollection; }
+namespace edm4eic { class ReconstructedParticleCollection; }
+namespace edm4hep { class MCParticleCollection; }
+namespace spdlog { class logger; }
 
 
 namespace eicrecon {

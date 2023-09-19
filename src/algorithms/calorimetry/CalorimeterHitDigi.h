@@ -13,17 +13,17 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <memory>
 #include <random>
 
-#include <DD4hep/Detector.h>
-
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
-#include <spdlog/spdlog.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep { class Detector; }
+namespace edm4hep { class RawCalorimeterHitCollection; }
+namespace edm4hep { class SimCalorimeterHitCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

@@ -3,9 +3,17 @@
 
 #include "MC2SmearedParticle.h"
 
-#include <cmath>
-#include <edm4eic/vector_utils.h>
+#include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <utility>
 
 
 void eicrecon::MC2SmearedParticle::init(std::shared_ptr<spdlog::logger> logger) {

@@ -2,6 +2,22 @@
 // Copyright (C) 2023 Daniel Brandenburg
 #include "ElectronReconstruction.h"
 
+#include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/MCParticle.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+
+namespace edm4hep { class MCParticleCollection; }
+
 namespace eicrecon {
 
   void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) {

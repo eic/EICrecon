@@ -7,9 +7,38 @@
 
 #include "CalorimeterHitReco.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
+#include <DD4hep/Shapes.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/Volumes.h>
+#include <DD4hep/config.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitData.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <spdlog/logger.h>
+#include <algorithm>
 #include <cctype>
+#include <exception>
+#include <functional>
+#include <map>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
 
 using namespace dd4hep;
 

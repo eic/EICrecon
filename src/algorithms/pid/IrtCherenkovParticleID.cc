@@ -3,6 +3,44 @@
 
 #include "IrtCherenkovParticleID.h"
 
+#include <ChargedParticle.h>
+#include <CherenkovDetector.h>
+#include <CherenkovDetectorCollection.h>
+#include <CherenkovPID.h>
+#include <CherenkovRadiator.h>
+#include <OpticalPhoton.h>
+#include <RadiatorHistory.h>
+#include <SinglePDF.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleIDData.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/MCRecoTrackerHitAssociation.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MutableCherenkovParticleID.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimTrackerHit.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <functional>
+#include <set>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID::AlgorithmInit(

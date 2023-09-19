@@ -5,15 +5,15 @@
 
 #pragma once
 
-// data model
-#include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
+#include <memory>
+#include <vector>
 
 // EICrecon
 #include "MergeParticleIDConfig.h"
-#include "Tools.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include <spdlog/spdlog.h>
+
+namespace edm4eic { class CherenkovParticleIDCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

@@ -4,26 +4,23 @@
 
 #pragma once
 
-#include <cstddef> // FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
-#include <vector>
-
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-
-#include <spdlog/logger.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "OrthogonalTrackSeedingConfig.h"
-
-#include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "SpacePoint.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+class ActsGeometryProvider;
+namespace edm4eic { class TrackParameters; }
+namespace edm4eic { class TrackerHit; }
+namespace eicrecon::BField { class DD4hepBField; }
+namespace spdlog { class logger; }
 
 
 namespace eicrecon {

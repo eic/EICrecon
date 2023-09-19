@@ -4,17 +4,16 @@
 #ifndef EICRECON_JETRECONSTRUCTION_H
 #define EICRECON_JETRECONSTRUCTION_H
 
-#include <vector>
-#include <spdlog/spdlog.h>
-#include <DD4hep/DD4hepUnits.h>
+#include <Evaluator/DD4hepUnits.h>
 // event data model definitions
 #include <edm4hep/utils/kinematics.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-// fastjet includes
-#include <fastjet/config.h>
-#include <fastjet/JetDefinition.hh>
 #include <fastjet/AreaDefinition.hh>
+#include <fastjet/JetDefinition.hh>
+#include <memory>
+#include <vector>
+
+namespace edm4eic { class ReconstructedParticleCollection; }
+namespace spdlog { class logger; }
 
 
 

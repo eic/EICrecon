@@ -7,22 +7,20 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <vector>
+#include <edm4eic/ReconstructedParticle.h>
+#include <stdint.h>
 #include <map>
+#include <memory>
+#include <tuple>
+#include <vector>
 
-#include <spdlog/spdlog.h>
-
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/vector_utils.h>
+namespace edm4eic { class Cluster; }
+namespace edm4eic { class MCRecoClusterParticleAssociation; }
+namespace edm4eic { class MCRecoParticleAssociation; }
+namespace edm4eic { class MCRecoParticleAssociationCollection; }
+namespace edm4eic { class ReconstructedParticleCollection; }
+namespace edm4hep { class MCParticle; }
+namespace spdlog { class logger; }
 
 
 namespace eicrecon {

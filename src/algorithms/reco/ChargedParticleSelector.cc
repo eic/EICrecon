@@ -3,6 +3,12 @@
 
 #include "ChargedParticleSelector.h"
 
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <utility>
+
+namespace spdlog { class logger; }
+
 namespace eicrecon {
 
   void ChargedParticleSelector::init(std::shared_ptr<spdlog::logger>& logger) {

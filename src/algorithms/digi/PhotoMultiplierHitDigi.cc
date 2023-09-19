@@ -15,6 +15,27 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
+#include <DDRec/CellIDPositionConverter.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <bits/std_abs.h>
+#include <edm4eic/MutableMCRecoTrackerHitAssociation.h>
+#include <edm4eic/MutableRawTrackerHit.h>
+#include <edm4eic/RawTrackerHitData.h>
+#include <edm4hep/SimTrackerHit.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <exception>
+#include <iterator>
+
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+
+namespace dd4hep { class Detector; }
+
 //------------------------
 // AlgorithmInit
 //------------------------

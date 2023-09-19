@@ -10,21 +10,16 @@
 
 #pragma once
 
-#include <algorithm>
-#include <bitset>
+#include <stdint.h>
 #include <memory>
-#include <tuple>
-#include <unordered_map>
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitsMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::rec { class CellIDPositionConverter; }
+namespace dd4hep { class Detector; }
+namespace edm4eic { class CalorimeterHitCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

@@ -3,6 +3,25 @@
 
 #include "MergeParticleID.h"
 
+#include <edm4eic/CherenkovParticleID.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleIDData.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/MutableCherenkovParticleID.h>
+#include <edm4eic/TrackSegment.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <exception>
+#include <stdexcept>
+#include <unordered_map>
+#include <utility>
+
+#include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::MergeParticleID::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)

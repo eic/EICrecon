@@ -8,16 +8,21 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
+#include <DD4hep/DetElement.h>
+#include <Parsers/Primitives.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <memory>
 
-#include <edm4hep/RawCalorimeterHitCollection.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitRecoConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::DDSegmentation { class BitFieldCoder; }
+namespace dd4hep::rec { class CellIDPositionConverter; }
+namespace dd4hep { class Detector; }
+namespace edm4eic { class CalorimeterHitCollection; }
+namespace edm4hep { class RawCalorimeterHitCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

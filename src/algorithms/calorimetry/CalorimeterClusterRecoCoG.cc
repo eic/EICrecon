@@ -1,6 +1,35 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan
 
+#include <DD4hep/Detector.h>
+#include <Eigen/src/Core/Assign.h>
+#include <Eigen/src/Core/AssignEvaluator.h>
+#include <Eigen/src/Core/CwiseBinaryOp.h>
+#include <Eigen/src/Core/CwiseNullaryOp.h>
+#include <Eigen/src/Core/DenseBase.h>
+#include <Eigen/src/Core/DenseCoeffsBase.h>
+#include <Eigen/src/Core/Diagonal.h>
+#include <Eigen/src/Core/Dot.h>
+#include <Eigen/src/Core/GeneralProduct.h>
+#include <Eigen/src/Core/GenericPacketMath.h>
+#include <Eigen/src/Core/MathFunctions.h>
+#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/src/Core/MatrixBase.h>
+#include <Eigen/src/Core/NoAlias.h>
+#include <Eigen/src/Core/Product.h>
+#include <Eigen/src/Core/Redux.h>
+#include <Eigen/src/Core/SelfCwiseBinaryOp.h>
+#include <Eigen/src/Core/Transpose.h>
+#include <Eigen/src/Core/TriangularMatrix.h>
+#include <Eigen/src/Core/arch/SSE/PacketMath.h>
+#include <Eigen/src/Core/functors/BinaryFunctors.h>
+#include <Eigen/src/Core/util/Memory.h>
+#include <Eigen/src/Core/util/XprHelper.h>
+#include <Eigen/src/Eigenvalues/EigenSolver.h>
+#include <Eigen/src/Householder/BlockHouseholder.h>
+#include <Eigen/src/Householder/Householder.h>
+#include <Eigen/src/Jacobi/Jacobi.h>
+#include <Evaluator/DD4hepUnits.h>
 /*
  *  Reconstruct the cluster with Center of Gravity method
  *  Logarithmic weighting is used for mimicking energy deposit in transverse direction
@@ -8,15 +37,35 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 #include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <fmt/format.h>
-#include <map>
-#include <Eigen/Dense>
-
-#include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/MutableCluster.h>
+#include <edm4eic/MutableMCRecoClusterParticleAssociation.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <spdlog/logger.h>
+#include <cctype>
+#include <complex>
+#include <exception>
+#include <limits>
+#include <map>
+#include <new>
+#include <type_traits>
+#include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "src/Core/ArrayBase.h"
+#include "src/Core/DenseBase.h"
 
 namespace eicrecon {
 

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
-#include <spdlog/spdlog.h>
+#include <memory>
+
+namespace edm4eic { class CalorimeterHitCollection; }
+namespace edm4eic { class ProtoClusterCollection; }
+namespace edm4hep { class SimCalorimeterHitCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 

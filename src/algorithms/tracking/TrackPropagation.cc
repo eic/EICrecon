@@ -1,43 +1,65 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
-#include <cmath>
-#include <algorithm>
-
-#include "TrackPropagation.h"
-
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-
-#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/EigenStepper.ipp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/Propagator.ipp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <Eigen/src/Core/Assign.h>
+#include <Eigen/src/Core/AssignEvaluator.h>
+#include <Eigen/src/Core/CwiseBinaryOp.h>
+#include <Eigen/src/Core/CwiseNullaryOp.h>
+#include <Eigen/src/Core/DenseCoeffsBase.h>
+#include <Eigen/src/Core/Dot.h>
+#include <Eigen/src/Core/GeneralProduct.h>
+#include <Eigen/src/Core/GenericPacketMath.h>
+#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/src/Core/Redux.h>
+#include <Eigen/src/Core/SelfCwiseBinaryOp.h>
+#include <Eigen/src/Core/Transpose.h>
+#include <Eigen/src/Core/arch/SSE/PacketMath.h>
+#include <Eigen/src/Core/util/Memory.h>
+#include <Eigen/src/Geometry/OrthoMethods.h>
+#include <bits/std_abs.h>
 // Event Model related classes
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include <edm4eic/MutableTrackSegment.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackSegmentData.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <exception>
+#include <iterator>
+#include <optional>
+#include <tuple>
+#include <typeinfo>
+#include <utility>
+#include <variant>
+
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <Acts/Utilities/Helpers.hpp>
-#include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-
-
 #include "ActsGeometryProvider.h"
-
-#include <edm4eic/vector_utils.h>
-
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
-
 #include "TrackPropagation.h"
+#include "src/Core/ArrayBase.h"
+#include "src/Core/DenseBase.h"
+
+namespace Acts { class MagneticFieldProvider; }
+namespace Acts { class TrackingGeometry; }
 
 
 namespace eicrecon {

@@ -13,23 +13,24 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Fields.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
-// DD4Hep
-#include <DD4hep/DD4hepUnits.h>
-
-#include "DD4hepBField.h"
-
-#include <spdlog/spdlog.h>
+namespace eicrecon::BField { class DD4hepBField; }
+namespace spdlog { class logger; }
 
 // Forward declarations
 namespace Acts {
     class IMaterialDecorator;
+class MagneticFieldProvider;
     class Surface;
     class TrackingGeometry;
-}
-
-namespace dd4hep {
-    class Detector;
 }
 namespace dd4hep::rec {
     class CellIDPositionConverter;

@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <spdlog/spdlog.h>
 #include <TRandomGen.h>
+#include <functional>
+#include <memory>
 
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic { class RawTrackerHitCollection; }
+namespace edm4hep { class SimTrackerHitCollection; }
+namespace spdlog { class logger; }
 
 namespace eicrecon {
 
