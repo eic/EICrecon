@@ -11,6 +11,7 @@
 
 #include <JANA/Services/JComponentManager.h>
 
+#include <cstdlib>
 #include <set>
 #include <iostream>
 #include <string>
@@ -391,10 +392,12 @@ namespace jana {
             catch (JException& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << e << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
             catch (std::runtime_error& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << "Exception: " << e.what() << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
         }
         return (int) app->GetExitCode();
