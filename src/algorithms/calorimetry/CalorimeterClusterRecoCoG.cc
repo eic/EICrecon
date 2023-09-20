@@ -59,10 +59,11 @@ namespace eicrecon {
         continue;
       }
 
-      auto cl = reconstruct(pcl);
-      if (! cl.has_value()) {
+      auto cl_opt = reconstruct(pcl);
+      if (! cl_opt.has_value()) {
         continue;
       }
+      auto cl = *std::move(cl_opt);
 
       m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
       clusters->push_back(cl);
