@@ -5,7 +5,7 @@
 
 #include "ACTSGeo_service.h"
 
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
 #include <JANA/JException.h>
@@ -82,6 +82,6 @@ void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
     m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, m_init_log->level());
 
     // DD4Hep geometry
-    auto dd4hep_service = srv_locator->get<JDD4hep_service>();
+    auto dd4hep_service = srv_locator->get<DD4hep_service>();
     m_dd4hepGeo = dd4hep_service->detector();
 }

@@ -8,7 +8,7 @@
 
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
@@ -39,7 +39,7 @@ namespace eicrecon {
         // Get ACTS context from ACTSGeo service
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-        auto dd4hp_service = GetApplication()->GetService<JDD4hep_service>();
+        auto dd4hp_service = GetApplication()->GetService<DD4hep_service>();
 
         // Initialize algorithm
         auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
