@@ -11,6 +11,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fmt/format.h>
 #include <map>
+#include <optional>
 #include <Eigen/Dense>
 
 #include <Evaluator/DD4hepUnits.h>
@@ -59,6 +60,9 @@ namespace eicrecon {
       }
 
       auto cl = reconstruct(pcl);
+      if (! cl.has_value()) {
+        continue;
+      }
 
       m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
       clusters->push_back(cl);
@@ -141,7 +145,7 @@ namespace eicrecon {
 }
 
 //------------------------------------------------------------------------
-edm4eic::Cluster CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
+std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 
@@ -149,7 +153,7 @@ edm4eic::Cluster CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClus
 
   // no hits
   if (pcl.hits_size() == 0) {
-    return cl;
+    return {};
   }
 
   // calculate total energy, find the cell with the maximum energy deposit
