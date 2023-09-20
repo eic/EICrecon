@@ -66,7 +66,7 @@ extern "C" {
     // track propagation to each radiator
     RichTrackConfig track_cfg;
     track_cfg.numPlanes.insert({ "Aerogel", 5  });
-    track_cfg.numPlanes.insert({ "Gas",     30 });
+    track_cfg.numPlanes.insert({ "Gas",     20 });
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
