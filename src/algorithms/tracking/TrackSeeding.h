@@ -22,7 +22,6 @@
 #include "OrthogonalTrackSeedingConfig.h"
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "SpacePoint.h"
 
 
@@ -39,7 +38,7 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-        std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+        std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::SeedFilterConfig m_seedFilterConfig;

@@ -28,8 +28,6 @@
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
 
-#include "DD4hepBField.h"
-
 #include "ActsExamples/EventData/GeometryContainers.hpp"
 #include "ActsExamples/EventData/Measurement.hpp"
 #include "ActsExamples/EventData/Index.hpp"
@@ -58,8 +56,8 @@ namespace eicrecon {
 
         m_geoSvc = geo_svc;
 
-        m_BField = std::static_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-        m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+        m_BField = m_geoSvc->getFieldProvider();
+        m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
 
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
@@ -118,7 +116,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+        auto logLevel = eicrecon::SpdlogToActsLevel(m_log->level());
 
         ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
 

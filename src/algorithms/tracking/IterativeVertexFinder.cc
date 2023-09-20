@@ -39,9 +39,8 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
   m_geoSvc = geo_svc;
 
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField = m_geoSvc->getFieldProvider();
+  m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
 }
 
 std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
@@ -60,7 +59,7 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
 
   Acts::EigenStepper<> stepper(m_BField);
   auto propagator = std::make_shared<Propagator>(stepper);
-  auto logLevel   = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
+  auto logLevel   = eicrecon::SpdlogToActsLevel(m_log->level());
 
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});

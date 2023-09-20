@@ -23,15 +23,15 @@
 
 #include <utility>
 
-
-void eicrecon::TrackerSourceLinker::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid_converter,
+void eicrecon::TrackerSourceLinker::init(const dd4hep::Detector* detector,
                                          std::shared_ptr<const ActsGeometryProvider> acts_context,
                                          std::shared_ptr<spdlog::logger> logger) {
-    m_cellid_converter = std::move(cellid_converter);
+    m_detector = detector;
+    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_detid_b0tracker = m_detector->constant<int>("B0Tracker_Station_1_ID");
+
     m_log = std::move(logger);
     m_acts_context = std::move(acts_context);
-    m_dd4hepGeo = m_acts_context->dd4hepDetector();
-    m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
 }
 
 
@@ -106,7 +106,7 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         }
 
         if (m_log->level() <= spdlog::level::trace) {
-            auto volman         = m_acts_context->dd4hepDetector()->volumeManager();
+            auto volman         = m_detector->volumeManager();
             auto alignment      = volman.lookupDetElement(vol_id).nominal();
             auto local_position = (alignment.worldToLocal({hit_pos.x / mm_conv, hit_pos.y / mm_conv, hit_pos.z / mm_conv})) * mm_conv;
             double surf_center_x = surface->center(Acts::GeometryContext()).transpose()[0];
