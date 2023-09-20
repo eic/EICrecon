@@ -19,66 +19,6 @@ if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
     source @JANA_DIR@/../../../bin/jana-this.sh
 fi
 
-#----------------- ROOT
-if [[ -f @ROOT_BINDIR@/thisroot.sh ]] ; then
-    unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
-    source @ROOT_BINDIR@/thisroot.sh
-fi
-
-#----------------- PODIO
-PODIO=$( readlink -f @podio_LIBRARY_DIR@/.. )
-if [[ -d ${PODIO} ]] ; then
-    export podio_ROOT=${PODIO}
-    if [[ -f ${PODIO}/../env.sh ]] ; then
-        source ${PODIO}/../env.sh
-    fi
-fi
-
-#----------------- EDM4hep
-EDM4HEP=$( readlink -f @EDM4HEP_DIR@/../../.. )
-if [[ -d ${EDM4HEP} ]] ; then
-    export EDM4HEP_ROOT=${EDM4HEP}
-    EDM4HEP_LIBDIR=${EDM4HEP_ROOT}/lib64
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":$EDM4HEP_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4HEP_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
-fi
-
-#----------------- EDM4EIC
-EDM4EIC=$( readlink -f @EDM4EIC_DIR@/../.. )
-if [[ -d ${EDM4EIC} ]] ; then
-    export EDM4EIC_ROOT=${EDM4EIC}
-    EDM4EIC_LIBDIR=$( readlink -f @EDM4EIC_DIR@/.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":EDM4EIC_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4EIC_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
-fi
-
-#----------------- DD4hep
-if [[ -f @DD4hep_DIR@/../bin/thisdd4hep.sh ]] ; then
-    source @DD4hep_DIR@/../bin/thisdd4hep.sh
-    export DD4HEP_ROOT=@DD4hep_DIR@/..
-fi
-
-#----------------- fmt
-if [[ -d @fmt_DIR@/../../.. ]] ; then
-    export fmt_ROOT=@fmt_DIR@/../../..
-    fmt_LIBDIR=$( readlink -f @fmt_DIR@/../.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":$fmt_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${fmt_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
-fi
-
-#----------------- epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
-# if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
-#     source @DETECTOR_PATH@/../../setup.sh
-# fi
-
-#----------------- IRT
-if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
-    export LD_LIBRARY_PATH="@IRT_LIBRARY_DIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-fi
-
 #----------------- EICrecon
 # Add bin to PATH if not already there
 if [[ ! ":$PATH:" == *":$SCRIPT_DIR:"* ]]; then
