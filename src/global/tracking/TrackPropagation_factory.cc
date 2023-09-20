@@ -28,7 +28,7 @@ void eicrecon::TrackPropagation_factory::Init() {
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
     m_track_propagation_algo.init(acts_service->actsGeoProvider(), logger());
 
-    m_geoSvc = app->template GetService<JDD4hep_service>();
+    m_geoSvc = app->template GetService<DD4hep_service>();
 
     SetPropagationSurfaces();
 

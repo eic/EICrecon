@@ -5,7 +5,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
@@ -37,8 +37,8 @@ namespace eicrecon {
         std::string plugin_name  = GetPluginName();
         std::string param_prefix = plugin_name + ":" + GetTag();
 
-        // Use JDD4hep_service to get dd4hep::Detector
-        auto geoSvc = app->template GetService<JDD4hep_service>();
+        // Use DD4hep_service to get dd4hep::Detector
+        auto geoSvc = app->template GetService<DD4hep_service>();
 
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");

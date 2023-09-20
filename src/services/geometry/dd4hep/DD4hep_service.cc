@@ -10,14 +10,14 @@
 #include <fmt/color.h>
 #include <fmt/format.h>
 
-#include "JDD4hep_service.h"
+#include "DD4hep_service.h"
 
 #include <DD4hep/Printout.h>
 
 //----------------------------------------------------------------
 // destructor
 //----------------------------------------------------------------
-JDD4hep_service::~JDD4hep_service(){
+DD4hep_service::~DD4hep_service(){
     try {
         if(m_dd4hepGeo) m_dd4hepGeo->destroyInstance();
         m_dd4hepGeo = nullptr;
@@ -30,8 +30,8 @@ JDD4hep_service::~JDD4hep_service(){
 /// Return pointer to the dd4hep::Detector object.
 /// Call Initialize if needed.
 //----------------------------------------------------------------
-dd4hep::Detector* JDD4hep_service::detector() {
-    std::call_once( init_flag, &JDD4hep_service::Initialize, this);
+dd4hep::Detector* DD4hep_service::detector() {
+    std::call_once( init_flag, &DD4hep_service::Initialize, this);
     return (m_dd4hepGeo);
 }
 
@@ -43,10 +43,10 @@ dd4hep::Detector* JDD4hep_service::detector() {
 /// is called. Which XML file(s) are read is determined by the
 /// dd4hep:xml_files configuration parameter.
 //----------------------------------------------------------------
-void JDD4hep_service::Initialize() {
+void DD4hep_service::Initialize() {
 
     if( m_dd4hepGeo ) {
-        LOG_WARN(default_cout_logger) << "JDD4hep_service already initialized!" << LOG_END;
+        LOG_WARN(default_cout_logger) << "DD4hep_service already initialized!" << LOG_END;
     }
 
     m_dd4hepGeo = &(dd4hep::Detector::getInstance());
@@ -120,7 +120,7 @@ void JDD4hep_service::Initialize() {
     app->SetTicker( tickerEnabled );
 }
 
-std::string JDD4hep_service::resolveFileName(const std::string &filename, char *detector_path_env) {
+std::string DD4hep_service::resolveFileName(const std::string &filename, char *detector_path_env) {
 
     std::string result(filename);
 

@@ -24,7 +24,7 @@ namespace eicrecon {
         m_readout = m_input_tag;
 
         app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
-        m_geoSvc = app->GetService<JDD4hep_service>();
+        m_geoSvc = app->GetService<DD4hep_service>();
 
         if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
