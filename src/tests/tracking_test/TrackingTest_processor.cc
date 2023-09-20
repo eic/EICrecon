@@ -20,6 +20,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 
 #include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
@@ -40,7 +41,7 @@ void TrackingTest_processor::Init()
     std::string plugin_name=("tracking_test");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -48,7 +49,7 @@ void TrackingTest_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -86,7 +87,7 @@ void TrackingTest_processor::Finish()
 }
 
 void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const JEvent> &event) {
-    auto reco_particles = event->GetCollection<edm4eic::ReconstructedParticle>("outputParticles");
+    const auto *reco_particles = event->GetCollection<edm4eic::ReconstructedParticle>("outputParticles");
 
     m_log->debug("Tracking reconstructed particles N={}: ", reco_particles->size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
@@ -104,14 +105,14 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
-    auto particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    auto track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
+    const auto *particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
+    const auto *track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
 
-        auto particle=mc_particles[i];
+        const auto *particle=mc_particles[i];
 
         if(particle->getGeneratorStatus() != 1) continue;
 //
@@ -131,8 +132,8 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
     m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
     // auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 
-    auto particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-    auto associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
+    const auto *particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+    const auto *associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
 
 
 
@@ -166,9 +167,9 @@ void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const J
 
     m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
     auto final_reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
-    for(auto part: final_reco_particles) {
+    for(const auto *part: final_reco_particles) {
         m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
     }
 
-    auto final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
+    const auto *final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 }

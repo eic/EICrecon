@@ -15,7 +15,7 @@
 
 
 void TrackingOccupancyAnalysis::init(JApplication *app, TDirectory *plugin_tdir) {
-    auto dir = plugin_tdir->mkdir("SimOccupancies");     // TODO create directory for this analysis
+    auto *dir = plugin_tdir->mkdir("SimOccupancies");     // TODO create directory for this analysis
 
     auto z_limit_min = -2000;
     auto z_limit_max = 2000;
@@ -45,15 +45,19 @@ void TrackingOccupancyAnalysis::process(const std::shared_ptr<const JEvent> &eve
         auto &count_hist = m_hits_count_hists[name_index];
         auto &occup_hist = m_hits_occup_hists[name_index];
 
-        auto hits = event->Get<edm4hep::SimTrackerHit>(data_name);
-        count_hist->Fill(hits.size());
-        for(auto hit: hits) {
-            float x = hit->getPosition().x;
-            float y = hit->getPosition().y;
-            float z = hit->getPosition().z;
-            float r = sqrt(x*x + y*y);
-            occup_hist->Fill(z, r);
-            m_total_occup_th2->Fill(z, r);
+        try {
+            auto hits = event->Get<edm4hep::SimTrackerHit>(data_name);
+            count_hist->Fill(hits.size());
+            for(const auto *hit: hits) {
+                float x = hit->getPosition().x;
+                float y = hit->getPosition().y;
+                float z = hit->getPosition().z;
+                float r = sqrt(x*x + y*y);
+                occup_hist->Fill(z, r);
+                m_total_occup_th2->Fill(z, r);
+            }
+        } catch(std::exception& e) {
+            // silently skip missing collections
         }
     }
 }

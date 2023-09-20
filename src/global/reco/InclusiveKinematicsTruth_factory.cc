@@ -11,7 +11,6 @@
 
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
@@ -21,17 +20,10 @@ namespace eicrecon {
         // This prefix will be used for parameters
         std::string param_prefix = "reco:" + GetTag();
 
-        // Set input data tags properly
-        InitDataTags(param_prefix);
-
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(GetApplication(), param_prefix, "info");
 
         m_inclusive_kinematics_algo.init(m_log);
-    }
-
-    void InclusiveKinematicsTruth_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-        // Nothing to do here
     }
 
     void InclusiveKinematicsTruth_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -41,6 +33,6 @@ namespace eicrecon {
             *mc_particles
         );
 
-        SetCollection(std::move(inclusive_kinematics));
+        SetCollection<edm4eic::InclusiveKinematics>(GetOutputTags()[0], std::move(inclusive_kinematics));
     }
 } // eicrecon

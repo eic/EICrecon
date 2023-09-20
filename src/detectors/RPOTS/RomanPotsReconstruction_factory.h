@@ -13,7 +13,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
@@ -55,7 +55,7 @@ namespace eicrecon {
         std::string m_readout;
         std::string m_geoSvcName;
 
-        std::shared_ptr<JDD4hep_service> m_geoSvc;
+        std::shared_ptr<DD4hep_service> m_geoSvc;
         std::string m_localDetElement;
         std::vector<std::string> u_localDetFields;
 

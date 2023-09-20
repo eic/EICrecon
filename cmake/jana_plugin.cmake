@@ -3,13 +3,22 @@ macro(plugin_add _name)
 
     project(${_name}_project)
 
+    # Default to plugin without library
+    set(${_name}_WITH_LIBRARY OFF)
+    set(${_name}_WITH_PLUGIN ON)
+
     # Check if build with library
     foreach(arg IN ITEMS ${ARGN})
         if(${arg} STREQUAL "WITH_STATIC_LIBRARY")
-            set(${_name}_WITH_STATIC_LIB ON)
+            set(${_name}_WITH_LIBRARY ON)
+            set(${_name}_LIBRARY_TYPE STATIC)
         endif()
-        if(${arg} STREQUAL "WITH_STATIC_LIB")       # alternative
-            set(${_name}_WITH_STATIC_LIB ON)
+        if(${arg} STREQUAL "WITH_SHARED_LIBRARY")
+            set(${_name}_WITH_LIBRARY ON)
+            set(${_name}_LIBRARY_TYPE SHARED)
+        endif()
+        if(${arg} STREQUAL "WITHOUT_PLUGIN")
+            set(${_name}_WITH_PLUGIN OFF)
         endif()
     endforeach()
 
@@ -23,51 +32,63 @@ macro(plugin_add _name)
     find_package(fmt REQUIRED)
 
     # Define plugin
-    add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
+    if(${_name}_WITH_PLUGIN)
+        add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
 
-    target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
-    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
-    set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
-    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
+        target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
+        set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
+        target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
+        target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
 
-    # Install plugin
-    install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+        # Install plugin
+        install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+    endif()     # WITH_PLUGIN
 
+    # Define library
+    if(${_name}_WITH_LIBRARY)
+        add_library(${_name}_library ${${_name}_LIBRARY_TYPE} "")
+        if(${_name}_LIBRARY_TYPE STREQUAL "STATIC")
+            set(suffix ".a")
+        endif()
+        if(${_name}_LIBRARY_TYPE STREQUAL "SHARED")
+            set(suffix ".so")
+        endif()
+        set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ${suffix})
 
-    if(${_name}_WITH_STATIC_LIB)
-        # Define library
-        add_library(${_name}_library STATIC "")
-            target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
         target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
-    target_link_libraries(${_name}_plugin ${ARGN})
+    if(${_name}_WITH_PLUGIN)
+        target_link_libraries(${_name}_plugin ${ARGN})
+    endif()     # WITH_PLUGIN
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         target_link_libraries(${_name}_library ${ARGN})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 
 # target_include_directories for both a plugin and a library
 macro(plugin_include_directories _name)
-    target_include_directories(${_name}_plugin  ${ARGN})
+    if(${_name}_WITH_PLUGIN)
+        target_include_directories(${_name}_plugin  ${ARGN})
+    endif()     # WITH_PLUGIN
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         target_include_directories(${_name}_library ${ARGN})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 
@@ -79,7 +100,7 @@ macro(plugin_sources _name)
     # Add sources to plugin
     target_sources(${_name}_plugin PRIVATE ${SOURCES})
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc in library
         set(PLUGIN_CC_FILE ${_name}.cc)
         get_filename_component(PLUGIN_CC_FILE "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CC_FILE}" ABSOLUTE)
@@ -87,7 +108,7 @@ macro(plugin_sources _name)
 
         # Add sources to library
         target_sources(${_name}_library PRIVATE ${SOURCES})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
@@ -97,6 +118,7 @@ macro(plugin_glob_all _name)
 
     # But... GLOB here makes this file just hot pluggable
     file(GLOB LIB_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    #file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS ${_name}.cc)
     file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
     file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
@@ -104,13 +126,15 @@ macro(plugin_glob_all _name)
     string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
 
     # Add sources to plugin
-    target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
+    if(TARGET ${_name}_plugin)
+        target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
+    endif()
 
     #Add correct headers installation
     # Install headers for plugin
     install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH})
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc but Plugin does
         set(PLUGIN_CC_FILE ${_name}.cc)
 
@@ -127,7 +151,7 @@ macro(plugin_glob_all _name)
 
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 
     # >oO Debug output if needed
     if(${EICRECON_VERBOSE_CMAKE})

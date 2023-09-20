@@ -3,6 +3,8 @@
 
 #include "IrtCherenkovParticleID.h"
 
+#include <fmt/ranges.h>
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
@@ -117,20 +119,22 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
     result.insert({rad_name, std::make_unique<edm4eic::CherenkovParticleIDCollection>()});
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
-  long num_charged_particles = -1;
-  for(const auto& [rad_name,charged_particle_list] : in_charged_particles) {
-    if(num_charged_particles<0) {
-      num_charged_particles = charged_particle_list->size();
-      m_log->trace("number of reconstructed charged particles: {}", charged_particle_list->size());
-    }
-    else if(num_charged_particles != charged_particle_list->size()) {
-      m_log->error("radiators have differing numbers of TrackSegments");
-      return result;
-    }
+  std::unordered_map<std::size_t, std::size_t> in_charged_particle_size_distribution;
+  for(const auto& [rad_name, in_charged_particle] : in_charged_particles) {
+    ++in_charged_particle_size_distribution[in_charged_particle->size()];
+  }
+  if (in_charged_particle_size_distribution.size() != 1) {
+    std::vector<size_t> in_charged_particle_sizes;
+    std::transform(in_charged_particles.begin(), in_charged_particles.end(),
+      std::back_inserter(in_charged_particle_sizes),
+      [](const auto& in_charged_particle) { return in_charged_particle.second->size(); });
+    m_log->error("radiators have differing numbers of TrackSegments {}", fmt::join(in_charged_particle_sizes, ", "));
+    return result;
   }
 
   // loop over charged particles ********************************************
   m_log->trace("{:#<70}","### CHARGED PARTICLES ");
+  std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->first;
   for(long i_charged_particle=0; i_charged_particle<num_charged_particles; i_charged_particle++) {
     m_log->trace("{:-<70}", fmt::format("--- charged particle #{} ", i_charged_particle));
 
@@ -146,7 +150,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         m_log->error("Cannot find radiator '{}' in `in_charged_particles`", rad_name);
         continue;
       }
-      auto charged_particle_list = charged_particle_list_it->second;
+      const auto *charged_particle_list = charged_particle_list_it->second;
       auto charged_particle      = charged_particle_list->at(i_charged_particle);
 
       // set number of bins for this radiator and charged particle
@@ -159,7 +163,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       // start a new IRT `RadiatorHistory`
       // - must be a raw pointer for `irt` compatibility
       // - it will be destroyed when `irt_particle` is destroyed
-      auto irt_rad_history = new RadiatorHistory();
+      auto *irt_rad_history = new RadiatorHistory();
       irt_particle->StartRadiatorHistory({ irt_rad, irt_rad_history });
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
@@ -231,8 +235,8 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
         }
 
         // start new IRT photon
-        auto irt_sensor = m_irt_det->m_PhotonDetectors[0]; // NOTE: assumes one sensor type
-        auto irt_photon = new OpticalPhoton(); // new raw pointer; it will also be destroyed when `irt_particle` is destroyed
+        auto *irt_sensor = m_irt_det->m_PhotonDetectors[0]; // NOTE: assumes one sensor type
+        auto *irt_photon = new OpticalPhoton(); // new raw pointer; it will also be destroyed when `irt_particle` is destroyed
         irt_photon->SetVolumeCopy(sensor_id);
         irt_photon->SetDetectionPosition(pixel_pos);
         irt_photon->SetPhotonDetector(irt_sensor);
@@ -300,13 +304,13 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       std::vector<std::pair<double,double>> phot_theta_phi;
 
       // loop over this radiator's photons, and decide which to include in the theta estimate
-      auto irt_rad_history = irt_particle->FindRadiatorHistory(irt_rad);
+      auto *irt_rad_history = irt_particle->FindRadiatorHistory(irt_rad);
       if(irt_rad_history==nullptr) {
         m_log->trace("  No radiator history; skip");
         continue;
       }
       m_log->trace("  Photoelectrons:");
-      for(auto irt_photon : irt_rad_history->Photons()) {
+      for(auto *irt_photon : irt_rad_history->Photons()) {
 
         // check whether this photon was selected by at least one mass hypothesis
         bool photon_selected = false;
@@ -361,7 +365,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       for(auto [pdg,mass] : m_pdg_mass) {
 
         // get hypothesis results
-        auto irt_hypothesis = pdg_to_hyp.at(pdg);
+        auto *irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight     = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe        = irt_hypothesis->GetNpe(irt_rad);
 
@@ -382,7 +386,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       // relate charged particle projection
       auto charged_particle_list_it = in_charged_particles.find("Merged");
       if(charged_particle_list_it != in_charged_particles.end()) {
-        auto charged_particle_list = charged_particle_list_it->second;
+        const auto *charged_particle_list = charged_particle_list_it->second;
         auto charged_particle      = charged_particle_list->at(i_charged_particle);
         out_cherenkov_pid.setChargedParticle(charged_particle);
       }

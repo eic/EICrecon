@@ -15,8 +15,8 @@
 #include <fmt/core.h>
 
 void reco_particles_track_matching(const std::string &file_name) {
-    auto file = new TFile(file_name.c_str());
-    auto tree = (TTree *) file->Get("events");
+    auto *file = new TFile(file_name.c_str());
+    auto *tree = (TTree *) file->Get("events");
     TTreeReader tree_reader(tree);       // !the tree reader
     tree->Print();
 

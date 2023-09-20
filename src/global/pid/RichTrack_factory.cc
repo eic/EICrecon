@@ -7,7 +7,7 @@
 void eicrecon::RichTrack_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName(); // plugin name should be detector name
   auto prefix = GetPrefix();
 
@@ -70,6 +70,18 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
+  // choose the filter surface: all charged particles that pass through the dRICH vessel will pass
+  // through the backplane of the gas radiator
+  std::shared_ptr<Acts::Surface> filter_surface;
+  for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
+    if(richgeo::ParseRadiatorName(output_tag, m_log) == richgeo::kGas) {
+      filter_surface = radiator_tracking_planes.back();
+      break;
+    }
+  }
+  if(!filter_surface)
+    throw JException("cannot find filter surface for RICH track propagation");
+
   // run track propagator algorithm, for each radiator
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
@@ -77,7 +89,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
       auto result = m_propagation_algo.propagateToSurfaceList(
           trajectories,
           radiator_tracking_planes,
-          radiator_tracking_planes.back(), // `filterSurface`: assumes projectivity to radiator back-plane
+          filter_surface,
           track_point_cut,
           true
           );

@@ -16,10 +16,6 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "acts",
         "richgeo",
         "rootfile",
-        "algorithms_calorimetry",
-        "algorithms_tracking",
-        "algorithms_digi",
-        "digi",
         "reco",
         "tracking",
         "pid",
@@ -45,6 +41,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "LOWQ2",
         "LUMISPECCAL",
         "podio",
+        "janatop",
 };
 
 int main( int narg, char **argv)

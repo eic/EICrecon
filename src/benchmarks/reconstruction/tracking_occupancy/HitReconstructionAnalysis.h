@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector>
 #include <TH1F.h>
 #include <TH3F.h>
 #include <TH2F.h>
@@ -22,10 +23,16 @@ private:
     std::vector<std::string> m_data_names = {
             "SiBarrelTrackerRecHits",      // Barrel Tracker
             "SiBarrelVertexRecHits",       // Vertex
-           "SiEndcapTrackerRecHits",      // End Cap tracker
-            "MPGDTrackerHit",        // MPGD
-            "TOFEndcapRecHits",   // End Cap TOF
-            "TOFBarrelRecHit",   // Barrel TOF
+            "SiEndcapTrackerRecHits",      // End Cap tracker
+          // MPGD
+            "MPGDBarrelRecHits",
+            "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "ForwardMPGDEndcapRecHits",
+            "BackwardMPGDEndcapRecHits",
+          // TOF
+            "TOFEndcapRecHits",
+            "TOFBarrelRecHit",
     };
 
     /// Hits count histogram for each hits readout name

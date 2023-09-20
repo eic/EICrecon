@@ -35,7 +35,7 @@ void TrackSeedingTest_processor::Init()
     std::string plugin_name=("track_propagation_test");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -43,7 +43,7 @@ void TrackSeedingTest_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -111,7 +111,7 @@ void TrackSeedingTest_processor::Process(const std::shared_ptr<const JEvent>& ev
 
     m_log->trace("Now points created in a factory");
     auto proj_from_factory = event->Get<edm4eic::TrackPoint>("HcalEndcapNProjections");
-    for(auto point: proj_from_factory) {
+    for(const auto *point: proj_from_factory) {
         // Now go through reconstructed tracks points
         auto pos = point->position;
         auto length =  point->pathlength;

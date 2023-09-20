@@ -1,16 +1,8 @@
-
 #include "TrackingOccupancy_processor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <fmt/core.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
 
 #include <TDirectory.h>
 #include <TCanvas.h>
@@ -21,12 +13,8 @@
 #include <Math/GenVector/PxPyPzM4D.h>
 
 #include <spdlog/spdlog.h>
-#include <edm4eic/TrackParameters.h>
 
-#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
 #include "services/rootfile/RootFile_service.h"
-
-using namespace fmt;
 
 //------------------
 // OccupancyAnalysis (Constructor)
@@ -44,7 +32,7 @@ void TrackingOccupancy_processor::Init()
     std::string plugin_name=("tracking_occupancy");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -52,7 +40,7 @@ void TrackingOccupancy_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms

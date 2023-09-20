@@ -3,6 +3,11 @@
 
 #include "ActsGeo.h"
 
+// ACTS
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
+
 // constructor
 richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
   : m_detName(detName_), m_det(det_), m_log(log_)
@@ -133,7 +138,7 @@ std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int rad
 
     // beyond the mirror cut
     return [mirror_centers, mirror_radius] (edm4eic::TrackPoint p) {
-      for(auto& c : mirror_centers) {
+      for(const auto& c : mirror_centers) {
         auto dist = std::hypot(
             c.x() - p.position.x,
             c.y() - p.position.y,

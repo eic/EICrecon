@@ -179,6 +179,7 @@ namespace eicrecon {
                 const auto& trackTips = multiTrajectory->tips();
                 if (trackTips.empty()) {
                     m_log->debug("Empty multiTrajectory.");
+                    delete multiTrajectory;
                     continue;
                 }
 

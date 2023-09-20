@@ -2,19 +2,16 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-
-#include <Acts/Propagator/Navigator.hpp>
-#include <edm4eic/TrackParametersCollection.h>
 #include <JANA/JEvent.h>
+
+#include <edm4eic/TrackParametersCollection.h>
 
 #include "TrackSeeding_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/log/Log_service.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
     std::string plugin_name = GetPluginName();
@@ -28,8 +25,6 @@ void eicrecon::TrackSeeding_factory::Init() {
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = app->GetService<ACTSGeo_service>();
-    auto dd4hp_service = app->GetService<JDD4hep_service>();
-
 
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
@@ -72,7 +67,7 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
 
     for(auto input_tag: GetInputTags()) {
         auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-        for (const auto hit : hits) {
+        for (const auto *const hit : hits) {
             total_hits.push_back(hit);
         }
     }

@@ -27,7 +27,7 @@ namespace eicrecon {
         // output container
         auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
-        for ( auto col : in_clu_assoc ){ // loop on cluster association collections
+        for ( const auto *col : in_clu_assoc ){ // loop on cluster association collections
           for ( auto clu_assoc : (*col) ){ // loop on MCRecoClusterParticleAssociation in this particular collection
             auto sim = clu_assoc.getSim(); // McParticle
             auto clu = clu_assoc.getRec(); // RecoCluster

@@ -2,7 +2,6 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include <fmt/ostream.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "ActsGeometryProvider.h"
 
@@ -15,7 +14,9 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 

@@ -3,15 +3,19 @@
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
+// services
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
+
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = GetPrefix();
 
   // services
-  auto geo_service = app->GetService<JDD4hep_service>();
+  auto geo_service = app->GetService<DD4hep_service>();
   InitLogger(app, prefix, "info");
   m_log->debug("PhotoMultiplierHitDigi_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
@@ -65,7 +69,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<co
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  auto sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+  const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
   try {
     auto result = m_digi_algo.AlgorithmProcess(sim_hits);

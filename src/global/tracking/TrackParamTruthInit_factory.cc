@@ -5,7 +5,7 @@
 #include "TrackParamTruthInit_factory.h"
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
     std::string plugin_name = GetPluginName();

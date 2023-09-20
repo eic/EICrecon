@@ -5,11 +5,6 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "femc_studiesProcessor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include <edm4eic/vector_utils.h>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/RadialBounds.hpp>
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/rootfile/RootFile_service.h"
 #include <spdlog/spdlog.h>
@@ -19,13 +14,17 @@
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
-#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-#include <DD4hep/Objects.h>
-#include <DDG4/Geant4Data.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
+
+// Include appropriate class headers. e.g.
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/vector_utils.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 
@@ -33,25 +32,12 @@
 #include <TChain.h>
 #include <TVector3.h>
 
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/TrackingVolume.hpp>
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
-
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
-// #include "extensions/spdlog/SpdlogMixin.h"
-
-// The following just makes this a JANA plugin
-extern "C" {
-  void InitPlugin(JApplication* app) {
-    InitJANAPlugin(app);
-    app->Add(new femc_studiesProcessor());
-  }
-}
 
 
-//******************************************************************************************
+//******************************************************************************************//
 // InitWithGlobalRootLock
-//******************************************************************************************
+//******************************************************************************************//
 void femc_studiesProcessor::Init() {
   std::string plugin_name = ("femc_studies");
 
@@ -59,8 +45,7 @@ void femc_studiesProcessor::Init() {
   // ===============================================================================================
   // Get JANA application and seup general variables
   // ===============================================================================================
-  auto app          = GetApplication();
-  auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
+  auto *app          = GetApplication();
 
   std::string log_level_str = "info";
   m_log                     = app->GetService<Log_service>()->logger(plugin_name);
@@ -74,7 +59,7 @@ void femc_studiesProcessor::Init() {
   // Get TDirectory for histograms root file
   auto globalRootLock = app->GetService<JGlobalRootLock>();
   globalRootLock->acquire_write_lock();
-  auto file = root_file_service->GetHistFile();
+  auto *file = root_file_service->GetHistFile();
   globalRootLock->release_lock();
 
   // ===============================================================================================
@@ -234,9 +219,9 @@ void femc_studiesProcessor::Init() {
 
 }
 
-//******************************************************************************************
+//******************************************************************************************//
 // ProcessSequential
-//******************************************************************************************
+//******************************************************************************************//
 void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) {
 // void femc_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
 
@@ -252,7 +237,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   for (auto mcparticle : mcParticles) {
     if (mcparticle->getGeneratorStatus() != 1)
       continue;
-    auto& mom = mcparticle->getMomentum();
+    const auto& mom = mcparticle->getMomentum();
     // get particle energy
     mcenergy = mcparticle->getEnergy();
     //determine mceta from momentum
@@ -282,7 +267,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
   auto simHits = event -> Get<edm4hep::SimCalorimeterHit>(nameSimHits.data());
-  for (auto caloHit : simHits) {
+  for (const auto *caloHit : simHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -349,7 +334,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
   // process rec hits
-  for (auto caloHit : recHits) {
+  for (const auto *caloHit : recHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -542,7 +527,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
     m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
 
-    for (auto& hit: cluster->getHits()){
+    for (const auto& hit: cluster->getHits()){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)
@@ -617,9 +602,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
 }
 
 
-//******************************************************************************************
+//******************************************************************************************//
 // FinishWithGlobalRootLock
-//******************************************************************************************
+//******************************************************************************************//
 void femc_studiesProcessor::Finish() {
   std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();

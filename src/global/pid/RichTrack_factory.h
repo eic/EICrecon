@@ -5,7 +5,6 @@
 
 // JANA
 #include "extensions/jana/JChainMultifactoryT.h"
-#include <JANA/JEvent.h>
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
@@ -19,8 +18,6 @@
 // services
 #include "services/geometry/richgeo/RichGeo_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {

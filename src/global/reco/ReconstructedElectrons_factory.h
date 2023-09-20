@@ -11,7 +11,6 @@
 #include "algorithms/reco/ElectronReconstruction.h"
 
 // services
-#include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
