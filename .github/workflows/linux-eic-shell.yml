@@ -617,6 +617,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
       fail-fast: false
+      max-parallel: 4
     steps:
       - uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
