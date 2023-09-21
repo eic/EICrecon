@@ -86,7 +86,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         run: |
           # Disable LD_LIBRARY_PATH to ensure R(UN)PATH use
-          (cd build && LD_LIBRARY_PATH="" ctest -V)
+          (cd build && LD_LIBRARY_PATH="" DD4HEP_PLUGINMGR="/usr/local/lib/libDD4hepGaudiPluginMgr.so" ctest -V)
     - uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
