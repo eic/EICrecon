@@ -212,7 +212,9 @@ void femc_studiesProcessor::Init() {
   dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-    m_decoder = detector->readout("EcalEndcapPHits").idSpec().decoder();
+    auto readout = detector->readout("EcalEndcapPHits");
+    std::cout << "0th: " << &readout << std::endl;
+    m_decoder = readout.idSpec().decoder();
     std::cout << "1st: "<< m_decoder << std::endl;
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
