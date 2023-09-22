@@ -27,11 +27,11 @@
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 
-class JDD4hep_service : public JService
+class DD4hep_service : public JService
 {
 public:
-    JDD4hep_service( JApplication *app ) : app(app) {}
-    virtual ~JDD4hep_service();
+    DD4hep_service( JApplication *app ) : app(app) {}
+    virtual ~DD4hep_service();
 
     virtual dd4hep::Detector* detector();
     virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter() {
@@ -42,7 +42,7 @@ protected:
     void Initialize();
 
 private:
-    JDD4hep_service()=default;
+    DD4hep_service()=default;
 
     std::once_flag init_flag;
     JApplication *app = nullptr;

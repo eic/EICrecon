@@ -15,7 +15,7 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
   m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
 
   // DD4Hep geometry service
-  auto dd4hep_service = srv_locator->get<JDD4hep_service>();
+  auto dd4hep_service = srv_locator->get<DD4hep_service>();
   m_dd4hepGeo = dd4hep_service->detector();
 }
 

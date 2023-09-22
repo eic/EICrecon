@@ -11,7 +11,7 @@
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
     auto *app = GetApplication();
@@ -25,7 +25,7 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = app->GetService<ACTSGeo_service>();
-    auto dd4hp_service = app->GetService<JDD4hep_service>();
+    auto dd4hp_service = app->GetService<DD4hep_service>();
 
 
     // Algorithm configuration

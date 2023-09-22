@@ -4,7 +4,7 @@
 #include "PhotoMultiplierHitDigi_factory.h"
 
 // services
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
@@ -15,7 +15,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   auto prefix = GetPrefix();
 
   // services
-  auto geo_service = app->GetService<JDD4hep_service>();
+  auto geo_service = app->GetService<DD4hep_service>();
   InitLogger(app, prefix, "info");
   m_log->debug("PhotoMultiplierHitDigi_factory: plugin='{}' prefix='{}'", plugin, prefix);
 

@@ -3,7 +3,7 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <services/geometry/dd4hep/DD4hep_service.h>
 #include <algorithms/fardetectors/MatrixTransferStatic.h>
 #include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
 
@@ -43,7 +43,7 @@ namespace eicrecon {
 
           auto cfg = GetDefaultConfig();
 
-          m_geoSvc = app->GetService<JDD4hep_service>();
+          m_geoSvc = app->GetService<DD4hep_service>();
 
           m_reco_algo.applyConfig(cfg);
           m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),m_geoSvc->detector(),logger());
@@ -68,7 +68,7 @@ namespace eicrecon {
 
     private:
         eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
-        std::shared_ptr<JDD4hep_service> m_geoSvc;
+        std::shared_ptr<DD4hep_service> m_geoSvc;
 
     };
 

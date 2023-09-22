@@ -24,9 +24,15 @@ private:
             "SiBarrelTrackerRecHits",      // Barrel Tracker
             "SiBarrelVertexRecHits",       // Vertex
             "SiEndcapTrackerRecHits",      // End Cap tracker
-            "MPGDTrackerHit",        // MPGD
-            "TOFEndcapRecHits",   // End Cap TOF
-            "TOFBarrelRecHit",   // Barrel TOF
+          // MPGD
+            "MPGDBarrelRecHits",
+            "MPGDDIRCRecHits",
+            "OuterMPGDBarrelRecHits",
+            "ForwardMPGDEndcapRecHits",
+            "BackwardMPGDEndcapRecHits",
+          // TOF
+            "TOFEndcapRecHits",
+            "TOFBarrelRecHit",
     };
 
     /// Hits count histogram for each hits readout name

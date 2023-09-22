@@ -12,7 +12,7 @@
 #include <JANA/JException.h>
 
 // services
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
