@@ -36,8 +36,8 @@ namespace eicrecon {
         auto trajectories = event->Get<ActsExamples::Trajectories>(input_tag);
 
         try {
-            auto result = m_track_projector_algo.execute(trajectories);
-            Set(result);
+            auto track_segments = m_track_projector_algo.execute(trajectories);
+            SetCollection(std::move(track_segments));
         }
         catch(std::exception &e) {
             throw JException(e.what());
