@@ -44,10 +44,10 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
+std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
     std::vector<const ActsExamples::Trajectories*> trajectories) {
 
-  std::vector<edm4eic::Vertex*> outputVertices;
+  auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
@@ -107,19 +107,19 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
     edm4eic::Cov3f cov(vtx.covariance()(0, 0), vtx.covariance()(1, 1), vtx.covariance()(2, 2),
                        vtx.covariance()(0, 1), vtx.covariance()(0, 2), vtx.covariance()(1, 2));
 
-    auto* eicvertex = new edm4eic::Vertex{
-        1,                              // boolean flag if vertex is primary vertex of event
-        (float)vtx.fitQuality().first,  // chi2
-        (float)vtx.fitQuality().second, // ndf
-        {(float)vtx.position().x(), (float)vtx.position().y(),
-         (float)vtx.position().z()}, // vtxposition
-        cov,                         // covariance
-        1,                           // algorithmtype
-        (float)vtx.time(),           // time
-    };
-
-    outputVertices.push_back(eicvertex);
+    auto eicvertex = outputVertices->create();
+    eicvertex.setPrimary(1);                                  // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2((float)vtx.fitQuality().first);         // chi2
+    eicvertex.setProbability((float)vtx.fitQuality().second); // ndf
+    eicvertex.setPosition({
+         (float)vtx.position().x(),
+         (float)vtx.position().y(),
+         (float)vtx.position().z()
+    }); // vtxposition
+    eicvertex.setPositionError(cov);                          // covariance
+    eicvertex.setAlgorithmType(1);                            // algorithmtype
+    eicvertex.setTime((float)vtx.time());                     // time
   }
 
-  return outputVertices;
+  return std::move(outputVertices);
 }
