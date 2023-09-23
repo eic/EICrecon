@@ -2,7 +2,7 @@
 // Copyright (C) 2023 Wouter Deconinck
 
 #pragma once
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
 #include <edm4hep/TrackerHitCollection.h>
@@ -43,7 +43,7 @@ namespace eicrecon {
 
         auto cfg = GetDefaultConfig();
 
-        auto geoSvc = app->GetService<JDD4hep_service>();
+        auto geoSvc = app->GetService<DD4hep_service>();
 
         // This prefix will be used for parameters
         std::string param_prefix = GetPluginName() + ":" + GetTag();
