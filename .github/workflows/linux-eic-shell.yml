@@ -85,8 +85,8 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          # Disable LD_LIBRARY_PATH to ensure R(UN)PATH use
-          (cd build && LD_LIBRARY_PATH="" ctest -V)
+          export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
+          ctest --test-dir build -V
     - uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
@@ -617,6 +617,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
       fail-fast: false
+      max-parallel: 4
     steps:
       - uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr

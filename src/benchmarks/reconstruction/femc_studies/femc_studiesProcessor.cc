@@ -11,6 +11,7 @@
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
@@ -55,6 +56,9 @@ void femc_studiesProcessor::Init() {
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
+
+  // Ask service locator for the DD4hep geometry
+  auto dd4hep_service = app->GetService<DD4hep_service>();
 
   // Get TDirectory for histograms root file
   auto globalRootLock = app->GetService<JGlobalRootLock>();
@@ -204,12 +208,12 @@ void femc_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector& detector = dd4hep::Detector::getInstance();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
+  dd4hep::Detector* detector = dd4hep_service->detector();
+  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-    m_decoder         = detector.readout("EcalEndcapPHits").idSpec().decoder();
-    std::cout <<"1st: "<< m_decoder << std::endl;
+    m_decoder = detector->readout("EcalEndcapPHits").idSpec().decoder();
+    std::cout << "1st: "<< m_decoder << std::endl;
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
       std::cout <<"2nd: "  << m_decoder << std::endl;

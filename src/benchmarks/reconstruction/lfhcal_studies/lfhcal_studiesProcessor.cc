@@ -11,6 +11,7 @@
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
@@ -52,6 +53,9 @@ void lfhcal_studiesProcessor::Init() {
   app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str,
                            "LogLevel: trace, debug, info, warn, err, critical, off");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+  // Ask service locator for the DD4hep geometry
+  auto dd4hep_service = app->GetService<DD4hep_service>();
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
@@ -240,11 +244,11 @@ void lfhcal_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector& detector = dd4hep::Detector::getInstance();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
+  dd4hep::Detector* detector = dd4hep_service->detector();
+  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-    m_decoder         = detector.readout("LFHCALHits").idSpec().decoder();
+    m_decoder = detector->readout("LFHCALHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
     auto module_index_x = m_decoder->index("moduleIDx");
     auto module_index_y = m_decoder->index("moduleIDy");

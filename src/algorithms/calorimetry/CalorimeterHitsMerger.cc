@@ -33,14 +33,13 @@ void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_p
             ref_fields.emplace_back(m_cfg.fields[i], ref);
         }
         ref_mask = id_desc.encode(ref_fields);
-        // debug() << fmt::format("Reference id mask for the fields {:#064b}", ref_mask) << endmsg;
     } catch (...) {
         auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
         m_log->warn(mess);
 //        throw std::runtime_error(mess);
     }
     id_mask = ~id_mask;
-    m_log->info(fmt::format("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask));
+    m_log->debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
 }
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::process(const edm4eic::CalorimeterHitCollection &input) {
@@ -75,7 +74,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
         // local positions
         auto alignment = volman.lookupDetElement(ref_id).nominal();
         const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
-        m_log->debug( fmt::format("{}, {}", volman.lookupDetElement(ref_id).path(), volman.lookupDetector(ref_id).path()) );
+        m_log->debug("{}, {}", volman.lookupDetElement(ref_id).path(), volman.lookupDetector(ref_id).path());
         // sum energy
         float energy = 0.;
         float energyError = 0.;
@@ -115,7 +114,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
                         local); // Can do better here? Right now position is mapped on the central hit
     }
 
-    m_log->debug(fmt::format("Size before = {}, after = {}", input.size(), output->size()) );
+    m_log->debug("Size before = {}, after = {}", input.size(), output->size());
 
     return output;
 }
