@@ -137,14 +137,15 @@ namespace eicrecon {
 
     // DIS kinematics calculations
     auto sigma_h = Esum - pzsum;
-    auto ptsum = sqrt(pxsum*pxsum + pysum*pysum);
-    auto theta_h = 2.*atan(sigma_h/ptsum);
 
-    // If no scattered electron was found
+    // If no scattered hadron was found
     if (sigma_h <= 0) {
-      m_log->debug("No scattered electron found");
+      m_log->debug("No scattered hadron found");
       return kinematics;
     }
+
+    auto ptsum = sqrt(pxsum*pxsum + pysum*pysum);
+    auto theta_h = 2.*atan(sigma_h/ptsum);
 
     // Calculate kinematic variables
     const auto y_da = tan(theta_h/2.) / ( tan(theta_e/2.) + tan(theta_h/2.) );
