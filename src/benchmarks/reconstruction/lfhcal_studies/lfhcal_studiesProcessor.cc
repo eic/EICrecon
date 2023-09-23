@@ -250,12 +250,9 @@ void lfhcal_studiesProcessor::Init() {
   try {
     m_decoder = detector->readout("LFHCALHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
-    auto module_index_x = m_decoder->index("moduleIDx");
-    auto module_index_y = m_decoder->index("moduleIDy");
     iLx = m_decoder->index("towerx");
     iLy = m_decoder->index("towery");
     iLz = m_decoder->index("layerz");
-    auto rlayer_index_z = m_decoder->index("rlayerz");
     iPassive = m_decoder->index("passive");
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
@@ -411,23 +408,18 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     auto detector_layer_x = m_decoder->get(cellID, iLx);
     auto detector_layer_y = m_decoder->get(cellID, iLy);
     int detector_layer_rz = -1;
-    int detector_module_t  = 0;
     if (isLFHCal){
       detector_layer_rz   = m_decoder->get(cellID, 7);
-      detector_module_t   = m_decoder->get(cellID, 3);
     }
-    auto detector_layer_z = m_decoder->get(cellID, iLz);
 
     if (detector_passive > 0) continue;
 
     // calc cell IDs
     int cellIDx = -1;
     int cellIDy = -1;
-    int cellIDz = -1;
     if (isLFHCal){
       cellIDx = 54*2 - detector_module_x * 2 + detector_layer_x;
       cellIDy = 54*2 - detector_module_y * 2 + detector_layer_y;
-      cellIDz = detector_layer_rz;
     }
 
     hPosCaloHitsXY->Fill(x, y);
