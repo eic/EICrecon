@@ -48,8 +48,6 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
-
-
     CKFTracking::CKFTracking() {
     }
 
@@ -120,7 +118,7 @@ namespace eicrecon {
 
         auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKFTracking Logger", logLevel, m_log));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
