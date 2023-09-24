@@ -210,7 +210,7 @@ namespace eicrecon {
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
 
-        Acts::Logging::Level logLevel = Acts::Logging::FATAL;
+        Acts::Logging::Level logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
         ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("ProjectTrack Logger", logLevel));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
