@@ -103,7 +103,6 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
-    const std::string& name,
     const Acts::Logging::Level& lvl,
     std::shared_ptr<spdlog::logger> log) {
 
