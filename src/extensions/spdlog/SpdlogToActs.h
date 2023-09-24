@@ -29,7 +29,7 @@ static SpdlogToActsLevel_t kSpdlogToActsLevel = boost::assign::list_of<SpdlogToA
 
 inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
   try {
-    return kSpdlogToActsLevel.right.at(input);
+    return kSpdlogToActsLevel.left.at(input);
   } catch (...) {
     auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
     throw JException(err_msg);
@@ -38,7 +38,7 @@ inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
 
 inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
   try {
-    return kSpdlogToActsLevel.left.at(input);
+    return kSpdlogToActsLevel.right.at(input);
   } catch (...) {
     auto err_msg = fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", input);
     throw JException(err_msg);
