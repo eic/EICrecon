@@ -24,8 +24,7 @@ static SpdlogToActsLevel_t kSpdlogToActsLevel = boost::assign::list_of<SpdlogToA
   (spdlog::level::info, Acts::Logging::INFO)
   (spdlog::level::warn, Acts::Logging::WARNING)
   (spdlog::level::err, Acts::Logging::ERROR)
-  (spdlog::level::critical, Acts::Logging::FATAL)
-  (spdlog::level::off, Acts::Logging::FATAL);
+  (spdlog::level::critical, Acts::Logging::FATAL);
 
 inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
   try {
