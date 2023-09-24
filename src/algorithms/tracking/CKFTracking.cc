@@ -116,7 +116,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {std::regex("^No tracks found$")}));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {"^No tracks found$"}));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
