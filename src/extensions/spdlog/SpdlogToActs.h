@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <boost/bimap.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -14,35 +16,33 @@ namespace eicrecon {
 
 using namespace Acts::Logging;
 
+using SpdlogToActsLevel_t = boost::bimap<spdlog::level::level_enum, Acts::Logging::Level>;
+static SpdlogToActsLevel_t kSpdlogToActsLevel = boost::assign::list_of<SpdlogToActsLevel::relation>
+  (spdlog::level::trace, Acts::Logging::VERBOSE)
+  (spdlog::level::debug, Acts::Logging::DEBUG)
+  (spdlog::level::info, Acts::Logging::INFO)
+  (spdlog::level::warn, Acts::Logging::WARNING)
+  (spdlog::level::err, Acts::Logging::ERROR)
+  (spdlog::level::critical, Acts::Logging::FATAL)
+  (spdlog::level::off, Acts::Logging::FATAL);
 
 inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
-
-  // Convert the source string to lower case
-  switch (input) {
-    case spdlog::level::trace:
-      return Acts::Logging::VERBOSE;
-    case spdlog::level::debug:
-      return Acts::Logging::DEBUG;
-    case spdlog::level::info:
-      return Acts::Logging::INFO;
-    case spdlog::level::warn:
-      return Acts::Logging::WARNING;
-    case spdlog::level::err:
-      return Acts::Logging::ERROR;
-    case spdlog::level::critical:
-      return Acts::Logging::FATAL;
-    case spdlog::level::off:
-      return Acts::Logging::FATAL;
-    case spdlog::level::n_levels:
-      [[fallthrough]];
-    default:
-      break;
+  try {
+    return kSpdlogToActsLevel.right.at(input);
+  } catch (...) {
+    auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
+    throw JException(err_msg);
   }
-
-  auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
-  throw JException(err_msg);
 }
 
+inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
+  try {
+    return kSpdlogToActsLevel.left.at(input);
+  } catch (...) {
+    auto err_msg = fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", input);
+    throw JException(err_msg);
+  }
+}
 
 /// @brief default print policy for debug messages
 ///
