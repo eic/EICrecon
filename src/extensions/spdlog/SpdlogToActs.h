@@ -18,7 +18,7 @@ namespace eicrecon {
 using namespace Acts::Logging;
 
 using SpdlogToActsLevel_t = boost::bimap<spdlog::level::level_enum, Acts::Logging::Level>;
-static SpdlogToActsLevel_t kSpdlogToActsLevel = boost::assign::list_of<SpdlogToActsLevel::relation>
+static SpdlogToActsLevel_t kSpdlogToActsLevel = boost::assign::list_of<SpdlogToActsLevel_t::relation>
   (spdlog::level::trace, Acts::Logging::VERBOSE)
   (spdlog::level::debug, Acts::Logging::DEBUG)
   (spdlog::level::info, Acts::Logging::INFO)
