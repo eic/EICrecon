@@ -62,7 +62,7 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
     /// @param [in] lvl   debug level of debug message
     /// @param [in] input text of debug message
     void flush(const Level& lvl, const std::string& input) final {
-      m_out->info(input);
+      m_out->log(ActsToSpdlogLevel(lvl), input);
       if (lvl >= getFailureThreshold()) {
         throw ThresholdFailure(
             "Previous debug message exceeds the "
