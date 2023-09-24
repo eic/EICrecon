@@ -62,7 +62,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   auto propagator = std::make_shared<Propagator>(stepper);
   auto logLevel   = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKFTracking Logger", logLevel, m_log));
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(logLevel, m_log));
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
 
   // Setup the vertex fitter

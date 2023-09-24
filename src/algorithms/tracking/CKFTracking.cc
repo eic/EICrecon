@@ -118,7 +118,7 @@ namespace eicrecon {
 
         auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKFTracking Logger", logLevel, m_log));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(logLevel, m_log));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
