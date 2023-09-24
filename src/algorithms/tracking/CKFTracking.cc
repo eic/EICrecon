@@ -118,7 +118,7 @@ namespace eicrecon {
 
         auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(logLevel, m_log));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(logLevel, m_log, {std::regex("^No tracks found$")}));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;

@@ -7,6 +7,8 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
+#include <regex>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -55,13 +57,19 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
     /// @param [in] out pointer to output stream object
     ///
     /// @pre @p out is non-zero
-    explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out) : m_out(out) {}
+    explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out, std::vector<std::regex> suppressions = {})
+    : m_out(out), m_suppressions(suppressions) {}
 
     /// @brief flush the debug message to the destination stream
     ///
     /// @param [in] lvl   debug level of debug message
     /// @param [in] input text of debug message
     void flush(const Level& lvl, const std::string& input) final {
+      for (const auto& suppression : m_suppressions) {
+        if (std::regex_search(input, suppression)) {
+          return;
+        }
+      }
       m_out->log(ActsToSpdlogLevel(lvl), input);
       if (lvl >= getFailureThreshold()) {
         throw ThresholdFailure(
@@ -100,13 +108,17 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
   private:
     /// pointer to destination output stream
     std::shared_ptr<spdlog::logger> m_out;
+
+    /// regexes for messages to be suppressed
+    std::vector<std::regex> m_suppressions;
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
     const Acts::Logging::Level& lvl,
-    std::shared_ptr<spdlog::logger> log) {
+    std::shared_ptr<spdlog::logger> log,
+    std::vector<std::regex> suppressions = {}) {
 
-  auto output = std::make_unique<SpdlogPrintPolicy>(log);
+  auto output = std::make_unique<SpdlogPrintPolicy>(log, suppressions);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }
