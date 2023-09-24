@@ -1,5 +1,12 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: MPL-2.0
+//
+// Copyright (C) 2016-2018 CERN for the benefit of the Acts project
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// Based on code from Acts at Core/include/Acts/Utilities/Logger.hpp
 //
 
 #pragma once
