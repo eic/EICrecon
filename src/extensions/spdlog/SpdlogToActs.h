@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
 #include <spdlog/spdlog.h>
