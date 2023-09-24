@@ -212,7 +212,7 @@ namespace eicrecon {
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {std::regex("^Propagation reached the step count limit")}));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
 
