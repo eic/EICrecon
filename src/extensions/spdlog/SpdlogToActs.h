@@ -67,6 +67,13 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
     explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out, std::vector<std::regex> suppressions = {})
     : m_out(out), m_suppressions(suppressions) {}
 
+    /// @brief destructor
+    ~SpdlogPrintPolicy() {
+      if (m_suppressions_count > 0) {
+        m_out->info("last message repeated {} times", m_suppressions_count);
+      }
+    }
+
     /// @brief flush the debug message to the destination stream
     ///
     /// @param [in] lvl   debug level of debug message
@@ -74,7 +81,7 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
     void flush(const Level& lvl, const std::string& input) final {
       for (const auto& suppression : m_suppressions) {
         if (std::regex_search(input, suppression)) {
-          return;
+          if (++m_suppressions_count > 1) return;
         }
       }
       m_out->log(ActsToSpdlogLevel(lvl), input);
@@ -111,13 +118,13 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
       return std::make_unique<SpdlogPrintPolicy>(m_out);
     };
   #endif
-
   private:
     /// pointer to destination output stream
     std::shared_ptr<spdlog::logger> m_out;
 
     /// regexes for messages to be suppressed
     std::vector<std::regex> m_suppressions;
+    std::size_t m_suppressions_count{0};
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
