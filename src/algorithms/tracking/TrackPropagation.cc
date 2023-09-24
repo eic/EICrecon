@@ -32,6 +32,8 @@
 
 #include "ActsGeometryProvider.h"
 
+#include "extensions/spdlog/SpdlogToActs.h"
+
 #include <edm4eic/vector_utils.h>
 
 
