@@ -107,11 +107,7 @@ inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
     const Acts::Logging::Level& lvl,
     std::shared_ptr<spdlog::logger> log) {
 
-  auto output = std::make_unique<LevelOutputDecorator>(
-      std::make_unique<NamedOutputDecorator>(
-          std::make_unique<TimedOutputDecorator>(
-              std::make_unique<SpdlogPrintPolicy>(log)),
-          name));
+  auto output = std::make_unique<SpdlogPrintPolicy>(log);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }
