@@ -415,8 +415,8 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     if (detector_passive > 0) continue;
 
     // calc cell IDs
-    int cellIDx = -1;
-    int cellIDy = -1;
+    long cellIDx = -1;
+    lonh cellIDy = -1;
     if (isLFHCal){
       cellIDx = 54*2 - detector_module_x * 2 + detector_layer_x;
       cellIDy = 54*2 - detector_module_y * 2 + detector_layer_y;
