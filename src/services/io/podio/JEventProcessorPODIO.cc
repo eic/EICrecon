@@ -36,6 +36,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections={
+            // Header and other metadata
+            "EventHeader",
+
+            // Truth record
             "MCParticles",
 
             // All tracking hits combined
