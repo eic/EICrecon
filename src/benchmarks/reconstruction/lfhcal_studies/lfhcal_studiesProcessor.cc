@@ -345,8 +345,8 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     long cellIDy = -1;
     long cellIDz = -1;
     if (isLFHCal){
-      cellIDx = 54*2 - detector_module_x * 2 + detector_layer_x;
-      cellIDy = 54*2 - detector_module_y * 2 + detector_layer_y;
+      cellIDx = 54ll*2 - detector_module_x * 2 + detector_layer_x;
+      cellIDy = 54ll*2 - detector_module_y * 2 + detector_layer_y;
       cellIDz = detector_layer_rz*10+detector_layer_z;
     }
     nCaloHitsSim++;
@@ -418,8 +418,8 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     long cellIDx = -1;
     long cellIDy = -1;
     if (isLFHCal){
-      cellIDx = 54*2 - detector_module_x * 2 + detector_layer_x;
-      cellIDy = 54*2 - detector_module_y * 2 + detector_layer_y;
+      cellIDx = 54ll*2 - detector_module_x * 2 + detector_layer_x;
+      cellIDy = 54ll*2 - detector_module_y * 2 + detector_layer_y;
     }
 
     hPosCaloHitsXY->Fill(x, y);
