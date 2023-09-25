@@ -52,15 +52,10 @@ processor_sequentialroot_header_template = """
 
 // Include appropirate class headers. e.g.
 // #include <edm4hep/SimCalorimeterHit.h>
-// #include "detectors/BEMC/BEMCRawCalorimeterHit.h"
 
 
 class {0}: public JEventProcessorSequentialRoot {{
 private:
-
-    // Data objects we will need from JANA e.g.
-    // PrefetchT<edm4hep::SimCalorimeterHit> rawhits   = {{this, "EcalBarrelHits"}};
-    // PrefetchT<BEMCRawCalorimeterHit>      digihits  = {{this}};
 
     // Declare histogram and tree pointers here. e.g.
     // TH1D* hEraw  = nullptr;
@@ -109,10 +104,11 @@ void {0}::InitWithGlobalRootLock(){{
 // ProcessSequential
 //-------------------------------------------
 void {0}::ProcessSequential(const std::shared_ptr<const JEvent>& event) {{
+    // Data objects we will need from JANA e.g.
+    const auto &rawhits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
 
     // Fill histograms here. e.g.
-    // for( auto hit : rawhits()  ) hEraw->Fill(  hit->getEnergy());
-    // for( auto hit : digihits() ) hEdigi->Fill( hit->getAmplitude(), hit->getEnergy());
+    // for (auto hit : rawhits) hEraw->Fill(hit.getEnergy());
 }}
 
 //-------------------------------------------
