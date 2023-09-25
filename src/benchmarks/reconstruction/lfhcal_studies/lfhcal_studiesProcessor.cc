@@ -320,7 +320,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     uint64_t cellID = caloHit.getCellID();
     float energy    = caloHit.getEnergy();
     double time = std::numeric_limits<double>::max();
-    for (const auto c : caloHit.getContributions()) {
+    for (const auto& c : caloHit.getContributions()) {
         if (c.getTime() <= time) {
             time = c.getTime();
         }
