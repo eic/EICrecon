@@ -72,6 +72,10 @@ macro(plugin_add _name)
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
     endif()     # WITH_LIBRARY
+
+    if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
+        target_link_libraries(${_name}_plugin ${_name}_library)
+    endif()
 endmacro()
 
 
