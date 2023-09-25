@@ -817,8 +817,6 @@ jobs:
         run: |
           rate=$(gh api rate_limit | jq '.rate')
           echo $rate
-          limit=$(echo $rate | jq '.limit')
-          used=$(echo $rate | jq '.used')
           remaining=$(echo $rate | jq '.remaining')
           reset=$(echo $rate | jq '.reset')
           if [ $remaining -lt 100 ] ; then
