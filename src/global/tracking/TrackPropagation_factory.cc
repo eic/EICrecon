@@ -42,22 +42,7 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
 
     auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
 
-    edm4eic::TrackSegmentCollection propagated_tracks;
-
-    for(auto traj: trajectories) {
-        edm4eic::MutableTrackSegment this_propagated_track;
-        for(size_t isurf = 0; auto surf: m_target_surface_list) {
-            auto prop_point = m_track_propagation_algo.propagate(traj, surf);
-            if(!prop_point) continue;
-#if EDM4EIC_VERSION_MAJOR >= 3
-            prop_point->surface = m_target_surface_ID[isurf];
-            prop_point->system = m_target_detector_ID[isurf];
-#endif
-            this_propagated_track.addToPoints(*prop_point);
-            isurf++;
-        }
-        propagated_tracks.push_back(this_propagated_track);
-    }
+    auto propagated_tracks = m_track_propagation_algo.propagateMany(trajectories, m_target_surface_list);
 
     SetCollection<edm4eic::TrackSegment>(GetOutputTags()[0], std::move(propagated_tracks));
 
