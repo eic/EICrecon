@@ -19,14 +19,14 @@ namespace eicrecon {
         std::string plugin_name = GetPluginName();
         std::string param_prefix = plugin_name + ":" + m_input_tag + ":";
 
-        auto app = GetApplication();
+        auto *app = GetApplication();
 
         m_log = app->GetService<Log_service>()->logger(m_output_tag);
 
         m_readout = m_input_tag;
 
         app->SetDefaultParameter(param_prefix+"readoutClass", m_readout);
-        m_geoSvc = app->GetService<JDD4hep_service>();
+        m_geoSvc = app->GetService<DD4hep_service>();
 
         if(m_readout.empty()){ m_log->error("READOUT IS EMPTY!"); return; }
 
@@ -86,7 +86,7 @@ namespace eicrecon {
         bool goodHit1 = false;
         bool goodHit2 = false;
 
-        for (const auto h: rawhits) {
+        for (const auto *const h: rawhits) {
 
             auto cellID = h->getCellID();
 

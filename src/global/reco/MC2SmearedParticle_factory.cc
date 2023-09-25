@@ -6,7 +6,7 @@
 
 namespace eicrecon {
     void MC2SmearedParticle_factory::Init() {
-        auto app = GetApplication();
+        auto *app = GetApplication();
         // We will use plugin name to get parameters for correct factory
         // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
         //    "BTRK:parameter" or "FarForward:parameter"

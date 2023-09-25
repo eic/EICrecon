@@ -112,44 +112,44 @@ void eicrecon::TrackSeeding::configure() {
       std::pow(m_seedFinderConfig.highland / m_seedFinderConfig.pTPerHelixRadius,2);
 }
 
-std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
+std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seedFinderConfig);
   eicrecon::SeedContainer seeds = finder.createSeeds(spacePoints);
 
-  std::vector<edm4eic::TrackParameters*> result = makeTrackParams(seeds);
+  std::unique_ptr<edm4eic::TrackParametersCollection> trackparams = makeTrackParams(seeds);
 
   for (auto& sp: spacePoints) {
     delete sp;
   }
 
-  return result;
+  return std::move(trackparams);
 }
 
-std::vector<const eicrecon::SpacePoint*> eicrecon::TrackSeeding::getSpacePoints(std::vector<const edm4eic::TrackerHit*>& trk_hits)
+std::vector<const eicrecon::SpacePoint*> eicrecon::TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits)
 {
   std::vector<const eicrecon::SpacePoint*> spacepoints;
 
   for(const auto hit : trk_hits)
     {
-      const eicrecon::SpacePoint* sp = new SpacePoint(*hit);
+      const eicrecon::SpacePoint* sp = new SpacePoint(hit);
       spacepoints.push_back(sp);
     }
 
   return spacepoints;
 }
 
-std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds)
+std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds)
 {
-  std::vector<edm4eic::TrackParameters*> trackparams;
+  auto trackparams = std::make_unique<edm4eic::TrackParametersCollection>();
 
   for(auto& seed : seeds)
     {
       std::vector<std::pair<float,float>> xyHitPositions;
       std::vector<std::pair<float,float>> rzHitPositions;
-      for(auto& spptr : seed.sp())
+      for(const auto& spptr : seed.sp())
         {
           xyHitPositions.emplace_back(spptr->x(), spptr->y());
           rzHitPositions.emplace_back(spptr->r(), spptr->z());
@@ -208,23 +208,20 @@ std::vector<edm4eic::TrackParameters*> eicrecon::TrackSeeding::makeTrackParams(S
           localpos = local.value();
         }
 
-      edm4eic::TrackParameters *params = new edm4eic::TrackParameters{
-        -1, // type --> seed(-1)
-        {(float)localpos(0), (float)localpos(1)}, // 2d location on surface
-        {0.1,0.1}, //covariance of location
-        theta, //theta [rad]
-        (float)phi, // phi [rad]
-        qOverP, // Q/p [e/GeV]
-        {0.05,0.05,0.05}, // covariance on theta/phi/q/p
-        10, // time in ns
-        0.1, // error on time
-        (float)charge // charge
-      };
-
-      trackparams.push_back(params);
+      auto trackparam = trackparams->create();
+      trackparam.setType(-1); // type --> seed(-1)
+      trackparam.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface
+      trackparam.setLocError({0.1,0.1}); //covariance of location
+      trackparam.setTheta(theta); //theta [rad]
+      trackparam.setPhi((float)phi); // phi [rad]
+      trackparam.setQOverP(qOverP); // Q/p [e/GeV]
+      trackparam.setMomentumError({0.05,0.05,0.05}); // covariance on theta/phi/q/p
+      trackparam.setTime(10); // time in ns
+      trackparam.setTimeError(0.1); // error on time
+      trackparam.setCharge((float)charge); // charge
     }
 
-  return trackparams;
+  return std::move(trackparams);
 }
 std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,float>& circleParams) const
 {

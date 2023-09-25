@@ -11,6 +11,7 @@
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include <spdlog/fmt/ostr.h>
 
@@ -34,14 +35,6 @@
 
 #include "clusterizer_MA.h"
 
-// The following just makes this a JANA plugin
-extern "C" {
-  void InitPlugin(JApplication* app) {
-    InitJANAPlugin(app);
-    app->Add(new lfhcal_studiesProcessor());
-  }
-}
-
 
 //******************************************************************************************//
 // InitWithGlobalRootLock
@@ -61,13 +54,16 @@ void lfhcal_studiesProcessor::Init() {
                            "LogLevel: trace, debug, info, warn, err, critical, off");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
+  // Ask service locator for the DD4hep geometry
+  auto dd4hep_service = app->GetService<DD4hep_service>();
+
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
 
   // Get TDirectory for histograms root file
   auto globalRootLock = app->GetService<JGlobalRootLock>();
   globalRootLock->acquire_write_lock();
-  auto file = root_file_service->GetHistFile();
+  auto *file = root_file_service->GetHistFile();
   globalRootLock->release_lock();
 
   // ===============================================================================================
@@ -248,11 +244,11 @@ void lfhcal_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector& detector = dd4hep::Detector::getInstance();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
+  dd4hep::Detector* detector = dd4hep_service->detector();
+  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
   std::cout << "--------------------------\nID specification:\n";
   try {
-    m_decoder         = detector.readout("LFHCALHits").idSpec().decoder();
+    m_decoder = detector->readout("LFHCALHits").idSpec().decoder();
     std::cout <<"1st: "<< m_decoder << std::endl;
     auto module_index_x = m_decoder->index("moduleIDx");
     auto module_index_y = m_decoder->index("moduleIDy");
@@ -288,7 +284,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   for (auto mcparticle : mcParticles) {
     if (mcparticle->getGeneratorStatus() != 1)
       continue;
-    auto& mom = mcparticle->getMomentum();
+    const auto& mom = mcparticle->getMomentum();
     // get particle energy
     mcenergy = mcparticle->getEnergy();
     //determine mceta from momentum
@@ -318,7 +314,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
   auto simHits = event -> Get<edm4hep::SimCalorimeterHit>(nameSimHits.data());
-  for (auto caloHit : simHits) {
+  for (const auto *caloHit : simHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -401,7 +397,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
   // process rec hits
-  for (auto caloHit : recHits) {
+  for (const auto *caloHit : recHits) {
     float x         = caloHit->getPosition().x / 10.;
     float y         = caloHit->getPosition().y / 10.;
     float z         = caloHit->getPosition().z / 10.;
@@ -618,7 +614,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
     m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
-    for (auto& hit: cluster->getHits()){
+    for (const auto& hit: cluster->getHits()){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)

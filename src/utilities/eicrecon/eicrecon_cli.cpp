@@ -11,6 +11,7 @@
 
 #include <JANA/Services/JComponentManager.h>
 
+#include <cstdlib>
 #include <set>
 #include <iostream>
 #include <string>
@@ -228,7 +229,7 @@ namespace jana {
 
     JApplication* CreateJApplication(UserOptions& options) {
 
-        auto para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
+        auto *para_mgr = new JParameterManager(); // JApplication owns params_copy, does not own eventSources
 
         // Add the cli options based on the user inputs
         for (auto pair : options.params) {
@@ -262,7 +263,7 @@ namespace jana {
             para_mgr->SetParameter("jana:warmup_timeout", 180); // seconds
         }
 
-        auto app = new JApplication(para_mgr);
+        auto *app = new JApplication(para_mgr);
 
         const char* env_p = getenv("EICrecon_MY");
         if( env_p ){
@@ -293,7 +294,7 @@ namespace jana {
             // cli criteria: Ppodio:print_type_table=1
             if (print_type_table) {
                 auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
-                for (auto event_source : event_sources) {
+                for (auto *event_source : event_sources) {
 //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
 //                    std::cout << event_source->GetResourceName() << std::endl;
                     if (event_source->GetPluginName().find("podio") != std::string::npos)
@@ -324,8 +325,8 @@ namespace jana {
         }
 
         std::cout << "\nConfiguration Parameters:" << std::endl;
-        std::cout << "Name" + std::string(max_key_length-4, ' ') << " : ";
-        std::cout << "Value" + std::string(max_val_length-5, ' ') << " : ";
+        std::cout << "Name" + std::string(std::max(max_key_length, size_t(4)) - 4, ' ') << " : ";
+        std::cout << "Value" + std::string(std::max(max_val_length, size_t(5)) - 5, ' ') << " : ";
         std::cout << "Description" << std::endl;
         std::cout << std::string(max_key_length+max_val_length+20, '-') << std::endl;
         for( auto &[key, p] : params ){
@@ -391,10 +392,12 @@ namespace jana {
             catch (JException& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << e << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
             catch (std::runtime_error& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << "Exception: " << e.what() << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
         }
         return (int) app->GetExitCode();

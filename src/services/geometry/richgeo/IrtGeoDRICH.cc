@@ -20,7 +20,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   TVector3 normY(0, -1, 0);
   m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin + vesselWindowThickness), normX, normY);
   for (int isec=0; isec<nSectors; isec++) {
-    auto cv = m_irtDetectorCollection->SetContainerVolume(
+    auto *cv = m_irtDetectorCollection->SetContainerVolume(
         m_irtDetector,              // Cherenkov detector
         RadiatorName(kGas).c_str(), // name
         isec,                       // path
@@ -58,7 +58,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   m_aerogelFlatSurface  = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
   m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
   for (int isec = 0; isec < nSectors; isec++) {
-    auto aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+    auto *aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,                  // Cherenkov detector
         RadiatorName(kAerogel).c_str(), // name
         isec,                           // path
@@ -67,7 +67,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_aerogelFlatSurface,           // surface
         aerogelThickness                // surface thickness
         );
-    auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+    auto *filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,           // Cherenkov detector
         "Filter",                // name
         isec,                    // path

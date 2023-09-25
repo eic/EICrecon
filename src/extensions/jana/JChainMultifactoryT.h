@@ -21,10 +21,11 @@
 
 #include "datamodel_glue.h"
 #include <JANA/JMultifactory.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JChainFactoryT.h"  // Just to pull in struct NoConfig
 
 
-template <typename ConfigT = NoConfig>
+template <typename ConfigT = eicrecon::NoConfig>
 class JChainMultifactoryT : public JMultifactory {
 public:
 

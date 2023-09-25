@@ -46,7 +46,7 @@ public:
         }
 
         FactoryT *factory;
-        if constexpr(std:: is_base_of<NoConfig,FactoryConfigType>()) {
+        if constexpr(std:: is_base_of<eicrecon::NoConfig,FactoryConfigType>()) {
             factory = new FactoryT(m_tag, m_input_tags, m_output_tags);
         } else {
             factory = new FactoryT(m_tag, m_input_tags, m_output_tags, m_default_cfg);

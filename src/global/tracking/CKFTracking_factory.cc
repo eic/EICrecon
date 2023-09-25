@@ -11,10 +11,10 @@
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
     std::string plugin_name = GetPluginName();
@@ -25,7 +25,7 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = app->GetService<ACTSGeo_service>();
-    auto dd4hp_service = app->GetService<JDD4hep_service>();
+    auto dd4hp_service = app->GetService<DD4hep_service>();
 
 
     // Algorithm configuration
@@ -52,7 +52,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     // Convert vector of source links to a sorted in geometry order container used in tracking
     ActsExamples::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
-    for(auto &sourceLink: source_linker_result->sourceLinks){
+    for(const auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,
         // new elements in geometry containers can just be appended at the end.
         source_links.emplace_hint(source_links.end(), *sourceLink);

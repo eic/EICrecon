@@ -9,21 +9,13 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
 
-// The following just makes this a JANA plugin
-extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new TRACKINGcheckProcessor);
-    }
-}
-
 //-------------------------------------------
 // InitWithGlobalRootLock
 //-------------------------------------------
 void TRACKINGcheckProcessor::InitWithGlobalRootLock(){
 
     auto rootfile_svc = GetApplication()->GetService<RootFile_service>();
-    auto rootfile = rootfile_svc->GetHistFile();
+    auto *rootfile = rootfile_svc->GetHistFile();
     rootfile->mkdir("TRACKING")->cd();
 
     hist1D["Trajectories_trajectories_per_event"]  =  new TH1I("Trajectories_trajectories_per_event",  "TRACKING Reconstructed trajectories/event;Ntrajectories",  201, -0.5, 200.5);
@@ -45,7 +37,7 @@ void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEven
     // Trajectories
     hist1D["Trajectories_trajectories_per_event"]->Fill(Trajectories().size());
 
-    for( auto traj : Trajectories() ){
+    for( const auto *traj : Trajectories() ){
         for( auto entryIndex : traj->tips() ){
             if( ! traj->hasTrackParameters( entryIndex) ) continue;
             auto trackparams = traj->trackParameters( entryIndex );

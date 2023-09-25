@@ -8,7 +8,7 @@
 
 #include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
@@ -17,8 +17,8 @@ namespace eicrecon {
 
     void TrackerSourceLinker_factory::Init() {
         // Ask JApplication and parameter managers
-        auto app =  this->GetApplication();
-        auto pm = app->GetJParameterManager();
+        auto *app =  this->GetApplication();
+        auto *pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
         std::string plugin_name = GetPluginName();
@@ -39,7 +39,7 @@ namespace eicrecon {
         // Get ACTS context from ACTSGeo service
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-        auto dd4hp_service = GetApplication()->GetService<JDD4hep_service>();
+        auto dd4hp_service = GetApplication()->GetService<DD4hep_service>();
 
         // Initialize algorithm
         auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
@@ -57,14 +57,14 @@ namespace eicrecon {
 
         for(auto input_tag: m_input_tags) {
             auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-            for (const auto hit : hits) {
+            for (const auto *const hit : hits) {
                 total_hits.push_back(hit);
             }
         }
         m_log->debug("TrackerSourceLinker_factory::Process");
 
         try {
-            auto result = m_source_linker.produce(total_hits);
+            auto *result = m_source_linker.produce(total_hits);
 
             for (auto sourceLink: result->sourceLinks) {
                 m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(),

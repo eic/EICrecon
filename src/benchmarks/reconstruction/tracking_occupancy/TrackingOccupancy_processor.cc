@@ -32,7 +32,7 @@ void TrackingOccupancy_processor::Init()
     std::string plugin_name=("tracking_occupancy");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -40,7 +40,7 @@ void TrackingOccupancy_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms

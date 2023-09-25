@@ -34,7 +34,7 @@ void TrackingEfficiency_processor::Init()
     std::string plugin_name=("tracking_efficiency");
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -42,7 +42,7 @@ void TrackingEfficiency_processor::Init()
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -65,7 +65,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE I
     // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-    auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+    const auto reco_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
 
     m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
     m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}","[i]", "[px]", "[py]", "[pz]", "[P]", "[P*3]");
@@ -83,7 +83,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // EXAMPLE II
     // This gets access to more direct ACTS results from CFKTracking
-    auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
+    auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
     m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
     m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}",
                  "[loc 0]","[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]", "[chi2]" );
@@ -129,7 +129,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
-        auto particle=mc_particles[i];
+        const auto *particle=mc_particles[i];
 
         // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4
         if(particle->getGeneratorStatus() != 1) continue;

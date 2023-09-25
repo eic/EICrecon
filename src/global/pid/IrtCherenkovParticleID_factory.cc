@@ -7,7 +7,7 @@
 void eicrecon::IrtCherenkovParticleID_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName(); // plugin name should be detector name
   auto prefix = GetPrefix();
 
@@ -73,8 +73,8 @@ void eicrecon::IrtCherenkovParticleID_factory::Process(const std::shared_ptr<con
   }
 
   // get input hit collections
-  auto raw_hits   = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
-  auto hit_assocs = static_cast<const edm4eic::MCRecoTrackerHitAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
+  const auto *raw_hits   = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
+  const auto *hit_assocs = static_cast<const edm4eic::MCRecoTrackerHitAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_num++]));
 
   try {
     // run the IrtCherenkovParticleID algorithm

@@ -3,6 +3,8 @@
 
 #include "MergeTracks.h"
 
+#include <fmt/ranges.h>
+
 // AlgorithmInit
 //---------------------------------------------------------------------------
 void eicrecon::MergeTracks::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
@@ -30,17 +32,21 @@ std::unique_ptr<edm4eic::TrackSegmentCollection> eicrecon::MergeTracks::Algorith
   auto out_tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
 
   // check that all input collections have the same size
-  std::size_t n_tracks = -1;
+  std::unordered_map<std::size_t, std::size_t> in_track_collection_size_distribution;
   for(const auto& in_track_collection : in_track_collections) {
-    if(n_tracks == -1)
-      n_tracks = in_track_collection->size();
-    else if(n_tracks != in_track_collection->size()) {
-      m_log->error("input track collections do not have the same size; cannot merge");
-      return out_tracks;
-    }
+    ++in_track_collection_size_distribution[in_track_collection->size()];
+  }
+  if (in_track_collection_size_distribution.size() != 1) {
+    std::vector<size_t> in_track_collection_sizes;
+    std::transform(in_track_collections.begin(), in_track_collections.end(),
+      std::back_inserter(in_track_collection_sizes),
+      [](const auto& in_track_collection) { return in_track_collection->size(); });
+    m_log->error("cannot merge input track collections with different sizes {}", fmt::join(in_track_collection_sizes, ", "));
+    return out_tracks;
   }
 
   // loop over track collection elements
+  std::size_t n_tracks = in_track_collection_size_distribution.begin()->first;
   for(std::size_t i_track=0; i_track<n_tracks; i_track++) {
 
     // create a new output track, and a local container to hold its track points

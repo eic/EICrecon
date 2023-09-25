@@ -10,8 +10,8 @@
 
 #include "MatchClusters_factory.h"
 
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/Cluster.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -46,35 +46,31 @@ namespace eicrecon {
     }
 
     void MatchClusters_factory::Process(const std::shared_ptr<const JEvent> &event) {
-
         // TODO make input tags changeable
-        auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-        auto charged_particles = event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
-        auto charged_particle_assocs = event->Get<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
+        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
+        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
+        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
 
-        using ClustersVector = std::vector<const edm4eic::Cluster*>;
-        using ClustersAssocVector = std::vector<const edm4eic::MCRecoClusterParticleAssociation*>;
-
-        std::vector<ClustersVector> input_cluster_vectors;
-        std::vector<ClustersAssocVector> input_cluster_assoc;
+        std::vector<const edm4eic::ClusterCollection*> cluster_collections;
+        std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> cluster_assoc_collections;
 
         for(auto &input_tag: GetInputTags()) {
-            auto clusters = event->Get<edm4eic::Cluster>(input_tag);
-            input_cluster_vectors.push_back(clusters);
+            auto clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(input_tag));
+            cluster_collections.push_back(clusters);
 
-            m_log->debug("Clusters '{}' len: {}", input_tag,  clusters.size());
-            for(auto cluster: clusters) {
-                m_log->debug("  {} {}", cluster->getObjectID().collectionID, cluster->getEnergy());
+            m_log->debug("Clusters '{}' len: {}", input_tag,  clusters->size());
+            for(const auto cluster : *clusters) {
+                m_log->debug("  {} {}", cluster.getObjectID().collectionID, cluster.getEnergy());
             }
         }
 
         for(auto &input_tag: m_input_assoc_tags) {
-            auto assocs = event->Get<edm4eic::MCRecoClusterParticleAssociation>(input_tag);
-            input_cluster_assoc.push_back(assocs);
+            auto assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag));
+            cluster_assoc_collections.push_back(assocs);
 
-            m_log->debug("Associations '{}' len: {}", input_tag, assocs.size());
-            for(auto assoc: assocs) {
-                m_log->debug("  {} {} {} {}", assoc->getRecID(), assoc->getSimID(), assoc->getRec().getEnergy(), assoc->getSim().getEnergy());
+            m_log->debug("Associations '{}' len: {}", input_tag, assocs->size());
+            for(const auto assoc : *assocs) {
+                m_log->debug("  {} {} {} {}", assoc.getRecID(), assoc.getSimID(), assoc.getRec().getEnergy(), assoc.getSim().getEnergy());
             }
         }
 
@@ -82,8 +78,8 @@ namespace eicrecon {
         auto [matched_particles, matched_assocs] = m_match_algo.execute(mc_particles,
                                                                               charged_particles,
                                                                               charged_particle_assocs,
-                                                                              input_cluster_vectors,
-                                                                              input_cluster_assoc);
+                                                                              cluster_collections,
+                                                                              cluster_assoc_collections);
 
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::unique_ptr<edm4eic::ReconstructedParticleCollection>(matched_particles));
         SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>(matched_assocs));

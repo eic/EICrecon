@@ -17,6 +17,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <map>
+#include <optional>
 #include <spdlog/spdlog.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -58,7 +59,7 @@ namespace eicrecon {
 
   private:
 
-    edm4eic::Cluster* reconstruct(const edm4eic::ProtoCluster& pcl) const;
+    std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
 
   };
 

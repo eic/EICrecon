@@ -45,11 +45,11 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, std::shared_ptr<
         id_dec = id_spec.decoder();
         if (!m_cfg.sectorField.empty()) {
             sector_idx = id_dec->index(m_cfg.sectorField);
-            m_log->info("Find sector field {}, index = {}", m_cfg.sectorField, sector_idx);
+            m_log->debug("Find sector field {}, index = {}", m_cfg.sectorField, sector_idx);
         }
         if (!m_cfg.layerField.empty()) {
             layer_idx = id_dec->index(m_cfg.layerField);
-            m_log->info("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
+            m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
         }
         if (!m_cfg.maskPosFields.empty()) {
             size_t tmp_mask = 0;
@@ -101,7 +101,7 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, std::shared_ptr<
         local_mask = id_spec.get_mask(fields);
         // use all fields if nothing provided
         if (fields.empty()) {
-            local_mask = ~0;
+            local_mask = ~static_cast<decltype(local_mask)>(0);
         }
     }
 

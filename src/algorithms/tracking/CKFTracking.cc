@@ -48,8 +48,6 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
-
-
     CKFTracking::CKFTracking() {
     }
 
@@ -58,7 +56,7 @@ namespace eicrecon {
 
         m_geoSvc = geo_svc;
 
-        m_BField = std::static_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
+        m_BField = std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
         m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 
         // eta bins, chi2 and #sourclinks per surface cutoffs
@@ -118,9 +116,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
-
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {"^No tracks found$"}));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
@@ -179,6 +175,7 @@ namespace eicrecon {
                 const auto& trackTips = multiTrajectory->tips();
                 if (trackTips.empty()) {
                     m_log->debug("Empty multiTrajectory.");
+                    delete multiTrajectory;
                     continue;
                 }
 

@@ -32,6 +32,8 @@
 
 #include "ActsGeometryProvider.h"
 
+#include "extensions/spdlog/SpdlogToActs.h"
+
 #include <edm4eic/vector_utils.h>
 
 
@@ -182,7 +184,7 @@ namespace eicrecon {
             m_log->trace("  Empty multiTrajectory.");
             return nullptr;
         }
-        auto &trackTip = trackTips.front();
+        const auto &trackTip = trackTips.front();
 
         // Collect the trajectory summary info
         auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
@@ -210,8 +212,7 @@ namespace eicrecon {
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
 
-        Acts::Logging::Level logLevel = Acts::Logging::FATAL;
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("ProjectTrack Logger", logLevel));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
 
