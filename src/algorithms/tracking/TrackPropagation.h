@@ -69,5 +69,9 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldContext;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
+
+        std::unique_ptr<const Acts::Logger> m_acts_log;
+        const Acts::Logger& logger() { return *m_acts_log; };
+
     };
 } // namespace eicrecon

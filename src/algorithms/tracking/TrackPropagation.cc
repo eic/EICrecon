@@ -90,6 +90,9 @@ namespace eicrecon {
       m_log->trace("Propagate trajectories: --------------------");
       m_log->trace("number of trajectories: {}",trajectories.size());
 
+      // Create Acts logger for this event
+      m_acts_log = std::move(eicrecon::getSpdlogLogger(m_log, {"Propagation reached the step count limit", "Step failed with EigenStepperError"}));
+
       // start output collection
       auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
 
@@ -165,6 +168,9 @@ namespace eicrecon {
 
       } // end loop over input trajectories
 
+      // Reset Acts logger (print suppressions)
+      m_acts_log.reset(nullptr);
+
       return track_segments;
     }
 
@@ -211,8 +217,6 @@ namespace eicrecon {
         using Propagator = Acts::Propagator<Stepper>;
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
-
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
 
