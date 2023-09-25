@@ -48,8 +48,6 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
-
-
     CKFTracking::CKFTracking() {
     }
 
@@ -118,9 +116,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        auto logLevel = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
-
-        ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {"^No tracks found$"}));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
