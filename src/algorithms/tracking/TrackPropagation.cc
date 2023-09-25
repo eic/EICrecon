@@ -62,6 +62,10 @@ namespace eicrecon {
         auto propagated_tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
         m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
 
+        // Create Acts logger for this event
+        m_acts_log = std::move(eicrecon::getSpdlogLogger(m_log, {"Propagation reached the step count limit", "Step failed with EigenStepperError"}));
+        m_log->info("Acts logger now active");
+
         // Loop over the trajectories
         for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
             auto &traj = trajectories[traj_index];
@@ -81,6 +85,10 @@ namespace eicrecon {
 
             }
         }
+
+        // Reset Acts logger (print suppressions)
+        m_acts_log.reset(nullptr);
+        m_log->info("Acts logger now reset");
 
         return propagated_tracks;
     }
