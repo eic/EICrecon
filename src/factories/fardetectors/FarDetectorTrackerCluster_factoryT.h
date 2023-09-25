@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "services/geometry/dd4hep/JDD4hep_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
 #include <edm4hep/TrackerHitCollection.h>
@@ -44,7 +44,7 @@ namespace eicrecon {
 
         auto cfg = GetDefaultConfig();
 
-        auto geoSvc = app->GetService<JDD4hep_service>();
+        auto geoSvc = app->GetService<DD4hep_service>();
 
         // Setup algorithm
         m_reco_algo.applyConfig(cfg);

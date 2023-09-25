@@ -41,7 +41,7 @@ namespace eicrecon {
           auto cfg = GetDefaultConfig();
 
           m_reco_algo.applyConfig(cfg);
-          m_reco_algo.init(app->GetService<JDD4hep_service>()->detector(),logger());
+          m_reco_algo.init(app->GetService<DD4hep_service>()->detector(),logger());
 
         }
 
