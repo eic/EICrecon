@@ -7,16 +7,9 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <edm4hep/MCParticle.h>
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-
 
 class TRACKINGcheckProcessor: public JEventProcessorSequentialRoot {
 private:
-
-    // Data objects we will need from JANA
-    PrefetchT<edm4hep::MCParticle>  MCParticles   = {this, "MCParticles" };
-    PrefetchT<ActsExamples::Trajectories>    Trajectories  = {this, "CentralCKFActsTrajectories"};
 
     // Containers for histograms
     std::map<std::string, TH1*> hist1D;

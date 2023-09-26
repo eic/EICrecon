@@ -6,6 +6,10 @@
 #include "EcalBarrelScFiCheckProcessor.h"
 #include "services/rootfile/RootFile_service.h"
 
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <Evaluator/DD4hepUnits.h>
 
 //-------------------------------------------
@@ -43,41 +47,45 @@ void EcalBarrelScFiCheckProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void EcalBarrelScFiCheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    const auto &EcalBarrelScFiHits          = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
+    const auto &EcalBarrelScFiRawHits       = *static_cast<const edm4hep::RawCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiRawHits"));
+    const auto &EcalBarrelScFiRecHits       = *static_cast<const edm4eic::CalorimeterHitCollection*>   (event->GetCollectionBase("EcalBarrelScFiRecHits"));
+    const auto &EcalBarrelScFiProtoClusters = *static_cast<const edm4eic::ProtoClusterCollection*>     (event->GetCollectionBase("EcalBarrelScFiProtoClusters"));
 
     // Fill histograms here
 
     // EcalBarrelScFiHits
-    hist1D["EcalBarrelScFiHits_hits_per_event"]->Fill(EcalBarrelScFiHits().size());
-    for( auto hit : EcalBarrelScFiHits()  ){
-        auto row = floor(hit->getPosition().y);
-        auto col = floor(hit->getPosition().x);
+    hist1D["EcalBarrelScFiHits_hits_per_event"]->Fill(EcalBarrelScFiHits.size());
+    for( auto hit : EcalBarrelScFiHits ){
+        auto row = floor(hit.getPosition().y);
+        auto col = floor(hit.getPosition().x);
         hist2D["EcalBarrelScFiHits_occupancy"]->Fill(row, col);
 
-        hist1D["EcalBarrelScFiHits_hit_energy"]->Fill(hit->getEnergy());
+        hist1D["EcalBarrelScFiHits_hit_energy"]->Fill(hit.getEnergy());
     }
 
     // EcalBarrelScFiRawHits
-    hist1D["EcalBarrelScFiRawHits_hits_per_event"]->Fill(EcalBarrelScFiRawHits().size());
-    for( auto hit : EcalBarrelScFiRawHits()  ){
-        hist1D["EcalBarrelScFiRawHits_amplitude"]->Fill( hit->getAmplitude() );
-        hist1D["EcalBarrelScFiRawHits_timestamp"]->Fill( hit->getTimeStamp() );
+    hist1D["EcalBarrelScFiRawHits_hits_per_event"]->Fill(EcalBarrelScFiRawHits.size());
+    for( auto hit : EcalBarrelScFiRawHits  ){
+        hist1D["EcalBarrelScFiRawHits_amplitude"]->Fill( hit.getAmplitude() );
+        hist1D["EcalBarrelScFiRawHits_timestamp"]->Fill( hit.getTimeStamp() );
     }
 
     // EcalBarrelScFiRecHits
-    hist1D["EcalBarrelScFiRecHits_hits_per_event"]->Fill(EcalBarrelScFiRecHits().size());
-    for( auto hit : EcalBarrelScFiRecHits()  ){
-        auto &pos = hit->getPosition();
-        hist1D["EcalBarrelScFiRecHits_hit_energy"]->Fill(hit->getEnergy() / dd4hep::MeV);
-        hist2D["EcalBarrelScFiRecHits_xy"]->Fill( pos.x, pos.y, hit->getEnergy() );
+    hist1D["EcalBarrelScFiRecHits_hits_per_event"]->Fill(EcalBarrelScFiRecHits.size());
+    for( auto hit : EcalBarrelScFiRecHits  ){
+        auto &pos = hit.getPosition();
+        hist1D["EcalBarrelScFiRecHits_hit_energy"]->Fill(hit.getEnergy() / dd4hep::MeV);
+        hist2D["EcalBarrelScFiRecHits_xy"]->Fill( pos.x, pos.y, hit.getEnergy() );
         hist1D["EcalBarrelScFiRecHits_z"]->Fill(pos.z);
-        hist1D["EcalBarrelScFiRecHits_time"]->Fill( hit->getTime() );
+        hist1D["EcalBarrelScFiRecHits_time"]->Fill( hit.getTime() );
     }
 
 
     // EcalBarrelScFiProtoClusters
-    hist1D["EcalBarrelScFiProtoClusters_clusters_per_event"]->Fill(EcalBarrelScFiProtoClusters().size());
-    for (auto proto : EcalBarrelScFiProtoClusters() ){
-        hist1D["EcalBarrelScFiProtoClusters_hits_per_cluster"]->Fill( proto->getHits().size() );
+    hist1D["EcalBarrelScFiProtoClusters_clusters_per_event"]->Fill(EcalBarrelScFiProtoClusters.size());
+    for (auto proto : EcalBarrelScFiProtoClusters ){
+        hist1D["EcalBarrelScFiProtoClusters_hits_per_cluster"]->Fill( proto.getHits().size() );
     }
 }
 

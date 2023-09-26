@@ -91,9 +91,6 @@ void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
     // Set ACTS logging level
     auto acts_init_log_level = eicrecon::SpdlogToActsLevel(m_init_log->level());
 
-    // Surfaces conversion log level
-    uint printoutLevel = (uint) m_init_log->level();
-
     m_dd4hepDetector = dd4hep_geo;
 
     // create a list of all surfaces in the detector:

@@ -3,11 +3,13 @@
 // Template for this file generated with eicmkplugin.py
 //
 
-#include "TRACKINGcheckProcessor.h"
+#include <TVector3.h>
+#include <Evaluator/DD4hepUnits.h>
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+
 #include "services/rootfile/RootFile_service.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <TVector3.h>
+#include "TRACKINGcheckProcessor.h"
 
 //-------------------------------------------
 // InitWithGlobalRootLock
@@ -31,19 +33,19 @@ void TRACKINGcheckProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    auto Trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
 
     // Fill histograms here
 
     // Trajectories
-    hist1D["Trajectories_trajectories_per_event"]->Fill(Trajectories().size());
+    hist1D["Trajectories_trajectories_per_event"]->Fill(Trajectories.size());
 
-    for( const auto *traj : Trajectories() ){
+    for( const auto *traj : Trajectories ){
         for( auto entryIndex : traj->tips() ){
             if( ! traj->hasTrackParameters( entryIndex) ) continue;
             auto trackparams = traj->trackParameters( entryIndex );
 
             auto pos = trackparams.position(Acts::GeometryContext());
-            auto mom = trackparams.momentum();
             auto t = trackparams.time();
 
             hist1D["Trajectories_time"]->Fill( t );

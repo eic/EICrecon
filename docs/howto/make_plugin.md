@@ -269,9 +269,6 @@ type, and then pointer for every histogram or tree you wish to create.
 class DaveTestProcessor: public JEventProcessorSequentialRoot {
 private:
 
-    // Data objects we will need from JANA e.g.
-    PrefetchT<edm4hep::Cluster> clusters   = {this, "EcalEndcapNClusters"};
-
     // Declare histogram and tree pointers here. e.g.
     TH1D* hClusterEnergy = nullptr;
 
@@ -325,8 +322,9 @@ void DaveTestProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void DaveTestProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    const auto &clusters = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase("EcalEndcapNClusters"));
 
-     for( auto cluster : clusters() ) hClusterEnergy->Fill(  cluster->getEnergy() );
+    for (auto cluster : clusters) hClusterEnergy->Fill(cluster.getEnergy());
 }
 
 //-------------------------------------------
