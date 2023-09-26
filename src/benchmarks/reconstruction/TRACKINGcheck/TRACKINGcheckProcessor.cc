@@ -46,7 +46,6 @@ void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEven
             auto trackparams = traj->trackParameters( entryIndex );
 
             auto pos = trackparams.position(Acts::GeometryContext());
-            auto mom = trackparams.momentum();
             auto t = trackparams.time();
 
             hist1D["Trajectories_time"]->Fill( t );
