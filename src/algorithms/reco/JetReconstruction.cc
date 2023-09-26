@@ -4,16 +4,17 @@
 // class definition
 #include "JetReconstruction.h"
 
-// standard c includes
+// c utilities
 #include <cmath>
 // event data model related classes
 #include <edm4eic/vector_utils.h>
 #include <edm4eic/MutableReconstructedParticle.h>
-// fastjet includes
+// for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequenceArea.hh>
 
 using namespace fastjet;
+
 
 
 namespace eicrecon {
@@ -23,7 +24,9 @@ namespace eicrecon {
     m_log->trace("Initialized");
   }
 
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::execute(
+
+
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
@@ -95,4 +98,4 @@ namespace eicrecon {
     return jet_collection;
   }
 
-} // end namespace eicrecon
+}  // end namespace eicrecon
