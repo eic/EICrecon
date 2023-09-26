@@ -826,6 +826,8 @@ jobs:
             now=$(date +%s)
             sleep $((reset-now))
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Download docs artifact (other PRs)
         uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
