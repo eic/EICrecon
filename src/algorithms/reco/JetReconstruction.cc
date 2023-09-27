@@ -20,6 +20,35 @@ using namespace fastjet;
 namespace eicrecon {
 
   void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+
+    // configure algorithm parameters
+    u_rJet           = m_cfg.rJet;
+    u_minCstPt       = m_cfg.minCstPt;
+    u_maxCstPt       = m_cfg.maxCstPt;
+    u_minJetPt       = m_cfg.minJetPt;
+    u_ghostMaxRap    = m_cfg.ghostMaxRap;
+    u_ghostArea      = m_cfg.ghostArea;
+    u_numGhostRepeat = m_cfg.numGhostRepeat;
+    u_jetAlgo        = m_cfg.jetAlgo;
+    u_recombScheme   = m_cfg.recombScheme;
+    u_areaType       = m_cfg.areaType;
+
+    // if specified algorithm, recomb. scheme, or area type
+    // are not defined, then issue warning and set it to
+    // default values
+    if (m_mapJetAlgo.find(u_jetAlgo) == m_mapJetAlgo.end()) {
+      m_log->warn(" Unknown jet algorithm '{}' specified! Setting algorithm to default ({}) and proceeding.", u_jetAlgo, m_defaultFastjetOpts.jetAlgo);
+      u_jetAlgo = m_defaultFastjetOpts.jetAlgo;
+    }
+    if (m_mapRecombScheme.find(u_recombScheme) == m_mapRecombScheme.end()) {
+      m_log->warn(" Unknown recombination scheme '{}' specified! Setting scheme to default ({}) and proceeding.", u_recombScheme, m_defaultFastjetOpts.recombScheme);
+      u_recombScheme = m_defaultFastjetOpts.recombScheme;
+    }
+    if (m_mapAreaType.find(u_areaType) == m_mapAreaType.end()) {
+      m_log->warn(" Unknown area type '{}' specified! Setting type to default ({}) and proceeding.", u_areaType, m_defaultFastjetOpts.areaType);
+      u_jetAlgo = m_defaultFastjetOpts.jetAlgo;
+    }
+
     m_log = logger;
     m_log->trace("Initialized");
   }
@@ -45,18 +74,18 @@ namespace eicrecon {
     for (const auto &mom : momenta) {
 
       // Only cluster particles within the given pt Range
-      if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
+      if ((mom->pt() > u_minCstPt) && (mom->pt() < u_maxCstPt)) {
         particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e());
       }
     }
 
     // Choose jet and area definitions
-    JetDefinition jet_def(m_jetAlgo, m_rJet);
-    AreaDefinition area_def(m_areaType, GhostedAreaSpec(m_ghostMaxRap, m_numGhostRepeat, m_ghostArea));
+    JetDefinition jet_def(m_mapJetAlgo[u_jetAlgo], u_rJet);
+    AreaDefinition area_def(m_mapAreaType[u_areaType], GhostedAreaSpec(u_ghostMaxRap, u_numGhostRepeat, u_ghostArea));
 
     // Run the clustering, extract the jets
     ClusterSequenceArea clus_seq(particles, jet_def, area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_minJetPt));
+    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(u_minJetPt));
 
     // Print out some infos
     m_log->trace("  Clustering with : {}", jet_def.description());
