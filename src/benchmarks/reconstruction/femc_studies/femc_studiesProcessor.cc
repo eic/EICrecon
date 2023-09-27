@@ -631,3 +631,5 @@ void femc_studiesProcessor::Finish() {
     delete[] t_fEMC_cluster_NCells;
     delete[] t_fEMC_cluster_Phi;
     delete[] t_fEMC_cluster_Eta;
+  }
+}
