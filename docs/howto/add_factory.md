@@ -29,8 +29,8 @@ Edit the file to have these contents:
 
 #include <JANA/JEvent.h>
 #include <JANA/JFactoryT.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 
 class Cluster_factory_EcalEndcapNIslandClusters : public JFactoryT<edm4eic::Cluster> {
 public:
@@ -56,7 +56,7 @@ public:
     void Process(const std::shared_ptr<const JEvent> &event) override{
 
         // Grab inputs
-        auto protoclusters = event->Get<edm4eic::ProtoCluster>("EcalEndcapNIslandProtoClusters");
+        const auto &protoclusters = *static_cast<const edm4eic::ProtoClusterCollection*>(event->GetCollectionBase("EcalEndcapNIslandProtoClusters"));
 
         // Loop over protoclusters and turn each into a cluster
         std::vector<edm4eic::Cluster*> outputClusters;
@@ -69,9 +69,9 @@ public:
             float timeError;
             edm4hep::Vector3f position;
             double sum_weights = 0.0;
-            for( uint32_t ihit=0; ihit<proto->hits_size() ; ihit++){
-                auto const &hit = proto->getHits(ihit);
-                auto weight = proto->getWeights(ihit);
+            for( uint32_t ihit=0; ihit<proto.hits_size() ; ihit++){
+                auto const &hit = proto.getHits(ihit);
+                auto weight = proto.getWeights(ihit);
                 energy += hit.getEnergy();
                 energyError_squared += std::pow(hit.getEnergyError(), 2.0);
                 if( hit.getTime() < time ){
@@ -97,7 +97,7 @@ public:
                 sqrt(energyError_squared),
                 time,
                 timeError,
-                proto->hits_size(),
+                proto.hits_size(),
                 position,
 
                 // Not sure how to calculate these last few
@@ -169,7 +169,6 @@ to get a working plugin. Then add these lines in the inidacted places:
 #include <edm4eic/Cluster.h>
 
 // Place this in the body of the class definition of the processor header file
-PrefetchT<edm4eic::Cluster> clusters = { this, "EcalEndcapNIslandClusters"};
 TH1D* hRecClusterEnergy = nullptr;
 
 // Place this in the InitWithGlobalRootLock() method in the processor implementation
@@ -177,7 +176,8 @@ TH1D* hRecClusterEnergy = nullptr;
 hRecClusterEnergy  = new TH1D("hRecClusterEnergy",  "EcalEndcapNIslandClusters energy (MeV)",  250, 0.0, 400.0);
 
 // Place this in the ProcessSequential method of the same file
-for( auto cluster : clusters() ) hRecClusterEnergy->Fill(  cluster->getEnergy() / dd4hep::MeV );
+const auto &clusters = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase("EcalEndcapNIslandClusters"));
+for (auto cluster : clusters) hRecClusterEnergy->Fill(cluster.getEnergy() / dd4hep::MeV);
 ```
 
 Run some events through and have a look at the result. Here is what this looks like

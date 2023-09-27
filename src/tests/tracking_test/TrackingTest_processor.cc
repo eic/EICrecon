@@ -105,9 +105,6 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
-    const auto *particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    const auto *track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
-
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
@@ -130,12 +127,8 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
 void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const JEvent> &event) {
     m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
-    // auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 
-    const auto *particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
     const auto *associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
-
-
 
     for(auto assoc: *associations) {
         auto sim = assoc.getSim();
@@ -145,6 +138,7 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
     }
 
 //    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
+//    auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 //    for(auto part: prt_with_assoc->particles()) {
 //
 //        // auto sim = assoc->getSim();
@@ -171,5 +165,4 @@ void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const J
         m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
     }
 
-    const auto *final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 }

@@ -64,9 +64,6 @@ The second plugin, JTest, just supplies dummy events, ensuring your plugin is pr
 class myFirstPluginProcessor: public JEventProcessorSequentialRoot {
 private:
 
-    // Data objects we will need from JANA e.g.
-    PrefetchT<edm4hep::SimCalorimeterHit> rawhits   = {this, "EcalBarrelHits"};
-
     // Declare histogram and tree pointers here. e.g.
     TH1D* hEraw = nullptr;
 
@@ -110,8 +107,8 @@ void myFirstPluginProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void myFirstPluginProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-
-     for( auto hit : rawhits() ) hEraw->Fill(  hit->getEnergy() );
+    const auto &rawhits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
+    for (auto hit : rawhits) hEraw->Fill(hit.getEnergy());
 }
 
 //-------------------------------------------

@@ -9,7 +9,7 @@ namespace eicrecon {
 
     float     partMass  {0.938272};
     float     partCharge{1};
-    long long partPDG   {2122};
+    long long partPDG   {2212};
 
     // Defaults here are for RPOTS
     double local_x_offset      {0.0};
