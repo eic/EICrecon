@@ -199,6 +199,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   }
   if (tw == 0.) {
     m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
+    return {};
   }
   cl.setPosition(v / tw);
   cl.setPositionError({}); // @TODO: Covariance matrix
