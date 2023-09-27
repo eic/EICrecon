@@ -612,4 +612,22 @@ void femc_studiesProcessor::Finish() {
   std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();
   // Do any final calculations here.
-}
+
+  if (enableTree) {
+    delete[] t_fEMC_towers_cellE;
+    delete[] t_fEMC_towers_cellT;
+    delete[] t_fEMC_towers_cellIDx;
+    delete[] t_fEMC_towers_cellIDy;
+    delete[] t_fEMC_towers_clusterIDA;
+    delete[] t_fEMC_towers_clusterIDB;
+    delete[] t_fEMC_towers_cellTrueID;
+  }
+
+  if (enableTreeCluster) {
+    delete[] t_mc_E;
+    delete[] t_mc_Phi;
+    delete[] t_mc_Eta;
+    delete[] t_fEMC_cluster_E;
+    delete[] t_fEMC_cluster_NCells;
+    delete[] t_fEMC_cluster_Phi;
+    delete[] t_fEMC_cluster_Eta;
