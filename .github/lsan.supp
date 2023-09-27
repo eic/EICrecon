@@ -2,6 +2,8 @@ leak:CherenkovPID::AddMassHypothesis
 leak:dd4hep::DetElement::DetElement
 leak:dd4hep::Header::Header
 leak:edm4hep::*::createBuffers
+leak:femc_studiesProcessor::Init
+leak:lfhcal_studiesProcessor::Init
 leak:libActsCore.so
 leak:libCling.so
 leak:libCore.so
