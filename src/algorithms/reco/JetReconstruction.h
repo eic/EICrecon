@@ -34,21 +34,7 @@ namespace eicrecon {
 
     private:
 
-      // configurable  parameters
-      float       u_rJet;            // jet resolution  parameter
-      double      u_minCstPt;        // minimum pT of objects fed to cluster sequence
-      double      u_maxCstPt;        // maximum pT of objects fed to clsuter sequence
-      double      u_minJetPt;        // minimum jet pT
-      double      u_ghostMaxRap;     // maximum rapidity of ghosts
-      double      u_ghostArea;       // area per ghost
-      int         u_numGhostRepeat;  // number of times a ghost is reused per grid site
-      std::string u_jetAlgo;         // jet finding algorithm
-      std::string u_recombScheme;    // particle recombination scheme
-      std::string u_areaType;        // type of area calculated
-
-      // logger and configuration
       std::shared_ptr<spdlog::logger> m_log;
-      JetReconstructionConfig         m_cfg;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {
