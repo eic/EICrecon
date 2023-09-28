@@ -21,24 +21,24 @@ namespace eicrecon {
 
   void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
 
+    m_log = logger;
+    m_log->trace("Initialized");
+
     // if specified algorithm, recomb. scheme, or area type
     // are not defined, then issue warning and set it to
     // default values
     if (m_mapJetAlgo.find(m_cfg.jetAlgo) == m_mapJetAlgo.end()) {
-      m_log->warn(" Unknown jet algorithm '{}' specified! Setting algorithm to default ({}) and proceeding.", m_cfg.jetAlgo, m_defaultFastjetOpts.jetAlgo);
+      m_log->warn(" Unknown jet algorithm \"{}\" specified! Setting algorithm to default and proceeding.", m_cfg.jetAlgo);
       m_cfg.jetAlgo = m_defaultFastjetOpts.jetAlgo;
     }
     if (m_mapRecombScheme.find(m_cfg.recombScheme) == m_mapRecombScheme.end()) {
-      m_log->warn(" Unknown recombination scheme '{}' specified! Setting scheme to default ({}) and proceeding.", m_cfg.recombScheme, m_defaultFastjetOpts.recombScheme);
+      m_log->warn(" Unknown recombination scheme \"{}\" specified! Setting scheme to default and proceeding.", m_cfg.recombScheme);
       m_cfg.recombScheme = m_defaultFastjetOpts.recombScheme;
     }
     if (m_mapAreaType.find(m_cfg.areaType) == m_mapAreaType.end()) {
-      m_log->warn(" Unknown area type '{}' specified! Setting type to default ({}) and proceeding.", m_cfg.areaType, m_defaultFastjetOpts.areaType);
-      m_cfg.jetAlgo = m_defaultFastjetOpts.jetAlgo;
+      m_log->warn(" Unknown area type \"{}\" specified! Setting type to default and proceeding.", m_cfg.areaType);
+      m_cfg.areaType = m_defaultFastjetOpts.areaType;
     }
-
-    m_log = logger;
-    m_log->trace("Initialized");
   }
 
 
