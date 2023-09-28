@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=0:new_delete_type_mismatch=0
-  LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:exitcode=0
+  ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0
+  LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
 
 jobs:
   build:

@@ -9,4 +9,4 @@ plugin_add(${PLUGIN_NAME})
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
-plugin_glob_all(${PLUGIN_NAME})
+plugin_glob_all(${PLUGIN_NAME} PLUGIN_USE_CC_ONLY)
