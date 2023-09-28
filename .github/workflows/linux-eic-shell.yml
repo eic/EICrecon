@@ -357,6 +357,39 @@ jobs:
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
 
+  eicrecon-eicmkplugin:
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    - npsim-gun
+    strategy:
+      matrix:
+        CC: [gcc]
+        particle: [e]
+        detector_config: [brycecanyon]
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: install-${{ matrix.CC }}-eic-shell-Release
+    - uses: actions/download-artifact@v3
+      with:
+        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - name: Run EICrecon
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "jug_xl:nightly"
+        setup: /opt/detector/setup.sh
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          chmod a+x bin/*
+          eicmkplugin.py MyCustomPlugin
+          cmake -S MyCustomPlugin -B MyCustomPlugin/build
+          cmake --build MyCustomPlugin/build --target install
+          $PWD/bin/eicrecon -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+
   eicrecon-benchmarks-plugins:
     runs-on: ubuntu-latest
     needs:
