@@ -15,8 +15,6 @@
 
 using namespace fastjet;
 
-
-
 namespace eicrecon {
 
   void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {

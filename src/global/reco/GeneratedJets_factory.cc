@@ -9,8 +9,6 @@
 // factory-specific includes
 #include "GeneratedJets_factory.h"
 
-
-
 namespace eicrecon {
 
     void GeneratedJets_factory::Init() {

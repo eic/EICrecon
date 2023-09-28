@@ -11,8 +11,6 @@
 // necessary algorithms
 #include "algorithms/reco/JetReconstruction.h"
 
-
-
 namespace eicrecon {
 
     class GeneratedJets_factory :
