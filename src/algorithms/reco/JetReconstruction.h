@@ -51,7 +51,7 @@ namespace eicrecon {
       JetReconstructionConfig         m_cfg;
 
       // maps of user input onto fastjet options
-      const std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {
+      std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {
         {"kt_algorithm",                    fastjet::JetAlgorithm::kt_algorithm},
         {"cambridge_algorithm",             fastjet::JetAlgorithm::cambridge_algorithm},
         {"antikt_algorithm",                fastjet::JetAlgorithm::antikt_algorithm},
@@ -62,7 +62,7 @@ namespace eicrecon {
         {"ee_genkt_algorithm",              fastjet::JetAlgorithm::ee_genkt_algorithm},
         {"plugin_algorithm",                fastjet::JetAlgorithm::plugin_algorithm}
       };
-      const std::map<std::string, fastjet::RecombinationScheme> m_mapRecombScheme = {
+      std::map<std::string, fastjet::RecombinationScheme> m_mapRecombScheme = {
         {"E_scheme",        fastjet::RecombinationScheme::E_scheme},
         {"pt_scheme",       fastjet::RecombinationScheme::pt_scheme},
         {"pt2_scheme",      fastjet::RecombinationScheme::pt2_scheme},
@@ -74,7 +74,7 @@ namespace eicrecon {
         {"WTA_modp_scheme", fastjet::RecombinationScheme::WTA_modp_scheme},
         {"external_scheme", fastjet::RecombinationScheme::external_scheme}
       };
-      const std::map<std::string, fastjet::AreaType> m_mapAreaType = {
+      std::map<std::string, fastjet::AreaType> m_mapAreaType = {
         {"active_area",                 fastjet::AreaType::active_area},
         {"active_area_explicit_ghosts", fastjet::AreaType::active_area_explicit_ghosts},
         {"one_ghost_passive_area",      fastjet::AreaType::one_ghost_passive_area},
