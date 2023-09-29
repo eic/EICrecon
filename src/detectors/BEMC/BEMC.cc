@@ -31,6 +31,7 @@ extern "C" {
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
+	     .threshold = 5.0 * dd4hep::MeV,
              .capADC = 16384,
              .dyRangeADC = 750 * dd4hep::MeV,
              .pedMeanADC = 20,
@@ -101,6 +102,7 @@ extern "C" {
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
+	     .threshold = 15.0 * dd4hep::keV,
              .capADC = 8192,
              .dyRangeADC = 3 * dd4hep::MeV,
              .pedMeanADC = 100,

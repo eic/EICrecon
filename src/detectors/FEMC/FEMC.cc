@@ -23,6 +23,7 @@ extern "C" {
           {
             .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
             .tRes = 0.0,
+	    .threshold = 15.0 * dd4hep::MeV,	     
             .capADC = 65536, //2^16  (approximate HGCROC resolution) old 16384
             .capTime = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = 3 * dd4hep::GeV,
@@ -110,6 +111,8 @@ extern "C" {
           {
             .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
             .tRes = 0.0 * dd4hep::ns,
+	     // .threshold = 250.0 * dd4hep::keV,
+	    .threshold = 15.0 * dd4hep::MeV,
             .capADC = 16384,
             .dyRangeADC = 3 * dd4hep::GeV,
             .pedMeanADC = 100,

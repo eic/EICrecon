@@ -23,6 +23,7 @@ extern "C" {
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
+	    .threshold = 5.0 * dd4hep::MeV,
             .capADC = 16384,
             .dyRangeADC = 20 * dd4hep::GeV,
             .pedMeanADC = 100,

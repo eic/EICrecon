@@ -119,7 +119,8 @@ extern "C" {
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 32768,
+	     .threshold = 250.0 * dd4hep::keV,
+	     .capADC = 32768,
              .dyRangeADC = 200 * dd4hep::MeV,
              .pedMeanADC = 400,
              .pedSigmaADC = 10,
