@@ -35,6 +35,7 @@ set( {0}_PLUGIN_SOURCES ${{mysourcefiles}} )
 add_library({0}_plugin SHARED ${{{0}_PLUGIN_SOURCES}})
 target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}} spdlog::spdlog)
 set_target_properties({0}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "{0}" SUFFIX ".so")
+target_compile_definitions({0}_plugin PUBLIC HAVE_PODIO)
 
 # Install plugin USER_PLUGIN_OUTPUT_DIRECTORY is set depending on EICrecon_MY envar.
 install(TARGETS {0}_plugin DESTINATION ${{USER_PLUGIN_OUTPUT_DIRECTORY}} )
