@@ -50,10 +50,6 @@ processor_sequentialroot_header_template = """
 #include <TH2D.h>
 #include <TFile.h>
 
-// Include appropirate class headers. e.g.
-// #include <edm4hep/SimCalorimeterHit.h>
-
-
 class {0}: public JEventProcessorSequentialRoot {{
 private:
 
@@ -78,6 +74,8 @@ processor_sequentialroot_implementation_template = """
 #include "{0}.h"
 #include "services/rootfile/RootFile_service.h"
 
+// Include appropriate class headers. e.g.
+#include <edm4hep/SimCalorimeterHitCollection.h>
 
 // The following just makes this a JANA plugin
 extern "C" {{
