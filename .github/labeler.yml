@@ -15,7 +15,7 @@
   - "src/detectors/B0ECAL/**"
   - "src/detectors/BEMC/**"
   - "src/detectors/BHCAL/**"
-  - "src/detectors/EEMC/**"
+  - "src/detectors/EHCAL/**"
   - "src/detectors/EEMC/**"
   - "src/detectors/FEMC/**"
   - "src/detectors/FHCAL/**"

@@ -734,4 +734,29 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
 void lfhcal_studiesProcessor::Finish() {
   std::cout << "------> LFHCal " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   // Do any final calculations here.
+
+  if (enableTree) {
+    delete[] t_lFHCal_towers_cellE;
+    delete[] t_lFHCal_towers_cellT;
+    delete[] t_lFHCal_towers_cellIDx;
+    delete[] t_lFHCal_towers_cellIDy;
+    delete[] t_lFHCal_towers_cellIDz;
+    delete[] t_lFHCal_towers_clusterIDA;
+    delete[] t_lFHCal_towers_clusterIDB;
+    delete[] t_lFHCal_towers_cellTrueID;
+  }
+
+  if (enableTreeCluster) {
+    delete[] t_mc_E;
+    delete[] t_mc_Phi;
+    delete[] t_mc_Eta;
+    delete[] t_lFHCal_cluster_E;
+    delete[] t_lFHCal_cluster_NCells;
+    delete[] t_lFHCal_cluster_Phi;
+    delete[] t_lFHCal_cluster_Eta;
+    delete[] t_fEMC_cluster_E;
+    delete[] t_fEMC_cluster_NCells;
+    delete[] t_fEMC_cluster_Eta;
+    delete[] t_fEMC_cluster_Phi;
+  }
 }
