@@ -12,6 +12,8 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequenceArea.hh>
+// for error handling
+#include <JANA/JException.h>
 
 using namespace fastjet;
 
@@ -23,19 +25,26 @@ namespace eicrecon {
     m_log->trace("Initialized");
 
     // if specified algorithm, recomb. scheme, or area type
-    // are not defined, then issue warning and set it to
-    // default values
-    if (m_mapJetAlgo.find(m_cfg.jetAlgo) == m_mapJetAlgo.end()) {
-      m_log->warn(" Unknown jet algorithm \"{}\" specified! Setting algorithm to default and proceeding.", m_cfg.jetAlgo);
-      m_cfg.jetAlgo = m_defaultFastjetOpts.jetAlgo;
+    // are not defined, then issue error and throw exception
+    try {
+      m_mapJetAlgo.at(m_cfg.jetAlgo);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
+      throw JException(out.what());
     }
-    if (m_mapRecombScheme.find(m_cfg.recombScheme) == m_mapRecombScheme.end()) {
-      m_log->warn(" Unknown recombination scheme \"{}\" specified! Setting scheme to default and proceeding.", m_cfg.recombScheme);
-      m_cfg.recombScheme = m_defaultFastjetOpts.recombScheme;
+
+    try {
+      m_mapRecombScheme.at(m_cfg.recombScheme);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
+      throw JException(out.what());
     }
-    if (m_mapAreaType.find(m_cfg.areaType) == m_mapAreaType.end()) {
-      m_log->warn(" Unknown area type \"{}\" specified! Setting type to default and proceeding.", m_cfg.areaType);
-      m_cfg.areaType = m_defaultFastjetOpts.areaType;
+
+    try {
+      m_mapAreaType.at(m_cfg.areaType);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
+      throw JException(out.what());
     }
   }
 
