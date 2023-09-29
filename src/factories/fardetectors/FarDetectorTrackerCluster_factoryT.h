@@ -52,7 +52,7 @@ namespace eicrecon {
 
         // Setup algorithm
         m_reco_algo.applyConfig(cfg);
-        m_reco_algo.init(geoSvc->detector(),geoSvc->cellIDPositionConverter(),logger());
+        m_reco_algo.init(geoSvc->cellIDPositionConverter(),geoSvc->detector(),logger());
 
       }
 

@@ -13,8 +13,8 @@
 namespace eicrecon {
 
 
-  void FarDetectorTrackerCluster::init(const dd4hep::Detector* det,
-              std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+  void FarDetectorTrackerCluster::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+              const dd4hep::Detector* det,
               std::shared_ptr<spdlog::logger> log) {
 
     m_log = log;

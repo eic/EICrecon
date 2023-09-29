@@ -18,8 +18,8 @@ namespace eicrecon {
   public:
 
     /** One time initialization **/
-    void init(const dd4hep::Detector* det,
-              std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
+    void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
+              const dd4hep::Detector* det,
               std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
