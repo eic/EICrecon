@@ -386,7 +386,7 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
           $PWD/bin/eicmkplugin.py MyCustomPlugin
-          cmake -S MyCustomPlugin -B MyCustomPlugin/build
+          cmake -S MyCustomPlugin -B MyCustomPlugin/build -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/lib/EICrecon/plugins
           cmake --build MyCustomPlugin/build --target install
           $PWD/bin/eicrecon -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
 
