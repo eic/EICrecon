@@ -31,16 +31,14 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, std::shared_ptr<
     }
 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
+    IDDescriptor id_spec;
     try {
-        auto id_spec = m_detector->readout(m_cfg.readout).idSpec();
+        id_spec = m_detector->readout(m_cfg.readout).idSpec();
     } catch(...) {
         m_log->warn("Failed to get idSpec for {}", m_cfg.readout);
         return;
     }
-
-    // Get id_spec again, but here it should always succeed.
-    // TODO: This is a bit of a hack so should be cleaned up.
-    auto id_spec = m_detector->readout(m_cfg.readout).idSpec();
+    // Next, try and get the readout fields. This will throw a different exception.
     try {
         id_dec = id_spec.decoder();
         if (!m_cfg.sectorField.empty()) {

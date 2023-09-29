@@ -284,6 +284,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     //            all). See also below, at "TODO: NWB:".
     for (const auto& coll_name : m_collections_to_write) {
         try {
+            [[maybe_unused]]
             const auto* coll_ptr = event->GetCollectionBase(coll_name);
         }
         catch(std::exception &e) {

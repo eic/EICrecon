@@ -65,6 +65,10 @@ macro(plugin_add _name)
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
     endif()     # WITH_LIBRARY
+
+    if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
+        target_link_libraries(${_name}_plugin ${_name}_library)
+    endif()
 endmacro()
 
 
@@ -118,8 +122,11 @@ macro(plugin_glob_all _name)
 
     # But... GLOB here makes this file just hot pluggable
     file(GLOB LIB_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
-    #file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS ${_name}.cc)
-    file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    if(${_name}_WITH_LIBRARY)
+        file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS ${_name}.cc)
+    else()
+        file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    endif()
     file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
