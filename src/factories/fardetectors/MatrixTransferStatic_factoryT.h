@@ -46,7 +46,7 @@ namespace eicrecon {
           m_geoSvc = app->GetService<DD4hep_service>();
 
           m_reco_algo.applyConfig(cfg);
-          m_reco_algo.init(m_geoSvc->cellIDPositionConverter(),m_geoSvc->detector(),logger());
+          m_reco_algo.init(m_geoSvc->detector(),m_geoSvc->cellIDPositionConverter(),logger());
 
         }
 
