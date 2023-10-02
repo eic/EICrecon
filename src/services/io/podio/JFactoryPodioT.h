@@ -20,6 +20,8 @@ public:
 private:
     // mCollection is owned by the frame.
     // mFrame is owned by the JFactoryT<podio::Frame>.
+    // mData holds lightweight value objects which hold a pointer into mCollection.
+    // This factory owns these value objects.
 
 public:
     explicit JFactoryPodioT();
@@ -58,7 +60,7 @@ JFactoryPodioT<T>::JFactoryPodioT() = default;
 
 template <typename T>
 JFactoryPodioT<T>::~JFactoryPodioT() {
-    // Ownership of mCollection, and mFrame is complicated, so we always handle it via ClearData()
+    // Ownership of mData, mCollection, and mFrame is complicated, so we always handle it via ClearData()
     ClearData();
 }
 
@@ -73,6 +75,10 @@ void JFactoryPodioT<T>::SetCollection(typename PodioTypeMap<T>::collection_t&& c
     const auto& moved = this->mFrame->put(std::move(collection), this->GetTag());
     this->mCollection = &moved;
 
+    for (const T& item : moved) {
+        T* clone = new T(item);
+        this->mData.push_back(clone);
+    }
     this->mStatus = JFactory::Status::Inserted;
     this->mCreationStatus = JFactory::CreationStatus::Inserted;
 }
@@ -90,6 +96,10 @@ void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::
     const auto* moved = &this->mFrame->template get<typename PodioTypeMap<T>::collection_t>(this->GetTag());
     this->mCollection = moved;
 
+    for (const T& item : *moved) {
+        T* clone = new T(item);
+        this->mData.push_back(clone);
+    }
     this->mStatus = JFactory::Status::Inserted;
     this->mCreationStatus = JFactory::CreationStatus::Inserted;
 }
@@ -97,6 +107,8 @@ void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::
 
 template <typename T>
 void JFactoryPodioT<T>::ClearData() {
+    for (auto p : this->mData) delete p;
+    this->mData.clear();
     this->mCollection = nullptr;  // Collection is owned by the Frame, so we ignore here
     this->mFrame = nullptr;  // Frame is owned by the JEvent, so we ignore here
     if (this->mStatus != JFactory::Status::Uninitialized) {
@@ -108,6 +120,10 @@ void JFactoryPodioT<T>::ClearData() {
 
 template <typename T>
 void JFactoryPodioT<T>::SetCollectionAlreadyInFrame(const CollectionT* collection) {
+    for (const T& item : *collection) {
+        T* clone = new T(item);
+        this->mData.push_back(clone);
+    }
     this->mCollection = collection;
     this->mStatus = JFactory::Status::Inserted;
     this->mCreationStatus = JFactory::CreationStatus::Inserted;
