@@ -72,28 +72,28 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
   m_dir_main = file->mkdir(plugin_name.c_str());
 
   // Create histograms here. e.g.
-  hPosTestRZ = new TH2D("hPosTestRZ", "", 500, -200, 300, 100, 0, 100);
+  hPosTestRZ = new TH2D("hPosTestRZ", "", 250, -200, 300, 100, 0, 100);
   hPosTestRZ->SetDirectory(m_dir_main);
-  hMindRMatched = new TH2D("hMindRMatched", "", 300, 0, 30, 5, -0.5, 4.5);
-  hMindRMatched->SetDirectory(m_dir_main);
+  // hMindRMatched = new TH2D("hMindRMatched", "", 300, 0, 30, 5, -0.5, 4.5);
+  // hMindRMatched->SetDirectory(m_dir_main);
 
-  hThetaResoVsEta = new TH2D("hThetaResoVsEta", "", 400, -4, 4, 1000, -0.1, 0.1);
-  hThetaResoVsP   = new TH2D("hThetaResoVsP", "", 400, 0, 20, 1000, -0.1, 0.1);
-  hPhiResoVsEta   = new TH2D("hPhiResoVsEta", "", 400, -4, 4, 1000, -0.1, 0.1);
-  hPhiResoVsP     = new TH2D("hPhiResoVsP", "", 400, 0, 20, 1000, -0.1, 0.1);
-  hThetaResoVsEta->SetDirectory(m_dir_main);
-  hThetaResoVsP->SetDirectory(m_dir_main);
-  hPhiResoVsEta->SetDirectory(m_dir_main);
-  hPhiResoVsP->SetDirectory(m_dir_main);
+  // hThetaResoVsEta = new TH2D("hThetaResoVsEta", "", 400, -4, 4, 1000, -0.1, 0.1);
+  // hThetaResoVsP   = new TH2D("hThetaResoVsP", "", 400, 0, 20, 1000, -0.1, 0.1);
+  // hPhiResoVsEta   = new TH2D("hPhiResoVsEta", "", 400, -4, 4, 1000, -0.1, 0.1);
+  // hPhiResoVsP     = new TH2D("hPhiResoVsP", "", 400, 0, 20, 1000, -0.1, 0.1);
+  // hThetaResoVsEta->SetDirectory(m_dir_main);
+  // hThetaResoVsP->SetDirectory(m_dir_main);
+  // hPhiResoVsEta->SetDirectory(m_dir_main);
+  // hPhiResoVsP->SetDirectory(m_dir_main);
 
-  hzPosResoVsPhi = new TH2D("hzPosResoVsPhi", "", 360, -M_PI, M_PI, 500, -20.0, 20.0);
-  hzPosResoVsEta = new TH2D("hzPosResoVsEta", "", 400, -4, 4, 500, -20.0, 20.0);
-  hzPosAbsResoVsEta = new TH2D("hzPosAbsResoVsEta", "", 400, -4, 4, 500, -20.0, 20.0);
-  hzPosResoVsP   = new TH2D("hzPosResoVsP", "", 400, 0, 20, 500, -20.0, 20.0);
-  hzPosResoVsPhi->SetDirectory(m_dir_main);
-  hzPosResoVsEta->SetDirectory(m_dir_main);
-  hzPosAbsResoVsEta->SetDirectory(m_dir_main);
-  hzPosResoVsP->SetDirectory(m_dir_main);
+  // hzPosResoVsPhi = new TH2D("hzPosResoVsPhi", "", 360, -M_PI, M_PI, 500, -20.0, 20.0);
+  // hzPosResoVsEta = new TH2D("hzPosResoVsEta", "", 400, -4, 4, 500, -20.0, 20.0);
+  // hzPosAbsResoVsEta = new TH2D("hzPosAbsResoVsEta", "", 400, -4, 4, 500, -20.0, 20.0);
+  // hzPosResoVsP   = new TH2D("hzPosResoVsP", "", 400, 0, 20, 500, -20.0, 20.0);
+  // hzPosResoVsPhi->SetDirectory(m_dir_main);
+  // hzPosResoVsEta->SetDirectory(m_dir_main);
+  // hzPosAbsResoVsEta->SetDirectory(m_dir_main);
+  // hzPosResoVsP->SetDirectory(m_dir_main);
 
   // nHitsTrackVsEtaVsP =
   //     new TH3D("nHitsTrackVsEtaVsP", "", 100, -4., 4., 20, -0.5, 19.5, 150, 0., 15.);
@@ -290,18 +290,18 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
-          hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
-          hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
           
           hzPosResoVsEtaVsP->Fill(mceta, proj_pos.z - hit_pos_closest.z(), mcp);
-          hzPosResoVsEta->Fill(mceta, proj_pos.z - hit_pos_closest.z());
-          hzPosResoVsPhi->Fill(mcphi, proj_pos.z - hit_pos_closest.z());
-          hzPosAbsResoVsEta->Fill(mceta, abs(proj_pos.z) - abs(hit_pos_closest.z()));
-          hzPosResoVsP->Fill(mcp, proj_pos.z - hit_pos_closest.z());
+          // hzPosResoVsEta->Fill(mceta, proj_pos.z - hit_pos_closest.z());
+          // hzPosResoVsPhi->Fill(mcphi, proj_pos.z - hit_pos_closest.z());
+          // hzPosAbsResoVsEta->Fill(mceta, abs(proj_pos.z) - abs(hit_pos_closest.z()));
+          // hzPosResoVsP->Fill(mcp, proj_pos.z - hit_pos_closest.z());
 
           hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(), mcp);
-          hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
-          hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
         }
       }
     }
@@ -364,16 +364,16 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
-          hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
-          hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
           
-          // hzPosResoVsEtaVsP->Fill(mceta, proj_pos.z - hit_pos_closest.z(), mcp);
+          hzPosResoVsEtaVsP->Fill(mceta, proj_pos.z - hit_pos_closest.z(), mcp);
           // hzPosResoVsEta->Fill(mceta, proj_pos.z - hit_pos_closest.z());
           // hzPosResoVsP->Fill(mcp, proj_pos.z - hit_pos_closest.z());
 
           hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(), mcp);
-          hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
-          hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
         }
       }
     }
@@ -436,16 +436,16 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
-          hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
-          hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsEta->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta());
+          // hThetaResoVsP->Fill(mcp, proj_mom_vec.Theta() - hit_mom_closest.Theta());
           
-          // hzPosResoVsEtaVsP->Fill(mceta, proj_pos.z - hit_pos_closest.z(), mcp);
+          hzPosResoVsEtaVsP->Fill(mceta, proj_pos.z - hit_pos_closest.z(), mcp);
           // hzPosResoVsEta->Fill(mceta, proj_pos.z - hit_pos_closest.z());
           // hzPosResoVsP->Fill(mcp, proj_pos.z - hit_pos_closest.z());
 
           hPhiResoVsEtaVsP->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi(), mcp);
-          hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
-          hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsEta->Fill(mceta, proj_mom_vec.Phi() - hit_mom_closest.Phi());
+          // hPhiResoVsP->Fill(mcp, proj_mom_vec.Phi() - hit_mom_closest.Phi());
         }
       }
     }
