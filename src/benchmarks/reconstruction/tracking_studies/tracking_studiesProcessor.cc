@@ -286,7 +286,7 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
             hit_mom_closest = TVector3(hit_mom.x, hit_mom.y, hit_mom.z);
           }
         }
-        hMindRMatched->Fill(mindR,1);
+        // hMindRMatched->Fill(mindR,1);
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
@@ -360,7 +360,7 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
             hit_mom_closest = TVector3(hit_mom.x, hit_mom.y, hit_mom.z);
           }
         }
-        hMindRMatched->Fill(mindR,2);
+        // hMindRMatched->Fill(mindR,2);
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
@@ -432,7 +432,7 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
             hit_mom_closest = TVector3(hit_mom.x, hit_mom.y, hit_mom.z);
           }
         }
-        hMindRMatched->Fill(mindR,0);
+        // hMindRMatched->Fill(mindR,0);
 
         if (hit_found) {
           hThetaResoVsEtaVsP->Fill(mceta, proj_mom_vec.Theta() - hit_mom_closest.Theta(), mcp);
