@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <boost/bimap.hpp>
+
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JChainMultifactoryT.h"
@@ -46,8 +48,19 @@ namespace eicrecon {
         // Algorithm configuration
         auto cfg = GetDefaultConfig();
 
+        boost::bimap<std::string, CalorimeterHitDigiConfig::readout_enum> readoutValues;
+        readoutValues.insert({"simple", CalorimeterHitDigiConfig::kSimpleReadout});
+        readoutValues.insert({"poisson_photon", CalorimeterHitDigiConfig::kPoissonPhotonReadout});
+        readoutValues.insert({"sipm", CalorimeterHitDigiConfig::kSipmReadout});
+
+        std::string readoutType = readoutValues.right.at(cfg.readoutType);
+
         app->SetDefaultParameter(param_prefix + ":energyResolutions",cfg.eRes);
         app->SetDefaultParameter(param_prefix + ":timeResolution",   cfg.tRes);
+        app->SetDefaultParameter(param_prefix + ":readoutType",      readoutType);
+        app->SetDefaultParameter(param_prefix + ":lightYield",       cfg.lightYield);
+        app->SetDefaultParameter(param_prefix + ":photonDetectionEfficiency", cfg.photonDetectionEfficiency);
+        app->SetDefaultParameter(param_prefix + ":numEffectiveSipmPixels", cfg.numEffectiveSipmPixels);
         app->SetDefaultParameter(param_prefix + ":capacityADC",      cfg.capADC);
         app->SetDefaultParameter(param_prefix + ":dynamicRangeADC",  cfg.dyRangeADC);
         app->SetDefaultParameter(param_prefix + ":pedestalMean",     cfg.pedMeanADC);
@@ -56,6 +69,12 @@ namespace eicrecon {
         app->SetDefaultParameter(param_prefix + ":scaleResponse",    cfg.corrMeanScale);
         app->SetDefaultParameter(param_prefix + ":signalSumFields",  cfg.fields);
         app->SetDefaultParameter(param_prefix + ":readoutClass",     cfg.readout);
+
+        try {
+          cfg.readoutType = readoutValues.left.at(readoutType);
+        } catch (...) {
+          throw JException(fmt::format("Unrecognized readout type \"{}\"!", readoutType));
+        }
 
         m_algo.applyConfig(cfg);
         m_algo.init(geoSvc->detector(), logger());
