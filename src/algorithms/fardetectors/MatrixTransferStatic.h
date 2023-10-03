@@ -36,6 +36,7 @@ namespace eicrecon {
     std::shared_ptr<spdlog::logger>   m_log;
     const dd4hep::Detector* m_detector{nullptr};
     std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+    dd4hep::Segmentation m_segmentation;
 
   };
 }
