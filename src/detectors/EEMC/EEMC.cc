@@ -43,6 +43,13 @@ extern "C" {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
             .threshold =  0.0 * dd4hep::MeV,  // Use ADC cut instead
+            .readoutType = "sipm",
+            .lightYield = 300. / dd4hep::MeV,
+            // See simulation study by A. Hoghmrtsyan https://indico.bnl.gov/event/20415/
+            // This includes quantum efficiency of the SiPM
+            .photonDetectionEfficiency = 17. / 300.,
+            // S14160-6015PS, 4 sensors per cell
+            .numEffectiveSipmPixels = 159565 * 4,
             .capADC = EcalEndcapN_capADC,
             .dyRangeADC = EcalEndcapN_dyRangeADC,
             .pedMeanADC = EcalEndcapN_pedMeanADC,
