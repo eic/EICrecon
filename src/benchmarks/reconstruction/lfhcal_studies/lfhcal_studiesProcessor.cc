@@ -16,7 +16,6 @@
 #include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
 
 // Include appropriate class headers. e.g.
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -243,8 +242,7 @@ void lfhcal_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector* detector = dd4hep_service->detector();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
+  auto detector = dd4hep_service->detector();
   std::cout << "--------------------------\nID specification:\n";
   try {
     m_decoder = detector->readout("LFHCALHits").idSpec().decoder();

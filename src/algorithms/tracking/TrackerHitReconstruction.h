@@ -5,12 +5,12 @@
 
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 
 #include "TrackerHitReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 
 namespace eicrecon {
@@ -22,7 +22,7 @@ namespace eicrecon {
 
     public:
         /// Once in a lifetime initialization
-        void init(const dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
+        void init(gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
 
         /// Processes RawTrackerHit and produces a TrackerHit
         std::unique_ptr<edm4eic::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection& raw_hits);
@@ -35,6 +35,6 @@ namespace eicrecon {
         std::shared_ptr<spdlog::logger> m_log;
 
         /// Cell ID position converter
-        std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
+        const dd4hep::rec::CellIDPositionConverter* m_converter;
     };
 }

@@ -14,6 +14,7 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>
+#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -24,7 +25,7 @@ namespace eicrecon {
   class CalorimeterHitReco : public WithPodConfig<CalorimeterHitRecoConfig> {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4hep::RawCalorimeterHitCollection &rawhits);
 
   private:
@@ -46,7 +47,7 @@ namespace eicrecon {
 
   private:
     const dd4hep::Detector* m_detector;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
   };

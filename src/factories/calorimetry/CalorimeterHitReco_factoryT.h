@@ -60,7 +60,7 @@ class CalorimeterHitReco_factoryT :
         app->SetDefaultParameter(param_prefix + ":localDetFields",   cfg.localDetFields);
 
         m_algo.applyConfig(cfg);
-        m_algo.init(geoSvc->detector(), logger());
+        m_algo.init(geoSvc->detector(), geoSvc->converter(), logger());
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {

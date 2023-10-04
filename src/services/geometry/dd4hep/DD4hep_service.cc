@@ -29,19 +29,20 @@ DD4hep_service::~DD4hep_service(){
 /// Return pointer to the dd4hep::Detector object.
 /// Call Initialize if needed.
 //----------------------------------------------------------------
-dd4hep::Detector* DD4hep_service::detector() {
+gsl::not_null<const dd4hep::Detector*>
+DD4hep_service::detector() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
     return (m_dd4hepGeo.get());
 }
 
 //----------------------------------------------------------------
-// cellIDPositionConverter
+// converter
 //
 /// Return pointer to the cellIDPositionConverter object.
 /// Call Initialize if needed.
 //----------------------------------------------------------------
-std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>
-DD4hep_service::cellIDPositionConverter() {
+gsl::not_null<const dd4hep::rec::CellIDPositionConverter*>
+DD4hep_service::converter() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
     return (m_cellid_converter.get());
 }

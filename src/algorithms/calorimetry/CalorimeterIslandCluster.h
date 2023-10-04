@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <gsl/gsl>
 #include <memory>
 
 #include <DD4hep/Detector.h>
@@ -28,7 +29,7 @@ namespace eicrecon {
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits);
 
     // neighbor checking function

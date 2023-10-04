@@ -13,6 +13,9 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/DD4hepUnits.h>
 
+// GSL
+#include <gsl/gsl>
+
 // IRT
 #include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovPhotonDetector.h>
@@ -28,7 +31,7 @@ namespace richgeo {
     public:
 
       // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-      IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
+      IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_);
       virtual ~IrtGeo();
 
       // access the full IRT geometry
@@ -50,12 +53,12 @@ namespace richgeo {
       std::string m_detName;
 
       // DD4hep geometry handles
-      dd4hep::Detector   *m_det;
+      gsl::not_null<const dd4hep::Detector*> m_det;
       dd4hep::DetElement m_detRich;
       dd4hep::Position   m_posRich;
 
       // cell ID conversion
-      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
+      gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_converter;
       std::unordered_map<int,richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
 
       // IRT geometry handles

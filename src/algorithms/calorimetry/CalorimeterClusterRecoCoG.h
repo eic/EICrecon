@@ -16,6 +16,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>
+#include <gsl/gsl>
 #include <map>
 #include <optional>
 #include <spdlog/spdlog.h>
@@ -45,7 +46,7 @@ namespace eicrecon {
   class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger);
 
     ClustersWithAssociations process(
             const edm4eic::ProtoClusterCollection* proto,

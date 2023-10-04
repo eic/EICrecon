@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <vector>
+#include <gsl/gsl>
 #include <string>
+#include <vector>
 
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
@@ -19,8 +20,9 @@ public:
     DD4hep_service( JApplication *app ) : app(app) {}
     virtual ~DD4hep_service();
 
-    virtual dd4hep::Detector* detector();
-    virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter();
+    virtual gsl::not_null<const dd4hep::Detector*> detector();
+    virtual gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter();
+
 protected:
     void Initialize();
 

@@ -28,7 +28,7 @@ private:
 
     std::once_flag m_init_flag;
     JApplication *m_app = nullptr;
-    dd4hep::Detector* m_dd4hepGeo = nullptr;
+    const dd4hep::Detector* m_dd4hepGeo = nullptr;
     std::shared_ptr<ActsGeometryProvider> m_acts_provider;
 
     // General acts log

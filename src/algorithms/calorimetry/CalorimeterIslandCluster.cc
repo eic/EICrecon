@@ -77,7 +77,7 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) 
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterIslandCluster::init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     m_detector = detector;
 
