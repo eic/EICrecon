@@ -116,6 +116,9 @@ find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
+# Guidelines Support Library
+find_package(Microsoft.GSL CONFIG)
+
 # Remove PODIO_JSON_OUTPUT (ref: https://github.com/AIDASoft/podio/issues/475)
 get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep INTERFACE_COMPILE_DEFINITIONS)
 if(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS)
