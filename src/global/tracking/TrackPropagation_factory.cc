@@ -22,8 +22,12 @@ void eicrecon::TrackPropagation_factory::Init() {
 
     auto app = GetApplication();
 
-    // SpdlogMixin logger initialization, sets m_log
-    InitLogger(app, GetTag());
+    // This prefix will be used for parameters
+    std::string plugin_name = GetPluginName();
+    std::string param_prefix = plugin_name+ ":" + GetTag();
+
+    // Initialize logger
+    InitLogger(app, param_prefix, "info");
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
     m_track_propagation_algo.init(acts_service->actsGeoProvider(), logger());
