@@ -132,12 +132,12 @@ void femc_studiesProcessor::Init() {
   // ===============================================================================================
   // rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
+  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,island clus}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
                                             1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
-  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
+  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,island clus high.}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
                                             1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
@@ -612,4 +612,24 @@ void femc_studiesProcessor::Finish() {
   std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();
   // Do any final calculations here.
+
+  if (enableTree) {
+    delete[] t_fEMC_towers_cellE;
+    delete[] t_fEMC_towers_cellT;
+    delete[] t_fEMC_towers_cellIDx;
+    delete[] t_fEMC_towers_cellIDy;
+    delete[] t_fEMC_towers_clusterIDA;
+    delete[] t_fEMC_towers_clusterIDB;
+    delete[] t_fEMC_towers_cellTrueID;
+  }
+
+  if (enableTreeCluster) {
+    delete[] t_mc_E;
+    delete[] t_mc_Phi;
+    delete[] t_mc_Eta;
+    delete[] t_fEMC_cluster_E;
+    delete[] t_fEMC_cluster_NCells;
+    delete[] t_fEMC_cluster_Phi;
+    delete[] t_fEMC_cluster_Eta;
+  }
 }

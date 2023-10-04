@@ -10,18 +10,6 @@ richgeo::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, std::share
   Bind();
 }
 
-// alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-richgeo::IrtGeo::IrtGeo(std::string detName_, std::string compactFile_, std::shared_ptr<spdlog::logger> log_) :
-  m_detName(detName_), m_log(log_)
-{
-  // build DD4hep detector from compact file
-  m_det = &dd4hep::Detector::getInstance();
-  m_det->fromXML(compactFile_);
-
-  // set IRT and DD4hep geometry handles
-  Bind();
-}
-
 // Bind() -----------------------------------------
 // set IRT and DD4hep geometry handles
 void richgeo::IrtGeo::Bind() {

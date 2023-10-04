@@ -29,8 +29,6 @@ namespace richgeo {
 
       // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
       IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
-      // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-      IrtGeo(std::string detName_, std::string compactFile_, std::shared_ptr<spdlog::logger> log_);
       virtual ~IrtGeo();
 
       // access the full IRT geometry
