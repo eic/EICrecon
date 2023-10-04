@@ -43,7 +43,7 @@ dd4hep::Detector* DD4hep_service::detector() {
 std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>
 DD4hep_service::cellIDPositionConverter() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
-    return (m_cellid_converter);
+    return (m_cellid_converter.get());
 }
 
 //----------------------------------------------------------------
@@ -118,7 +118,7 @@ void DD4hep_service::Initialize() {
         }
         detector->volumeManager();
         detector->apply("DD4hepVolumeManager", 0, nullptr);
-        m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
+        m_cellid_converter = std::make_unique<const dd4hep::rec::CellIDPositionConverter>(*detector);
         m_dd4hepGeo = std::move(detector); // const
 
         LOG << "Geometry successfully loaded." << LOG_END;

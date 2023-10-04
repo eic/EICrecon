@@ -30,7 +30,7 @@ private:
     std::once_flag init_flag;
     JApplication *app = nullptr;
     std::unique_ptr<const dd4hep::Detector> m_dd4hepGeo = nullptr;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
+    std::unique_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xml_files;
 
     /// Ensures there is a geometry file that should be opened
