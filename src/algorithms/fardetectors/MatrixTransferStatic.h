@@ -26,7 +26,7 @@ namespace eicrecon {
     double aYinv[2][2] = {{0.0, 0.0},
                           {0.0, 0.0}};
 
-    void init(const std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,const dd4hep::Detector* det,std::shared_ptr<spdlog::logger> &logger);
+    void init(const dd4hep::Detector* det,std::shared_ptr<spdlog::logger> &logger);
 
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::SimTrackerHitCollection &inputhits);
 
@@ -35,7 +35,6 @@ namespace eicrecon {
     /** algorithm logger */
     std::shared_ptr<spdlog::logger>   m_log;
     const dd4hep::Detector* m_detector{nullptr};
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     dd4hep::Segmentation m_segmentation;
 
   };

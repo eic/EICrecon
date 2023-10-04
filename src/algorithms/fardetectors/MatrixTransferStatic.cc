@@ -5,15 +5,12 @@
 
 #include "MatrixTransferStatic.h"
 
-void eicrecon::MatrixTransferStatic::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv,
-                                          const dd4hep::Detector* det,
+void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
                                           std::shared_ptr<spdlog::logger> &logger) {
 
   m_log              = logger;
   m_detector         = det;
-  m_cellid_converter = id_conv;
-//   m_readout          = det->readout(m_cfg.readout);
-  m_segmentation          = det->readout(m_cfg.readout).segmentation();
+  m_segmentation     = det->readout(m_cfg.readout).segmentation();
 
   //Calculate inverse of static transfer matrix
   std::vector<std::vector<double>> aX(m_cfg.aX);
@@ -68,17 +65,11 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
     auto cellID = h.getCellID();
 
     auto volman = m_detector->volumeManager();
-    auto local = volman.lookupDetElement(cellID);
-    // The actual hit position in Global Coordinates
-    auto gpos = local.nominal().localToWorld(pos1);
+    auto local  = volman.lookupDetElement(cellID);
     // local positions
-    auto pos0 = m_segmentation->position(cellID);
-
-
-//     std::cout << gpos << std::endl;
-//     std::cout << gpos0 << std::endl;
-//     std::cout << pos0.x() << " " << pos0.y() <<  " " << pos0.z() << std::endl;
-//     std::cout << pos1.x() << " " << pos1.y() <<  " " << pos1.z() << std::endl<< std::endl;
+    auto pos0   = m_segmentation->position(cellID);
+    // The actual hit position in Global Coordinates
+    auto gpos   = local.nominal().localToWorld(pos0);
 
     // convert into mm
     gpos = gpos/dd4hep::mm;
