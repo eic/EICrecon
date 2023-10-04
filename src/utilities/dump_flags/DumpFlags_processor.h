@@ -64,7 +64,6 @@ private:
             "DRICH",
             "BTRK",
             "BVTX",
-            "ECGEM",
             "ECTRK",
             "EEMC",
             "FOFFMTRK",
