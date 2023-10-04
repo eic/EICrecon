@@ -17,7 +17,8 @@ concurrency:
 
 env:
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0
-  LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
+  # https://github.com/google/sanitizers/issues/1342 or https://github.com/google/sanitizers/issues/1409
+  LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp:verbosity=0:log_threads=0:use_tls=0
 
 jobs:
   build:
