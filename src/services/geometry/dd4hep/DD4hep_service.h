@@ -1,20 +1,6 @@
-//
-//
-// TODO: Fix the following:
-// This class inspired by and benefited from the work done here at the following
-// links. A couple of lines were outright copied.
-//
-// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.h
-// https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugBase/src/components/GeoSvc.cpp
-//
-// Copyright carried by that code:
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
 //
-//
-
 
 #pragma once
 
