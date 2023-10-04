@@ -31,7 +31,7 @@ DD4hep_service::~DD4hep_service(){
 //----------------------------------------------------------------
 dd4hep::Detector* DD4hep_service::detector() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
-    return (m_dd4hepGeo);
+    return (m_dd4hepGeo.get());
 }
 
 //----------------------------------------------------------------
@@ -56,11 +56,9 @@ DD4hep_service::cellIDPositionConverter() {
 //----------------------------------------------------------------
 void DD4hep_service::Initialize() {
 
-    if( m_dd4hepGeo ) {
+    if (m_dd4hepGeo) {
         LOG_WARN(default_cout_logger) << "DD4hep_service already initialized!" << LOG_END;
     }
-
-    m_dd4hepGeo = &(dd4hep::Detector::getInstance());
 
     // The current recommended way of getting the XML file is to use the environment variables
     // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
@@ -103,6 +101,7 @@ void DD4hep_service::Initialize() {
     app->SetTicker( false );
 
     // load geometry
+    auto detector = dd4hep::Detector::make_unique("");
     try {
         dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
         LOG << "Loading DD4hep geometry from " << m_xml_files.size() << " files" << LOG_END;
@@ -112,17 +111,18 @@ void DD4hep_service::Initialize() {
 
             LOG << "  - loading geometry file:  '" << resolved_filename << "' (patience ....)" << LOG_END;
             try {
-                m_dd4hepGeo->fromCompact(resolved_filename);
+                detector->fromCompact(resolved_filename);
             } catch(std::runtime_error &e) {        // dd4hep throws std::runtime_error, no way to detail further
                 throw JException(e.what());
             }
         }
-        m_dd4hepGeo->volumeManager();
-        m_dd4hepGeo->apply("DD4hepVolumeManager", 0, nullptr);
-        m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_dd4hepGeo);
+        detector->volumeManager();
+        detector->apply("DD4hepVolumeManager", 0, nullptr);
+        m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
+        m_dd4hepGeo = std::move(detector); // const
 
         LOG << "Geometry successfully loaded." << LOG_END;
-    }catch(std::exception &e){
+    } catch(std::exception &e) {
         LOG_ERROR(default_cerr_logger)<< "Problem loading geometry: " << e.what() << LOG_END;
         throw std::runtime_error(fmt::format("Problem loading geometry: {}", e.what()));
     }
