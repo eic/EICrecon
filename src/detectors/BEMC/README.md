@@ -36,7 +36,7 @@ so we handle it manually in the _CalorimeterHitDigi_ class.
 One other option I have included is defining the _SetJANAConfigParameters_ templated method
 in the generic algorithm class _CalorimeterHitDigi_. This technically includes JANA code
 in the class, but since it is contained in the template, the compiler will never complain
-unless a template object is decalred, Thus, the _CalorimeterHitDigi_ class can be used
+unless a template object is declared, Thus, the _CalorimeterHitDigi_ class can be used
 outside of the JANA framework. The pros/cons of doing this are:
 
 pros:

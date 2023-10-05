@@ -80,8 +80,6 @@ std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string 
 // Destructor --------------------------------------------------------
 RichGeo_service::~RichGeo_service() {
   try {
-    if(m_dd4hepGeo) m_dd4hepGeo->destroyInstance();
-    m_dd4hepGeo = nullptr;
     delete m_irtGeo;
     delete m_actsGeo;
   } catch (...) {}

@@ -34,10 +34,7 @@ public:
     virtual ~DD4hep_service();
 
     virtual dd4hep::Detector* detector();
-    virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter() {
-        return m_cellid_converter;
-    }
-
+    virtual std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellIDPositionConverter();
 protected:
     void Initialize();
 

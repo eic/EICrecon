@@ -132,12 +132,12 @@ void femc_studiesProcessor::Init() {
   // ===============================================================================================
   // rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
+  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,island clus}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
                                             1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
-  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
+  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,island clus high.}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
                                             1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
