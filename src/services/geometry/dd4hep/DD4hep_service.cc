@@ -32,7 +32,7 @@ DD4hep_service::~DD4hep_service(){
 gsl::not_null<const dd4hep::Detector*>
 DD4hep_service::detector() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
-    return (m_dd4hepGeo.get());
+    return m_dd4hepGeo.get();
 }
 
 //----------------------------------------------------------------
@@ -44,7 +44,7 @@ DD4hep_service::detector() {
 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*>
 DD4hep_service::converter() {
     std::call_once(init_flag, &DD4hep_service::Initialize, this);
-    return (m_cellid_converter.get());
+    return m_cellid_converter.get();
 }
 
 //----------------------------------------------------------------
