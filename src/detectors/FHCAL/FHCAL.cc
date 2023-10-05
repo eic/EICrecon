@@ -254,6 +254,7 @@ extern "C" {
               0.037, // 13
             },
             .readout = "LFHCALHits",
+            .layerField = "rlayerz",
           },
           app   // TODO: Remove me once fixed
         ));
