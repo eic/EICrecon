@@ -148,7 +148,7 @@ namespace eicrecon {
                 const float pathLength = static_cast<float>(trackstate.pathLength());
                 const float pathLengthError = 0;
 
-                uint64_t surface = 0; // trackstate.referenceSurface().geometryId().value(); FIXME - ASAN is not happy with this
+                uint64_t surface = trackstate.referenceSurface().geometryId().value();
                 uint32_t system = 0;
 
                 // Store track point
