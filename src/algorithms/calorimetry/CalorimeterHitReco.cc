@@ -129,6 +129,12 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             continue;
         }
 
+        // get layer and sector ID
+        const int lid =
+                id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
+        const int sid =
+                id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
+
         // convert ADC to energy
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
                 m_cfg.sampFrac;
@@ -139,11 +145,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
 
         const float time = rh.getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
-
-        const int lid =
-                id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
-        const int sid =
-                id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
         dd4hep::Position gpos;
         try {
