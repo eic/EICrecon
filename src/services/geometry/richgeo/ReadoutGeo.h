@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <gsl/gsl>
 #include <string>
 #include <fmt/format.h>
 #include <functional>
@@ -26,7 +27,7 @@ namespace richgeo {
     public:
 
       // constructor
-      ReadoutGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
+      ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_);
       ~ReadoutGeo() {}
 
       // define cellID encoding
@@ -66,10 +67,10 @@ namespace richgeo {
       // common objects
       std::shared_ptr<spdlog::logger> m_log;
       std::string            m_detName;
-      dd4hep::Detector*      m_det;
+      gsl::not_null<const dd4hep::Detector*> m_det;
+      gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_conv;
       dd4hep::DetElement     m_detRich;
       dd4hep::BitFieldCoder* m_readoutCoder;
-      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
       int                    m_systemID;
       int                    m_num_sec;
       int                    m_num_pdus;

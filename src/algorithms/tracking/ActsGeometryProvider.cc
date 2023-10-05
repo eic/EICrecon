@@ -72,7 +72,7 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
 }
 
 
-void ActsGeometryProvider::initialize(dd4hep::Detector *dd4hep_geo,
+void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
                                       std::string material_file,
                                       std::shared_ptr<spdlog::logger> log,
                                       std::shared_ptr<spdlog::logger> init_log) {

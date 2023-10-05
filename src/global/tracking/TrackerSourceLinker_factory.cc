@@ -39,11 +39,11 @@ namespace eicrecon {
         // Get ACTS context from ACTSGeo service
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-        auto dd4hp_service = GetApplication()->GetService<DD4hep_service>();
+        // Get DD4hep geometry from DD4hep service
+        auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
 
         // Initialize algorithm
-        auto cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*dd4hp_service->detector());
-        m_source_linker.init(cellid_converter, acts_service->actsGeoProvider(), m_log);
+        m_source_linker.init(dd4hep_service->detector(), dd4hep_service->converter(), acts_service->actsGeoProvider(), m_log);
     }
 
 

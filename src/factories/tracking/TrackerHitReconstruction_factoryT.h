@@ -48,7 +48,7 @@ namespace eicrecon {
         app->SetDefaultParameter(param_prefix + ":timeResolution", cfg.timeResolution);
 
         m_algo.applyConfig(cfg);
-        m_algo.init(geoSvc->detector(), logger());
+        m_algo.init(geoSvc->converter(), logger());
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {

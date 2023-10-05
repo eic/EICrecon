@@ -18,12 +18,12 @@
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger)
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_detector = detector;
-    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
-    m_log=logger;
+    m_converter = converter;
+    m_log = logger;
 
     // print the configuration parameters
     m_cfg.Print(m_log, spdlog::level::debug);
@@ -132,7 +132,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             // cell time, signal amplitude
             double   amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
             TimeType time = m_cfg.noiseTimeWindow*m_rngUni() / dd4hep::ns;
-            dd4hep::Position pos_hit_global = m_cellid_converter->position(id);
+            dd4hep::Position pos_hit_global = m_converter->position(id);
 
             // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
             this->InsertHit(
