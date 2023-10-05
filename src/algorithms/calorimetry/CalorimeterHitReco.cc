@@ -135,13 +135,19 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
         const int sid =
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
+        // determine sampling fraction
+        float sampFrac = m_cfg.sampFrac;
+        if (! m_cfg.sampFracLayer.empty()) {
+            if (0 <= lid && lid < m_cfg.sampFracLayer.size()) {
+                sampFrac = m_cfg.sampFracLayer[lid];
+            } else {
+                throw std::runtime_error(fmt::format("CalorimeterHitReco: layer-specific sampling fraction undefined for index {}", lid));
+            }
+        }
+
         // convert ADC to energy
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
                 m_cfg.sampFrac;
-        if (m_cfg.readout == "LFHCALHits" && m_cfg.sampFracLayer[0] != 0.){
-          energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                    m_cfg.sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
-        }
 
         const float time = rh.getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
