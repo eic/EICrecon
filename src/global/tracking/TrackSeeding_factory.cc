@@ -63,6 +63,7 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
     // Collect all hits
     // FIXME Collection is better done with a TrackerHitCollector factory
     edm4eic::TrackerHitCollection total_hits;
+    total_hits.setSubsetCollection();
 
     for(auto input_tag: GetInputTags()) {
         auto hits = static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag));
