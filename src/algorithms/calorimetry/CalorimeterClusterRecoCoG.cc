@@ -23,7 +23,7 @@ namespace eicrecon {
 
   using namespace dd4hep;
 
-  void CalorimeterClusterRecoCoG::init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger) {
+  void CalorimeterClusterRecoCoG::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     m_detector = detector;
 

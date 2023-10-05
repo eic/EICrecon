@@ -5,8 +5,8 @@
 
 #include "MatrixTransferStatic.h"
 
-void eicrecon::MatrixTransferStatic::init(gsl::not_null<const dd4hep::Detector*> det,
-                                          gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> id_conv,
+void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
+                                          const dd4hep::rec::CellIDPositionConverter* id_conv,
                                           std::shared_ptr<spdlog::logger> &logger) {
 
   m_log       = logger;

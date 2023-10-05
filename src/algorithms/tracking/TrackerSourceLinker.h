@@ -22,8 +22,8 @@ namespace eicrecon {
 
     class TrackerSourceLinker {
     public:
-        void init(gsl::not_null<const dd4hep::Detector*> detector,
-                  gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter,
+        void init(const dd4hep::Detector* detector,
+                  const dd4hep::rec::CellIDPositionConverter* converter,
                   std::shared_ptr<const ActsGeometryProvider> acts_context,
                   std::shared_ptr<spdlog::logger> logger);
 

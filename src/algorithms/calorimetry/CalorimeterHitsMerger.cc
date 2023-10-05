@@ -12,7 +12,7 @@
 
 namespace eicrecon {
 
-void CalorimeterHitsMerger::init(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
     m_converter = converter;
     m_log = logger;

@@ -32,7 +32,7 @@ namespace eicrecon {
   class CalorimeterHitsMerger : public WithPodConfig<CalorimeterHitsMergerConfig>  {
 
   public:
-    void init(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &input);
 
   private:

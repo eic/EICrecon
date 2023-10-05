@@ -22,7 +22,7 @@ namespace eicrecon {
 
     public:
         /// Once in a lifetime initialization
-        void init(gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
+        void init(const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
 
         /// Processes RawTrackerHit and produces a TrackerHit
         std::unique_ptr<edm4eic::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection& raw_hits);

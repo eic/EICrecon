@@ -16,7 +16,7 @@ namespace {
     }
 } // namespace
 
-void TrackerHitReconstruction::init(gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger) {
+void TrackerHitReconstruction::init(const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
 
     m_log = logger;
 

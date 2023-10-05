@@ -25,7 +25,7 @@ namespace eicrecon {
   class CalorimeterHitReco : public WithPodConfig<CalorimeterHitRecoConfig> {
 
   public:
-    void init(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4hep::RawCalorimeterHitCollection &rawhits);
 
   private:

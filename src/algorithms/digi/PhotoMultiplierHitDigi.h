@@ -42,7 +42,7 @@ class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig
 public:
     PhotoMultiplierHitDigi() = default;
     ~PhotoMultiplierHitDigi(){}
-    void AlgorithmInit(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
     PhotoMultiplierHitDigiResult AlgorithmProcess(
         const edm4hep::SimTrackerHitCollection* sim_hits

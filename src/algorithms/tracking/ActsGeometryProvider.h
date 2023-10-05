@@ -46,7 +46,7 @@ public:
     ActsGeometryProvider() {}
     using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface *>;
 
-    virtual void initialize(gsl::not_null<const dd4hep::Detector*> dd4hep_geo,
+    virtual void initialize(const dd4hep::Detector* dd4hep_geo,
                             std::string material_file,
                             std::shared_ptr<spdlog::logger> log,
                             std::shared_ptr<spdlog::logger> init_log) final;

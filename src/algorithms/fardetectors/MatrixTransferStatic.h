@@ -27,7 +27,7 @@ namespace eicrecon {
     double aYinv[2][2] = {{0.0, 0.0},
                           {0.0, 0.0}};
 
-    void init(gsl::not_null<const dd4hep::Detector*> det, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> id_conv, std::shared_ptr<spdlog::logger> &logger);
+    void init(const dd4hep::Detector* det, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger> &logger);
 
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::SimTrackerHitCollection &inputhits);
 

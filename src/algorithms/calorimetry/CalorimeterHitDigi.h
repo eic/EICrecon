@@ -31,7 +31,7 @@ namespace eicrecon {
   class CalorimeterHitDigi : public WithPodConfig<CalorimeterHitDigiConfig> {
 
   public:
-    void init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4hep::RawCalorimeterHitCollection> process(const edm4hep::SimCalorimeterHitCollection &simhits) ;
 
   private:

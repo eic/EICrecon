@@ -46,7 +46,7 @@ namespace eicrecon {
   class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
   public:
-    void init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
 
     ClustersWithAssociations process(
             const edm4eic::ProtoClusterCollection* proto,

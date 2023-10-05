@@ -28,7 +28,7 @@ namespace eicrecon {
 //   values here. This needs to be confirmed.
 
 
-void CalorimeterHitDigi::init(gsl::not_null<const dd4hep::Detector*> detector, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
     m_log = logger;
 

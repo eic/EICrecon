@@ -18,7 +18,7 @@
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(gsl::not_null<const dd4hep::Detector*> detector, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> converter, std::shared_ptr<spdlog::logger>& logger)
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_detector = detector;
