@@ -298,28 +298,30 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // Print the contents of some collections, just for debugging purposes
     // Do this before writing just in case writing crashes
     if (!m_collections_to_print.empty()) {
-        LOG << "========================================" << LOG_END;
-        LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+        m_log->log(spdlog::level::off, "==================================");
+        m_log->log(spdlog::level::off, "Event {}", event->GetEventNumber());
     }
     for (const auto& coll_name : m_collections_to_print) {
-        LOG << "------------------------------" << LOG_END;
-        LOG << coll_name << LOG_END;
+        m_log->log(spdlog::level::off, "------------------------------");
+        m_log->log(spdlog::level::off, "{}", coll_name);
         try {
             const auto* coll_ptr = event->GetCollectionBase(coll_name);
             if (coll_ptr == nullptr) {
-                LOG << "missing" << LOG_END;
+                m_log->log(spdlog::level::off, "missing");
             } else {
-                coll_ptr->print();
+                std::ostringstream ostr;
+                coll_ptr->print(ostr);
+                m_log->log(spdlog::level::off, ostr.str());
             }
         }
         catch(std::exception &e) {
-            LOG << "missing" << LOG_END;
+            m_log->log(spdlog::level::off, "missing");
         }
     }
 
+    // Print the event number
     m_log->trace("==================================");
-    m_log->trace("Event #{}", event->GetEventNumber());
-
+    m_log->trace("Event {}", event->GetEventNumber());
 
     // Make sure that all factories get called that need to be written into the frame.
     // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
