@@ -118,7 +118,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    auto decoder = m_detector->readout(m_cfg.readout).idSpec().decoder();
     if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
 
     for (const auto &rh: rawhits) {
