@@ -146,7 +146,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
 
         // convert ADC to energy
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                m_cfg.sampFrac;
+                sampFrac;
 
         const float time = rh.getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
