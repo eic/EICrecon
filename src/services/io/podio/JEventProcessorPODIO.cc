@@ -389,4 +389,12 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
 void JEventProcessorPODIO::Finish() {
     m_writer->finish();
+
+    // Print summary of failed collections
+    if (! m_failed_collections.empty()) {
+        m_log->error("Failed to get the following collections at least once:");
+        for (const auto& coll : m_failed_collections) {
+            m_log->error("Failed collection '{}'", coll);
+        }
+    }
 }
