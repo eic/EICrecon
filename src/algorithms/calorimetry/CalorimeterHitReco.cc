@@ -118,7 +118,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    auto decoder = m_detector->readout(m_cfg.readout).idSpec().decoder();
     if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
 
     for (const auto &rh: rawhits) {
@@ -129,21 +128,28 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             continue;
         }
 
-        // convert ADC to energy
-        float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                m_cfg.sampFrac;
-        if (m_cfg.readout == "LFHCALHits" && m_cfg.sampFracLayer[0] != 0.){
-          energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                    m_cfg.sampFracLayer[decoder->get(cellID, decoder->index("rlayerz"))]; // use readout layer depth information from decoder
-        }
-
-        const float time = rh.getTimeStamp() / stepTDC;
-        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
-
+        // get layer and sector ID
         const int lid =
                 id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
         const int sid =
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
+
+        // determine sampling fraction
+        float sampFrac = m_cfg.sampFrac;
+        if (! m_cfg.sampFracLayer.empty()) {
+            if (0 <= lid && lid < m_cfg.sampFracLayer.size()) {
+                sampFrac = m_cfg.sampFracLayer[lid];
+            } else {
+                throw std::runtime_error(fmt::format("CalorimeterHitReco: layer-specific sampling fraction undefined for index {}", lid));
+            }
+        }
+
+        // convert ADC to energy
+        float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
+                sampFrac;
+
+        const float time = rh.getTimeStamp() / stepTDC;
+        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
 
         dd4hep::Position gpos;
         try {
