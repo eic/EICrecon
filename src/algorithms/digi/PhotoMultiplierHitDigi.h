@@ -19,7 +19,6 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>

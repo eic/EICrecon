@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
 #include <memory>
 
 #include <DD4hep/Detector.h>

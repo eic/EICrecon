@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
 #include <memory>
 #include <random>
 

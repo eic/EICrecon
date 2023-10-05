@@ -14,7 +14,6 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>
-#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"

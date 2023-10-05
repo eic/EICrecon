@@ -16,7 +16,6 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>
-#include <gsl/gsl>
 #include <map>
 #include <optional>
 #include <spdlog/spdlog.h>

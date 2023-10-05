@@ -3,7 +3,6 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
-#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 
 #include <DDRec/CellIDPositionConverter.h>

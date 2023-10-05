@@ -5,7 +5,6 @@
 
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <gsl/gsl>
 #include <spdlog/spdlog.h>
 
 #include "TrackerHitReconstructionConfig.h"

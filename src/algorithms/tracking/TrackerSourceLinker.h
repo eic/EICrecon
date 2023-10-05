@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
 #include <spdlog/logger.h>
 
 #include <DDRec/CellIDPositionConverter.h>

@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <bitset>
-#include <gsl/gsl>
 #include <memory>
 #include <tuple>
 #include <unordered_map>
