@@ -38,4 +38,6 @@ public:
     std::vector<std::string> m_collections_to_write;  // derived from above config. parameters
     std::vector<std::string> m_collections_to_print;
 
+  private:
+    std::set<std::string> m_failed_collections;
 };
