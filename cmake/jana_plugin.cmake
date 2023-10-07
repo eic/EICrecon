@@ -31,6 +31,9 @@ macro(plugin_add _name)
     # include fmt by default
     find_package(fmt REQUIRED)
 
+    # include gsl by default
+    find_package(Microsoft.GSL CONFIG)
+
     # Define plugin
     if(${_name}_WITH_PLUGIN)
         add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
@@ -41,6 +44,7 @@ macro(plugin_add _name)
         set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
         target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
         target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
         # Install plugin
         install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
@@ -61,6 +65,7 @@ macro(plugin_add _name)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
         target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_library Microsoft.GSL::GSL)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
