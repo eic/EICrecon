@@ -553,7 +553,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   if (enableTree){
     t_fEMC_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-      m_log->trace("{} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
+      m_log->trace("{} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
 
       t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
