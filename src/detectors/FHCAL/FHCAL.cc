@@ -18,6 +18,101 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+           "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
+           {
+             .eRes = {},
+             .tRes = 0.0 * dd4hep::ns,
+             .capADC = 32768,
+             .dyRangeADC = 200 * dd4hep::MeV,
+             .pedMeanADC = 400,
+             .pedSigmaADC = 10,
+             .resolutionTDC = 10 * dd4hep::picosecond,
+             .corrMeanScale = 1.0,
+           },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
+          {
+            .capADC = 32768,
+            .dyRangeADC = 200. * dd4hep::MeV,
+            .pedMeanADC = 400,
+            .pedSigmaADC = 10.,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 0.,
+            .thresholdValue = -100.,
+            .sampFrac = 0.0098,
+            .readout = "HcalEndcapPInsertHits",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitsMerger_factoryT>(
+          "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
+          {
+            .readout = "HcalEndcapPInsertHits",
+            .fields = {"layer", "slice"},
+            .refs = {1, 0},
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+          "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
+            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+
+        app->Add(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+             "HcalEndcapPInsertTruthClusters",
+            {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
+             "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .moduleDimZName = "",
+              .sampFrac = 1.0,
+              .logWeightBase = 3.6,
+              .depthCorrection = 0.0,
+              .enableEtaBounds = true
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+             "HcalEndcapPInsertClusters",
+            {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
+             "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .moduleDimZName = "",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .depthCorrection = 0.0,
+              .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
           {
             .eRes = {},
