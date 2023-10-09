@@ -1,7 +1,5 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
@@ -18,101 +16,6 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-           "HcalEndcapPRawHits", {"HcalEndcapPHits"}, {"HcalEndcapPRawHits"},
-           {
-             .eRes = {},
-             .tRes = 0.001 * dd4hep::ns,
-             .capADC = 65536,
-             .dyRangeADC = 1 * dd4hep::GeV,
-             .pedMeanADC = 20,
-             .pedSigmaADC = 0.8,
-             .resolutionTDC = 10 * dd4hep::picosecond,
-             .corrMeanScale = 1.0,
-           },
-           app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
-          "HcalEndcapPRecHits", {"HcalEndcapPRawHits"}, {"HcalEndcapPRecHits"},
-          {
-            .capADC = 65536,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 1.0,
-            .thresholdValue = 3.0,
-            .sampFrac = 0.033,
-            .readout = "HcalEndcapPHits",
-          },
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitsMerger_factoryT>(
-          "HcalEndcapPMergedHits", {"HcalEndcapPRecHits"}, {"HcalEndcapPMergedHits"},
-          {
-            .readout = "HcalEndcapPHits",
-            .fields = {"layer", "slice"},
-            .refs = {1, 0},
-          },
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
-          "HcalEndcapPTruthProtoClusters", {"HcalEndcapPRecHits", "HcalEndcapPHits"}, {"HcalEndcapPTruthProtoClusters"},
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
-          "HcalEndcapPIslandProtoClusters", {"HcalEndcapPRecHits"}, {"HcalEndcapPIslandProtoClusters"},
-          {
-            .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .splitCluster = true,
-            .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 1.,
-          },
-          app   // TODO: Remove me once fixed
-        ));
-
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "HcalEndcapPTruthClusters",
-            {"HcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "HcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"HcalEndcapPTruthClusters",             // edm4eic::Cluster
-             "HcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = false
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "HcalEndcapPClusters",
-            {"HcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "HcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"HcalEndcapPClusters",             // edm4eic::Cluster
-             "HcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 0.033,
-              .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = false,
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
 
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
