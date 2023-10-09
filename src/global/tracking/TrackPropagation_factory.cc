@@ -134,9 +134,9 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     m_target_surface_ID.push_back(2);
 
     // Create propagation surface for LFHCAL
-    const double LFHCAL_Z    = (m_geoSvc->detector()->constant<double>("HcalEndcapP_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
+    const double LFHCAL_Z    = (m_geoSvc->detector()->constant<double>("LFHCAL_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
     const double LFHCAL_MinR = 0.0;
-    const double LFHCAL_MaxR = (m_geoSvc->detector()->constant<double>("HcalEndcapP_rmax") / dd4hep::mm) * extend * Acts::UnitConstants::mm;
+    const double LFHCAL_MaxR = (m_geoSvc->detector()->constant<double>("LFHCAL_rmax") / dd4hep::mm) * extend * Acts::UnitConstants::mm;
     auto LFHCAL_Bounds       = std::make_shared<Acts::RadialBounds>(LFHCAL_MinR, LFHCAL_MaxR);
     auto LFHCAL_Trf1         = transform * Acts::Translation3(Acts::Vector3(0, 0, LFHCAL_Z));
     auto LFHCAL_Trf2         = transform * Acts::Translation3(Acts::Vector3(0, 0, LFHCAL_Z + HCAL_avgClusterDepth));
