@@ -174,13 +174,14 @@ endif()
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
 if (${USE_UBSAN})
-    foreach (sanitizer undefined nullability implicit-conversion)
+    foreach (sanitizer undefined float-divide-by-zero unsigned-integer-overflow implicit-conversion local-bounds nullability)
         check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
         if (CXX_COMPILER_HAS_sanitize_${sanitizer})
-            add_compile_options(-fsanitize=${sanitizer} -g -O1)
+            add_compile_options(-fsanitize=${sanitizer})
             add_link_options(-fsanitize=${sanitizer})
         endif()
     endforeach()
+    add_compile_options(-g -O1)
 endif()
 
 # Compress debug symbols if supported
