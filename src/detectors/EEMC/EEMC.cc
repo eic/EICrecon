@@ -29,7 +29,7 @@ extern "C" {
             // This includes quantum efficiency of the SiPM
             .photonDetectionEfficiency = 17. / 300.,
             // S14160-6015PS, 4 sensors per cell
-            .numEffectiveSipmPixels = 159565 * 4,
+            .numEffectiveSipmPixels = 159565ULL * 4,
             .capADC = 16384,
             .dyRangeADC = 20 * dd4hep::GeV,
             .pedMeanADC = 100,
