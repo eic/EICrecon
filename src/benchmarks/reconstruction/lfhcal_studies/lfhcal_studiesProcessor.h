@@ -12,8 +12,6 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "algorithms/tracking/TrackPropagation.h"
 #include <spdlog/spdlog.h>
 
 class lfhcal_studiesProcessor: public JEventProcessor {
@@ -95,7 +93,7 @@ public:
     int nEventsWithCaloHits = 0;
     bool isLFHCal = true;
     std::shared_ptr<spdlog::logger> m_log;
-    dd4hep::BitFieldCoder* m_decoder;
+    dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
     std::string nameSimHits         = "LFHCALHits";
     std::string nameRecHits         = "LFHCALRecHits";
     std::string nameClusters        = "LFHCALClusters";
