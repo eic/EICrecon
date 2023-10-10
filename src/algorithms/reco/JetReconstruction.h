@@ -5,13 +5,16 @@
 #define EICRECON_JETRECONSTRUCTION_H
 
 #include <map>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <spdlog/spdlog.h>
 #include <DD4hep/DD4hepUnits.h>
 // event data model definitions
 #include <edm4hep/utils/kinematics.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/MutableReconstructedParticle.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 // for fast jet objects
 #include <fastjet/config.h>
@@ -27,12 +30,46 @@ namespace eicrecon {
 
     public:
 
+      // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        const std::vector<const edm4hep::LorentzVectorE*> momenta
-      );
+
+      // run algorithm
+      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T& input_collection);
 
     private:
+
+      // generic method to add constituent to jet kinematic info
+      template <typename T> void add_to_jet_kinematics(const T& addend, edm4eic::MutableReconstructedParticle& kinematics);
+
+      // specialization for ReconstructedParticle input
+      void add_to_jet_kinematics(const edm4eic::ReconstructedParticle& addend, edm4eic::MutableReconstructedParticle& kinematics) {
+        kinematics.addToParticles(addend);
+      };
+
+      // specialization for MCParticle input
+      void add_to_jet_kinematics(const edm4hep::MCParticle& addend, edm4eic::MutableReconstructedParticle& kinematics) {
+        kinematics.addToParticles(copy_mcparticle_onto_recoparticle(addend));
+      };
+
+      // helper function to copy edm4hep::MCParticle onto edm4eic::ReconstructedParticle
+      // FIXME there is likely a far more elegant way of doing this...
+      edm4eic::ReconstructedParticle copy_mcparticle_onto_recoparticle(const edm4hep::MCParticle& mc) {
+
+        // calculate total energy
+        const float mom_squared = (std::pow(mc.getMomentum().x, 2) + std::pow(mc.getMomentum().y, 2) + std::pow(mc.getMomentum().z, 2));
+        const float energy = std::sqrt(std::pow(mc.getMass(), 2) + mom_squared);
+
+        // create reco particle
+        edm4eic::MutableReconstructedParticle mutable_reco;
+        mutable_reco.setMomentum(mc.getMomentum());
+        mutable_reco.setEnergy(energy);
+        mutable_reco.setCharge(mc.getCharge());
+        mutable_reco.setMass(mc.getMass());
+        mutable_reco.setPDG(mc.getPDG());
+
+        // return non-mutable representation
+        return static_cast<edm4eic::ReconstructedParticle>(mutable_reco);
+      }
 
       std::shared_ptr<spdlog::logger> m_log;
 

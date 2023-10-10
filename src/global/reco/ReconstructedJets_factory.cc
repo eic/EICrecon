@@ -55,23 +55,11 @@ namespace eicrecon {
     void ReconstructedJets_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
         // grab input collection
+        // TODO: Need to exclude the scattered electron
         auto input = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
-        // extract particle momenta
-        std::vector<const edm4hep::LorentzVectorE*> momenta;
-        for (const auto& particle : *input) {
-
-            // TODO: Need to exclude the scattered electron
-            const auto& momentum = particle.getMomentum();
-            const auto& energy = particle.getEnergy();
-            momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
-        }  // end particle loop
-
         // run algorithm
-        auto rec_jets = m_jet_algo.process(momenta);
-        for (const auto &momentum : momenta) {
-            delete momentum;
-        }
+        auto rec_jets = m_jet_algo.process(*input);
 
         // set output collection
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(rec_jets));

@@ -46,33 +46,38 @@ namespace eicrecon {
       m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
       throw JException(out.what());
     }
-  }
+  }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
 
 
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(
-    const std::vector<const edm4hep::LorentzVectorE*> momenta) {
+  template <typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const T& input_collection) {
 
     // Store the jets
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
 
+    // extract input momenta and collect into pseudojets
+    std::vector<PseudoJet> particles;
+    for (unsigned iInput = 0; const auto& input : *input_collection) {
+
+      // get 4-vector
+      const auto& momentum = input.getMomentum();
+      const auto& energy = input.getEnergy();
+      const auto* lorentz = new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy);
+
+      // Only cluster particles within the given pt Range
+      if ((lorentz->pt() > m_cfg.minCstPt) && (lorentz->pt() < m_cfg.maxCstPt)) {
+        particles.emplace_back(lorentz->px(), lorentz->py(), lorentz->pz(), lorentz->e());
+        particles.back().set_user_index(iInput);
+      }
+      ++iInput;
+    }
+
     // Skip empty
-    if (momenta.empty()) {
+    if (particles.empty()) {
       m_log->trace("  Empty particle list.");
       return jet_collection;
     }
-
-    m_log->trace("  Number of particles: {}", momenta.size());
-
-    // Particles for jet reconstrution
-    std::vector<PseudoJet> particles;
-    for (const auto &mom : momenta) {
-
-      // Only cluster particles within the given pt Range
-      if ((mom->pt() > m_cfg.minCstPt) && (mom->pt() < m_cfg.maxCstPt)) {
-        particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e());
-      }
-    }
+    m_log->trace("  Number of particles: {}", particles.size());
 
     // Choose jet and area definitions
     JetDefinition jet_def(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
@@ -90,36 +95,21 @@ namespace eicrecon {
 
       m_log->trace("  jet {}: pt = {}, y = {}, phi = {}", i, jets[i].pt(), jets[i].rap(), jets[i].phi());
 
-      // Type = 0 for jets, Type = 1 for constituents
-      // Use PDG values to match jets and constituents
+      // create jet to store in output collection
       edm4eic::MutableReconstructedParticle jet_output = jet_collection->create();
-      jet_output.setType(0);
-      jet_output.setPDG(i);
       jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
       jet_output.setEnergy(jets[i].e());
       jet_output.setMass(jets[i].m());
 
-      // loop over constituents
+      // link constituents to jet kinematic info
       std::vector<PseudoJet> csts = jets[i].constituents();
       for (unsigned j = 0; j < csts.size(); j++) {
-
-        const double cst_pt = csts[j].pt();
-        m_log->trace("    constituent {}'s pt: {}", j, cst_pt);
-
-        // Type = 0 for jets, Type = 1 for constituents
-        // Use PDG values to match jets and constituents
-        edm4eic::MutableReconstructedParticle cst_output = jet_collection->create();
-        cst_output.setType(1);
-        cst_output.setPDG(i);
-        cst_output.setMomentum(edm4hep::Vector3f(csts[j].px(), csts[j].py(), csts[j].pz()));
-        cst_output.setEnergy(csts[j].e());
-        cst_output.setMass(csts[j].m());
-        //jet_output.addToParticles(cst_output);  // FIXME: global issue with podio reference
+        add_to_jet_kinematics(input_collection[csts[j].user_index()], jet_output);
       } // for constituent j
     } // for jet i
 
     // return the jets
     return jet_collection;
-  }
+  }  // end 'process(const T&)'
 
 }  // end namespace eicrecon

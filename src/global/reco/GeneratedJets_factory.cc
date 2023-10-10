@@ -57,24 +57,18 @@ namespace eicrecon {
         // grab input collection
         auto input = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
-        // extract particle momenta
-        std::vector<const edm4hep::LorentzVectorE*> momenta;
+        // select only final state particles for reconstruction
+        // TODO: Need to exclude the scattered electron
+        std::unique_ptr<edm4hep::MCParticleCollection> for_reconstruction = std::make_unique<edm4hep::MCParticleCollection>();
         for (const auto& particle : *input) {
-
-            // select only final state charged particles
             const bool is_final_state = (particle.getGeneratorStatus() == 1);
-            if (!is_final_state) continue;
-
-            const auto& momentum = particle.getMomentum();
-            const auto& energy = particle.getEnergy();
-            momenta.push_back(new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy));
-        }  // end particle loop
+            if (is_final_state) {
+                for_reconstruction -> push_back(particle);
+            }
+        }
 
         // run algorithm
-        auto gen_jets = m_jet_algo.process(momenta);
-        for (const auto &momentum : momenta) {
-            delete momentum;
-        }
+        auto gen_jets = m_jet_algo.process(std::move(for_reconstruction));
 
         // set output collection
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(gen_jets));
