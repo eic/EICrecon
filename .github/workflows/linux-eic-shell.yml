@@ -479,7 +479,7 @@ jobs:
           $PWD/install/bin/eicmkplugin.py MyCustomPlugin
           cmake -S MyCustomPlugin -B MyCustomPlugin/build -DEICrecon_ROOT=$PWD/install -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/install/lib/EICrecon/plugins
           cmake --build MyCustomPlugin/build -j $(getconf _NPROCESSORS_ONLN) --target install
-          $PWD/install/bin/eicrecon -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          $PWD/install/bin/eicrecon -Pplugins=MyCustomPlugin -Ppodio:output_include_collections=foobar -Ppodio:exclude_include_collections=foobar -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
 
   eicrecon-benchmarks-plugins:
     runs-on: ubuntu-latest
