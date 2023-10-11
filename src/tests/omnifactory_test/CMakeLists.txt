@@ -16,7 +16,6 @@ target_link_libraries(${TEST_NAME} PRIVATE
   log_plugin
   EDM4EIC::edm4eic
   EDM4HEP::edm4hep
-  podio
   ${JANA_LIB}
   podio::podio
   podio::podioRootIO
