@@ -324,47 +324,6 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         FindCollectionsToWrite(event);
     }
 
-    // Trigger all collections once to fix the collection IDs
-    // TODO: WDC: This should not be necessary, but while we await collection IDs
-    //            that are determined by hash, we have to ensure they are reproducible
-    //            even if the collections are filled in unpredictable order (or not at
-    //            all). See also below, at "TODO: NWB:".
-    for (const auto& coll_name : m_collections_to_write) {
-        try {
-            [[maybe_unused]]
-            const auto* coll_ptr = event->GetCollectionBase(coll_name);
-        }
-        catch(std::exception &e) {
-            // chomp
-        }
-    }
-
-    // Print the contents of some collections, just for debugging purposes
-    // Do this before writing just in case writing crashes
-    if (!m_collections_to_print.empty()) {
-        LOG << "========================================" << LOG_END;
-        LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
-    }
-    for (const auto& coll_name : m_collections_to_print) {
-        LOG << "------------------------------" << LOG_END;
-        LOG << coll_name << LOG_END;
-        try {
-            const auto* coll_ptr = event->GetCollectionBase(coll_name);
-            if (coll_ptr == nullptr) {
-                LOG << "missing" << LOG_END;
-            } else {
-                coll_ptr->print();
-            }
-        }
-        catch(std::exception &e) {
-            LOG << "missing" << LOG_END;
-        }
-    }
-
-    m_log->trace("==================================");
-    m_log->trace("Event #{}", event->GetEventNumber());
-
-
     // Make sure that all factories get called that need to be written into the frame.
     // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
     // Note that all collections need to be present in the first event, as podio::RootFrameWriter constrains us to write one event at a time, so there
@@ -429,6 +388,31 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     */
     m_writer->writeFrame(*frame, "events", m_collections_to_write);
     m_is_first_event = false;
+
+    // Print the contents of some collections, just for debugging purposes
+    // Do this before writing just in case writing crashes
+    if (!m_collections_to_print.empty()) {
+        LOG << "========================================" << LOG_END;
+        LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+    }
+    for (const auto& coll_name : m_collections_to_print) {
+        LOG << "------------------------------" << LOG_END;
+        LOG << coll_name << LOG_END;
+        try {
+            const auto* coll_ptr = event->GetCollectionBase(coll_name);
+            if (coll_ptr == nullptr) {
+                LOG << "missing" << LOG_END;
+            } else {
+                coll_ptr->print();
+            }
+        }
+        catch(std::exception &e) {
+            LOG << "missing" << LOG_END;
+        }
+    }
+
+    m_log->trace("==================================");
+    m_log->trace("Event #{}", event->GetEventNumber());
 
 }
 
