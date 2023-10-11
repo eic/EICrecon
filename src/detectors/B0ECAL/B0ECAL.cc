@@ -84,7 +84,7 @@ extern "C" {
               .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
-            app   // TODO: Remove me once fixed
+            app
           )
         );
 
@@ -103,7 +103,7 @@ extern "C" {
               .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
-            app   // TODO: Remove me once fixed
+            app
           )
         );
     }

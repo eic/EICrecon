@@ -79,7 +79,7 @@ public:
         // Create throwaway factory so we can populate its config using our map<string,string>.
         FactoryT factory;
         factory.ConfigureAllParameters(config_params);
-        auto config = factory.GetConfig();
+        auto config = factory.config();
 
         m_wirings.push_back({.m_tag=tag,
                              .m_default_input_tags=default_input_tags,
@@ -101,7 +101,7 @@ public:
             // factory->SetTag(wiring.m_tag);
             // We do NOT want to do this because JMF will use the tag to suffix the collection names
             // TODO: NWB: Change this in JANA
-            factory->GetConfig() = wiring.m_default_cfg;
+            factory->config() = wiring.m_default_cfg;
 
             // Set up all of the wiring prereqs so that Init() can do its thing
             // Specically, it needs valid input/output tags, a valid logger, and

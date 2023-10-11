@@ -437,6 +437,6 @@ public:
     std::shared_ptr<spdlog::logger> &logger() { return m_logger; }
 
     /// Retrieve reference to embedded config object
-    ConfigT& GetConfig() { return m_config; }
+    ConfigT& config() { return m_config; }
 
 };

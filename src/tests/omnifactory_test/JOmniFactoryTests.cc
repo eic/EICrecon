@@ -17,8 +17,8 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
     PodioOutput<edm4hep::SimCalorimeterHit> output_hits_left {this, "output_hits_left"};
     PodioOutput<edm4hep::SimCalorimeterHit> output_hits_right {this, "output_hits_right"};
 
-    ParameterRef<int> bucket_count {this, "bucket_count", GetConfig().bucket_count, "The total number of buckets [dimensionless]"};
-    ParameterRef<double> threshold {this, "threshold", GetConfig().threshold, "The max cutoff threshold [V * A * kg^-1 * m^-2 * sec^-3]"};
+    ParameterRef<int> bucket_count {this, "bucket_count", config().bucket_count, "The total number of buckets [dimensionless]"};
+    ParameterRef<double> threshold {this, "threshold", config().threshold, "The max cutoff threshold [V * A * kg^-1 * m^-2 * sec^-3]"};
 
     std::vector<OutputBase*> GetOutputs() { return this->m_outputs; }
 
@@ -38,7 +38,7 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
 
     void Process(int64_t run_number, uint64_t event_number) {
         m_process_call_count++;
-        logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", GetConfig().bucket_count, GetConfig().threshold);
+        logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
         // Provide empty collections (as opposed to nulls) so that PODIO doesn't crash
         // TODO: NWB: I though multifactories already took care of this under the hood somewhere
         output_hits_left() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
@@ -86,8 +86,8 @@ TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
     REQUIRE(basictestalg->threshold() == 6.1);
     REQUIRE(basictestalg->bucket_count() == 22);
 
-    REQUIRE(basictestalg->GetConfig().threshold == 6.1);
-    REQUIRE(basictestalg->GetConfig().bucket_count == 22);
+    REQUIRE(basictestalg->config().threshold == 6.1);
+    REQUIRE(basictestalg->config().bucket_count == 22);
 
     REQUIRE(basictestalg->m_init_call_count == 0);
 }
@@ -112,18 +112,18 @@ TEST_CASE("Multiple configuration objects are correctly wired from untyped wirin
 
     REQUIRE(b->threshold() == 6.1);
     REQUIRE(b->bucket_count() == 22);
-    REQUIRE(b->GetConfig().threshold == 6.1);
-    REQUIRE(b->GetConfig().bucket_count == 22);
+    REQUIRE(b->config().threshold == 6.1);
+    REQUIRE(b->config().bucket_count == 22);
 
     REQUIRE(c->threshold() == 9.0);
     REQUIRE(c->bucket_count() == 27);
-    REQUIRE(c->GetConfig().threshold == 9.0);
-    REQUIRE(c->GetConfig().bucket_count == 27);
+    REQUIRE(c->config().threshold == 9.0);
+    REQUIRE(c->config().bucket_count == 27);
 
     REQUIRE(e->threshold() == 16.25);
     REQUIRE(e->bucket_count() == 49);
-    REQUIRE(e->GetConfig().threshold == 16.25);
-    REQUIRE(e->GetConfig().bucket_count == 49);
+    REQUIRE(e->config().threshold == 16.25);
+    REQUIRE(e->config().bucket_count == 49);
 
     REQUIRE(b->m_init_call_count == 0);
     REQUIRE(c->m_init_call_count == 0);
@@ -153,13 +153,13 @@ TEST_CASE("JParameterManager correctly understands which values are defaulted an
 
     // Overrides won't happen until factory gets Init()ed. However, defaults will be applied immediately
     REQUIRE(b->threshold() == 6.1);
-    REQUIRE(b->GetConfig().threshold == 6.1);
+    REQUIRE(b->config().threshold == 6.1);
 
     // Trigger JMF::Execute(), in order to trigger Init(), in order to Configure()s all Parameter fields...
     auto lefthits = event->Get<edm4hep::SimCalorimeterHit>("BCalLeftHits");
 
     REQUIRE(b->threshold() == 12.0);
-    REQUIRE(b->GetConfig().threshold == 12.0);
+    REQUIRE(b->config().threshold == 12.0);
 
     std::cout << "Showing the full table of config parameters" << std::endl;
     app.GetJParameterManager()->PrintParameters(true, false, true);
@@ -185,20 +185,20 @@ TEST_CASE("Wiring itself is correctly defaulted") {
 
     // Overrides won't happen until factory gets Init()ed. However, defaults will be applied immediately
     REQUIRE(b->bucket_count() == 42);      // Not provided by wiring
-    REQUIRE(b->GetConfig().bucket_count == 42);  // Not provided by wiring
+    REQUIRE(b->config().bucket_count == 42);  // Not provided by wiring
 
     REQUIRE(b->threshold() == 6.1);        // Provided by wiring
-    REQUIRE(b->GetConfig().threshold == 6.1);    // Provided by wiring
+    REQUIRE(b->config().threshold == 6.1);    // Provided by wiring
 
     // Trigger JMF::Execute(), in order to trigger Init(), in order to Configure()s all Parameter fields...
     auto lefthits = event->Get<edm4hep::SimCalorimeterHit>("BCalLeftHits");
 
     // We didn't override the config values via the parameter manager, so all of these should be the same
     REQUIRE(b->bucket_count() == 42);      // Not provided by wiring
-    REQUIRE(b->GetConfig().bucket_count == 42);  // Not provided by wiring
+    REQUIRE(b->config().bucket_count == 42);  // Not provided by wiring
 
     REQUIRE(b->threshold() == 6.1);        // Provided by wiring
-    REQUIRE(b->GetConfig().threshold == 6.1);    // Provided by wiring
+    REQUIRE(b->config().threshold == 6.1);    // Provided by wiring
 
 
     b->logger()->info("Showing the full table of config parameters");
