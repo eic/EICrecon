@@ -333,7 +333,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           chmod a+x bin/*
-          $PWD/bin/eicrecon -Ppodio:output_include_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          $PWD/bin/eicrecon -Ppodio:output_include_collections=EventHeader,MCParticles,EcalBarrelScFiHits,EcalBarrelImagingHits -Ppodio:output_file=raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - name: Upload digitization output
       uses: actions/upload-artifact@v3
       with:
