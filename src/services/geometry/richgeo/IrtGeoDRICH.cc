@@ -141,7 +141,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
-	sensor_info.surface_normZdir = normZdir;
+        sensor_info.surface_normZdir = normZdir;
         m_sensor_info.insert({ sensorID, sensor_info });
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
@@ -196,7 +196,7 @@ TVector3 richgeo::IrtGeoDRICH::GetSensorSurface(CellIDType id){
 
   auto sensor_obj = sensor_info_it->second;
   auto normZdir = sensor_obj.surface_normZdir;
-  
+
   sensorNorm.SetX(static_cast<double>(normZdir.x()));
   sensorNorm.SetY(static_cast<double>(normZdir.y()));
   sensorNorm.SetZ(static_cast<double>(normZdir.z()));
