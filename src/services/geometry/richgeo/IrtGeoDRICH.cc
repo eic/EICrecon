@@ -2,7 +2,6 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #include "IrtGeoDRICH.h"
-#include <IRT/CherenkovDetectorCollection.h>
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope
@@ -142,8 +141,8 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
+	sensor_info.surface_normZdir = normZdir;
         m_sensor_info.insert({ sensorID, sensor_info });
-
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
             TVector3(posSensor.x(), posSensor.y(), posSensor.z()),
@@ -186,42 +185,23 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   SetReadoutIDToPositionLambda();
 }
 TVector3 richgeo::IrtGeoDRICH::GetSensorSurface(CellIDType id){
-  printf("This is just a test\n");
   auto nSectors= m_det->constant<int>("DRICH_num_sectors");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, -1, 0);
   TVector3 sensorNorm;
   auto cellMask = uint64_t(std::stoull(m_det->constant<std::string>("DRICH_cell_mask")));
-  for (int isec = 0; isec < nSectors; isec++) {
-    std::string secName = "sec" + std::to_string(isec);
-    auto sensorThickness = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
-    auto sensorSize      = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
-    for(auto const& [de_name, detSensor] : m_detRich.children()) {
-      if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
-	// get sensor info
-	const auto sensorID      = detSensor.id();
-	const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
-	if(detSensorPars==nullptr)
-	  throw std::runtime_error(fmt::format("sensor '{}' does not have VariantParameters", de_name));
-        // - sensor surface position
-        auto posSensor = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos") / dd4hep::mm;
-        // - sensor orientation
-        auto normXdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
-        auto normYdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
-        auto normZdir = normXdir.Cross(normYdir); // sensor surface normal
-        // - surface offset, used to convert sensor volume centroid to sensor surface centroid
-        auto surfaceOffset = normZdir.Unit() * (0.5*sensorThickness);
-	sensorNorm.SetX(static_cast<double>(normZdir.x()));
-	sensorNorm.SetY(static_cast<double>(normZdir.y()));
-	sensorNorm.SetZ(static_cast<double>(normZdir.z()));
-	auto sID = id & cellMask;
-	if(sensorID == sID){
-	  //std::cout<<"x,y,z: "<<sensorNorm.X()<<" "<<sensorNorm.Y()<<" "<<sensorNorm.Z()<<std::endl;
-	  return sensorNorm;
-	}
-      }
-    } // search for sensors
-  } // sector loop
+  auto sensor_info = this->m_sensor_info;
+  auto sID = id & cellMask;
+  auto sensor_info_it = sensor_info.find(sID);
+
+  auto sensor_obj = sensor_info_it->second;
+  auto normZdir = sensor_obj.surface_normZdir;
+  
+  sensorNorm.SetX(static_cast<double>(normZdir.x()));
+  sensorNorm.SetY(static_cast<double>(normZdir.y()));
+  sensorNorm.SetZ(static_cast<double>(normZdir.z()));
+  //std::cout<<sensorNorm.X()<<std::endl;
+  return sensorNorm;
 }
 // destructor
 richgeo::IrtGeoDRICH::~IrtGeoDRICH() {
