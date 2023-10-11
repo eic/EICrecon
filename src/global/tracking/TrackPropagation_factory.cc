@@ -139,7 +139,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto OHCAL_Trf           = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
     auto OHCAL_prop_surface1    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R, OHCAL_halfz);
     auto OHCAL_prop_surface2    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R + HCAL_avgClusterDepth, OHCAL_halfz);
-    auto OHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HcalBarrel_ID");
+    auto OHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID");
     OHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(1));
     OHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(OHCAL_prop_surface1);
