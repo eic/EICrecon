@@ -8,29 +8,10 @@
 #include <TH2.h>
 #include <TFile.h>
 
-#include <algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp>
-#include <algorithms/tracking/TrackProjector.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <edm4hep//MCParticle.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/TrackSegment.h>
-#include <edm4eic/TrackerHit.h>
+#include "extensions/spdlog/SpdlogMixin.h"
 
-
-class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin<TofEfficiency_processor>  {
+class TofEfficiency_processor: public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin  {
 private:
-
-    // Data objects we will need from JANA
-    // Since Prefetch<> is used as a fanction, we use function naming scheme for the next
-    PrefetchT<edm4hep::MCParticle>  mcParticles   = {this, "MCParticles" };
-    // PrefetchT<Jug::Trajectories>    Trajectories  = {this, "CentralCKFTrajectories"};
-    PrefetchT<edm4eic::TrackSegment> trackSegments = {this, "CentralTrackSegments"};
-    PrefetchT<edm4eic::TrackerHit> barrelHits = {this, "TOFBarrelRecHit"};
-    PrefetchT<edm4eic::TrackerHit> endcapHits = {this, "TOFEndcapRecHits"};
-
 
     // Containers for histograms
     std::map<std::string, TH1*> m_1d_hists;

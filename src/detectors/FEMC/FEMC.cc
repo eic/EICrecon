@@ -3,49 +3,13 @@
 //
 //
 
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
-#include <factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h>
-
-#include "RawCalorimeterHit_factory_EcalEndcapPRawHits.h"
-#include "CalorimeterHit_factory_EcalEndcapPRecHits.h"
-#include "ProtoCluster_factory_EcalEndcapPTruthProtoClusters.h"
-#include "ProtoCluster_factory_EcalEndcapPIslandProtoClusters.h"
-
-#include "RawCalorimeterHit_factory_EcalEndcapPInsertRawHits.h"
-#include "CalorimeterHit_factory_EcalEndcapPInsertRecHits.h"
-#include "ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters.h"
-#include "ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters.h"
-
-namespace eicrecon {
-    class Cluster_factory_EcalEndcapPTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPInsertTruthClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertTruthClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPInsertTruthClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertTruthClusters>(std::forward<Args>(args)...) { }
-    };
-
-    class Cluster_factory_EcalEndcapPInsertClusters: public CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertClusters> {
-    public:
-        template <typename... Args>
-        Cluster_factory_EcalEndcapPInsertClusters(Args&&... args)
-        : CalorimeterClusterRecoCoG_factoryT<Cluster_factory_EcalEndcapPInsertClusters>(std::forward<Args>(args)...) { }
-    };
-}
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
+#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -54,13 +18,57 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPIslandProtoClusters>());
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+          "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits"},
+          {
+            .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
+            .tRes = 0.0,
+            .capADC = 65536, //2^16  (approximate HGCROC resolution) old 16384
+            .capTime = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC = 3 * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 0.7,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .corrMeanScale = 0.03,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
+          {
+            .capADC = 65536,
+            .dyRangeADC = 3. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 0.7,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 5.0,
+            .thresholdValue = 2.0,
+            .sampFrac  =0.03,
+            .readout = "EcalEndcapPHits",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+          "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"}, {"EcalEndcapPTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
+            .dimScaledLocalDistXY = {1.5, 1.5},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 0.04,
+          },
+          app   // TODO: Remove me once fixed
+        ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapPTruthClusters",
             {"EcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -79,7 +87,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapPClusters",
             {"EcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "EcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -97,13 +105,56 @@ extern "C" {
           )
         );
 
-        app->Add(new JFactoryGeneratorT<RawCalorimeterHit_factory_EcalEndcapPInsertRawHits>());
-        app->Add(new JFactoryGeneratorT<CalorimeterHit_factory_EcalEndcapPInsertRecHits>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertTruthProtoClusters>());
-        app->Add(new JFactoryGeneratorT<ProtoCluster_factory_EcalEndcapPInsertIslandProtoClusters>());
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+          "EcalEndcapPInsertRawHits", {"EcalEndcapPInsertHits"}, {"EcalEndcapPInsertRawHits"},
+          {
+            .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 16384,
+            .dyRangeADC = 3 * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 0.7,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .corrMeanScale = 0.03,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+          "EcalEndcapPInsertRecHits", {"EcalEndcapPInsertRawHits"}, {"EcalEndcapPInsertRecHits"},
+          {
+            .capADC = 16384,
+            .dyRangeADC = 3. * dd4hep::GeV,
+            .pedMeanADC = 100,
+            .pedSigmaADC = 0.7,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 5.0,
+            .thresholdValue = 2.0,
+            .sampFrac = 0.03,
+            .readout = "EcalEndcapPInsertHits",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+          "EcalEndcapPInsertTruthProtoClusters", {"EcalEndcapPInsertRecHits", "EcalEndcapPInsertHits"}, {"EcalEndcapPInsertTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+          "EcalEndcapPInsertIslandProtoClusters", {"EcalEndcapPInsertRecHits"}, {"EcalEndcapPInsertIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
+            .dimScaledLocalDistXY = {1.5,1.5},
+            .splitCluster = false,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
+        ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPInsertTruthClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapPInsertTruthClusters",
             {"EcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -122,7 +173,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<Cluster_factory_EcalEndcapPInsertClusters>(
+          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
              "EcalEndcapPInsertClusters",
             {"EcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "EcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection

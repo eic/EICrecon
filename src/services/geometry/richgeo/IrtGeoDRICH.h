@@ -10,10 +10,8 @@ namespace richgeo {
   class IrtGeoDRICH : public IrtGeo {
 
     public:
-      IrtGeoDRICH(std::string compactFile_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("DRICH",compactFile_,log_) { DD4hep_to_IRT(); }
-      IrtGeoDRICH(dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("DRICH",det_,log_) { DD4hep_to_IRT(); }
+      IrtGeoDRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
+        IrtGeo("DRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
       ~IrtGeoDRICH();
 
     protected:

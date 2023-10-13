@@ -4,21 +4,19 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {
 
-template<class T>
 class CalorimeterClusterRecoCoG_factoryT :
     public JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>,
-    public SpdlogMixin<T> {
+    public SpdlogMixin {
 
   public:
-    using SpdlogMixin<T>::logger;
 
     explicit CalorimeterClusterRecoCoG_factoryT(
         std::string tag,
@@ -39,15 +37,15 @@ class CalorimeterClusterRecoCoG_factoryT :
         auto app = GetApplication();
 
         // This prefix will be used for parameters
-        std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+        std::string plugin_name  = GetPluginName();
         std::string param_prefix = plugin_name + ":" + GetTag();
 
-        // Use JDD4hep_service to get dd4hep::Detector
-        auto geoSvc = app->template GetService<JDD4hep_service>();
-        m_detector = geoSvc->detector();
+        // Use DD4hep_service to get dd4hep::Detector
+        auto geoSvc = app->template GetService<DD4hep_service>();
+        auto detector = geoSvc->detector();
 
         // SpdlogMixin logger initialization, sets m_log
-        SpdlogMixin<T>::InitLogger(JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>::GetPrefix(), "info");
+        InitLogger(app, GetPrefix(), "info");
 
         // Algorithm configuration
         auto cfg = GetDefaultConfig();
@@ -60,7 +58,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
 
         m_algo.applyConfig(cfg);
-        m_algo.init(m_detector, logger());
+        m_algo.init(detector, logger());
     }
 
     //------------------------------------------
@@ -83,7 +81,6 @@ class CalorimeterClusterRecoCoG_factoryT :
     }
 
     private:
-      const dd4hep::Detector* m_detector;
       eicrecon::CalorimeterClusterRecoCoG m_algo;
 
 };

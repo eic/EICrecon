@@ -4,6 +4,9 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <vector>
+#include <TVector3.h>
+
 struct towersStrct{
   towersStrct(): energy(0), time (0), posx(0), posy(0), posz(0),  cellID(0), cellIDx(-1), cellIDy(-1), cellIDz(-1), tower_trueID(-10000), tower_clusterIDA(-1), tower_clusterIDB(-1) {}
   float energy;
@@ -41,11 +44,11 @@ struct clustersStrct{
 
 bool acompareCl(clustersStrct lhs, clustersStrct rhs) { return lhs.cluster_E > rhs.cluster_E; }
 
-//**************************************************************************************************************
-//**************************************************************************************************************
+//**************************************************************************************************************//
+//**************************************************************************************************************//
 // find clusters with common edges or corners, separate if energy increases in neighboring cell
-//**************************************************************************************************************
-//**************************************************************************************************************
+//**************************************************************************************************************//
+//**************************************************************************************************************//
 clustersStrct findMACluster(
                               float seed,                                     // minimum seed energy
                               float agg,                                      // minimum aggregation energy

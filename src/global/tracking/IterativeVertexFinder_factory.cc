@@ -7,27 +7,25 @@
 
 #include "IterativeVertexFinder_factory.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/string/StringHelpers.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/log/Log_service.h"
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::IterativeVertexFinder_factory::Init() {
-  auto app = GetApplication();
+  auto *app = GetApplication();
 
   // This prefix will be used for parameters
-  std::string plugin_name  = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+  std::string plugin_name  = GetPluginName();
   std::string param_prefix = plugin_name + ":" + GetTag();
 
   // Initialize input tags
   InitDataTags(param_prefix);
 
   // Initialize logger
-  InitLogger(param_prefix, "info");
+  InitLogger(app, param_prefix, "info");
 
   // Get ACTS context from ACTSGeo service
   auto acts_service  = app->GetService<ACTSGeo_service>();
-  auto dd4hp_service = app->GetService<JDD4hep_service>();
+  auto dd4hp_service = app->GetService<DD4hep_service>();
 
   // Algorithm configuration
   auto cfg = GetDefaultConfig();
@@ -51,13 +49,13 @@ void eicrecon::IterativeVertexFinder_factory::ChangeRun(
 void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<const JEvent>& event) {
 
   std::string input_tag = GetInputTags()[0];
-  auto trajectories     = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
+  auto trajectories     = event->Get<ActsExamples::Trajectories>(input_tag);
 
   m_log->debug("Process method");
 
   try {
-    auto result = m_vertexing_algo.produce(trajectories);
-    Set(result); // Set() - is what factory produced
+    auto vertices = m_vertexing_algo.produce(trajectories);
+    SetCollection(std::move(vertices));
   } catch (std::exception& e) {
     throw JException(e.what());
   }

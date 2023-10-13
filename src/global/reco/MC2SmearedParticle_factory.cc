@@ -6,7 +6,7 @@
 
 namespace eicrecon {
     void MC2SmearedParticle_factory::Init() {
-        auto app = GetApplication();
+        auto *app = GetApplication();
         // We will use plugin name to get parameters for correct factory
         // So if we use <plugin name>:parameter whichever plugin uses this template. eg:
         //    "BTRK:parameter" or "FarForward:parameter"
@@ -17,14 +17,9 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // Logger. Get plugin level sub-log
-        InitLogger(param_prefix, "info");
-
-        // Setup digitization algorithm
-        auto cfg = GetDefaultConfig();
-        app->SetDefaultParameter(param_prefix + ":MomentumSmearing", cfg.momentum_smearing, "Gaussian momentum smearing value");
+        InitLogger(app, param_prefix, "info");
 
         // Initialize digitization algorithm
-        m_smearing_algo.applyConfig(cfg);
         m_smearing_algo.init(m_log);
     }
 
@@ -34,18 +29,10 @@ namespace eicrecon {
 
     void MC2SmearedParticle_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits from different tags
-        std::vector<edm4eic::ReconstructedParticle *> reco_particles;           // output collection
-        const auto &input_tag = GetInputTags()[0];               // Name of the collection to read
-        auto mc_particles = event->Get<edm4hep::MCParticle>(input_tag);
-
-        for (const auto mc_particle : mc_particles) {
-            auto reco_particle = m_smearing_algo.produce(mc_particle);
-            if (reco_particle != nullptr) {
-                reco_particles.push_back(reco_particle);
-            }
-        }
+        const auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+        auto reco_particles = m_smearing_algo.produce(mc_particles);
 
         // Set the result
-        Set(std::move(reco_particles));     // Add data as a factory output
+        SetCollection(std::move(reco_particles));     // Add data as a factory output
     }
 } // eicrecon

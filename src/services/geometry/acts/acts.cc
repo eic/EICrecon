@@ -3,8 +3,9 @@
 //
 //
 
-#include "ACTSGeo_service.h"
+#include <JANA/JApplication.h>
 
+#include "ACTSGeo_service.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {

@@ -4,8 +4,7 @@
 #pragma once
 
 // JANA
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <JANA/JEvent.h>
+#include "extensions/jana/JChainMultifactoryT.h"
 
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
@@ -14,13 +13,11 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 
 // algorithms
-#include <algorithms/pid/IrtCherenkovParticleID.h>
+#include "algorithms/pid/IrtCherenkovParticleID.h"
 
 // services
-#include <services/geometry/richgeo/RichGeo_service.h>
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogExtensions.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "services/geometry/richgeo/RichGeo_service.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
@@ -28,7 +25,7 @@ namespace eicrecon {
 
   class IrtCherenkovParticleID_factory :
     public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,
-    public SpdlogMixin<IrtCherenkovParticleID_factory>
+    public SpdlogMixin
   {
 
     public:

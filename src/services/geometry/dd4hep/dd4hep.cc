@@ -3,11 +3,13 @@
 //
 //
 
-#include "JDD4hep_service.h"
+#include <JANA/JApplication.h>
+
+#include "DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<JDD4hep_service>(app) );
+    app->ProvideService(std::make_shared<DD4hep_service>(app) );
 }
 }

@@ -1,28 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
-#include "Acts/MagneticField/MagneticFieldProvider.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/TrackFitting/GainMatrixSmoother.hpp"
-#include "Acts/TrackFitting/GainMatrixUpdater.hpp"
-
-#if 0
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/TrackFitting/GainMatrixSmoother.hpp"
-#include "Acts/TrackFitting/GainMatrixUpdater.hpp"
-#endif
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
+#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 
 #include "CKFTracking.h"
 
-#include "JugBase/BField/DD4hepBField.h"
-
-
-#include <random>
-#include <stdexcept>
+#include "DD4hepBField.h"
 
 namespace eicrecon{
   using Updater  = Acts::GainMatrixUpdater;
@@ -45,7 +33,7 @@ namespace eicrecon{
     CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
     eicrecon::CKFTracking::TrackFinderResult
-    operator()(const eicrecon::TrackParametersContainer& initialParameters,
+    operator()(const ActsExamples::TrackParametersContainer& initialParameters,
                const eicrecon::CKFTracking::TrackFinderOptions& options)
                const override
     {
@@ -72,8 +60,8 @@ namespace eicrecon {
     Propagator propagator(std::move(stepper), std::move(navigator));
     CKF        trackFinder(std::move(propagator));
 
-    // build the track finder functions. onws the track finder object.
+    // build the track finder functions. owns the track finder object.
     return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
   }
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

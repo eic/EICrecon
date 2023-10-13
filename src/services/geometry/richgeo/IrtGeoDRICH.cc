@@ -12,14 +12,15 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
    * for all radiators will be assigned at the end by hand; FIXME: should assign it on
    * per-photon basis, at birth, like standalone GEANT code does;
    */
-  auto nSectors       = m_det->constant<int>("DRICH_num_sectors");
-  auto vesselZmin     = m_det->constant<double>("DRICH_zmin") / dd4hep::mm;
-  auto gasvolMaterial = m_det->constant<std::string>("DRICH_gasvol_material");
+  auto nSectors              = m_det->constant<int>("DRICH_num_sectors");
+  auto vesselZmin            = m_det->constant<double>("DRICH_zmin") / dd4hep::mm;
+  auto vesselWindowThickness = m_det->constant<double>("DRICH_window_thickness") / dd4hep::mm;
+  auto gasvolMaterial        = m_det->constant<std::string>("DRICH_gasvol_material");
   TVector3 normX(1, 0,  0); // normal vectors
   TVector3 normY(0, -1, 0);
-  m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
+  m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin + vesselWindowThickness), normX, normY);
   for (int isec=0; isec<nSectors; isec++) {
-    auto cv = m_irtDetectorCollection->SetContainerVolume(
+    auto *cv = m_irtDetectorCollection->SetContainerVolume(
         m_irtDetector,              // Cherenkov detector
         RadiatorName(kGas).c_str(), // name
         isec,                       // path
@@ -57,7 +58,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   m_aerogelFlatSurface  = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
   m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
   for (int isec = 0; isec < nSectors; isec++) {
-    auto aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+    auto *aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,                  // Cherenkov detector
         RadiatorName(kAerogel).c_str(), // name
         isec,                           // path
@@ -66,7 +67,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_aerogelFlatSurface,           // surface
         aerogelThickness                // surface thickness
         );
-    auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+    auto *filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,           // Cherenkov detector
         "Filter",                // name
         isec,                    // path
@@ -109,96 +110,57 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    mirror R = {:f} mm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    m_irtDetector->GetRadiator(RadiatorName(kGas).c_str())->m_Borders[isec].second = m_mirrorSphericalSurface;
-
-    // sensor sphere (only used for validation of sensor normals)
-    auto sensorSphRadius  = m_det->constant<double>("DRICH_sensor_sph_radius") / dd4hep::mm;
-    auto sensorThickness  = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
-    auto sensorSize       = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
-    dd4hep::Position sensorSphCenter(
-      m_det->constant<double>("DRICH_sensor_sph_center_x_"+secName) / dd4hep::mm,
-      m_det->constant<double>("DRICH_sensor_sph_center_y_"+secName) / dd4hep::mm,
-      m_det->constant<double>("DRICH_sensor_sph_center_z_"+secName) / dd4hep::mm
-      );
-    m_log->debug("  SECTOR {:d} SENSOR SPHERE:", isec);
-    m_log->debug("    sphere x = {:f} mm", sensorSphCenter.x());
-    m_log->debug("    sphere y = {:f} mm", sensorSphCenter.y());
-    m_log->debug("    sphere z = {:f} mm", sensorSphCenter.z());
-    m_log->debug("    sphere R = {:f} mm", sensorSphRadius);
+    auto rad = m_irtDetector->GetRadiator(RadiatorName(kGas).c_str());
+    if(rad) rad->m_Borders[isec].second = m_mirrorSphericalSurface;
+    else throw std::runtime_error("Gas radiator not built in IrtGeo");
 
     // sensor modules: search the detector tree for sensors for this sector
+    m_log->trace("  SENSORS:");
+    m_log->trace("--------------------------------------------------------------------------------------");
+    m_log->trace("name ID sector   pos_x pos_y pos_z   normX_x normX_y normX_z   normY_x normY_y normY_z");
+    m_log->trace("--------------------------------------------------------------------------------------");
+    auto sensorThickness = m_det->constant<double>("DRICH_sensor_thickness") / dd4hep::mm;
+    auto sensorSize      = m_det->constant<double>("DRICH_sensor_size") / dd4hep::mm;
     for(auto const& [de_name, detSensor] : m_detRich.children()) {
       if(de_name.find("sensor_de_"+secName)!=std::string::npos) {
 
         // get sensor info
-        auto imodsec = detSensor.id();
-        // - get sensor centroid position
-        auto pvSensor  = detSensor.placement();
-        auto posSensor = (1/dd4hep::mm) * (m_posRich + pvSensor.position());
-        // - get sensor surface position
-        dd4hep::Direction radialDir = posSensor - sensorSphCenter; // sensor sphere radius direction
-        auto surfaceOffset = radialDir.Unit() * (0.5*sensorThickness);
-        auto posSensorSurface = posSensor + surfaceOffset;
-        // - add to `m_sensor_info` map
+        const auto sensorID      = detSensor.id();
+        const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
+        if(detSensorPars==nullptr)
+          throw std::runtime_error(fmt::format("sensor '{}' does not have VariantParameters", de_name));
+        // - sensor surface position
+        auto posSensor = GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos") / dd4hep::mm;
+        // - sensor orientation
+        auto normXdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normX");
+        auto normYdir = GetVectorFromVariantParameters<dd4hep::Direction>(detSensorPars, "normY");
+        auto normZdir = normXdir.Cross(normYdir); // sensor surface normal
+        // - surface offset, used to convert sensor volume centroid to sensor surface centroid
+        auto surfaceOffset = normZdir.Unit() * (0.5*sensorThickness);
+
+        // add sensor info to `m_sensor_info` map
         richgeo::Sensor sensor_info;
         sensor_info.size             = sensorSize;
-        sensor_info.surface_centroid = posSensorSurface;
+        sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
-        m_sensor_info.insert({ imodsec, sensor_info });
-        // - get surface normal and in-plane vectors
-        double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
-        double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
-        double sensorGlobalNormX[3], sensorGlobalNormY[3];
-        pvSensor.ptr()->LocalToMasterVect(sensorLocalNormX, sensorGlobalNormX); // ignore vessel transformation, since it is a pure translation
-        pvSensor.ptr()->LocalToMasterVect(sensorLocalNormY, sensorGlobalNormY);
-
-        // validate sensor position and normal
-        // - test normal vectors
-        dd4hep::Direction normXdir, normYdir;
-        normXdir.SetCoordinates(sensorGlobalNormX);
-        normYdir.SetCoordinates(sensorGlobalNormY);
-        auto normZdir   = normXdir.Cross(normYdir);         // sensor surface normal
-        auto testOrtho  = normXdir.Dot(normYdir);           // should be zero, if normX and normY are orthogonal
-        auto testRadial = radialDir.Cross(normZdir).Mag2(); // should be zero, if sensor surface normal is parallel to sensor sphere radius
-        if(abs(testOrtho)>1e-6 || abs(testRadial)>1e-6) {
-          m_log->error(
-              "sensor normal is wrong: normX.normY = {:f}   |radialDir x normZdir|^2 = {:f}",
-              testOrtho,
-              testRadial
-              );
-          return;
-        }
-        // - test sensor positioning
-        auto distSensor2center = sqrt((posSensorSurface-sensorSphCenter).Mag2()); // distance between sensor sphere center and sensor surface position
-        auto testDist          = abs(distSensor2center-sensorSphRadius);          // should be zero, if sensor position w.r.t. sensor sphere center is correct
-        if(abs(testDist)>1e-5) {
-          m_log->error(
-              "sensor positioning is wrong: dist(sensor, sphere_center) = {:f},  sphere_radius = {:f},  sensor_thickness = {:f},  |diff| = {:g}\n",
-              distSensor2center,
-              sensorSphRadius,
-              sensorThickness,
-              testDist
-              );
-          return;
-        }
-
+        m_sensor_info.insert({ sensorID, sensor_info });
 
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
-            TVector3(posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z()),
-            TVector3(sensorGlobalNormX),
-            TVector3(sensorGlobalNormY)
+            TVector3(posSensor.x(), posSensor.y(), posSensor.z()),
+            TVector3(normXdir.x(),  normXdir.y(),  normXdir.z()),
+            TVector3(normYdir.x(),  normYdir.y(),  normYdir.z())
             );
         m_irtDetector->CreatePhotonDetectorInstance(
             isec,                // sector
             m_irtPhotonDetector, // CherenkovPhotonDetector
-            imodsec,             // copy number
+            sensorID,            // copy number
             m_sensorFlatSurface  // surface
             );
         m_log->trace(
-            "sensor: id={:#X} pos=({:5.2f}, {:5.2f}, {:5.2f}) normX=({:5.2f}, {:5.2f}, {:5.2f}) normY=({:5.2f}, {:5.2f}, {:5.2f})",
-            imodsec,
-            posSensorSurface.x(), posSensorSurface.y(), posSensorSurface.z(),
+            "{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}",
+            de_name, sensorID, isec,
+            posSensor.x(), posSensor.y(), posSensor.z(),
             normXdir.x(),  normXdir.y(),  normXdir.z(),
             normYdir.x(),  normYdir.y(),  normYdir.z()
             );
@@ -208,12 +170,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   } // sector loop
 
   // set reference refractive indices // NOTE: numbers may be overridden externally
-  std::map<const char*, double> rIndices;
-  rIndices.insert({RadiatorName(kGas).c_str(),     1.00076});
-  rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
-  rIndices.insert({"Filter",                       1.5017});
+  std::map<const std::string, double> rIndices;
+  rIndices.insert({RadiatorName(kGas),     1.00076});
+  rIndices.insert({RadiatorName(kAerogel), 1.0190});
+  rIndices.insert({"Filter",               1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = m_irtDetector->GetRadiator(rName);
+    auto rad = m_irtDetector->GetRadiator(rName.c_str());
     if (rad)
       rad->SetReferenceRefractiveIndex(rIndex);
   }

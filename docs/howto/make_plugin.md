@@ -269,9 +269,6 @@ type, and then pointer for every histogram or tree you wish to create.
 class DaveTestProcessor: public JEventProcessorSequentialRoot {
 private:
 
-    // Data objects we will need from JANA e.g.
-    PrefetchT<edm4hep::Cluster> clusters   = {this, "EcalEndcapNClusters"};
-
     // Declare histogram and tree pointers here. e.g.
     TH1D* hClusterEnergy = nullptr;
 
@@ -290,7 +287,7 @@ method for an explanation of those.
 
 The one line in the `ProcessSequential` method will loop over the values
 in the `clusters` member. As a `Prefetch` object, _JANA_ will automatically
-call all agorithms needed to produce the `Cluster` objects prior to calling
+call all algorithms needed to produce the `Cluster` objects prior to calling
 `ProcessSequential`. This works for objects created by algorithms or ones
 coming straight from the file.
 
@@ -325,8 +322,9 @@ void DaveTestProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void DaveTestProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    const auto &clusters = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase("EcalEndcapNClusters"));
 
-     for( auto cluster : clusters() ) hClusterEnergy->Fill(  cluster->getEnergy() );
+    for (auto cluster : clusters) hClusterEnergy->Fill(cluster.getEnergy());
 }
 
 //-------------------------------------------
@@ -380,7 +378,7 @@ Recommended CMake for a plugin:
 ```cmake
 cmake_minimum_required(VERSION 3.16)
 
-# Automatically set plugin name the same as the direcotry name
+# Automatically set plugin name the same as the directory name
 # Don't forget string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 

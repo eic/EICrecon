@@ -37,11 +37,11 @@ namespace eicrecon {
         void init(std::shared_ptr<spdlog::logger> logger);
 
         MatchingResults execute(
-            std::vector<const edm4hep::MCParticle *> mcparticles,
-            std::vector<const edm4eic::ReconstructedParticle *> inparts,
-            std::vector<const edm4eic::MCRecoParticleAssociation *> inpartsassoc,
-            const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-            const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections);
+            const edm4hep::MCParticleCollection* mcparticles,
+            const edm4eic::ReconstructedParticleCollection* inparts,
+            const edm4eic::MCRecoParticleAssociationCollection* inpartsassoc,
+            const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
+            const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &cluster_assoc_collections);
 
     private:
 
@@ -49,9 +49,9 @@ namespace eicrecon {
 
         // get a map of mcID --> cluster
         // input: cluster_collections --> list of handles to all cluster collections
-        std::map<int, const edm4eic::Cluster*> indexedClusters(
-                const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-                const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &associations_collections);
+        std::map<int, edm4eic::Cluster> indexedClusters(
+                const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
+                const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &associations_collections);
 
         // reconstruct a neutral cluster
         // (for now assuming the vertex is at (0,0,0))

@@ -13,17 +13,11 @@
 #include <string>
 #include <vector>
 
-#include <services/io/podio/JFactoryPodioT.h>
-#include "extensions/string/StringHelpers.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 
-/// This struct might be used for factories that has no underlying config class
-/// @example:
-///    JChainFactoryT<OutputType, NoConfig>
-struct NoConfig {
-};
-
-template <typename OutT, typename ConfigT = NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
+template <typename OutT, typename ConfigT = eicrecon::NoConfig, template <typename> typename BaseT = eicrecon::JFactoryPodioT>
 class JChainFactoryT : public BaseT<OutT> {
 public:
 
@@ -66,8 +60,7 @@ public:
 
     /// Get default prefix name
     std::string GetDefaultParameterPrefix() {
-        std::string plugin_name = eicrecon::str::ReplaceAll(this->GetPluginName(), ".so", "");
-        std::string param_prefix = plugin_name+ ":" + this->GetTag();
+        std::string param_prefix = this->GetPluginName() + ":" + this->GetTag();
         return std::move(param_prefix);
     }
 

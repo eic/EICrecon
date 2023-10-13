@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Acts/Vertexing/IterativeVertexFinder.hpp"
-#include "Acts/Vertexing/VertexingOptions.hpp"
-
 namespace eicrecon {
 
 struct IterativeVertexFinderConfig {

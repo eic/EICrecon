@@ -3,16 +3,20 @@
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
+// services
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
+
 void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = GetPrefix();
 
   // services
-  auto geo_service = app->GetService<JDD4hep_service>();
-  InitLogger(prefix, "info");
+  auto geo_service = app->GetService<DD4hep_service>();
+  InitLogger(app, prefix, "info");
   m_log->debug("PhotoMultiplierHitDigi_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // get readout info (if a RICH)
@@ -36,7 +40,6 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
   set_param("pedMean",         cfg.pedMean,         "");
   set_param("pedError",        cfg.pedError,        "");
   set_param("enablePixelGaps", cfg.enablePixelGaps, "enable/disable removal of hits in gaps between pixels");
-  set_param("pixelSize",       cfg.pixelSize,       "pixel (active) size");
   set_param("safetyFactor",    cfg.safetyFactor,    "overall safety factor");
   set_param("enableNoise",     cfg.enableNoise,     "");
   set_param("noiseRate",       cfg.noiseRate,       "");
@@ -45,14 +48,18 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
-  m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
+  m_digi_algo.AlgorithmInit(geo_service->detector(), geo_service->converter(), m_log);
 
   // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
   if(use_richgeo) {
     m_readoutGeo->SetSeed(cfg.seed);
     m_digi_algo.SetVisitRngCellIDs(
-        [readoutGeo = this->m_readoutGeo] (std::function<void(uint64_t)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
+        [readoutGeo = this->m_readoutGeo] (std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) { readoutGeo->VisitAllRngPixels(lambda, p); }
         );
+    m_digi_algo.SetPixelGapMask(
+        [readoutGeo = this->m_readoutGeo] (PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) { return readoutGeo->PixelGapMask(cellID, pos); }
+        );
+
   }
 }
 
@@ -62,7 +69,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::BeginRun(const std::shared_ptr<co
 
 void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  auto sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+  const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
   try {
     auto result = m_digi_algo.AlgorithmProcess(sim_hits);

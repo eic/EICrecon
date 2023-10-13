@@ -15,17 +15,15 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
-#include <JANA/JEvent.h>
-
 //------------------------
 // AlgorithmInit
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger)
+void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_detector = detector;
-    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*detector);
-    m_log=logger;
+    m_converter = converter;
+    m_log = logger;
 
     // print the configuration parameters
     m_cfg.Print(m_log, spdlog::level::debug);
@@ -92,15 +90,10 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             if (!qe_pass(edep_eV, m_rngUni())) continue;
 
             // pixel gap cuts
-            // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
-            dd4hep::Position pos_pixel, pos_hit, pos_hit_global;
             if(m_cfg.enablePixelGaps) {
-              pos_hit_global =  m_cellid_converter->position(id);
-              pos_pixel = get_sensor_local_position(id, pos_hit_global);
-              pos_hit   = get_sensor_local_position(id, vec2pos(sim_hit.getPosition()));
-              if( std::abs( pos_hit.x()/dd4hep::mm - pos_pixel.x()/dd4hep::mm ) > m_cfg.pixelSize/2 ||
-                  std::abs( pos_hit.y()/dd4hep::mm - pos_pixel.y()/dd4hep::mm ) > m_cfg.pixelSize/2
-                ) continue;
+              auto pos = sim_hit.getPosition();
+              if( ! m_PixelGapMask(id, dd4hep::Position(pos.x*dd4hep::mm, pos.y*dd4hep::mm, pos.z*dd4hep::mm)) )
+                continue;
             }
 
             // cell time, signal amplitude, truth photon
@@ -115,8 +108,6 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 id,
                 amp,
                 time,
-                pos_hit,
-                pos_hit_global,
                 sim_hit_index
                 );
         }
@@ -141,7 +132,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             // cell time, signal amplitude
             double   amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
             TimeType time = m_cfg.noiseTimeWindow*m_rngUni() / dd4hep::ns;
-            dd4hep::Position pos_hit_global = m_cellid_converter->position(id);
+            dd4hep::Position pos_hit_global = m_converter->position(id);
 
             // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
             this->InsertHit(
@@ -149,8 +140,6 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 id,
                 amp,
                 time,
-                dd4hep::Position{0,0,0}, // not used
-                pos_hit_global,
                 0, // not used
                 true
                 );
@@ -172,8 +161,6 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 raw_hit.setCellID(it.first);
                 raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)                    );
                 raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time/m_cfg.timeResolution) );
-                // raw_hit.setPosition(pos2vec(data.pos)) // TEST gap cuts; FIXME: requires member `edm4hep::Vector3d position`
-                                                          // in data model datatype, think of a better way
                 m_log->trace("raw_hit: cellID={:#018X} -> charge={} timeStamp={}",
                     raw_hit.getCellID(),
                     raw_hit.getCharge(),
@@ -181,7 +168,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                     );
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
-                if(data.sim_hit_indices.size()>0) {
+                if(!data.sim_hit_indices.empty()) {
                   auto hit_assoc = result.hit_assocs->create();
                   hit_assoc.setWeight(1.0); // not used
                   hit_assoc.setRawHit(raw_hit);
@@ -198,8 +185,9 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
         // get quantum efficiency table
         qeff.clear();
         auto hc = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::eV * dd4hep::nm); // [eV*nm]
-        for(const auto &[wl,qe] : m_cfg.quantumEfficiency)
-          qeff.push_back({ hc / wl, qe }); // convert wavelength [nm] -> energy [eV]
+        for(const auto &[wl,qe] : m_cfg.quantumEfficiency) {
+          qeff.emplace_back( hc / wl, qe ); // convert wavelength [nm] -> energy [eV]
+        }
 
         // sort quantum efficiency data first
         std::sort(qeff.begin(), qeff.end(),
@@ -276,70 +264,16 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 }
 
 
-// transform global position `pos` to sensor `id` frame position
-// IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-// FIXME: here be dragons...
-dd4hep::Position eicrecon::PhotoMultiplierHitDigi::get_sensor_local_position(uint64_t id, dd4hep::Position pos) {
-
-  // get the VolumeManagerContext for this sensitive detector
-  auto context = m_cellid_converter->findContext(id);
-
-  // transformation vector buffers
-  double xyz_l[3], xyz_e[3], xyz_g[2];
-  double pv_g[3], pv_l[3];
-
-  // get sensor position w.r.t. its parent
-  auto sensor_elem = context->element;
-  sensor_elem.placement().position().GetCoordinates(xyz_l);
-
-  // convert sensor position to global position (cf. `CellIDPositionConverter::positionNominal()`)
-  const auto& volToElement = context->toElement();
-  volToElement.LocalToMaster(xyz_l, xyz_e);
-  const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
-  elementToGlobal.LocalToMaster(xyz_e, xyz_g);
-  dd4hep::Position pos_sensor;
-  pos_sensor.SetCoordinates(xyz_g);
-
-  // get the position vector of `pos` w.r.t. the sensor position `pos_sensor`
-  dd4hep::Direction pos_pv = pos - pos_sensor;
-
-  // then transform it to the sensor's local frame
-  pos_pv.GetCoordinates(pv_g);
-  volToElement.MasterToLocalVect(pv_g, pv_l);
-  dd4hep::Position pos_transformed;
-  pos_transformed.SetCoordinates(pv_l);
-
-  // trace log
-  /*
-  if(m_log->level() <= spdlog::level::trace) {
-    m_log->trace("pixel hit on cellID={:#018x}",id);
-    auto print_pos = [&] (std::string name, dd4hep::Position p) {
-      m_log->trace("  {:>30} x={:.2f} y={:.2f} z={:.2f} [mm]: ", name, p.x()/dd4hep::mm,  p.y()/dd4hep::mm,  p.z()/dd4hep::mm);
-    };
-    print_pos("input position",  pos);
-    print_pos("sensor position", pos_sensor);
-    print_pos("output position", pos_transformed);
-    // auto dim = m_cellid_converter->cellDimensions(id);
-    // for (std::size_t j = 0; j < std::size(dim); ++j)
-    //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
-  }
-  */
-
-  return pos_transformed;
-}
-
-
 // add a hit to local `hit_groups` data structure
+// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 void eicrecon::PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
     CellIDType       id,
     double           amp,
     TimeType         time,
-    dd4hep::Position pos_hit_local,
-    dd4hep::Position pos_hit_global,
     std::size_t      sim_hit_index,
     bool             is_noise_hit
-    )
+    ) // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
   if (it != hit_groups.end()) {
@@ -359,7 +293,7 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
       auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
-      hit_groups.insert({ id, {HitData{1, sig, time, pos_hit_local, pos_hit_global, indices}} });
+      hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
       m_log->trace(" -> no group found,");
       m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
@@ -367,7 +301,7 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
-    hit_groups.insert({ id, {HitData{1, sig, time, pos_hit_local, pos_hit_global, indices}} });
+    hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
     m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }
 }

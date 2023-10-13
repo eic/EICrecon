@@ -1,0 +1,63 @@
+"topic: backward":
+  - "src/detectors/EEMC/**"
+  - "src/detectors/EHCAL/**"
+
+"topic: barrel":
+  - "src/detectors/BEMC/**"
+  - "src/detectors/BHCAL/**"
+  - "src/detectors/BTOF/**"
+  - "src/detectors/BTRK/**"
+  - "src/detectors/BVTX/**"
+  - "src/detectors/MPGD/**"
+
+"topic: calorimetry":
+  - "src/algorithms/calorimetry/**"
+  - "src/detectors/B0ECAL/**"
+  - "src/detectors/BEMC/**"
+  - "src/detectors/BHCAL/**"
+  - "src/detectors/EHCAL/**"
+  - "src/detectors/EEMC/**"
+  - "src/detectors/FEMC/**"
+  - "src/detectors/FHCAL/**"
+  - "src/detectors/LUMISPECCAL/**"
+  - "src/detectors/ZDC/**"
+  - "src/factories/calorimetry/**"
+  - "src/tests/algorithms_test/calorimetry_*"
+
+"topic: documentation":
+  - "docs/**"
+
+"topic: far-backward":
+  - "src/detectors/LUMISPECCAL/**"
+
+"topic: far-forward":
+  - "src/algorithms/romanpots/**"
+  - "src/detectors/B0ECAL/**"
+  - "src/detectors/B0TRK/**"
+  - "src/detectors/FOFFMTRK/**"
+  - "src/detectors/RPOTS/**"
+  - "src/detectors/ZDC/**"
+
+"topic: forward":
+  - "src/detectors/ECTOF/**"
+  - "src/detectors/FEMC/**"
+  - "src/detectors/FHCAL/**"
+
+"topic: infrastructure":
+  - "**/CMakeLists.txt"
+  - ".*"
+  - ".github/**"
+
+"topic: PID":
+  - "src/algorithms/pid/**"
+  - "src/detectors/BTOF/**"
+  - "src/detectors/DRICH/**"
+  - "src/detectors/ECTOF/**"
+  - "src/tests/algorithms_test/pid_*"
+
+"topic: tracking":
+  - "src/algorithms/tracking/**"
+  - "src/detectors/B0TRK/**"
+  - "src/detectors/BTRK/**"
+  - "src/detectors/BVTX/**"
+  - "src/detectors/MPGD/**"

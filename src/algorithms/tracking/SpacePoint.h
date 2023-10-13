@@ -2,6 +2,7 @@
 
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Seeding/Seed.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include "ActsGeometryProvider.h"
 namespace eicrecon {
 
@@ -16,10 +17,10 @@ class SpacePoint : public edm4eic::TrackerHit
     {
       const auto its = m_geoSvc->surfaceMap().find(getCellID());
       if (its == m_geoSvc->surfaceMap().end()) {
-	m_surface = nullptr;
+        m_surface = nullptr;
       }
       else {
-	m_surface = its->second;
+        m_surface = its->second;
       }
     }
 
@@ -30,7 +31,7 @@ class SpacePoint : public edm4eic::TrackerHit
   float varianceR() const
   {
     return (std::pow(x(), 2) * getPositionError().xx +
-	    std::pow(y(), 2) * getPositionError().yy) /
+            std::pow(y(), 2) * getPositionError().yy) /
       (std::pow(x(), 2) + std::pow(y(), 2));
   }
   float varianceZ() const { return getPositionError().zz; }
@@ -40,7 +41,7 @@ class SpacePoint : public edm4eic::TrackerHit
       return false;
     }
     return m_surface->isOnSurface(Acts::GeometryContext(), {x(), y(), z()},
-				 {0, 0, 0});
+                                 {0, 0, 0});
   }
 };
 

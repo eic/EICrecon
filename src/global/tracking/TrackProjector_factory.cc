@@ -6,8 +6,7 @@
 #include <JANA/JEvent.h>
 
 #include "TrackProjector_factory.h"
-#include "extensions/string/StringHelpers.h"
-#include "algorithms/tracking/JugTrack/TrackingResultTrajectory.hpp"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 
@@ -20,7 +19,7 @@ namespace eicrecon {
         InitDataTags(param_prefix);
 
         // SpdlogMixin logger initialization, sets m_log
-        InitLogger(param_prefix);
+        InitLogger(GetApplication(), param_prefix);
 
         auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
@@ -34,11 +33,11 @@ namespace eicrecon {
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Now we check that user provided an input names
         std::string input_tag = GetInputTags()[0];
-        auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>(input_tag);
+        auto trajectories = event->Get<ActsExamples::Trajectories>(input_tag);
 
         try {
-            auto result = m_track_projector_algo.execute(trajectories);
-            Set(result);
+            auto track_segments = m_track_projector_algo.execute(trajectories);
+            SetCollection(std::move(track_segments));
         }
         catch(std::exception &e) {
             throw JException(e.what());

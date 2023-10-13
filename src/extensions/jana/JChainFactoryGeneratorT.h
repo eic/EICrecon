@@ -17,7 +17,7 @@ class JChainFactoryGeneratorT : public JFactoryGenerator {
 
 public:
 
-    using FactoryOuptutType = typename FactoryT::OutputType;
+    using FactoryOutputType = typename FactoryT::OutputType;
     using FactoryConfigType = typename FactoryT::ConfigType;
 
     /// Constructor with config
@@ -36,7 +36,7 @@ public:
     void GenerateFactories(JFactorySet *factory_set) override {
 
         FactoryT *factory;
-        if constexpr(std:: is_base_of<NoConfig,FactoryConfigType>()) {
+        if constexpr(std::is_base_of<eicrecon::NoConfig,FactoryConfigType>()) {
             factory = new FactoryT(m_default_input_tags);
         } else {
             factory = new FactoryT(m_default_input_tags, m_default_cfg);
