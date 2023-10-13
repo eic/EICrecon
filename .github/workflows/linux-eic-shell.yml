@@ -157,24 +157,24 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.head.sha}} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
-          fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
-          git diff > iwyu_fixes.patch
+          # reduce headers until diff is stable
+          while [[ ${sha:-} != $(git diff | sha256sum) ]] ; do
+            sha=$(git diff | sha256sum)
+            echo $sha
+            iwyu_tool -p build $(git diff --name-only ${{github.event.pull_request.head.sha}} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp | tee iwyu_fixes.log
+            fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
+            git diff | tee iwyu_fixes.patch
+          done
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
         platform-release: "jug_xl:nightly"
         run: |
-          iwyu_tool -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp > iwyu_fixes.log
+          # don't aim for stability for all files
+          iwyu_tool -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp | tee iwyu_fixes.log
           fix_include --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
-          git diff > iwyu_fixes.patch
-    - name: Upload iwyu log as artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: iwyu_fixes.log
-        path: iwyu_fixes.log
-        if-no-files-found: ignore # no file is good
+          git diff | tee iwyu_fixes.patch
     - name: Upload iwyu patch as artifact
       uses: actions/upload-artifact@v3
       with:
