@@ -5,12 +5,8 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
-#include <extensions/jana/JChainFactoryT.h>
-#include <algorithms/tracking/JugTrack/GeometryContainers.hpp>
-#include <algorithms/tracking/TrackerSourceLinker.h>
-
-#include <algorithms/tracking/TrackerSourceLinker.h>
-#include <algorithms/tracking/ActsGeometryProvider.h>
+#include "extensions/jana/JChainFactoryT.h"
+#include "algorithms/tracking/TrackerSourceLinker.h"
 
 namespace eicrecon {
 

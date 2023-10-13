@@ -8,7 +8,7 @@
 #include <JANA/JFactoryT.h>
 #include <JANA/JEvent.h>
 #include <podio/Frame.h>
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 
 
 namespace eicrecon {
@@ -107,7 +107,12 @@ void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::
 
 template <typename T>
 void JFactoryPodioT<T>::ClearData() {
-    for (auto p : this->mData) delete p;
+    for (auto p : this->mData) {
+        // Avoid potentially invalid call to ObjBase::release(). The frame and
+        // all the collections and all Obj may have been deallocated at this point.
+        p->unlink();
+        delete p;
+    }
     this->mData.clear();
     this->mCollection = nullptr;  // Collection is owned by the Frame, so we ignore here
     this->mFrame = nullptr;  // Frame is owned by the JEvent, so we ignore here

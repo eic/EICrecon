@@ -2,32 +2,30 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-
-#include <Acts/Propagator/Navigator.hpp>
 #include "CKFTracking_factory.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+
 #include <JANA/JEvent.h>
+
+#include <edm4eic/TrackParametersCollection.h>
+
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/log/Log_service.h"
-#include "extensions/string/StringHelpers.h"
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // This prefix will be used for parameters
-    std::string plugin_name = eicrecon::str::ReplaceAll(GetPluginName(), ".so", "");
+    std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
-    InitLogger(param_prefix, "info");
+    InitLogger(app, param_prefix, "info");
 
     // Get ACTS context from ACTSGeo service
     auto acts_service = app->GetService<ACTSGeo_service>();
-    auto dd4hp_service = app->GetService<JDD4hep_service>();
+    auto dd4hp_service = app->GetService<DD4hep_service>();
 
 
     // Algorithm configuration
@@ -41,39 +39,20 @@ void eicrecon::CKFTracking_factory::Init() {
     m_tracking_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
-void eicrecon::CKFTracking_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
-}
-
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
-    // Now we check that user provided an input names
-    std::string input_tag = GetInputTags()[0];
-
-    // Collect all hits
-    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(input_tag);
+    // Collect all inputs
+    auto seed_track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(GetInputTags()[1]);
 
     if(!source_linker_result) {
         m_log->warn("TrackerSourceLinkerResult is null (hasn't been produced?). Skipping tracking for the whole event!");
         return;
     }
 
-    auto track_parameters = event->Get<eicrecon::TrackParameters>("InitTrackParams");
-    eicrecon::TrackParametersContainer acts_track_params;
-    for(auto track_params_item: track_parameters) {
-        acts_track_params.push_back(*track_params_item);
-    }
-
-    // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
-    // while no other output is coming which makes it look like something is wrong. Disable the ticker
-    // while parsing and loading the geometry
-    auto tickerEnabled = GetApplication()->IsTickerEnabled();
-    GetApplication()->SetTicker( false );
-
-
     // Convert vector of source links to a sorted in geometry order container used in tracking
-    eicrecon::IndexSourceLinkContainer source_links;
+    ActsExamples::IndexSourceLinkContainer source_links;
     auto measurements_ptr = source_linker_result->measurements;
-    for(auto &sourceLink: source_linker_result->sourceLinks){
+    for(const auto &sourceLink: source_linker_result->sourceLinks){
         // add to output containers. since the input is already geometry-order,
         // new elements in geometry containers can just be appended at the end.
         source_links.emplace_hint(source_links.end(), *sourceLink);
@@ -92,18 +71,17 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     try {
         // RUN TRACKING ALGORITHM
-        auto trajectories = m_tracking_algo.process(
+        auto [trajectories, track_parameters, acts_trajectories] = m_tracking_algo.process(
                 source_links,
                 *source_linker_result->measurements,
-                acts_track_params);
+                *seed_track_parameters);
 
         // Save the result
-        Set(trajectories);
+        SetCollection<edm4eic::Trajectory>(GetOutputTags()[0], std::move(trajectories));
+        SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(track_parameters));
+        SetData<ActsExamples::Trajectories>(GetOutputTags()[2], std::move(acts_trajectories));
     }
     catch(std::exception &e) {
         throw JException(e.what());
     }
-
-    // Enable ticker back
-    GetApplication()->SetTicker(tickerEnabled);
 }

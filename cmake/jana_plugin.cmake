@@ -3,13 +3,22 @@ macro(plugin_add _name)
 
     project(${_name}_project)
 
+    # Default to plugin without library
+    set(${_name}_WITH_LIBRARY OFF)
+    set(${_name}_WITH_PLUGIN ON)
+
     # Check if build with library
     foreach(arg IN ITEMS ${ARGN})
         if(${arg} STREQUAL "WITH_STATIC_LIBRARY")
-            set(${_name}_WITH_STATIC_LIB ON)
+            set(${_name}_WITH_LIBRARY ON)
+            set(${_name}_LIBRARY_TYPE STATIC)
         endif()
-        if(${arg} STREQUAL "WITH_STATIC_LIB")       # alternative
-            set(${_name}_WITH_STATIC_LIB ON)
+        if(${arg} STREQUAL "WITH_SHARED_LIBRARY")
+            set(${_name}_WITH_LIBRARY ON)
+            set(${_name}_LIBRARY_TYPE SHARED)
+        endif()
+        if(${arg} STREQUAL "WITHOUT_PLUGIN")
+            set(${_name}_WITH_PLUGIN OFF)
         endif()
     endforeach()
 
@@ -22,63 +31,73 @@ macro(plugin_add _name)
     # include fmt by default
     find_package(fmt REQUIRED)
 
-    # include ROOT by default
-    find_package(ROOT REQUIRED)
+    # include gsl by default
+    find_package(Microsoft.GSL CONFIG)
 
     # Define plugin
-    add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
+    if(${_name}_WITH_PLUGIN)
+        add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
 
-    target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
-    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-    target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
-    target_include_directories(${_name}_plugin PUBLIC ${fmt_DIR}/../../../include)
-    set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
-    target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
+        target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
+        set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
+        target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
+        target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
-    # Install plugin
-    install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+        # Install plugin
+        install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+    endif()     # WITH_PLUGIN
 
+    # Define library
+    if(${_name}_WITH_LIBRARY)
+        add_library(${_name}_library ${${_name}_LIBRARY_TYPE} "")
+        if(${_name}_LIBRARY_TYPE STREQUAL "STATIC")
+            set(suffix ".a")
+        endif()
+        if(${_name}_LIBRARY_TYPE STREQUAL "SHARED")
+            set(suffix ".so")
+        endif()
+        set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ${suffix})
 
-    if(${_name}_WITH_STATIC_LIB)
-        # Define library
-        add_library(${_name}_library STATIC "")
-	    target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        target_include_directories(${_name}_library PUBLIC ${fmt_DIR}/../../../include)
-        set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ".a")
         target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
         target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_library Microsoft.GSL::GSL)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
+
+    if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
+        target_link_libraries(${_name}_plugin ${_name}_library)
+    endif()
 endmacro()
 
 
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
+    if(${_name}_WITH_PLUGIN)
+        target_link_libraries(${_name}_plugin ${ARGN})
+    endif()     # WITH_PLUGIN
 
-    #foreach(arg IN ITEMS ${ARGN})
-    #    target_link_libraries(${_name}_plugin ${arg})
-    target_link_libraries(${_name}_plugin ${ARGN})
-    #endforeach()
-
-
-
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         target_link_libraries(${_name}_library ${ARGN})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 
 # target_include_directories for both a plugin and a library
 macro(plugin_include_directories _name)
-    target_include_directories(${_name}_plugin  ${ARGN})
+    if(${_name}_WITH_PLUGIN)
+        target_include_directories(${_name}_plugin  ${ARGN})
+    endif()     # WITH_PLUGIN
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         target_include_directories(${_name}_library ${ARGN})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 
@@ -90,7 +109,7 @@ macro(plugin_sources _name)
     # Add sources to plugin
     target_sources(${_name}_plugin PRIVATE ${SOURCES})
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc in library
         set(PLUGIN_CC_FILE ${_name}.cc)
         get_filename_component(PLUGIN_CC_FILE "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CC_FILE}" ABSOLUTE)
@@ -98,7 +117,7 @@ macro(plugin_sources _name)
 
         # Add sources to library
         target_sources(${_name}_library PRIVATE ${SOURCES})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 endmacro()
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
@@ -108,20 +127,26 @@ macro(plugin_glob_all _name)
 
     # But... GLOB here makes this file just hot pluggable
     file(GLOB LIB_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
-    file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    if(${_name}_WITH_LIBRARY)
+        file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS ${_name}.cc)
+    else()
+        file(GLOB PLUGIN_SRC_FILES CONFIGURE_DEPENDS *.cc *.cpp *.c)
+    endif()
     file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
     # We need plugin relative path for correct headers installation
     string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
 
     # Add sources to plugin
-    target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
+    if(TARGET ${_name}_plugin)
+        target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
+    endif()
 
     #Add correct headers installation
     # Install headers for plugin
     install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH})
 
-    if(${_name}_WITH_STATIC_LIB)
+    if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc but Plugin does
         set(PLUGIN_CC_FILE ${_name}.cc)
 
@@ -138,7 +163,7 @@ macro(plugin_glob_all _name)
 
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
-    endif()     # WITH_STATIC_LIB
+    endif()     # WITH_LIBRARY
 
     # >oO Debug output if needed
     if(${EICRECON_VERBOSE_CMAKE})
@@ -159,8 +184,10 @@ macro(plugin_add_dd4hep _name)
         find_package(DD4hep REQUIRED)
     endif()
 
-    plugin_include_directories(${_name} SYSTEM PUBLIC ${DD4hep_INCLUDE_DIRS})
-    plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
+    plugin_link_libraries(${_name}
+        DD4hep::DDCore
+        DD4hep::DDRec
+    )
 
 endmacro()
 
@@ -172,8 +199,9 @@ macro(plugin_add_eigen3 _name)
         find_package(Eigen3 REQUIRED)
     endif()
 
-    plugin_include_directories(${_name} SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
-    plugin_link_libraries(${_name} Eigen3::Eigen)
+    plugin_link_libraries(${_name}
+        Eigen3::Eigen
+    )
 
 endmacro()
 
@@ -189,25 +217,29 @@ macro(plugin_add_acts _name)
                 AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
             message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
         endif()
-
-        set(Acts_INCLUDE_DIRS ${Acts_DIR}/../../../include ${ActsDD4hep_DIR}/../../../include )
     endif()
 
-    # Add include directories (works same as target_include_directories)
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${Acts_INCLUDE_DIRS})
-
     # Add libraries (works same as target_include_directories)
-    plugin_link_libraries(${PLUGIN_NAME} ActsCore ActsPluginIdentification ActsPluginTGeo ActsPluginJson ActsPluginDD4hep)
+    plugin_link_libraries(${PLUGIN_NAME}
+        ActsCore
+        ActsPluginIdentification
+        ActsPluginTGeo
+        ActsPluginJson
+        ActsPluginDD4hep
+    )
+
 endmacro()
 
 
 # Adds IRT PID reconstruction package for a plugin
 macro(plugin_add_irt _name)
+
     if(NOT IRT_FOUND)
         find_package(IRT REQUIRED)
     endif()
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${IRT_INCLUDE_DIR})
+
     plugin_link_libraries(${PLUGIN_NAME} IRT)
+
 endmacro()
 
 # Adds podio, edm4hep, edm4eic for a plugin
@@ -223,20 +255,20 @@ macro(plugin_add_event_model _name)
 
     if(NOT EDM4EIC_FOUND)
         find_package(EDM4EIC REQUIRED)
-        set(EDM4EIC_INCLUDE_DIR ${EDM4EIC_DIR}/../../include)
     endif()
 
     # Add include directories
-    # (same as target_include_directories but for both plugin and library)
-    # ${podio_BINARY_DIR} is an include path to datamodel_glue.h
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR} ${podio_BINARY_DIR})
+    # ${datamodel_BINARY_DIR} is an include path to datamodel_glue.h
+    plugin_include_directories(${PLUGIN_NAME} PUBLIC ${datamodel_BINARY_DIR})
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
     plugin_link_libraries(${PLUGIN_NAME}
-            EDM4EIC::edm4eic
-            EDM4HEP::edm4hep
-            )
+        podio::podio
+        EDM4EIC::edm4eic
+        EDM4HEP::edm4hep
+    )
+
 endmacro()
 
 
@@ -244,16 +276,15 @@ endmacro()
 macro(plugin_add_cern_root _name)
 
     if(NOT ROOT_FOUND)
-        #find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
         find_package(ROOT REQUIRED)
     endif()
 
-    # Add include directories
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
-
     # Add libraries
-    #plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} EDM4EIC::edm4eic algorithms_digi_library algorithms_tracking_library ROOT::EG)
-    plugin_link_libraries(${PLUGIN_NAME} ${ROOT_LIBRARIES} ROOT::EG)
+    plugin_link_libraries(${PLUGIN_NAME}
+        ROOT::Core
+        ROOT::EG
+    )
+
 endmacro()
 
 

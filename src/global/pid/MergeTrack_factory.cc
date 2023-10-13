@@ -7,13 +7,13 @@
 void eicrecon::MergeTrack_factory::Init() {
 
   // get plugin name and tag
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = plugin + ":" + GetTag();
   InitDataTags(prefix);
 
   // services
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_algo.AlgorithmInit(m_log);
   m_log->debug("MergeTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 

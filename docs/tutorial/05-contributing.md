@@ -2,7 +2,7 @@
 
 | title                                               | teaching | exercises | questions                                                                                                                                                      | objectives                                                                                           | keypoints                                                                                                                                           |
 |-----------------------------------------------------|----------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Contibuting code changes to the EICrecon repository | 10       | 10        | How do I submit code to the EICrecon repository? Understand naming conventions for EICrecon <br/><br/>Submitting a Pull Request for a contribution to EICrecon | Use eicrecon executable to run reconstruction on a podio input file and to create podio output file. | Write code in a style consistent with the rest of the repository.<br/><br/> Contributions should be made through the GitHub Pull Request mechansim. |
+| Contributing code changes to the EICrecon repository | 10       | 10        | How do I submit code to the EICrecon repository? Understand naming conventions for EICrecon <br/><br/>Submitting a Pull Request for a contribution to EICrecon | Use eicrecon executable to run reconstruction on a podio input file and to create podio output file. | Write code in a style consistent with the rest of the repository.<br/><br/> Contributions should be made through the GitHub Pull Request mechanism. |
 
 
 
@@ -33,7 +33,7 @@ There is also [EICrecon project board][eicrecon-project] where one can see what 
 
    ![Create branch from issue](img/create_branch_2.png)
 
-- After you commit and push changes to the branch, create a pull request (PR). As soon as PR is created a continious integration (CI) system will run to test the project compiles and runs on EIC environment. Any further push to this branch will trigger CI rerun the tests and check if merge is ready to be done. PRs are also a good place do discuss changes and code with collaborators. So it might be reasonable to create a PR even if not all work on issue is done. In this case create a Draft PR.
+- After you commit and push changes to the branch, create a pull request (PR). As soon as PR is created a continuous integration (CI) system will run to test the project compiles and runs on EIC environment. Any further push to this branch will trigger CI rerun the tests and check if merge is ready to be done. PRs are also a good place do discuss changes and code with collaborators. So it might be reasonable to create a PR even if not all work on issue is done. In this case create a Draft PR.
 
    ![Create branch from issue](img/create_branch_3.png)
 
@@ -46,7 +46,7 @@ There is also [EICrecon project board][eicrecon-project] where one can see what 
    - Use "Draft PR" if the work is not done
    - Assign a reviewer
 
-- Before accepting the Pull Requiest code goes through a code review by one of the core developers. If you need someone particular to review your changes - select the reviewer from the menu. Otherwise one of the developers will review the code and accept the PR.
+- Before accepting the Pull Request code goes through a code review by one of the core developers. If you need someone particular to review your changes - select the reviewer from the menu. Otherwise one of the developers will review the code and accept the PR.
 
 More on the EIC contribution guide is in [this tutorial][eic-environment-tutorial], [video][eic-environment-youtube]
 

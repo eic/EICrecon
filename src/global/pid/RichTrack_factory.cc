@@ -7,14 +7,14 @@
 void eicrecon::RichTrack_factory::Init() {
 
   // get app and user info
-  auto app    = GetApplication();
+  auto *app    = GetApplication();
   auto plugin = GetPluginName(); // plugin name should be detector name
   auto prefix = GetPrefix();
 
   // services
   m_richGeoSvc = app->GetService<RichGeo_service>();
   m_actsSvc    = app->GetService<ACTSGeo_service>();
-  InitLogger(prefix, "info");
+  InitLogger(app, prefix, "info");
   m_propagation_algo.init(m_actsSvc->actsGeoProvider(), m_log);
   m_log->debug("RichTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
@@ -59,10 +59,10 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // collect all trajectories from all input tags
-  std::vector<const eicrecon::TrackingResultTrajectory*> trajectories;
+  std::vector<const ActsExamples::Trajectories*> trajectories;
   for(const auto& input_tag : GetInputTags()) {
     try {
-      for(const auto traj : event->Get<eicrecon::TrackingResultTrajectory>(input_tag))
+      for(const auto traj : event->Get<ActsExamples::Trajectories>(input_tag))
         trajectories.push_back(traj);
     } catch(std::exception &e) {
       m_log->critical(e.what());
@@ -70,11 +70,29 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     }
   }
 
+  // choose the filter surface: all charged particles that pass through the dRICH vessel will pass
+  // through the backplane of the gas radiator
+  std::shared_ptr<Acts::Surface> filter_surface;
+  for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
+    if(richgeo::ParseRadiatorName(output_tag, m_log) == richgeo::kGas) {
+      filter_surface = radiator_tracking_planes.back();
+      break;
+    }
+  }
+  if(!filter_surface)
+    throw JException("cannot find filter surface for RICH track propagation");
+
   // run track propagator algorithm, for each radiator
   for(auto& [output_tag, radiator_tracking_planes] : m_tracking_planes) {
     try {
       auto track_point_cut = m_track_point_cuts.at(output_tag);
-      auto result = m_propagation_algo.propagateToSurfaceList(trajectories, radiator_tracking_planes, track_point_cut, true);
+      auto result = m_propagation_algo.propagateToSurfaceList(
+          trajectories,
+          radiator_tracking_planes,
+          filter_surface,
+          track_point_cut,
+          true
+          );
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {

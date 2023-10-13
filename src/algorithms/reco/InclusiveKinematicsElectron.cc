@@ -9,14 +9,14 @@
 #include "Boost.h"
 #include "InclusiveKinematicsElectron.h"
 
-#include "Math/Vector4D.h"
+#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/InclusiveKinematicsCollection.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 
 namespace eicrecon {
 
@@ -29,13 +29,13 @@ namespace eicrecon {
     // }
   }
 
-  std::vector<edm4eic::InclusiveKinematics*> InclusiveKinematicsElectron::execute(
-    std::vector<const edm4hep::MCParticle *> mcparts,
-    std::vector<const edm4eic::ReconstructedParticle *> rcparts,
-    std::vector<const edm4eic::MCRecoParticleAssociation *> rcassoc) {
+  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsElectron::execute(
+    const edm4hep::MCParticleCollection& mcparts,
+    const edm4eic::ReconstructedParticleCollection& rcparts,
+    const edm4eic::MCRecoParticleAssociationCollection& rcassoc) {
 
     // Resulting inclusive kinematics
-    std::vector<edm4eic::InclusiveKinematics *> kinematics;
+    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
@@ -93,7 +93,7 @@ namespace eicrecon {
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
-        ei_coll[0]->getMomentum(),
+        ei_coll[0].getMomentum(),
         m_electron,
         {-5.0, -10.0, -18.0},
         0.0)
@@ -107,8 +107,8 @@ namespace eicrecon {
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
-        pi_coll[0]->getMomentum(),
-        pi_coll[0]->getPDG() == 2212 ? m_proton : m_neutron,
+        pi_coll[0].getMomentum(),
+        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
@@ -126,7 +126,7 @@ namespace eicrecon {
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
     auto ef_assoc = rcassoc.begin();
     for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if ((*ef_assoc)->getSimID() == (unsigned) ef_coll[0]->getObjectID().index) {
+      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
         break;
       }
     }
@@ -134,15 +134,15 @@ namespace eicrecon {
       m_log->debug("Truth scattered electron not in reconstructed particles");
       return kinematics;
     }
-    const auto ef_rc{(*ef_assoc)->getRec()};
+    const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
 
     // Loop over reconstructed particles to get outgoing scattered electron
     // Use the true scattered electron from the MC information
     std::vector<PxPyPzEVector> electrons;
     for (const auto& p: rcparts) {
-      if (p->getObjectID().index == ef_rc_id) {
-        electrons.emplace_back(p->getMomentum().x, p->getMomentum().y, p->getMomentum().z, p->getEnergy());
+      if (p.getObjectID().index == ef_rc_id) {
+        electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         break;
       }
     }
@@ -162,13 +162,11 @@ namespace eicrecon {
     const auto nu = q_dot_pi / m_proton;
     const auto x = Q2 / (2. * q_dot_pi);
     const auto W = sqrt( + 2.*q_dot_pi - Q2);
-    edm4eic::MutableInclusiveKinematics kin(x, Q2, W, y, nu);
+    auto kin = kinematics->create(x, Q2, W, y, nu);
     kin.setScat(ef_rc);
 
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    kinematics.push_back(new edm4eic::InclusiveKinematics(kin));
 
     return kinematics;
   }

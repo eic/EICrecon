@@ -1,6 +1,9 @@
 #include "TofEfficiency_processor.h"
-#include <services/rootfile/RootFile_service.h>
+#include "services/rootfile/RootFile_service.h"
 
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
 
@@ -10,10 +13,10 @@
 void TofEfficiency_processor::InitWithGlobalRootLock(){
     std::string plugin_name=("tof_efficiency");
 
-    InitLogger(plugin_name);
+    InitLogger(GetApplication(), plugin_name);
 
     // Get JANA application
-    auto app = GetApplication();
+    auto *app = GetApplication();
 
     // Ask service locator a file to write histograms to
     auto root_file_service = app->GetService<RootFile_service>();
@@ -21,7 +24,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
     // Get TDirectory for histograms root file
     auto globalRootLock = app->GetService<JGlobalRootLock>();
     globalRootLock->acquire_write_lock();
-    auto file = root_file_service->GetHistFile();
+    auto *file = root_file_service->GetHistFile();
     globalRootLock->release_lock();
 
     // Create a directory for this plugin. And subdirectories for series of histograms
@@ -47,36 +50,40 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+    const auto &mcParticles   = *static_cast<const edm4hep::MCParticleCollection*>  (event->GetCollectionBase("MCParticles"));
+    const auto &trackSegments = *static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase("CentralTrackSegments"));
+    const auto &barrelHits    = *static_cast<const edm4eic::TrackerHitCollection*>  (event->GetCollectionBase("TOFBarrelRecHit"));
+    const auto &endcapHits    = *static_cast<const edm4eic::TrackerHitCollection*>  (event->GetCollectionBase("TOFEndcapRecHits"));
 
     // List TOF Barrel hits from barrel
     logger()->trace("TOF barrel hits:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
-    for (auto hit: barrelHits()) {
-        auto& pos = hit->getPosition();
+    for (const auto hit: barrelHits) {
+        const auto& pos = hit.getPosition();
         float r=sqrt(pos.x*pos.x+pos.y*pos.y);
         float phi=acos(pos.x/r); if(pos.y<0) phi+=3.1415927;
         m_th2_btof_phiz->Fill(phi, pos.z);
-        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit->getTime());
+        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit.getTime());
     }
 
     // List TOF endcap hits
     logger()->trace("TOF endcap hits:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
-    for (auto hit: endcapHits()) {
-        auto& pos = hit->getPosition();
+    for (const auto hit: endcapHits) {
+        const auto& pos = hit.getPosition();
         float r=sqrt(pos.x*pos.x+pos.y*pos.y);
         float phi=acos(pos.x/r); if(pos.y<0) phi+=3.1415927;
         m_th2_ftof_rphi->Fill(r, phi);
-        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit->getTime());
+        m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit.getTime());
     }
 
     // Now go through reconstructed tracks points
     logger()->trace("Going over tracks:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-    for( auto track_segment : trackSegments() ){
+    for( const auto track_segment : trackSegments ){
         logger()->trace(" Track trajectory");
 
-        for(auto point: track_segment->getPoints()) {
+        for(const auto point: track_segment.getPoints()) {
             auto &pos = point.position;
             m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z, point.pathlength);
 
@@ -85,28 +92,28 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
             float hit_x=-1000, hit_y=-1000, hit_z=-1000, hit_t=-1000;
             float hit_px=-1000, hit_py=-1000, hit_pz=-1000, hit_e=-1000;
             if(det==1) {
-                for (auto hit: barrelHits()) {
-                    auto& hitpos = hit->getPosition();
+                for (const auto hit: barrelHits) {
+                    const auto& hitpos = hit.getPosition();
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;
                         hit_x=hitpos.x;
                         hit_y=hitpos.y;
                         hit_z=hitpos.z;
-                        hit_t=hit->getTime();
+                        hit_t=hit.getTime();
                     }
                 }
             }
             if(det==2) {
-                for (auto hit: endcapHits()) {
-                    auto& hitpos = hit->getPosition();
+                for (const auto hit: endcapHits) {
+                    const auto& hitpos = hit.getPosition();
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;
                         hit_x=hitpos.x;
                         hit_y=hitpos.y;
                         hit_z=hitpos.z;
-                        hit_t=hit->getTime();
+                        hit_t=hit.getTime();
                     }
                 }
             }

@@ -6,19 +6,18 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/TrackSeeding.h>
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
-
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainFactoryT.h>
 #include <edm4eic/TrackParameters.h>
+
+#include "algorithms/tracking/TrackSeeding.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 
 namespace eicrecon {
 
     class TrackSeeding_factory :
             public JChainFactoryT<edm4eic::TrackParameters, OrthogonalTrackSeedingConfig>,
-            public SpdlogMixin<TrackSeeding_factory> {
+            public SpdlogMixin {
 
     public:
         TrackSeeding_factory( std::vector<std::string> default_input_tags, OrthogonalTrackSeedingConfig cfg):

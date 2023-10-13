@@ -9,8 +9,12 @@
 
 // DD4Hep
 #include <DD4hep/Detector.h>
+#include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/DD4hepUnits.h>
+
+// GSL
+#include <gsl/gsl>
 
 // IRT
 #include <IRT/CherenkovDetectorCollection.h>
@@ -27,9 +31,7 @@ namespace richgeo {
     public:
 
       // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-      IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
-      // alternate constructor: use compact file for DD4hep geometry (backward compatibility)
-      IrtGeo(std::string detName_, std::string compactFile_, std::shared_ptr<spdlog::logger> log_);
+      IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_);
       virtual ~IrtGeo();
 
       // access the full IRT geometry
@@ -41,17 +43,22 @@ namespace richgeo {
       virtual void DD4hep_to_IRT() = 0;    // given DD4hep geometry, produce IRT geometry
       void SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
       void SetRefractiveIndexTable();      // fill table of refractive indices
+      // read `VariantParameters` for a vector
+      template<class VecT>
+        VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters *pars, std::string key) {
+          return VecT(pars->get<double>(key+"_x"), pars->get<double>(key+"_y"), pars->get<double>(key+"_z"));
+        }
 
       // inputs
       std::string m_detName;
 
       // DD4hep geometry handles
-      dd4hep::Detector   *m_det;
+      gsl::not_null<const dd4hep::Detector*> m_det;
       dd4hep::DetElement m_detRich;
       dd4hep::Position   m_posRich;
 
       // cell ID conversion
-      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
+      gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_converter;
       std::unordered_map<int,richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
 
       // IRT geometry handles

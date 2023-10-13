@@ -5,8 +5,7 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 
-#include <services/log/Log_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include "extensions/spdlog/SpdlogMixin.h"
 
 #include <TDirectory.h>
 
@@ -15,7 +14,7 @@ class JApplication;
 
 class GeometryNavigationSteps_processor:
         public JEventProcessor,
-        public eicrecon::SpdlogMixin<GeometryNavigationSteps_processor>   // this automates proper log initialization
+        public eicrecon::SpdlogMixin   // this automates proper log initialization
 {
 public:
     explicit GeometryNavigationSteps_processor(JApplication *);

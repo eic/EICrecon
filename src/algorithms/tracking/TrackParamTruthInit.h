@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <algorithms/interfaces/IObjectProducer.h>
-#include <algorithms/tracking/JugTrack/Track.hpp>
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+
 #include <spdlog/logger.h>
 
 #include "TrackParamTruthInitConfig.h"
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 #include <random>
 #include <TDatabasePDG.h>
@@ -22,7 +22,8 @@ namespace eicrecon {
 
         void init(const std::shared_ptr<spdlog::logger> &logger);
 
-        eicrecon::TrackParameters * produce(const edm4hep::MCParticle *);
+        std::unique_ptr<edm4eic::TrackParametersCollection>
+            produce(const edm4hep::MCParticleCollection* parts);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;

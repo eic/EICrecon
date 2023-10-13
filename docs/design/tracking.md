@@ -22,12 +22,12 @@ flowchart TB
 
   ACTSToModel --> TrackingModel(Tracking PODIO data)
 
-  TrackingModel --> ParticlesWithTruthPID:::alg
-  MCParticles --> ParticlesWithTruthPID[<strong>Track to MC matching</strong>:<br/><i>ParticlesWithTruthPID</i>]
+  TrackingModel --> ParticlesWithPID:::alg
+  MCParticles --> ParticlesWithPID[<strong>Track to MC matching</strong>:<br/><i>ParticlesWithPID</i>]
   ACTSToModel --> CentralTrackSegments
 
-  ParticlesWithTruthPID --> ReconstructedChargedParticles
-  ParticlesWithTruthPID --> ReconstructedChargedParticlesAssociations
+  ParticlesWithPID --> ReconstructedChargedParticles
+  ParticlesWithPID --> ReconstructedChargedParticlesAssociations
 
   subgraph Tracking output
     direction LR
@@ -132,10 +132,10 @@ flowchart TB
       CentralCKFTrajectories --> TrackProjector[TrackProjector]:::alg
   TrackProjector --> CentralTrackSegments
 
-  outputTrackParameters --> ParticlesWithTruthPID[ParticlesWithTruthPID]:::alg
-  MCParticles --> ParticlesWithTruthPID
-  ParticlesWithTruthPID --> ReconstructedChargedParticles
-  ParticlesWithTruthPID --> ReconstructedChargedParticlesAssociations
+  outputTrackParameters --> ParticlesWithPID[ParticlesWithPID]:::alg
+  MCParticles --> ParticlesWithPID
+  ParticlesWithPID --> ReconstructedChargedParticles
+  ParticlesWithPID --> ReconstructedChargedParticlesAssociations
 
 
 
@@ -165,5 +165,5 @@ The flow is:
 - Reconstructed hits from all detectors get to **TrackerSourceLinker** which provides measurement and linkage data for ACTS
 - **CFKTracking** does fitting and produces results in ACTS classes
 - **ParticlesFromTrackFit** process ACTS data and store it to PODIO edm4hep/eic data model
-- **ParticlesWithTruthPID** algorithm does track-matching with MCParticles and produce resulted `edm4eic::ReconstructedParticles` with association class
+- **ParticlesWithPID** algorithm does track-matching with MCParticles and produce resulted `edm4eic::ReconstructedParticles` with association class
 - **TrackProjection** - saves track states/points data to PODIO data model and returns CetntralTrackSegments data

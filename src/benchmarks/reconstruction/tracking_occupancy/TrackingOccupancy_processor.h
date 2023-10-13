@@ -3,9 +3,10 @@
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 
+#include <spdlog/fwd.h>
+
 #include "TrackingOccupancyAnalysis.h"
 #include "HitReconstructionAnalysis.h"
-#include "services/log/Log_service.h"
 
 class JEvent;
 class JApplication;
@@ -46,8 +47,6 @@ private:
 
     TrackingOccupancyAnalysis m_occupancy_analysis;
     HitReconstructionAnalysis m_hit_reco_analysis;
-
-
 
     TDirectory* m_dir_main;               /// Main TDirectory for this plugin 'occupancy_ana'
     TH1F * m_th1_prt_pz;                  /// MC Particles pz

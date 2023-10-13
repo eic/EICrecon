@@ -16,8 +16,8 @@ There are two ways one could implement this in a JFactory:
 2. Including the algorithm object as a data member. This is what is done in the
 _JFactory_BEMCRawCalorimeterHit_utility_ class.
 
-The main difference in the coding is that for option 2, one needs to derefence the algorithm
-class object whenever refering to one of its members. Otherwise, they are line-for-line the same.
+The main difference in the coding is that for option 2, one needs to dereference the algorithm
+class object whenever referring to one of its members. Otherwise, they are line-for-line the same.
 
 The _CalorimeterHitDigi_ class methods are not reentrant, This is not an issue
 since only one thread will be executing the method of a given object at a time.
@@ -29,14 +29,14 @@ Two things I don't like about this system:
 1. The data objects created by the generic algorithm must be effectively cloned into
    _BEMRawCalorimeterHit_ objects.
 
-2. The framework has no way to automatically delete the _edm4hep::RawCalorimeterHit_ obejcts
+2. The framework has no way to automatically delete the _edm4hep::RawCalorimeterHit_ objects
 so we handle it manually in the _CalorimeterHitDigi_ class.
 
 
 One other option I have included is defining the _SetJANAConfigParameters_ templated method
 in the generic algorithm class _CalorimeterHitDigi_. This technically includes JANA code
 in the class, but since it is contained in the template, the compiler will never complain
-unless a template object is decalred, Thus, the _CalorimeterHitDigi_ class can be used
+unless a template object is declared, Thus, the _CalorimeterHitDigi_ class can be used
 outside of the JANA framework. The pros/cons of doing this are:
 
 pros:

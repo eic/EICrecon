@@ -6,30 +6,37 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithms/tracking/CKFTracking.h>
-#include <algorithms/tracking/CKFTrackingConfig.h>
-#include <algorithms/tracking/TrackerSourceLinkerResult.h>
+#include <edm4eic/TrackParametersCollection.h>
 
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainFactoryT.h>
+#include "algorithms/tracking/CKFTracking.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
 
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 
 namespace eicrecon {
 
     class CKFTracking_factory :
-            public JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig, JFactoryT>,
-            public SpdlogMixin<CKFTracking_factory> {
+            public JChainMultifactoryT<CKFTrackingConfig>,
+            public SpdlogMixin {
 
     public:
-        CKFTracking_factory( std::vector<std::string> default_input_tags, CKFTrackingConfig cfg):
-                JChainFactoryT<eicrecon::TrackingResultTrajectory, CKFTrackingConfig, JFactoryT>(std::move(default_input_tags), cfg ) {
+
+        explicit CKFTracking_factory(
+            std::string tag,
+            const std::vector<std::string>& input_tags,
+            const std::vector<std::string>& output_tags,
+            CKFTrackingConfig cfg)
+        : JChainMultifactoryT<CKFTrackingConfig>(std::move(tag), input_tags, output_tags, cfg) {
+
+            DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
+            DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
+            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
+
         }
 
         /** One time initialization **/
         void Init() override;
-
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;

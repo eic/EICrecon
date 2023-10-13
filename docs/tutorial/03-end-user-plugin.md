@@ -47,7 +47,7 @@ cmake -S myFirstPlugin -B myFirstPlugin/build
 cmake --build myFirstPlugin/build --target install
 ~~~
 
-You can test plugin installed and can load correctly by runnign eicrecon with it:
+You can test plugin installed and can load correctly by running eicrecon with it:
 ~~~
 eicrecon -Pplugins=myFirstPlugin,JTest -Pjana:nevents=10
 ~~~
@@ -63,9 +63,6 @@ The second plugin, JTest, just supplies dummy events, ensuring your plugin is pr
 
 class myFirstPluginProcessor: public JEventProcessorSequentialRoot {
 private:
-
-    // Data objects we will need from JANA e.g.
-    PrefetchT<edm4hep::SimCalorimeterHit> rawhits   = {this, "EcalBarrelHits"};
 
     // Declare histogram and tree pointers here. e.g.
     TH1D* hEraw = nullptr;
@@ -110,8 +107,8 @@ void myFirstPluginProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void myFirstPluginProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-
-     for( auto hit : rawhits() ) hEraw->Fill(  hit->getEnergy() );
+    const auto &rawhits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
+    for (auto hit : rawhits) hEraw->Fill(hit.getEnergy());
 }
 
 //-------------------------------------------
@@ -141,7 +138,7 @@ You should now have a root file, eicrecon.root, with a single directory: "myFirs
 
 _____________________________________________________________________________________________________________
 
-As exercises try (make sure you rebuild everytime you change your plugin):
+As exercises try (make sure you rebuild every time you change your plugin):
 
 1) Plot the X,Y positions of all the hits.
 

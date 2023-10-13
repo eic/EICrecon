@@ -51,7 +51,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   auto filterMaterial   = m_det->constant<std::string>("PFRICH_filter_material");
   m_aerogelFlatSurface  = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
   m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
-  auto aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+  auto *aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,                  // Cherenkov detector
       RadiatorName(kAerogel).c_str(), // name
       0,                              // path
@@ -60,7 +60,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       m_aerogelFlatSurface,           // surface
       aerogelThickness                // surface thickness
       );
-  auto filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
+  auto *filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,           // Cherenkov detector
       "Filter",                // name
       0,                       // path

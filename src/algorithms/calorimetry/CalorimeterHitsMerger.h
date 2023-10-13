@@ -12,37 +12,36 @@
 
 #include <algorithm>
 #include <bitset>
+#include <memory>
 #include <tuple>
 #include <unordered_map>
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/RawCalorimeterHit.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <spdlog/spdlog.h>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "CalorimeterHitsMergerConfig.h"
 
-class CalorimeterHitsMerger  {
-public:
+namespace eicrecon {
 
-    std::string m_readout;
-    std::vector<std::string> u_fields;
-    std::vector<int> u_refs;
+  class CalorimeterHitsMerger : public WithPodConfig<CalorimeterHitsMergerConfig>  {
 
-    std::shared_ptr<JDD4hep_service> m_geoSvc;
+  public:
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &input);
+
+  private:
     uint64_t id_mask{0}, ref_mask{0};
 
-    std::vector<const edm4eic::CalorimeterHit *> m_inputs;
-    std::vector<edm4eic::CalorimeterHit *> m_outputs;
-
+  private:
+    const dd4hep::Detector* m_detector;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
-public:
-    CalorimeterHitsMerger() = default;
-    virtual ~CalorimeterHitsMerger() {}
+  };
 
-    virtual void initialize();
-    virtual void execute();
-
-}; // class CalorimeterHitsMerger
+} // namespace eicrecon

@@ -5,8 +5,6 @@
 
 #include <fmt/core.h>
 
-#include "extensions/string/StringHelpers.h"
-
 
 using namespace fmt;
 
@@ -14,7 +12,7 @@ using namespace fmt;
 // DefaultFlags_processor (Constructor)
 //------------------
 DumpFlags_processor::DumpFlags_processor(JApplication *app) :
-	JEventProcessor(app)
+        JEventProcessor(app)
 {
 }
 
@@ -23,16 +21,16 @@ DumpFlags_processor::DumpFlags_processor(JApplication *app) :
 //------------------
 void DumpFlags_processor::Init()
 {
-	// Ask service locator a file to write to
+        // Ask service locator a file to write to
 
-    auto app = GetApplication();
+    auto *app = GetApplication();
     app->SetDefaultParameter("dump_flags:python", m_python_file_name, "If not empty, a python file to generate");
     app->SetDefaultParameter("dump_flags:markdown", m_markdown_file_name, "If not empty, a markdown file to generate");
     app->SetDefaultParameter("dump_flags:json", m_json_file_name, "If not empty, a json file to generate");
     app->SetDefaultParameter("dump_flags:screen", m_print_to_screen, "If not empty, print summary to screen at end of job");
 
 
-    InitLogger("dump_flags", "info");
+    InitLogger(app, "dump_flags", "info");
 }
 
 
@@ -50,7 +48,7 @@ void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 void DumpFlags_processor::Finish()
 {
-    auto pm = GetApplication()->GetJParameterManager();
+    auto *pm = GetApplication()->GetJParameterManager();
 
     // Find longest strings in names and values
     size_t max_name_len = 0;
@@ -77,7 +75,8 @@ void DumpFlags_processor::Finish()
     for(auto [name,param]: pm->GetAllParameters())
     {
         // form python content string
-        std::string python_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "'", "`");
+        std::string python_escaped_descr = param->GetDescription();
+        std::replace(python_escaped_descr.begin(), python_escaped_descr.end(), '\'', '`');
         python_content += fmt::format("    ({:{}} {:{}} '{}'),\n",
                                       fmt::format("'{}',", param->GetKey()),
                                           max_name_len + 3,
@@ -87,7 +86,8 @@ void DumpFlags_processor::Finish()
                                           );
 
         // form json content string
-        std::string json_escaped_descr = eicrecon::str::ReplaceAll(param->GetDescription(), "\"", "'");
+        std::string json_escaped_descr = param->GetDescription();
+        std::replace(json_escaped_descr.begin(), json_escaped_descr.end(), '"', '\'');
         json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n",
                                     line_num++==0?' ': ',',
                                     param->GetKey(),

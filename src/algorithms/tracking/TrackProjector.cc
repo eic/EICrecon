@@ -3,32 +3,33 @@
 
 #include <algorithm>
 
-#include "DDRec/CellIDPositionConverter.h"
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/Surface.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDRec/SurfaceManager.h>
+#include <DDRec/Surface.h>
 
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/MultiTrajectoryHelpers.hpp"
+#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 
 // Event Model related classes
-#include "edm4eic/TrackerHitCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "edm4eic/TrajectoryCollection.h"
-#include "edm4eic/TrackSegmentCollection.h"
-#include "JugTrack/IndexSourceLink.hpp"
-#include "JugTrack/Track.hpp"
-#include "JugTrack/TrackingResultTrajectory.hpp"
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Geometry/GeometryIdentifier.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 
-#include "edm4eic/vector_utils.h"
+#include <edm4eic/vector_utils.h>
 
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/logger.h>
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
@@ -36,6 +37,10 @@
 #include "extensions/spdlog/SpdlogFormatters.h"
 
 #include <cmath>
+
+#if FMT_VERSION >= 90000
+template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
+#endif // FMT_VERSION >= 90000
 
 namespace eicrecon {
 
@@ -46,11 +51,11 @@ namespace eicrecon {
     }
 
 
-    std::vector<edm4eic::TrackSegment *> TrackProjector::execute(std::vector<const eicrecon::TrackingResultTrajectory *> trajectories) {
+    std::unique_ptr<edm4eic::TrackSegmentCollection> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
 
         // create output collections
-        std::vector<edm4eic::TrackSegment *> track_segments;
-        m_log->debug("Track projector evnet process. Num of input trajectories: {}", std::size(trajectories));
+        auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
+        m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
 
         // Loop over the trajectories
         for (const auto &traj: trajectories) {
@@ -66,7 +71,7 @@ namespace eicrecon {
                 m_log->debug("  Empty multiTrajectory.");
                 continue;
             }
-            auto &trackTip = trackTips.front();
+            const auto &trackTip = trackTips.front();
 
             // Collect the trajectory summary info
             auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
@@ -76,7 +81,7 @@ namespace eicrecon {
             m_log->debug("  Num measurement in trajectory {}", m_nMeasurements);
             m_log->debug("  Num state in trajectory {}", m_nStates);
 
-            edm4eic::MutableTrackSegment track_segment;
+            auto track_segment = track_segments->create();
 
             // visit the track points
             mj.visitBackwards(trackTip, [&](auto &&trackstate) {
@@ -143,8 +148,15 @@ namespace eicrecon {
                 const float pathLength = static_cast<float>(trackstate.pathLength());
                 const float pathLengthError = 0;
 
+                uint64_t surface = trackstate.referenceSurface().geometryId().value();
+                uint32_t system = 0;
+
                 // Store track point
                 track_segment.addToPoints({
+#if EDM4EIC_VERSION_MAJOR >= 3
+                                                  surface,
+                                                  system,
+#endif
                                                   position,
                                                   positionError,
                                                   momentum,
@@ -189,14 +201,11 @@ namespace eicrecon {
 
             m_log->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
             m_log->debug("------ end of trajectory process ------");
-
-            // Add to output collection
-            track_segments.push_back(new edm4eic::TrackSegment(track_segment));
         }
 
-        m_log->debug("END OF Track projector evnet process");
-        return track_segments;
+        m_log->debug("END OF Track projector event process");
+        return std::move(track_segments);
     }
 
 
-} // namespace Jug::Reco
+} // namespace eicrecon::Reco

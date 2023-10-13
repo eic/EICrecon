@@ -1,9 +1,9 @@
 #pragma once
 
+#include <spdlog/fwd.h>
+
 #include <JANA/JEventProcessor.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
-
-#include <services/log/Log_service.h>
 
 #include <TDirectory.h>
 #include <edm4eic/ReconstructedParticle.h>

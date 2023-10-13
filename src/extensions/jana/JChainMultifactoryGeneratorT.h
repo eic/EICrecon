@@ -46,7 +46,7 @@ public:
         }
 
         FactoryT *factory;
-        if constexpr(std:: is_base_of<NoConfig,FactoryConfigType>()) {
+        if constexpr(std:: is_base_of<eicrecon::NoConfig,FactoryConfigType>()) {
             factory = new FactoryT(m_tag, m_input_tags, m_output_tags);
         } else {
             factory = new FactoryT(m_tag, m_input_tags, m_output_tags, m_default_cfg);
@@ -60,8 +60,8 @@ public:
 
 
     void Init() {
-        std::string plugin_name = eicrecon::str::ReplaceAll(this->GetPluginName(), ".so", "");
-        m_prefix = plugin_name+ ":" + m_tag;
+        std::string plugin_name = this->GetPluginName();
+        m_prefix = plugin_name + ":" + m_tag;
 
         // Get input data tags
         m_app->SetDefaultParameter(m_prefix + ":InputTags", m_input_tags, "Input data tag names");

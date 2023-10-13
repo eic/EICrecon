@@ -17,13 +17,13 @@
 
 
 // Event Model related classes
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4eic/ClusterCollection.h"
-#include "edm4eic/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4eic/MCRecoParticleAssociationCollection.h"
-#include "edm4eic/ReconstructedParticleCollection.h"
-#include "edm4eic/TrackParametersCollection.h"
-#include "edm4eic/vector_utils.h"
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/vector_utils.h>
 
 
 
@@ -33,18 +33,18 @@ namespace eicrecon {
         m_log = logger;
     }
 
-    std::tuple<edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*> MatchClusters::execute(
-            std::vector<const edm4hep::MCParticle *> mcparticles,
-            std::vector<const edm4eic::ReconstructedParticle *> inparts,
-            std::vector<const edm4eic::MCRecoParticleAssociation *> inpartsassoc,
-            const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-            const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &cluster_assoc_collections) {
+    MatchClusters::MatchingResults MatchClusters::execute(
+        const edm4hep::MCParticleCollection* mcparticles,
+        const edm4eic::ReconstructedParticleCollection* inparts,
+        const edm4eic::MCRecoParticleAssociationCollection* inpartsassoc,
+        const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
+        const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &cluster_assoc_collections) {
 
         m_log->debug("Processing cluster info for new event");
 
         // Resulting reconstructed particles and associations
-        edm4eic::ReconstructedParticleCollection* outparts = new edm4eic::ReconstructedParticleCollection();
-        edm4eic::MCRecoParticleAssociationCollection* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
+        auto* outparts = new edm4eic::ReconstructedParticleCollection();
+        auto* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
 
         m_log->debug("Step 0/2: Getting indexed list of clusters...");
 
@@ -55,19 +55,19 @@ namespace eicrecon {
         // (removing matched clusters from the cluster maps)
         m_log->debug("Step 1/2: Matching clusters to charged particles...");
 
-        for (const auto &inpart: inparts) {
-            m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart->getObjectID().index,
-                         inpart->getPDG(), inpart->getEnergy());
+        for (const auto inpart: *inparts) {
+            m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart.getObjectID().index,
+                         inpart.getPDG(), inpart.getEnergy());
 
-            auto outpart = inpart->clone();
+            auto outpart = inpart.clone();
             outparts->push_back(outpart);
 
             int mcID = -1;
 
             // find associated particle
-            for (const auto &assoc: inpartsassoc) {
-                if (assoc->getRecID() == inpart->getObjectID().index) {
-                    mcID = assoc->getSimID();
+            for (const auto &assoc: *inpartsassoc) {
+                if (assoc.getRecID() == inpart.getObjectID().index) {
+                    mcID = assoc.getSimID();
                     break;
                 }
             }
@@ -81,9 +81,9 @@ namespace eicrecon {
 
             if (clusterMap.count(mcID)) {
                 const auto &clus = clusterMap[mcID];
-                m_log->debug("    --> found matching cluster with energy: {}", clus->getEnergy());
+                m_log->debug("    --> found matching cluster with energy: {}", clus.getEnergy());
                 m_log->debug("    --> adding cluster to reconstructed particle");
-                outpart.addToClusters(*clus);
+                outpart.addToClusters(clus);
                 clusterMap.erase(mcID);
             }
 
@@ -93,31 +93,31 @@ namespace eicrecon {
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            assoc.setSim(*mcparticles[mcID]);
+            assoc.setSim((*mcparticles)[mcID]);
         }
 
         // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
         // if a matching cluster is available
         m_log->debug("Step 2/2: Creating neutrals for remaining clusters...");
         for (const auto &[mcID, clus]: clusterMap) {
-            m_log->debug(" --> Processing unmatched cluster with energy: {}", clus->getEnergy());
+            m_log->debug(" --> Processing unmatched cluster with energy: {}", clus.getEnergy());
 
 
             // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
-            const auto &mc = mcparticles[mcID];
-            const double mass = (!mc->getCharge()) ? mc->getMass() : 0;
-            const int32_t pdg = (!mc->getCharge()) ? mc->getPDG() : 0;
+            const auto mc = (*mcparticles)[mcID];
+            const double mass = (!mc.getCharge()) ? mc.getMass() : 0;
+            const int32_t pdg = (!mc.getCharge()) ? mc.getPDG() : 0;
             if (m_log->level() <= spdlog::level::debug) {
-                if (mc->getCharge()) {
+                if (mc.getCharge()) {
                     m_log->debug("   --> associated mcparticle is not a neutral (PDG: {}), "
-                                 "setting the reconstructed particle ID to 0 (unidentified)", mc->getPDG());
+                                 "setting the reconstructed particle ID to 0 (unidentified)", mc.getPDG());
                 }
                 m_log->debug("   --> found matching associated mcparticle with PDG: {}, energy: {}", pdg,
-                             mc->getEnergy());
+                             mc.getEnergy());
             }
 
             // Reconstruct our neutrals and add them to the list
-            const auto outpart = reconstruct_neutral(clus, mass, pdg);
+            const auto outpart = reconstruct_neutral(&clus, mass, pdg);
             m_log->debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
                          outpart.getEnergy());
 
@@ -129,7 +129,7 @@ namespace eicrecon {
             assoc.setSimID(mcID);
             assoc.setWeight(1.0);
             assoc.setRec(outpart);
-            assoc.setSim(*mcparticles[mcID]);
+            assoc.setSim((*mcparticles)[mcID]);
         }
 
         return {outparts, outpartsassoc};
@@ -139,16 +139,16 @@ namespace eicrecon {
 
     // get a map of mcID --> cluster
     // input: cluster_collections --> list of handles to all cluster collections
-    std::map<int, const edm4eic::Cluster*> MatchClusters::indexedClusters(
-            const std::vector<std::vector<const edm4eic::Cluster*>> &cluster_collections,
-            const std::vector<std::vector<const edm4eic::MCRecoClusterParticleAssociation*>> &associations_collections) {
-        std::map<int, const edm4eic::Cluster*> matched = {};
+    std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
+            const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
+            const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &associations_collections) {
+        std::map<int, edm4eic::Cluster> matched = {};
 
         // loop over cluster collections
         for (const auto &clusters: cluster_collections) {
 
             // loop over clusters
-            for (const auto &cluster: clusters) {
+            for (const auto cluster: *clusters) {
 
                 int mcID = -1;
 
@@ -156,9 +156,9 @@ namespace eicrecon {
                 for (const auto &associations: associations_collections) {
 
                     // find associated particle
-                    for (const auto &assoc: associations) {
-                        if (assoc->getRec() == *cluster) {
-                            mcID = assoc->getSimID();
+                    for (const auto assoc: *associations) {
+                        if (assoc.getRec() == cluster) {
+                            mcID = assoc.getSimID();
                             break;
                         }
                     }
@@ -169,7 +169,7 @@ namespace eicrecon {
                     }
                 }
 
-                m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster->getEnergy());
+                m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
 
                 if (mcID < 0) {
                     m_log->trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
@@ -180,7 +180,7 @@ namespace eicrecon {
                 if (duplicate) {
                     m_log->trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
 
-                    if (cluster->getEnergy() < matched[mcID]->getEnergy()) {
+                    if (cluster.getEnergy() < matched[mcID].getEnergy()) {
                         continue;
                     }
                 }

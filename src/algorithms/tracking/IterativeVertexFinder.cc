@@ -4,30 +4,30 @@
 
 #include "IterativeVertexFinder.h"
 
-#include "Acts/Definitions/Algebra.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
-#include "Acts/Vertexing/HelicalTrackLinearizer.hpp"
-#include "Acts/Vertexing/ImpactPointEstimator.hpp"
-#include "Acts/Vertexing/IterativeVertexFinder.hpp"
-#include "Acts/Vertexing/LinearizedTrack.hpp"
-#include "Acts/Vertexing/Vertex.hpp"
-#include "Acts/Vertexing/VertexFinderConcept.hpp"
-#include "Acts/Vertexing/VertexingOptions.hpp"
-#include "Acts/Vertexing/ZScanVertexFinder.hpp"
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
+#include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
+#include <Acts/Vertexing/ImpactPointEstimator.hpp>
+#include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include <Acts/Vertexing/LinearizedTrack.hpp>
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/VertexFinderConcept.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
+#include <Acts/Vertexing/ZScanVertexFinder.hpp>
 
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Vertex.h>
 
-#include <extensions/spdlog/SpdlogFormatters.h>
-#include <extensions/spdlog/SpdlogToActs.h>
+#include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 #include <TDatabasePDG.h>
 #include <tuple>
@@ -44,10 +44,10 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const eicrecon::TrackingResultTrajectory*> trajectories) {
+std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
+    std::vector<const ActsExamples::Trajectories*> trajectories) {
 
-  std::vector<edm4eic::Vertex*> outputVertices;
+  auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
@@ -60,9 +60,8 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
 
   Acts::EigenStepper<> stepper(m_BField);
   auto propagator = std::make_shared<Propagator>(stepper);
-  auto logLevel   = eicrecon::SpdlogToActsLevel(m_geoSvc->getActsRelatedLogger()->level());
 
-  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKFTracking Logger", logLevel));
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
 
   // Setup the vertex fitter
@@ -107,19 +106,19 @@ std::vector<edm4eic::Vertex*> eicrecon::IterativeVertexFinder::produce(
     edm4eic::Cov3f cov(vtx.covariance()(0, 0), vtx.covariance()(1, 1), vtx.covariance()(2, 2),
                        vtx.covariance()(0, 1), vtx.covariance()(0, 2), vtx.covariance()(1, 2));
 
-    edm4eic::Vertex* eicvertex = new edm4eic::Vertex{
-        1,                              // boolean flag if vertex is primary vertex of event
-        (float)vtx.fitQuality().first,  // chi2
-        (float)vtx.fitQuality().second, // ndf
-        {(float)vtx.position().x(), (float)vtx.position().y(),
-         (float)vtx.position().z()}, // vtxposition
-        cov,                         // covariance
-        1,                           // algorithmtype
-        (float)vtx.time(),           // time
-    };
-
-    outputVertices.push_back(eicvertex);
+    auto eicvertex = outputVertices->create();
+    eicvertex.setPrimary(1);                                  // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2((float)vtx.fitQuality().first);         // chi2
+    eicvertex.setProbability((float)vtx.fitQuality().second); // ndf
+    eicvertex.setPosition({
+         (float)vtx.position().x(),
+         (float)vtx.position().y(),
+         (float)vtx.position().z()
+    }); // vtxposition
+    eicvertex.setPositionError(cov);                          // covariance
+    eicvertex.setAlgorithmType(1);                            // algorithmtype
+    eicvertex.setTime((float)vtx.time());                     // time
   }
 
-  return outputVertices;
+  return std::move(outputVertices);
 }

@@ -15,18 +15,19 @@
 
 #pragma once
 
-#include <services/geometry/dd4hep/JDD4hep_service.h>
 #include <TRandomGen.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <spdlog/spdlog.h>
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <cstddef>
 #include <functional>
 
 #include "PhotoMultiplierHitDigiConfig.h"
-#include <algorithms/interfaces/WithPodConfig.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -40,7 +41,7 @@ class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig
 public:
     PhotoMultiplierHitDigi() = default;
     ~PhotoMultiplierHitDigi(){}
-    void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
     PhotoMultiplierHitDigiResult AlgorithmProcess(
         const edm4hep::SimTrackerHitCollection* sim_hits
@@ -55,28 +56,14 @@ public:
       uint32_t                 npe;
       double                   signal;
       TimeType                 time;
-      dd4hep::Position         pos_local;
-      dd4hep::Position         pos_global;
       std::vector<std::size_t> sim_hit_indices;
     };
-
-    // transform global position `pos` to sensor `id` frame position
-    // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-    dd4hep::Position get_sensor_local_position(CellIDType id, dd4hep::Position pos);
 
     // random number generators
     TRandomMixMax m_random;
     std::function<double()> m_rngNorm;
     std::function<double()> m_rngUni;
     //Rndm::Numbers m_rngUni, m_rngNorm;
-
-    // convert dd4hep::Position <-> edm4hep::Vector3d
-    edm4hep::Vector3d pos2vec(dd4hep::Position p) {
-      return edm4hep::Vector3d( p.x()/dd4hep::mm, p.y()/dd4hep::mm, p.z()/dd4hep::mm );
-    }
-    dd4hep::Position vec2pos(edm4hep::Vector3d v) {
-      return dd4hep::Position( v.x*dd4hep::mm, v.y*dd4hep::mm, v.z*dd4hep::mm );
-    }
 
     // set `m_VisitAllRngPixels`, a visitor to run an action (type
     // `function<void(cellID)>`) on a selection of random CellIDs; must be
@@ -86,11 +73,26 @@ public:
         )
     { m_VisitRngCellIDs = visitor; }
 
+    // set `m_PixelGapMask`, which takes `cellID` and MC hit position, returning
+    // true if the hit position is on a pixel, or false if on a pixel gap; must be
+    // defined externally, since this would be detector-specific
+    void SetPixelGapMask(
+        std::function< bool(CellIDType, dd4hep::Position) > mask
+        )
+    { m_PixelGapMask = mask; }
+
 protected:
 
     // visitor of all possible CellIDs (set with SetVisitRngCellIDs)
     std::function< void(std::function<void(CellIDType)>, float) > m_VisitRngCellIDs =
       [] ( std::function<void(CellIDType)> visitor_action, float p ) { /* default no-op */ };
+
+    // pixel gap mask
+    std::function< bool(CellIDType, dd4hep::Position) > m_PixelGapMask =
+      [] (CellIDType cellID, dd4hep::Position pos_hit_global) {
+        throw std::runtime_error("pixel gap cuts enabled, but none defined");
+        return false;
+      };
 
 private:
 
@@ -100,16 +102,14 @@ private:
         CellIDType       id,
         double           amp,
         TimeType         time,
-        dd4hep::Position pos_hit_local,
-        dd4hep::Position pos_hit_global,
         std::size_t      sim_hit_index,
         bool             is_noise_hit = false
         );
 
-    dd4hep::Detector *m_detector   = nullptr;
+    const dd4hep::Detector* m_detector = nullptr;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
 
     std::shared_ptr<spdlog::logger> m_log;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
     // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1

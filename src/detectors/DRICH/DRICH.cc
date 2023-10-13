@@ -3,19 +3,21 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
-#include <extensions/jana/JChainFactoryGeneratorT.h>
-#include <extensions/jana/JChainMultifactoryGeneratorT.h>
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 // factories
-#include <global/digi/PhotoMultiplierHitDigi_factory.h>
-#include <global/pid/RichTrack_factory.h>
-#include <global/pid/MergeTrack_factory.h>
-#include <global/pid/IrtCherenkovParticleID_factory.h>
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "global/pid/RichTrack_factory.h"
+#include "global/pid/MergeTrack_factory.h"
+#include "global/pid/IrtCherenkovParticleID_factory.h"
+#include "global/pid/MergeCherenkovParticleID_factory.h"
 
 // algorithm configurations
-#include <algorithms/digi/PhotoMultiplierHitDigiConfig.h>
-#include <global/pid/RichTrackConfig.h>
-#include <algorithms/pid/IrtCherenkovParticleIDConfig.h>
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "global/pid/RichTrackConfig.h"
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "algorithms/pid/MergeParticleIDConfig.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -36,7 +38,6 @@ extern "C" {
     digi_cfg.pedMean         = 200.0;
     digi_cfg.pedError        = 3.0;
     digi_cfg.enablePixelGaps = true;
-    digi_cfg.pixelSize       = 3.0; // [mm]
     digi_cfg.safetyFactor    = 0.7;
     digi_cfg.enableNoise     = false;
     digi_cfg.noiseRate       = 20000; // [Hz]
@@ -65,7 +66,7 @@ extern "C" {
     // track propagation to each radiator
     RichTrackConfig track_cfg;
     track_cfg.numPlanes.insert({ "Aerogel", 5  });
-    track_cfg.numPlanes.insert({ "Gas",     30 });
+    track_cfg.numPlanes.insert({ "Gas",     10 });
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
@@ -86,8 +87,12 @@ extern "C" {
     // - PDG list
     irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { 11, 211, 321, 2212 });
     // - cheat modes
-    irt_cfg.cheatPhotonVertex  = true;
-    irt_cfg.cheatTrueRadiator  = true;
+    irt_cfg.cheatPhotonVertex  = false;
+    irt_cfg.cheatTrueRadiator  = false;
+
+    // Merge PID from radiators
+    MergeParticleIDConfig merge_cfg;
+    merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
 
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
@@ -104,7 +109,7 @@ extern "C" {
     // charged particle tracks
     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
-          {"CentralCKFTrajectories"},
+          {"CentralCKFActsTrajectories"},
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app
@@ -125,6 +130,13 @@ extern "C" {
           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
           irt_cfg,
           app
+          ));
+
+    // merge aerogel and gas PID results
+    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          "DRICHMergedIrtCherenkovParticleID",
+          merge_cfg
           ));
 
     // clang-format on

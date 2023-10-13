@@ -4,38 +4,25 @@
 
 #pragma once
 
-#include <random>
-
-#include <services/geometry/dd4hep/JDD4hep_service.h>
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/MutableProtoCluster.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <spdlog/spdlog.h>
 
+namespace eicrecon {
 
+  class CalorimeterTruthClustering {
 
-class CalorimeterTruthClustering {
-
-protected:
+  protected:
     // Insert any member variables here
     std::shared_ptr<spdlog::logger> m_log;
 
-public:
-    CalorimeterTruthClustering() = default;
-    ~CalorimeterTruthClustering(){} // better to use smart pointer?
-    virtual void AlgorithmInit(std::shared_ptr<spdlog::logger> &logger) ;
-    virtual void AlgorithmChangeRun() ;
-    virtual void AlgorithmProcess() ;
+  public:
+    void init(std::shared_ptr<spdlog::logger> &logger);
+    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
 
-    //-------- Configuration Parameters ------------
+  };
 
-  std::vector<const edm4eic::CalorimeterHit*> m_inputHits;//{"inputHits", Gaudi::DataHandle::Reader, this};
-  std::vector<const edm4hep::SimCalorimeterHit*> m_mcHits;//{"mcHits", Gaudi::DataHandle::Reader, this};
-
-  std::vector<edm4eic::ProtoCluster*> m_outputProtoClusters;//{"outputProtoClusters", Gaudi::DataHandle::Writer, this};
-
-private:
-
-};
+} // namespace eicrecon

@@ -4,9 +4,10 @@
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
-#include <string>
 #include <functional>
+#include <gsl/gsl>
 #include <spdlog/spdlog.h>
+#include <string>
 
 // DD4Hep
 #include <DD4hep/Detector.h>
@@ -15,20 +16,20 @@
 // data model
 #include <edm4eic/TrackPoint.h>
 
-// ACTS
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/RadialBounds.hpp>
-
 // local
 #include "RichGeo.h"
+
+// Forward declarations
+namespace Acts {
+  class Surface;
+}
 
 namespace richgeo {
   class ActsGeo {
     public:
 
       // constructor and destructor
-      ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_);
+      ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, std::shared_ptr<spdlog::logger> log_);
       ~ActsGeo() {}
 
       // generate list ACTS disc surfaces, for a given radiator
@@ -40,7 +41,7 @@ namespace richgeo {
     protected:
 
       std::string                     m_detName;
-      dd4hep::Detector                *m_det;
+      gsl::not_null<const dd4hep::Detector*> m_det;
       std::shared_ptr<spdlog::logger> m_log;
 
     private:

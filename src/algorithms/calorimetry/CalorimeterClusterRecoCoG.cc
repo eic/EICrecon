@@ -3,7 +3,7 @@
 
 /*
  *  Reconstruct the cluster with Center of Gravity method
- *  Logarithmic weighting is used for mimicing energy deposit in transverse direction
+ *  Logarithmic weighting is used for mimicking energy deposit in transverse direction
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
@@ -11,9 +11,9 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fmt/format.h>
 #include <map>
+#include <optional>
 #include <Eigen/Dense>
 
-#include <JANA/JEvent.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/MCParticle.h>
 
@@ -28,7 +28,7 @@ namespace eicrecon {
     m_detector = detector;
 
     // update depth correction if a name is provided
-    if (m_cfg.moduleDimZName != "") {
+    if (!m_cfg.moduleDimZName.empty()) {
       m_cfg.depthCorrection = m_detector->constantAsDouble(m_cfg.moduleDimZName);
     }
 
@@ -53,13 +53,20 @@ namespace eicrecon {
     auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
 
     for (const auto& pcl : *proto) {
-      auto cl = reconstruct(pcl);
 
-      // skip null clusters
-      if (cl == nullptr) continue;
+      // skip protoclusters with no hits
+      if (pcl.hits_size() == 0) {
+        continue;
+      }
 
-      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl->getNhits(), cl->getEnergy() / dd4hep::GeV, cl->getPosition().x / dd4hep::mm, cl->getPosition().y / dd4hep::mm, cl->getPosition().z / dd4hep::mm);
-      clusters->push_back(*cl);
+      auto cl_opt = reconstruct(pcl);
+      if (! cl_opt.has_value()) {
+        continue;
+      }
+      auto cl = *std::move(cl_opt);
+
+      m_log->debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
+      clusters->push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
       // 1. find proto-cluster hit with largest energy deposition
@@ -125,10 +132,10 @@ namespace eicrecon {
 
         // set association
         auto clusterassoc = associations->create();
-        clusterassoc.setRecID(cl->getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
         clusterassoc.setSimID(mcp.getObjectID().index);
         clusterassoc.setWeight(1.0);
-        clusterassoc.setRec(*cl);
+        clusterassoc.setRec(cl);
         clusterassoc.setSim(mcp);
       } else {
         m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
@@ -139,7 +146,7 @@ namespace eicrecon {
 }
 
 //------------------------------------------------------------------------
-edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
+std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 
@@ -147,7 +154,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
 
   // no hits
   if (pcl.hits_size() == 0) {
-    return nullptr;
+    return {};
   }
 
   // calculate total energy, find the cell with the maximum energy deposit
@@ -192,6 +199,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   }
   if (tw == 0.) {
     m_log->warn("zero total weights encountered, you may want to adjust your weighting parameter.");
+    return {};
   }
   cl.setPosition(v / tw);
   cl.setPositionError({}); // @TODO: Covariance matrix
@@ -221,9 +229,9 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   //_______________________________________
   // Calculate cluster profile:
   //    radius,
-  //   	dispersion (energy weighted radius),
+  //    dispersion (energy weighted radius),
   //    theta-phi cluster widths (2D)
-  //   	x-y-z cluster widths (3D)
+  //    x-y-z cluster widths (3D)
   float radius = 0, dispersion = 0, w_sum = 0;
 
   Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
@@ -291,7 +299,7 @@ edm4eic::Cluster* CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoClu
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
 
-  return new edm4eic::Cluster(cl);
+  return std::move(cl);
 }
 
 } // eicrecon
