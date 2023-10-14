@@ -98,9 +98,6 @@ private:
     /// ACTS Tracking Geometry
     std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
 
-    /// ACTS Material Decorator
-    std::shared_ptr<const Acts::IMaterialDecorator> m_materialDeco{nullptr};
-
     /// ACTS surface lookup container for hit surfaces that generate smeared hits
     VolumeSurfaceMap m_surfaces;
 
