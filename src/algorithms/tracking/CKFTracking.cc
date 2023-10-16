@@ -56,6 +56,7 @@ namespace eicrecon {
 
     void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log) {
         m_log = log;
+        m_acts_logger = eicrecon::getSpdlogLogger("CKF", m_log);
 
         m_geoSvc = geo_svc;
 
@@ -70,7 +71,7 @@ namespace eicrecon {
                  }
                 },
         };
-        m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField);
+        m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
     }
 
     std::tuple<
@@ -155,7 +156,7 @@ namespace eicrecon {
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log, {"^No tracks found$"}));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKF", m_log, {"^No tracks found$"}));
 
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
@@ -187,7 +188,7 @@ namespace eicrecon {
         // Set the CombinatorialKalmanFilter options
         CKFTracking::TrackFinderOptions options(
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                extensions, Acts::LoggerWrapper{logger()}, pOptions, &(*pSurface));
+                extensions, pOptions, &(*pSurface));
 
         // Create track container
         auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();

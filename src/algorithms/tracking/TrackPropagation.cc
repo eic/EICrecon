@@ -203,9 +203,9 @@ namespace eicrecon {
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
-        Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
+        Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
 
         auto result = propagator.propagate(initial_bound_parameters, *targetSurf, options);
 

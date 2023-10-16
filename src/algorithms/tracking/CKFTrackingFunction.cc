@@ -61,7 +61,8 @@ namespace eicrecon {
   std::shared_ptr<CKFTracking::CKFTrackingFunction>
   CKFTracking::makeCKFTrackingFunction(
       std::shared_ptr<const Acts::TrackingGeometry>      trackingGeometry,
-      std::shared_ptr<const Acts::MagneticFieldProvider> magneticField)
+      std::shared_ptr<const Acts::MagneticFieldProvider> magneticField,
+      const Acts::Logger& logger)
   {
     Stepper   stepper(std::move(magneticField));
     Navigator::Config cfg{trackingGeometry};
@@ -71,7 +72,7 @@ namespace eicrecon {
     Navigator navigator(cfg);
 
     Propagator propagator(std::move(stepper), std::move(navigator));
-    CKF        trackFinder(std::move(propagator));
+    CKF        trackFinder(std::move(propagator), logger.cloneWithSuffix("CKF"));
 
     // build the track finder functions. owns the track finder object.
     return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));

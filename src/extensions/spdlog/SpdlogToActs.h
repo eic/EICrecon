@@ -136,11 +136,14 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
+    const std::string& name,
     std::shared_ptr<spdlog::logger> log,
     std::vector<std::string> suppressions = {}) {
 
   const Acts::Logging::Level lvl = SpdlogToActsLevel(log->level());
-  auto output = std::make_unique<SpdlogPrintPolicy>(log, suppressions);
+  auto output = std::make_unique<Acts::Logging::NamedOutputDecorator>(
+      std::make_unique<SpdlogPrintPolicy>(log, suppressions),
+      name);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }

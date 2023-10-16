@@ -65,7 +65,8 @@ namespace eicrecon {
         /// contains shared_ptr anyways.
         static std::shared_ptr<CKFTrackingFunction> makeCKFTrackingFunction(
                 std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
-                std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
+                std::shared_ptr<const Acts::MagneticFieldProvider> magneticField,
+                const Acts::Logger& logger);
 
         CKFTracking();
 
@@ -82,6 +83,7 @@ namespace eicrecon {
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
+        std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
@@ -91,6 +93,9 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+
+        /// Private access to the logging instance
+        const Acts::Logger& logger() const { return *m_acts_logger; }
     };
 
 } // namespace eicrecon::Reco

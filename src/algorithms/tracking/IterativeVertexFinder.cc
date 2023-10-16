@@ -51,11 +51,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
 
-  Acts::EigenStepper<> stepper(m_BField);
-  auto propagator = std::make_shared<Propagator>(stepper);
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("IVF", m_log));
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
-  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
+  Acts::EigenStepper<> stepper(m_BField);
+
+  // Set up propagator with void navigator
+  auto propagator = std::make_shared<Propagator>(
+    stepper, Acts::detail::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
 
   // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
