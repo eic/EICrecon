@@ -259,7 +259,7 @@ namespace eicrecon {
             // get averge momentum direction of the track's TrackPoints
             decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
             for (const auto& in_track_point : in_track.getPoints())
-                in_track_p = in_track_p + ( in_track_point.momentum ); // FIXME / in_track.points_size() );
+                in_track_p = in_track_p + ( in_track_point.momentum / in_track.points_size() );
             auto in_track_eta = edm4hep::utils::eta(in_track_p);
             auto in_track_phi = edm4hep::utils::angleAzimuthal(in_track_p);
 
