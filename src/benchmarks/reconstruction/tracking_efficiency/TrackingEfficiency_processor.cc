@@ -4,6 +4,8 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/SingleBoundTrackParameters.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
@@ -26,7 +28,6 @@
 #include <string>
 #include <vector>
 
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"

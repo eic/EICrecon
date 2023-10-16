@@ -10,7 +10,7 @@
 
 #include "TrackProjector.h"
 #include "TrackProjector_factory.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/io/podio/JFactoryPodioT.h"
 

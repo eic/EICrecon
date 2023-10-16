@@ -9,11 +9,11 @@
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>

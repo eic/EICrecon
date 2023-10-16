@@ -20,6 +20,11 @@
 #include <Acts/TrackFitting/KalmanFitter.hpp>
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <ActsExamples/EventData/GeometryContainers.hpp>
+#include <ActsExamples/EventData/Measurement.hpp>
+#include <ActsExamples/EventData/Index.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -38,10 +43,6 @@
 #include <utility>
 #include <variant>
 
-#include "ActsExamples/EventData/GeometryContainers.hpp"
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Measurement.hpp"
-#include "ActsExamples/EventData/Track.hpp"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
