@@ -62,7 +62,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexFitter vertexFitter(vertexFitterCfg);
   // Setup the track linearizer
   Linearizer::Config linearizerCfg(m_BField, propagator);
-  Linearizer linearizer(linearizerCfg);
+  Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
   // Setup the seed finder
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagator);
   ImpactPointEstimator ipEst(ipEstCfg);
