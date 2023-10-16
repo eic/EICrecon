@@ -137,7 +137,9 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     }
 
     // Geometry identifier hook to write detector ID to extra field
-    Acts::GeometryIdentifierHook geometryIdHook = [](Acts::GeometryIdentifier identifier, const Acts::Surface& surface) {
+    class ConvertDD4hepDetectorGeometryIdentifierHook: public Acts::GeometryIdentifierHook {
+      Acts::GeometryIdentifier decorateIdentifier(
+          Acts::GeometryIdentifier identifier, const Acts::Surface& surface) const {
         const auto* dd4hep_det_element =
             dynamic_cast<const Acts::DD4hepDetectorElement*>(surface.associatedDetectorElement());
         if (dd4hep_det_element == nullptr) {
@@ -145,7 +147,9 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
         }
         // set 8-bit extra field to 8-bit DD4hep detector ID
         return identifier.setExtra(0xff & dd4hep_det_element->identifier());
+      };
     };
+    auto geometryIdHook = std::make_shared<ConvertDD4hepDetectorGeometryIdentifierHook>();
 
     // Convert DD4hep geometry to ACTS
     m_init_log->info("Converting DD4Hep geometry to ACTS...");
