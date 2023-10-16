@@ -22,6 +22,7 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/GeometryContainers.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
+#include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Index.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
@@ -162,14 +163,16 @@ namespace eicrecon {
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
 
-        ActsExamples::MeasurementCalibrator calibrator{*measurements};
+        ActsExamples::PassThroughCalibrator pcalibrator;
+        ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
         Acts::GainMatrixUpdater kfUpdater;
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
                 extensions;
-        extensions.calibrator.connect<&ActsExamples::MeasurementCalibrator::calibrate>(&calibrator);
+        extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
+                &calibrator);
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
                 &kfUpdater);
