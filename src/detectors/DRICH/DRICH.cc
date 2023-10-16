@@ -106,38 +106,38 @@ extern "C" {
           app
           ));
 
-    // charged particle tracks
-    app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
-          "DRICHTracks",
-          {"CentralCKFActsTrajectories"},
-          {"DRICHAerogelTracks", "DRICHGasTracks"},
-          track_cfg,
-          app
-          ));
-    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
-          {"DRICHAerogelTracks", "DRICHGasTracks"},
-          "DRICHMergedTracks"
-          ));
+//     // charged particle tracks
+//     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
+//           "DRICHTracks",
+//           {"CentralCKFActsTrajectories"},
+//           {"DRICHAerogelTracks", "DRICHGasTracks"},
+//           track_cfg,
+//           app
+//           ));
+//     app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+//           {"DRICHAerogelTracks", "DRICHGasTracks"},
+//           "DRICHMergedTracks"
+//           ));
 
-    // PID algorithm
-    app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          "DRICHIrtCherenkovParticleID",
-          {
-            "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
-            "DRICHRawHits",
-            "DRICHRawHitsAssociations"
-          },
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-          irt_cfg,
-          app
-          ));
+//     // PID algorithm
+//     app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
+//           "DRICHIrtCherenkovParticleID",
+//           {
+//             "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
+//             "DRICHRawHits",
+//             "DRICHRawHitsAssociations"
+//           },
+//           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+//           irt_cfg,
+//           app
+//           ));
 
-    // merge aerogel and gas PID results
-    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-          "DRICHMergedIrtCherenkovParticleID",
-          merge_cfg
-          ));
+//     // merge aerogel and gas PID results
+//     app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+//           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+//           "DRICHMergedIrtCherenkovParticleID",
+//           merge_cfg
+//           ));
 
     // clang-format on
   }

@@ -49,6 +49,9 @@ namespace eicrecon {
                                 std::shared_ptr<spdlog::logger> logger) {
         m_geoSvc = geo_svc;
         m_log = logger;
+  // std::string log_level_str = "trace";//"debug";
+          m_log->set_level(spdlog::level::trace);
+
         m_log->trace("Initialized");
     }
 

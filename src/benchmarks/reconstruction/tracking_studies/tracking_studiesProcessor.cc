@@ -156,7 +156,7 @@ void tracking_studiesProcessor::InitWithGlobalRootLock() {
 //-------------------------------------------
 void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
   using namespace std;
-  int verbose = 0;
+  int verbose = 10;
   nEventsFilled++;
   // cout << "tracking_studiesProcessor::ProcessSequential" << endl;
   double mceta = 0;
@@ -214,9 +214,11 @@ void tracking_studiesProcessor::ProcessSequential(const std::shared_ptr<const JE
         //     const auto &trackTips = traj->tips();
 
   // auto acts_results = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories");
-  auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  // auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFSeededActsTrajectories");
   // auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
   m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
+  if(verbose) cout << "number of tracks: " << std::size(acts_results) << endl;
   // m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
   //              "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
   //              "[chi2]");
