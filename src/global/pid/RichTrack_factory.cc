@@ -71,9 +71,17 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
+  // FIXME this factory should use podio collections
+
+  auto input_tags = GetInputTags();
+
+  // collect tracks from first input tag
+  auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags().back());
+  input_tags.pop_back();
+
   // collect all trajectories from all input tags
   std::vector<const ActsExamples::Trajectories*> trajectories;
-  for(const auto& input_tag : GetInputTags()) {
+  for(const auto& input_tag : input_tags) {
     try {
       for(const auto traj : event->Get<ActsExamples::Trajectories>(input_tag))
         trajectories.push_back(traj);

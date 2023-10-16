@@ -39,6 +39,7 @@ namespace eicrecon {
             DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
             DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
             DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
+            DeclareOutput<ActsExamples::ConstTrackContainer>(GetOutputTags()[3]);
 
         }
 

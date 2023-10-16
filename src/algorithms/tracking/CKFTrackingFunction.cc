@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -19,31 +21,36 @@
 #include "CKFTracking.h"
 
 namespace eicrecon{
+
   using Updater  = Acts::GainMatrixUpdater;
   using Smoother = Acts::GainMatrixSmoother;
 
   using Stepper    = Acts::EigenStepper<>;
   using Navigator  = Acts::Navigator;
   using Propagator = Acts::Propagator<Stepper, Navigator>;
+
   using CKF =
       Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
+
+  using TrackContainer =
+      Acts::TrackContainer<Acts::VectorTrackContainer,
+                           Acts::VectorMultiTrajectory, std::shared_ptr>;
 
   /** Finder implementation .
    *
    * \ingroup track
    */
   struct CKFTrackingFunctionImpl
-: public eicrecon::CKFTracking::CKFTrackingFunction {
+      : public eicrecon::CKFTracking::CKFTrackingFunction {
     CKF trackFinder;
 
     CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
-    eicrecon::CKFTracking::TrackFinderResult
-    operator()(const ActsExamples::TrackParametersContainer& initialParameters,
-               const eicrecon::CKFTracking::TrackFinderOptions& options)
-               const override
-    {
-        return trackFinder.findTracks(initialParameters, options);
+    eicrecon::CKFTracking::TrackFinderResult operator()(
+        const ActsExamples::TrackParameters& initialParameters,
+        const eicrecon::CKFTracking::TrackFinderOptions& options,
+        TrackContainer& tracks) const override {
+      return trackFinder.findTracks(initialParameters, options, tracks);
     };
   };
 

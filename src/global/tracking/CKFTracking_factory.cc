@@ -54,7 +54,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
 
     try {
         // RUN TRACKING ALGORITHM
-        auto [trajectories, track_parameters, acts_trajectories] = m_tracking_algo.process(
+        auto [trajectories, track_parameters, acts_trajectories, acts_tracks] = m_tracking_algo.process(
                 *meas2Ds,
                 *seed_track_parameters);
 
@@ -62,6 +62,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         SetCollection<edm4eic::Trajectory>(GetOutputTags()[0], std::move(trajectories));
         SetCollection<edm4eic::TrackParameters>(GetOutputTags()[1], std::move(track_parameters));
         SetData<ActsExamples::Trajectories>(GetOutputTags()[2], std::move(acts_trajectories));
+        SetData<ActsExamples::ConstTrackContainer>(GetOutputTags()[3], std::move(acts_tracks));
     }
     catch(std::exception &e) {
         throw JException(e.what());

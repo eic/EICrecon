@@ -52,6 +52,7 @@ void eicrecon::TrackPropagation_factory::Init() {
 void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
+    auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags()[1]);
 
     edm4eic::TrackSegmentCollection propagated_tracks;
 

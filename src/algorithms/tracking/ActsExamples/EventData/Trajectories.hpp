@@ -1,17 +1,22 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong
+// This file is part of the Acts project.
+//
+// Copyright (C) 2019-2020 CERN for the benefit of the Acts project
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #pragma once
 
-#include <Acts/EventData/MultiTrajectory.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include "IndexSourceLink.hpp"
-#include "Track.hpp"
+#include "Acts/EventData/MultiTrajectory.hpp"
+#include "Acts/EventData/VectorMultiTrajectory.hpp"
+#include "Acts/Utilities/ThrowAssert.hpp"
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
 
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
-
 
 namespace ActsExamples {
 
@@ -25,7 +30,7 @@ namespace ActsExamples {
 struct Trajectories final {
  public:
   /// (Reconstructed) trajectory with multiple states.
-  using MultiTrajectory = Acts::VectorMultiTrajectory;
+  using MultiTrajectory = Acts::ConstVectorMultiTrajectory;
   /// Fitted parameters identified by indices in the multi trajectory.
   using IndexedParameters =
       std::unordered_map<Acts::MultiTrajectoryTraits::IndexType,
@@ -37,12 +42,12 @@ struct Trajectories final {
   /// Construct from fitted multi trajectory and parameters.
   ///
   /// @param multiTraj The multi trajectory
-  /// @param tTips Tip indices that identify valid trajectories
+  /// /// @param tTips Tip indices that identify valid trajectories
   /// @param parameters Fitted track parameters indexed by trajectory index
-  Trajectories(std::shared_ptr<MultiTrajectory> multiTraj,
-                           const std::vector<Acts::MultiTrajectoryTraits::IndexType>& tTips,
-                           const IndexedParameters& parameters)
-      : m_multiTrajectory(std::move(multiTraj)),
+  Trajectories(const MultiTrajectory& multiTraj,
+               const std::vector<Acts::MultiTrajectoryTraits::IndexType>& tTips,
+               const IndexedParameters& parameters)
+      : m_multiTrajectory(&multiTraj),
         m_trackTips(tTips),
         m_trackParameters(parameters) {}
 
@@ -50,7 +55,10 @@ struct Trajectories final {
   bool empty() const { return m_trackTips.empty(); }
 
   /// Access the underlying multi trajectory.
-  const MultiTrajectory& multiTrajectory() const { return *m_multiTrajectory; }
+  const MultiTrajectory& multiTrajectory() const {
+    throw_assert(m_multiTrajectory != nullptr, "MultiTrajectory is null");
+    return *m_multiTrajectory;
+  }
 
   /// Access the tip indices that identify valid trajectories.
   const std::vector<Acts::MultiTrajectoryTraits::IndexType>& tips() const {
@@ -90,8 +98,8 @@ struct Trajectories final {
   }
 
  private:
-  // The multiTrajectory
-  std::shared_ptr<MultiTrajectory> m_multiTrajectory;
+  // The track container
+  const MultiTrajectory* m_multiTrajectory{nullptr};
   // The entry indices of trajectories stored in multiTrajectory
   std::vector<Acts::MultiTrajectoryTraits::IndexType> m_trackTips = {};
   // The fitted parameters at the provided surface for individual trajectories
@@ -101,4 +109,4 @@ struct Trajectories final {
 /// Container for multiple trajectories.
 using TrajectoriesContainer = std::vector<Trajectories>;
 
-} // namespace ActsExamples
+}  // namespace ActsExamples

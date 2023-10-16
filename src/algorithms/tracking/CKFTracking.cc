@@ -76,7 +76,8 @@ namespace eicrecon {
     std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
         std::unique_ptr<edm4eic::TrackParametersCollection>,
-        std::vector<ActsExamples::Trajectories*>
+        std::vector<ActsExamples::Trajectories*>,
+        std::vector<ActsExamples::ConstTrackContainer*>
     >
     CKFTracking::process(const edm4eic::Measurement2DCollection& meas2Ds,
                          const edm4eic::TrackParametersCollection &init_trk_params) {
@@ -151,9 +152,6 @@ namespace eicrecon {
         auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
         auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
 
-        std::vector<ActsExamples::Trajectories*> acts_trajectories;
-        acts_trajectories.reserve(init_trk_params.size());
-
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
@@ -191,147 +189,229 @@ namespace eicrecon {
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
                 extensions, Acts::LoggerWrapper{logger()}, pOptions, &(*pSurface));
 
-        auto results = (*m_trackFinderFunc)(acts_init_trk_params, options);
+        // Create track container
+        auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();
+        auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
+        // FIXME JANA2 std::vector<T*> requires wrapping TrackContainer, instead of:
+        //TrackContainer tracks(trackContainer, trackStateContainer);
+        std::vector<std::unique_ptr<ActsExamples::TrackContainer>> tracks_v;
+        tracks_v.push_back(
+          std::make_unique<ActsExamples::TrackContainer>(
+            trackContainer,
+            trackStateContainer));
+        auto& tracks = *(tracks_v.front().get());
 
+        // Add seed number column
+        tracks.addColumn<unsigned int>("seed");
+        Acts::TrackAccessor<unsigned int> seedNumber("seed");
+
+        // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
+            auto result =
+                (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, tracks);
 
-            auto &result = results[iseed];
-
-            if (result.ok()) {
-
-                // Get the track finding output object
-                auto &trackFindingOutput = result.value();
-
-                // Create a SimMultiTrajectory
-                auto* multiTrajectory = new ActsExamples::Trajectories(
-                    std::move(trackFindingOutput.fittedStates),
-                    std::move(trackFindingOutput.lastMeasurementIndices),
-                    std::move(trackFindingOutput.fittedParameters)
-                );
-
-                // Get the entry index for the single trajectory
-                // The trajectory entry indices and the multiTrajectory
-                const auto& mj        = multiTrajectory->multiTrajectory();
-                const auto& trackTips = multiTrajectory->tips();
-
-
-                if (trackTips.empty()) {
-                    m_log->debug("Empty multiTrajectory.");
-                    delete multiTrajectory;
-                    continue;
-                }
-
-                const auto& trackTip = trackTips.front();
-
-                // Collect the trajectory summary info
-                auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-
-                // Create trajectory
-                auto trajectory = trajectories->create();
-
-                trajectory.setChi2(trajectoryState.chi2Sum);
-                trajectory.setNdf(trajectoryState.NDF);
-                trajectory.setNMeasurements(trajectoryState.nMeasurements);
-                trajectory.setNStates(trajectoryState.nStates);
-                trajectory.setNOutliers(trajectoryState.nOutliers);
-                trajectory.setNHoles(trajectoryState.nHoles);
-                trajectory.setNSharedHits(trajectoryState.nSharedHits);
-
-                m_log->debug("trajectory state,measurement, outlier, hole: {} {} {} {}",trajectoryState.nStates,trajectoryState.nMeasurements,trajectoryState.nOutliers,trajectoryState.nHoles);
-
-                for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
-                    trajectory.addToMeasurementChi2(measurementChi2);
-                }
-
-                for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
-                    trajectory.addToOutlierChi2(outlierChi2);
-                }
-
-                // Get the fitted track parameter
-                //
-                if (multiTrajectory->hasTrackParameters(trackTip)) {
-
-                    const auto& boundParam = multiTrajectory->trackParameters(trackTip);
-                    const auto& parameter  = boundParam.parameters();
-                    const auto& covariance = *boundParam.covariance();
-
-                    edm4eic::MutableTrackParameters pars{
-                        0, // type: track head --> 0
-                        {
-                            static_cast<float>(parameter[Acts::eBoundLoc0]),
-                            static_cast<float>(parameter[Acts::eBoundLoc1])
-                        },
-                        {
-                            static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                            static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                            static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
-                        },
-                        static_cast<float>(parameter[Acts::eBoundTheta]),
-                        static_cast<float>(parameter[Acts::eBoundPhi]),
-                        static_cast<float>(parameter[Acts::eBoundQOverP]),
-                        {
-                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                            static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                            static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                            static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                            static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
-                        },
-                        static_cast<float>(parameter[Acts::eBoundTime]),
-                        sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))),
-                        static_cast<float>(boundParam.charge())};
-
-                    track_parameters->push_back(pars);
-                    trajectory.addToTrackParameters(pars);
-                }
-
-                // save measurement2d to good measurements or outliers according to srclink index
-                // fix me: ideally, this should be integrated into multitrajectoryhelper
-                // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
-                mj.visitBackwards(trackTip, [&](const auto& state){
-
-                    auto geoID = state.referenceSurface().geometryId().value();
-                    auto typeFlags = state.typeFlags();
-
-                    // find the associated hit (2D measurement) with state sourcelink index
-                    // fix me: calibrated or not?
-                    if(state.hasUncalibrated()){
-
-                        std::size_t srclink_index = state.uncalibrated().template get<ActsExamples::IndexSourceLink>().index();
-
-                        // no hit on this state/surface, skip
-                        if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-                            m_log->debug("No hit found on geo id={}", geoID);
-
-                        }else{
-                            auto meas2D = meas2Ds[srclink_index];
-                            if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-                                trajectory.addToMeasurementHits(meas2D);
-                                m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
-                                    geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                            }
-                            else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-                                trajectory.addToOutlierHits(meas2D);
-                                m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
-                                    geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                            }
-                        }
-                    }
-
-                });
-                acts_trajectories.push_back(std::move(multiTrajectory));
-
-            }else {
-
-                m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
-
+            if (!result.ok()) {
+                m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
+                continue;
             }
 
+            // Set seed number for all found tracks
+            auto& tracksForSeed = result.value();
+            for (auto& track : tracksForSeed) {
+                seedNumber(track) = iseed;
+            }
         }
 
-        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories));
+
+        // Move track states and track container to const containers
+        // NOTE Using the non-const containers leads to references to
+        // implicitly converted temporaries inside the Trajectories.
+        auto constTrackStateContainer =
+            std::make_shared<Acts::ConstVectorMultiTrajectory>(
+                std::move(*trackStateContainer));
+
+        auto constTrackContainer =
+            std::make_shared<Acts::ConstVectorTrackContainer>(
+                std::move(*trackContainer));
+
+        // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
+        //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
+        std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
+        constTracks_v.push_back(
+          new ActsExamples::ConstTrackContainer(
+            constTrackContainer,
+            constTrackStateContainer));
+        auto& constTracks = *(constTracks_v.front());
+
+        // Seed number column accessor
+        const Acts::ConstTrackAccessor<unsigned int> constSeedNumber("seed");
+
+
+        // Prepare the output data with MultiTrajectory, per seed
+        std::vector<ActsExamples::Trajectories*> acts_trajectories;
+        acts_trajectories.reserve(init_trk_params.size());
+
+        ActsExamples::Trajectories::IndexedParameters parameters;
+        std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
+
+        std::optional<unsigned int> lastSeed;
+        for (const auto& track : constTracks) {
+          if (!lastSeed) {
+            lastSeed = constSeedNumber(track);
+          }
+
+          if (constSeedNumber(track) != lastSeed.value()) {
+            // make copies and clear vectors
+            acts_trajectories.push_back(new ActsExamples::Trajectories(
+              constTracks.trackStateContainer(),
+              tips, parameters));
+
+            tips.clear();
+            parameters.clear();
+          }
+
+          lastSeed = constSeedNumber(track);
+
+          tips.push_back(track.tipIndex());
+          parameters.emplace(
+              std::pair{track.tipIndex(),
+                        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(),
+                                                      track.parameters(), track.covariance()}});
+        }
+
+        if (tips.empty()) {
+          m_log->info("Last trajectory is empty");
+        }
+
+        // last entry: move vectors
+        acts_trajectories.push_back(new ActsExamples::Trajectories(
+          constTracks.trackStateContainer(),
+          std::move(tips), std::move(parameters)));
+
+
+        // Loop over trajectories
+        for (const auto* traj : acts_trajectories) {
+          // The trajectory entry indices and the multiTrajectory
+          const auto& trackTips = traj->tips();
+          const auto& mj = traj->multiTrajectory();
+          if (trackTips.empty()) {
+            m_log->warn("Empty multiTrajectory.");
+            continue;
+          }
+
+          // Loop over all trajectories in a multiTrajectory
+          for (auto trackTip : trackTips) {
+            // Collect the trajectory summary info
+            auto trajectoryState =
+                Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+
+            // Check if the reco track has fitted track parameters
+            if (not traj->hasTrackParameters(trackTip)) {
+              m_log->warn(
+                  "No fitted track parameters for trajectory with entry index = {}",
+                  trackTip);
+              continue;
+            }
+
+            // Create trajectory
+            auto trajectory = trajectories->create();
+            trajectory.setChi2(trajectoryState.chi2Sum);
+            trajectory.setNdf(trajectoryState.NDF);
+            trajectory.setNMeasurements(trajectoryState.nMeasurements);
+            trajectory.setNStates(trajectoryState.nStates);
+            trajectory.setNOutliers(trajectoryState.nOutliers);
+            trajectory.setNHoles(trajectoryState.nHoles);
+            trajectory.setNSharedHits(trajectoryState.nSharedHits);
+
+            m_log->debug("trajectory state, measurement, outlier, hole: {} {} {} {}",
+                trajectoryState.nStates,
+                trajectoryState.nMeasurements,
+                trajectoryState.nOutliers,
+                trajectoryState.nHoles);
+
+            for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
+                trajectory.addToMeasurementChi2(measurementChi2);
+            }
+
+            for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
+                trajectory.addToOutlierChi2(outlierChi2);
+            }
+
+            // Get the fitted track parameter
+            const auto& boundParam = traj->trackParameters(trackTip);
+            const auto& parameter  = boundParam.parameters();
+            const auto& covariance = *boundParam.covariance();
+
+            edm4eic::MutableTrackParameters pars{
+                0, // type: track head --> 0
+                {
+                    static_cast<float>(parameter[Acts::eBoundLoc0]),
+                    static_cast<float>(parameter[Acts::eBoundLoc1])
+                },
+                {
+                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
+                    static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
+                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
+                },
+                static_cast<float>(parameter[Acts::eBoundTheta]),
+                static_cast<float>(parameter[Acts::eBoundPhi]),
+                static_cast<float>(parameter[Acts::eBoundQOverP]),
+                {
+                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
+                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
+                    static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
+                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
+                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
+                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
+                },
+                static_cast<float>(parameter[Acts::eBoundTime]),
+                sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))),
+                static_cast<float>(boundParam.charge())};
+
+            track_parameters->push_back(pars);
+            trajectory.addToTrackParameters(pars);
+
+            // save measurement2d to good measurements or outliers according to srclink index
+            // fix me: ideally, this should be integrated into multitrajectoryhelper
+            // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
+            mj.visitBackwards(trackTip, [&](const auto& state) {
+
+                auto geoID = state.referenceSurface().geometryId().value();
+                auto typeFlags = state.typeFlags();
+
+                // find the associated hit (2D measurement) with state sourcelink index
+                // fix me: calibrated or not?
+                if (state.hasUncalibrated()) {
+
+                    std::size_t srclink_index = state.uncalibrated().template get<ActsExamples::IndexSourceLink>().index();
+
+                    // no hit on this state/surface, skip
+                    if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+                        m_log->debug("No hit found on geo id={}", geoID);
+
+                    } else {
+                        auto meas2D = meas2Ds[srclink_index];
+                        if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+                            trajectory.addToMeasurementHits(meas2D);
+                            m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
+                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                        }
+                        else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+                            trajectory.addToOutlierHits(meas2D);
+                            m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
+                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                        }
+                    }
+                }
+
+            });
+
+          }
+        }
+
+        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories), std::move(constTracks_v));
     }
 
 } // namespace eicrecon
