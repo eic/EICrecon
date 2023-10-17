@@ -27,21 +27,6 @@ namespace richgeo {
       dd4hep::Direction surface_normZdir; //normal Z direction of surface
   };
 
-  // logging
-  // -----------------------------------------------------------------------
-  /* print an error using `spdlog`, if available, otherwise use `std::cerr`
-   * - this should only be called by static `richgeo` methods here, where we are not guaranteed to
-   *   have an instance of `spdlog::logger` available
-   */
-  template <typename... VALS>
-    static void PrintError(std::shared_ptr<spdlog::logger> m_log, std::string fmt_message, VALS... values) {
-      auto message = fmt::format(fmt_message, values...);
-      if(m_log!=nullptr)
-        m_log->error(message);
-      else
-        std::cerr << "ERROR: " << message << std::endl;
-    }
-
   // radiators
   // -----------------------------------------------------------------------
   /* in many places in the reconstruction, we need to track which radiator
@@ -54,37 +39,40 @@ namespace richgeo {
   };
 
   // return radiator name associated with index
-  static std::string RadiatorName(int num, std::shared_ptr<spdlog::logger> m_log=nullptr) {
+  static std::string RadiatorName(int num, std::shared_ptr<spdlog::logger> m_log = nullptr) {
     if(num==kAerogel)  return "Aerogel";
     else if(num==kGas) return "Gas";
     else {
-      PrintError(m_log, "unknown radiator number {}", num);
+      if (m_log) m_log->error("unknown radiator number {}", num);
+      else std::cerr << "ERROR: unknown radiator number " << num << std::endl;
       return "UNKNOWN_RADIATOR";
     }
   }
 
   // return radiator index associated with name
-  static int RadiatorNum(std::string name, std::shared_ptr<spdlog::logger> m_log=nullptr) {
+  static int RadiatorNum(std::string name, std::shared_ptr<spdlog::logger> m_log = nullptr) {
     if(name=="Aerogel")  return kAerogel;
     else if(name=="Gas") return kGas;
     else {
-      PrintError(m_log, "unknown radiator name {}", name);
+      if (m_log) m_log->error("unknown radiator name {}", name);
+      else std::cerr << "ERROR: unknown radiator name " << name << std::endl;
       return -1;
     }
   }
 
-  static int RadiatorNum(const char * name) {
-    return RadiatorNum(std::string(name));
+  static int RadiatorNum(const char * name, std::shared_ptr<spdlog::logger> m_log = nullptr) {
+    return RadiatorNum(std::string(name), m_log);
   }
 
   // search string `input` for a radiator name; return corresponding index
-  static int ParseRadiatorName(std::string input, std::shared_ptr<spdlog::logger> m_log=nullptr) {
+  static int ParseRadiatorName(std::string input, std::shared_ptr<spdlog::logger> m_log = nullptr) {
     if      (input.find("aerogel")!=std::string::npos) return kAerogel;
     else if (input.find("Aerogel")!=std::string::npos) return kAerogel;
     else if (input.find("gas")!=std::string::npos)     return kGas;
     else if (input.find("Gas")!=std::string::npos)     return kGas;
     else {
-      PrintError(m_log, "failed to parse '{}' for radiator name", input);
+      if (m_log) m_log->error("failed to parse '{}' for radiator name", input);
+      else std::cerr << "ERROR: failed to parse '" << input << "' for radiator name" << std::endl;
       return -1;
     }
   }

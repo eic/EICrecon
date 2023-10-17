@@ -29,7 +29,7 @@ macro(plugin_add _name)
     find_package(spdlog REQUIRED)
 
     # include fmt by default
-    find_package(fmt REQUIRED)
+    find_package(fmt 9.0.0 REQUIRED)
 
     # include gsl by default
     find_package(Microsoft.GSL CONFIG)

@@ -12,7 +12,7 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
   std::string log_level_str = "info";
   m_app->SetDefaultParameter("richgeo:LogLevel", log_level_str, "Log level for RichGeo_service");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-  m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
+  m_log->debug("RichGeo log level is set to {} ({})", log_level_str, fmt::underlying(m_log->level()));
 
   // DD4Hep geometry service
   auto dd4hep_service = srv_locator->get<DD4hep_service>();

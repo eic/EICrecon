@@ -113,7 +113,7 @@ add_compile_definitions(HAVE_PODIO)
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP REQUIRED)
+find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
 # Guidelines Support Library
