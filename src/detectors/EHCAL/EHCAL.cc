@@ -42,7 +42,7 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
             .thresholdValue = 1.0,
-            .sampFrac = 0.0096,
+            .sampFrac = 0.998,
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
@@ -52,8 +52,7 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
-            /////.refs = {1, 0},
-            .refs = {1, 2},
+            .refs = {1, 0},
           },
           app   // TODO: Remove me once fixed
         ));
