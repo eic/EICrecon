@@ -204,7 +204,7 @@ namespace eicrecon {
                 // The trajectory entry indices and the multiTrajectory
                 const auto& mj        = multiTrajectory->multiTrajectory();
                 const auto& trackTips = multiTrajectory->tips();
-                // const auto& states    = multiTrajectory->states(); // can't find corresponding function anywhere 
+                // const auto& states    = multiTrajectory->states(); // can't find corresponding function anywhere
 
 
                 if (trackTips.empty()) {
@@ -297,7 +297,7 @@ namespace eicrecon {
                             m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
                                 geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
-                        } 
+                        }
                         else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
                             trajectory.addToOutlierHits(meas2D);
                             m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
@@ -308,7 +308,7 @@ namespace eicrecon {
                 });
                 acts_trajectories.push_back(std::move(multiTrajectory));
             }
-            
+
          else {
 
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
