@@ -10,7 +10,7 @@
 
 #include "factories/tracking/TrackerHitCollector_factory.h"
 
-#include "TrackerSourceLinker_factory.h"
+#include "TrackerMeasurement_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "CKFTracking_factory.h"
 #include "TrackSeeding_factory.h"
@@ -48,14 +48,17 @@ void InitPlugin(JApplication *app) {
         app));
 
     // Source linker
-    app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-            {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
+    // app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
+    //         {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
+    app->Add(new JChainFactoryGeneratorT<TrackerMeasurement_factory>(
+            {"CentralTrackingRecHits"}, "CentralTrackerMeasurements"));
 
     app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFTrajectories",
         {
             "InitTrackParams",
-            "CentralTrackerSourceLinker"
+            "CentralTrackerMeasurements"
+            // "CentralTrackerSourceLinker"
         },
         {
             "CentralCKFTrajectories",
@@ -72,7 +75,8 @@ void InitPlugin(JApplication *app) {
         "CentralCKFSeededTrajectories",
         {
             "CentralTrackSeedingResults",
-            "CentralTrackerSourceLinker"
+            "CentralTrackerMeasurements"
+            // "CentralTrackerSourceLinker"
         },
         {
             "CentralCKFSeededTrajectories",

@@ -45,6 +45,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // All tracking hits combined
             "CentralTrackingRecHits",
             "CentralTrackSeedingResults",
+            "CentralTrackerMeasurement",
 
             // Si tracker hits
             "SiBarrelTrackerRecHits",
@@ -152,6 +153,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapNClusterAssociations",
+            "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
+            "HcalEndcapPRecHits",
+            "HcalEndcapPMergedHits",
+            "HcalEndcapPTruthClusters",
+            "HcalEndcapPTruthClusterAssociations",
+            "HcalEndcapPClusters",
+            "HcalEndcapPClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",

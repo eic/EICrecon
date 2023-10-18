@@ -16,6 +16,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <spdlog/logger.h>
 
 #include <Acts/Definitions/Common.hpp>
@@ -72,8 +73,7 @@ namespace eicrecon {
             std::unique_ptr<edm4eic::TrackParametersCollection>,
             std::vector<ActsExamples::Trajectories*>
         >
-        process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                const ActsExamples::MeasurementContainer &measurements,
+        process(const edm4eic::Measurement2DCollection& meas2Ds,
                 const edm4eic::TrackParametersCollection &init_trk_params);
 
     private:

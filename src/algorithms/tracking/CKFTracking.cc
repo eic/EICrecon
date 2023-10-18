@@ -41,6 +41,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 
 #include <spdlog/fmt/ostr.h>
 
@@ -75,9 +76,39 @@ namespace eicrecon {
         std::unique_ptr<edm4eic::TrackParametersCollection>,
         std::vector<ActsExamples::Trajectories*>
     >
-    CKFTracking::process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                         const ActsExamples::MeasurementContainer &measurements,
+    CKFTracking::process(const edm4eic::Measurement2DCollection& meas2Ds,
                          const edm4eic::TrackParametersCollection &init_trk_params) {
+
+        // auto src_links    = std::vector<std::shared_ptr<ActsExamples::IndexSourceLink>>();
+
+        // create sourcelink and measurement containers
+        auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
+        ActsExamples::IndexSourceLinkContainer src_links;
+
+        std::size_t  hit_index = 0;
+        for (const auto& meas2D : meas2Ds) {
+            // Create source links
+            auto sourceLink = std::make_shared<ActsExamples::IndexSourceLink>(meas2D.getSurface(), hit_index);
+            // src_links.emplace_back(sourceLink);
+            src_links.emplace_hint(src_links.end(), *sourceLink);
+
+            // Create ACTS measurements
+            Acts::Vector2 loc = Acts::Vector2::Zero();
+            auto pos_x = meas2D.getLoc().a;
+            auto pos_y = meas2D.getLoc().b;
+            loc[Acts::eBoundLoc0] = pos_x;
+            loc[Acts::eBoundLoc1] = pos_y;
+
+
+            Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
+            cov(0, 0) = meas2D.getCovariance().xx;
+            cov(1, 1) = meas2D.getCovariance().yy;
+
+            auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+            measurements->emplace_back(std::move(measurement));
+
+            hit_index++;
+        }
 
         ActsExamples::TrackParametersContainer acts_init_trk_params;
         for (const auto& track_parameter: init_trk_params) {
@@ -121,7 +152,7 @@ namespace eicrecon {
         Acts::PropagatorPlainOptions pOptions;
         pOptions.maxSteps = 10000;
 
-        ActsExamples::MeasurementCalibrator calibrator{measurements};
+        ActsExamples::MeasurementCalibrator calibrator{*measurements};
         Acts::GainMatrixUpdater kfUpdater;
         Acts::GainMatrixSmoother kfSmoother;
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
@@ -173,6 +204,9 @@ namespace eicrecon {
                 // The trajectory entry indices and the multiTrajectory
                 const auto& mj        = multiTrajectory->multiTrajectory();
                 const auto& trackTips = multiTrajectory->tips();
+                // const auto& states    = multiTrajectory->states(); // can't find corresponding function anywhere 
+
+
                 if (trackTips.empty()) {
                     m_log->debug("Empty multiTrajectory.");
                     delete multiTrajectory;
@@ -194,6 +228,7 @@ namespace eicrecon {
                 trajectory.setNOutliers(trajectoryState.nOutliers);
                 trajectory.setNHoles(trajectoryState.nHoles);
                 trajectory.setNSharedHits(trajectoryState.nSharedHits);
+
 
                 for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
                     trajectory.addToMeasurementChi2(measurementChi2);
@@ -241,9 +276,40 @@ namespace eicrecon {
                     trajectory.addToTrackParameters(pars);
                 }
 
-                acts_trajectories.push_back(std::move(multiTrajectory));
+                // save measurement2d to good measurements or outliers according to srclink index
+                // fix me: ideally, this should be integrated into multitrajectoryhelper
+                // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
+                mj.visitBackwards(trackTip, [&](const auto& state){
+                    auto geoID = state.referenceSurface().geometryId().value();
+                    auto typeFlags = state.typeFlags();
 
-            } else {
+                    // no hit on this state/surface, skip
+                    if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+                        m_log->debug("No hit found on geo id={}", geoID);
+                    }
+                    else{
+                        // find the associated hit (2D measurement) with sourcelink index
+                        std::size_t srclink_index = static_cast<const ActsExamples::IndexSourceLink&>(state.uncalibrated()).index();
+
+                        auto meas2D = meas2Ds[srclink_index];
+                        if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+                            trajectory.addToMeasurementHits(meas2D);
+                            m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
+                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                        } 
+                        else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+                            trajectory.addToOutlierHits(meas2D);
+                            m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
+                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                        }
+                    }
+                });
+                acts_trajectories.push_back(std::move(multiTrajectory));
+            }
+            
+         else {
 
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
 
