@@ -83,15 +83,30 @@ namespace eicrecon {
 
         // create sourcelink and measurement containers
         auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
+
+          // need list here for stable addresses
+        std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
         ActsExamples::IndexSourceLinkContainer src_links;
-
+        src_links.reserve(meas2Ds.size());
         std::size_t  hit_index = 0;
-        for (const auto& meas2D : meas2Ds) {
-            // Create source links
-            auto sourceLink = std::make_shared<ActsExamples::IndexSourceLink>(meas2D.getSurface(), hit_index);
-            // src_links.emplace_back(sourceLink);
-            src_links.emplace_hint(src_links.end(), *sourceLink);
+        
+        std::cout<<"Create sourcelink: "<<std::endl;
 
+        for (const auto& meas2D : meas2Ds) {
+            // --Create source links - method of trackersourcelinkerrResult
+            // auto sourceLink = std::make_shared<ActsExamples::IndexSourceLink>(meas2D.getSurface(), hit_index);
+            // src_links.emplace_hint(src_links.end(), *sourceLink);
+
+            // --follow example from ACTS
+            sourceLinkStorage.emplace_back(meas2D.getSurface(), hit_index);
+            ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
+            // Add to output containers:
+            // index map and source link container are geometry-ordered.
+            // since the input is also geometry-ordered, new items can
+            // be added at the end.
+            src_links.insert(src_links.end(), sourceLink);
+            std::cout<<meas2D.getSurface()<<"  "<<hit_index<<std::endl;
+            // ---
             // Create ACTS measurements
             Acts::Vector2 loc = Acts::Vector2::Zero();
             auto pos_x = meas2D.getLoc().a;
@@ -104,7 +119,7 @@ namespace eicrecon {
             cov(0, 0) = meas2D.getCovariance().xx;
             cov(1, 1) = meas2D.getCovariance().yy;
 
-            auto measurement = Acts::makeMeasurement(*sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+            auto measurement = Acts::makeMeasurement(sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
             measurements->emplace_back(std::move(measurement));
 
             hit_index++;
@@ -229,6 +244,7 @@ namespace eicrecon {
                 trajectory.setNHoles(trajectoryState.nHoles);
                 trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
+                m_log->debug("trajectory state,measurement, outlier, hole: {} {} {} {}",trajectoryState.nStates,trajectoryState.nMeasurements<<" "<<trajectoryState.nOutliers,trajectoryState.nHoles);
 
                 for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
                     trajectory.addToMeasurementChi2(measurementChi2);
@@ -280,31 +296,37 @@ namespace eicrecon {
                 // fix me: ideally, this should be integrated into multitrajectoryhelper
                 // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
                 mj.visitBackwards(trackTip, [&](const auto& state){
+
                     auto geoID = state.referenceSurface().geometryId().value();
                     auto typeFlags = state.typeFlags();
 
-                    // no hit on this state/surface, skip
-                    if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-                        m_log->debug("No hit found on geo id={}", geoID);
-                    }
-                    else{
-                        // find the associated hit (2D measurement) with sourcelink index
+                    // find the associated hit (2D measurement) with state sourcelink index
+                    // fix me: calibrated or not? 
+                    if(state.hasUncalibrated()){
+
                         std::size_t srclink_index = static_cast<const ActsExamples::IndexSourceLink&>(state.uncalibrated()).index();
 
-                        auto meas2D = meas2Ds[srclink_index];
-                        if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-                            trajectory.addToMeasurementHits(meas2D);
-                            m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
+                        // no hit on this state/surface, skip
+                        if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+                            m_log->debug("No hit found on geo id={}", geoID);
                         }
-                        else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-                            trajectory.addToOutlierHits(meas2D);
-                            m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+                        else{
+                            auto meas2D = meas2Ds[srclink_index];
+                            if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+                                trajectory.addToMeasurementHits(meas2D);
+                                m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
+                                    geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
-                        }
+                            }
+                            else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+                                trajectory.addToOutlierHits(meas2D);
+                                m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
+                                    geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                            }
+                        }    
                     }
+
                 });
                 acts_trajectories.push_back(std::move(multiTrajectory));
             }
