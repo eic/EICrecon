@@ -89,7 +89,7 @@ namespace eicrecon {
         ActsExamples::IndexSourceLinkContainer src_links;
         src_links.reserve(meas2Ds.size());
         std::size_t  hit_index = 0;
-        
+
         std::cout<<"Create sourcelink: "<<std::endl;
 
         for (const auto& meas2D : meas2Ds) {
@@ -301,7 +301,7 @@ namespace eicrecon {
                     auto typeFlags = state.typeFlags();
 
                     // find the associated hit (2D measurement) with state sourcelink index
-                    // fix me: calibrated or not? 
+                    // fix me: calibrated or not?
                     if(state.hasUncalibrated()){
 
                         std::size_t srclink_index = static_cast<const ActsExamples::IndexSourceLink&>(state.uncalibrated()).index();
@@ -324,7 +324,7 @@ namespace eicrecon {
                                     geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
                             }
-                        }    
+                        }
                     }
 
                 });
