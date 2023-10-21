@@ -113,8 +113,11 @@ add_compile_definitions(HAVE_PODIO)
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP REQUIRED)
+find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
+
+# Guidelines Support Library
+find_package(Microsoft.GSL CONFIG)
 
 # Remove PODIO_JSON_OUTPUT (ref: https://github.com/AIDASoft/podio/issues/475)
 get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep INTERFACE_COMPILE_DEFINITIONS)
@@ -171,13 +174,14 @@ endif()
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
 if (${USE_UBSAN})
-    foreach (sanitizer undefined nullability implicit-conversion)
+    foreach (sanitizer undefined float-divide-by-zero unsigned-integer-overflow implicit-conversion local-bounds nullability)
         check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
         if (CXX_COMPILER_HAS_sanitize_${sanitizer})
-            add_compile_options(-fsanitize=${sanitizer} -g -O1)
+            add_compile_options(-fsanitize=${sanitizer})
             add_link_options(-fsanitize=${sanitizer})
         endif()
     endforeach()
+    add_compile_options(-g -O1)
 endif()
 
 # Compress debug symbols if supported

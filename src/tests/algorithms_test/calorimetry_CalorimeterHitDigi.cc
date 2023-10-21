@@ -6,6 +6,8 @@
 #include <edm4hep/MutableSimCalorimeterHit.h>
 #include <spdlog/logger.h>
 
+#include <DD4hep/Detector.h>
+
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 
 using eicrecon::CalorimeterHitDigi;
@@ -16,6 +18,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
+
+  auto detector = dd4hep::Detector::make_unique("");
 
   CalorimeterHitDigiConfig cfg;
   cfg.threshold = 0. /* GeV */;
@@ -32,7 +36,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     cfg.pedMeanADC = 123;
     cfg.resolutionTDC = 1.0 * dd4hep::ns;
     algo.applyConfig(cfg);
-    algo.init(nullptr, logger);
+    algo.init(detector.get(), logger);
 
     edm4hep::CaloHitContributionCollection calohits;
     edm4hep::SimCalorimeterHitCollection simhits;

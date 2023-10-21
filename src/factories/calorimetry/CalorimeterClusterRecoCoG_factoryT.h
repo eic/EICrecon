@@ -42,7 +42,7 @@ class CalorimeterClusterRecoCoG_factoryT :
 
         // Use DD4hep_service to get dd4hep::Detector
         auto geoSvc = app->template GetService<DD4hep_service>();
-        m_detector = geoSvc->detector();
+        auto detector = geoSvc->detector();
 
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
@@ -58,7 +58,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
 
         m_algo.applyConfig(cfg);
-        m_algo.init(m_detector, logger());
+        m_algo.init(detector, logger());
     }
 
     //------------------------------------------
@@ -81,7 +81,6 @@ class CalorimeterClusterRecoCoG_factoryT :
     }
 
     private:
-      const dd4hep::Detector* m_detector;
       eicrecon::CalorimeterClusterRecoCoG m_algo;
 
 };

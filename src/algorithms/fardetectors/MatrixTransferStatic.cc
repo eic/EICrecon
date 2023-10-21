@@ -5,13 +5,13 @@
 
 #include "MatrixTransferStatic.h"
 
-void eicrecon::MatrixTransferStatic::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> id_conv,
-                                          const dd4hep::Detector* det,
+void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
+                                          const dd4hep::rec::CellIDPositionConverter* id_conv,
                                           std::shared_ptr<spdlog::logger> &logger) {
 
-  m_log              = logger;
-  m_detector         = det;
-  m_cellid_converter = id_conv;
+  m_log       = logger;
+  m_detector  = det;
+  m_converter = id_conv;
   //Calculate inverse of static transfer matrix
   std::vector<std::vector<double>> aX(m_cfg.aX);
   std::vector<std::vector<double>> aY(m_cfg.aY);
@@ -64,7 +64,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
 
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
-    auto gpos = m_cellid_converter->position(cellID);
+    auto gpos = m_converter->position(cellID);
     // local positions
     auto volman = m_detector->volumeManager();
     auto local = volman.lookupDetElement(cellID);

@@ -16,12 +16,11 @@ namespace {
     }
 } // namespace
 
-void TrackerHitReconstruction::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+void TrackerHitReconstruction::init(const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
 
     m_log = logger;
 
-    // Create CellID converter
-    m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_converter = converter;
 }
 
 std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hits) {
@@ -34,8 +33,8 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
         auto id = raw_hit.getCellID();
 
         // Get position and dimension
-        auto pos = m_cellid_converter->position(id);
-        auto dim = m_cellid_converter->cellDimensions(id);
+        auto pos = m_converter->position(id);
+        auto dim = m_converter->cellDimensions(id);
 
         // >oO trace
         if(m_log->level() == spdlog::level::trace) {

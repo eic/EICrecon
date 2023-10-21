@@ -9,7 +9,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 
 // constructor
-richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
+richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, std::shared_ptr<spdlog::logger> log_)
   : m_detName(detName_), m_det(det_), m_log(log_)
 {
   // capitalize m_detName

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <gsl/gsl>
 #include <variant>
 
 #include <Acts/Definitions/Algebra.hpp>
@@ -35,7 +36,7 @@ namespace eicrecon::BField {
    */
   class DD4hepBField final : public Acts::MagneticFieldProvider {
   public:
-      dd4hep::Detector* m_det;
+      gsl::not_null<const dd4hep::Detector*> m_det;
 
   public:
     struct Cache {
@@ -51,7 +52,7 @@ namespace eicrecon::BField {
     *
     * @param [in] DD4hep detector instance
     */
-    explicit DD4hepBField(dd4hep::Detector* det) : m_det(det) {}
+    explicit DD4hepBField(gsl::not_null<const dd4hep::Detector*> det) : m_det(det) {}
 
     /**  retrieve magnetic field value.
      *

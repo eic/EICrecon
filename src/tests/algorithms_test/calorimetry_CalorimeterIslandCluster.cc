@@ -7,6 +7,8 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <spdlog/logger.h>
 
+#include <DD4hep/Detector.h>
+
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
 
 using eicrecon::CalorimeterIslandCluster;
@@ -22,11 +24,13 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   cfg.minClusterHitEdep = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
 
+  auto detector = dd4hep::Detector::make_unique("");
+
   SECTION( "without splitting" ) {
     cfg.splitCluster = false;
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
-    algo.init(nullptr, logger);
+    algo.init(detector.get(), logger);
 
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
@@ -129,7 +133,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     }
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
-    algo.init(nullptr, logger);
+    algo.init(detector.get(), logger);
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(

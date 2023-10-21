@@ -4,26 +4,53 @@
 // class definition
 #include "JetReconstruction.h"
 
-// standard c includes
+// c utilities
 #include <cmath>
 // event data model related classes
 #include <edm4eic/vector_utils.h>
 #include <edm4eic/MutableReconstructedParticle.h>
-// fastjet includes
+// for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequenceArea.hh>
+// for error handling
+#include <JANA/JException.h>
 
 using namespace fastjet;
-
 
 namespace eicrecon {
 
   void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+
     m_log = logger;
     m_log->trace("Initialized");
+
+    // if specified algorithm, recomb. scheme, or area type
+    // are not defined, then issue error and throw exception
+    try {
+      m_mapJetAlgo.at(m_cfg.jetAlgo);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
+      throw JException(out.what());
+    }
+
+    try {
+      m_mapRecombScheme.at(m_cfg.recombScheme);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
+      throw JException(out.what());
+    }
+
+    try {
+      m_mapAreaType.at(m_cfg.areaType);
+    } catch (std::out_of_range &out) {
+      m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
+      throw JException(out.what());
+    }
   }
 
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::execute(
+
+
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(
     const std::vector<const edm4hep::LorentzVectorE*> momenta) {
 
     // Store the jets
@@ -42,18 +69,18 @@ namespace eicrecon {
     for (const auto &mom : momenta) {
 
       // Only cluster particles within the given pt Range
-      if ((mom->pt() > m_minCstPt) && (mom->pt() < m_maxCstPt)) {
+      if ((mom->pt() > m_cfg.minCstPt) && (mom->pt() < m_cfg.maxCstPt)) {
         particles.emplace_back(mom->px(), mom->py(), mom->pz(), mom->e());
       }
     }
 
     // Choose jet and area definitions
-    JetDefinition jet_def(m_jetAlgo, m_rJet);
-    AreaDefinition area_def(m_areaType, GhostedAreaSpec(m_ghostMaxRap, m_numGhostRepeat, m_ghostArea));
+    JetDefinition jet_def(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
+    AreaDefinition area_def(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
 
     // Run the clustering, extract the jets
     ClusterSequenceArea clus_seq(particles, jet_def, area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_minJetPt));
+    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
 
     // Print out some infos
     m_log->trace("  Clustering with : {}", jet_def.description());
@@ -95,4 +122,4 @@ namespace eicrecon {
     return jet_collection;
   }
 
-} // end namespace eicrecon
+}  // end namespace eicrecon

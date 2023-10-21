@@ -137,6 +137,7 @@ void InitPlugin(JApplication *app) {
             "GeneratedJets",
             {"MCParticles"},
             {"GeneratedJets"},
+            {},
             app
     ));
 
@@ -144,6 +145,7 @@ void InitPlugin(JApplication *app) {
             "ReconstructedJets",
             {"ReconstructedParticles"},
             {"ReconstructedJets"},
+            {},
             app
     ));
 
@@ -158,6 +160,7 @@ void InitPlugin(JApplication *app) {
             "GeneratedChargedJets",
             {"MCChargedParticles"},
             {"GeneratedChargedJets"},
+            {},
             app
     ));
 
@@ -165,6 +168,7 @@ void InitPlugin(JApplication *app) {
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},
+            {},
             app
     ));
 

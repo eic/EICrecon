@@ -52,7 +52,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   for(auto [rad_name,irt_rad] : m_irt_det->Radiators()) {
     if(rad_name!="Filter") {
       m_pid_radiators.insert({ std::string(rad_name), irt_rad });
-      m_log->debug("- {}", rad_name);
+      m_log->debug("- {}", rad_name.Data());
     }
   }
 

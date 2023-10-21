@@ -11,12 +11,10 @@
 // necessary algorithms
 #include "algorithms/reco/JetReconstruction.h"
 
-
-
 namespace eicrecon {
 
     class ReconstructedJets_factory :
-            public JChainMultifactoryT<NoConfig>,
+            public JChainMultifactoryT<JetReconstructionConfig>,
             public SpdlogMixin {
 
     public:
@@ -24,8 +22,9 @@ namespace eicrecon {
         // ctor
         explicit ReconstructedJets_factory(std::string tag,
                                            const std::vector<std::string>& input_tags,
-                                           const std::vector<std::string>& output_tags) :
-                 JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+                                           const std::vector<std::string>& output_tags,
+                                           JetReconstructionConfig cfg) :
+                 JChainMultifactoryT<JetReconstructionConfig>(std::move(tag), input_tags, output_tags, cfg) {
 
             DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
         }  // end ctor
@@ -41,7 +40,7 @@ namespace eicrecon {
 
     protected:
 
-        JetReconstruction        m_jet_algo;
+        JetReconstruction m_jet_algo;
 
     };  // end ReconstructedJets_factory definition
 

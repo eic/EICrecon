@@ -48,7 +48,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
-  m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
+  m_digi_algo.AlgorithmInit(geo_service->detector(), geo_service->converter(), m_log);
 
   // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
   if(use_richgeo) {

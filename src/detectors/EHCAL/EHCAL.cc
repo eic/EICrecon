@@ -64,8 +64,7 @@ extern "C" {
           "HcalEndcapNIslandProtoClusters", {"HcalEndcapNRecHits"}, {"HcalEndcapNIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
-            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .localDistXY = {15*dd4hep::cm, 15*dd4hep::cm},
             .splitCluster = true,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
             .minClusterCenterEdep = 30.0 * dd4hep::MeV,

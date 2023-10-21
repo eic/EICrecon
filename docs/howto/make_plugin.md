@@ -287,7 +287,7 @@ method for an explanation of those.
 
 The one line in the `ProcessSequential` method will loop over the values
 in the `clusters` member. As a `Prefetch` object, _JANA_ will automatically
-call all agorithms needed to produce the `Cluster` objects prior to calling
+call all algorithms needed to produce the `Cluster` objects prior to calling
 `ProcessSequential`. This works for objects created by algorithms or ones
 coming straight from the file.
 
