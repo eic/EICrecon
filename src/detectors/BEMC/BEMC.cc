@@ -49,7 +49,7 @@ extern "C" {
             .dyRangeADC = 1500. * dd4hep::MeV,
             .pedMeanADC = 100,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46 
+            .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
             .sampFrac = 0.10200085,
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
