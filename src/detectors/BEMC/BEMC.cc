@@ -114,8 +114,8 @@ extern "C" {
             .capADC = 8192,
             .dyRangeADC = 3 * dd4hep::MeV,
             .pedMeanADC = 14,
-            .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
             .resolutionTDC = 3.25 * dd4hep::nanosecond,
+            .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
