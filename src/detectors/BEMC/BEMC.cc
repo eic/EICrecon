@@ -136,7 +136,7 @@ extern "C" {
             .minClusterHitEdep    = 0,
             .minClusterCenterEdep = 0,
             .minClusterEdep       = 100 * dd4hep::MeV,
-            .minClusterNhits      = 10, 
+            .minClusterNhits      = 10,
           },
           app   // TODO: Remove me once fixed
         ));
