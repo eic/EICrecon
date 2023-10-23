@@ -48,10 +48,12 @@ namespace eicrecon{
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // primary algorithm call
-      // - FIXME the mc/reco particle input will need to be replaced
-      //   with tracks once ready
-      // - FIXME the reco particle/cluster association input will
-      //   need to be replaced with track projections once ready
+      // FIXME
+      //   - change to vectors of calo inputs
+      //   - the mc/reco particle input will need to be replaced
+      //     with tracks once ready
+      //   - the reco particle/cluster association input will
+      //     need to be replaced with track projections once ready
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
         const ParInput    inPars,
         const CaloInput   inCalos,
