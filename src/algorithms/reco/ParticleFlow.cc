@@ -26,6 +26,7 @@ namespace eicrecon {
   ) {
 
     // set inputs
+    // FIXME change to vectors of calo inputs
     m_inPars          = inPars;
     m_inCalos         = inCalos;
     m_inRecoCaloAssoc = inRecoCaloAssoc;
@@ -67,10 +68,12 @@ namespace eicrecon {
     std::map<edm4eic::Cluster, int> ecalMap = create_cluster_map(m_inPars, m_inCalos.first,  m_inRecoCaloAssoc.first);
     std::map<edm4eic::Cluster, int> hcalMap = create_cluster_map(m_inPars, m_inCalos.second, m_inRecoCaloAssoc.second);
 
-    /* TODO sum energy in calos */
-    /* TODO subtract reco particle energy from calo energy sums */
-    /* TODO remove clusters with no energy after subtraction */
-    /* TODO combine leftover clusters into neutral particles */
+    /* TODO
+     *   - sum energy in calos
+     *   - subtract reco particle energy from calo energy sums
+     *   = remove clusters with no energy after subtraction
+     *   - combine leftover clusters into neutral particles
+     */
 
     return outPars;
 

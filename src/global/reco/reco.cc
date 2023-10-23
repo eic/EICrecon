@@ -20,6 +20,7 @@
 #include "GeneratedJets_factory.h"
 #include "ReconstructedJets_factory.h"
 #include "ReconstructedElectrons_factory.h"
+#include "ParticleFlow_factory.h"
 
 //
 extern "C" {
@@ -170,6 +171,24 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedChargedJets"},
             {},
             app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlow",
+        {
+          // FIXME replace particle input with tracks
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations",
+          "EcalEndcapNClusters",
+          "HcalEndcapNClusters",
+          "EcalBarrelScFiClusters",
+          "HcalBarrelClusters",
+          "EcalEndcapPClusters",
+          "LFHCALClusters"
+        },
+        {"ParticleFlowObjects"},
+        app
     ));
 
 }
