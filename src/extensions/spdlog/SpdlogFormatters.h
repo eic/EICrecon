@@ -1,5 +1,8 @@
 #pragma once
 
+// IWYU pragma: always_keep
+// since IWYU otherwise removes this headers from output that need it
+
 #include <system_error>
 #include <type_traits>
 
