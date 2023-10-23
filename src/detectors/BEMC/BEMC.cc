@@ -71,8 +71,8 @@ extern "C" {
             .sectorDist = 50. * dd4hep::mm,
             .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
             .splitCluster = false,
-            .minClusterHitEdep = 1.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .minClusterHitEdep = 5.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 100.0 * dd4hep::MeV,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -136,7 +136,7 @@ extern "C" {
             .minClusterHitEdep    = 0,
             .minClusterCenterEdep = 0,
             .minClusterEdep       = 100 * dd4hep::MeV,
-            .minClusterNhits      = 10, // From Maria Z. comment in PR
+            .minClusterNhits      = 10, 
           },
           app   // TODO: Remove me once fixed
         ));
