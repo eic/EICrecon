@@ -4,7 +4,7 @@
 
 #include "TrackSeeding.h"
 
-#include <Acts/Utilities/KDTree.hpp> // FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
+#include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Seeding/Seed.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
