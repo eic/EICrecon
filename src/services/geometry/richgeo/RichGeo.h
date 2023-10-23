@@ -24,7 +24,6 @@ namespace richgeo {
       double            size;
       dd4hep::Position  surface_centroid;
       dd4hep::Direction surface_offset; // surface centroid = volume centroid + `surface_offset`
-      dd4hep::Direction surface_normZdir; //normal Z direction of surface
   };
 
   // radiators

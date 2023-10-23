@@ -141,7 +141,6 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         sensor_info.size             = sensorSize;
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
-        sensor_info.surface_normZdir = normZdir;
         m_sensor_info.insert({ sensorID, sensor_info });
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
@@ -184,22 +183,21 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
 }
-TVector3 richgeo::IrtGeoDRICH::GetSensorSurface(CellIDType id){
-  auto nSectors= m_det->constant<int>("DRICH_num_sectors");
-  TVector3 normX(1, 0,  0); // normal vectors
-  TVector3 normY(0, -1, 0);
+TVector3 richgeo::IrtGeoDRICH::GetSensorSurfaceNorm(CellIDType id){
   TVector3 sensorNorm;
   auto cellMask = uint64_t(std::stoull(m_det->constant<std::string>("DRICH_cell_mask")));
   auto sensor_info = this->m_sensor_info;
   auto sID = id & cellMask;
   auto sensor_info_it = sensor_info.find(sID);
-
-  auto sensor_obj = sensor_info_it->second;
-  auto normZdir = sensor_obj.surface_normZdir;
-
-  sensorNorm.SetX(static_cast<double>(normZdir.x()));
-  sensorNorm.SetY(static_cast<double>(normZdir.y()));
-  sensorNorm.SetZ(static_cast<double>(normZdir.z()));
+  if(sensor_info_it!=sensor_info.end()){
+    auto sensor_obj = sensor_info_it->second;
+    auto normZdir = sensor_obj.surface_offset.Unit();
+    sensorNorm.SetX(static_cast<double>(normZdir.x()));
+    sensorNorm.SetY(static_cast<double>(normZdir.y()));
+    sensorNorm.SetZ(static_cast<double>(normZdir.z()));
+  }
+  else 
+    m_log->error("Cannot find sensor {} in IrtGeoDRICH::GetSensorSurface", id);
   //std::cout<<sensorNorm.X()<<std::endl;
   return sensorNorm;
 }
