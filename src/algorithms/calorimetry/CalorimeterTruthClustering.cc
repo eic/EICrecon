@@ -3,9 +3,14 @@
 
 #include "CalorimeterTruthClustering.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
-#include <edm4hep/MCParticle.h>
+#include <DD4hep/config.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <podio/ObjectID.h>
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <utility>
 
 using namespace dd4hep;
 

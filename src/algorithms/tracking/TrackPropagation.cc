@@ -1,45 +1,38 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
-#include <cmath>
-#include <algorithm>
-
-#include "TrackPropagation.h"
-
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-
-#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <bits/std_abs.h>
 // Event Model related classes
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <Eigen/Core>
+#include <cmath>
+#include <exception>
+#include <iterator>
+#include <optional>
+#include <typeinfo>
+#include <utility>
+#include <variant>
+
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <Acts/Utilities/Helpers.hpp>
-#include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-
-
 #include "ActsGeometryProvider.h"
-
-#include "extensions/spdlog/SpdlogToActs.h"
-
-#include <edm4eic/vector_utils.h>
-
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
-
 #include "TrackPropagation.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 
 namespace eicrecon {

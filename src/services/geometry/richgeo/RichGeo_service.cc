@@ -3,6 +3,23 @@
 
 #include "RichGeo_service.h"
 
+#include <JANA/JException.h>
+#include <ctype.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <algorithm>
+#include <exception>
+#include <gsl/pointers>
+
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/geometry/richgeo/ActsGeo.h"
+#include "services/geometry/richgeo/IrtGeo.h"
+#include "services/geometry/richgeo/IrtGeoDRICH.h"
+#include "services/geometry/richgeo/IrtGeoPFRICH.h"
+#include "services/geometry/richgeo/ReadoutGeo.h"
+#include "services/log/Log_service.h"
+
 // Services ----------------------------------------------------------
 void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
 

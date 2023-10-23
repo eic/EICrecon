@@ -2,16 +2,22 @@
 // Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
 //
 
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <filesystem>
+#include <JANA/JException.h>
+#include <JANA/JLogger.h>
+#include <Parsers/Printout.h>
 #include <fmt/color.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 #include "DD4hep_service.h"
-
-#include <DD4hep/Printout.h>
 
 //----------------------------------------------------------------
 // destructor

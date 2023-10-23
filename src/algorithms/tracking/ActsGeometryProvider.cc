@@ -1,31 +1,46 @@
 // Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include <fmt/ostream.h>
-
-#include "ActsGeometryProvider.h"
-
-#include <TGeoManager.h>
-
-#include <DD4hep/Printout.h>
-
-#include "ActsExamples/Geometry/MaterialWiper.hpp"
-
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
+#include <Acts/Geometry/detail/DefaultDetectorElementBase.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
-#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
+#include <Acts/Surfaces/PlanarBounds.hpp>
+#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/SurfaceArray.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Utilities/BinningType.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/VolumeManager.h>
+#include <JANA/JException.h>
+#include <TGeoManager.h>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+#include <spdlog/common.h>
+#include <stddef.h>
+#include <exception>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <type_traits>
+#include <vector>
 
+#include "ActsExamples/Geometry/MaterialWiper.hpp"
+#include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
 
 // Formatter for Eigen matrices
 #if FMT_VERSION >= 90000
 #include <Eigen/Core>
+
 template <typename T>
 struct fmt::formatter<
     T,

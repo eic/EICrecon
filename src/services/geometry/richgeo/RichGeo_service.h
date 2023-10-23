@@ -3,25 +3,18 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <algorithm>
-
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 // JANA
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
-#include <JANA/JException.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <mutex>
+#include <string>
 
-// services
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-
-// richgeo
-#include "RichGeo.h"
-#include "IrtGeo.h"
-#include "IrtGeoDRICH.h"
-#include "IrtGeoPFRICH.h"
 #include "ActsGeo.h"
+#include "IrtGeo.h"
 #include "ReadoutGeo.h"
 
 class RichGeo_service : public JService {

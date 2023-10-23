@@ -2,14 +2,15 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <edm4eic/TrackerHit.h>
-
 #include <JANA/JEvent.h>
-
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TDirectory.h>
-
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <stddef.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <map>
 #include <memory>
 
 #include "HitReconstructionAnalysis.h"

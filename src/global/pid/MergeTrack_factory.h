@@ -3,21 +3,26 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainFactoryT.h"
-
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
 // data model
 #include <edm4eic/TrackSegmentCollection.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/pid/MergeTracks.h"
-
+// JANA
+#include "extensions/jana/JChainFactoryT.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
-
-  class MergeTracks;
 
   class MergeTrack_factory :
     public JChainFactoryT<edm4eic::TrackSegment>,

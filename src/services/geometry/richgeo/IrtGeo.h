@@ -4,24 +4,20 @@
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
-#include <string>
-#include <spdlog/spdlog.h>
-
+#include <DD4hep/DetElement.h>
 // DD4Hep
 #include <DD4hep/Detector.h>
-#include <DDRec/DetectorData.h>
+#include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DD4hep/DD4hepUnits.h>
-
-// GSL
-#include <gsl/gsl>
-
+#include <DDRec/DetectorData.h>
+#include <IRT/CherenkovDetector.h>
 // IRT
 #include <IRT/CherenkovDetectorCollection.h>
-#include <IRT/CherenkovPhotonDetector.h>
-#include <IRT/CherenkovRadiator.h>
-#include <IRT/OpticalBoundary.h>
-#include <IRT/ParametricSurface.h>
+#include <spdlog/logger.h>
+#include <gsl/pointers>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 // local
 #include "RichGeo.h"

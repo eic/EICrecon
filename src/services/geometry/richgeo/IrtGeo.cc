@@ -3,6 +3,25 @@
 
 #include "IrtGeo.h"
 
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <IRT/CherenkovRadiator.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TGDMLMatrix.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <fmt/core.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <functional>
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "services/geometry/richgeo/RichGeo.h"
+
 // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
 richgeo::IrtGeo::IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
   m_detName(detName_), m_det(det_), m_converter(conv_), m_log(log_)

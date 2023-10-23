@@ -15,16 +15,22 @@
 
 #pragma once
 
-#include <TRandomGen.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <TRandomGen.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
 #include <cstddef>
 #include <functional>
+#include <memory>
+#include <stdexcept>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

@@ -3,20 +3,31 @@
 
 #include "TrackPropagation_factory.h"
 
-#include <JANA/JEvent.h>
-#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
-#include <services/geometry/acts/ACTSGeo_service.h>
-
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-
-#include <extensions/spdlog/SpdlogExtensions.h>
-
+#include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegment.h>
+#include <fmt/core.h>
+#include <services/geometry/acts/ACTSGeo_service.h>
+#include <spdlog/logger.h>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+#include <gsl/pointers>
+#include <map>
+
+#include "TrackPropagation.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::TrackPropagation_factory::Init() {
 

@@ -10,21 +10,15 @@
 
 #pragma once
 
-#include <algorithm>
-#include <bitset>
-#include <memory>
-#include <tuple>
-#include <unordered_map>
-
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
+#include <memory>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitsMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

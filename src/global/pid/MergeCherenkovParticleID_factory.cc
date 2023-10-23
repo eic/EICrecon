@@ -3,6 +3,13 @@
 
 #include "MergeCherenkovParticleID_factory.h"
 
+#include <JANA/JApplication.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+
+#include "services/io/podio/JFactoryPodioT.h"
+
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Init() {
 

@@ -3,19 +3,11 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <vector>
-#include <map>
-
-#include <spdlog/spdlog.h>
-
-
+#include <edm4eic/InclusiveKinematicsCollection.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <spdlog/logger.h>
+#include <memory>
 
 
 namespace eicrecon {
