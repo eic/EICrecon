@@ -13,7 +13,7 @@ namespace richgeo {
       IrtGeoDRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
         IrtGeo("DRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
       ~IrtGeoDRICH();
-    TVector3 GetSensorSurface(CellIDType);
+    TVector3 GetSensorSurfaceNorm(CellIDType);
     protected:
       void DD4hep_to_IRT() override;
 
