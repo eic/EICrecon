@@ -27,8 +27,8 @@ extern "C" {
             .capADC = 65536, //2^16  (approximate HGCROC resolution) old 16384
             .capTime = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = 3 * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
+            .pedMeanADC = 200,
+            .pedSigmaADC = 2.4576,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 0.03,
           },
@@ -39,8 +39,8 @@ extern "C" {
           {
             .capADC = 65536,
             .dyRangeADC = 3. * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
+            .pedMeanADC = 200,
+            .pedSigmaADC = 2.4576,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 5.0,
             .thresholdValue = 2.0,

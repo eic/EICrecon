@@ -26,7 +26,7 @@ extern "C" {
 	    .threshold = 5.0 * dd4hep::MeV,
             .capADC = 16384,
             .dyRangeADC = 20 * dd4hep::GeV,
-            .pedMeanADC = 100,
+            .pedMeanADC = 20,
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
@@ -38,7 +38,7 @@ extern "C" {
           {
             .capADC = 16384,
             .dyRangeADC = 20. * dd4hep::GeV,
-            .pedMeanADC = 100,
+            .pedMeanADC = 20,
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
