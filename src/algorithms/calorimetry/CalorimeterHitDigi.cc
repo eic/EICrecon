@@ -30,6 +30,7 @@ namespace eicrecon {
 
 void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
+    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
     m_log = logger;
 
     // Gaudi implements a random number generator service. It is not clear to me how this
@@ -125,12 +126,20 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                 }
             }
             if (timeC > m_cfg.capTime) continue;
-            edep += hit.getEnergy();
-            m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
+
+            double hit_energy = hit.getEnergy();
+            // TODO: apply attenuation
+            if (m_cfg.attenuation > 0.) {
+                ;
+            }
+
+            // energy sum
+            edep += hit_energy*m_cfg.collectionEff;
+            m_log->trace("adding {} \t total: {}", hit_energy, edep);
 
             // change maximum hit energy & time if necessary
-            if (hit.getEnergy() > max_edep) {
-                max_edep = hit.getEnergy();
+            if (hit_energy > max_edep) {
+                max_edep = hit_energy;
                 mid = hit.getCellID();
                 if (timeC <= time) {
                     time = timeC;
@@ -147,7 +156,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
-        double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
+        double             ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
