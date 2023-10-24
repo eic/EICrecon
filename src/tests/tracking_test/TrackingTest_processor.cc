@@ -3,7 +3,7 @@
 #include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "extensions/spdlog/SpdlogExtensions.h"
 
-#include "datamodel_glue.h"
+#include "datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
