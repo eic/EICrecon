@@ -3,17 +3,20 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <math.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
-#include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
-#include "factories/calorimetry/ImagingClusterReco_factoryT.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factoryT.h"
+#include "factories/calorimetry/ImagingClusterReco_factoryT.h"
+#include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
 
 
@@ -31,10 +34,10 @@ extern "C" {
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 16384,
-             .dyRangeADC = 750 * dd4hep::MeV,
-             .pedMeanADC = 20,
-             .pedSigmaADC = 0.3,
+             .capADC = 16384, // 14bit ADC
+             .dyRangeADC = 1500 * dd4hep::MeV,
+             .pedMeanADC = 100,
+             .pedSigmaADC = 1,
              .resolutionTDC = 10 * dd4hep::picosecond,
              .corrMeanScale = 1.0,
              .readout = "EcalBarrelScFiHits",
@@ -46,12 +49,10 @@ extern "C" {
           "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
           {
             .capADC = 16384,
-            .dyRangeADC = 750. * dd4hep::MeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.3,
+            .dyRangeADC = 1500. * dd4hep::MeV,
+            .pedMeanADC = 100,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 36.0488,
-            .thresholdValue = 0.0,
+            .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
             .sampFrac = 0.10200085,
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
@@ -70,8 +71,8 @@ extern "C" {
             .sectorDist = 50. * dd4hep::mm,
             .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
             .splitCluster = false,
-            .minClusterHitEdep = 1.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .minClusterHitEdep = 5.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 100.0 * dd4hep::MeV,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -103,8 +104,8 @@ extern "C" {
              .tRes = 0.0 * dd4hep::ns,
              .capADC = 8192,
              .dyRangeADC = 3 * dd4hep::MeV,
-             .pedMeanADC = 100,
-             .pedSigmaADC = 14,
+             .pedMeanADC = 14, // Noise floor at 5 keV: 8192 / 3 * 0.005
+             .pedSigmaADC = 5, // Upper limit for sigma for AstroPix
              .resolutionTDC = 3.25 * dd4hep::nanosecond,
              .corrMeanScale = 1.0,
            },
@@ -115,10 +116,9 @@ extern "C" {
           {
             .capADC = 8192,
             .dyRangeADC = 3 * dd4hep::MeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 14,
+            .pedMeanADC = 14,
             .resolutionTDC = 3.25 * dd4hep::nanosecond,
-            .thresholdFactor = 3.0,
+            .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
@@ -136,7 +136,7 @@ extern "C" {
             .minClusterHitEdep    = 0,
             .minClusterCenterEdep = 0,
             .minClusterEdep       = 100 * dd4hep::MeV,
-            .minClusterNhits      = 10, // From Maria Z. comment in PR
+            .minClusterNhits      = 10,
           },
           app   // TODO: Remove me once fixed
         ));
