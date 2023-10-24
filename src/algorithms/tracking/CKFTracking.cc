@@ -242,7 +242,7 @@ namespace eicrecon {
                 trajectory.setNHoles(trajectoryState.nHoles);
                 trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-                m_log->debug("trajectory state,measurement, outlier, hole: {} {} {} {}",trajectoryState.nStates,trajectoryState.nMeasurements<<" "<<trajectoryState.nOutliers,trajectoryState.nHoles);
+                m_log->debug("trajectory state,measurement, outlier, hole: {} {} {} {}",trajectoryState.nStates,trajectoryState.nMeasurements,trajectoryState.nOutliers,trajectoryState.nHoles);
 
                 for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
                     trajectory.addToMeasurementChi2(measurementChi2);
