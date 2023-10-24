@@ -90,7 +90,6 @@ namespace eicrecon {
         src_links.reserve(meas2Ds.size());
         std::size_t  hit_index = 0;
 
-        std::cout<<"Create sourcelink: "<<std::endl;
 
         for (const auto& meas2D : meas2Ds) {
             // --Create source links - method of trackersourcelinkerrResult
@@ -105,7 +104,6 @@ namespace eicrecon {
             // since the input is also geometry-ordered, new items can
             // be added at the end.
             src_links.insert(src_links.end(), sourceLink);
-            std::cout<<meas2D.getSurface()<<"  "<<hit_index<<std::endl;
             // ---
             // Create ACTS measurements
             Acts::Vector2 loc = Acts::Vector2::Zero();
