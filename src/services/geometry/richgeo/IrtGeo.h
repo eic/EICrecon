@@ -5,13 +5,11 @@
 #pragma once
 
 #include <DD4hep/DetElement.h>
-// DD4Hep
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/DetectorData.h>
 #include <IRT/CherenkovDetector.h>
-// IRT
 #include <IRT/CherenkovDetectorCollection.h>
 #include <spdlog/logger.h>
 #include <gsl/pointers>

@@ -7,7 +7,6 @@
 
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
-// data model
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <algorithm>
 #include <cstddef>

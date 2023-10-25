@@ -4,7 +4,6 @@
 #pragma once
 
 #include <edm4eic/InclusiveKinematicsCollection.h>
-// Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>

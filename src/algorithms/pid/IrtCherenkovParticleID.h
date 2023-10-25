@@ -5,7 +5,6 @@
 
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
-// IRT
 #include <IRT/CherenkovRadiator.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>

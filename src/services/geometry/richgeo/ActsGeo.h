@@ -4,9 +4,7 @@
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
-// DD4Hep
 #include <DD4hep/Detector.h>
-// data model
 #include <edm4eic/TrackPoint.h>
 #include <spdlog/logger.h>
 #include <functional>

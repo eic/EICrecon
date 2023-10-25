@@ -5,7 +5,6 @@
 #define EICRECON_JETRECONSTRUCTION_H
 
 #include <edm4eic/ReconstructedParticleCollection.h>
-// event data model definitions
 #include <edm4hep/utils/kinematics.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>

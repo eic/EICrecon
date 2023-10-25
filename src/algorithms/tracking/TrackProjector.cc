@@ -8,7 +8,6 @@
 #include <bits/std_abs.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
-// Event Model related classes
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>

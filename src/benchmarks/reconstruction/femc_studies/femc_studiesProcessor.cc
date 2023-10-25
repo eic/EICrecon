@@ -18,7 +18,6 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-// Include appropriate class headers. e.g.
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>

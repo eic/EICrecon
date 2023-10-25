@@ -6,7 +6,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackPoint.h>
-// data model
 #include <edm4eic/TrackSegmentCollection.h>
 #include <functional>
 #include <map>

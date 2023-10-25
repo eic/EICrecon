@@ -5,7 +5,6 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-// Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>

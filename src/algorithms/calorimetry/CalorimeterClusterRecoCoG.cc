@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan
 
-#include <Evaluator/DD4hepUnits.h>
 /*
  *  Reconstruct the cluster with Center of Gravity method
  *  Logarithmic weighting is used for mimicking energy deposit in transverse direction
@@ -20,6 +19,7 @@
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
+#include <Evaluator/DD4hepUnits.h>
 #include <cctype>
 #include <exception>
 #include <limits>

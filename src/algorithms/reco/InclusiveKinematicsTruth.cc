@@ -13,7 +13,6 @@ using ROOT::Math::PxPyPzEVector;
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/vector_utils_legacy.h>
-// Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>

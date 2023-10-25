@@ -12,7 +12,6 @@
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <bits/std_abs.h>
-// Event Model related classes
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/vector_utils_legacy.h>
 #include <edm4hep/Vector3f.h>

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-// event data model definitions
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <extensions/jana/JChainMultifactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
