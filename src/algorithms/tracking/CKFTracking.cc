@@ -26,7 +26,7 @@
 #include <Acts/Definitions/Units.hpp>
 
 #include "extensions/spdlog/SpdlogToActs.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #include "DD4hepBField.h"
 

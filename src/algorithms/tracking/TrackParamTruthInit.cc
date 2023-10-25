@@ -13,7 +13,7 @@
 #include <spdlog/fmt/ostr.h>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 
-#include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 
 void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &logger) {
