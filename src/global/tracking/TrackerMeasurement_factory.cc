@@ -4,13 +4,20 @@
 
 #include "TrackerMeasurement_factory.h"
 
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <JANA/Services/JParameterManager.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <exception>
+#include <gsl/pointers>
+#include <map>
 
 #include "algorithms/tracking/TrackerMeasurement.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/io/podio/JFactoryPodioT.h"
 #include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
 

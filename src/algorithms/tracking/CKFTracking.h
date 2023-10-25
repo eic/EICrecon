@@ -3,28 +3,28 @@
 
 #pragma once
 
-#include <vector>
-
-#include "DD4hepBField.h"
-#include "ActsExamples/EventData/GeometryContainers.hpp"
-#include "ActsExamples/EventData/Index.hpp"
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Measurement.hpp"
-#include "ActsExamples/EventData/Track.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
-#include <spdlog/logger.h>
-
-#include <Acts/Definitions/Common.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
-#include "CKFTrackingConfig.h"
+#include <Acts/Utilities/CalibrationContext.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <tuple>
+#include <vector>
 
+#include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "CKFTrackingConfig.h"
+#include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;

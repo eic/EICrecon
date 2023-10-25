@@ -3,47 +3,50 @@
 
 #include "CKFTracking.h"
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-
-#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/Measurement.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
-
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Propagator/Navigator.hpp>
-#include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/TrackFitting/KalmanFitter.hpp>
+#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <Acts/Definitions/Units.hpp>
-
-#include "extensions/spdlog/SpdlogToActs.h"
-#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
-
-#include "DD4hepBField.h"
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4eic/Measurement2D.h>
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <Eigen/Core>
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <functional>
+#include <list>
+#include <optional>
+#include <string>
+#include <utility>
+#include <variant>
 
 #include "ActsExamples/EventData/GeometryContainers.hpp"
-#include "ActsExamples/EventData/Measurement.hpp"
-#include "ActsExamples/EventData/Index.hpp"
 #include "ActsExamples/EventData/IndexSourceLink.hpp"
+#include "ActsExamples/EventData/Measurement.hpp"
 #include "ActsExamples/EventData/Track.hpp"
-
 #include "ActsGeometryProvider.h"
-
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
-
-#include <spdlog/fmt/ostr.h>
+#include "DD4hepBField.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
+#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 

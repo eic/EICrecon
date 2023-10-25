@@ -4,9 +4,22 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-#include "extensions/jana/JChainFactoryT.h"
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <edm4eic/Measurement2D.h>
+#include <edm4eic/Measurement2DCollection.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurement.h"
+#include "extensions/jana/JChainFactoryT.h"
 
 namespace eicrecon {
 

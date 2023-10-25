@@ -5,21 +5,27 @@
 
 #include "TrackerMeasurement.h"
 
-#include <DD4hep/DD4hepUnits.h>
-#include <DD4hep/Volumes.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
-
-#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/fmt/ostr.h>
-
+#include <Acts/Utilities/Result.hpp>
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/VolumeManager.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/CovDiag3f.h>
+#include <edm4eic/MutableMeasurement2D.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <Eigen/Core>
+#include <exception>
+#include <unordered_map>
 #include <utility>
 
 

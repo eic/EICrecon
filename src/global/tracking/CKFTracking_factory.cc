@@ -4,13 +4,17 @@
 
 #include "CKFTracking_factory.h"
 
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <edm4eic/TrackParametersCollection.h>
+#include <JANA/JException.h>
 #include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <spdlog/logger.h>
+#include <exception>
 
-#include "algorithms/tracking/TrackerMeasurement.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "CKFTracking.h"
+#include "CKFTrackingConfig.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
