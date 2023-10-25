@@ -9,8 +9,6 @@
 #include "Beam.h"
 #include "InclusiveKinematicsElectron.h"
 
-using ROOT::Math::PxPyPzEVector;
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
@@ -21,6 +19,8 @@ using ROOT::Math::PxPyPzEVector;
 #include <ext/alloc_traits.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+
+using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
