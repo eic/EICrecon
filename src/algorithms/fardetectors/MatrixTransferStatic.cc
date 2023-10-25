@@ -5,6 +5,20 @@
 
 #include "MatrixTransferStatic.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/VolumeManager.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/Vector3f.h>
+#include <ext/alloc_traits.h>
+#include <cmath>
+#include <vector>
+
+#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+
 void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
                                           const dd4hep::rec::CellIDPositionConverter* id_conv,
                                           std::shared_ptr<spdlog::logger> &logger) {

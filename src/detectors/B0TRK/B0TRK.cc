@@ -3,10 +3,12 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
 #include "factories/tracking/TrackerHitReconstruction_factoryT.h"
 

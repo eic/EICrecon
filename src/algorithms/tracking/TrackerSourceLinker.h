@@ -7,15 +7,15 @@
 
 #pragma once
 
-#include <spdlog/logger.h>
-
-#include <DDRec/CellIDPositionConverter.h>
 #include <DD4hep/Detector.h>
-
-#include <edm4eic/TrackerHit.h>
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include <DDRec/CellIDPositionConverter.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <vector>
 
 #include "ActsGeometryProvider.h"
+#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 
 namespace eicrecon {
 

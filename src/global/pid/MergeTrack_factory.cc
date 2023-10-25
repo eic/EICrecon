@@ -3,6 +3,12 @@
 
 #include "MergeTrack_factory.h"
 
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+
+#include "services/io/podio/JFactoryPodioT.h"
+
 //-----------------------------------------------------------------------------
 void eicrecon::MergeTrack_factory::Init() {
 

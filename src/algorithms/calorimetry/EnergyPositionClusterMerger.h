@@ -7,8 +7,6 @@
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
-
-// Event Model related classes
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/vector_utils.h>

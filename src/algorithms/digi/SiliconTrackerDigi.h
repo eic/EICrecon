@@ -3,10 +3,12 @@
 
 #pragma once
 
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <spdlog/spdlog.h>
 #include <TRandomGen.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <spdlog/logger.h>
+#include <functional>
+#include <memory>
 
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

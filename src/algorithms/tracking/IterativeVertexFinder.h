@@ -4,24 +4,18 @@
 
 #pragma once
 
-#include "ActsGeometryProvider.h"
-#include "IterativeVertexFinderConfig.h"
-#include <vector>
-
-#include "DD4hepBField.h"
-#include "ActsExamples/EventData/GeometryContainers.hpp"
-#include "ActsExamples/EventData/Track.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Trajectory.h>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
+#include <memory>
+#include <vector>
 
-#include <Acts/Definitions/Common.hpp>
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+#include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include <edm4eic/TrackParameters.h>
-#include <edm4hep/MCParticle.h>
 
 namespace eicrecon {
 class IterativeVertexFinder

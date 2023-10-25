@@ -3,13 +3,16 @@
 // Template for this file generated with eicmkplugin.py
 //
 
-#include <TVector3.h>
-#include <Evaluator/DD4hepUnits.h>
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-
-#include "services/rootfile/RootFile_service.h"
+#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <JANA/JApplication.h>
+#include <TDirectory.h>
+#include <Eigen/Core>
+#include <vector>
 
 #include "TRACKINGcheckProcessor.h"
+#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+#include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
 // InitWithGlobalRootLock

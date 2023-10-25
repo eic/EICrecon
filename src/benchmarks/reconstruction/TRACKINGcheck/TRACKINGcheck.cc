@@ -1,3 +1,5 @@
+#include <JANA/JApplication.h>
+
 #include "TRACKINGcheckProcessor.h"
 
 // The following just makes this a JANA plugin
