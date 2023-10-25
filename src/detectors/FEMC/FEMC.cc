@@ -111,12 +111,11 @@ extern "C" {
           {
             .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
             .tRes = 0.0 * dd4hep::ns,
-	     // .threshold = 250.0 * dd4hep::keV,
-	    .threshold = 15.0 * dd4hep::MeV,
+	    .threshold = 250.0 * dd4hep::keV,
             .capADC = 16384,
             .dyRangeADC = 3 * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
+            .pedMeanADC = 10,
+            .pedSigmaADC = 2,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 0.03,
           },
