@@ -33,8 +33,8 @@
 #include <vector>
 
 // These files are generated automatically by make_datamodel_glue.py
-#include "datamodel_includes.h" // IWYU pragma: keep
 #include "datamodel_glue.h"
+#include "datamodel_includes.h" // IWYU pragma: keep
 
 
 //------------------------------------------------------------------------------
