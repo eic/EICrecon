@@ -1,5 +1,9 @@
 #pragma once
 
+// IWYU pragma: always_keep
+// since IWYU otherwise removes this headers from output that need it
+// FIXME: this is only valid as of iwyu v21; until then use keep on includes
+
 #include <system_error>
 #include <type_traits>
 

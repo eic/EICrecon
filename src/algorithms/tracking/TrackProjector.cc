@@ -34,7 +34,7 @@
 #include <spdlog/fmt/ostr.h>
 #include "TrackProjectorConfig.h"
 #include "TrackProjector.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #include <cmath>
 
