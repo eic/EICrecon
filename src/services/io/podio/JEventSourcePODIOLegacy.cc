@@ -16,61 +16,11 @@
 #include <JANA/JLogger.h>
 #include <JANA/Podio/JFactoryPodioT.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/MCRecoVertexParticleAssociationCollection.h>
-#include <edm4eic/PMTHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
-#include <edm4eic/RawCalorimeterHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/RingImageCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/VertexCollection.h>
-#include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/CalorimeterHitCollection.h>
-#include <edm4hep/ClusterCollection.h>
-#include <edm4hep/EventHeaderCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/MCRecoCaloAssociationCollection.h>
-#include <edm4hep/MCRecoCaloParticleAssociationCollection.h>
-#include <edm4hep/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCRecoParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackerAssociationCollection.h>
-#include <edm4hep/MCRecoTrackerHitPlaneAssociationCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
-#include <edm4hep/RecDqdxCollection.h>
-#include <edm4hep/RecIonizationClusterCollection.h>
-#include <edm4hep/RecoParticleVertexAssociationCollection.h>
-#include <edm4hep/ReconstructedParticleCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/SimPrimaryIonizationClusterCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4hep/TimeSeriesCollection.h>
-#include <edm4hep/TrackCollection.h>
-#include <edm4hep/TrackerHitCollection.h>
-#include <edm4hep/TrackerHitPlaneCollection.h>
-#include <edm4hep/TrackerPulseCollection.h>
-#include <edm4hep/VertexCollection.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-// podio specific includes
 #include <podio/podioVersion.h>
 #include <algorithm>
 #include <cstdlib>
@@ -82,6 +32,8 @@
 #include <utility>
 #include <vector>
 
+// These files are generated automatically by make_datamodel_glue.py
+#include "datamodel_includes.h" // IWYU pragma: keep
 #include "datamodel_glue.h"
 
 
