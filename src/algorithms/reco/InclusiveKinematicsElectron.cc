@@ -1,14 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <algorithm>
-#include <cmath>
-#include <exception>
-#include <vector>
-
-#include "Beam.h"
-#include "InclusiveKinematicsElectron.h"
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
@@ -16,9 +8,14 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <ext/alloc_traits.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <cmath>
+#include <exception>
+#include <vector>
+
+#include "Beam.h"
+#include "InclusiveKinematicsElectron.h"
 
 using ROOT::Math::PxPyPzEVector;
 
