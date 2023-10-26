@@ -13,8 +13,8 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <bits/std_abs.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/vector_utils_legacy.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -141,7 +141,7 @@ namespace eicrecon {
           if(track_segment.points_size()>0) {
             auto pos0 = point->position;
             auto pos1 = std::prev(track_segment.points_end())->position;
-            auto dist = edm4eic::magnitude(pos0-pos1);
+            auto dist = edm4hep::utils::magnitude(pos0-pos1);
             length += dist;
             m_log->trace("               dist to previous point: {}", dist);
           }
@@ -240,7 +240,7 @@ namespace eicrecon {
         m_log->trace("    pos z = {}", position.z);
 
         // Momentum
-        const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
+        const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
                 static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
                 static_cast<float>(parameter[Acts::eBoundTheta]),
                 static_cast<float>(parameter[Acts::eBoundPhi])

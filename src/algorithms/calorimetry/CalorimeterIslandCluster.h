@@ -7,8 +7,8 @@
 #include <DD4hep/IDDescriptor.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4eic/vector_utils_legacy.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <algorithm>
@@ -177,7 +177,7 @@ namespace eicrecon {
       // calculate weights for local maxima
       for (std::size_t cidx : maxima) {
         double energy   = hits[cidx].getEnergy();
-        double dist     = edm4eic::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
+        double dist     = edm4hep::utils::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
         weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) * energy;
         j += 1;
       }
