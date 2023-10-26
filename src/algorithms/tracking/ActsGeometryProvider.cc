@@ -226,7 +226,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     auto bCache = m_magneticField->makeCache(m_fieldctx);
     for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
         auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
-        m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose());
+        m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose() / Acts::UnitConstants::T);
     }
 
     m_init_log->info("ActsGeometryProvider initialization complete");
