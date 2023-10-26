@@ -303,7 +303,7 @@ namespace eicrecon {
                         // no hit on this state/surface, skip
                         if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
                             m_log->debug("No hit found on geo id={}", geoID);
-                        
+
                         }else{
                             auto meas2D = meas2Ds[srclink_index];
                             if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
@@ -323,7 +323,7 @@ namespace eicrecon {
 
                 });
                 acts_trajectories.push_back(std::move(multiTrajectory));
-            
+
             }else {
 
                 m_log->debug("Track finding failed for truth seed {} with error: {}", iseed, result.error());
