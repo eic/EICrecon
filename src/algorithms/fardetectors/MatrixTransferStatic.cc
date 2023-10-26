@@ -11,8 +11,8 @@
 #include <DD4hep/VolumeManager.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <edm4eic/vector_utils_legacy.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <ext/alloc_traits.h>
 #include <cmath>
 #include <vector>
@@ -158,7 +158,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       edm4eic::MutableReconstructedParticle reconTrack;
       reconTrack.setType(0);
       reconTrack.setMomentum(prec);
-      reconTrack.setEnergy(std::hypot(edm4eic::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+      reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
       reconTrack.setReferencePoint(refPoint);
       reconTrack.setCharge(m_cfg.partCharge);
       reconTrack.setMass(m_cfg.partMass);

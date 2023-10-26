@@ -23,7 +23,7 @@
 // Event Model related classes
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "ImagingTopoClusterConfig.h"
@@ -155,8 +155,8 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
-            return (std::abs(edm4eic::eta(h1.getPosition()) - edm4eic::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
-                   (std::abs(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition())) <=
+            return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
+                   (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
         }
 

@@ -33,7 +33,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "ActsExamples/Geometry/MaterialWiper.hpp"
 #include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -135,9 +134,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
         Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
         // Set up the json-based decorator
         materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(jsonGeoConvConfig, material_file,acts_init_log_level);
-    } else {
-        m_init_log->warn("no ACTS materials map has been loaded");
-        materialDeco = std::make_shared<const Acts::MaterialWiper>();
     }
 
     // Geometry identifier hook to write detector ID to extra field
