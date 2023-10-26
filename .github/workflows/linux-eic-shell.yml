@@ -243,7 +243,7 @@ jobs:
     strategy:
       matrix:
         particle: [pi, e]
-        detector_config: [brycecanyon, craterlake]
+        detector_config: [craterlake]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Get detector info
@@ -310,7 +310,7 @@ jobs:
       matrix:
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
-        detector_config: [brycecanyon, craterlake]
+        detector_config: [craterlake]
         exclude:
         - beam: 5x41
           minq2: 1000
@@ -350,7 +350,7 @@ jobs:
       matrix:
         CC: [gcc]
         particle: [e]
-        detector_config: [brycecanyon]
+        detector_config: [craterlake]
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -438,7 +438,7 @@ jobs:
       matrix:
         CC: [gcc]
         particle: [e]
-        detector_config: [brycecanyon]
+        detector_config: [craterlake]
         benchmark_plugins:
         - EcalBarrelScFiCheck
         - femc_studies
@@ -481,7 +481,7 @@ jobs:
       matrix:
         CC: [gcc, clang]
         particle: [pi, e]
-        detector_config: [brycecanyon, craterlake]
+        detector_config: [craterlake]
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -618,7 +618,7 @@ jobs:
         CC: [gcc, clang]
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
-        detector_config: [brycecanyon, craterlake]
+        detector_config: [craterlake]
         exclude:
         - beam: 5x41
           minq2: 1000
