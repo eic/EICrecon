@@ -3,13 +3,17 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {

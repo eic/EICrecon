@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Wouter Deconinck
 
+#include <JANA/JEvent.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <memory>
 
-#include <JANA/JEvent.h>
-
-#include <spdlog/spdlog.h>
-
 #include "InclusiveKinematicsTruth_factory.h"
-
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "datamodel_glue.h"
 
 namespace eicrecon {
 

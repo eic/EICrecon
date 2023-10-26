@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <memory>
 
 #include "DD4hep_service.h"
 

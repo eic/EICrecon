@@ -4,10 +4,15 @@
 
 #pragma once
 
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-
 #include <podio/ROOTLegacyReader.h>
+#include <stddef.h>
+#include <memory>
+#include <set>
+#include <string>
 
 class JEventSourcePODIOLegacy : public JEventSource {
 

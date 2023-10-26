@@ -4,14 +4,18 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
-// factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include <ext/alloc_traits.h>
+#include <stddef.h>
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+// factories
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
 
 
 extern "C" {

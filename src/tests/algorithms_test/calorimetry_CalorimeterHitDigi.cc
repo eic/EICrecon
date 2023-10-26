@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Dmitry Kalinkin
 
+#include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/MutableSimCalorimeterHit.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <math.h>
+#include <spdlog/common.h>
 #include <spdlog/logger.h>
-
-#include <DD4hep/Detector.h>
+#include <spdlog/spdlog.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 
 using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;

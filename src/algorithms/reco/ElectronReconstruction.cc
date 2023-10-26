@@ -2,6 +2,11 @@
 // Copyright (C) 2023 Daniel Brandenburg
 #include "ElectronReconstruction.h"
 
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <fmt/core.h>
+#include <exception>
+
 namespace eicrecon {
 
   void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) {

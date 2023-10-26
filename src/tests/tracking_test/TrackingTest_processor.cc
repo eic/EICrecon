@@ -1,25 +1,29 @@
 
 #include "TrackingTest_processor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include "extensions/spdlog/SpdlogExtensions.h"
-
-#include "datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <fmt/core.h>
-
-#include <Math/LorentzVector.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <JANA/Services/JParameterManager.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-
-#include <spdlog/spdlog.h>
-#include <edm4hep/MCParticle.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <algorithm>
+#include <exception>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 

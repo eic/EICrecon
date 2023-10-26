@@ -9,15 +9,27 @@
  */
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <fmt/format.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/vector_utils_legacy.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
+#include <Evaluator/DD4hepUnits.h>
+#include <cctype>
+#include <exception>
+#include <limits>
 #include <map>
 #include <optional>
-#include <Eigen/Dense>
-
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/MCParticle.h>
+#include <type_traits>
+#include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 
 namespace eicrecon {
 

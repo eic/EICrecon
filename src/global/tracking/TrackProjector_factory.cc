@@ -2,12 +2,17 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <edm4eic/TrackSegmentCollection.h>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <JANA/JFactoryT.h>
+#include <exception>
+#include <map>
 
+#include "TrackProjector.h"
 #include "TrackProjector_factory.h"
 #include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 
 namespace eicrecon {

@@ -6,13 +6,12 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <string>
-
 #include <TFile.h>
+#include <TTree.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
-
 #include <fmt/core.h>
+#include <string>
 
 void reco_particles_track_matching(const std::string &file_name) {
     auto *file = new TFile(file_name.c_str());

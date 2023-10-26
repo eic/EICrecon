@@ -3,6 +3,17 @@
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
+#include <DD4hep/Objects.h>
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <functional>
+#include <gsl/pointers>
+
+#include "datamodel_glue.h"
 // services
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"

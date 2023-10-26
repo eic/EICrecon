@@ -3,14 +3,12 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
-#include <spdlog/spdlog.h>
-
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
-// Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <spdlog/logger.h>
+#include <memory>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

@@ -3,6 +3,18 @@
 
 #include "TrackerHitReconstruction.h"
 
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/CovDiag3f.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <stddef.h>
+#include <exception>
+#include <iterator>
+#include <utility>
+#include <vector>
+
 namespace eicrecon {
 
 namespace {
