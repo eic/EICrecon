@@ -405,7 +405,7 @@ jobs:
       matrix:
         CC: [gcc]
         particle: [e]
-        detector_config: [brycecanyon]
+        detector_config: [craterlake]
     steps:
     - uses: actions/download-artifact@v3
       with:
