@@ -4,7 +4,6 @@
 //
 
 #include <JANA/JApplication.h>
-#include <ext/alloc_traits.h>
 #include <stddef.h>
 #include <algorithm>
 #include <string>

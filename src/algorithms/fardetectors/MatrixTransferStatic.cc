@@ -13,7 +13,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <ext/alloc_traits.h>
 #include <cmath>
 #include <vector>
 

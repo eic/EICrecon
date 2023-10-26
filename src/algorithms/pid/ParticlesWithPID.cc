@@ -3,7 +3,6 @@
 
 #include "ParticlesWithPID.h"
 
-#include <bits/std_abs.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>

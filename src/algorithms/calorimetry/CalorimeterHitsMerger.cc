@@ -19,7 +19,6 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <bits/utility.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>

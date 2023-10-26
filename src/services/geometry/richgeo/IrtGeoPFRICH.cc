@@ -17,7 +17,6 @@
 #include <TGeoNode.h>
 #include <TRef.h>
 #include <TVector3.h>
-#include <bits/std_abs.h>
 #include <fmt/core.h>
 #include <math.h>
 #include <stdint.h>

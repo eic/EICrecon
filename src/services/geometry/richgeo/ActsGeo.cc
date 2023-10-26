@@ -11,7 +11,6 @@
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <bits/std_abs.h>
 #include <ctype.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>

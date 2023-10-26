@@ -17,8 +17,6 @@
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <bits/std_abs.h>
-#include <bits/utility.h>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/vector.hpp>
 #include <Eigen/Core>

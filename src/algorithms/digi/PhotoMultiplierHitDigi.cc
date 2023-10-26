@@ -16,7 +16,6 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <bits/std_abs.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <math.h>
