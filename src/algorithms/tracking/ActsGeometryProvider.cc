@@ -33,7 +33,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "ActsExamples/Geometry/MaterialWiper.hpp"
 #include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
