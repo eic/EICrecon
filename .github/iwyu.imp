@@ -215,6 +215,8 @@
   { include: ["<edm4hep/TrackerPulse.h>", "private", "<edm4hep/TrackerPulseCollection.h>", "public"] },
   { include: ["<edm4hep/Vertex.h>", "private", "<edm4hep/VertexCollection.h>", "public"] },
 
+  { include: ["<edm4hep/utils/vector_utils_legacy.h>", "private", "<edm4hep/utils/vector_utils.h>", "public"] },
+
   #{ include: ["<assert.h>", "private", "<cassert>", "public"] },
   #{ include: ["<limits.h>", "private", "<climits>", "public"] },
   #{ include: ["<math.h>",   "private", "<cmath>",   "public"] },

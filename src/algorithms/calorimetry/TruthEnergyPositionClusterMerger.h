@@ -11,7 +11,7 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -149,7 +149,7 @@ namespace eicrecon {
             new_clus.setTime(eclus.getTime());
             new_clus.setNhits(eclus.getNhits());
             // FIXME use nominal dd4hep::radius of 110cm, and use start vertex theta and phi
-            new_clus.setPosition(edm4eic::sphericalToVector(78.5 * dd4hep::cm / dd4hep::mm, theta, phi));
+            new_clus.setPosition(edm4hep::utils::sphericalToVector(78.5 * dd4hep::cm / dd4hep::mm, theta, phi));
             new_clus.addToClusters(eclus);
 
             m_log->debug(" --> Processing energy cluster {}, mcID: {}, energy: {}", eclus.getObjectID().index, mcID, eclus.getEnergy() );
