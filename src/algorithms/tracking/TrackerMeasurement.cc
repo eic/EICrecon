@@ -1,7 +1,6 @@
 // Original license from Gaudi algorithm:
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Shujie Li
-// TODO refactor header when license is clear
+// Copyright (C) 2023 Shujie Li
 
 #include "TrackerMeasurement.h"
 
@@ -61,6 +60,7 @@ namespace eicrecon {
             Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
             cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
             cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
+            cov(0, 1) = hit->getPositionError().xy * mm_acts * mm_acts;
 
 
             const auto* vol_ctx = m_converter->findContext(hit->getCellID());
@@ -81,7 +81,6 @@ namespace eicrecon {
             }
             const Acts::Surface* surface = is->second;
             // variable surf_center not used anywhere;
-            // auto surf_center = surface->center(Acts::GeometryContext());
 
             const auto& hit_pos = hit->getPosition(); // 3d position
 
@@ -131,7 +130,7 @@ namespace eicrecon {
             meas2D.setTime(hit->getTime());                     // Measurement time
             // meas2D.setTimeError(hit->getTimeError());           // Error on the time
             // fixme: no off-diagonal terms. cov(0,1) = cov(1,0)??
-            meas2D.setCovariance({cov(0,0),cov(1,1),hit->getTimeError()}); // Covariance on location and time
+            meas2D.setCovariance({cov(0,0),cov(1,1),hit->getTimeError(),cov(0,1)}); // Covariance on location and time
             meas2D.addToWeights(1.0);                             // Weight for each of the hits, mirrors hits array
             meas2D.addToHits(*hit);
         }

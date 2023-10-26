@@ -47,9 +47,6 @@ void InitPlugin(JApplication *app) {
         {"CentralTrackingRecHits"}, // Output collection name
         app));
 
-    // Source linker
-    // app->Add(new JChainFactoryGeneratorT<TrackerSourceLinker_factory>(
-    //         {"CentralTrackingRecHits"}, "CentralTrackerSourceLinker"));
     app->Add(new JChainFactoryGeneratorT<TrackerMeasurement_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackerMeasurements"));
 
@@ -58,7 +55,6 @@ void InitPlugin(JApplication *app) {
         {
             "InitTrackParams",
             "CentralTrackerMeasurements"
-            // "CentralTrackerSourceLinker"
         },
         {
             "CentralCKFTrajectories",
@@ -76,7 +72,6 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackSeedingResults",
             "CentralTrackerMeasurements"
-            // "CentralTrackerSourceLinker"
         },
         {
             "CentralCKFSeededTrajectories",
