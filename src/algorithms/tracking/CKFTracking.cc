@@ -6,10 +6,10 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/Measurement.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/SingleBoundTrackParameters.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/Propagator.hpp>

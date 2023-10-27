@@ -2,8 +2,8 @@
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/SingleBoundTrackParameters.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>

@@ -3,7 +3,7 @@
 // Template for this file generated with eicmkplugin.py
 //
 
-#include <Acts/EventData/SingleBoundTrackParameters.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
