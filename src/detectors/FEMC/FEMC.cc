@@ -22,21 +22,21 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-	// Make sure digi and reco use the same value
-	decltype(CalorimeterHitDigiConfig::capADC)        EcalEndcapP_capADC = 16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
-	decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalEndcapP_dyRangeADC = 3 * dd4hep::GeV;
-	decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalEndcapP_pedMeanADC = 200;
-	decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapP_pedSigmaADC = 2.4576;
-	decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC = 10 * dd4hep::picosecond;
-	app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        EcalEndcapP_capADC = 16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalEndcapP_dyRangeADC = 3 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalEndcapP_pedMeanADC = 200;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapP_pedSigmaADC = 2.4576;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC = 10 * dd4hep::picosecond;
+        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits"},
           {
             .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
             .tRes = 0.0,
-	    .threshold = 15 * dd4hep::MeV,
+            .threshold = 15 * dd4hep::MeV,
             .capADC = EcalEndcapP_capADC,
-	    .capTime =  100, // given in ns, 4 samples in HGCROC
-	    .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .capTime =  100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC = EcalEndcapP_dyRangeADC,
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
@@ -48,7 +48,7 @@ extern "C" {
           "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
           {
             .capADC = EcalEndcapP_capADC,
-	    .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .dyRangeADC = EcalEndcapP_dyRangeADC,
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = 10 * EcalEndcapP_resolutionTDC,
