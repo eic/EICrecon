@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
