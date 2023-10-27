@@ -60,7 +60,7 @@ namespace eicrecon {
             Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
             cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
             cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
-            cov(0, 1) = hit->getPositionError().xy * mm_acts * mm_acts;
+            cov(0, 1) = 0.0;
 
 
             const auto* vol_ctx = m_converter->findContext(hit->getCellID());
