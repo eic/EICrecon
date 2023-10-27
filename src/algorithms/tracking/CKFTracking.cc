@@ -10,6 +10,7 @@
 #include <Acts/EventData/Measurement.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -149,7 +150,7 @@ namespace eicrecon {
             auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
 
             // Create parameters
-            acts_init_trk_params.emplace_back(pSurface, params, charge, cov);
+            acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());
         }
 
         auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
@@ -281,7 +282,8 @@ namespace eicrecon {
           parameters.emplace(
               std::pair{track.tipIndex(),
                         ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(),
-                                                      track.parameters(), track.covariance()}});
+                                                      track.parameters(), track.covariance(),
+                                                      track.particleHypothesis()}});
         }
 
         if (tips.empty()) {
