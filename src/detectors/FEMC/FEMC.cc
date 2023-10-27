@@ -22,18 +22,24 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+	// Make sure digi and reco use the same value
+	decltype(CalorimeterHitDigiConfig::capADC)        EcalEndcapP_capADC = 16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
+	decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalEndcapP_dyRangeADC = 3 * dd4hep::GeV;
+	decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalEndcapP_pedMeanADC = 200;
+	decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapP_pedSigmaADC = 2.4576;
+	decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC = 10 * dd4hep::picosecond;
+	app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits"},
           {
             .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
             .tRes = 0.0,
-            .capADC = 65536, //2^16  (approximate HGCROC resolution) old 16384
-            .capTime = 100, // given in ns, 4 samples in HGCROC
-            .dyRangeADC = 3 * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+	    .threshold = 15 * dd4hep::MeV,
+            .capADC = EcalEndcapP_capADC,
+	    .capTime =  100, // given in ns, 4 samples in HGCROC
+	    .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .pedMeanADC = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
             .corrMeanScale = 0.03,
           },
           app   // TODO: Remove me once fixed
@@ -41,11 +47,11 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
           {
-            .capADC = 65536,
-            .dyRangeADC = 3. * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .capADC = EcalEndcapP_capADC,
+	    .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .pedMeanADC = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = 10 * EcalEndcapP_resolutionTDC,
             .thresholdFactor = 5.0,
             .thresholdValue = 2.0,
             .sampFrac  =0.03,
