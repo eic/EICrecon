@@ -51,7 +51,7 @@ extern "C" {
             .dyRangeADC = EcalEndcapP_dyRangeADC,
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
-            .resolutionTDC = 10 * EcalEndcapP_resolutionTDC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
             .thresholdFactor = 5.0,
             .thresholdValue = 2.0,
             .sampFrac  =0.03,
