@@ -3,6 +3,23 @@
 
 #include "RichGeo_service.h"
 
+#include <JANA/JException.h>
+#include <ctype.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <algorithm>
+#include <exception>
+#include <gsl/pointers>
+
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/geometry/richgeo/ActsGeo.h"
+#include "services/geometry/richgeo/IrtGeo.h"
+#include "services/geometry/richgeo/IrtGeoDRICH.h"
+#include "services/geometry/richgeo/IrtGeoPFRICH.h"
+#include "services/geometry/richgeo/ReadoutGeo.h"
+#include "services/log/Log_service.h"
+
 // Services ----------------------------------------------------------
 void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
 
@@ -12,7 +29,7 @@ void RichGeo_service::acquire_services(JServiceLocator *srv_locator) {
   std::string log_level_str = "info";
   m_app->SetDefaultParameter("richgeo:LogLevel", log_level_str, "Log level for RichGeo_service");
   m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-  m_log->debug("RichGeo log level is set to {} ({})", log_level_str, m_log->level());
+  m_log->debug("RichGeo log level is set to {} ({})", log_level_str, fmt::underlying(m_log->level()));
 
   // DD4Hep geometry service
   auto dd4hep_service = srv_locator->get<DD4hep_service>();

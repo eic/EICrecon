@@ -4,9 +4,15 @@
 
 #pragma once
 
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <vector>
 
 #include "algorithms/reco/MC2SmearedParticle.h"
 #include "extensions/jana/JChainFactoryT.h"

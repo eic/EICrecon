@@ -3,6 +3,20 @@
 
 #include "IrtCherenkovParticleID_factory.h"
 
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <map>
+
+#include "datamodel_glue.h"
+#include "services/geometry/richgeo/IrtGeo.h"
+#include "services/geometry/richgeo/RichGeo.h"
+
 //-----------------------------------------------------------------------------
 void eicrecon::IrtCherenkovParticleID_factory::Init() {
 

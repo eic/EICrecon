@@ -1,11 +1,18 @@
 
 #include "JEventProcessorPODIO.h"
-#include "services/log/Log_service.h"
-#include <JANA/Services/JComponentManager.h>
-#include <podio/Frame.h>
 
-#include "datamodel_glue.h"
+#include <JANA/JApplication.h>
+#include <JANA/JLogger.h>
+#include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <fmt/core.h>
+#include <podio/CollectionBase.h>
+#include <podio/Frame.h>
+#include <spdlog/common.h>
 #include <algorithm>
+#include <exception>
+
+#include "services/log/Log_service.h"
 
 
 JEventProcessorPODIO::JEventProcessorPODIO() {

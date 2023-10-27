@@ -3,14 +3,18 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -42,8 +46,8 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
             .thresholdValue = 1.0,
+            ////.sampFrac = 0.998,
             .sampFrac = 0.0096,
-            ///.sampFrac = 0.998,
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
@@ -53,6 +57,7 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
+            ////.refs = {1, 0},
             .refs = {1, 2},
           },
           app   // TODO: Remove me once fixed
@@ -84,7 +89,7 @@ extern "C" {
             {
               .energyWeight = "log",
               .moduleDimZName = "",
-              .sampFrac = 1.,
+              .sampFrac = 1.0,
               .logWeightBase = 6.2,
               .depthCorrection = 0.0,
               .enableEtaBounds = false
@@ -103,7 +108,7 @@ extern "C" {
             {
               .energyWeight = "log",
               .moduleDimZName = "",
-              .sampFrac = 1.,
+              .sampFrac = 1.0,
               .logWeightBase = 6.2,
               .depthCorrection = 0.0,
               .enableEtaBounds = false,

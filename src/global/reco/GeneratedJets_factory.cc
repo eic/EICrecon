@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Zhongling Ji, Derek Anderson
 
-// standard c includes
-#include <memory>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-// event data model definitions
+#include <Math/GenVector/LorentzVector.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/kinematics.h>
+#include <memory>
+
 // factory-specific includes
 #include "GeneratedJets_factory.h"
+#include "datamodel_glue.h"
 
 namespace eicrecon {
 

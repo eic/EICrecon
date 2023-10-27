@@ -29,7 +29,7 @@ macro(plugin_add _name)
     find_package(spdlog REQUIRED)
 
     # include fmt by default
-    find_package(fmt REQUIRED)
+    find_package(fmt 9.0.0 REQUIRED)
 
     # include gsl by default
     find_package(Microsoft.GSL CONFIG)
@@ -237,6 +237,13 @@ macro(plugin_add_irt _name)
     if(NOT IRT_FOUND)
         find_package(IRT REQUIRED)
     endif()
+
+    # FIXME: IRTConfig.cmake sets INTERFACE_INCLUDE_DIRECTORIES to <prefix>/include/IRT
+    # instead of <prefix>/include, allowing for short-form #include <CherenkovDetector.h>
+    get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT INTERFACE_INCLUDE_DIRECTORIES)
+    list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
+    list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
+    set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
     plugin_link_libraries(${PLUGIN_NAME} IRT)
 

@@ -7,11 +7,9 @@
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
-
-// Event Model related classes
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "EnergyPositionClusterMergerConfig.h"
@@ -86,12 +84,12 @@ namespace eicrecon {
                 // 1. stop if not within tolerance
                 //    (make sure to handle rollover of phi properly)
                 const double de_rel = std::abs((pc.getEnergy() - ec.getEnergy()) / ec.getEnergy());
-                const double deta = std::abs(edm4eic::eta(pc.getPosition())
-                                           - edm4eic::eta(ec.getPosition()));
+                const double deta = std::abs(edm4hep::utils::eta(pc.getPosition())
+                                           - edm4hep::utils::eta(ec.getPosition()));
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
-                const double dphi = edm4eic::angleAzimuthal(pc.getPosition())
-                                  - edm4eic::angleAzimuthal(ec.getPosition());
+                const double dphi = edm4hep::utils::angleAzimuthal(pc.getPosition())
+                                  - edm4hep::utils::angleAzimuthal(ec.getPosition());
                 const double dsphi = std::abs(sin(0.5 * dphi));
                 if ((m_cfg.energyRelTolerance > 0 && de_rel > m_cfg.energyRelTolerance) ||
                     (m_cfg.etaTolerance > 0 && deta > m_cfg.etaTolerance) ||
@@ -195,11 +193,11 @@ namespace eicrecon {
 
                 m_log->debug("  Matched position cluster {} with energy cluster {}", pc.getObjectID().index, ec.getObjectID().index);
                 m_log->debug("  - Position cluster: (E: {}, phi: {}, z: {})", pc.getEnergy(),
-                             edm4eic::angleAzimuthal(pc.getPosition()), pc.getPosition().z);
+                             edm4hep::utils::angleAzimuthal(pc.getPosition()), pc.getPosition().z);
                 m_log->debug("  - Energy cluster: (E: {}, phi: {}, z: {})", ec.getEnergy(),
-                             edm4eic::angleAzimuthal(ec.getPosition()), ec.getPosition().z);
+                             edm4hep::utils::angleAzimuthal(ec.getPosition()), ec.getPosition().z);
                 m_log->debug("  ---> Merged cluster: (E: {}, phi: {}, z: {})", new_clus.getEnergy(),
-                             edm4eic::angleAzimuthal(new_clus.getPosition()), new_clus.getPosition().z);
+                             edm4hep::utils::angleAzimuthal(new_clus.getPosition()), new_clus.getPosition().z);
 
 
             } else {

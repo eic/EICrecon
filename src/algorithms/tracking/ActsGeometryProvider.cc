@@ -1,31 +1,45 @@
 // Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include <fmt/ostream.h>
-
-#include "ActsGeometryProvider.h"
-
-#include <TGeoManager.h>
-
-#include <DD4hep/Printout.h>
-
-#include "ActsExamples/Geometry/MaterialWiper.hpp"
-
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
+#include <Acts/Geometry/detail/DefaultDetectorElementBase.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
-#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
+#include <Acts/Surfaces/PlanarBounds.hpp>
+#include <Acts/Surfaces/PlaneSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/SurfaceArray.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Utilities/BinningType.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/VolumeManager.h>
+#include <JANA/JException.h>
+#include <TGeoManager.h>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+#include <spdlog/common.h>
+#include <stddef.h>
+#include <exception>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <type_traits>
+#include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
 
 // Formatter for Eigen matrices
 #if FMT_VERSION >= 90000
 #include <Eigen/Core>
+
 template <typename T>
 struct fmt::formatter<
     T,
@@ -120,9 +134,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
         Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
         // Set up the json-based decorator
         materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(jsonGeoConvConfig, material_file,acts_init_log_level);
-    } else {
-        m_init_log->warn("no ACTS materials map has been loaded");
-        materialDeco = std::make_shared<const Acts::MaterialWiper>();
     }
 
     // Geometry identifier hook to write detector ID to extra field
@@ -215,7 +226,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     auto bCache = m_magneticField->makeCache(m_fieldctx);
     for (int z: {0, 500, 1000, 1500, 2000, 3000, 4000}) {
         auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
-        m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose());
+        m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose() / Acts::UnitConstants::T);
     }
 
     m_init_log->info("ActsGeometryProvider initialization complete");

@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#include <boost/container/vector.hpp>
+#include <memory>
+#include <utility>
+#include <variant>
 
+#include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"
-
-#include "DD4hepBField.h"
 
 namespace eicrecon{
   using Updater  = Acts::GainMatrixUpdater;

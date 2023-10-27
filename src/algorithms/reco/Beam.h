@@ -4,11 +4,12 @@
 #pragma once
 
 #include <Math/Vector4D.h>
-using ROOT::Math::PxPyPzEVector;
-
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <set>
+
+using ROOT::Math::PxPyPzEVector;
+
 namespace eicrecon {
 
   template<class T>

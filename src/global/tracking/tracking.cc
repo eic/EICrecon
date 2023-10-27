@@ -4,19 +4,19 @@
 //
 
 #include <JANA/JApplication.h>
+#include <string>
 
-#include "extensions/jana/JChainFactoryGeneratorT.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
-#include "factories/tracking/TrackerHitCollector_factory.h"
-
-#include "TrackerSourceLinker_factory.h"
-#include "TrackParamTruthInit_factory.h"
+#include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
-#include "TrackSeeding_factory.h"
+#include "IterativeVertexFinder_factory.h"
+#include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagation_factory.h"
-#include "IterativeVertexFinder_factory.h"
+#include "TrackSeeding_factory.h"
+#include "TrackerSourceLinker_factory.h"
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "factories/tracking/TrackerHitCollector_factory.h"
 
 //
 extern "C" {

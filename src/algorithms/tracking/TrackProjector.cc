@@ -1,42 +1,30 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 wfan, Whitney Armstrong, Sylvester Joosten
 
-#include <algorithm>
-
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-
-#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-
-// Event Model related classes
-#include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Track.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-
-#include <edm4eic/vector_utils.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <fmt/ostream.h>
 #include <spdlog/logger.h>
-#include <spdlog/fmt/ostr.h>
-#include "TrackProjectorConfig.h"
-#include "TrackProjector.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
-
+#include <stdint.h>
 #include <cmath>
+#include <exception>
+#include <iterator>
+#include <utility>
+
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "TrackProjector.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #if FMT_VERSION >= 90000
 template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
@@ -123,7 +111,7 @@ namespace eicrecon {
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
                 };
                 const decltype(edm4eic::TrackPoint::positionError) positionError{0, 0, 0};
-                const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
+                const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
                         static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
                         static_cast<float>(parameter[Acts::eBoundTheta]),
                         static_cast<float>(parameter[Acts::eBoundPhi])

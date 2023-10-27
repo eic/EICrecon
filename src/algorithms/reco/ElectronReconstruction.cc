@@ -2,6 +2,11 @@
 // Copyright (C) 2023 Daniel Brandenburg
 #include "ElectronReconstruction.h"
 
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <exception>
+
 namespace eicrecon {
 
   void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
@@ -33,7 +38,7 @@ namespace eicrecon {
             auto clu = clu_assoc.getRec(); // RecoCluster
 
             m_log->trace( "SimId={}, CluId={}", clu_assoc.getSimID(), clu_assoc.getRecID() );
-            m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4eic::magnitude(sim.getMomentum()), clu.getEnergy() / edm4eic::magnitude(sim.getMomentum()), sim.getPDG() );
+            m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4hep::utils::magnitude(sim.getMomentum()), clu.getEnergy() / edm4hep::utils::magnitude(sim.getMomentum()), sim.getPDG() );
 
 
             // Find the Reconstructed particle associated to the MC Particle that is matched with this reco cluster
@@ -48,8 +53,8 @@ namespace eicrecon {
             // if we found a reco particle then test for electron compatibility
             if ( reco_part_assoc != rcassoc->end() ){
               auto reco_part = reco_part_assoc->getRec();
-              double EoverP = clu.getEnergy() / edm4eic::magnitude(reco_part.getMomentum());
-              m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4eic::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
+              double EoverP = clu.getEnergy() / edm4hep::utils::magnitude(reco_part.getMomentum());
+              m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
 
               // Apply the E/p cut here to select electons
               if ( EoverP >= min_energy_over_momentum && EoverP <= max_energy_over_momentum ) {

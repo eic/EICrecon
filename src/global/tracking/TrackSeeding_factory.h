@@ -4,13 +4,21 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
-#include <edm4eic/TrackParameters.h>
-
+#include "OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {

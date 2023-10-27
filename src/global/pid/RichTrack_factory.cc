@@ -3,6 +3,19 @@
 
 #include "RichTrack_factory.h"
 
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <tuple>
+
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "TrackPropagation.h"
+#include "datamodel_glue.h"
+#include "services/geometry/richgeo/RichGeo.h"
+
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Init() {
 
