@@ -42,7 +42,8 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
             .thresholdValue = 1.0,
-            .sampFrac = 0.998,
+            .sampFrac = 0.0096,
+            ///.sampFrac = 0.998,
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
@@ -52,7 +53,7 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
-            .refs = {1, 0},
+            .refs = {1, 2},
           },
           app   // TODO: Remove me once fixed
         ));
@@ -83,7 +84,7 @@ extern "C" {
             {
               .energyWeight = "log",
               .moduleDimZName = "",
-              .sampFrac = 1.0,
+              .sampFrac = 1.,
               .logWeightBase = 6.2,
               .depthCorrection = 0.0,
               .enableEtaBounds = false
@@ -102,7 +103,7 @@ extern "C" {
             {
               .energyWeight = "log",
               .moduleDimZName = "",
-              .sampFrac = 1.0,
+              .sampFrac = 1.,
               .logWeightBase = 6.2,
               .depthCorrection = 0.0,
               .enableEtaBounds = false,
