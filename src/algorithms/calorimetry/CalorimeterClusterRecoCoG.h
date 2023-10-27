@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -45,6 +46,17 @@ namespace eicrecon {
   using ClustersWithAssociations = std::pair<
     std::unique_ptr<edm4eic::ClusterCollection>,
     std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>
+  >;
+
+  using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      std::optional<edm4hep::SimCalorimeterHitCollection>
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
+    >
   >;
 
   class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {

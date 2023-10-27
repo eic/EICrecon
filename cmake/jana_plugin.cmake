@@ -177,6 +177,20 @@ macro(plugin_glob_all _name)
 endmacro()
 
 
+# Adds algorithms for a plugin
+macro(plugin_add_algorithms _name)
+
+    if(NOT algorithms_FOUND)
+        find_package(algorithms REQUIRED)
+    endif()
+
+    plugin_link_libraries(${_name}
+        algocore
+    )
+
+endmacro()
+
+
 # Adds dd4hep for a plugin
 macro(plugin_add_dd4hep _name)
 
