@@ -11,7 +11,6 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <bits/std_abs.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>

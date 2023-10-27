@@ -5,7 +5,6 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <bits/std_abs.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/EDM4eicVersion.h>

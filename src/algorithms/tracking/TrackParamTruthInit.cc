@@ -6,7 +6,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <TParticlePDG.h>
-#include <bits/std_abs.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
