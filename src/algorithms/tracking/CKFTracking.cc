@@ -22,7 +22,6 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
-#include <edm4eic/Measurement2D.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
