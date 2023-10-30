@@ -10,12 +10,19 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      platform-release:
+        description: 'eic-shell version'
+        default: 'jug_xl:nightly'
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
+  platform-release: ${{ inputs.platform-release || 'jug_xl:nightly' }}
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1
@@ -67,7 +74,7 @@ jobs:
     - name: Build and install
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           # install this repo
           CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
@@ -76,7 +83,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -87,7 +94,7 @@ jobs:
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
@@ -127,14 +134,14 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           git diff ${{github.event.pull_request.base.sha}} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++17'
     - name: Upload clang-tidy fixes as artifact
@@ -155,7 +162,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           # reduce headers until diff is stable
           while [[ ${sha:-} != $(git diff | sha256sum) ]] ; do
@@ -169,7 +176,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         run: |
           # don't aim for stability for all files
           iwyu_tool -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp | tee iwyu_fixes.log
@@ -260,7 +267,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
@@ -293,7 +300,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
@@ -330,7 +337,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
@@ -364,7 +371,7 @@ jobs:
     - name: Run EICrecon (digitization)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -381,7 +388,7 @@ jobs:
     - name: Run EICrecon (reconstruction)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -405,7 +412,7 @@ jobs:
       matrix:
         CC: [gcc]
         particle: [e]
-        detector_config: [brycecanyon]
+        detector_config: [craterlake]
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -417,7 +424,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -458,7 +465,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -493,7 +500,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -501,7 +508,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -554,7 +561,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           echo "::group::pip install"
@@ -584,7 +591,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -633,7 +640,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -681,7 +688,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "${{ env.platform-release }}"
         setup: /opt/detector/setup.sh
         run: |
           echo "::group::pip install"

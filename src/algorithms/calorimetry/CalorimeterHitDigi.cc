@@ -18,9 +18,7 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <bits/utility.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <ext/alloc_traits.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
@@ -30,6 +28,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>

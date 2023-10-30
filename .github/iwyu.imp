@@ -227,6 +227,11 @@
   #{ include: ["<stdlib.h>", "private", "<cstdlib>", "public"] },
   #{ include: ["<unistd.h>", "private", "<cunistd>", "public"] },
 
+  { include: ["<bits/std_abs.h>", "private", "<math.h>", "public"] },
+  { include: ["<bits/utility.h>", "private", "<tuple>", "public"] },
+  # https://github.com/include-what-you-use/include-what-you-use/issues/166
+  { include: ["<ext/alloc_traits.h>", "private", "<vector>", "public"] },
+
   #{ include: ["@<Acts/(.*)\.ipp>", "private", "<Acts/\1.hpp>", "public"] }
   { include: ["<Acts/EventData/MultiTrajectory.ipp>", "private", "<Acts/EventData/MultiTrajectory.hpp>", "public"] },
   { include: ["<Acts/Geometry/detail/Layer.ipp>", "private", "<Acts/Geometry/Layer.hpp>", "public"] },
