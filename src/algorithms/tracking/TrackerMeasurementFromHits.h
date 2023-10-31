@@ -19,7 +19,7 @@
 
 namespace eicrecon {
 
-    class TrackerMeasurement {
+    class TrackerMeasurementFromHits {
     public:
         void init(const dd4hep::Detector* detector,
                   const dd4hep::rec::CellIDPositionConverter* converter,

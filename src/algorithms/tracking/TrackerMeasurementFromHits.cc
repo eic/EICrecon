@@ -1,8 +1,9 @@
 // Original license from Gaudi algorithm:
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Shujie Li
+// 
 
-#include "TrackerMeasurement.h"
+#include "TrackerMeasurementFromHits.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
@@ -31,7 +32,7 @@
 namespace eicrecon {
 
 
-    void TrackerMeasurement::init(const dd4hep::Detector* detector,
+    void TrackerMeasurementFromHits::init(const dd4hep::Detector* detector,
                                          const dd4hep::rec::CellIDPositionConverter* converter,
                                          std::shared_ptr<const ActsGeometryProvider> acts_context,
                                          std::shared_ptr<spdlog::logger> logger) {
@@ -43,7 +44,7 @@ namespace eicrecon {
 }
 
 
-    std::unique_ptr<edm4eic::Measurement2DCollection> TrackerMeasurement::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
+    std::unique_ptr<edm4eic::Measurement2DCollection> TrackerMeasurementFromHits::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
         constexpr double mm_acts = Acts::UnitConstants::mm;
         constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 

@@ -50,7 +50,7 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
     auto meas2Ds = static_cast<const edm4eic::Measurement2DCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
     if(!meas2Ds) {
-        m_log->warn("TrackerMeasurement is null (hasn't been produced?). Skipping tracking for the whole event!");
+        m_log->warn("TrackerMeasurementFromHits is null (hasn't been produced?). Skipping tracking for the whole event!");
         return;
     }
 

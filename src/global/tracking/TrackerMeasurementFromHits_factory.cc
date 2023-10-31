@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "TrackerMeasurement_factory.h"
+#include "TrackerMeasurementFromHits_factory.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
@@ -12,7 +12,7 @@
 #include <gsl/pointers>
 #include <map>
 
-#include "algorithms/tracking/TrackerMeasurement.h"
+#include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -22,7 +22,7 @@
 namespace eicrecon {
 
 
-    void TrackerMeasurement_factory::Init() {
+    void TrackerMeasurementFromHits_factory::Init() {
         // Ask JApplication and parameter managers
         auto *app =  this->GetApplication();
         auto *pm = app->GetJParameterManager();
@@ -55,11 +55,11 @@ namespace eicrecon {
 
 
 
-    void TrackerMeasurement_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+    void TrackerMeasurementFromHits_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
 
     }
 
-    void TrackerMeasurement_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void TrackerMeasurementFromHits_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits
         std::vector<const edm4eic::TrackerHit*> total_hits;
 
@@ -69,7 +69,7 @@ namespace eicrecon {
                 total_hits.push_back(hit);
             }
         }
-        m_log->debug("TrackerMeasurement_factory::Process");
+        m_log->debug("TrackerMeasurementFromHits_factory::Process");
 
         try {
             auto result = m_measurement.produce(total_hits);

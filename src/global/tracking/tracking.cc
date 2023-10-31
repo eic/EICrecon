@@ -13,7 +13,7 @@
 #include "TrackProjector_factory.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
-#include "TrackerMeasurement_factory.h"
+#include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/tracking/TrackerHitCollector_factory.h"
@@ -47,7 +47,7 @@ void InitPlugin(JApplication *app) {
         {"CentralTrackingRecHits"}, // Output collection name
         app));
 
-    app->Add(new JChainFactoryGeneratorT<TrackerMeasurement_factory>(
+    app->Add(new JChainFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
             {"CentralTrackingRecHits"}, "CentralTrackerMeasurements"));
 
     app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(

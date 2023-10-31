@@ -18,15 +18,15 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/TrackerMeasurement.h"
+#include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/jana/JChainFactoryT.h"
 
 namespace eicrecon {
 
-    class TrackerMeasurement_factory : public JChainFactoryT<edm4eic::Measurement2D, NoConfig>{
+    class TrackerMeasurementFromHits_factory : public JChainFactoryT<edm4eic::Measurement2D, NoConfig>{
 
     public:
-        TrackerMeasurement_factory( std::vector<std::string> default_input_tags):
+        TrackerMeasurementFromHits_factory( std::vector<std::string> default_input_tags):
                 JChainFactoryT<edm4eic::Measurement2D, NoConfig>(std::move(default_input_tags) ) {
         }
 
@@ -43,7 +43,7 @@ namespace eicrecon {
 
         std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
         std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
-        eicrecon::TrackerMeasurement m_measurement;      /// Tracker measurement algorithm
+        eicrecon::TrackerMeasurementFromHits m_measurement;      /// Tracker measurement algorithm
     };
 
 } // eicrecon
