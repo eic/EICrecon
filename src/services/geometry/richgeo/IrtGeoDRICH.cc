@@ -220,7 +220,6 @@ TVector3 richgeo::IrtGeoDRICH::GetSensorSurfaceNorm(CellIDType id){
     throw std::runtime_error("sensor not found in IrtGeoDRIC::GetSensorSurfaceNormal");
     m_log->error("Cannot find sensor {} in IrtGeoDRICH::GetSensorSurface", id);
   }
-    //std::cout<<sensorNorm.X()<<std::endl;
   return sensorNorm;
 }
 // destructor
