@@ -2,6 +2,27 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #include "IrtGeoDRICH.h"
+
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Fields.h>
+#include <DD4hep/Objects.h>
+#include <DDRec/DetectorData.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <IRT/CherenkovDetector.h>
+#include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/CherenkovRadiator.h>
+#include <IRT/G4Object.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TRef.h>
+#include <fmt/core.h>
+#include <stdint.h>
+#include <exception>
+#include <map>
+#include <stdexcept>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope
