@@ -1,7 +1,7 @@
 // Original license from Gaudi algorithm:
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Shujie Li
-// 
+//
 
 #include "TrackerMeasurementFromHits.h"
 
