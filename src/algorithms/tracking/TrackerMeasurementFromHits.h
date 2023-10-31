@@ -26,7 +26,6 @@ namespace eicrecon {
                   std::shared_ptr<const ActsGeometryProvider> acts_context,
                   std::shared_ptr<spdlog::logger> logger);
 
-        // eicrecon::TrackerMeasurment *produce(std::vector<const edm4eic::TrackerHit *> trk_hits);
         std::unique_ptr<edm4eic::Measurement2DCollection> produce(std::vector<const edm4eic::TrackerHit*> trk_hits);
 
     private:
