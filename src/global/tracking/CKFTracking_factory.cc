@@ -16,7 +16,6 @@
 #include "CKFTrackingConfig.h"
 #include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
     auto *app = GetApplication();
@@ -30,7 +29,6 @@ void eicrecon::CKFTracking_factory::Init() {
 
     // Get ACTS context from ACTSGeo service
     auto acts_service   = app->GetService<ACTSGeo_service>();
-    auto dd4hep_service = app->GetService<DD4hep_service>();
 
 
     // Algorithm configuration
