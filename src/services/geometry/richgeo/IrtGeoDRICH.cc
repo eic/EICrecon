@@ -217,8 +217,8 @@ TVector3 richgeo::IrtGeoDRICH::GetSensorSurfaceNorm(CellIDType id){
     sensorNorm.SetZ(static_cast<double>(normZdir.z()));
   }
   else{
-    throw std::runtime_error("sensor not found in IrtGeoDRIC::GetSensorSurfaceNormal");
     m_log->error("Cannot find sensor {} in IrtGeoDRICH::GetSensorSurface", id);
+    throw std::runtime_error("sensor not found in IrtGeoDRIC::GetSensorSurfaceNormal");
   }
   return sensorNorm;
 }
