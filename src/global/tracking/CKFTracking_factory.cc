@@ -54,26 +54,6 @@ void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> 
         return;
     }
 
-    // // Convert vector of source links to a sorted in geometry order container used in tracking
-    // ActsExamples::IndexSourceLinkContainer source_links;
-    // auto measurements_ptr = source_linker_result->measurements;
-    // for(const auto &sourceLink: source_linker_result->sourceLinks){
-    //     // add to output containers. since the input is already geometry-order,
-    //     // new elements in geometry containers can just be appended at the end.
-    //     source_links.emplace_hint(source_links.end(), *sourceLink);
-    // }
-
-    // >oO Debug output for SourceLinks
-    // if(m_log->level() <= spdlog::level::trace) {
-    //     m_log->trace("Checking Source links: ");
-    //     for(auto sourceLink: source_links) {
-    //         m_log->trace("   index: {:<5} geometryId: {}", sourceLink.get().index(), sourceLink.get().geometryId().value());
-    //     }
-    // // }
-    // m_log->debug("Source links count: {}", source_links.size());
-    // m_log->debug("Measurements count: {}", source_linker_result->measurements->size());
-    // m_log->debug("Diving into tracking...");
-
     try {
         // RUN TRACKING ALGORITHM
         auto [trajectories, track_parameters, acts_trajectories] = m_tracking_algo.process(

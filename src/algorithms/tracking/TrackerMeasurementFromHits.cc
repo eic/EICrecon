@@ -129,7 +129,6 @@ namespace eicrecon {
             meas2D.setSurface(surface->geometryId().value());   // Surface for bound coordinates (geometryID)
             meas2D.setLoc({static_cast<float>(pos[0]),static_cast<float>(pos[1])});                     // 2D location on surface
             meas2D.setTime(hit->getTime());                     // Measurement time
-            // meas2D.setTimeError(hit->getTimeError());           // Error on the time
             // fixme: no off-diagonal terms. cov(0,1) = cov(1,0)??
             meas2D.setCovariance({cov(0,0),cov(1,1),hit->getTimeError(),cov(0,1)}); // Covariance on location and time
             meas2D.addToWeights(1.0);                             // Weight for each of the hits, mirrors hits array

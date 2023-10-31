@@ -52,7 +52,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // All tracking hits combined
             "CentralTrackingRecHits",
             "CentralTrackSeedingResults",
-            "CentralTrackerMeasurement",
+            "CentralTrackerMeasurements",
 
             // Si tracker hits
             "SiBarrelTrackerRecHits",
