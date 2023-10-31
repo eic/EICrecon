@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <algorithm>
 #include <cmath>
-#include <vector>
+#include <exception>
 
 #include "Beam.h"
-#include "Boost.h"
 #include "InclusiveKinematicsTruth.h"
 
-#include <Math/Vector4D.h>
-using ROOT::Math::PxPyPzEVector;
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
 
+using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
@@ -51,7 +50,7 @@ namespace eicrecon {
       return kinematics;
     }
     const auto ei_p = ei_coll[0].getMomentum();
-    const auto ei_p_mag = edm4eic::magnitude(ei_p);
+    const auto ei_p_mag = edm4hep::utils::magnitude(ei_p);
     const auto ei_mass = m_electron;
     const PxPyPzEVector ei(ei_p.x, ei_p.y, ei_p.z, std::hypot(ei_p_mag, ei_mass));
 
@@ -62,7 +61,7 @@ namespace eicrecon {
       return kinematics;
     }
     const auto pi_p = pi_coll[0].getMomentum();
-    const auto pi_p_mag = edm4eic::magnitude(pi_p);
+    const auto pi_p_mag = edm4hep::utils::magnitude(pi_p);
     const auto pi_mass = pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron;
     const PxPyPzEVector pi(pi_p.x, pi_p.y, pi_p.z, std::hypot(pi_p_mag, pi_mass));
 
@@ -77,7 +76,7 @@ namespace eicrecon {
       return kinematics;
     }
     const auto ef_p = ef_coll[0].getMomentum();
-    const auto ef_p_mag = edm4eic::magnitude(ef_p);
+    const auto ef_p_mag = edm4hep::utils::magnitude(ef_p);
     const auto ef_mass = m_electron;
     const PxPyPzEVector ef(ef_p.x, ef_p.y, ef_p.z, std::hypot(ef_p_mag, ef_mass));
 

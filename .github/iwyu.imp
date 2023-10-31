@@ -215,6 +215,8 @@
   { include: ["<edm4hep/TrackerPulse.h>", "private", "<edm4hep/TrackerPulseCollection.h>", "public"] },
   { include: ["<edm4hep/Vertex.h>", "private", "<edm4hep/VertexCollection.h>", "public"] },
 
+  { include: ["<edm4hep/utils/vector_utils_legacy.h>", "private", "<edm4hep/utils/vector_utils.h>", "public"] },
+
   #{ include: ["<assert.h>", "private", "<cassert>", "public"] },
   #{ include: ["<limits.h>", "private", "<climits>", "public"] },
   #{ include: ["<math.h>",   "private", "<cmath>",   "public"] },
@@ -222,6 +224,11 @@
   #{ include: ["<stdint.h>", "private", "<cstdint>", "public"] },
   #{ include: ["<stdlib.h>", "private", "<cstdlib>", "public"] },
   #{ include: ["<unistd.h>", "private", "<cunistd>", "public"] },
+
+  { include: ["<bits/std_abs.h>", "private", "<math.h>", "public"] },
+  { include: ["<bits/utility.h>", "private", "<tuple>", "public"] },
+  # https://github.com/include-what-you-use/include-what-you-use/issues/166
+  { include: ["<ext/alloc_traits.h>", "private", "<vector>", "public"] },
 
   #{ include: ["@<Acts/(.*)\.ipp>", "private", "<Acts/\1.hpp>", "public"] }
   { include: ["<Acts/EventData/MultiTrajectory.ipp>", "private", "<Acts/EventData/MultiTrajectory.hpp>", "public"] },

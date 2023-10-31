@@ -1,15 +1,14 @@
 #pragma once
 
-#include <spdlog/fwd.h>
-
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <JANA/JEventProcessorSequentialRoot.h>
-
 #include <TDirectory.h>
-#include <edm4eic/ReconstructedParticle.h>
-
-class JEvent;
-class JApplication;
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <spdlog/fwd.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 class GlobalReconstructionTest_processor:public JEventProcessor
 {

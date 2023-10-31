@@ -5,15 +5,26 @@
 #include "TrackSeeding.h"
 
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
+
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/Seeding/Seed.hpp>
+#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
-#include <Acts/Seeding/SpacePointGrid.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
-
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/vector.hpp>
+#include <Eigen/Core>
+#include <cmath>
+#include <limits>
 #include <tuple>
+#include <type_traits>
+#include <variant>
 
 namespace
 {

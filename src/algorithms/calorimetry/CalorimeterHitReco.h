@@ -8,16 +8,19 @@
 
 #pragma once
 
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
-#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Parsers/Primitives.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <memory>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitRecoConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

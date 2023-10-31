@@ -15,6 +15,17 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/Vector3d.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <spdlog/common.h>
+#include <algorithm>
+#include <exception>
+#include <iterator>
+
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+
 //------------------------
 // AlgorithmInit
 //------------------------

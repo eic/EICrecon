@@ -3,20 +3,23 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
+#include <exception>
 
 #include "Beam.h"
 #include "Boost.h"
 #include "InclusiveKinematicsSigma.h"
 
-#include <Math/Vector4D.h>
-using ROOT::Math::PxPyPzEVector;
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/Vector4Dfwd.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+
+using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 

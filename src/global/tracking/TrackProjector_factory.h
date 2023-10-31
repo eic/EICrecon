@@ -4,14 +4,21 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticle.h>
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <spdlog/logger.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
-#include "extensions/jana/JChainFactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "algorithms/tracking/TrackProjector.h"
 #include "algorithms/tracking/TrackProjectorConfig.h"
+#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 

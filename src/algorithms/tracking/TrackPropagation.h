@@ -4,22 +4,20 @@
 
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <spdlog/logger.h>
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/EventData/MultiTrajectory.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <spdlog/logger.h>
+#include <functional>
+#include <memory>
+#include <vector>
 
 #include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <edm4eic/TrackSegmentCollection.h>
-
-
 #include "ActsGeometryProvider.h"
-#include "TrackProjector.h"
 
 
 

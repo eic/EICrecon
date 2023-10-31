@@ -5,33 +5,38 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "lfhcal_studiesProcessor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/rootfile/RootFile_service.h"
-#include <spdlog/spdlog.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
-
-// Include appropriate class headers. e.g.
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/vector_utils.h>
-
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TVector3.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <RtypesCore.h>
+#include <TMath.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <gsl/pointers>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <vector>
 
 #include "clusterizer_MA.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 
 //******************************************************************************************//

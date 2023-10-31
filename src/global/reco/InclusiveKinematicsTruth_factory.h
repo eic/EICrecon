@@ -3,9 +3,19 @@
 
 #pragma once
 
+#include <JANA/JEvent.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "algorithms/reco/InclusiveKinematicsTruth.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include "algorithms/reco/InclusiveKinematicsTruth.h"
 
 namespace eicrecon {
 

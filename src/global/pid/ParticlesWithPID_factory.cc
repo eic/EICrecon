@@ -3,8 +3,13 @@
 //
 
 #include <JANA/JEvent.h>
-#include <edm4eic/TrackParameters.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <exception>
+
 #include "ParticlesWithPID_factory.h"
+#include "datamodel_glue.h"
 
 
 void eicrecon::ParticlesWithPID_factory::Init() {

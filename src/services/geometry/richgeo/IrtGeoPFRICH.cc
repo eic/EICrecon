@@ -3,6 +3,31 @@
 
 #include "IrtGeoPFRICH.h"
 
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Fields.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <IRT/CherenkovDetector.h>
+#include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/CherenkovRadiator.h>
+#include <IRT/G4Object.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TGeoNode.h>
+#include <TRef.h>
+#include <TVector3.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <stdint.h>
+#include <exception>
+#include <map>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+
+#include "services/geometry/richgeo/RichGeo.h"
+
 void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // begin envelope

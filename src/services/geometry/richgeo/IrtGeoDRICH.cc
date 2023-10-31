@@ -22,7 +22,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
-
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope
