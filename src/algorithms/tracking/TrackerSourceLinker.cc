@@ -93,20 +93,13 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
         const auto& hit_pos = hit->getPosition();
 
         Acts::Vector2 loc = Acts::Vector2::Zero();
-        Acts::Vector2 pos;
-        auto hit_det = hit->getCellID()&0xFF;
-        auto onSurfaceTolerance = 0.1*Acts::UnitConstants::um;      // By default, ACTS uses 0.1 micron as the on surface tolerance
-        if (hit_det==m_detid_b0tracker){
-         onSurfaceTolerance = 1*Acts::UnitConstants::um;           // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
-        }
-
         try {
             // transform global position into local coordinates
             // geometry context contains nothing here
-            pos = surface->globalToLocal(
+            Acts::Vector2 pos = surface->globalToLocal(
                     Acts::GeometryContext(),
                     {hit_pos.x, hit_pos.y, hit_pos.z},
-                    {0, 0, 0}, onSurfaceTolerance).value();
+                    {0, 0, 0}).value();
 
             loc[Acts::eBoundLoc0] = pos[0];
             loc[Acts::eBoundLoc1] = pos[1];
@@ -127,7 +120,6 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
             m_log->trace("   hit position     : {:>10.2f} {:>10.2f} {:>10.2f}", hit_pos.x, hit_pos.y, hit_pos.z);
             m_log->trace("   local position   : {:>10.2f} {:>10.2f} {:>10.2f}", local_position.x(), local_position.y(), local_position.z());
             m_log->trace("   surface center   : {:>10.2f} {:>10.2f} {:>10.2f}", surf_center_x, surf_center_y, surf_center_z);
-            m_log->trace("   acts local center: {:>10.2f} {:>10.2f}", pos.transpose()[0], pos.transpose()[1]);
             m_log->trace("   acts loc pos     : {:>10.2f} {:>10.2f}", loc[Acts::eBoundLoc0], loc[Acts::eBoundLoc1]);
         }
 
