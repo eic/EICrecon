@@ -12,7 +12,9 @@
 #include <DD4hep/DD4hepUnits.h>
 // event data model definitions
 #include <edm4hep/utils/kinematics.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/MutableReconstructedParticle.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
