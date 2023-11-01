@@ -63,7 +63,7 @@ namespace eicrecon {
         for (const auto& particle : *input) {
             const bool is_final_state = (particle.getGeneratorStatus() == 1);
             if (is_final_state) {
-                for_reconstruction -> push_back(particle);
+                for_reconstruction->push_back(particle);
             }
         }
 
