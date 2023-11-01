@@ -14,7 +14,6 @@
 #include <IRT/G4Object.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRef.h>
-#include <TVector3.h>
 #include <fmt/core.h>
 #include <stdint.h>
 #include <exception>
@@ -23,9 +22,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
-
-#include "services/geometry/richgeo/RichGeo.h"
-
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope
@@ -110,7 +106,6 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   // sector loop
   for (int isec = 0; isec < nSectors; isec++) {
     std::string secName = "sec" + std::to_string(isec);
-
     // mirrors
     auto mirrorRadius = m_det->constant<double>("DRICH_mirror_radius") / dd4hep::mm;
     dd4hep::Position mirrorCenter(
@@ -167,7 +162,6 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         sensor_info.surface_centroid = posSensor;
         sensor_info.surface_offset   = surfaceOffset;
         m_sensor_info.insert({ sensorID, sensor_info });
-
         // create the optical surface
         m_sensorFlatSurface = new FlatSurface(
             TVector3(posSensor.x(), posSensor.y(), posSensor.z()),
@@ -209,7 +203,25 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
 }
-
+TVector3 richgeo::IrtGeoDRICH::GetSensorSurfaceNorm(CellIDType id){
+  TVector3 sensorNorm;
+  auto cellMask = uint64_t(std::stoull(m_det->constant<std::string>("DRICH_cell_mask")));
+  auto sensor_info = this->m_sensor_info;
+  auto sID = id & cellMask;
+  auto sensor_info_it = sensor_info.find(sID);
+  if(sensor_info_it!=sensor_info.end()){
+    auto sensor_obj = sensor_info_it->second;
+    auto normZdir = sensor_obj.surface_offset.Unit();
+    sensorNorm.SetX(static_cast<double>(normZdir.x()));
+    sensorNorm.SetY(static_cast<double>(normZdir.y()));
+    sensorNorm.SetZ(static_cast<double>(normZdir.z()));
+  }
+  else{
+    m_log->error("Cannot find sensor {} in IrtGeoDRICH::GetSensorSurface", id);
+    throw std::runtime_error("sensor not found in IrtGeoDRIC::GetSensorSurfaceNormal");
+  }
+  return sensorNorm;
+}
 // destructor
 richgeo::IrtGeoDRICH::~IrtGeoDRICH() {
   delete m_surfEntrance;
