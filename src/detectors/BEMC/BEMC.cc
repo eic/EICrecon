@@ -27,13 +27,6 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-
-        // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
-        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelScFi_pedMeanADC = 100;
-        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelScFi_pedSigmaADC = 1;
-        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
@@ -41,12 +34,11 @@ extern "C" {
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
-             .threshold = 0.0*dd4hep::keV, // threshold is set in ADC in reco
-             .capADC        = EcalBarrelScFi_capADC,
-             .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
-             .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
-             .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
-             .resolutionTDC = EcalBarrelScFi_resolutionTDC,
+             .capADC = 16384, // 14bit ADC
+             .dyRangeADC = 1500 * dd4hep::MeV,
+             .pedMeanADC = 100,
+             .pedSigmaADC = 1,
+             .resolutionTDC = 10 * dd4hep::picosecond,
              .corrMeanScale = 1.0,
              .readout = "EcalBarrelScFiHits",
              .fields = {"fiber", "z"},
@@ -56,12 +48,10 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
           {
-            .capADC        = EcalBarrelScFi_capADC,
-            .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
-            .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
-            .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
-            .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-            .thresholdFactor = 0.0, // use only thresholdValue
+            .capADC = 16384,
+            .dyRangeADC = 1500. * dd4hep::MeV,
+            .pedMeanADC = 100,
+            .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
             .sampFrac = 0.10200085,
             .readout = "EcalBarrelScFiHits",
@@ -105,12 +95,6 @@ extern "C" {
           )
         );
 
-        // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelImaging_capADC = 8192; //8192,  13bit ADC
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelImaging_dyRangeADC = 3 * dd4hep::MeV;
-        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelImaging_pedMeanADC = 14; // Noise floor at 5 keV: 8192 / 3 * 0.005
-        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelImaging_pedSigmaADC = 5; // Upper limit for sigma for AstroPix
-        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC = 3.25 * dd4hep::nanosecond;
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
@@ -118,11 +102,11 @@ extern "C" {
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC        = EcalBarrelImaging_capADC,
-             .dyRangeADC    = EcalBarrelImaging_dyRangeADC,
-             .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
-             .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
-             .resolutionTDC = EcalBarrelImaging_resolutionTDC,
+             .capADC = 8192,
+             .dyRangeADC = 3 * dd4hep::MeV,
+             .pedMeanADC = 14, // Noise floor at 5 keV: 8192 / 3 * 0.005
+             .pedSigmaADC = 5, // Upper limit for sigma for AstroPix
+             .resolutionTDC = 3.25 * dd4hep::nanosecond,
              .corrMeanScale = 1.0,
            },
            app   // TODO: Remove me once fixed
@@ -130,12 +114,10 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
           {
-            .capADC     = EcalBarrelImaging_capADC,
-            .dyRangeADC = EcalBarrelImaging_dyRangeADC,
-            .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
-            .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC, // not needed; use only thresholdValue
-            .resolutionTDC = EcalBarrelImaging_resolutionTDC,
-            .thresholdFactor = 0.0, // use only thresholdValue
+            .capADC = 8192,
+            .dyRangeADC = 3 * dd4hep::MeV,
+            .pedMeanADC = 14,
+            .resolutionTDC = 3.25 * dd4hep::nanosecond,
             .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
