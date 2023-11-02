@@ -108,8 +108,8 @@ eicrecon::TrackerSourceLinkerResult *eicrecon::TrackerSourceLinker::produce(std:
                     {hit_pos.x, hit_pos.y, hit_pos.z},
                     {0, 0, 0}, onSurfaceTolerance).value();
 
-            loc[Acts::eBoundLoc0] = pos[0];
-            loc[Acts::eBoundLoc1] = pos[1];
+            loc[Acts::eBoundLoc0] = static_cast<float>(pos[0]);
+            loc[Acts::eBoundLoc1] = static_cast<float>(pos[1]);
         }
         catch(std::exception &ex) {
             m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
