@@ -12,6 +12,7 @@
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <spdlog/logger.h>
@@ -20,7 +21,6 @@
 #include <vector>
 
 #include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Measurement.hpp"
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "CKFTrackingConfig.h"
@@ -73,8 +73,7 @@ namespace eicrecon {
             std::unique_ptr<edm4eic::TrackParametersCollection>,
             std::vector<ActsExamples::Trajectories*>
         >
-        process(const ActsExamples::IndexSourceLinkContainer &src_links,
-                const ActsExamples::MeasurementContainer &measurements,
+        process(const edm4eic::Measurement2DCollection& meas2Ds,
                 const edm4eic::TrackParametersCollection &init_trk_params);
 
     private:
