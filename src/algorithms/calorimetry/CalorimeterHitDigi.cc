@@ -169,7 +169,7 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                   )
                 : 0;
         double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
+        unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
