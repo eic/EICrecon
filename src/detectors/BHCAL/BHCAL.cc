@@ -34,7 +34,7 @@ extern "C" {
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
-            .threshold = 5.0 * dd4hep::MeV,
+            .threshold = 0.0, // Use ADC cut instead
             .capADC        = HcalBarrel_capADC,
             .capTime = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC    = HcalBarrel_dyRangeADC,
@@ -54,8 +54,8 @@ extern "C" {
             .pedMeanADC    = HcalBarrel_pedMeanADC,
             .pedSigmaADC   = HcalBarrel_pedSigmaADC, // not used; relying on energy cut
             .resolutionTDC = HcalBarrel_resolutionTDC,
-            .thresholdFactor = 0.0, // not used; relying on energy cut
-            .thresholdValue = 0.0, // not used; relying on energy cut
+            .thresholdFactor = 0.0, // not used; relying on flat ADC cut
+            .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
             .sampFrac = 0.033, // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
             .layerField = "tower",
