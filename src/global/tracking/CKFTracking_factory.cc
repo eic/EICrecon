@@ -4,26 +4,18 @@
 
 #include "CKFTracking_factory.h"
 
-#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
-#include <boost/container/vector.hpp>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <fmt/core.h>
-#include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <exception>
-#include <functional>
-#include <map>
 
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
 #include "CKFTracking.h"
 #include "CKFTrackingConfig.h"
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
 #include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::CKFTracking_factory::Init() {
     auto *app = GetApplication();
@@ -36,8 +28,7 @@ void eicrecon::CKFTracking_factory::Init() {
     InitLogger(app, param_prefix, "info");
 
     // Get ACTS context from ACTSGeo service
-    auto acts_service = app->GetService<ACTSGeo_service>();
-    auto dd4hp_service = app->GetService<DD4hep_service>();
+    auto acts_service   = app->GetService<ACTSGeo_service>();
 
 
     // Algorithm configuration
@@ -53,39 +44,18 @@ void eicrecon::CKFTracking_factory::Init() {
 
 void eicrecon::CKFTracking_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all inputs
-    auto seed_track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-    auto source_linker_result = event->GetSingle<eicrecon::TrackerSourceLinkerResult>(GetInputTags()[1]);
+    auto seed_track_parameters = static_cast<const edm4eic::TrackParametersCollection*>(event->GetCollectionBase(GetInputTags()[0])); // 0 and 1 as ordered in tracking.cc
+    auto meas2Ds = static_cast<const edm4eic::Measurement2DCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
-    if(!source_linker_result) {
-        m_log->warn("TrackerSourceLinkerResult is null (hasn't been produced?). Skipping tracking for the whole event!");
+    if(!meas2Ds) {
+        m_log->warn("TrackerMeasurementFromHits is null (hasn't been produced?). Skipping tracking for the whole event!");
         return;
     }
-
-    // Convert vector of source links to a sorted in geometry order container used in tracking
-    ActsExamples::IndexSourceLinkContainer source_links;
-    auto measurements_ptr = source_linker_result->measurements;
-    for(const auto &sourceLink: source_linker_result->sourceLinks){
-        // add to output containers. since the input is already geometry-order,
-        // new elements in geometry containers can just be appended at the end.
-        source_links.emplace_hint(source_links.end(), *sourceLink);
-    }
-
-    // >oO Debug output for SourceLinks
-    if(m_log->level() <= spdlog::level::trace) {
-        m_log->trace("Checking Source links: ");
-        for(auto sourceLink: source_links) {
-            m_log->trace("   index: {:<5} geometryId: {}", sourceLink.get().index(), sourceLink.get().geometryId().value());
-        }
-    }
-    m_log->debug("Source links count: {}", source_links.size());
-    m_log->debug("Measurements count: {}", source_linker_result->measurements->size());
-    m_log->debug("Diving into tracking...");
 
     try {
         // RUN TRACKING ALGORITHM
         auto [trajectories, track_parameters, acts_trajectories] = m_tracking_algo.process(
-                source_links,
-                *source_linker_result->measurements,
+                *meas2Ds,
                 *seed_track_parameters);
 
         // Save the result
