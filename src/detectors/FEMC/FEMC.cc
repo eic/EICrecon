@@ -31,10 +31,10 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits"},
           {
-	    .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09% divided by corrMeanScale = 0.03
+            .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09% divided by corrMeanScale = 0.03
             .tRes = 0.0,
             .threshold = 0.0,
-	     // .threshold = 15 * dd4hep::MeV,
+             // .threshold = 15 * dd4hep::MeV,
             .capADC = EcalEndcapP_capADC,
             .capTime =  100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = EcalEndcapP_dyRangeADC,
