@@ -114,7 +114,7 @@ namespace eicrecon {
             cov(1, 1) = meas2D.getCovariance().yy;
             cov(0, 1) = meas2D.getCovariance().xy;
 
-            auto measurement = Acts::makeMeasurement(sourceLink, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+            auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
             measurements->emplace_back(std::move(measurement));
 
             hit_index++;
@@ -297,7 +297,7 @@ namespace eicrecon {
                     // fix me: calibrated or not?
                     if(state.hasUncalibrated()){
 
-                        std::size_t srclink_index = static_cast<const ActsExamples::IndexSourceLink&>(state.uncalibrated()).index();
+                        std::size_t srclink_index = state.uncalibrated().template get<ActsExamples::IndexSourceLink>().index();
 
                         // no hit on this state/surface, skip
                         if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {

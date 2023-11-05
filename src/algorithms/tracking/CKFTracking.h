@@ -10,6 +10,7 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
+#include <Acts/TrackFinding/SourceLinkAccessorConcept.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Measurement2DCollection.h>
