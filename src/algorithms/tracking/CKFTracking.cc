@@ -113,7 +113,7 @@ namespace eicrecon {
             loc[Acts::eBoundLoc1] = meas2D.getLoc().b;
 
 
-            Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
+            Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
             cov(0, 0) = meas2D.getCovariance().xx;
             cov(1, 1) = meas2D.getCovariance().yy;
             cov(0, 1) = meas2D.getCovariance().xy;
@@ -137,7 +137,7 @@ namespace eicrecon {
 
             double charge = track_parameter.getCharge();
 
-            Acts::BoundSymMatrix cov                    = Acts::BoundSymMatrix::Zero();
+            Acts::BoundSquareMatrix cov                 = Acts::BoundSquareMatrix::Zero();
             cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
             cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
             cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
