@@ -381,9 +381,9 @@ namespace eicrecon {
 
                 // find the associated hit (2D measurement) with state sourcelink index
                 // fix me: calibrated or not?
-                if (state.hasUncalibrated()) {
+                if (state.hasUncalibratedSourceLink()) {
 
-                    std::size_t srclink_index = state.uncalibrated().template get<ActsExamples::IndexSourceLink>().index();
+                    std::size_t srclink_index = state.uncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
 
                     // no hit on this state/surface, skip
                     if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
