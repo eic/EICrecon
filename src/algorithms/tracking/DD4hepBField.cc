@@ -23,7 +23,18 @@ namespace eicrecon::BField {
 
     auto fieldObj = m_det->field();
     auto field = fieldObj.magneticField(pos) * (Acts::UnitConstants::T / dd4hep::tesla);
-    return Acts::Result<Acts::Vector3>::success({field.x(), field.y(),field.z()});
+
+    // FIXME Acts doesn't seem to like exact zero components
+    if (field.x() * field.y() * field.z() == 0) {
+      static dd4hep::Direction epsilon{
+        std::numeric_limits<double>::epsilon(),
+        std::numeric_limits<double>::epsilon(),
+        std::numeric_limits<double>::epsilon()
+      };
+      field += epsilon;
+    }
+
+    return Acts::Result<Acts::Vector3>::success({field.x(), field.y(), field.z()});
   }
 
   Acts::Result<Acts::Vector3> DD4hepBField::getFieldGradient(const Acts::Vector3& position,
