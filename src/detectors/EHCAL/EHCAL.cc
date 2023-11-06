@@ -23,8 +23,8 @@ extern "C" {
 
         InitJANAPlugin(app);
         // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapN_capADC = 1024;
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapN_dyRangeADC = 3.6 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapN_capADC = 4096; // assuming 12 bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapN_dyRangeADC = 100 * dd4hep::MeV; // to be verified with simulations
         decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapN_pedMeanADC = 10;
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapN_pedSigmaADC = 2;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
@@ -52,7 +52,7 @@ extern "C" {
             .resolutionTDC = HcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 0.0,
-            .sampFrac = 0.998,
+            .sampFrac = 0.0095, // from latest study - implement at level of reco hits rather than clusters
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
