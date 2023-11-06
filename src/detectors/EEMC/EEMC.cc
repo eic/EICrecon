@@ -34,7 +34,7 @@ extern "C" {
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
-            .threshold =  5.0 * dd4hep::MeV;
+            .threshold =  5.0 * dd4hep::MeV,
             .capADC = EcalEndcapN_capADC,
             .dyRangeADC = EcalEndcapN_dyRangeADC,
             .pedMeanADC = EcalEndcapN_pedMeanADC,
