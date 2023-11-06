@@ -53,7 +53,7 @@ extern "C" {
             .pedSigmaADC = EcalEndcapN_pedSigmaADC,
             .resolutionTDC = EcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
-            .thresholdValue = 0.0,
+            .thresholdValue = 4.0, // (20. GeV / 16384) * 4 ~= 5 MeV
             .sampFrac = 0.998,
             .readout = "EcalEndcapNHits",
             .sectorField = "sector",
