@@ -1,32 +1,28 @@
-// Created by Dmitry Romanov
+// Created by Shujie Li
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include "TrackerSourceLinker_factory.h"
+#include "TrackerMeasurementFromHits_factory.h"
 
-#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <fmt/core.h>
 #include <exception>
 #include <gsl/pointers>
 #include <map>
 
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "TrackerSourceLinker.h"
-#include "algorithms/tracking/TrackerSourceLinkerResult.h"
+#include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/io/podio/JFactoryPodioT.h"
 #include "services/log/Log_service.h"
 
 namespace eicrecon {
 
 
-    void TrackerSourceLinker_factory::Init() {
+    void TrackerMeasurementFromHits_factory::Init() {
         // Ask JApplication and parameter managers
         auto *app =  this->GetApplication();
         auto *pm = app->GetJParameterManager();
@@ -48,21 +44,22 @@ namespace eicrecon {
         m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
         // Get ACTS context from ACTSGeo service
-        auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
+        auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
 
-        // Get DD4hep geometry from DD4hep service
         auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
 
         // Initialize algorithm
-        m_source_linker.init(dd4hep_service->detector(), dd4hep_service->converter(), acts_service->actsGeoProvider(), m_log);
+        m_measurement.init(dd4hep_service->detector(), dd4hep_service->converter(), acts_service->actsGeoProvider(), m_log);
     }
 
 
-    void TrackerSourceLinker_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
+
+
+    void TrackerMeasurementFromHits_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
 
     }
 
-    void TrackerSourceLinker_factory::Process(const std::shared_ptr<const JEvent> &event) {
+    void TrackerMeasurementFromHits_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits
         std::vector<const edm4eic::TrackerHit*> total_hits;
 
@@ -72,19 +69,15 @@ namespace eicrecon {
                 total_hits.push_back(hit);
             }
         }
-        m_log->debug("TrackerSourceLinker_factory::Process");
+        m_log->debug("TrackerMeasurementFromHits_factory::Process");
 
         try {
-            auto *result = m_source_linker.produce(total_hits);
-
-            for (auto sourceLink: result->sourceLinks) {
-                m_log->debug("FINAL sourceLink index={} geometryId={}", sourceLink->index(),
-                             sourceLink->geometryId().value());
-            }
-            Insert(result);
+            auto result = m_measurement.produce(total_hits);
+            SetCollection(std::move(result));
         }
         catch(std::exception &e) {
             throw JException(e.what());
         }
+
     }
 } // eicrecon
