@@ -22,7 +22,7 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-	
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
           {
