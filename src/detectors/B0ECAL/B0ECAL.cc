@@ -22,13 +22,14 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
-
+	
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 16384,
+            .threshold= 5.0 * dd4hep::MeV,
             .dyRangeADC = 20 * dd4hep::GeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
@@ -45,8 +46,8 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
-            .thresholdFactor = 4.0,
-            .thresholdValue = 3.0,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 0.0,
             .sampFrac = 0.998,
             .readout = "B0ECalHits",
             .sectorField = "sector",
