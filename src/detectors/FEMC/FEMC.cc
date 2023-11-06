@@ -34,7 +34,7 @@ extern "C" {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
             .tRes = 0.0,
             .threshold = 0.0,
-             // .threshold = 15 * dd4hep::MeV,
+             // .threshold = 15 * dd4hep::MeV for a single tower, applied on ADC level
             .capADC = EcalEndcapP_capADC,
             .capTime =  100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = EcalEndcapP_dyRangeADC,
@@ -54,7 +54,7 @@ extern "C" {
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .thresholdFactor = 0.0,
-            .thresholdValue = 2731.0,
+            .thresholdValue = 2.0,
             .sampFrac  =0.03,
             .readout = "EcalEndcapPHits",
           },
