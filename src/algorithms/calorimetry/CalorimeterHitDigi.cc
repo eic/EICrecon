@@ -169,8 +169,27 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                   )
                 : 0;
         double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
+        unsigned long long adc;
+        unsigned long long tdc = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
+
+        if (m_cfg.readoutType == CalorimeterHitDigiConfig::kSimpleReadout) {
+            adc = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
+        } else if (m_cfg.readoutType == CalorimeterHitDigiConfig::kPoissonPhotonReadout) {
+            const long long int n_photons_mean = edep * m_cfg.lightYield;
+            std::poisson_distribution<> n_photons_detected_dist(n_photons_mean);
+            const long long int n_photons_detected = n_photons_detected_dist(generator) * m_cfg.photonDetectionEfficiency;
+            const long long int n_max_photons = m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+            m_log->trace("n_photons_detected {}", n_photons_detected);
+            adc = std::llround(ped + n_photons_detected * (m_cfg.corrMeanScale + eResRel) / n_max_photons * m_cfg.capADC);
+        } else if (m_cfg.readoutType == CalorimeterHitDigiConfig::kSipmReadout) {
+            const long long int n_photons = edep * m_cfg.lightYield;
+            std::binomial_distribution<> n_photons_detected_dist(n_photons, m_cfg.photonDetectionEfficiency);
+            const long long int n_photons_detected = n_photons_detected_dist(generator);
+            const long long int n_pixels_fired = m_cfg.numEffectiveSipmPixels * (1 - exp(- n_photons_detected / (double)m_cfg.numEffectiveSipmPixels));
+            const long long int n_max_photons = m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+            m_log->trace("n_photons_detected {}, n_pixels_fired {}, n_max_photons {}", n_photons_detected, n_pixels_fired, n_max_photons);
+            adc = std::llround(ped + n_pixels_fired * (m_cfg.corrMeanScale + eResRel) / n_max_photons * m_cfg.capADC);
+        }
 
         if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
         rawhits->create(
