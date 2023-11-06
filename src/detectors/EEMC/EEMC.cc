@@ -34,12 +34,12 @@ extern "C" {
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
-            .threshold =  5.0 * dd4hep::MeV;
+            .threshold =  5.0 * dd4hep::MeV,
             .capADC = EcalEndcapN_capADC,
             .dyRangeADC = EcalEndcapN_dyRangeADC,
             .pedMeanADC = EcalEndcapN_pedMeanADC,
             .pedSigmaADC = EcalEndcapN_pedSigmaADC,
-            .resolutionTDC = EcalEndcapN_pedSigmaADC_resolutionTDC,
+            .resolutionTDC = EcalEndcapN_resolutionTDC,
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
@@ -47,12 +47,11 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
           {
-            .capADC = 16384,
             .capADC = EcalEndcapN_capADC,
             .dyRangeADC = EcalEndcapN_dyRangeADC,
             .pedMeanADC = EcalEndcapN_pedMeanADC,
             .pedSigmaADC = EcalEndcapN_pedSigmaADC,
-            .resolutionTDC = EcalEndcapN_pedSigmaADC_resolutionTDC,
+            .resolutionTDC = EcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 0.0,
             .sampFrac = 0.998,
