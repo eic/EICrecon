@@ -24,7 +24,7 @@ void InitPlugin(JApplication *app) {
       {"TOFEndcapHits"},
       {"TOFEndcapRawHits"},
       {
-        .threshold = 0.5 * dd4hep::keV,
+        .threshold = 6.0 * dd4hep::keV,
         .timeResolution = 0.025,
       },
       app
