@@ -23,7 +23,7 @@ extern "C" {
 
         InitJANAPlugin(app);
         // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapN_capADC = 4096; // assuming 12 bit ADC
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapN_capADC = 32768; // assuming 15 bit ADC like FHCal
         decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapN_dyRangeADC = 100 * dd4hep::MeV; // to be verified with simulations
         decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapN_pedMeanADC = 10;
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapN_pedSigmaADC = 2;
