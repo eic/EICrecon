@@ -6,7 +6,7 @@
 #include <TString.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
@@ -22,16 +22,23 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapPInsert_capADC = 32768;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapPInsert_dyRangeADC = 200 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapPInsert_pedMeanADC = 10;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapPInsert_pedSigmaADC = 2;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 32768,
-             .dyRangeADC = 200 * dd4hep::MeV,
-             .pedMeanADC = 400,
-             .pedSigmaADC = 10,
-             .resolutionTDC = 10 * dd4hep::picosecond,
+             .capADC = HcalEndcapPInsert_capADC,
+             .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+             .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+             .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+             .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
              .corrMeanScale = 1.0,
            },
           app   // TODO: Remove me once fixed
@@ -39,13 +46,14 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
           {
-            .capADC = 32768,
-            .dyRangeADC = 200. * dd4hep::MeV,
-            .pedMeanADC = 400,
-            .pedSigmaADC = 10.,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .capADC = HcalEndcapPInsert_capADC,
+            .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+            .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+            .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+            .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
             .thresholdFactor = 0.,
-            .thresholdValue = -100.,
+            .thresholdValue = 41.0, // 0.25 MeV --> adc = 50 + 0.25 / 200 * 32768 = 91
+
             .sampFrac = 0.0098,
             .readout = "HcalEndcapPInsertHits",
           },
