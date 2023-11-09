@@ -117,16 +117,20 @@ extern "C" {
           )
         );
 
+	// Insert is identical to regular Ecal
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapPInsertRawHits", {"EcalEndcapPInsertHits"}, {"EcalEndcapPInsertRawHits"},
           {
-            .eRes = {0.00340 * sqrt(dd4hep::GeV), 0.0009, 0.0 * dd4hep::GeV}, // (0.340% / sqrt(E)) \oplus 0.09%
-            .tRes = 0.0 * dd4hep::ns,
-            .capADC = 16384,
-            .dyRangeADC = 3 * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
+            .tRes = 0.0,
+            .threshold = 0.0,
+             // .threshold = 15 * dd4hep::MeV for a single tower, applied on ADC level
+            .capADC = EcalEndcapP_capADC,
+            .capTime =  100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .pedMeanADC = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
             .corrMeanScale = 0.03,
           },
           app   // TODO: Remove me once fixed
@@ -134,14 +138,14 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapPInsertRecHits", {"EcalEndcapPInsertRawHits"}, {"EcalEndcapPInsertRecHits"},
           {
-            .capADC = 16384,
-            .dyRangeADC = 3. * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 0.7,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 5.0,
-            .thresholdValue = 2.0,
-            .sampFrac = 0.03,
+            .capADC = EcalEndcapP_capADC,
+            .dyRangeADC = EcalEndcapP_dyRangeADC,
+            .pedMeanADC = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+            .sampFrac  =0.03,
             .readout = "EcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed
