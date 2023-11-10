@@ -52,7 +52,7 @@ extern "C" {
             .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
             .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
             .thresholdFactor = 0.,
-            .thresholdValue = 41.0, // 0.25 MeV --> adc = 50 + 0.25 / 200 * 32768 = 91
+            .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
             .sampFrac = 0.0098,
             .readout = "HcalEndcapPInsertHits",
