@@ -117,7 +117,7 @@ extern "C" {
           )
         );
 
-	// Insert is identical to regular Ecal
+        // Insert is identical to regular Ecal
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapPInsertRawHits", {"EcalEndcapPInsertHits"}, {"EcalEndcapPInsertRawHits"},
           {
