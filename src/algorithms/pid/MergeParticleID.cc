@@ -94,7 +94,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
         m_log->error("PID object found with no charged particle");
         continue;
       }
-      auto id_particle = charged_particle_track_segment.getObjectId().index;
+      auto id_particle = charged_particle_track_segment.getObjectID().index;
       auto idx_paired  = std::make_pair(idx_coll, idx_pid);
       m_log->trace("  idx_pid={}  id_particle={}", idx_pid, id_particle);
 
