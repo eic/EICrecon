@@ -66,7 +66,7 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::pro
             }
         }
 
-        const auto &trackID = mc[mcIndex].getContributions(0).getParticle().id();
+        const auto &trackID = mc[mcIndex].getContributions(0).getParticle().getObjectID().index;
         // Create a new protocluster if we don't have one for this trackID
         if (protoIndex.count(trackID) == 0) {
             output->create();
