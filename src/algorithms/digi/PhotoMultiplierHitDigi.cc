@@ -19,6 +19,7 @@
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <math.h>
+#include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <exception>
