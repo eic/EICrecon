@@ -125,17 +125,24 @@ extern "C" {
           )
         );
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        LFHCAL_capADC = 65536;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    LFHCAL_dyRangeADC = 1 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    LFHCAL_pedMeanADC = 50;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   LFHCAL_pedSigmaADC = 10;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 65536,
+            .capADC = LFHCAL_capADC,
             .capTime = 100,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
             .corrMeanScale = 1.0,
             .readout = "LFHCALHits",
             .fields = {"layerz"},
@@ -145,13 +152,13 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
           {
-            .capADC = 65536,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 1.0,
-            .thresholdValue = 3.0,
+            .capADC = LFHCAL_capADC,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
             .sampFrac = 0.033,
             .sampFracLayer = {
               0.019, //  0
