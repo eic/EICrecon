@@ -23,7 +23,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
         CalorimeterClusterRecoCoGConfig cfg)
-    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(std::move(tag), input_tags, output_tags, cfg),
+    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(tag, input_tags, output_tags, cfg),
       m_algo(tag) {
 
       DeclarePodioOutput<edm4eic::Cluster>(GetOutputTags()[0]);
