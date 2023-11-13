@@ -10,11 +10,13 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -73,7 +75,7 @@ extern "C" {
         ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "B0ECalClusters",
             {"B0ECalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -85,12 +87,12 @@ extern "C" {
               .logWeightBase = 3.6,
               .enableEtaBounds = false
             },
-            app   // TODO: Remove me once fixed
+            app
           )
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "B0ECalTruthClusters",
             {"B0ECalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "B0ECalHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -102,7 +104,7 @@ extern "C" {
               .logWeightBase = 6.2,
               .enableEtaBounds = false
             },
-            app   // TODO: Remove me once fixed
+            app
           )
         );
     }
