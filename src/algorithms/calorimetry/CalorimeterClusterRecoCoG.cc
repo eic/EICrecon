@@ -7,6 +7,7 @@
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
+
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -22,9 +23,11 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <cctype>
 #include <exception>
+#include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 

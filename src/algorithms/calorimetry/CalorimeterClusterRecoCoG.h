@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -24,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "CalorimeterClusterRecoCoGConfig.h"
