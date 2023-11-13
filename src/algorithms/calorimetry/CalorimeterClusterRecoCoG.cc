@@ -39,11 +39,6 @@ namespace eicrecon {
     m_log = logger;
     m_detector = detector;
 
-    // update depth correction if a name is provided
-    if (!m_cfg.moduleDimZName.empty()) {
-      m_cfg.depthCorrection = m_detector->constantAsDouble(m_cfg.moduleDimZName);
-    }
-
     // select weighting method
     std::string ew = m_cfg.energyWeight;
     // make it case-insensitive
