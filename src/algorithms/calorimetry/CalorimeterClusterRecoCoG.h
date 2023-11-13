@@ -64,7 +64,7 @@ namespace eicrecon {
         public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
   public:
-    CalorimeterClusterRecoCoG(std::string_view name = {})
+    CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{name,
                             {"inputProtoClusterCollection", "mcHits"},
                             {"outputClusterCollection", "outputAssociations"},
