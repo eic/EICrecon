@@ -23,7 +23,8 @@ class CalorimeterClusterRecoCoG_factoryT :
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
         CalorimeterClusterRecoCoGConfig cfg)
-    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(std::move(tag), input_tags, output_tags, cfg) {
+    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(tag, input_tags, output_tags, cfg),
+      m_algo(tag) {
 
       DeclarePodioOutput<edm4eic::Cluster>(GetOutputTags()[0]);
       DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1]);
@@ -68,9 +69,16 @@ class CalorimeterClusterRecoCoG_factoryT :
         auto mchits = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[1]));
 
         try {
-            auto clusters_with_assocs = m_algo.process(proto, mchits);
-            SetCollection<edm4eic::Cluster>(GetOutputTags()[0], std::move(clusters_with_assocs.first));
-            SetCollection<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1], std::move(clusters_with_assocs.second));
+            auto clusters = std::make_unique<edm4eic::ClusterCollection>();
+            auto assocs = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+
+            decltype(m_algo)::Input input{proto, mchits};
+            decltype(m_algo)::Output output{clusters.get(), assocs.get()};
+
+            m_algo.process(input, output);
+
+            SetCollection<edm4eic::Cluster>(GetOutputTags()[0], std::move(clusters));
+            SetCollection<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1], std::move(assocs));
         }
         catch(std::exception &e) {
             throw JException(e.what());
