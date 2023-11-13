@@ -51,13 +51,12 @@ namespace eicrecon {
     weightFunc = it->second;
   }
 
-  ClustersWithAssociations CalorimeterClusterRecoCoG::process(
-            const edm4eic::ProtoClusterCollection* proto,
-            const edm4hep::SimCalorimeterHitCollection* mchits) {
+  void CalorimeterClusterRecoCoG::process(
+      const CalorimeterClusterRecoCoG::Input& input,
+      const CalorimeterClusterRecoCoG::Output& output) const {
 
-    // output collections
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+    const auto [proto, mchits] = input;
+    auto [clusters, associations] = output;
 
     for (const auto& pcl : *proto) {
 
@@ -148,8 +147,6 @@ namespace eicrecon {
         m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
     }
-
-    return std::make_pair(std::move(clusters), std::move(associations));
 }
 
 //------------------------------------------------------------------------

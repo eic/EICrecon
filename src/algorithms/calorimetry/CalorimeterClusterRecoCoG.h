@@ -59,14 +59,23 @@ namespace eicrecon {
     >
   >;
 
-  class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+  class CalorimeterClusterRecoCoG
+      : public CalorimeterClusterRecoCoGAlgorithm,
+        public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+
+  public:
+    CalorimeterClusterRecoCoG(std::string_view name = {})
+      : CalorimeterClusterRecoCoGAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputAssociations"},
+                            "Reconstruct a cluster with the Center of Gravity method. For "
+                            "simulation results it optionally creates a Cluster <-> MCParticle "
+                            "association provided both optional arguments are provided."} {}
 
   public:
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
 
-    ClustersWithAssociations process(
-            const edm4eic::ProtoClusterCollection* proto,
-            const edm4hep::SimCalorimeterHitCollection* mchits);
+    void process(const Input&, const Output&) const final;
 
   private:
     const dd4hep::Detector* m_detector;
