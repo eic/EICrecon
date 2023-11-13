@@ -52,9 +52,7 @@ class CalorimeterClusterRecoCoG_factoryT :
 
         app->SetDefaultParameter(param_prefix + ":samplingFraction", cfg.sampFrac);
         app->SetDefaultParameter(param_prefix + ":logWeightBase", cfg.logWeightBase);
-        app->SetDefaultParameter(param_prefix + ":depthCorrection", cfg.depthCorrection);
         app->SetDefaultParameter(param_prefix + ":energyWeight", cfg.energyWeight);
-        app->SetDefaultParameter(param_prefix + ":moduleDimZName", cfg.moduleDimZName);
         app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
 
         m_algo.applyConfig(cfg);

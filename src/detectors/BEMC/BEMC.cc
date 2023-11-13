@@ -95,10 +95,8 @@ extern "C" {
              "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {
                .energyWeight = "log",
-               .moduleDimZName = "",
                .sampFrac = 1.0,
                .logWeightBase = 6.2,
-               .depthCorrection = 0.0,
                .enableEtaBounds = false
              },
             app   // TODO: Remove me once fixed

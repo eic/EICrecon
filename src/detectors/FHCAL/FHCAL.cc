@@ -96,10 +96,8 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = true
             },
             app   // TODO: Remove me once fixed
@@ -115,10 +113,8 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
@@ -228,10 +224,8 @@ extern "C" {
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -247,10 +241,8 @@ extern "C" {
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

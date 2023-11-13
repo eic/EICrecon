@@ -81,10 +81,8 @@ extern "C" {
              "B0ECalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -100,10 +98,8 @@ extern "C" {
              "B0ECalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
