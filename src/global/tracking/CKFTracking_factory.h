@@ -4,14 +4,12 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
-#include <algorithm>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 

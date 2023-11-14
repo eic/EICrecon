@@ -3,6 +3,7 @@
 
 #include "RichTrack_factory.h"
 
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <fmt/core.h>

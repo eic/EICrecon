@@ -4,6 +4,7 @@
 
 #include "CKFTracking_factory.h"
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>

@@ -11,7 +11,11 @@
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
@@ -21,11 +25,9 @@
 #include <Acts/TrackFitting/KalmanFitter.hpp>
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/GeometryContainers.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
-#include <ActsExamples/EventData/Index.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>

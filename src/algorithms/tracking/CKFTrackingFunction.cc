@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
+#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -12,10 +13,12 @@
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
-#include <boost/container/vector.hpp>
+#include <Acts/Utilities/Intersection.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <memory>
 #include <utility>
 #include <variant>
+#include <vector>
 
 #include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"

@@ -10,6 +10,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Eigen/Core>
+#include <limits>
 
 namespace eicrecon::BField {
 

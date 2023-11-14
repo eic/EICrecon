@@ -9,6 +9,8 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
+#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
@@ -18,6 +20,7 @@
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov3f.h>
 #include <Eigen/Core>
 #include <utility>

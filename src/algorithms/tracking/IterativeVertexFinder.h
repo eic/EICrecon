@@ -6,9 +6,6 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <ActsExamples/EventData/GeometryContainers.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>

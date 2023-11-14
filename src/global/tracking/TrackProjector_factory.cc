@@ -2,6 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JFactoryT.h>
@@ -10,7 +12,6 @@
 
 #include "TrackProjector.h"
 #include "TrackProjector_factory.h"
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/io/podio/JFactoryPodioT.h"
 
