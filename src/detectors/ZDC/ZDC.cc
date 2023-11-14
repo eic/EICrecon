@@ -23,39 +23,39 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-          "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
+         "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 8096,
-            .dyRangeADC = 100 * dd4hep::MeV,
+            .capADC = 32768,
+            .dyRangeADC = 200 * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 3.2,
+            .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
-          "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          "ZDCRecHits", {"ZDCRawHits"}, {"ZDCRecHits"},
           {
-            .capADC = 8096,
-            .dyRangeADC = 100. * dd4hep::MeV,
+            .capADC = 32678,
+            .dyRangeADC = 200. * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 3.2,
+            .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 4.0,
-            .thresholdValue = 0.0,
+            .thresholdFactor = 0.0,
+            .thresholdValue = -100.0,
             .sampFrac = 1.0,
-            .readout = "ZDCEcalHits",
+            .readout = "HcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
-          "ZDCEcalTruthProtoClusters", {"ZDCEcalRecHits", "ZDCEcalHits"}, {"ZDCEcalTruthProtoClusters"},
+          "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
-          "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
+          "ZDCIslandProtoClusters", {"ZDCRecHits"}, {"ZDCIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
@@ -71,11 +71,11 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "ZDCEcalTruthClusters",
-            {"ZDCEcalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "ZDCEcalHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"ZDCEcalTruthClusters",             // edm4eic::Cluster
-             "ZDCEcalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "ZDCTruthClusters",
+            {"ZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "ZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"ZDCTruthClusters",             // edm4eic::Cluster
+             "ZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -88,11 +88,11 @@ extern "C" {
 
         app->Add(
           new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "ZDCEcalClusters",
-            {"ZDCEcalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "ZDCEcalHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"ZDCEcalClusters",             // edm4eic::Cluster
-             "ZDCEcalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "ZDCClusters",
+            {"ZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "ZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"ZDCClusters",             // edm4eic::Cluster
+             "ZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,

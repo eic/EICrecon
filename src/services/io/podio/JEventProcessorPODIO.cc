@@ -177,10 +177,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalRawHits",
-            "ZDCEcalRecHits",
-            "ZDCEcalClusters",
-            "ZDCEcalClusterAssociations",
+            "ZDCRawHits",
+            "ZDCRecHits",
+            "ZDCClusters",
+            "ZDCClusterAssociations",
             "HcalEndcapNTruthClusters",
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
@@ -188,8 +188,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalTruthClusters",
-            "ZDCEcalTruthClusterAssociations",
+            "ZDCTruthClusters",
+            "ZDCTruthClusterAssociations",
 
             // DIRC
             "DIRCRawHits"
