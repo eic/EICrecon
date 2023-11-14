@@ -609,13 +609,6 @@ jobs:
       with:
         repository: 'eic/epic-capybara'
         path: epic-capybara
-    - name: Build and install epic-capybara
-      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
-      run: |
-        pip install hatch
-        cd epic-capybara
-        hatch build
-        pip install dist/*.whl
     - name: Compare to previous artifacts (local capybara)
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
@@ -623,9 +616,6 @@ jobs:
         platform-release: "${{ env.platform-release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
-          echo "::group::pip install"
-          python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
-          echo "::endgroup::"
           echo "::group::diff ref -> new"
           python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           echo "::endgroup::"
