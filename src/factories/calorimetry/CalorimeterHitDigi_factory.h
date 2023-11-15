@@ -11,24 +11,24 @@
 
 namespace eicrecon {
 
-class CalorimeterHitDigi_factory : public JOmniFactory<CalorimeterHitDigiConfig, CalorimeterHitDigiConfig> {
+class CalorimeterHitDigi_factory : public JOmniFactory<CalorimeterHitDigi_factory, CalorimeterHitDigiConfig> {
 
 private:
     CalorimeterHitDigi m_algo;
 
-    PodioInput<edm4hep::SimCalorimeterHit> m_hits_input;
-    PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output;
+    PodioInput<edm4hep::SimCalorimeterHit> m_hits_input {this};
+    PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output {this};
 
     ParameterRef<std::vector<double>> m_energyResolutions {this, "energyResolutions", config().eRes};
-    ParameterRef<double> m_timeResolution {this, "timeResolution",   cfg.tRes);
-    ParameterRef<unsigned int> m_capADC {this, "capacityADC", cfg.capADC);
-    ParameterRef<double> m_dyRangeADC {this, "dynamicRangeADC", cfg.dyRangeADC);
-    ParameterRef<unsigned int> m_pedMeanADC {this, "pedestalMean", cfg.pedMeanADC);
-    ParameterRef<double> m_pedSigmaADC {this, "pedestalSigma", cfg.pedSigmaADC);
-    ParameterRef<double> m_resolutionTDC {this, "resolutionTDC", cfg.resolutionTDC);
-    ParameterRef<double> m_corrMeanScale {this, "scaleResponse", cfg.corrMeanScale);
-    ParameterRef<std::vector<std::string>> m_fields {this, "signalSumFields", cfg.fields);
-    ParameterRef<std::string> m_readout {this, "readoutClass", cfg.readout);
+    ParameterRef<double> m_timeResolution {this, "timeResolution", config().tRes};
+    ParameterRef<unsigned int> m_capADC {this, "capacityADC", config().capADC};
+    ParameterRef<double> m_dyRangeADC {this, "dynamicRangeADC", config().dyRangeADC};
+    ParameterRef<unsigned int> m_pedMeanADC {this, "pedestalMean", config().pedMeanADC};
+    ParameterRef<double> m_pedSigmaADC {this, "pedestalSigma", config().pedSigmaADC};
+    ParameterRef<double> m_resolutionTDC {this, "resolutionTDC", config().resolutionTDC};
+    ParameterRef<double> m_corrMeanScale {this, "scaleResponse", config().corrMeanScale};
+    ParameterRef<std::vector<std::string>> m_fields {this, "signalSumFields", config().fields};
+    ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
 
     Service<DD4hep_service> m_geoSvc {this};
 
@@ -38,8 +38,11 @@ public:
         m_algo.init(m_geoSvc().detector(), logger());
     }
 
-    void Process(int64_t run_nr, uint64_t event_nr) override {
-        m_hits_output() = m_algo.process(m_hits_input());
+    void ChangeRun(int64_t run_number) {
+    }
+
+    void Process(int64_t run_nr, uint64_t event_nr) {
+        m_hits_output() = m_algo.process(*m_hits_input());
     }
 };
 
