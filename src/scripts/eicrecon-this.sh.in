@@ -22,7 +22,10 @@ fi
 #----------------- ROOT
 if [[ -f @ROOT_BINDIR@/thisroot.sh ]] ; then
     unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
-    source @ROOT_BINDIR@/thisroot.sh
+    # zsh and latest eic-shell require "cd where/root/is" before calling ". bin/thisroot.sh"
+    pushd @ROOT_BINDIR@ >/dev/null
+    source thisroot.sh
+    popd >/dev/null
 fi
 
 #----------------- PODIO
