@@ -98,7 +98,8 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
-    - uses: actions/upload-artifact@v3
+    - name: Upload install directory
+      uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: |
@@ -109,11 +110,13 @@ jobs:
           !.git/
           !.ccache/
         if-no-files-found: error
-    - uses: actions/upload-artifact@v3
+    - name: Compress build directory
+      run: tar -czf build.tar.gz build/
+    - name: Upload build directory
+      uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
-        path: |
-          build/
+        path: build.tar.gz
         if-no-files-found: error
 
   clang-tidy-iwyu:
@@ -129,7 +132,9 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-clang-eic-shell-Debug
-        path: build/
+        path: .
+    - name: Uncompress build artifact
+      run: tar -zxf build.tar.gz
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -199,10 +204,13 @@ jobs:
       statuses: write
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
       with:
         name: build-clang-eic-shell-Debug
-        path: build/
+        path: .
+    - name: Uncompress build artifact
+      run: tar -zxf build.tar.gz
     - run: sudo apt-get update
     - run: sudo apt-get install -y llvm-15 jq
     - name: llvm-cov
