@@ -32,11 +32,11 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
 
-        std::tie(m_clusters_output(), 
+        std::tie(m_clusters_output(),
                  m_assocs_output()) = m_algo.process(m_mcparticles_input(),
                                                      m_energy_clusters_input(),
                                                      m_energy_assocs_input(),
-                                                     m_position_clusters_input(), 
+                                                     m_position_clusters_input(),
                                                      m_position_assocs_input());
     }
 };

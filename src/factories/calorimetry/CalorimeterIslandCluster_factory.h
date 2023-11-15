@@ -46,7 +46,7 @@ public:
 
     void ChangeRun(int64_t run_number) {
     }
-    
+
     void Process(int64_t run_number, uint64_t event_number) {
         m_proto_cluster_output() = m_algo.process(*m_calo_hit_input());
     }

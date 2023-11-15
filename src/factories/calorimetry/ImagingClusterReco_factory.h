@@ -32,7 +32,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        std::tie(m_clusters_output(), 
+        std::tie(m_clusters_output(),
                  m_assocs_output(),
                  m_layers_output()) = m_algo.process(m_protos_input(), m_mchits_input());
     }

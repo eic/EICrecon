@@ -19,10 +19,10 @@ class MatrixTransferStatic_factory :
     public JOmniFactory<MatrixTransferStatic_factory, MatrixTransferStaticConfig> {
 
     eicrecon::MatrixTransferStatic   m_reco_algo;        // Actual algorithm
-    
+
     PodioInput<edm4hep::SimTrackerHit> m_hits_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_tracks_output {this};
-    
+
     Service<DD4hep_service> m_geoSvc {this};
 
     // TODO: Register the config fields with JANA so we can pass them in as parameters
