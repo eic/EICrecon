@@ -335,7 +335,7 @@ namespace eicrecon {
         // relate matched ParticleID objects to output particle
         for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
             const auto& out_pid = out_pids->at(out_pids_index);
-            if (out_pid.id() != out_pids_id) { // sanity check
+            if (out_pid.getObjectID().index != out_pids_id) { // sanity check
                 m_log->error("indexing error in `edm4eic::ParticleID` collection");
                 return false;
             }
