@@ -45,26 +45,43 @@ namespace eicrecon {
 
 
 
-    std::vector<std::unique_ptr<edm4eic::TrackPoint>>
+    std::unique_ptr<edm4eic::TrackSegmentCollection>
     TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
-                                    const std::shared_ptr<const Acts::Surface> &targetSurf) {
+                                    const std::vector<std::shared_ptr<Acts::Surface>> &target_surface_list) {
+
         // output collection
-        std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
+        auto propagated_tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
         m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
+
+        // Create Acts logger for this event
+        m_acts_log = std::move(eicrecon::getSpdlogLogger(m_log, {"Propagation reached the step count limit", "Step failed with EigenStepperError"}));
+        m_log->info("Acts logger now active");
 
         // Loop over the trajectories
         for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
             auto &traj = trajectories[traj_index];
             m_log->trace("  Trajectory object # {}", traj_index);
 
-            auto result = propagate(traj, targetSurf);
-            if(!result) continue;
+            auto this_propagated_track = propagated_tracks->create();
+            for(size_t isurf = 0; auto surf: target_surface_list) {
 
-            // Add to output collection
-            track_points.push_back(std::move(result));
+                auto prop_point = propagate(traj, surf);
+                if(!prop_point) continue;
+#if EDM4EIC_VERSION_MAJOR >= 3
+//                prop_point->surface = m_target_surface_ID[isurf];
+//                prop_point->system = m_target_detector_ID[isurf];
+#endif
+                this_propagated_track.addToPoints(*prop_point);
+                isurf++;
+
+            }
         }
 
-        return track_points;
+        // Reset Acts logger (print suppressions)
+        m_acts_log.reset(nullptr);
+        m_log->info("Acts logger now reset");
+
+        return propagated_tracks;
     }
 
 
@@ -80,6 +97,9 @@ namespace eicrecon {
       // logging
       m_log->trace("Propagate trajectories: --------------------");
       m_log->trace("number of trajectories: {}",trajectories.size());
+
+      // Create Acts logger for this event
+      m_acts_log = std::move(eicrecon::getSpdlogLogger(m_log, {"Propagation reached the step count limit", "Step failed with EigenStepperError"}));
 
       // start output collection
       auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
@@ -156,6 +176,9 @@ namespace eicrecon {
 
       } // end loop over input trajectories
 
+      // Reset Acts logger (print suppressions)
+      m_acts_log.reset(nullptr);
+
       return track_segments;
     }
 
@@ -202,8 +225,6 @@ namespace eicrecon {
         using Propagator = Acts::Propagator<Stepper>;
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
-
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
 
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
 
