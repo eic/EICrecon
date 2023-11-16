@@ -16,10 +16,12 @@ namespace eicrecon::BField {
   Acts::Result<Acts::Vector3> DD4hepBField::getField(const Acts::Vector3& position,
                                                      Acts::MagneticFieldProvider::Cache& /*cache*/) const
   {
-    dd4hep::Position pos(position[0]/10.0,position[1]/10.0,position[2]/10.0); // FIXME
+    dd4hep::Position pos(
+      position[0] * (dd4hep::mm / Acts::UnitConstants::mm),
+      position[1] * (dd4hep::mm / Acts::UnitConstants::mm),
+      position[2] * (dd4hep::mm / Acts::UnitConstants::mm));
+
     auto fieldObj = m_det->field();
-
-
     auto field = fieldObj.magneticField(pos) * (Acts::UnitConstants::T / dd4hep::tesla);
     return Acts::Result<Acts::Vector3>::success({field.x(), field.y(),field.z()});
   }
