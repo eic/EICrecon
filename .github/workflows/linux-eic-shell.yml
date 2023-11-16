@@ -557,7 +557,7 @@ jobs:
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/setup.sh"
         run: |
           pip install 'pygithub>=2' 'bokeh>=3'
           export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
@@ -705,7 +705,7 @@ jobs:
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/setup.sh"
         run: |
           pip install 'pygithub>=2' 'bokeh>=3'
           export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
