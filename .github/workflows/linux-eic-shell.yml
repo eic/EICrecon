@@ -843,7 +843,7 @@ jobs:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
       - name: Populate capybara summary
-        if: github.event.pull_request.number == matrix.pr || steps.download_capybara.outputs.found_artifact == 'true' 
+        if: github.event.pull_request.number == matrix.pr || steps.download_capybara.outputs.found_artifact == 'true'
         run: |
          echo "### Capybara summary for PR ${{ matrix.pr }}" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
          find publishing_docs/pr/${{ matrix.pr }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
