@@ -72,8 +72,6 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
-  // FIXME this factory should use podio collections
-
   auto input_tags = GetInputTags();
 
   // collect tracks from first input tag
