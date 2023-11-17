@@ -302,7 +302,8 @@ namespace eicrecon {
           }
 
           // Loop over all trajectories in a multiTrajectory
-          for (auto trackTip : trackTips) {
+          // FIXME: we only retain the first trackTips entry
+          for (auto trackTip : decltype(trackTips){trackTips.front()}) {
             // Collect the trajectory summary info
             auto trajectoryState =
                 Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
