@@ -4,12 +4,12 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 #include "TrackProjectorConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

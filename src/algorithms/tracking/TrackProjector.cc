@@ -5,6 +5,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -22,7 +23,6 @@
 #include <iterator>
 #include <utility>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "TrackProjector.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 

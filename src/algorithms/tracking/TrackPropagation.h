@@ -9,6 +9,7 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
@@ -16,7 +17,6 @@
 #include <memory>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 
 
