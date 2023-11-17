@@ -813,30 +813,45 @@ jobs:
       fail-fast: false
       max-parallel: 4
     steps:
-      - uses: dawidd6/action-download-artifact@v2
+      - name: Download docs artifact (other PRs)
+        uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
         with:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
           if_no_artifact_found: ignore
-      - uses: actions/download-artifact@v3
+      - name: Download docs artifact (this PR)
+        uses: actions/download-artifact@v3
         if: github.event.pull_request.number == matrix.pr
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
-      - uses: dawidd6/action-download-artifact@v2
+      - name: Download capybara artifact (other PRs)
+        id: download_capybara
+        uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
         with:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
           name: capybara
           if_no_artifact_found: ignore
-      - uses: actions/download-artifact@v3
+      - name: Download capybara artifact (this PR)
+        uses: actions/download-artifact@v3
         if: github.event.pull_request.number == matrix.pr
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
+      - name: Populate capybara summary
+        if: github.event.pull_request.number == matrix.pr || steps.download_capybara.outputs.found_artifact == 'true' 
+        run: |
+         echo "### Capybara summary for PR ${{ matrix.pr }}" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+         find publishing_docs/pr/${{ matrix.pr }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
+           "- [%f](%f/index.html)\n" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+      - name: Create capybara step summary (this PR)
+        if: github.event.pull_request.number == matrix.pr
+        run: |
+          cat publishing_docs/pr/${{ matrix.pr }}/capybara/index.md >> $GITHUB_STEP_SUMMARY
       - run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v3
         with:
@@ -883,6 +898,10 @@ jobs:
         with:
           name: github-pages-staging
           path: publishing_docs/
+      - name: Make PR summary page
+        run:
+          echo "### PRs" >> publishing_docs/pr/index.md
+          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" >> publishing_docs/pr/index.md
       - name: List content to publish
         run:
           find publishing_docs/
