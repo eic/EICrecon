@@ -899,7 +899,7 @@ jobs:
           name: github-pages-staging
           path: publishing_docs/
       - name: Make PR summary page
-        run:
+        run: |
           echo "### PRs" >> publishing_docs/pr/index.md
           find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" >> publishing_docs/pr/index.md
       - name: List content to publish
