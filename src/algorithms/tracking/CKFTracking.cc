@@ -200,14 +200,7 @@ namespace eicrecon {
         // Create track container
         auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();
         auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-        // FIXME JANA2 std::vector<T*> requires wrapping TrackContainer, instead of:
-        //TrackContainer tracks(trackContainer, trackStateContainer);
-        std::vector<std::unique_ptr<ActsExamples::TrackContainer>> tracks_v;
-        tracks_v.push_back(
-          std::make_unique<ActsExamples::TrackContainer>(
-            trackContainer,
-            trackStateContainer));
-        auto& tracks = *(tracks_v.front().get());
+        ActsExamples::TrackContainer tracks(trackContainer, trackStateContainer);
 
         // Add seed number column
         tracks.addColumn<unsigned int>("seed");
