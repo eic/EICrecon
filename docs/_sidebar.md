@@ -16,6 +16,9 @@
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
+* Development
+    * [Pull requests](pr/index.md)
+    * [Doxygen](https://eicrecon.epic-eic.org/doxygen/)
 * Tutorials
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
