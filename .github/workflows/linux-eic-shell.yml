@@ -85,8 +85,9 @@ jobs:
         platform-release: "${{ env.platform-release }}"
         run: |
           # install this repo
+          ccache -z
           CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
-          cmake --build build -- -j 2 install
+          CCACHE_DEBUG=1 CCACHE_DEBUGDIR=ccache-debug cmake --build build -- -j 2 install
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -106,6 +107,14 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
+    - name: Compress ccache-debug directory
+      run: tar -caf ccache-debug.tar.zst ccache-debug/
+    - name: Upload ccache-debug directory
+      uses: actions/upload-artifact@v3
+      with:
+        name: ccache-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
+        path: ccache-debug.tar.zst
+        if-no-files-found: ignore
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
     - name: Upload install directory
