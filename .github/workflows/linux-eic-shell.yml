@@ -629,7 +629,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
-    - name: Unarchive install directory 
+    - name: Unarchive install directory
       run: tar -xf install.tar
     - uses: actions/download-artifact@v3
       with:
