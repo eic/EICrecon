@@ -216,7 +216,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
