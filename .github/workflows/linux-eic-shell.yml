@@ -116,13 +116,13 @@ jobs:
           !.git/
           !.ccache/
         if-no-files-found: error
-    - name: Compress build directory
-      run: tar -czf build.tar.gz build/
+    - name: Archive build directory
+      run: tar -cf build.tar build/
     - name: Upload build directory
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
-        path: build.tar.gz
+        path: build.tar
         if-no-files-found: error
 
   clang-tidy-iwyu:
@@ -139,8 +139,8 @@ jobs:
       with:
         name: build-clang-eic-shell-Debug
         path: .
-    - name: Uncompress build artifact
-      run: tar -zxf build.tar.gz
+    - name: Unarchive build artifact
+      run: tar -xf build.tar
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -216,7 +216,7 @@ jobs:
         name: build-clang-eic-shell-Debug
         path: .
     - name: Uncompress build artifact
-      run: tar -zxf build.tar.gz
+      run: tar -xf build.tar
     - run: sudo apt-get update
     - run: sudo apt-get install -y llvm-15 jq
     - name: llvm-cov
