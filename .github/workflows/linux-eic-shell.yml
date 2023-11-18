@@ -116,12 +116,10 @@ jobs:
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
     - name: Compress build directory
-      if: ${{ matrix.CC }} == ${{ env.clang-tidy-iwyu-CC }}
-       && ${{ matrix.CMAKE_BUILD_TYPE }} == ${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
-      if: ${{ matrix.CC }} == ${{ env.clang-tidy-iwyu-CC }}
-       && ${{ matrix.CMAKE_BUILD_TYPE }} == ${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
