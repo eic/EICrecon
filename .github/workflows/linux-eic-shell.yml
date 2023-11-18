@@ -369,6 +369,10 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
@@ -425,6 +429,10 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
@@ -468,6 +476,10 @@ jobs:
         - tracking_efficiency
         - tracking_occupancy
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
@@ -505,6 +517,10 @@ jobs:
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
@@ -620,6 +636,10 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
@@ -671,6 +691,10 @@ jobs:
         - beam: 5x41
           minq2: 1000
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v3
       with:
