@@ -847,7 +847,7 @@ jobs:
         run: |
          echo "### Capybara summary for PR ${{ matrix.pr }}" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
          find publishing_docs/pr/${{ matrix.pr }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
-           "- [%f](https://eicrecon.epic-eic.org/pr/${{ matrix.pr }}/capybara/%f/index.html)\n" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+           "- [%f](https://eicrecon.epic-eic.org/pr/${{ matrix.pr }}/capybara/%f/index.html)\n" | sort >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
       - name: Create capybara step summary (this PR)
         if: github.event.pull_request.number == matrix.pr
         run: |
@@ -918,7 +918,7 @@ jobs:
         run: |
          echo "### Capybara summary for main" >> publishing_docs/capybara/index.md
          find publishing_docs/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
-           "- [%f](https://eicrecon.epic-eic.org/capybara/%f/index.html)\n" >> publishing_docs/capybara/index.md
+           "- [%f](https://eicrecon.epic-eic.org/capybara/%f/index.html)\n" | sort >> publishing_docs/capybara/index.md
       - name: Create capybara step summary (this PR)
         if: github.ref_name == 'main'
         run: |
@@ -948,7 +948,7 @@ jobs:
       - name: Make PR summary page
         run: |
           echo "### PRs" >> publishing_docs/pr/index.md
-          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" >> publishing_docs/pr/index.md
+          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" | sort >> publishing_docs/pr/index.md
       - name: List content to publish
         run:
           find publishing_docs/
