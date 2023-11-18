@@ -102,7 +102,7 @@ jobs:
       with:
         platform-release: "${{ env.platform-release }}"
         run: |
-          export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
     - name: Archive install directory
       run: tar -cf install.tar install/
