@@ -3,6 +3,7 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
@@ -19,7 +20,6 @@
 #include <vector>
 
 #include "TrackPropagationTest_processor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/rootfile/RootFile_service.h"
 

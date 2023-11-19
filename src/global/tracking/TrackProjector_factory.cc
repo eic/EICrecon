@@ -2,6 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JFactoryT.h>
@@ -10,7 +12,6 @@
 
 #include "TrackProjector.h"
 #include "TrackProjector_factory.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/io/podio/JFactoryPodioT.h"
 
@@ -37,8 +38,8 @@ namespace eicrecon {
 
     void TrackProjector_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Now we check that user provided an input names
-        std::string input_tag = GetInputTags()[0];
-        auto trajectories = event->Get<ActsExamples::Trajectories>(input_tag);
+        auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
+        auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags()[1]);
 
         try {
             auto track_segments = m_track_projector_algo.execute(trajectories);

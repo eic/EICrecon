@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -11,7 +12,11 @@
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
@@ -20,9 +25,6 @@
 #include <tuple>
 #include <vector>
 
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Track.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "CKFTrackingConfig.h"
 #include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -43,8 +45,8 @@ namespace eicrecon {
         using TrackFinderOptions =
             Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
                                                    Acts::VectorMultiTrajectory>;
-        using TrackFinderResult = std::vector<Acts::Result<
-            Acts::CombinatorialKalmanFilterResult<Acts::VectorMultiTrajectory>>>;
+        using TrackFinderResult =
+            Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
 
         /// Find function that takes the above parameters
         /// @note This is separated into a virtual interface to keep compilation units
@@ -53,8 +55,9 @@ namespace eicrecon {
         public:
             virtual ~CKFTrackingFunction() = default;
 
-            virtual TrackFinderResult operator()(const ActsExamples::TrackParametersContainer &,
-                                                 const TrackFinderOptions &) const = 0;
+            virtual TrackFinderResult operator()(const ActsExamples::TrackParameters&,
+                                                 const TrackFinderOptions&,
+                                                 ActsExamples::TrackContainer&) const = 0;
         };
 
         /// Create the track finder function implementation.
@@ -62,7 +65,8 @@ namespace eicrecon {
         /// contains shared_ptr anyways.
         static std::shared_ptr<CKFTrackingFunction> makeCKFTrackingFunction(
                 std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
-                std::shared_ptr<const Acts::MagneticFieldProvider> magneticField);
+                std::shared_ptr<const Acts::MagneticFieldProvider> magneticField,
+                const Acts::Logger& logger);
 
         CKFTracking();
 
@@ -71,13 +75,15 @@ namespace eicrecon {
         std::tuple<
             std::unique_ptr<edm4eic::TrajectoryCollection>,
             std::unique_ptr<edm4eic::TrackParametersCollection>,
-            std::vector<ActsExamples::Trajectories*>
+            std::vector<ActsExamples::Trajectories*>,
+            std::vector<ActsExamples::ConstTrackContainer*>
         >
         process(const edm4eic::Measurement2DCollection& meas2Ds,
                 const edm4eic::TrackParametersCollection &init_trk_params);
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
+        std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
         std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
@@ -87,6 +93,9 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+
+        /// Private access to the logging instance
+        const Acts::Logger& logger() const { return *m_acts_logger; }
     };
 
 } // namespace eicrecon::Reco

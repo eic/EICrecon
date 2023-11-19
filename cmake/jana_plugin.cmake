@@ -233,6 +233,10 @@ macro(plugin_add_acts _name)
         endif()
     endif()
 
+    # Get ActsExamples base
+    get_target_property(ActsCore_LOCATION ActsCore LOCATION)
+    get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
+
     # Add libraries (works same as target_include_directories)
     plugin_link_libraries(${PLUGIN_NAME}
         ActsCore
@@ -240,6 +244,7 @@ macro(plugin_add_acts _name)
         ActsPluginTGeo
         ActsPluginJson
         ActsPluginDD4hep
+        ${ActsCore_PATH}/libActsExamplesFramework.so
     )
 
 endmacro()

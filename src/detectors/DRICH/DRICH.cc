@@ -113,7 +113,7 @@ extern "C" {
     // charged particle tracks
     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
-          {"CentralCKFActsTrajectories"},
+          {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app

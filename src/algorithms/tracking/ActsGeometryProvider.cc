@@ -133,11 +133,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
         // Set up the converter first
         Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
         // Set up the json-based decorator
-        materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(jsonGeoConvConfig, material_file,acts_init_log_level);
+        materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(jsonGeoConvConfig, material_file, acts_init_log_level);
     }
 
     // Geometry identifier hook to write detector ID to extra field
-    Acts::GeometryIdentifierHook geometryIdHook = [](Acts::GeometryIdentifier identifier, const Acts::Surface& surface) {
+    class ConvertDD4hepDetectorGeometryIdentifierHook: public Acts::GeometryIdentifierHook {
+      Acts::GeometryIdentifier decorateIdentifier(
+          Acts::GeometryIdentifier identifier, const Acts::Surface& surface) const {
         const auto* dd4hep_det_element =
             dynamic_cast<const Acts::DD4hepDetectorElement*>(surface.associatedDetectorElement());
         if (dd4hep_det_element == nullptr) {
@@ -145,10 +147,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
         }
         // set 8-bit extra field to 8-bit DD4hep detector ID
         return identifier.setExtra(0xff & dd4hep_det_element->identifier());
+      };
     };
+    auto geometryIdHook = std::make_shared<ConvertDD4hepDetectorGeometryIdentifierHook>();
 
     // Convert DD4hep geometry to ACTS
     m_init_log->info("Converting DD4Hep geometry to ACTS...");
+    auto logger = eicrecon::getSpdlogLogger("CONV", m_log);
     Acts::BinningType bTypePhi = Acts::equidistant;
     Acts::BinningType bTypeR = Acts::equidistant;
     Acts::BinningType bTypeZ = Acts::equidistant;
@@ -160,7 +165,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     try {
         m_trackingGeo = Acts::convertDD4hepDetector(
                 m_dd4hepDetector->world(),
-                acts_init_log_level,
+                *logger,
                 bTypePhi,
                 bTypeR,
                 bTypeZ,
@@ -173,7 +178,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
                 geometryIdHook);
     }
     catch(std::exception &ex) {
-        m_init_log->error("Error during DD4Hep -> ACTS geometry conversion. See error reason below...");
+        m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
         m_init_log->info ("Set parameter acts::InitLogLevel=trace to see conversion info and possibly identify failing geometry");
         throw JException(ex.what());
     }
