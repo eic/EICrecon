@@ -11,6 +11,8 @@ add_executable(${TEST_NAME}
 
 # Explicit linking to podio::podio is needed due to https://github.com/JeffersonLab/JANA2/issues/151
 target_link_libraries(${TEST_NAME} PRIVATE Catch2::Catch2WithMain algorithms_calorimetry_library algorithms_pid_library podio::podio podio::podioRootIO)
+# As-needed fails due to absent podio symbols in libJANA.so (https://github.com/JeffersonLab/JANA2/pull/255)
+target_link_options(${TEST_NAME} PRIVATE "-Wl,--no-as-needed")
 
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
