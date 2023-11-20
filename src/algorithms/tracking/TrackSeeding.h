@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <cstddef> // IWYU pragma: keep FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
-
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
+#include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
+#include <cstddef> // IWYU pragma: keep FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -41,6 +41,7 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldctx;
 
         Acts::SeedFilterConfig m_seedFilterConfig;
+        Acts::SeedFinderOptions m_seedFinderOptions;
         Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
 
         int determineCharge(std::vector<std::pair<float,float>>& positions) const;

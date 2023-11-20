@@ -9,11 +9,12 @@
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>
@@ -52,6 +53,7 @@ void eicrecon::TrackPropagation_factory::Init() {
 void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
+    auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags()[1]);
 
     edm4eic::TrackSegmentCollection propagated_tracks;
 

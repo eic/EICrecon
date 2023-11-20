@@ -106,7 +106,6 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
       }
     }
 
-  #if 0 // name() and clone() require Acts 22.0.0, https://github.com/acts-project/acts/commit/85b4b292c980f358ed6ba3ce19cdcee361c8ea5b
     /// Fulfill @c OutputPrintPolicy interface. This policy doesn't actually have a
     /// name, so the assumption is that somewhere in the decorator hierarchy,
     /// there is something that returns a name without delegating to a wrappee,
@@ -127,7 +126,6 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
       (void)name;
       return std::make_unique<SpdlogPrintPolicy>(m_out);
     };
-  #endif
 
   private:
     /// pointer to destination output stream
@@ -138,11 +136,14 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
+    const std::string& name,
     std::shared_ptr<spdlog::logger> log,
     std::vector<std::string> suppressions = {}) {
 
   const Acts::Logging::Level lvl = SpdlogToActsLevel(log->level());
-  auto output = std::make_unique<SpdlogPrintPolicy>(log, suppressions);
+  auto output = std::make_unique<Acts::Logging::NamedOutputDecorator>(
+      std::make_unique<SpdlogPrintPolicy>(log, suppressions),
+      name);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }

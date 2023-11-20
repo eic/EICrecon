@@ -4,14 +4,12 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
-#include <algorithm>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
@@ -39,6 +37,7 @@ namespace eicrecon {
             DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
             DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
             DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
+            DeclareOutput<ActsExamples::ConstTrackContainer>(GetOutputTags()[3]);
 
         }
 

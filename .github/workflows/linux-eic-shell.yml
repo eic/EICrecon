@@ -16,13 +16,19 @@ on:
         default: 'jug_xl:nightly'
         required: false
         type: string
+      detector-version:
+        description: 'epic geometry version'
+        default: 'main'
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 env:
-  platform-release: ${{ inputs.platform-release || 'jug_xl:nightly' }}
+  platform-release: ${{ inputs.platform-release || 'jug_xl:23.12-alpha' }}
+  detector-version: ${{ inputs.detector-version || 'main' }}
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1
@@ -84,7 +90,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           for lib in lib/*.so lib/EICrecon/plugins/*.so ; do
@@ -98,7 +104,8 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
-    - uses: actions/upload-artifact@v3
+    - name: Upload install directory
+      uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: |
@@ -109,11 +116,13 @@ jobs:
           !.git/
           !.ccache/
         if-no-files-found: error
-    - uses: actions/upload-artifact@v3
+    - name: Compress build directory
+      run: tar -czf build.tar.gz build/
+    - name: Upload build directory
+      uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
-        path: |
-          build/
+        path: build.tar.gz
         if-no-files-found: error
 
   clang-tidy-iwyu:
@@ -129,7 +138,9 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-clang-eic-shell-Debug
-        path: build/
+        path: .
+    - name: Uncompress build artifact
+      run: tar -zxf build.tar.gz
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -199,10 +210,13 @@ jobs:
       statuses: write
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
       with:
         name: build-clang-eic-shell-Debug
-        path: build/
+        path: .
+    - name: Uncompress build artifact
+      run: tar -zxf build.tar.gz
     - run: sudo apt-get update
     - run: sudo apt-get install -y llvm-15 jq
     - name: llvm-cov
@@ -268,7 +282,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v3
@@ -301,7 +315,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --random.seed 1 --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -N 100 -v WARNING
@@ -338,7 +352,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
@@ -372,7 +386,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -389,7 +403,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -425,7 +439,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -466,7 +480,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -501,7 +515,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           ldd -r lib/*.so lib/EICrecon/plugins/*.so
@@ -509,7 +523,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -544,6 +558,27 @@ jobs:
         path: ref/
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if_no_artifact_found: warn
+    - name: Compare to previous artifacts
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
+      with:
+        platform-release: "${{ env.platform-release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        run: |
+          pip install 'pygithub>=2' 'bokeh>=3'
+          export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
+          mkdir capybara-reports
+          capybara bara ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          mv capybara-reports rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          touch .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+    - uses: actions/upload-artifact@v3
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
+      with:
+        name: capybara
+        path: |
+          .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}/
+        if-no-files-found: error
     - name: Checkout epic-capybara
       uses: actions/checkout@v3
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
@@ -557,18 +592,19 @@ jobs:
         cd epic-capybara
         hatch build
         pip install dist/*.whl
-    - name: Compare to previous artifacts
+    - name: Compare to previous artifacts (local capybara)
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           echo "::group::pip install"
           python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
           echo "::endgroup::"
+          echo "::group::diff ref -> new"
           python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-
+          echo "::endgroup::"
 
   eicrecon-gun-EcalLumiSpec:
     runs-on: ubuntu-latest
@@ -592,7 +628,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -641,7 +677,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -671,6 +707,27 @@ jobs:
         path: ref/
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         if_no_artifact_found: warn
+    - name: Compare to previous artifacts
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
+      with:
+        platform-release: "${{ env.platform-release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        run: |
+          pip install 'pygithub>=2' 'bokeh>=3'
+          export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
+          mkdir capybara-reports
+          capybara bara ref/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+          mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+          touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+    - uses: actions/upload-artifact@v3
+      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
+      with:
+        name: capybara
+        path: |
+          .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+          rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}/
+        if-no-files-found: error
     - name: Checkout epic-capybara
       uses: actions/checkout@v3
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
@@ -684,12 +741,12 @@ jobs:
         cd epic-capybara
         hatch build
         pip install dist/*.whl
-    - name: Compare to previous artifacts
+    - name: Compare to previous artifacts (local capybara)
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform-release }}"
-        setup: /opt/detector/setup.sh
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           echo "::group::pip install"
           python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
@@ -768,6 +825,18 @@ jobs:
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
+      - uses: dawidd6/action-download-artifact@v2
+        if: github.event.pull_request.number != matrix.pr
+        with:
+          pr: ${{ matrix.pr }}
+          path: publishing_docs/pr/${{ matrix.pr }}/capybara/
+          name: capybara
+          if_no_artifact_found: ignore
+      - uses: actions/download-artifact@v3
+        if: github.event.pull_request.number == matrix.pr
+        with:
+          name: capybara
+          path: publishing_docs/pr/${{ matrix.pr }}/capybara/
       - run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v3
         with:
@@ -809,14 +878,19 @@ jobs:
         - /home/runner/work/_temp:/home/runner/work/_temp
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
-      - uses: actions/download-artifact@v3
+      - name: Download GitHub Pages staging artifact
+        uses: actions/download-artifact@v3
         with:
           name: github-pages-staging
           path: publishing_docs/
+      - name: List content to publish
+        run:
+          find publishing_docs/
       - run:
           apk add tar bash
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
-      - uses: actions/upload-pages-artifact@v1
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v1
         with:
           path: publishing_docs/
           retention-days: 7

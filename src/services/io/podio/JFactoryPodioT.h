@@ -7,6 +7,7 @@
 
 #include <JANA/JFactoryT.h>
 #include <JANA/JEvent.h>
+#include <podio/podioVersion.h>
 #include <podio/Frame.h>
 #include "datamodel_glue.h"
 
@@ -16,7 +17,11 @@ namespace eicrecon {
 template <typename T>
 class JFactoryPodioT : public JFactoryT<T>, public JFactoryPodio {
 public:
+#if podio_VERSION >= PODIO_VERSION(0, 17, 0)
+    using CollectionT = typename T::collection_type;
+#else
     using CollectionT = typename PodioTypeMap<T>::collection_t;
+#endif
 private:
     // mCollection is owned by the frame.
     // mFrame is owned by the JFactoryT<podio::Frame>.
@@ -65,7 +70,7 @@ JFactoryPodioT<T>::~JFactoryPodioT() {
 }
 
 template <typename T>
-void JFactoryPodioT<T>::SetCollection(typename PodioTypeMap<T>::collection_t&& collection) {
+void JFactoryPodioT<T>::SetCollection(CollectionT&& collection) {
     /// Provide a PODIO collection. Note that PODIO assumes ownership of this collection, and the
     /// collection pointer should be assumed to be invalid after this call
 
@@ -85,7 +90,7 @@ void JFactoryPodioT<T>::SetCollection(typename PodioTypeMap<T>::collection_t&& c
 
 
 template <typename T>
-void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::collection_t> collection) {
+void JFactoryPodioT<T>::SetCollection(std::unique_ptr<CollectionT> collection) {
     /// Provide a PODIO collection. Note that PODIO assumes ownership of this collection, and the
     /// collection pointer should be assumed to be invalid after this call
 
@@ -93,7 +98,7 @@ void JFactoryPodioT<T>::SetCollection(std::unique_ptr<typename PodioTypeMap<T>::
         throw JException("JFactoryPodioT: Unable to add collection to frame as frame is missing!");
     }
     this->mFrame->put(std::move(collection), this->GetTag());
-    const auto* moved = &this->mFrame->template get<typename PodioTypeMap<T>::collection_t>(this->GetTag());
+    const auto* moved = &this->mFrame->template get<CollectionT>(this->GetTag());
     this->mCollection = moved;
 
     for (const T& item : *moved) {
@@ -177,12 +182,12 @@ void JFactoryPodioT<T>::Create(const std::shared_ptr<const JEvent>& event) {
         }
         catch(...) {
             if (mCollection == nullptr) {
-                SetCollection(typename PodioTypeMap<T>::collection_t());
+                SetCollection(CollectionT());
             }
             throw;
         }
         if (mCollection == nullptr) {
-            SetCollection(typename PodioTypeMap<T>::collection_t());
+            SetCollection(CollectionT());
             // If calling Process() didn't result in a call to Set() or SetCollection(), we create an empty collection
             // so that podio::ROOTFrameWriter doesn't segfault on the null mCollection pointer
         }
@@ -193,7 +198,7 @@ void JFactoryPodioT<T>::Create(const std::shared_ptr<const JEvent>& event) {
 
 template <typename T>
 void JFactoryPodioT<T>::Set(const std::vector<T*>& aData) {
-    typename PodioTypeMap<T>::collection_t collection;
+    CollectionT collection;
     if (mIsSubsetCollection) collection.setSubsetCollection(true);
     for (T* item : aData) {
         collection.push_back(*item);
@@ -203,7 +208,7 @@ void JFactoryPodioT<T>::Set(const std::vector<T*>& aData) {
 
 template <typename T>
 void JFactoryPodioT<T>::Set(std::vector<T*>&& aData) {
-    typename PodioTypeMap<T>::collection_t collection;
+    CollectionT collection;
     if (mIsSubsetCollection) collection.setSubsetCollection(true);
     for (T* item : aData) {
         collection.push_back(*item);
@@ -213,7 +218,7 @@ void JFactoryPodioT<T>::Set(std::vector<T*>&& aData) {
 
 template <typename T>
 void JFactoryPodioT<T>::Insert(T* aDatum) {
-    typename PodioTypeMap<T>::collection_t collection;
+    CollectionT collection;
     if (mIsSubsetCollection) collection->setSubsetCollection(true);
     collection->push_back(*aDatum);
     SetCollection(std::move(collection));

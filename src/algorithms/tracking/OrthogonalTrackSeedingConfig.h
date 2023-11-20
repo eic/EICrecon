@@ -54,7 +54,6 @@ namespace eicrecon {
     float m_zOriginWeightFactor = 1.;
     float m_compatSeedWeight = 200.;
     size_t m_compatSeedLimit = 2;
-    bool m_curvatureSortingInFilter = false;
     float m_seedWeightIncrement = 0;
 
     ///////////////////////////////////////

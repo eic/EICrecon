@@ -58,7 +58,7 @@ namespace eicrecon {
         // For now, one hit = one measurement.
         for (const auto *hit: trk_hits) {
 
-            Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
+            Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
             cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
             cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
             cov(0, 1) = 0.0;
