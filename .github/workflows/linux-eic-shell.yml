@@ -94,7 +94,7 @@ jobs:
             -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
           export CCACHE_DEBUG=1 CCACHE_DEBUGDIR=$PWD/ccache-debug
           cmake --build build -- -j 2 install
-          find $CCACHE_DEBUGDIR ! -name "*.ccache-log" -delete
+          find $CCACHE_DEBUGDIR ! -name "*.ccache-log" -type f -delete
           grep -r 'Result: .*_miss' $CCACHE_DEBUGDIR
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
