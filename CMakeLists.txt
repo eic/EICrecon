@@ -35,6 +35,21 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
+# Minimal dependency versions
+set(Acts_VERSION_MIN        30.0.0)
+set(algorithms_VERSION_MIN  1.0.0)
+set(DD4hep_VERSION_MIN      1.21)
+set(EDM4EIC_VERSION_MIN     2.1)
+set(EDM4HEP_VERSION_MIN     0.7.1)
+set(Eigen3_VERSION_MIN      3.3)
+set(FastJet_VERSION_MIN     3)
+set(fmt_VERSION_MIN         9.0.0)
+set(IRT_VERSION_MIN         1.0.5)
+set(JANA_VERSION_MIN        2.0.8)
+set(podio_VERSION_MIN       0.16)
+set(ROOT_VERSION_MIN        0.16)
+set(spdlog_VERSION_MIN      1.11.0)
+
 # Make C++17 a default
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
@@ -102,52 +117,13 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 
 # Check and print what JANA2 is used
-find_package(JANA 2.0.8 REQUIRED)
+find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
-
-# Algorithms
-find_package(algorithms 1.0.0 REQUIRED Core)
-
-# PODIO, EDM4HEP, EDM4EIC event models
-find_package(Eigen3 REQUIRED)
-find_package(podio REQUIRED)
-find_package(EDM4HEP 0.7.1 REQUIRED)
-find_package(EDM4EIC 2.1 REQUIRED)
-
-# Guidelines Support Library
-find_package(Microsoft.GSL CONFIG)
-
-# Remove PODIO_JSON_OUTPUT (ref: https://github.com/AIDASoft/podio/issues/475)
-get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep INTERFACE_COMPILE_DEFINITIONS)
-if(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS)
-  list(FILTER EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX [[^PODIO_JSON_OUTPUT$]])
-  set_property(TARGET EDM4HEP::edm4hep PROPERTY INTERFACE_COMPILE_DEFINITIONS ${EDM4HEP_INTERFACE_COMPILE_DEFINITIONS})
-endif()
-get_target_property(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EDM4EIC::edm4eic INTERFACE_COMPILE_DEFINITIONS)
-if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
-  list(FILTER EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX [[^PODIO_JSON_OUTPUT$]])
-  set_property(TARGET EDM4EIC::edm4eic PROPERTY INTERFACE_COMPILE_DEFINITIONS ${EDM4EIC_INTERFACE_COMPILE_DEFINITIONS})
-endif()
-
-# DD4Hep is required for the most of the part
-find_package(DD4hep REQUIRED)
-
-# ACTS
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
-set(Acts_VERSION_MIN "19.0.0")
-set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
-        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
-    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
-endif()
-
-# CERN ROOT
-find_package(ROOT REQUIRED)
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
