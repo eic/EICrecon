@@ -86,8 +86,14 @@ jobs:
         run: |
           # install this repo
           ccache -z
-          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
-          CCACHE_DEBUG=1 CCACHE_DEBUGDIR=ccache-debug cmake --build build -- -j 2 install
+          export CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}"
+          cmake -B build -S . \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} \
+            -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          export CCACHE_DEBUG=1 CCACHE_DEBUGDIR=$PWD/ccache-debug
+          cmake --build build -- -j 2 install
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
