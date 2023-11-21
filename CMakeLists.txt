@@ -35,8 +35,8 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
-# Set default standard to C++20
-set(CMAKE_CXX_STANDARD_MIN 20)
+# Set default standard to C++17
+set(CMAKE_CXX_STANDARD_MIN 17)
 set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
 if(CMAKE_CXX_STANDARD LESS CMAKE_CXX_STANDARD_MIN)
   message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD} (at least ${CMAKE_CXX_STANDARD_MIN} required)")
@@ -149,9 +149,19 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
         AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
+# ActsCore
+get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
+  message(FATAL_ERROR "Acts has not been built with the requested C++ standard.")
+endif()
 
-# CERN ROOT
+# ROOT
 find_package(ROOT REQUIRED)
+# Check that ROOT is compiled with a modern enough c++ standard
+get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
+  message(FATAL_ERROR "ROOT has not been built with the requested C++ standard.")
+endif()
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
