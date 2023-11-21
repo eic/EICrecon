@@ -813,31 +813,63 @@ jobs:
       fail-fast: false
       max-parallel: 4
     steps:
-      - uses: dawidd6/action-download-artifact@v2
+      - name: Download docs artifact (other PRs)
+        uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
         with:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
           if_no_artifact_found: ignore
-      - uses: actions/download-artifact@v3
+      - name: Download docs artifact (this PR)
+        uses: actions/download-artifact@v3
         if: github.event.pull_request.number == matrix.pr
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
-      - uses: dawidd6/action-download-artifact@v2
+      - name: Download capybara artifact (other PRs)
+        id: download_capybara
+        uses: dawidd6/action-download-artifact@v2
         if: github.event.pull_request.number != matrix.pr
         with:
           pr: ${{ matrix.pr }}
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
           name: capybara
           if_no_artifact_found: ignore
-      - uses: actions/download-artifact@v3
+      - name: Download capybara artifact (this PR)
+        uses: actions/download-artifact@v3
         if: github.event.pull_request.number == matrix.pr
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
-      - run: rm -rf publishing_docs/pr/*/doxygen
+      - name: Populate capybara summary
+        if: github.event.pull_request.number == matrix.pr || steps.download_capybara.outputs.found_artifact == 'true'
+        run: |
+         echo "### Capybara summary for PR ${{ matrix.pr }}" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+         find publishing_docs/pr/${{ matrix.pr }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
+           "- [%f](https://eicrecon.epic-eic.org/pr/${{ matrix.pr }}/capybara/%f/index.html)\n" | sort >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+      - name: Create capybara step summary (this PR)
+        if: github.event.pull_request.number == matrix.pr
+        run: |
+          cat publishing_docs/pr/${{ matrix.pr }}/capybara/index.md >> $GITHUB_STEP_SUMMARY
+      - name: Find capybara comment
+        id: find_comment
+        uses: peter-evans/find-comment@v2
+        if: github.event.pull_request.number == matrix.pr
+        with:
+          issue-number: ${{ matrix.pr }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Capybara summary
+      - name: Create or update capybara comment
+        if: github.event.pull_request.number == matrix.pr
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          issue-number: ${{ matrix.pr }}
+          body-file: publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
+          edit-mode: replace
+      - name: Remove doxygen in PR
+        run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v3
         with:
           name: github-pages-staging
@@ -849,18 +881,48 @@ jobs:
     needs:
       - build-docs
     steps:
-      - uses: dawidd6/action-download-artifact@v2
+      # Note:
+      # - If we run this on a non-main branch, we download from main with action-download-artifact.
+      # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
+      - name: Download docs artifact (in PR)
+        uses: dawidd6/action-download-artifact@v2
         if: github.ref_name != 'main'
         with:
           branch: main
           path: publishing_docs/
           name: docs
           if_no_artifact_found: fail
-      - uses: actions/download-artifact@v3
+      - name: Download docs artifact (on main)
+        uses: actions/download-artifact@v3
         if: github.ref_name == 'main'
         with:
           name: docs
           path: publishing_docs/
+      - name: Download capybara artifact (in PR)
+        id: download_capybara
+        uses: dawidd6/action-download-artifact@v2
+        if: github.ref_name != 'main'
+        with:
+          pr: ${{ matrix.pr }}
+          path: publishing_docs/capybara/
+          name: capybara
+          if_no_artifact_found: ignore
+      - name: Download capybara artifact (on main)
+        uses: actions/download-artifact@v3
+        if: github.ref_name == 'main'
+        with:
+          name: capybara
+          path: publishing_docs/capybara/
+      - name: Populate capybara summary (on main)
+        if: github.ref_name == 'main' || steps.download_capybara.outputs.found_artifact == 'true'
+        run: |
+         echo "### Capybara summary for main" >> publishing_docs/capybara/index.md
+         find publishing_docs/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
+           "- [%f](https://eicrecon.epic-eic.org/capybara/%f/index.html)\n" | sort >> publishing_docs/capybara/index.md
+      - name: Create capybara step summary (this PR)
+        if: github.ref_name == 'main'
+        run: |
+          cat publishing_docs/capybara/index.md >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v3
         with:
           name: github-pages-staging
@@ -883,6 +945,10 @@ jobs:
         with:
           name: github-pages-staging
           path: publishing_docs/
+      - name: Make PR summary page
+        run: |
+          echo "### PRs" >> publishing_docs/pr/index.md
+          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" | sort >> publishing_docs/pr/index.md
       - name: List content to publish
         run:
           find publishing_docs/
