@@ -1,11 +1,28 @@
 
-#include <spdlog/logger.h>
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <JANA/JFactorySet.h>
+#include <JANA/JMultifactory.h>
+#include <JANA/Services/JComponentManager.h>
+#include <JANA/Services/JParameterManager.h>
 #include <catch2/catch_test_macros.hpp>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <extensions/jana/JOmniFactory.h>
 #include <extensions/jana/JOmniFactoryGeneratorT.h>
-#include <JANA/Services/JComponentManager.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <vector>
 
-#include <edm4hep/SimCalorimeterHitCollection.h>
+#include "datamodel_glue.h"
 
 struct BasicTestAlgConfig {
     int bucket_count = 42;

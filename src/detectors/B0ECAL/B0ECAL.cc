@@ -6,15 +6,18 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
+#include <algorithm>
+#include <exception>
 #include <string>
+#include <vector>
 
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
