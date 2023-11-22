@@ -6,7 +6,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
-#include <algorithm>
 #include <exception>
 #include <string>
 #include <vector>

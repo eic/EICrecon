@@ -12,7 +12,6 @@
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <stdint.h>
-#include <algorithm>
 #include <cstddef>
 #include <exception>
 #include <iostream>
