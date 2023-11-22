@@ -41,6 +41,8 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
+        m_cluster_output() = std::move(std::make_unique<PodioTypeMap<edm4eic::Cluster>::collection_t>());
+        m_assoc_output() = std::move(std::make_unique<PodioTypeMap<edm4eic::MCRecoClusterParticleAssociation>::collection_t>());
 
         m_algo->process({m_proto_input(), m_mchits_input()},
                         {m_cluster_output().get(), m_assoc_output().get()});
