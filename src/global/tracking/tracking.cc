@@ -84,14 +84,14 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JChainFactoryGeneratorT<TrackProjector_factory>(
-            {"CentralCKFActsTrajectories", "CentralCKFSeededActsTracks"}, "CentralTrackSegments"));
+            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"}, "CentralTrackSegments"));
 
     app->Add(new JChainFactoryGeneratorT<IterativeVertexFinder_factory>(
-            {"CentralCKFActsTrajectories", "CentralCKFSeededActsTracks"}, "CentralTrackVertices"));
+            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"}, "CentralTrackVertices"));
 
     app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
             "CalorimeterTrackPropagator",
-            {"CentralCKFActsTrajectories", "CentralCKFSeededActsTracks"},
+            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
             {"CalorimeterTrackProjections"},
             app
             ));
