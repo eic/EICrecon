@@ -150,7 +150,7 @@ public:
             fac.DeclarePodioOutput<PodioT>(this->collection_name);
         }
 
-        void SetCollection(JOmniFactory& fac) {
+        void SetCollection(JOmniFactory& fac) override {
             if (m_data == nullptr) {
                 throw JException("JOmniFactory: SetCollection failed due to missing output collection '%s'", this->collection_name.c_str());
                 // Otherwise this leads to a PODIO segfault
