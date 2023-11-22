@@ -26,7 +26,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-project(EICRecon)
+project(EICrecon)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
@@ -71,6 +71,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
     set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Install in top directory by default" FORCE)
 endif()
+
+# Install to standard location
+include(GNUInstallDirs)
 
 # Default plugins installation directory is 'plugins'
 if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
@@ -179,6 +182,7 @@ option(USE_ASAN "Compile with address sanitizer" OFF)
 if (${USE_ASAN})
     add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
     add_link_options(-fsanitize=address)
+    install(FILES .github/asan.supp .github/lsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Thread sanitizer
@@ -186,6 +190,7 @@ option(USE_TSAN "Compile with thread sanitizer" OFF)
 if (${USE_TSAN})
     add_compile_options(-fsanitize=thread -g -O1)
     add_link_options(-fsanitize=thread)
+    install(FILES .github/tsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Undefined behavior sanitizer
@@ -199,6 +204,7 @@ if (${USE_UBSAN})
         endif()
     endforeach()
     add_compile_options(-g -O1)
+    install(FILES .github/ubsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Compress debug symbols if supported
