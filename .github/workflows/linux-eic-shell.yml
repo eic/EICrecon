@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  platform-release: ${{ inputs.platform-release || 'jug_xl:23.12-alpha' }}
+  platform-release: ${{ inputs.platform-release || 'jug_xl:nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
