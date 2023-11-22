@@ -166,9 +166,6 @@ if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
   message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
 endif()
 
-# Set it ON for additional CMake printout
-set(EICRECON_VERBOSE_CMAKE OFF)
-
 
 # Add CMake additional functionality:
 include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
