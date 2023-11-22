@@ -77,7 +77,7 @@ include(GNUInstallDirs)
 
 # Default plugins installation directory is 'plugins'
 if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
-    set(PLUGIN_OUTPUT_DIRECTORY "lib/EICrecon/plugins")
+    set(PLUGIN_OUTPUT_DIRECTORY "lib/${PROJECT_NAME}/plugins")
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
@@ -223,7 +223,5 @@ add_subdirectory( src/utilities )
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/EICreconConfig.cmake.in cmake/EICreconConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
-install(FILES ${CMAKE_BINARY_DIR}/cmake/EICreconConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)  # why is this needed?
-file(GLOB EICRECON_CMAKE_FILES cmake/*.cmake)
-install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
+configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)
