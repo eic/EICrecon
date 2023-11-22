@@ -244,7 +244,7 @@ macro(plugin_add_acts _name)
         ActsPluginTGeo
         ActsPluginJson
         ActsPluginDD4hep
-        ${ActsCore_PATH}/libActsExamplesFramework.so
+        ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 
 endmacro()
