@@ -18,7 +18,6 @@
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Core>
-#include <algorithm>
 #include <exception>
 #include <iterator>
 #include <map>

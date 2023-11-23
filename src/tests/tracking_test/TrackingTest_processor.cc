@@ -15,7 +15,6 @@
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <stddef.h>
-#include <algorithm>
 #include <exception>
 #include <map>
 #include <string>

@@ -12,6 +12,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <algorithm>
 #include <map>
 #include <set>
 #include <sstream>
