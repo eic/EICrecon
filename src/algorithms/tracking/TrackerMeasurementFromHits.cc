@@ -43,33 +43,30 @@ namespace eicrecon {
 }
 
 
-    std::unique_ptr<edm4eic::Measurement2DCollection> TrackerMeasurementFromHits::produce(std::vector<const edm4eic::TrackerHit*> trk_hits) {
+    std::unique_ptr<edm4eic::Measurement2DCollection> TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hits) {
         constexpr double mm_acts = Acts::UnitConstants::mm;
         constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
-
-        // input collection
-        auto hits = trk_hits;
 
         // output collections
         auto meas2Ds = std::make_unique<edm4eic::Measurement2DCollection>();
 
         // To do: add clustering to allow forming one measurement from several hits.
         // For now, one hit = one measurement.
-        for (const auto *hit: trk_hits) {
+        for (const auto hit: trk_hits) {
 
             Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
-            cov(0, 0) = hit->getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
-            cov(1, 1) = hit->getPositionError().yy * mm_acts * mm_acts;
+            cov(0, 0) = hit.getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
+            cov(1, 1) = hit.getPositionError().yy * mm_acts * mm_acts;
             cov(0, 1) = 0.0;
 
 
-            const auto* vol_ctx = m_converter->findContext(hit->getCellID());
+            const auto* vol_ctx = m_converter->findContext(hit.getCellID());
             auto vol_id = vol_ctx->identifier;
 
             auto surfaceMap = m_acts_context->surfaceMap();
 
             // m_log->trace("Hit preparation information: {}", hit_index);
-            m_log->trace("   System id: {}, Cell id: {}", hit->getCellID() &0xFF, hit->getCellID());
+            m_log->trace("   System id: {}, Cell id: {}", hit.getCellID() &0xFF, hit.getCellID());
             m_log->trace("   cov matrix:      {:>12.2e} {:>12.2e}", cov(0,0), cov(0,1));
             m_log->trace("                    {:>12.2e} {:>12.2e}", cov(1,0), cov(1,1));
             m_log->trace("   surfaceMap size: {}", surfaceMap.size());
@@ -82,11 +79,11 @@ namespace eicrecon {
             const Acts::Surface* surface = is->second;
             // variable surf_center not used anywhere;
 
-            const auto& hit_pos = hit->getPosition(); // 3d position
+            const auto& hit_pos = hit.getPosition(); // 3d position
 
             Acts::Vector2 loc = Acts::Vector2::Zero();
             Acts::Vector2 pos;
-            auto hit_det = hit->getCellID()&0xFF;
+            auto hit_det = hit.getCellID()&0xFF;
             auto onSurfaceTolerance = 0.1*Acts::UnitConstants::um;      // By default, ACTS uses 0.1 micron as the on surface tolerance
             if (hit_det==m_detid_b0tracker){
              onSurfaceTolerance = 1*Acts::UnitConstants::um;           // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
@@ -105,7 +102,7 @@ namespace eicrecon {
             }
             catch(std::exception &ex) {
                 m_log->warn("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
-                            vol_id, hit->getCellID()&0xFF, hit->getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+                            vol_id, hit.getCellID()&0xFF, hit.getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
                 continue;
             }
 
@@ -127,11 +124,11 @@ namespace eicrecon {
             auto meas2D = meas2Ds->create();
             meas2D.setSurface(surface->geometryId().value());   // Surface for bound coordinates (geometryID)
             meas2D.setLoc({static_cast<float>(pos[0]),static_cast<float>(pos[1])});                     // 2D location on surface
-            meas2D.setTime(hit->getTime());                     // Measurement time
+            meas2D.setTime(hit.getTime());                     // Measurement time
             // fixme: no off-diagonal terms. cov(0,1) = cov(1,0)??
-            meas2D.setCovariance({cov(0,0),cov(1,1),hit->getTimeError(),cov(0,1)}); // Covariance on location and time
+            meas2D.setCovariance({cov(0,0),cov(1,1),hit.getTimeError(),cov(0,1)}); // Covariance on location and time
             meas2D.addToWeights(1.0);                             // Weight for each of the hits, mirrors hits array
-            meas2D.addToHits(*hit);
+            meas2D.addToHits(hit);
         }
 
         m_log->debug("All hits processed. Hits size: {}  measurements->size: {}", trk_hits.size(), meas2Ds->size());
