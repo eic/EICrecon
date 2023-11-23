@@ -18,10 +18,13 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
-    class TrackerMeasurementFromHits_factory : public JChainMultifactoryT<NoConfig>{
+    class TrackerMeasurementFromHits_factory :
+      public JChainMultifactoryT<NoConfig>,
+      public SpdlogMixin {
 
     public:
         explicit TrackerMeasurementFromHits_factory(
