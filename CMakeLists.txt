@@ -152,7 +152,7 @@ endif()
 # ActsCore
 get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
 if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
-  message(FATAL_ERROR "Acts has not been built with the requested C++ standard.")
+  message(WARNING "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
 endif()
 
 # ROOT
@@ -160,7 +160,7 @@ find_package(ROOT REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard
 get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
 if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
-  message(FATAL_ERROR "ROOT has not been built with the requested C++ standard.")
+  message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
 endif()
 
 # Set it ON for additional CMake printout
