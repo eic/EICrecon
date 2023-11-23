@@ -6,7 +6,6 @@
 
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
-#include <edm4eic/Measurement2D.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <spdlog/logger.h>
 #include <algorithm>
