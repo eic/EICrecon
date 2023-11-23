@@ -32,9 +32,6 @@ namespace eicrecon {
 
         // Now we check that user provided an input names
         pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
-        if(m_input_tags.empty()) {
-            m_input_tags = GetDefaultInputTags();
-        }
 
         // Logger and log level from user parameter or default
         m_log = app->GetService<Log_service>()->logger(param_prefix);
@@ -49,13 +46,6 @@ namespace eicrecon {
 
         // Initialize algorithm
         m_measurement.init(dd4hep_service->detector(), dd4hep_service->converter(), acts_service->actsGeoProvider(), m_log);
-    }
-
-
-
-
-    void TrackerMeasurementFromHits_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
     }
 
     void TrackerMeasurementFromHits_factory::Process(const std::shared_ptr<const JEvent> &event) {
@@ -73,7 +63,7 @@ namespace eicrecon {
 
         try {
             auto result = m_measurement.produce(total_hits);
-            SetCollection(std::move(result));
+            SetCollection<edm4eic::Measurement2D>(GetOutputTags()[0], std::move(result));
         }
         catch(std::exception &e) {
             throw JException(e.what());

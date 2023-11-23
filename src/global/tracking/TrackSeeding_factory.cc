@@ -19,9 +19,6 @@ void eicrecon::TrackSeeding_factory::Init() {
     std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
     InitLogger(app, param_prefix, "info");
 
@@ -59,10 +56,6 @@ void eicrecon::TrackSeeding_factory::Init() {
 
 }
 
-void eicrecon::TrackSeeding_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-
-}
-
 void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent> &event) {
     // Collect all hits
     // FIXME Collection is better done with a TrackerHitCollector factory
@@ -78,7 +71,7 @@ void eicrecon::TrackSeeding_factory::Process(const std::shared_ptr<const JEvent>
 
     try {
         auto track_params = m_seeding_algo.produce(total_hits);
-        SetCollection(std::move(track_params));
+        SetCollection<edm4eic::TrackParameters>(GetOutputTags()[0], std::move(track_params));
     }
     catch(std::exception &e) {
         throw JException(e.what());

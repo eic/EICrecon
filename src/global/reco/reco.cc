@@ -19,7 +19,6 @@
 #include "ReconstructedElectrons_factory.h"
 #include "ReconstructedJets_factory.h"
 #include "algorithms/reco/ChargedParticleSelector.h"
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 //
@@ -29,8 +28,12 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
-            {"MCParticles"}, "GeneratedParticles"));
+    app->Add(new JChainMultifactoryGeneratorT<MC2SmearedParticle_factory>(
+            "GeneratedParticles",
+            {"MCParticles"},
+            {"GeneratedParticles"},
+            app
+            ));
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
@@ -123,7 +126,8 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<ReconstructedElectrons_factory>(
+        "ReconstructedElectrons",
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
         "EcalBarrelScFiClusterAssociations",
         "EcalEndcapNClusterAssociations",
@@ -131,7 +135,8 @@ void InitPlugin(JApplication *app) {
         "EcalEndcapPInsertClusterAssociations",
         "EcalLumiSpecClusterAssociations",
         },
-        "ReconstructedElectrons"
+        {"ReconstructedElectrons"},
+        app
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(

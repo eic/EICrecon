@@ -19,30 +19,30 @@
 #include "algorithms/pid/MergeParticleID.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 // JANA
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
   class MergeCherenkovParticleID_factory :
-    public JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>,
+    public JChainMultifactoryT<MergeParticleIDConfig>,
     public SpdlogMixin
   {
 
     public:
 
       explicit MergeCherenkovParticleID_factory(
-          std::vector<std::string> default_input_tags,
-          MergeParticleIDConfig cfg
-          ):
-        JChainFactoryT<edm4eic::CherenkovParticleID, MergeParticleIDConfig>(std::move(default_input_tags), cfg) {}
+          std::string tag,
+          const std::vector<std::string>& input_tags,
+          const std::vector<std::string>& output_tags,
+          MergeParticleIDConfig cfg)
+      : JChainMultifactoryT<MergeParticleIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
+        DeclarePodioOutput<edm4eic::CherenkovParticleID>(GetOutputTags()[0]);
+      }
 
       /** One time initialization **/
       void Init() override;
-
-      /** On run change preparations **/
-      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;

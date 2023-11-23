@@ -19,9 +19,6 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     std::string plugin_name = GetPluginName();
     std::string param_prefix = plugin_name+ ":" + GetTag();
 
-    // Initialize input tags
-    InitDataTags(param_prefix);
-
     // Initialize logger
     InitLogger(app, param_prefix, "info");
 
@@ -40,15 +37,12 @@ void eicrecon::TrackParamTruthInit_factory::Init() {
     m_seeding_algo.init(m_log);
 }
 
-void eicrecon::TrackParamTruthInit_factory::ChangeRun(const std::shared_ptr<const JEvent> &event) {
-}
-
 void eicrecon::TrackParamTruthInit_factory::Process(const std::shared_ptr<const JEvent> &event) {
     auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
     try {
         auto output = m_seeding_algo.produce(mc_particles);
-        SetCollection(std::move(output));
+        SetCollection<edm4eic::TrackParameters>(GetOutputTags()[0], std::move(output));
     }
     catch(std::exception &e) {
         throw JException(e.what());

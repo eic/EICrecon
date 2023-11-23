@@ -24,9 +24,6 @@ void eicrecon::IterativeVertexFinder_factory::Init() {
   std::string plugin_name  = GetPluginName();
   std::string param_prefix = plugin_name + ":" + GetTag();
 
-  // Initialize input tags
-  InitDataTags(param_prefix);
-
   // Initialize logger
   InitLogger(app, param_prefix, "info");
 
@@ -48,11 +45,6 @@ void eicrecon::IterativeVertexFinder_factory::Init() {
   m_vertexing_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
-void eicrecon::IterativeVertexFinder_factory::ChangeRun(
-    const std::shared_ptr<const JEvent>& event) {
-  JFactoryT::ChangeRun(event);
-}
-
 void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<const JEvent>& event) {
 
   auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
@@ -62,7 +54,7 @@ void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<cons
 
   try {
     auto vertices = m_vertexing_algo.produce(trajectories);
-    SetCollection(std::move(vertices));
+    SetCollection<edm4eic::Vertex>(GetOutputTags()[0], std::move(vertices));
   } catch (std::exception& e) {
     throw JException(e.what());
   }

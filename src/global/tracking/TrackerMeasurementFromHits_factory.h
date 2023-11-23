@@ -17,22 +17,23 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 
 namespace eicrecon {
 
-    class TrackerMeasurementFromHits_factory : public JChainFactoryT<edm4eic::Measurement2D, NoConfig>{
+    class TrackerMeasurementFromHits_factory : public JChainMultifactoryT<NoConfig>{
 
     public:
-        TrackerMeasurementFromHits_factory( std::vector<std::string> default_input_tags):
-                JChainFactoryT<edm4eic::Measurement2D, NoConfig>(std::move(default_input_tags) ) {
+        explicit TrackerMeasurementFromHits_factory(
+            std::string tag,
+            const std::vector<std::string>& input_tags,
+            const std::vector<std::string>& output_tags)
+        : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+            DeclarePodioOutput<edm4eic::Measurement2D>(GetOutputTags()[0]);
         }
 
         /** One time initialization **/
         void Init() override;
-
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;
