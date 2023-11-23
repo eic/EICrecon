@@ -22,26 +22,16 @@ namespace eicrecon {
 
 
     void TrackerMeasurementFromHits_factory::Init() {
-        // Ask JApplication and parameter managers
-        auto *app =  this->GetApplication();
-        auto *pm = app->GetJParameterManager();
 
         // This prefix will be used for parameters
         std::string plugin_name = GetPluginName();
         std::string param_prefix = plugin_name+ ":" + GetTag();
 
-        // Now we check that user provided an input names
-        pm->SetDefaultParameter(param_prefix + ":InputTags", m_input_tags, "Input data tag name");
-
-        // Logger and log level from user parameter or default
-        m_log = app->GetService<Log_service>()->logger(param_prefix);
-        std::string log_level_str = "info";
-        pm->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "Log level: trace, debug, info, warn, err, critical, off");
-        m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+        // Initialize logger
+        InitLogger(GetApplication(), param_prefix, "info");
 
         // Get ACTS context from ACTSGeo service
         auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
-
         auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
 
         // Initialize algorithm
@@ -59,7 +49,6 @@ namespace eicrecon {
                 total_hits.push_back(hit);
             }
         }
-        m_log->debug("TrackerMeasurementFromHits_factory::Process");
 
         try {
             auto result = m_measurement.produce(total_hits);
