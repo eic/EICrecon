@@ -13,7 +13,6 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
 
 #include "ActsGeometryProvider.h"
 
