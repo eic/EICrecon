@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "MC2SmearedParticle_factory.h"
-#include "services/io/podio/JFactoryPodioT.h"
+#include "datamodel_glue.h"
 
 namespace eicrecon {
     void MC2SmearedParticle_factory::Init() {
