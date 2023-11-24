@@ -3,11 +3,12 @@
 
 #include "MergeTrack_factory.h"
 
+#include <JANA/JException.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <exception>
 
-#include "services/io/podio/JFactoryPodioT.h"
+#include "datamodel_glue.h"
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeTrack_factory::Init() {
