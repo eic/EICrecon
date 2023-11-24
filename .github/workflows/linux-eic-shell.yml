@@ -816,14 +816,19 @@ jobs:
       - name: Hold off to avoid rate limiting
         run: |
           rate=$(gh api rate_limit | jq '.rate')
-          echo $rate
+          used=$(echo $rate | jq '.used')
           remaining=$(echo $rate | jq '.remaining')
           reset=$(echo $rate | jq '.reset')
+          resetdate=$(TZ="America/New_York" date --date @$reset)
+          echo "Rate limiting will reset on $resetdate; $used calls used; $remaining calls remaining."
+          now=$(date +%s)
+          resetdelay=$((reset-now))
           if [ $remaining -lt 100 ] ; then
-            sleep $((RANDOM % 10))
+            echo "::notice::Rate limiting will release this job between now and $resetdate"
+            sleep $((RANDOM % $resetdelay))
           fi
           if [ $remaining -lt 10 ] ; then
-            now=$(date +%s)
+            echo "::warning::Rate limiting will release this job on $resetdate"
             sleep $((reset-now))
           fi
         env:
