@@ -23,7 +23,7 @@ namespace eicrecon {
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
         CalorimeterHitDigiConfig cfg)
-    : JChainMultifactoryT<CalorimeterHitDigiConfig>(std::move(tag), input_tags, output_tags, cfg) {
+    : JChainMultifactoryT<CalorimeterHitDigiConfig>(tag, input_tags, output_tags, cfg), m_algo(tag) {
 
       DeclarePodioOutput<edm4hep::RawCalorimeterHit>(GetOutputTags()[0]);
 
@@ -65,7 +65,8 @@ namespace eicrecon {
         auto hits = static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
         try {
-            auto raw_hits = m_algo.process(*hits);
+            auto raw_hits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+            m_algo.process({hits}, {raw_hits.get()});
             SetCollection<edm4hep::RawCalorimeterHit>(GetOutputTags()[0], std::move(raw_hits));
         }
         catch(std::exception &e) {
