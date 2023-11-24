@@ -11,7 +11,6 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>

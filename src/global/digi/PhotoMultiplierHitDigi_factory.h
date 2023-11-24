@@ -6,7 +6,6 @@
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>

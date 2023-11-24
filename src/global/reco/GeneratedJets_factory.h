@@ -7,7 +7,6 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <extensions/jana/JChainMultifactoryT.h>
 #include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>

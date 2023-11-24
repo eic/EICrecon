@@ -7,7 +7,6 @@
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
