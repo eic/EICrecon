@@ -4,13 +4,14 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <JANA/JException.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <exception>
 
 #include "TrackSeeding.h"
 #include "TrackSeeding_factory.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/io/podio/JFactoryPodioT.h"
 
 void eicrecon::TrackSeeding_factory::Init() {
     auto *app = GetApplication();
