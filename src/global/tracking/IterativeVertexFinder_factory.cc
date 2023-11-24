@@ -5,7 +5,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
+#include <JANA/JException.h>
 #include <spdlog/logger.h>
 #include <exception>
 #include <map>
@@ -13,9 +13,9 @@
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "IterativeVertexFinder.h"
 #include "IterativeVertexFinder_factory.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/io/podio/JFactoryPodioT.h"
 
 void eicrecon::IterativeVertexFinder_factory::Init() {
   auto *app = GetApplication();
