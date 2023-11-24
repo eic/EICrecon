@@ -21,7 +21,8 @@
 #include <spdlog/logger.h>
 #include <stdint.h>
 #include <memory>
-#include <random>
+#include <string>
+#include <string_view>
 
 #include "CalorimeterHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
