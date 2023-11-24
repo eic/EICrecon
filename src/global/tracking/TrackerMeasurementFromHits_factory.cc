@@ -6,17 +6,15 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <JANA/Services/JParameterManager.h>
+#include <JANA/JException.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <exception>
 #include <gsl/pointers>
 
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/io/podio/JFactoryPodioT.h"
-#include "services/log/Log_service.h"
 
 namespace eicrecon {
 
