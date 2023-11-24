@@ -10,7 +10,6 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <exception>
 #include <gsl/pointers>
-#include <map>
 
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
