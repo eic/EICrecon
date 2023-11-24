@@ -5,12 +5,13 @@
 #include "TrackParamTruthInit_factory.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JException.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <exception>
 
 #include "TrackParamTruthInit.h"
 #include "TrackParamTruthInitConfig.h"
-#include "services/io/podio/JFactoryPodioT.h"
+#include "datamodel_glue.h"
 
 void eicrecon::TrackParamTruthInit_factory::Init() {
     auto *app = GetApplication();
