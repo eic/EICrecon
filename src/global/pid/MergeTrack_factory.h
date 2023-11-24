@@ -4,7 +4,6 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <cstddef>
 #include <memory>
@@ -14,6 +13,7 @@
 #include <vector>
 
 // algorithms
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
 // JANA
 #include "extensions/jana/JChainMultifactoryT.h"
