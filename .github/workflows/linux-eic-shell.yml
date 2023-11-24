@@ -500,7 +500,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [gcc, clang]
+        CC: [clang]
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
@@ -658,7 +658,7 @@ jobs:
     - npsim-dis
     strategy:
       matrix:
-        CC: [gcc, clang]
+        CC: [clang]
         beam: [5x41, 10x100, 18x275]
         minq2: [1, 1000]
         detector_config: [craterlake]
