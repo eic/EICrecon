@@ -7,7 +7,6 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <stddef.h>
-#include <algorithm>
 #include <cmath>
 #include <exception>
 #include <map>

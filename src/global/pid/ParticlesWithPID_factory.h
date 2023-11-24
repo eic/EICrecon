@@ -9,7 +9,6 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
