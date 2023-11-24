@@ -6,14 +6,14 @@
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <JANA/JFactoryT.h>
+#include <JANA/JException.h>
 #include <exception>
 #include <map>
 
 #include "TrackProjector.h"
 #include "TrackProjector_factory.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/io/podio/JFactoryPodioT.h"
 
 
 namespace eicrecon {
