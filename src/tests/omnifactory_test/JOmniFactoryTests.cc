@@ -52,6 +52,7 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
         logger()->info("Calling BasicTestAlg::ChangeRun");
     }
 
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     void Process(int64_t run_number, uint64_t event_number) {
         m_process_call_count++;
         logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
