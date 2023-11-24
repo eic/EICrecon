@@ -5,7 +5,6 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <cstddef>
 #include <memory>
