@@ -5,14 +5,15 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <cstddef>
 #include <memory>
 #include <string>
 #include <typeindex>
+#include <utility>
 #include <vector>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/MC2SmearedParticle.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
