@@ -104,7 +104,7 @@ public:
             factory->config() = wiring.m_default_cfg;
 
             // Set up all of the wiring prereqs so that Init() can do its thing
-            // Specically, it needs valid input/output tags, a valid logger, and
+            // Specifically, it needs valid input/output tags, a valid logger, and
             // valid default values in its Config object
             factory->PreInit(wiring.m_tag, wiring.m_default_input_tags, wiring.m_default_output_tags);
 
