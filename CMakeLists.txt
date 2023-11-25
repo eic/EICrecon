@@ -35,8 +35,8 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
-# Set default standard to C++17
-set(CMAKE_CXX_STANDARD_MIN 17)
+# Set default standard to C++20
+set(CMAKE_CXX_STANDARD_MIN 20)
 set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
 if(CMAKE_CXX_STANDARD LESS CMAKE_CXX_STANDARD_MIN)
   message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD} (at least ${CMAKE_CXX_STANDARD_MIN} required)")
