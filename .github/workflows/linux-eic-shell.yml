@@ -118,7 +118,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
-        path: build.tar.gz
+        path: build.tar.zst
         if-no-files-found: error
 
   clang-tidy-iwyu:
