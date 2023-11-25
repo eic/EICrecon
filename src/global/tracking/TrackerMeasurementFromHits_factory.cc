@@ -10,7 +10,6 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <exception>
 #include <gsl/pointers>
-#include <map>
 
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -61,11 +60,12 @@ namespace eicrecon {
 
     void TrackerMeasurementFromHits_factory::Process(const std::shared_ptr<const JEvent> &event) {
         // Collect all hits
-        std::vector<const edm4eic::TrackerHit*> total_hits;
+        edm4eic::TrackerHitCollection total_hits;
+        total_hits.setSubsetCollection();
 
-        for(auto input_tag: m_input_tags) {
-            auto hits = event->Get<edm4eic::TrackerHit>(input_tag);
-            for (const auto *const hit : hits) {
+        for (const auto& input_tag: m_input_tags) {
+            auto hits = static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag));
+            for (const auto& hit : *hits) {
                 total_hits.push_back(hit);
             }
         }
