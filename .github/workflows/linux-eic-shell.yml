@@ -104,13 +104,13 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
-    - name: Archive install directory
-      run: tar -cf install.tar install/
+    - name: Compress install directory
+      run: tar -caf install.tar.zst install/
     - name: Upload install directory
       uses: actions/upload-artifact@v3
       with:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
-        path: install.tar
+        path: install.tar.zst
         if-no-files-found: error
     - name: Compress build directory
       run: tar -caf build.tar.zst build/
@@ -378,7 +378,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Unarchive install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - name: Download simulation input
       uses: actions/download-artifact@v3
       with:
@@ -438,7 +438,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Unarchive install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -485,7 +485,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Unarchive install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -526,7 +526,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Uncompress install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -645,7 +645,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Unarchive install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v3
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
@@ -700,7 +700,7 @@ jobs:
       with:
         name: install-${{ matrix.CC }}-eic-shell-Release
     - name: Unarchive install directory
-      run: tar -xf install.tar
+      run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v3
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.root
