@@ -42,7 +42,7 @@ jobs:
   jtest:
     runs-on: ubuntu-latest
     steps:
-    - name: Run jtest benchmark 
+    - name: Run jtest benchmark
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform-release }}"
