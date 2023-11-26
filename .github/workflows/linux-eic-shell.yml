@@ -42,6 +42,7 @@ jobs:
   jtest:
     runs-on: ubuntu-latest
     steps:
+    - uses: cvmfs-contrib/github-action-cvmfs@v3
     - name: Run jtest benchmark
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
