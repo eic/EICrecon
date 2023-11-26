@@ -39,6 +39,24 @@ env:
   NTHREADS: 2
 
 jobs:
+  jtest:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run jtest benchmark 
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform-release }}"
+        run: |
+          jana -Pplugins=JTest --benchmark
+          cd JANA_Test_Results
+          ./jana-plot-scaletest.py -nowin -png
+    - name: Upload benchmark
+      uses: actions/upload-artifact@v3
+      with:
+        name: JANA_Test_Results
+        path: JANA_Test_Results/
+        if-no-files-found: error
+
   build:
     runs-on: ubuntu-latest
     strategy:
