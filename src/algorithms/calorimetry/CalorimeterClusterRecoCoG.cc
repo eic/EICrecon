@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
-#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 
 namespace eicrecon {
 
@@ -43,12 +42,12 @@ namespace eicrecon {
     m_detector = detector;
 
     // select weighting method
-    std::string ew = m_cfg.energyWeight;
+    std::string ew = m_energyWeight;
     // make it case-insensitive
     std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
     auto it = weightMethods.find(ew);
     if (it == weightMethods.end()) {
-      m_log->error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
+      m_log->error("Cannot find energy weighting method {}, choose one from [{}]", m_energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
       return;
     }
     weightFunc = it->second;
@@ -188,7 +187,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
       maxHitEta = eta;
     }
   }
-  cl.setEnergy(totalE / m_cfg.sampFrac);
+  cl.setEnergy(totalE / m_sampFrac);
   cl.setEnergyError(0.);
   cl.setTime(time);
   cl.setTimeError(timeError);
@@ -200,7 +199,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
     //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
-    float w           = weightFunc(hit.getEnergy() * weight, totalE, m_cfg.logWeightBase, 0);
+    float w           = weightFunc(hit.getEnergy() * weight, totalE, m_logWeightBase, 0);
     tw += w;
     v = v + (hit.getPosition() * w);
   }
@@ -212,7 +211,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   cl.setPositionError({}); // @TODO: Covariance matrix
 
   // Optionally constrain the cluster to the hit eta values
-  if (m_cfg.enableEtaBounds) {
+  if (m_enableEtaBounds) {
     const bool overflow  = (edm4hep::utils::eta(cl.getPosition()) > maxHitEta);
     const bool underflow = (edm4hep::utils::eta(cl.getPosition()) < minHitEta);
     if (overflow || underflow) {
@@ -252,7 +251,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
     for (const auto& hit : pcl.getHits()) {
 
-      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_cfg.logWeightBase, 0);
+      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_logWeightBase, 0);
 
       // theta, phi
       Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
