@@ -6,7 +6,7 @@
 #include <TString.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
@@ -22,16 +22,23 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapPInsert_capADC = 32768;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapPInsert_dyRangeADC = 200 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapPInsert_pedMeanADC = 10;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapPInsert_pedSigmaADC = 2;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
            "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 32768,
-             .dyRangeADC = 200 * dd4hep::MeV,
-             .pedMeanADC = 400,
-             .pedSigmaADC = 10,
-             .resolutionTDC = 10 * dd4hep::picosecond,
+             .capADC = HcalEndcapPInsert_capADC,
+             .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+             .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+             .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+             .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
              .corrMeanScale = 1.0,
            },
           app   // TODO: Remove me once fixed
@@ -39,13 +46,14 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
           {
-            .capADC = 32768,
-            .dyRangeADC = 200. * dd4hep::MeV,
-            .pedMeanADC = 400,
-            .pedSigmaADC = 10.,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .capADC = HcalEndcapPInsert_capADC,
+            .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+            .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+            .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+            .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
             .thresholdFactor = 0.,
-            .thresholdValue = -100.,
+            .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
+
             .sampFrac = 0.0098,
             .readout = "HcalEndcapPInsertHits",
           },
@@ -88,10 +96,8 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = true
             },
             app   // TODO: Remove me once fixed
@@ -107,27 +113,32 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
           )
         );
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        LFHCAL_capADC = 65536;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    LFHCAL_dyRangeADC = 1 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    LFHCAL_pedMeanADC = 50;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   LFHCAL_pedSigmaADC = 10;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 65536,
+            .capADC = LFHCAL_capADC,
             .capTime = 100,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
             .corrMeanScale = 1.0,
             .readout = "LFHCALHits",
             .fields = {"layerz"},
@@ -137,13 +148,13 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
           {
-            .capADC = 65536,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 1.0,
-            .thresholdValue = 3.0,
+            .capADC = LFHCAL_capADC,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
             .sampFrac = 0.033,
             .sampFracLayer = {
               0.019, //  0
@@ -213,10 +224,8 @@ extern "C" {
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -232,10 +241,8 @@ extern "C" {
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

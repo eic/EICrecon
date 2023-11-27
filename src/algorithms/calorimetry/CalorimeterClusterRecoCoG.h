@@ -11,6 +11,7 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -23,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "CalorimeterClusterRecoCoGConfig.h"
@@ -47,14 +49,34 @@ namespace eicrecon {
     std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>
   >;
 
-  class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+  using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      std::optional<edm4hep::SimCalorimeterHitCollection>
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
+    >
+  >;
+
+  class CalorimeterClusterRecoCoG
+      : public CalorimeterClusterRecoCoGAlgorithm,
+        public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+
+  public:
+    CalorimeterClusterRecoCoG(std::string_view name)
+      : CalorimeterClusterRecoCoGAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputAssociations"},
+                            "Reconstruct a cluster with the Center of Gravity method. For "
+                            "simulation results it optionally creates a Cluster <-> MCParticle "
+                            "association provided both optional arguments are provided."} {}
 
   public:
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
 
-    ClustersWithAssociations process(
-            const edm4eic::ProtoClusterCollection* proto,
-            const edm4hep::SimCalorimeterHitCollection* mchits);
+    void process(const Input&, const Output&) const final;
 
   private:
     const dd4hep::Detector* m_detector;

@@ -110,6 +110,9 @@ add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
+# Algorithms
+find_package(algorithms 1.0.0 REQUIRED Core)
+
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)

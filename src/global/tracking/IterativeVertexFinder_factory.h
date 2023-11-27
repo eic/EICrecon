@@ -7,7 +7,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <edm4eic/VertexCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>

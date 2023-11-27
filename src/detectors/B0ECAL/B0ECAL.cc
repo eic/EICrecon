@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
@@ -28,6 +28,7 @@ extern "C" {
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
+            .threshold= 5.0 * dd4hep::MeV,
             .capADC = 16384,
             .dyRangeADC = 20 * dd4hep::GeV,
             .pedMeanADC = 100,
@@ -45,8 +46,8 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
-            .thresholdFactor = 4.0,
-            .thresholdValue = 3.0,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 0.0,
             .sampFrac = 0.998,
             .readout = "B0ECalHits",
             .sectorField = "sector",
@@ -80,10 +81,8 @@ extern "C" {
              "B0ECalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -99,10 +98,8 @@ extern "C" {
              "B0ECalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed

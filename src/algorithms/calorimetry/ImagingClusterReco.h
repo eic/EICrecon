@@ -131,7 +131,7 @@ namespace eicrecon {
 
         // debug output
         for (const auto& cl: *clusters) {
-            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.id(),
+            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
                          cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
                          cl.getIntrinsicPhi() / M_PI * 180.
             );

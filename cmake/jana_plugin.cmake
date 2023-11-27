@@ -177,6 +177,20 @@ macro(plugin_glob_all _name)
 endmacro()
 
 
+# Adds algorithms for a plugin
+macro(plugin_add_algorithms _name)
+
+    if(NOT algorithms_FOUND)
+        find_package(algorithms REQUIRED)
+    endif()
+
+    plugin_link_libraries(${_name}
+        algocore
+    )
+
+endmacro()
+
+
 # Adds dd4hep for a plugin
 macro(plugin_add_dd4hep _name)
 
@@ -219,6 +233,10 @@ macro(plugin_add_acts _name)
         endif()
     endif()
 
+    # Get ActsExamples base
+    get_target_property(ActsCore_LOCATION ActsCore LOCATION)
+    get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
+
     # Add libraries (works same as target_include_directories)
     plugin_link_libraries(${PLUGIN_NAME}
         ActsCore
@@ -226,6 +244,7 @@ macro(plugin_add_acts _name)
         ActsPluginTGeo
         ActsPluginJson
         ActsPluginDD4hep
+        ${ActsCore_PATH}/libActsExamplesFramework.so
     )
 
 endmacro()

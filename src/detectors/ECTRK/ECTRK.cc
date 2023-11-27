@@ -24,7 +24,7 @@ void InitPlugin(JApplication *app) {
         {"TrackerEndcapHits"},
         {"EndcapTrackerDigiHit"},
         {
-            .threshold = 0.65 * dd4hep::keV,
+            .threshold = 0.54 * dd4hep::keV,
         },
         app
     ));
