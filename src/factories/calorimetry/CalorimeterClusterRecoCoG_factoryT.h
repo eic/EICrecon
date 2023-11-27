@@ -13,7 +13,7 @@
 namespace eicrecon {
 
 class CalorimeterClusterRecoCoG_factoryT :
-    public JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>,
+    public JChainMultifactoryT<ConfigMap>,
     public SpdlogMixin {
 
   public:
@@ -22,8 +22,8 @@ class CalorimeterClusterRecoCoG_factoryT :
         std::string tag,
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
-        CalorimeterClusterRecoCoGConfig cfg)
-    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(tag, input_tags, output_tags, cfg),
+        ConfigMap cfg)
+    : JChainMultifactoryT<ConfigMap>(tag, input_tags, output_tags, cfg),
       m_algo(tag) {
 
       DeclarePodioOutput<edm4eic::Cluster>(GetOutputTags()[0]);
@@ -48,15 +48,16 @@ class CalorimeterClusterRecoCoG_factoryT :
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
 
-        // Algorithm configuration
-        auto cfg = GetDefaultConfig();
+        // Initialize properties
+        for (const auto& [key, prop] : m_algo.getProperties()) {
+          std::visit(
+            [app, param_prefix, key = key](auto&& val) {
+              app->SetDefaultParameter(param_prefix + ":" + std::string(key), val);
+            },
+            prop.get()
+          );
+        }
 
-        app->SetDefaultParameter(param_prefix + ":samplingFraction", cfg.sampFrac);
-        app->SetDefaultParameter(param_prefix + ":logWeightBase", cfg.logWeightBase);
-        app->SetDefaultParameter(param_prefix + ":energyWeight", cfg.energyWeight);
-        app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
-
-        m_algo.applyConfig(cfg);
         m_algo.init(detector, logger());
     }
 
