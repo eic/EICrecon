@@ -26,7 +26,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-    using ConfigMap = std::map<std::string, algorithms::PropertyValue>;
+    using ConfigMap = std::map<std::string_view, algorithms::PropertyValue>;
 }
 
 template <typename ConfigT = eicrecon::NoConfig>
