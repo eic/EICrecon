@@ -59,7 +59,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         app->RegisterParameter(param_prefix + ":enableEtaBounds", m_algo.getProperty<bool>("enableEtaBounds"));
 
         m_algo.setProperty("samplingFraction", app->GetParameterValue<double>(param_prefix + ":samplingFraction"));
-        m_algo.setProperty("logWeightBase", app->GetParameterValue<double>(param_prefix + ":samplingFraction"));
+        m_algo.setProperty("logWeightBase", app->GetParameterValue<double>(param_prefix + ":logWeightBase"));
         m_algo.setProperty("energyWeight", app->GetParameterValue<std::string>(param_prefix + ":energyWeight"));
         m_algo.setProperty("enableEtaBounds", app->GetParameterValue<bool>(param_prefix + ":enableEtaBounds"));
 
