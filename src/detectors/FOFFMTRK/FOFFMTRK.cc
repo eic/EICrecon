@@ -4,10 +4,11 @@
 //
 
 #include <JANA/JApplication.h>
-#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include <exception>
 #include <string>
 #include <vector>
 
+#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 
