@@ -149,9 +149,19 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
         AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
+# ActsCore
+get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
+  message(WARNING "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+endif()
 
-# CERN ROOT
+# ROOT
 find_package(ROOT REQUIRED)
+# Check that ROOT is compiled with a modern enough c++ standard
+get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
+  message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+endif()
 
 # Set it ON for additional CMake printout
 set(EICRECON_VERBOSE_CMAKE OFF)
