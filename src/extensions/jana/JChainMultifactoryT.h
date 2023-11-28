@@ -25,7 +25,9 @@
 #include <JANA/JMultifactory.h>
 #include "algorithms/interfaces/WithPodConfig.h"
 
-using eicrecon::ConfigMap = std::map<std::string, algorithms::PropertyValue>;
+namespace eicrecon {
+    using ConfigMap = std::map<std::string, algorithms::PropertyValue>;
+}
 
 template <typename ConfigT = eicrecon::NoConfig>
 class JChainMultifactoryT : public JMultifactory {
