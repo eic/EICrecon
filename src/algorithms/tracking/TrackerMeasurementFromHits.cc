@@ -37,7 +37,7 @@ namespace eicrecon {
                                          std::shared_ptr<spdlog::logger> logger) {
         m_dd4hepGeo = detector;
         m_converter = converter;
-        m_log = std::move(logger);
+        m_log = logger;
         m_acts_context = std::move(acts_context);
         m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
 }
