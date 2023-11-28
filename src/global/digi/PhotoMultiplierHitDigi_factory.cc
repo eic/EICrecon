@@ -83,9 +83,9 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
   const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
   try {
-    auto result = m_digi_algo.AlgorithmProcess(sim_hits);
-    SetCollection<edm4eic::RawTrackerHit>(GetOutputTags()[0], std::move(result.raw_hits));
-    SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(result.hit_assocs));
+    auto [raw_hits, hit_assocs] = m_digi_algo.AlgorithmProcess(sim_hits);
+    SetCollection<edm4eic::RawTrackerHit>(GetOutputTags()[0], std::move(raw_hits));
+    SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(hit_assocs));
   }
   catch(std::exception &e) {
     throw JException(e.what());

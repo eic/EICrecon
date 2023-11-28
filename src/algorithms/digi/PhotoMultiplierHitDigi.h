@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
+#include <tuple>
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
@@ -37,10 +38,10 @@
 
 namespace eicrecon {
 
-struct PhotoMultiplierHitDigiResult {
-  std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
-  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
-};
+using PhotoMultiplierHitDigiResult = std::tuple<
+  std::unique_ptr<edm4eic::RawTrackerHitCollection>,
+  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection>
+>;
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
