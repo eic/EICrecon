@@ -1,11 +1,11 @@
 add_subdirectory(BEMC)
-#add_subdirectory(EEMC)
-#add_subdirectory(FEMC)
-#add_subdirectory(EHCAL)
-#add_subdirectory(BHCAL)
-#add_subdirectory(FHCAL)
-#add_subdirectory(ZDC)
-#add_subdirectory(B0ECAL)
+add_subdirectory(EEMC)
+add_subdirectory(FEMC)
+add_subdirectory(EHCAL)
+add_subdirectory(BHCAL)
+add_subdirectory(FHCAL)
+add_subdirectory(ZDC)
+add_subdirectory(B0ECAL)
 
 # Tracking detectors
 add_subdirectory(BTRK)      # Barrel tracker
@@ -18,7 +18,7 @@ add_subdirectory(ECTOF)     # Endcap TOF
 add_subdirectory(BTOF)      # Barrel TOF
 add_subdirectory(B0TRK)     # B0 tracker
 add_subdirectory(LOWQ2)     # LOWQ2 Tagger
-#add_subdirectory(LUMISPECCAL)  # Lumi spectrometer calorimeter
+add_subdirectory(LUMISPECCAL)  # Lumi spectrometer calorimeter
 
 # PID detectors
 add_subdirectory(DRICH)

@@ -95,10 +95,10 @@ extern "C" {
             {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = true
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 3.6},
+              {"enableEtaBounds", true}
             },
             app   // TODO: Remove me once fixed
           )
@@ -112,10 +112,10 @@ extern "C" {
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 6.2,
-              .enableEtaBounds = false,
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 6.2},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -223,10 +223,10 @@ extern "C" {
             {"LFHCALTruthClusters",             // edm4eic::Cluster
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.5,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 4.5},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -240,10 +240,10 @@ extern "C" {
             {"LFHCALClusters",             // edm4eic::Cluster
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.5,
-              .enableEtaBounds = false,
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 4.5},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )

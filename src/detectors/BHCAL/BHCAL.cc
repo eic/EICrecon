@@ -102,10 +102,10 @@ extern "C" {
             {"HcalBarrelClusters",             // edm4eic::Cluster
              "HcalBarrelClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 6.2,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 6.2},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -119,10 +119,10 @@ extern "C" {
             {"HcalBarrelTruthClusters",             // edm4eic::Cluster
              "HcalBarrelTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 6.2,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 6.2},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
