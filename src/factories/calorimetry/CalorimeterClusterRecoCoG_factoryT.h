@@ -31,9 +31,10 @@ class CalorimeterClusterRecoCoG_factoryT :
 
       // Initialize properties
       for (const auto& [key, prop] : m_algo.getProperties()) {
-        if (cfg.count(std::string(key)) > 0) {
-          m_algo.setProperty(key, cfg[std::string(key)]);
-          cfg.erase(cfg.find(std::string(key)));
+        auto it = cfg.find(key);
+        if (it != cfg.end()) {
+          m_algo.setProperty(key, it->second);
+          cfg.erase(it);
         }
       }
       if (cfg.size() > 0) {
