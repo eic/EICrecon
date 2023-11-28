@@ -30,8 +30,14 @@ class CalorimeterClusterRecoCoG_factoryT :
       DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1]);
 
       // Initialize properties
-      for (const auto& [key, value] : cfg) {
-        m_algo.setProperty(key, value);
+      for (const auto& [key, prop] : m_algo.getProperties()) {
+        if (cfg.count(std::string(key)) > 0) {
+          m_algo.setProperty(key, cfg[std::string(key)]);
+          cfg.erase(cfg.find(std::string(key)));
+        }
+      }
+      if (cfg.size() > 0) {
+        throw JException("Config contains unrecognized entries");
       }
 
     }
