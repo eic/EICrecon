@@ -16,14 +16,14 @@ private:
     PodioInput<edm4eic::CalorimeterHit> m_hits_input {this};
     PodioOutput<edm4eic::ProtoCluster> m_protos_output {this};
 
-    ParameterRef m_ldxy {this, "localDistXY", config().localDistXY};
-    ParameterRef m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
-    ParameterRef m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
-    ParameterRef m_sd {this, "sectorDist", config().sectorDist};
-    ParameterRef m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
-    ParameterRef m_mcced {this, "minClusterCenterEdep", config().minClusterCenterEdep};
-    ParameterRef m_mced {this, "minClusterEdep", config().minClusterEdep};
-    ParameterRef m_mcnh {this, "minClusterNhits", config().minClusterNhits};
+    ParameterRef<std::vector<double>> m_ldxy {this, "localDistXY", config().localDistXY};
+    ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+    ParameterRef<int> m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
+    ParameterRef<double> m_sd {this, "sectorDist", config().sectorDist};
+    ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
+    ParameterRef<double> m_mcced {this, "minClusterCenterEdep", config().minClusterCenterEdep};
+    ParameterRef<double> m_mced {this, "minClusterEdep", config().minClusterEdep};
+    ParameterRef<int> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
 
 public:
     void Configure() {
@@ -35,7 +35,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_protos_output() = m_algo.process(m_hits_input());
+        m_protos_output() = m_algo.process(*m_hits_input());
     }
 };
 

@@ -14,13 +14,13 @@ private:
       eicrecon::ImagingClusterReco m_algo;
 
       PodioInput<edm4eic::ProtoCluster> m_protos_input {this};
-      PodioInput<edm4eic::edm4hep::SimCalorimeterHit> m_mchits_input {this};
+      PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input {this};
 
       PodioOutput<edm4eic::Cluster> m_clusters_output {this};
       PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output {this};
       PodioOutput<edm4eic::Cluster> m_layers_output {this};
 
-      ParameterRef m_tsl {this, "trackStopLayer", config().trackStopLayer};
+      ParameterRef<int> m_trackStopLayer {this, "trackStopLayer", config().trackStopLayer};
 
 public:
     void Configure() {
@@ -34,7 +34,7 @@ public:
     void Process(int64_t run_number, uint64_t event_number) {
         std::tie(m_clusters_output(),
                  m_assocs_output(),
-                 m_layers_output()) = m_algo.process(m_protos_input(), m_mchits_input());
+                 m_layers_output()) = m_algo.process(*m_protos_input(), *m_mchits_input());
     }
 };
 
