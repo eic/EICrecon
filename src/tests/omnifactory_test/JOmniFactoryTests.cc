@@ -7,8 +7,8 @@
 #include <JANA/Services/JParameterManager.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <extensions/jana/JOmniFactory.h>
-#include <extensions/jana/JOmniFactoryGeneratorT.h>
+#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <stdint.h>

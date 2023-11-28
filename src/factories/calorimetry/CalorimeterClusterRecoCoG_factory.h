@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/CalorimeterClusterRecoCoG.h>
-#include <services/geometry/dd4hep/DD4hep_service.h>
-#include <extensions/jana/JOmniFactory.h>
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 
 namespace eicrecon {

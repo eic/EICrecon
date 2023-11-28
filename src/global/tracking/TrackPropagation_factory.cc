@@ -18,7 +18,7 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>
-#include <services/geometry/acts/ACTSGeo_service.h>
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <algorithm>

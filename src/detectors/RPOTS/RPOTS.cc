@@ -4,7 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
-#include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
+#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include <string>
 #include <vector>
 

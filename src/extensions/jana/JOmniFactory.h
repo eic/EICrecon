@@ -10,12 +10,12 @@
  * which might be changed by user parameters.
  */
 
-#include <datamodel_glue.h>
+#include "datamodel_glue.h"
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
 #include "extensions/spdlog/SpdlogExtensions.h"
-#include <services/log/Log_service.h>
+#include "services/log/Log_service.h"
 
 #include <string>
 #include <vector>
