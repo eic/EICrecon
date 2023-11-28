@@ -58,7 +58,7 @@ void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
 
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransferStatic::produce(const edm4hep::SimTrackerHitCollection& rawhits) {
+std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransferStatic::process(const edm4hep::SimTrackerHitCollection& rawhits) {
 
   auto outputParticles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
