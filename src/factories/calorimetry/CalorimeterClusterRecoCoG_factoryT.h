@@ -72,7 +72,7 @@ class CalorimeterClusterRecoCoG_factoryT :
                 app->RegisterParameter(param, m_algo.getProperty<T>(key));
                 m_algo.setProperty(key, app->GetParameterValue<T>(param));
               } else {
-                m_log->warn("No support for parsing {} of type {}", key, typeid(val).name());
+                m_log->warn("No support for parsing {} of type {}", key, typeid(T).name());
               }
             },
             prop.get()
