@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
@@ -45,8 +45,8 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 4.0,
-            .thresholdValue = 3.0,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 2.0,
             .sampFrac = 1.0,
             .readout = "LumiSpecCALHits",
             .sectorField = "sector",
