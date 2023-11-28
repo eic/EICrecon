@@ -77,10 +77,10 @@ extern "C" {
             {"ZDCEcalTruthClusters",             // edm4eic::Cluster
              "ZDCEcalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 3.6},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -94,10 +94,10 @@ extern "C" {
             {"ZDCEcalClusters",             // edm4eic::Cluster
              "ZDCEcalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 6.2,
-              .enableEtaBounds = false,
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 6.2},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )

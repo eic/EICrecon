@@ -80,10 +80,10 @@ extern "C" {
             {"EcalLumiSpecClusters",             // edm4eic::Cluster
              "EcalLumiSpecClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 3.6},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -97,10 +97,10 @@ extern "C" {
             {"EcalLumiSpecTruthClusters",             // edm4eic::Cluster
              "EcalLumiSpecTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.6,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 4.6},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )

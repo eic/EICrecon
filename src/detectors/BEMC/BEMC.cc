@@ -95,7 +95,7 @@ extern "C" {
              "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {
                {"energyWeight", "log"},
-               {"sampFrac", 1.0},
+               {"samplingFraction", 1.0},
                {"logWeightBase", 6.2},
                {"enableEtaBounds", false}
              },
