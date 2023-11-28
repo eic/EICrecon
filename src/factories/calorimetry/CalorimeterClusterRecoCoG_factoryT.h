@@ -29,6 +29,11 @@ class CalorimeterClusterRecoCoG_factoryT :
       DeclarePodioOutput<edm4eic::Cluster>(GetOutputTags()[0]);
       DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1]);
 
+      // Initialize properties
+      for (const auto& [key, value] : cfg) {
+        m_algo.setProperty(key, value);
+      }
+
     }
 
     //------------------------------------------
@@ -48,15 +53,15 @@ class CalorimeterClusterRecoCoG_factoryT :
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
 
-        // Initialize properties
-        for (const auto& [key, prop] : m_algo.getProperties()) {
-          std::visit(
-            [app, param_prefix, key = key](auto&& val) {
-              app->SetDefaultParameter(param_prefix + ":" + std::string(key), val);
-            },
-            prop.get()
-          );
-        }
+        app->RegisterParameter(param_prefix + ":samplingFraction", m_algo.getProperty<double>("samplingFraction"));
+        app->RegisterParameter(param_prefix + ":logWeightBase", m_algo.getProperty<double>("logWeightBase"));
+        app->RegisterParameter(param_prefix + ":energyWeight", m_algo.getProperty<std::string>("energyWeight"));
+        app->RegisterParameter(param_prefix + ":enableEtaBounds", m_algo.getProperty<bool>("enableEtaBounds"));
+
+        m_algo.setProperty("samplingFraction", app->GetParameterValue<double>(param_prefix + ":samplingFraction"));
+        m_algo.setProperty("logWeightBase", app->GetParameterValue<double>(param_prefix + ":logWeightBase"));
+        m_algo.setProperty("energyWeight", app->GetParameterValue<std::string>(param_prefix + ":energyWeight"));
+        m_algo.setProperty("enableEtaBounds", app->GetParameterValue<bool>(param_prefix + ":enableEtaBounds"));
 
         m_algo.init(detector, logger());
     }
