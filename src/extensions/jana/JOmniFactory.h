@@ -361,8 +361,7 @@ public:
             throw JException("JOmniFactory '%s': Wrong number of input collection names: %d expected, %d found.",
                              m_prefix.c_str(), m_inputs.size(), default_input_collection_names.size());
         }
-        size_t i = 0;
-        for (auto* input : m_inputs) {
+        for (size_t i = 0; auto* input : m_inputs) {
            input->collection_name = default_input_collection_names[i++];
         }
 
@@ -371,8 +370,7 @@ public:
             throw JException("JOmniFactory '%s': Wrong number of output collection names: %d expected, %d found.",
                              m_prefix.c_str(), m_outputs.size(), default_output_collection_names.size());
         }
-        i = 0;
-        for (auto* output : m_outputs) {
+        for (size_t i = 0; auto* output : m_outputs) {
             output->collection_name = default_output_collection_names[i++];
             output->CreateHelperFactory(*this);
         }
