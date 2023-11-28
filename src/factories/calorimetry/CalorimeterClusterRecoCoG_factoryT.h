@@ -59,15 +59,24 @@ class CalorimeterClusterRecoCoG_factoryT :
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
 
-        app->RegisterParameter(param_prefix + ":samplingFraction", m_algo.getProperty<double>("samplingFraction"));
-        app->RegisterParameter(param_prefix + ":logWeightBase", m_algo.getProperty<double>("logWeightBase"));
-        app->RegisterParameter(param_prefix + ":energyWeight", m_algo.getProperty<std::string>("energyWeight"));
-        app->RegisterParameter(param_prefix + ":enableEtaBounds", m_algo.getProperty<bool>("enableEtaBounds"));
-
-        m_algo.setProperty("samplingFraction", app->GetParameterValue<double>(param_prefix + ":samplingFraction"));
-        m_algo.setProperty("logWeightBase", app->GetParameterValue<double>(param_prefix + ":logWeightBase"));
-        m_algo.setProperty("energyWeight", app->GetParameterValue<std::string>(param_prefix + ":energyWeight"));
-        m_algo.setProperty("enableEtaBounds", app->GetParameterValue<bool>(param_prefix + ":enableEtaBounds"));
+        // Initialize properties
+        for (const auto& [key, prop] : m_algo.getProperties()) {
+          std::visit(
+            [app, &m_algo = m_algo, &m_log = m_log,
+             param_prefix, key = key](auto&& val) {
+              using T = std::decay_t<decltype(val)>;
+              if constexpr (std::is_fundamental_v<T>
+                         || std::is_same_v<T, std::string>) {
+                std::string param = param_prefix + ":" + std::string(key);
+                app->RegisterParameter(param, m_algo.getProperty<T>(key));
+                m_algo.setProperty(key, app->GetParameterValue<T>(param));
+              } else {
+                m_log->warn("No support for parsing {} of type {}", key, typeid(val).name());
+              }
+            },
+            prop.get()
+          );
+        }
 
         m_algo.init(detector, logger());
     }
