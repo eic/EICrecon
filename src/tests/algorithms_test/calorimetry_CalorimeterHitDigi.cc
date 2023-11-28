@@ -14,6 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
@@ -23,7 +24,7 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
-  CalorimeterHitDigi algo;
+  CalorimeterHitDigi algo("test");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
@@ -47,9 +48,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     algo.applyConfig(cfg);
     algo.init(detector.get(), logger);
 
-    edm4hep::CaloHitContributionCollection calohits;
-    edm4hep::SimCalorimeterHitCollection simhits;
-    auto mhit = simhits.create(
+    auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
+    auto simhits = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
+    auto mhit = simhits->create(
       0xABABABAB, // std::uint64_t cellID
       1.0 /* GeV */, // float energy
       edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f position
@@ -67,7 +68,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
       edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f stepPosition
     ));
 
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> rawhits = algo.process(simhits);
+    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    algo.process({simhits.get()}, {rawhits.get()});
 
     REQUIRE( (*rawhits).size() == 1 );
     REQUIRE( (*rawhits)[0].getCellID() == 0xABABABAB);
