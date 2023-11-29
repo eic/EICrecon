@@ -78,7 +78,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
   // fill `particle_pids`
   // -------------------------------------------------------------------------------
-  std::unordered_map< unsigned int, std::vector<std::pair<size_t,size_t>> > particle_pids;
+  std::unordered_map< decltype(podio::ObjectID::index), std::vector<std::pair<size_t,size_t>> > particle_pids;
   m_log->trace("{:-<70}","Build `particle_pids` indexing data structure ");
 
   // loop over list of PID collections
