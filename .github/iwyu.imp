@@ -2,7 +2,7 @@
   # https://github.com/include-what-you-use/include-what-you-use/blob/master/docs/IWYUMappings.md
 
   # Boost
-  { ref: "/usr/share/include-what-you-use/boost-all.imp" },
+  { ref: "/usr/local/share/include-what-you-use/boost-all.imp" },
 
   # Support for regex matches in the map-to field was added iwyu 0.19. Until then we have to be
   # exhaustive... (Ref: https://github.com/include-what-you-use/include-what-you-use/pull/1123)
