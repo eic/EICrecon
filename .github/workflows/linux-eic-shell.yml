@@ -222,7 +222,7 @@ jobs:
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
-          git diff --name-only | xargs -i -d, echo "files={}" >> ${GITHUB_OUTPUT}
+          git diff --name-only | xargs -i -d, echo "files={}" | tee -a ${GITHUB_OUTPUT}
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
@@ -234,6 +234,7 @@ jobs:
           iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
           fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
           git diff | tee iwyu_fixes.patch
+          git diff --name-only | xargs -i -d, echo "files={}" | tee -a ${GITHUB_OUTPUT}
     - name: Upload iwyu patch as artifact
       uses: actions/upload-artifact@v4
       with:
@@ -249,7 +250,7 @@ jobs:
         comment-author: 'github-actions[bot]'
         body-includes: Include-What-You-Use
     - name: Create or update iwyu comment requesting fixes
-      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files != 0
+      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files != ''
       uses: peter-evans/create-or-update-comment@v2
       with:
         comment-id: ${{ steps.find_comment.outputs.comment-id }}
@@ -261,7 +262,7 @@ jobs:
           from https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }},
           apply it with `patch -p1 iwyu_fixes.patch`, and commit the fixed files.
     - name: Update iwyu comment not requesting fixes anymore
-      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files == 0 && steps.find_comment.outputs.comment-id != 0
+      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files == '' && steps.find_comment.outputs.comment-id != ''
       uses: peter-evans/create-or-update-comment@v2
       with:
         comment-id: ${{ steps.find_comment.outputs.comment-id }}
