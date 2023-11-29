@@ -260,8 +260,8 @@ jobs:
           IWYU wants changes to the included headers. Download the file `iwyu_fixes.patch`
           from https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }},
           apply it with `patch -p1 iwyu_fixes.patch`, and commit the fixed files.
-    - name: Create or update iwyu comment not requesting fixes
-      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files == 0 && steps.find_comment.outputs.comment-id == 0
+    - name: Update iwyu comment not requesting fixes anymore
+      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files == 0 && steps.find_comment.outputs.comment-id != 0
       uses: peter-evans/create-or-update-comment@v2
       with:
         comment-id: ${{ steps.find_comment.outputs.comment-id }}
