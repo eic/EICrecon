@@ -63,7 +63,7 @@ class CalorimeterClusterRecoCoG_factoryT :
         // Initialize properties
         for (const auto& [key, prop] : m_algo.getProperties()) {
           std::visit(
-            [app, &m_algo = m_algo, &m_log = m_log, param_prefix, key](auto&& val) {
+            [app, &m_algo = m_algo, &m_log = m_log, param_prefix, key = key](auto&& val) {
               using T = std::decay_t<decltype(val)>;
               if constexpr (std::is_fundamental_v<T>
                          || std::is_same_v<T, std::string>) {
