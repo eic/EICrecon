@@ -156,23 +156,19 @@ macro(plugin_glob_all _name)
         # Remove plugin.cc file from libraries
         list(REMOVE_ITEM LIB_SRC_FILES ${PLUGIN_CC_FILE_ABS})
 
-        # >oO Debug output if needed
-        if(${EICRECON_VERBOSE_CMAKE})
-            message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-        endif()
+        # Debug output if needed
+        message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
 
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
     endif()     # WITH_LIBRARY
 
-    # >oO Debug output if needed
-    if(${EICRECON_VERBOSE_CMAKE})
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
-        message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
-    endif()
+    # Debug output if needed
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
+    message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
 
 endmacro()
 
