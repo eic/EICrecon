@@ -210,6 +210,7 @@ jobs:
     - name: Run include-what-you-use (iwyu) on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
+      id: iwyu_pull_request
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
@@ -221,9 +222,11 @@ jobs:
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
+          git diff --name-only | xargs -i -d, echo "files={}" >> ${GITHUB_OUTPUT}
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
+      id: iwyu_push
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
@@ -237,8 +240,38 @@ jobs:
         name: iwyu_fixes.patch
         path: iwyu_fixes.patch
         if-no-files-found: ignore # no file is good
+    - name: Find iwyu comment
+      if: github.event_name == 'pull_request'
+      id: find_comment
+      uses: peter-evans/find-comment@v2
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Include-What-You-Use
+    - name: Create or update iwyu comment requesting fixes
+      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files != 0
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: |
+          ### Include-What-You-Use (IWYU)
+          IWYU wants changes to the included headers. Download the file `iwyu_fixes.patch`
+          from https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }},
+          apply it with `patch -p1 iwyu_fixes.patch`, and commit the fixed files.
+    - name: Create or update iwyu comment not requesting fixes
+      if: github.event_name == 'pull_request' && steps.iwyu_pull_request.outputs.files == 0 && steps.find_comment.outputs.comment-id == 0
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: |
+          ### Include-What-You-Use (IWYU)
+          No changes to the included headers needed.
     - name: Fail when iwyu provided a patch for this pull request
-      if: ${{ github.event_name == 'pull_request' }}
+      if: github.event_name == 'pull_request'
       run: git diff --exit-code
 
   llvm-cov:
