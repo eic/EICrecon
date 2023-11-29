@@ -3,13 +3,18 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <math.h>
+#include <string>
 
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -18,16 +23,23 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        EcalEndcapN_capADC = 16384; //65536,  16bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalEndcapN_dyRangeADC = 20.0 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalEndcapN_pedMeanADC = 20;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapN_pedSigmaADC = 1;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 16384,
-            .dyRangeADC = 20 * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 1,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .threshold =  0.0 * dd4hep::MeV,  // Use ADC cut instead
+            .capADC = EcalEndcapN_capADC,
+            .dyRangeADC = EcalEndcapN_dyRangeADC,
+            .pedMeanADC = EcalEndcapN_pedMeanADC,
+            .pedSigmaADC = EcalEndcapN_pedSigmaADC,
+            .resolutionTDC = EcalEndcapN_resolutionTDC,
             .corrMeanScale = 1.0,
           },
           app   // TODO: Remove me once fixed
@@ -35,13 +47,13 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
           {
-            .capADC = 16384,
-            .dyRangeADC = 20. * dd4hep::GeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 1,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 4.0,
-            .thresholdValue = 3.0,
+            .capADC = EcalEndcapN_capADC,
+            .dyRangeADC = EcalEndcapN_dyRangeADC,
+            .pedMeanADC = EcalEndcapN_pedMeanADC,
+            .pedSigmaADC = EcalEndcapN_pedSigmaADC,
+            .resolutionTDC = EcalEndcapN_resolutionTDC,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 4.0, // (20. GeV / 16384) * 4 ~= 5 MeV
             .sampFrac = 0.998,
             .readout = "EcalEndcapNHits",
             .sectorField = "sector",
@@ -76,10 +88,8 @@ extern "C" {
              "EcalEndcapNTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -95,10 +105,8 @@ extern "C" {
              "EcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

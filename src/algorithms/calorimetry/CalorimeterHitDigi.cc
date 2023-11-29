@@ -13,8 +13,29 @@
 
 #include "CalorimeterHitDigi.h"
 
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/config.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <fmt/core.h>
+#include <gsl/pointers>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+
 using namespace dd4hep;
 
 namespace eicrecon {
@@ -90,13 +111,17 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
 }
 
 
-std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::process(const edm4hep::SimCalorimeterHitCollection &simhits)  {
-    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+void CalorimeterHitDigi::process(
+      const CalorimeterHitDigi::Input& input,
+      const CalorimeterHitDigi::Output& output) const {
+
+    const auto [simhits] = input;
+    auto [rawhits] = output;
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
     std::size_t ix = 0;
-    for (const auto &ahit : simhits) {
+    for (const auto &ahit : *simhits) {
         uint64_t hid = ahit.getCellID() & id_mask;
 
         m_log->trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
@@ -113,10 +138,10 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
-        auto   mid      = simhits[ixs[0]].getCellID();
+        auto   mid      = (*simhits)[ixs[0]].getCellID();
         // sum energy, take time from the most energetic hit
         for (size_t i = 0; i < ixs.size(); ++i) {
-            auto hit = simhits[ixs[i]];
+            auto hit = (*simhits)[ixs[i]];
 
             double timeC = std::numeric_limits<double>::max();
             for (const auto& c : hit.getContributions()) {
@@ -141,15 +166,15 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
 
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
-                ? m_normDist(generator) * std::sqrt(
+                ? m_rng.gaussian<double>(0., 1.) * std::sqrt(
                      std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                      std::pow(m_cfg.eRes[1], 2) +
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
-        double    ped     = m_cfg.pedMeanADC + m_normDist(generator) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * (m_cfg.corrMeanScale + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_normDist(generator) * tRes) * stepTDC);
+        double    ped     = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
+        unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
+        unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
 
         if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
         rawhits->create(
@@ -158,8 +183,6 @@ std::unique_ptr<edm4hep::RawCalorimeterHitCollection> CalorimeterHitDigi::proces
                 tdc
         );
     }
-
-    return std::move(rawhits);
 }
 
 } // namespace eicrecon

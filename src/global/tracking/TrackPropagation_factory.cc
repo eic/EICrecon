@@ -3,20 +3,32 @@
 
 #include "TrackPropagation_factory.h"
 
-#include <JANA/JEvent.h>
-#include <algorithms/tracking/ActsExamples/EventData/Trajectories.hpp>
-#include <services/geometry/acts/ACTSGeo_service.h>
-
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-
-#include <extensions/spdlog/SpdlogExtensions.h>
-
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
+#include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegment.h>
+#include <fmt/core.h>
+#include <services/geometry/acts/ACTSGeo_service.h>
+#include <spdlog/logger.h>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+#include <gsl/pointers>
+#include <map>
+
+#include "TrackPropagation.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 void eicrecon::TrackPropagation_factory::Init() {
 
@@ -41,6 +53,7 @@ void eicrecon::TrackPropagation_factory::Init() {
 void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
     auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
+    auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags()[1]);
 
     edm4eic::TrackSegmentCollection propagated_tracks;
 
@@ -139,7 +152,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto OHCAL_Trf           = transform * Acts::Translation3(Acts::Vector3(0, 0, 0));
     auto OHCAL_prop_surface1    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R, OHCAL_halfz);
     auto OHCAL_prop_surface2    = Acts::Surface::makeShared<Acts::CylinderSurface>(OHCAL_Trf, OHCAL_R + HCAL_avgClusterDepth, OHCAL_halfz);
-    auto OHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HcalBarrel_ID");
+    auto OHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID");
     OHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(1));
     OHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(OHCAL_prop_surface1);

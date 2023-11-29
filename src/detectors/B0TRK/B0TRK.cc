@@ -3,10 +3,12 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
 #include "factories/tracking/TrackerHitReconstruction_factoryT.h"
 
@@ -22,7 +24,7 @@ void InitPlugin(JApplication *app) {
         {"B0TrackerHits"},
         {"B0TrackerRawHits"},
         {
-            .threshold = 1.0 * dd4hep::keV,
+            .threshold = 10.0 * dd4hep::keV,
             .timeResolution = 8,
         },
         app

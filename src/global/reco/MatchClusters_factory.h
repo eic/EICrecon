@@ -4,11 +4,20 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticle.h>
+#include <JANA/JEvent.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/reco/MatchClusters.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <spdlog/logger.h>
-#include "algorithms/reco/MatchClusters.h"
 
 
 

@@ -3,6 +3,20 @@
 
 #include "RichTrack_factory.h"
 
+#include <ActsExamples/EventData/Track.hpp>
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <fmt/core.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <tuple>
+
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "TrackPropagation.h"
+#include "datamodel_glue.h"
+#include "services/geometry/richgeo/RichGeo.h"
+
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Init() {
 
@@ -58,9 +72,15 @@ void eicrecon::RichTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &
 //-----------------------------------------------------------------------------
 void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
+  auto input_tags = GetInputTags();
+
+  // collect tracks from first input tag
+  auto tracks = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags().back());
+  input_tags.pop_back();
+
   // collect all trajectories from all input tags
   std::vector<const ActsExamples::Trajectories*> trajectories;
-  for(const auto& input_tag : GetInputTags()) {
+  for(const auto& input_tag : input_tags) {
     try {
       for(const auto traj : event->Get<ActsExamples::Trajectories>(input_tag))
         trajectories.push_back(traj);

@@ -4,16 +4,19 @@
 // class definition
 #include "JetReconstruction.h"
 
-// c utilities
-#include <cmath>
-// event data model related classes
-#include <edm4eic/vector_utils.h>
-#include <edm4eic/MutableReconstructedParticle.h>
-// for fastjet objects
-#include <fastjet/PseudoJet.hh>
-#include <fastjet/ClusterSequenceArea.hh>
 // for error handling
 #include <JANA/JException.h>
+#include <Math/GenVector/LorentzVector.h>
+#include <edm4hep/Vector3f.h>
+#include <fastjet/ClusterSequenceArea.hh>
+#include <fastjet/GhostedAreaSpec.hh>
+// for fastjet objects
+#include <fastjet/PseudoJet.hh>
+#include <fmt/core.h>
+#include <exception>
+#include <stdexcept>
+
+#include "algorithms/reco/JetReconstructionConfig.h"
 
 using namespace fastjet;
 

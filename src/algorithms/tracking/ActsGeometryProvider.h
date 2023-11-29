@@ -12,25 +12,22 @@
 // ACTS
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
-
-// DD4Hep
-#include <DD4hep/DD4hepUnits.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Fields.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <spdlog/logger.h>
+#include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 #include "DD4hepBField.h"
 
-#include <spdlog/spdlog.h>
-
-// Forward declarations
-namespace Acts {
-    class IMaterialDecorator;
-    class Surface;
-    class TrackingGeometry;
-}
-
-namespace dd4hep {
-    class Detector;
-}
 namespace dd4hep::rec {
     class Surface;
 }
@@ -97,9 +94,6 @@ private:
 
     /// ACTS Tracking Geometry
     std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
-
-    /// ACTS Material Decorator
-    std::shared_ptr<const Acts::IMaterialDecorator> m_materialDeco{nullptr};
 
     /// ACTS surface lookup container for hit surfaces that generate smeared hits
     VolumeSurfaceMap m_surfaces;

@@ -2,7 +2,11 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 #include <JANA/JEvent.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <utility>
+
 #include "MC2SmearedParticle_factory.h"
+#include "services/io/podio/JFactoryPodioT.h"
 
 namespace eicrecon {
     void MC2SmearedParticle_factory::Init() {

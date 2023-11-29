@@ -4,13 +4,18 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
-#include "algorithms/tracking/IterativeVertexFinder.h"
-
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Vertex.h>
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
 #include <edm4eic/VertexCollection.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
+#include "IterativeVertexFinderConfig.h"
+#include "algorithms/tracking/IterativeVertexFinder.h"
 #include "extensions/jana/JChainFactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 

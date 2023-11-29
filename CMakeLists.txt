@@ -24,9 +24,9 @@
 
 
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 
-project(EICRecon)
+project(EICrecon)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
@@ -35,10 +35,14 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
-# Make C++17 a default
-if(NOT "${CMAKE_CXX_STANDARD}")
-    set(CMAKE_CXX_STANDARD 17)
+# Set default standard to C++20
+set(CMAKE_CXX_STANDARD_MIN 20)
+set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
+if(CMAKE_CXX_STANDARD LESS CMAKE_CXX_STANDARD_MIN)
+  message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD} (at least ${CMAKE_CXX_STANDARD_MIN} required)")
 endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -68,9 +72,12 @@ if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
     set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Install in top directory by default" FORCE)
 endif()
 
+# Install to standard location
+include(GNUInstallDirs)
+
 # Default plugins installation directory is 'plugins'
 if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
-    set(PLUGIN_OUTPUT_DIRECTORY "lib/EICrecon/plugins")
+    set(PLUGIN_OUTPUT_DIRECTORY "lib/${PROJECT_NAME}/plugins")
     message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
 message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
@@ -110,10 +117,13 @@ add_compile_definitions(HAVE_PODIO)
 # TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
 # TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
+# Algorithms
+find_package(algorithms 1.0.0 REQUIRED Core)
+
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP REQUIRED)
+find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
 # Guidelines Support Library
@@ -142,12 +152,19 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
         AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
     message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
 endif()
+# ActsCore
+get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
+  message(WARNING "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+endif()
 
-# CERN ROOT
+# ROOT
 find_package(ROOT REQUIRED)
-
-# Set it ON for additional CMake printout
-set(EICRECON_VERBOSE_CMAKE OFF)
+# Check that ROOT is compiled with a modern enough c++ standard
+get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
+if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
+  message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+endif()
 
 
 # Add CMake additional functionality:
@@ -162,6 +179,7 @@ option(USE_ASAN "Compile with address sanitizer" OFF)
 if (${USE_ASAN})
     add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
     add_link_options(-fsanitize=address)
+    install(FILES .github/asan.supp .github/lsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Thread sanitizer
@@ -169,6 +187,7 @@ option(USE_TSAN "Compile with thread sanitizer" OFF)
 if (${USE_TSAN})
     add_compile_options(-fsanitize=thread -g -O1)
     add_link_options(-fsanitize=thread)
+    install(FILES .github/tsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Undefined behavior sanitizer
@@ -182,6 +201,7 @@ if (${USE_UBSAN})
         endif()
     endforeach()
     add_compile_options(-g -O1)
+    install(FILES .github/ubsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Compress debug symbols if supported
@@ -203,7 +223,5 @@ add_subdirectory( src/utilities )
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/EICreconConfig.cmake.in cmake/EICreconConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
-install(FILES ${CMAKE_BINARY_DIR}/cmake/EICreconConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)  # why is this needed?
-file(GLOB EICRECON_CMAKE_FILES cmake/*.cmake)
-install(FILES ${EICRECON_CMAKE_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/EICrecon)
+configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)

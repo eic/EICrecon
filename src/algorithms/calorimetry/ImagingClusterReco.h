@@ -131,7 +131,7 @@ namespace eicrecon {
 
         // debug output
         for (const auto& cl: *clusters) {
-            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.id(),
+            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
                          cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
                          cl.getIntrinsicPhi() / M_PI * 180.
             );
@@ -197,7 +197,7 @@ namespace eicrecon {
         // Calculate radius as the standard deviation of the hits versus the cluster center
         double radius = 0.;
         for (const auto &[hit, weight]: hits) {
-            radius += std::pow(edm4eic::magnitude(hit.getPosition() - layer.getPosition()), 2);
+            radius += std::pow(edm4hep::utils::magnitude(hit.getPosition() - layer.getPosition()), 2);
         }
         layer.addToShapeParameters(std::sqrt(radius / layer.getNhits()));
         // TODO Skewedness
@@ -228,9 +228,9 @@ namespace eicrecon {
             const double energyWeight = hit.getEnergy() * weight;
             time += hit.getTime() * energyWeight;
             timeError += std::pow(hit.getTimeError() * energyWeight, 2);
-            meta += edm4eic::eta(hit.getPosition()) * energyWeight;
-            mphi += edm4eic::angleAzimuthal(hit.getPosition()) * energyWeight;
-            r = std::min(edm4eic::magnitude(hit.getPosition()), r);
+            meta += edm4hep::utils::eta(hit.getPosition()) * energyWeight;
+            mphi += edm4hep::utils::angleAzimuthal(hit.getPosition()) * energyWeight;
+            r = std::min(edm4hep::utils::magnitude(hit.getPosition()), r);
             cluster.addToHits(hit);
         }
         cluster.setEnergy(energy);
@@ -238,15 +238,15 @@ namespace eicrecon {
         cluster.setTime(time / energy);
         cluster.setTimeError(std::sqrt(timeError) / energy);
         cluster.setNhits(hits.size());
-        cluster.setPosition(edm4eic::sphericalToVector(r, edm4eic::etaToAngle(meta / energy), mphi / energy));
+        cluster.setPosition(edm4hep::utils::sphericalToVector(r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
 
         // shower radius estimate (eta-phi plane)
         double radius = 0.;
         for (const auto &hit: hits) {
             radius += std::pow(
               std::hypot(
-                (edm4eic::eta(hit.getPosition()) - edm4eic::eta(cluster.getPosition())),
-                (edm4eic::angleAzimuthal(hit.getPosition()) - edm4eic::angleAzimuthal(cluster.getPosition()))
+                (edm4hep::utils::eta(hit.getPosition()) - edm4hep::utils::eta(cluster.getPosition())),
+                (edm4hep::utils::angleAzimuthal(hit.getPosition()) - edm4hep::utils::angleAzimuthal(cluster.getPosition()))
               ),
               2.0
             );

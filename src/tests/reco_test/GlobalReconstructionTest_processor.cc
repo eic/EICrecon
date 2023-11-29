@@ -1,29 +1,24 @@
 
 #include "GlobalReconstructionTest_processor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <fmt/core.h>
-
-#include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <Math/LorentzVector.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <JANA/Services/JParameterManager.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
+#include <Rtypes.h>
+#include <TDirectory.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <exception>
+#include <map>
+#include <utility>
 
-#include <spdlog/spdlog.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
-
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 

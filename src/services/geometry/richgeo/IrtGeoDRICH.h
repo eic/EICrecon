@@ -4,7 +4,19 @@
 // bind IRT and DD4hep geometries for the dRICH
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <IRT/CherenkovPhotonDetector.h>
+#include <IRT/OpticalBoundary.h>
+#include <IRT/ParametricSurface.h>
+#include <TVector3.h>
+#include <spdlog/logger.h>
+#include <gsl/pointers>
+#include <memory>
+#include <string>
+
 #include "IrtGeo.h"
+#include "services/geometry/richgeo/RichGeo.h"
 
 namespace richgeo {
   class IrtGeoDRICH : public IrtGeo {
@@ -13,7 +25,7 @@ namespace richgeo {
       IrtGeoDRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
         IrtGeo("DRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
       ~IrtGeoDRICH();
-
+    TVector3 GetSensorSurfaceNorm(CellIDType);
     protected:
       void DD4hep_to_IRT() override;
 

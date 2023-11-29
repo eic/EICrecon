@@ -6,18 +6,19 @@
 
 #pragma once
 
-#include <gsl/gsl>
-#include <string>
-#include <fmt/format.h>
-#include <functional>
-#include <spdlog/spdlog.h>
-#include <TRandomGen.h>
-
+#include <DD4hep/DetElement.h>
 // DD4Hep
 #include <DD4hep/Detector.h>
-#include <DD4hep/DD4hepUnits.h>
-#include <DDSegmentation/BitFieldCoder.h>
+#include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <Parsers/Primitives.h>
+#include <TRandomGen.h>
+#include <spdlog/logger.h>
+#include <functional>
+#include <gsl/pointers>
+#include <memory>
+#include <string>
 
 // local
 #include "RichGeo.h"

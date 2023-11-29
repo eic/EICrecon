@@ -15,6 +15,18 @@
 
 #include "PhotoMultiplierHitDigi.h"
 
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/Vector3d.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <podio/ObjectID.h>
+#include <spdlog/common.h>
+#include <algorithm>
+#include <exception>
+#include <iterator>
+
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+
 //------------------------
 // AlgorithmInit
 //------------------------
@@ -98,7 +110,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
             // cell time, signal amplitude, truth photon
             m_log->trace(" -> hit accepted");
-            m_log->trace(" -> MC hit id={}", sim_hit.id());
+            m_log->trace(" -> MC hit id={}", sim_hit.getObjectID().index);
             auto   time = sim_hit.getTime();
             double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
@@ -119,7 +131,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             for(auto &hit : hitVec) {
               m_log->trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
               for(auto i : hit.sim_hit_indices)
-                m_log->trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(), sim_hits->at(i).id());
+                m_log->trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(), sim_hits->at(i).getObjectID().index);
             }
         }
 

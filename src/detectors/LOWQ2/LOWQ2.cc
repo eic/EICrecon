@@ -3,8 +3,11 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
 
@@ -21,7 +24,7 @@ extern "C" {
          {"TaggerTrackerHits"},
          {"TaggerTrackerRawHits"},
          {
-           .threshold = 1 * dd4hep::keV,
+           .threshold = 1.5 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,
          },
          app

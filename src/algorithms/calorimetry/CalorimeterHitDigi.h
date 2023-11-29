@@ -13,25 +13,45 @@
 
 #pragma once
 
-#include <memory>
-#include <random>
-
 #include <DD4hep/Detector.h>
-
-#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/random.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <spdlog/spdlog.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class CalorimeterHitDigi : public WithPodConfig<CalorimeterHitDigiConfig> {
+  using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::SimCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4hep::RawCalorimeterHitCollection
+    >
+  >;
+
+  class CalorimeterHitDigi
+  : public CalorimeterHitDigiAlgorithm,
+    public WithPodConfig<CalorimeterHitDigiConfig> {
 
   public:
+    CalorimeterHitDigi(std::string_view name)
+      : CalorimeterHitDigiAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputRawHitCollection"},
+                            "Smear energy deposit, digitize within ADC range, add pedestal, "
+                            "convert time with smearing resolution, and sum signals."} {}
+
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4hep::RawCalorimeterHitCollection> process(const edm4hep::SimCalorimeterHitCollection &simhits) ;
+    void process(const Input&, const Output&) const final;
 
   private:
 
@@ -44,8 +64,8 @@ namespace eicrecon {
     const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
-    std::default_random_engine generator; // TODO: need something more appropriate here
-    std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+  private:
+    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
 
   };
 

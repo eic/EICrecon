@@ -3,13 +3,17 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <string>
 
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -18,18 +22,25 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalBarrel_capADC = 65536; //65536,  16bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalBarrel_dyRangeADC = 1.0 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalBarrel_pedMeanADC = 300;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalBarrel_pedSigmaADC = 2;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalBarrel_resolutionTDC = 1 * dd4hep::picosecond;
+
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
           "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
-            .threshold = 5.0 * dd4hep::MeV,
-            .capADC = 65536,
+            .threshold = 0.0, // Use ADC cut instead
+            .capADC        = HcalBarrel_capADC,
             .capTime = 100, // given in ns, 4 samples in HGCROC
-            .dyRangeADC = 1.0 * dd4hep::GeV,
-            .pedMeanADC = 10,
-            .pedSigmaADC = 2.0,
-            .resolutionTDC = 1.0 * dd4hep::picosecond,
+            .dyRangeADC    = HcalBarrel_dyRangeADC,
+            .pedMeanADC    = HcalBarrel_pedMeanADC,
+            .pedSigmaADC   = HcalBarrel_pedSigmaADC,
+            .resolutionTDC = HcalBarrel_resolutionTDC,
             .corrMeanScale = 1.0,
             .readout = "HcalBarrelHits",
           },
@@ -38,13 +49,13 @@ extern "C" {
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
           "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
           {
-            .capADC = 65536,
-            .dyRangeADC = 1.0 * dd4hep::GeV,
-            .pedMeanADC = 10,
-            .pedSigmaADC = 2.0,
-            .resolutionTDC = 1.0 * dd4hep::picosecond,
-            .thresholdFactor = 5.0,
-            .thresholdValue = 1.0,
+            .capADC        = HcalBarrel_capADC,
+            .dyRangeADC    = HcalBarrel_dyRangeADC,
+            .pedMeanADC    = HcalBarrel_pedMeanADC,
+            .pedSigmaADC   = HcalBarrel_pedSigmaADC, // not used; relying on energy cut
+            .resolutionTDC = HcalBarrel_resolutionTDC,
+            .thresholdFactor = 0.0, // not used; relying on flat ADC cut
+            .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
             .sampFrac = 0.033, // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
             .layerField = "tower",
@@ -92,10 +103,8 @@ extern "C" {
              "HcalBarrelClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -111,10 +120,8 @@ extern "C" {
              "HcalBarrelTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed

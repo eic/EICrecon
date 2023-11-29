@@ -4,22 +4,23 @@
 //
 
 #include <JANA/JApplication.h>
-
-#include "extensions/jana/JChainFactoryGeneratorT.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <string>
 
 #include "ChargedParticleSelector_factory.h"
+#include "GeneratedJets_factory.h"
+#include "InclusiveKinematicsDA_factory.h"
+#include "InclusiveKinematicsElectron_factory.h"
+#include "InclusiveKinematicsJB_factory.h"
+#include "InclusiveKinematicsSigma_factory.h"
+#include "InclusiveKinematicsTruth_factory.h"
+#include "InclusiveKinematicseSigma_factory.h"
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
-#include "InclusiveKinematicsElectron_factory.h"
-#include "InclusiveKinematicsTruth_factory.h"
-#include "InclusiveKinematicsJB_factory.h"
-#include "InclusiveKinematicsDA_factory.h"
-#include "InclusiveKinematicseSigma_factory.h"
-#include "InclusiveKinematicsSigma_factory.h"
-#include "GeneratedJets_factory.h"
-#include "ReconstructedJets_factory.h"
 #include "ReconstructedElectrons_factory.h"
+#include "ReconstructedJets_factory.h"
+#include "algorithms/reco/ChargedParticleSelector.h"
+#include "extensions/jana/JChainFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 
 //
 extern "C" {

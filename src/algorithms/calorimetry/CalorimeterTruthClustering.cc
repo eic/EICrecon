@@ -3,9 +3,14 @@
 
 #include "CalorimeterTruthClustering.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
-#include <edm4hep/MCParticle.h>
+#include <DD4hep/config.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <podio/ObjectID.h>
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <utility>
 
 using namespace dd4hep;
 
@@ -61,7 +66,7 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::pro
             }
         }
 
-        const auto &trackID = mc[mcIndex].getContributions(0).getParticle().id();
+        const auto &trackID = mc[mcIndex].getContributions(0).getParticle().getObjectID().index;
         // Create a new protocluster if we don't have one for this trackID
         if (protoIndex.count(trackID) == 0) {
             output->create();
