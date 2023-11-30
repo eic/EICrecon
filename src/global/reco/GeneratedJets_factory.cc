@@ -63,16 +63,17 @@ namespace eicrecon {
 
         // select only final state particles for reconstruction
         // TODO: Need to exclude the scattered electron
-        std::unique_ptr<edm4hep::MCParticleCollection> for_reconstruction = std::make_unique<edm4hep::MCParticleCollection>();
+        edm4hep::MCParticleCollection for_reconstruction;
+        for_reconstruction.setSubsetCollection(true);
         for (const auto& particle : *input) {
             const bool is_final_state = (particle.getGeneratorStatus() == 1);
             if (is_final_state) {
-                for_reconstruction->push_back(particle);
+                for_reconstruction.push_back(particle);
             }
         }
 
         // run algorithm
-        auto gen_jets = m_jet_algo.process(std::move(for_reconstruction));
+        auto gen_jets = m_jet_algo.process(for_reconstruction);
 
         // set output collection
         SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(gen_jets));

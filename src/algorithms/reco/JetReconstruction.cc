@@ -61,7 +61,7 @@ namespace eicrecon {
 
     // extract input momenta and collect into pseudojets
     std::vector<PseudoJet> particles;
-    for (unsigned iInput = 0; const auto& input : *input_collection) {
+    for (unsigned iInput = 0; const auto& input : input_collection) {
 
       // get 4-vector
       const auto& momentum = input.getMomentum();
