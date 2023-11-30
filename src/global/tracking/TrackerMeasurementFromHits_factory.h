@@ -42,7 +42,6 @@ namespace eicrecon {
 
     private:
 
-        std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
         eicrecon::TrackerMeasurementFromHits m_measurement;      /// Tracker measurement algorithm
     };
 

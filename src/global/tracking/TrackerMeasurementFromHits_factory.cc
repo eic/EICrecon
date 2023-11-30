@@ -41,7 +41,7 @@ namespace eicrecon {
         edm4eic::TrackerHitCollection total_hits;
         total_hits.setSubsetCollection();
 
-        for (const auto& input_tag: m_input_tags) {
+        for (const auto& input_tag: GetInputTags()) {
             auto hits = static_cast<const edm4eic::TrackerHitCollection*>(event->GetCollectionBase(input_tag));
             for (const auto& hit : *hits) {
                 total_hits.push_back(hit);
