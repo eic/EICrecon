@@ -4,8 +4,6 @@
 //
 
 #include <JANA/JApplication.h>
-#include <exception>
-#include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"

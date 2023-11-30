@@ -23,13 +23,11 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <cctype>
-#include <exception>
+#include <complex>
 #include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"

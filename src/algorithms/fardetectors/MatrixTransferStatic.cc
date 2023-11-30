@@ -10,6 +10,7 @@
 #include <DD4hep/Objects.h>
 #include <DD4hep/VolumeManager.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>

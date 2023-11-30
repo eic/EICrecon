@@ -22,7 +22,6 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <algorithm>
-#include <exception>
 #include <iterator>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"

@@ -18,6 +18,8 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -28,9 +30,9 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <tuple>
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"

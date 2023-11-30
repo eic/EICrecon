@@ -7,21 +7,17 @@
 #include <JANA/Services/JParameterManager.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include "extensions/jana/JOmniFactory.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <stdint.h>
-#include <cstddef>
-#include <exception>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <vector>
 
-#include "datamodel_glue.h"
+#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 struct BasicTestAlgConfig {
     int bucket_count = 42;
