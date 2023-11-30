@@ -34,26 +34,25 @@ namespace eicrecon {
     private:
 
       // generic method to add constituent to jet kinematic info
-      template <typename T> void add_to_jet_kinematics(const T& addend, edm4eic::MutableReconstructedParticle& kinematics);
+      template <typename T> void add_to_jet_kinematics(const T& addend, edm4eic::MutableReconstructedParticle& kinematics, edm4eic::ReconstructedParticleCollection*);
 
       // specialization for ReconstructedParticle input
-      void add_to_jet_kinematics(const edm4eic::ReconstructedParticle& addend, edm4eic::MutableReconstructedParticle& kinematics) {
+      void add_to_jet_kinematics(const edm4eic::ReconstructedParticle& addend, edm4eic::MutableReconstructedParticle& kinematics, edm4eic::ReconstructedParticleCollection*) {
         kinematics.addToParticles(addend);
       };
 
       // specialization for MCParticle input
-      void add_to_jet_kinematics(const edm4hep::MCParticle& addend, edm4eic::MutableReconstructedParticle& kinematics) {
-        kinematics.addToParticles(copy_mcparticle_onto_recoparticle(addend));
+      void add_to_jet_kinematics(const edm4hep::MCParticle& addend, edm4eic::MutableReconstructedParticle& kinematics, edm4eic::ReconstructedParticleCollection *output_coll) {
+        kinematics.addToParticles(copy_mcparticle_onto_recoparticle(addend, output_coll));
       };
 
       // helper function to copy edm4hep::MCParticle onto edm4eic::ReconstructedParticle
-      // FIXME there is likely a far more elegant way of doing this...
-      edm4eic::ReconstructedParticle copy_mcparticle_onto_recoparticle(const edm4hep::MCParticle& mc) {
+      edm4eic::ReconstructedParticle copy_mcparticle_onto_recoparticle(const edm4hep::MCParticle& mc, edm4eic::ReconstructedParticleCollection *output_coll) {
         const float mom = std::hypot(mc.getMomentum().x, mc.getMomentum().y, mc.getMomentum().z);
         const float energy = std::hypot(mc.getMass(), mom);
 
         // create reco particle
-        edm4eic::MutableReconstructedParticle mutable_reco;
+        edm4eic::MutableReconstructedParticle mutable_reco = output_coll->create();
         mutable_reco.setMomentum(mc.getMomentum());
         mutable_reco.setEnergy(energy);
         mutable_reco.setCharge(mc.getCharge());
