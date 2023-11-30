@@ -49,10 +49,8 @@ namespace eicrecon {
       // helper function to copy edm4hep::MCParticle onto edm4eic::ReconstructedParticle
       // FIXME there is likely a far more elegant way of doing this...
       edm4eic::ReconstructedParticle copy_mcparticle_onto_recoparticle(const edm4hep::MCParticle& mc) {
-
-        // calculate total energy
-        const float mom_squared = (std::pow(mc.getMomentum().x, 2) + std::pow(mc.getMomentum().y, 2) + std::pow(mc.getMomentum().z, 2));
-        const float energy = std::sqrt(std::pow(mc.getMass(), 2) + mom_squared);
+        const float mom = std::hypot(mc.getMomentum().x, mc.getMomentum().y, mc.getMomentum().z);
+        const float energy = std::hypot(mc.getMass(), mom);
 
         // create reco particle
         edm4eic::MutableReconstructedParticle mutable_reco;
