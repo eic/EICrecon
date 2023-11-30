@@ -13,7 +13,9 @@ namespace eicrecon {
 
 class CalorimeterClusterRecoCoG_factory : public JOmniFactory<CalorimeterClusterRecoCoG_factory, CalorimeterClusterRecoCoGConfig> {
 
+public:
     using AlgoT = eicrecon::CalorimeterClusterRecoCoG;
+private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::ProtoCluster> m_proto_input {this};
@@ -41,9 +43,6 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_cluster_output() = std::move(std::make_unique<PodioTypeMap<edm4eic::Cluster>::collection_t>());
-        m_assoc_output() = std::move(std::make_unique<PodioTypeMap<edm4eic::MCRecoClusterParticleAssociation>::collection_t>());
-
         m_algo->process({m_proto_input(), m_mchits_input()},
                         {m_cluster_output().get(), m_assoc_output().get()});
     }

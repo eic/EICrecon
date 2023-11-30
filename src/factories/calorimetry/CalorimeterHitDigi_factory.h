@@ -13,8 +13,9 @@ namespace eicrecon {
 
 class CalorimeterHitDigi_factory : public JOmniFactory<CalorimeterHitDigi_factory, CalorimeterHitDigiConfig> {
 
-private:
+public:
     using AlgoT = eicrecon::CalorimeterHitDigi;
+private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4hep::SimCalorimeterHit> m_hits_input {this};
@@ -44,7 +45,6 @@ public:
     }
 
     void Process(int64_t run_nr, uint64_t event_nr) {
-        m_hits_output() = std::move(std::make_unique<PodioTypeMap<edm4hep::RawCalorimeterHit>::collection_t>());
         m_algo->process({m_hits_input()}, {m_hits_output().get()});
     }
 };

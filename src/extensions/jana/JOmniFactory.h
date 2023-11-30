@@ -101,6 +101,7 @@ public:
         std::string collection_name;
         virtual void CreateHelperFactory(JOmniFactory& fac) = 0;
         virtual void SetCollection(JOmniFactory& fac) = 0;
+        virtual void Reset() = 0;
     };
 
     template <typename T>
@@ -126,6 +127,8 @@ public:
         void SetCollection(JOmniFactory& fac) override {
             fac.SetData<T>(this->tag_name, this->data);
         }
+
+        void Reset() override { }
     };
 
 
@@ -157,6 +160,10 @@ public:
                 // Otherwise this leads to a PODIO segfault
             }
             fac.SetCollection<PodioT>(this->collection_name, std::move(this->m_data));
+        }
+
+        void Reset() override {
+            m_data = std::move(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
         }
     };
 
@@ -419,6 +426,12 @@ public:
         try {
             for (auto* input : m_inputs) {
                 input->GetCollection(*event);
+            }
+
+            if constexpr (requires { typename AlgoT::AlgoT::Output; } ) {
+                for (auto* output : m_outputs) {
+                    output->Reset();
+                }
             }
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
             for (auto* output : m_outputs) {
