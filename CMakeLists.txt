@@ -224,4 +224,6 @@ add_subdirectory( src/utilities )
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+write_basic_package_version_file(cmake/${PROJECT_NAME}ConfigVersion.cmake VERSION ${CMAKE_PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
+install(FILES cmake/${PROJECT_NAME}Config.cmake cmake/${PROJECT_NAME}ConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)
