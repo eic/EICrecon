@@ -5,6 +5,7 @@
 #define EICRECON_JETRECONSTRUCTION_H
 
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/utils/kinematics.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>

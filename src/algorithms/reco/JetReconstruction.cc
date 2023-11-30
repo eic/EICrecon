@@ -8,6 +8,7 @@
 #include <JANA/JException.h>
 #include <Math/GenVector/LorentzVector.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/GhostedAreaSpec.hh>
 // for fastjet objects
