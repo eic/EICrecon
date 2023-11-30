@@ -4,17 +4,17 @@
 #ifndef EICRECON_PARTICLEFLOW_H
 #define EICRECON_PARTICLEFLOW_H
 
+#include <set>
 #include <map>
 #include <utility>
 #include <algorithm>
 #include <spdlog/spdlog.h>
 // event data model definitions
 #include <edm4eic/Cluster.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "ParticleFlowConfig.h"
@@ -38,26 +38,17 @@ namespace eicrecon{
     public:
 
       // aliases for brevity
-      using CalCollect  = edm4eic::ClusterCollection*;
-      using CalMcAssoc  = edm4eic::MCRecoClusterParticleAssociationCollection*;
-      using ParInput    = std::tuple<edm4hep::MCParticleCollection*, edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*>;
-      using CaloInput   = std::pair<edm4eic::ClusterCollection*, edm4eic::ClusterCollection*>;
-      using CaloAssocIn = std::pair<edm4eic::MCRecoClusterParticleAssociationCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*>;
+      using TrkInput     = const edm4eic::TrackSegmentCollection*;
+      using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
+      using VecCaloInput = std::vector<CaloInput>;
 
       // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // primary algorithm call
-      // FIXME
-      //   - change to vectors of calo inputs
-      //   - the mc/reco particle input will need to be replaced
-      //     with tracks once ready
-      //   - the reco particle/cluster association input will
-      //     need to be replaced with track projections once ready
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        const ParInput    inPars,
-        const CaloInput   inCalos,
-        const CaloAssocIn inRecoCaloAssoc
+        TrkInput     inTrks,
+        VecCaloInput vecInCalos
       );
 
     private:
@@ -65,19 +56,25 @@ namespace eicrecon{
       std::shared_ptr<spdlog::logger> m_log;
 
       // input collections
-      ParInput    m_inPars;
-      CaloInput   m_inCalos;
-      CaloAssocIn m_inRecoCaloAssoc;
+      TrkInput     m_inTrks;
+      VecCaloInput m_vecInCalos;
+
+      // output collection
+      std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPars;
 
       // particle flow algorithms
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> do_pf_alpha();
+      void do_pf_alpha(CaloInput inCalos);
 
       // helper methods
-      std::map<edm4eic::Cluster, int> create_cluster_map(
-        const ParInput   inParticles,
-        const CalCollect clusters,
-        const CalMcAssoc clustMcAssoc
-      );
+      // will go here...
+
+      // class-wide constants
+      const struct constants {
+        size_t nCaloPairs;
+        size_t iNegative;
+        size_t iCentral;
+        size_t iPositive;
+      } m_const = {3, 0, 1, 2};
 
       // algorithm options
       enum FlowAlgo  {Alpha};
