@@ -6,9 +6,9 @@
 
 // for error handling
 #include <JANA/JException.h>
-#include <Math/GenVector/LorentzVector.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/GhostedAreaSpec.hh>
 // for fastjet objects
@@ -66,11 +66,11 @@ namespace eicrecon {
       // get 4-vector
       const auto& momentum = input.getMomentum();
       const auto& energy = input.getEnergy();
-      const auto* lorentz = new edm4hep::LorentzVectorE(momentum.x, momentum.y, momentum.z, energy);
+      const auto pt = edm4hep::utils::magnitudeTransverse(momentum);
 
       // Only cluster particles within the given pt Range
-      if ((lorentz->pt() > m_cfg.minCstPt) && (lorentz->pt() < m_cfg.maxCstPt)) {
-        particles.emplace_back(lorentz->px(), lorentz->py(), lorentz->pz(), lorentz->e());
+      if ((pt > m_cfg.minCstPt) && (pt < m_cfg.maxCstPt)) {
+        particles.emplace_back(momentum.x, momentum.y, momentum.z, energy);
         particles.back().set_user_index(iInput);
       }
       ++iInput;
