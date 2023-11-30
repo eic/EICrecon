@@ -13,7 +13,7 @@
 namespace eicrecon {
 
 class CalorimeterClusterRecoCoG_factoryT :
-    public JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>,
+    public JChainMultifactoryT<ConfigMap>,
     public SpdlogMixin {
 
   public:
@@ -22,12 +22,24 @@ class CalorimeterClusterRecoCoG_factoryT :
         std::string tag,
         const std::vector<std::string>& input_tags,
         const std::vector<std::string>& output_tags,
-        CalorimeterClusterRecoCoGConfig cfg)
-    : JChainMultifactoryT<CalorimeterClusterRecoCoGConfig>(tag, input_tags, output_tags, cfg),
+        ConfigMap cfg)
+    : JChainMultifactoryT<ConfigMap>(tag, input_tags, output_tags, cfg),
       m_algo(tag) {
 
       DeclarePodioOutput<edm4eic::Cluster>(GetOutputTags()[0]);
       DeclarePodioOutput<edm4eic::MCRecoClusterParticleAssociation>(GetOutputTags()[1]);
+
+      // Initialize properties
+      for (const auto& [key, prop] : m_algo.getProperties()) {
+        auto it = cfg.find(key);
+        if (it != cfg.end()) {
+          m_algo.setProperty(key, it->second);
+          cfg.erase(it);
+        }
+      }
+      if (cfg.size() > 0) {
+        throw JException("Config contains unrecognized entries");
+      }
 
     }
 
@@ -48,15 +60,24 @@ class CalorimeterClusterRecoCoG_factoryT :
         // SpdlogMixin logger initialization, sets m_log
         InitLogger(app, GetPrefix(), "info");
 
-        // Algorithm configuration
-        auto cfg = GetDefaultConfig();
+        // Initialize properties
+        for (const auto& [key, prop] : m_algo.getProperties()) {
+          std::visit(
+            [app, &m_algo = m_algo, &m_log = m_log, param_prefix, key = key](auto&& val) {
+              using T = std::decay_t<decltype(val)>;
+              if constexpr (std::is_fundamental_v<T>
+                         || std::is_same_v<T, std::string>) {
+                std::string param = param_prefix + ":" + std::string(key);
+                app->RegisterParameter(param, val);
+                m_algo.setProperty(key, app->GetParameterValue<T>(param));
+              } else {
+                m_log->warn("No support for parsing {} of type {}", key, typeid(T).name());
+              }
+            },
+            prop.get()
+          );
+        }
 
-        app->SetDefaultParameter(param_prefix + ":samplingFraction", cfg.sampFrac);
-        app->SetDefaultParameter(param_prefix + ":logWeightBase", cfg.logWeightBase);
-        app->SetDefaultParameter(param_prefix + ":energyWeight", cfg.energyWeight);
-        app->SetDefaultParameter(param_prefix + ":enableEtaBounds", cfg.enableEtaBounds);
-
-        m_algo.applyConfig(cfg);
         m_algo.init(detector, logger());
     }
 

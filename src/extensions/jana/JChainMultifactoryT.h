@@ -19,11 +19,15 @@
 #include <string>
 #include <vector>
 
+#include <algorithms/property.h>
 #include "datamodel_glue.h"
 #include <JANA/JEvent.h>
 #include <JANA/JMultifactory.h>
 #include "algorithms/interfaces/WithPodConfig.h"
 
+namespace eicrecon {
+    using ConfigMap = std::map<std::string_view, algorithms::PropertyValue>;
+}
 
 template <typename ConfigT = eicrecon::NoConfig>
 class JChainMultifactoryT : public JMultifactory {
