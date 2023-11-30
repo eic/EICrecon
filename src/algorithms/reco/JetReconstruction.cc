@@ -117,7 +117,7 @@ namespace eicrecon {
   }  // end 'process(const T&)'
 
   // template instantiations for ReconstructedParticle or MCParticle input
- template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection& input_collection);
+  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection& input_collection);
   template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4hep::MCParticleCollection& input_collection);
 
 }  // end namespace eicrecon
