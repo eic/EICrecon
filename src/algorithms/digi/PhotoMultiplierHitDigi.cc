@@ -22,7 +22,6 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <algorithm>
-#include <exception>
 #include <iterator>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
@@ -162,14 +161,13 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
         // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections
         m_log->trace("{:-<70}","Digitized raw hits ");
-        PhotoMultiplierHitDigiResult result;
-        result.raw_hits   = std::make_unique<edm4eic::RawTrackerHitCollection>();
-        result.hit_assocs = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
+        auto raw_hits   = std::make_unique<edm4eic::RawTrackerHitCollection>();
+        auto hit_assocs = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
 
                 // build `RawTrackerHit`
-                auto raw_hit = result.raw_hits->create();
+                auto raw_hit = raw_hits->create();
                 raw_hit.setCellID(it.first);
                 raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)                    );
                 raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time/m_cfg.timeResolution) );
@@ -181,7 +179,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
                 if(!data.sim_hit_indices.empty()) {
-                  auto hit_assoc = result.hit_assocs->create();
+                  auto hit_assoc = hit_assocs->create();
                   hit_assoc.setWeight(1.0); // not used
                   hit_assoc.setRawHit(raw_hit);
                   for(auto i : data.sim_hit_indices)
@@ -189,7 +187,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 }
             }
         }
-        return result;
+        return std::make_tuple(std::move(raw_hits), std::move(hit_assocs));
 }
 
 void  eicrecon::PhotoMultiplierHitDigi::qe_init()

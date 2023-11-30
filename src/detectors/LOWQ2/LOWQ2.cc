@@ -8,8 +8,8 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 
 
 extern "C" {
@@ -19,7 +19,7 @@ extern "C" {
     using namespace eicrecon;
 
     // Digitization of silicon hits
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {"TaggerTrackerHits"},
          {"TaggerTrackerRawHits"},

@@ -4,12 +4,11 @@
 //
 
 #include <JANA/JApplication.h>
-#include <algorithms/fardetectors/MatrixTransferStaticConfig.h>
-#include <string>
 #include <vector>
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/fardetectors/MatrixTransferStatic_factoryT.h"
+#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/fardetectors/MatrixTransferStatic_factory.h"
 
 
 extern "C" {
@@ -38,7 +37,7 @@ void InitPlugin(JApplication *app) {
 
     recon_cfg.readout              = "ForwardOffMTrackerHits";
 
-    app->Add(new JChainMultifactoryGeneratorT<MatrixTransferStatic_factoryT>("ForwardOffMRecParticles",{"ForwardOffMTrackerHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"ForwardOffMTrackerHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
 
 }
 }
