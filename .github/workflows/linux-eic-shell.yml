@@ -222,7 +222,7 @@ jobs:
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
-          git diff --name-only | xargs -i -d, echo "files={}" | tee -a ${GITHUB_OUTPUT}
+          git diff --name-only | xargs -i -d, echo "files={}" | tee -a $GITHUB_OUTPUT
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
@@ -234,7 +234,7 @@ jobs:
           iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
           fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
           git diff | tee iwyu_fixes.patch
-          git diff --name-only | xargs -i -d, echo "files={}" | tee -a ${GITHUB_OUTPUT}
+          git diff --name-only | xargs -i -d, echo "files={}" | tee -a $GITHUB_OUTPUT
     - name: Upload iwyu patch as artifact
       uses: actions/upload-artifact@v4
       with:
