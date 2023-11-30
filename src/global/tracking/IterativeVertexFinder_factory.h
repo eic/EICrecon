@@ -5,37 +5,35 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/VertexCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/tracking/IterativeVertexFinder.h"
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
 class IterativeVertexFinder_factory
-    : public JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>,
+    : public JChainMultifactoryT<IterativeVertexFinderConfig>,
       public SpdlogMixin {
 
 public:
-  explicit IterativeVertexFinder_factory(std::vector<std::string> default_input_tags,
-                                         IterativeVertexFinderConfig cfg)
-      : JChainFactoryT<edm4eic::Vertex, IterativeVertexFinderConfig>(std::move(default_input_tags),
-                                                                     cfg) {}
+  explicit IterativeVertexFinder_factory(
+      std::string tag,
+      const std::vector<std::string>& input_tags,
+      const std::vector<std::string>& output_tags,
+      IterativeVertexFinderConfig cfg)
+  : JChainMultifactoryT<IterativeVertexFinderConfig>(std::move(tag), input_tags, output_tags, cfg) {
+      DeclarePodioOutput<edm4eic::Vertex>(GetOutputTags()[0]);
+  }
 
   /** One time initialization **/
   void Init() override;
-
-  /** On run change preparations **/
-  void ChangeRun(const std::shared_ptr<const JEvent>& event) override;
 
   /** Event by event processing **/
   void Process(const std::shared_ptr<const JEvent>& event) override;

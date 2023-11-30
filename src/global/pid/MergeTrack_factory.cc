@@ -3,11 +3,12 @@
 
 #include "MergeTrack_factory.h"
 
+#include <JANA/JException.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <exception>
 
-#include "services/io/podio/JFactoryPodioT.h"
+#include "datamodel_glue.h"
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeTrack_factory::Init() {
@@ -16,17 +17,12 @@ void eicrecon::MergeTrack_factory::Init() {
   auto *app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = plugin + ":" + GetTag();
-  InitDataTags(prefix);
 
   // services
   InitLogger(app, prefix, "info");
   m_algo.AlgorithmInit(m_log);
   m_log->debug("MergeTrack_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
-}
-
-//-----------------------------------------------------------------------------
-void eicrecon::MergeTrack_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
 }
 
 //-----------------------------------------------------------------------------
@@ -42,7 +38,7 @@ void eicrecon::MergeTrack_factory::Process(const std::shared_ptr<const JEvent> &
   // call the MergeTracks algorithm
   try {
     auto out_track_collection = m_algo.AlgorithmProcess(in_track_collections);
-    SetCollection(std::move(out_track_collection));
+    SetCollection<edm4eic::TrackSegment>(GetOutputTags()[0], std::move(out_track_collection));
   }
   catch(std::exception &e) {
     throw JException(e.what());

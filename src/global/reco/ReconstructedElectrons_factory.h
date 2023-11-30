@@ -4,7 +4,7 @@
 #pragma once
 
 // JANA
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
 
 // algorithms
@@ -17,15 +17,19 @@
 namespace eicrecon {
 
   class ReconstructedElectrons_factory :
-    public JChainFactoryT<edm4eic::ReconstructedParticle>,
+    public JChainMultifactoryT<NoConfig>,
     public SpdlogMixin
   {
 
     public:
 
-      explicit ReconstructedElectrons_factory(std::vector<std::string> default_input_tags) :
-        JChainFactoryT<edm4eic::ReconstructedParticle>(std::move(default_input_tags)) {
-        }
+      explicit ReconstructedElectrons_factory(
+          std::string tag,
+          const std::vector<std::string>& input_tags,
+          const std::vector<std::string>& output_tags)
+      : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+          DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
+      }
 
       /** One time initialization **/
       void Init() override {
@@ -33,15 +37,11 @@ namespace eicrecon {
         auto app    = GetApplication();
         auto plugin = GetPluginName();
         auto prefix = plugin + ":" + GetTag();
-        InitDataTags(prefix);
 
         // services
         InitLogger(app, prefix, "info");
         m_algo.init(m_log);
       }
-
-      /** On run change preparations **/
-      void BeginRun(const std::shared_ptr<const JEvent> &event) override{}
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override{
@@ -76,7 +76,7 @@ namespace eicrecon {
 
         m_log->debug( "We have found {} reconstructed electron candidates this event", output->size() );
         // Step 4. Output the collection
-        SetCollection(std::move(output));
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(output));
       }
 
     private:
