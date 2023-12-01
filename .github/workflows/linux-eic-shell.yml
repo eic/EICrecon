@@ -29,6 +29,8 @@ concurrency:
 env:
   platform-release: ${{ inputs.platform-release || 'jug_xl:nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
+  clang-tidy-iwyu-CC: clang
+  clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1
@@ -112,9 +114,12 @@ jobs:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: install.tar.zst
         if-no-files-found: error
+    # Only compress and upload build directory if we are going to use it later
     - name: Compress build directory
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
@@ -133,7 +138,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -209,7 +214,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
