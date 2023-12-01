@@ -12,7 +12,7 @@
 
 namespace eicrecon {
 
-using ConfigMap = std::map<std::string, algorithms::PropertyValue>;
+using ConfigMap = std::map<std::string_view, algorithms::PropertyValue>;
 
 class CalorimeterClusterRecoCoG_factory : public JOmniFactory<CalorimeterClusterRecoCoG_factory, ConfigMap> {
 
@@ -26,23 +26,39 @@ private:
 
     PodioOutput<edm4eic::Cluster> m_cluster_output {this};
     PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output {this};
-/*
-    std::vector<std::unique_ptr<ParameterBase>> m_parameters = [this](){
-      std::vector<std::unique_ptr<ParameterBase>> v;
-      v.push_back(std::make_unique<ParameterRef<std::string>>(this, "energyWeight", std::string("log")));
-      return v;
-    }();
-*/
-    ParameterRef<std::string> m_energyWeight {this, "energyWeight", std::get<std::string>(config()["energyWeight"])};
-    ParameterRef<double> m_samplingFraction {this, "samplingFraction", std::get<double>(config()["samplingFraction"])};
-    ParameterRef<double> m_logWeightBase {this, "logWeightBase", std::get<double>(config()["logWeightBase"])};
-    ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", std::get<bool>(config()["enableEtaBounds"])};
+
+    std::vector<std::unique_ptr<ParameterBase>> m_parameters;
 
 public:
     void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->init(logger());
-        m_algo->init();
+      m_algo = std::make_unique<AlgoT>(GetPrefix());
+
+      for (const auto& [key, prop] : m_algo->getProperties()) {
+        std::visit(
+          [this, key = key](auto&& val) {
+            using T = std::decay_t<decltype(val)>;
+            if constexpr (std::is_fundamental_v<T>
+                       || std::is_same_v<T, std::string>) {
+              // check if defined on factory generation
+              auto it = config().find(key);
+              if (it != config().end()) {
+                val = std::get<T>(it->second);
+                config().erase(it);
+              }
+              this->m_parameters.push_back(std::move(std::make_unique<ParameterRef<T>>(this, std::string(key), val)));
+              logger()->debug("Adding parameter {} of type {} with default value {}", key, JTypeInfo::demangle<T>(), val);
+            } else {
+              logger()->warn("No support for parsing {} of type {}", key, JTypeInfo::demangle<T>());
+            }
+          },
+          prop.get()
+        );
+      }
+      if (config().size() > 0) {
+        throw JException("Algorithm config contains unrecognized entries");
+      }
+
+      m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

@@ -181,6 +181,7 @@ public:
         std::string m_description;
         virtual void Configure(JParameterManager& parman, const std::string& prefix) = 0;
         virtual void Configure(std::map<std::string, std::string> fields) = 0;
+        virtual ~ParameterBase() { };
     };
 
     template <typename T>
