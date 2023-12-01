@@ -4,25 +4,28 @@
   # Boost
   { ref: '/usr/local/share/include-what-you-use/boost-all.imp' },
 
-  # Support for regex matches in the map-to field was added iwyu 0.19. Until then we have to be
-  # exhaustive... (Ref: https://github.com/include-what-you-use/include-what-you-use/pull/1123)
+  # libc++
+  { ref: '/usr/local/share/include-what-you-use/libcxx.imp' },
 
-  { include: ['@<Eigen/src/(.*)/.*>', private, '<Eigen/\1>', public] },
+  # STL
+  { ref: '/usr/local/share/include-what-you-use/gcc.stl.headers.imp' },
+
+  # Acts
+  { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
+
+  # Eigen
+  { include: ['@<Eigen/(src/)?(.*)/.*>', private, '<Eigen/$2>', public] },
   { include: ['@<Eigen/src/plugins/.*>', private, '<Eigen/Core>', public] },
-
-  { include: ['@"src/(.*)/.*"', private, '<Eigen/\1>', public] },
+  { include: ['@"src/(.*)/.*"', private, '<Eigen/$1>', public] },
   { include: ['@"src/plugins/.*"', private, '<Eigen/Core>', public] },
 
-  { include: ['@<edm4(eic|hep)/(.*)Data\.h>', private, '<edm4\1/\2Collection.h>', public] },
-  { include: ['@<edm4(eic|hep)/Mutable(.*)\.h>', private, '<edm4\1/\2Collection.h>', public] },
-  { include: ['@<edm4(eic|hep)/^(Mutable)(.*)^(Data)\.h>', private, '<edm4\1/\2Collection.h>', public] },
-
+  # EDM4hep and EDM4eic
+  { include: ['@<(edm4(eic|hep))/(Mutable)?([^/]*?)(Collection|Data|Obj)?\.h>', public, '<$1/$4Collection.h>', public] },
   { include: ['<edm4hep/utils/vector_utils_legacy.h>', private, '<edm4hep/utils/vector_utils.h>', public] },
 
+  # the rest
   { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166
-  { include: ['<ext/alloc_traits.h>', private, '<vector>', public] },
-
-  { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/\1.hpp>', public] }
+  { include: ['<ext/alloc_traits.h>', private, '<vector>', public] }
 ]
