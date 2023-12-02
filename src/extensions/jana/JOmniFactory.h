@@ -18,11 +18,18 @@
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 
+#include <ranges>
 #include <string>
+#include <variant>
 #include <vector>
 
 using namespace eicrecon;
 struct EmptyConfig {};
+
+template<typename AlgoT, typename ConfigT>
+concept UsesAlgorithmsProperties = requires(AlgoT algo, ConfigT config) {
+    { algo.getProperties().at("key").get() } -> std::same_as<typename ConfigT::mapped_type>;
+};
 
 template <typename AlgoT, typename ConfigT=EmptyConfig>
 class JOmniFactory : public JMultifactory {
@@ -258,6 +265,39 @@ public:
 
     void RegisterParameter(ParameterBase* parameter) {
         m_parameters.push_back(parameter);
+    }
+
+    template <typename AlgorithmsT>
+        requires UsesAlgorithmsProperties<AlgorithmsT, ConfigT>
+    void RegisterAllParameters(std::unique_ptr<AlgorithmsT>& algo, std::vector<std::unique_ptr<ParameterBase>>& parameters) {
+        for (const auto& [key, prop] : algo->getProperties()) {
+            std::visit(
+                [this, key = key, &parameters](auto&& val) {
+                    using T = std::decay_t<decltype(val)>;
+                    if constexpr (std::is_fundamental_v<T> || std::is_same_v<T, std::string>) {
+                        // check if defined on factory generation
+                        auto it = config().find(key);
+                        if (it != config().end()) {
+                            logger()->debug("Overriding parameter {} default value of {} with {}", key, val, std::get<T>(it->second));
+                            val = std::get<T>(it->second);
+                            config().erase(it);
+                        }
+                        parameters.push_back(std::move(std::make_unique<ParameterRef<T>>(this, std::string(key), val)));
+                        logger()->debug("Adding parameter {} of type {} with default value {}", key, JTypeInfo::demangle<T>(), val);
+                    } else {
+                        auto msg = fmt::format("No support for parsing {} of type {}", key, JTypeInfo::demangle<T>());
+                        logger()->critical(msg);
+                        throw JException(msg);
+                    }
+                },
+                prop.get()
+            );
+        }
+        if (config().size() > 0) {
+            auto msg = fmt::format("Algorithm {} config contains unrecognized parameters {}", GetPrefix(), std::views::keys(config()));
+            logger()->critical(msg);
+            throw JException(msg);
+        }
     }
 
     void ConfigureAllParameters(std::map<std::string, std::string> fields) {
