@@ -20,6 +20,7 @@
 #include "ReconstructedJets_factory.h"
 #include "algorithms/reco/ChargedParticleSelector.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 //
 extern "C" {
@@ -48,7 +49,7 @@ void InitPlugin(JApplication *app) {
     ));
 
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
         "InclusiveKinematicsElectron",
         {
           "MCParticles",
@@ -61,7 +62,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsTruth_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
         "InclusiveKinematicsTruth",
         {
           "MCParticles",
@@ -74,7 +75,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsJB_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsJB_factory>(
         "InclusiveKinematicsJB",
         {
           "MCParticles",
@@ -87,7 +88,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsDA_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsDA_factory>(
         "InclusiveKinematicsDA",
         {
           "MCParticles",
@@ -100,7 +101,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicseSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
         "InclusiveKinematicseSigma",
         {
           "MCParticles",
@@ -113,7 +114,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
         "InclusiveKinematicsSigma",
         {
           "MCParticles",
