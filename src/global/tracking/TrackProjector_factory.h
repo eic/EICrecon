@@ -14,7 +14,7 @@
 
 #include "algorithms/tracking/TrackProjector.h"
 #include "algorithms/tracking/TrackProjectorConfig.h"
-#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 

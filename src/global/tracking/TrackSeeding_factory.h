@@ -15,8 +15,7 @@
 
 #include "OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
