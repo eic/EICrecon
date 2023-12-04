@@ -28,6 +28,7 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
 
     PodioOutput<edm4hep::SimCalorimeterHit> output_hits_left {this, "output_hits_left"};
     PodioOutput<edm4hep::SimCalorimeterHit> output_hits_right {this, "output_hits_right"};
+    Output<std::string> day_of_the_week {this, "day_of_the_week"};
 
     ParameterRef<int> bucket_count {this, "bucket_count", config().bucket_count, "The total number of buckets [dimensionless]"};
     ParameterRef<double> threshold {this, "threshold", config().threshold, "The max cutoff threshold [V * A * kg^-1 * m^-2 * sec^-3]"};
