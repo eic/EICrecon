@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/VertexCollection.h>
 #include <memory>
@@ -11,35 +12,43 @@
 #include <utility>
 #include <vector>
 
-#include "IterativeVertexFinderConfig.h"
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "algorithms/tracking/IterativeVertexFinder.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class IterativeVertexFinder_factory
-    : public JChainMultifactoryT<IterativeVertexFinderConfig>,
-      public SpdlogMixin {
-
-public:
-  explicit IterativeVertexFinder_factory(
-      std::string tag,
-      const std::vector<std::string>& input_tags,
-      const std::vector<std::string>& output_tags,
-      IterativeVertexFinderConfig cfg)
-  : JChainMultifactoryT<IterativeVertexFinderConfig>(std::move(tag), input_tags, output_tags, cfg) {
-      DeclarePodioOutput<edm4eic::Vertex>(GetOutputTags()[0]);
-  }
-
-  /** One time initialization **/
-  void Init() override;
-
-  /** Event by event processing **/
-  void Process(const std::shared_ptr<const JEvent>& event) override;
+class IterativeVertexFinder_factory :
+        public JOmniFactory<IterativeVertexFinder_factory, IterativeVertexFinderConfig> {
 
 private:
-  eicrecon::IterativeVertexFinder m_vertexing_algo; /// Proxy vertexing algorithm
+    using AlgoT = eicrecon::IterativeVertexFinder;
+    std::unique_ptr<AlgoT> m_algo;
+
+    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+    PodioOutput<edm4eic::Vertex> m_vertices_output {this};
+
+    ParameterRef<int> m_maxVertices {this, "maxVertices", config().m_maxVertices,
+                           "Maximum num vertices that can be found"};
+    ParameterRef<bool> m_reassignTracksAfterFirstFit {this, "reassignTracksAfterFirstFit",
+                           config().m_reassignTracksAfterFirstFit,
+                           "Whether or not to reassign tracks after first fit"};
+
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->applyConfig(config());
+        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    }
+
+    void ChangeRun(int64_t run_number) {
+    }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_vertices_output() = m_algo->produce(m_acts_trajectories_input());
+    }
 };
 
-} // namespace eicrecon
+} // eicrecon
