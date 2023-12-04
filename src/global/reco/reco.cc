@@ -29,7 +29,7 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    app->Add(new JChainMultifactoryGeneratorT<MC2SmearedParticle_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MC2SmearedParticle_factory>(
             "GeneratedParticles",
             {"MCParticles"},
             {"GeneratedParticles"},
