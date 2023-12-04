@@ -55,7 +55,7 @@ public:
     private:
         friend class JOmniFactory;
 
-        void GetData(const JEvent& event) {
+        void GetCollection(const JEvent& event) {
             m_data = event.Get<T>(this->collection_name);
         }
     };
