@@ -25,7 +25,7 @@ namespace eicrecon {
     float m_collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
     float m_collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex
 
-    float m_maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
+    unsigned int m_maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
     float m_cotThetaMax = 1.0 / tan(2. * atan(exp(-4.0))); // Cotangent of max theta angle (based on eta)
 
     float m_sigmaScattering = 5; // How many standard devs of scattering angles to consider
