@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <algorithm>
 #include <string>
 
 #include "CKFTrackingConfig.h"
