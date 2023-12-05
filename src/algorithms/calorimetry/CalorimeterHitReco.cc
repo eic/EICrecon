@@ -45,12 +45,10 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
 
     // threshold for firing
     // Should set either m_cfg.thresholdFactor or m_cfg.thresholdValue, not both
-    if ( m_cfg.thresholdFactor > 0 &&  m_cfg.thresholdValue > 0){
+    if ( m_cfg.thresholdFactor * m_cfg.thresholdValue != 0 ){
         m_log->error("thresholdFactor = {}, thresholdValue = {}. Only one of these should be non-zero.",
                     m_cfg.thresholdFactor, m_cfg.thresholdValue);
-        // throw std::exception(fmt::format("CalorimeterHitReco: thresholdFactor = {}, thresholdValue = {}. Only one of these should be non-zero.",
-        //                                   m_cfg.thresholdFactor, m_cfg.thresholdValue));
-        throw;
+        throw; // throw with an argument doesn't trigger abort
     }
     thresholdADC = m_cfg.thresholdFactor * m_cfg.pedSigmaADC + m_cfg.thresholdValue;
     // TDC channels to timing conversion
