@@ -41,7 +41,7 @@ private:
     ParameterRef<float> m_collisionRegionMax {this, "collisionRegionMax", config().m_collisionRegionMax, "max location in z for collision region for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_zMax {this, "zMax", config().m_zMax, "Max z location for measurements for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_zMin {this, "zMin", config().m_zMin, "Min z location for measurements for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_maxSeedsPerSpM {this, "maxSeedsPerSpM", config().m_maxSeedsPerSpM, "Maximum number of seeds one space point can be the middle of for Acts::OrthogonalSeedFinder"};
+    ParameterRef<unsigned int> m_maxSeedsPerSpM {this, "maxSeedsPerSpM", config().m_maxSeedsPerSpM, "Maximum number of seeds one space point can be the middle of for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_cotThetaMax {this, "cotThetaMax", config().m_cotThetaMax, "cot of maximum theta angle for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_sigmaScattering {this, "sigmaScattering", config().m_sigmaScattering, "number of sigmas of scattering angle to consider for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_radLengthPerSeed {this, "radLengthPerSeed", config().m_radLengthPerSeed, "Approximate number of radiation lengths one seed traverses for Acts::OrthogonalSeedFinder"};
