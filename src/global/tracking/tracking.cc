@@ -99,14 +99,14 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
             "CentralTrackSegments",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+            {"CentralCKFActsTrajectories"},
             {"CentralTrackSegments"},
             app
             ));
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+            {"CentralCKFActsTrajectories"},
             {"CentralTrackVertices"},
             {},
             app
