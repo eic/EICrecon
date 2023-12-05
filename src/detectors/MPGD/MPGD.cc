@@ -8,9 +8,9 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
-#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -19,7 +19,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits",
         {"MPGDBarrelHits"},
         {"MPGDBarrelRawHits"},
@@ -31,7 +31,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "MPGDBarrelRecHits",
         {"MPGDBarrelRawHits"},     // Input data collection tags
         {"MPGDBarrelRecHits"},     // Output data tag
@@ -42,7 +42,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDDIRCRawHits",
         {"MPGDDIRCHits"},
         {"MPGDDIRCRawHits"},
@@ -54,7 +54,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "MPGDDIRCRecHits",
         {"MPGDDIRCRawHits"},    // Input data collection tags
         {"MPGDDIRCRecHits"},    // Output data tag
@@ -66,7 +66,7 @@ void InitPlugin(JApplication *app) {
 
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits",
         {"OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits"},
@@ -78,7 +78,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits",
         {"OuterMPGDBarrelRawHits"},     // Input data collection tags
         {"OuterMPGDBarrelRecHits"},     // Output data tag
@@ -89,7 +89,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "BackwardMPGDEndcapRawHits",
         {"BackwardMPGDEndcapHits"},
         {"BackwardMPGDEndcapRawHits"},
@@ -101,7 +101,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "BackwardMPGDEndcapRecHits",
         {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
         {"BackwardMPGDEndcapRecHits"},     // Output data tag
@@ -112,7 +112,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardMPGDEndcapRawHits",
         {"ForwardMPGDEndcapHits"},
         {"ForwardMPGDEndcapRawHits"},
@@ -124,7 +124,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "ForwardMPGDEndcapRecHits",
         {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
         {"ForwardMPGDEndcapRecHits"},     // Output data tag

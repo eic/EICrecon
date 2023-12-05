@@ -5,9 +5,7 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -17,26 +15,28 @@
 
 #include "OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {
 
     class TrackSeeding_factory :
-            public JChainFactoryT<edm4eic::TrackParameters, OrthogonalTrackSeedingConfig>,
+            public JChainMultifactoryT<OrthogonalTrackSeedingConfig>,
             public SpdlogMixin {
 
     public:
-        TrackSeeding_factory( std::vector<std::string> default_input_tags, OrthogonalTrackSeedingConfig cfg):
-                JChainFactoryT<edm4eic::TrackParameters, OrthogonalTrackSeedingConfig>(std::move(default_input_tags), cfg ) {
+        explicit TrackSeeding_factory(
+            std::string tag,
+            const std::vector<std::string>& input_tags,
+            const std::vector<std::string>& output_tags,
+            OrthogonalTrackSeedingConfig cfg)
+        : JChainMultifactoryT<OrthogonalTrackSeedingConfig>(std::move(tag), input_tags, output_tags, cfg) {
+            DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[0]);
         }
 
         /** One time initialization **/
         void Init() override;
-
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;

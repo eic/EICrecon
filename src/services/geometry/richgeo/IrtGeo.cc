@@ -12,7 +12,6 @@
 #include <TVector3.h>
 #include <fmt/core.h>
 #include <stdint.h>
-#include <algorithm>
 #include <cmath>
 #include <exception>
 #include <functional>

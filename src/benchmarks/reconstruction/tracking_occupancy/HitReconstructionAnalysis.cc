@@ -7,7 +7,6 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <stddef.h>
-#include <algorithm>
 #include <cmath>
 #include <exception>
 #include <map>

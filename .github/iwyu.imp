@@ -133,6 +133,7 @@
   { include: ["<edm4eic/MutableRingImage.h>", "private", "<edm4eic/RingImageCollection.h>", "public"] },
   { include: ["<edm4eic/MutableTrack.h>", "private", "<edm4eic/TrackCollection.h>", "public"] },
   { include: ["<edm4eic/MutableTrackerHit.h>", "private", "<edm4eic/TrackerHitCollection.h>", "public"] },
+  { include: ["<edm4eic/MutableMeasurement2D.h>", "private", "<edm4eic/Measurement2DCollection.h>", "public"] },
   { include: ["<edm4eic/MutableTrackParameters.h>", "private", "<edm4eic/TrackParametersCollection.h>", "public"] },
   { include: ["<edm4eic/MutableTrackSegment.h>", "private", "<edm4eic/TrackSegmentCollection.h>", "public"] },
   { include: ["<edm4eic/MutableTrajectory.h>", "private", "<edm4eic/TrajectoryCollection.h>", "public"] },
