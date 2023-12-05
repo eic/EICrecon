@@ -55,7 +55,7 @@ public:
     private:
         friend class JOmniFactory;
 
-        void GetData(const JEvent& event) {
+        void GetCollection(const JEvent& event) {
             m_data = event.Get<T>(this->collection_name);
         }
     };
@@ -121,11 +121,11 @@ public:
         friend class JOmniFactory;
 
         void CreateHelperFactory(JOmniFactory& fac) override {
-            fac.DeclareOutput<T>(this->tag_name);
+            fac.DeclareOutput<T>(this->collection_name);
         }
 
         void SetCollection(JOmniFactory& fac) override {
-            fac.SetData<T>(this->tag_name, this->data);
+            fac.SetData<T>(this->collection_name, this->m_data);
         }
 
         void Reset() override { }
