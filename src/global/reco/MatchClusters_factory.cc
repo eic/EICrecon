@@ -10,8 +10,8 @@
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <stdexcept>
 #include <ranges>
+#include <stdexcept>
 
 #include "MatchClusters_factory.h"
 
