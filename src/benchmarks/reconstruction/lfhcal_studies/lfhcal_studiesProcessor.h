@@ -69,8 +69,8 @@ public:
     float*  t_lFHCal_towers_cellT;
     int*    t_lFHCal_towers_cellTrueID;
 
-    bool enableTreeCluster  = true;
-    bool enableECalCluster  = true;
+    bool enableTreeCluster  = false;
+    bool enableECalCluster  = false;
     TTree* cluster_tree;
     const int maxNCluster   = 50;
     const int maxNMC        = 50;
