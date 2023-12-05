@@ -11,6 +11,7 @@
 #include <spdlog/logger.h>
 #include <memory>
 #include <stdexcept>
+#include <ranges>
 
 #include "MatchClusters_factory.h"
 
@@ -44,26 +45,31 @@ namespace eicrecon {
     }
 
     void MatchClusters_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        std::deque<std::string> input_tags;
-        input_tags.assign(GetInputTags().begin(), GetInputTags().end());
-
-        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(input_tags.pop_front()));
-        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(input_tags.pop_front()));
-        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase(input_tags.pop_front()));
+        size_t i = 0;
+        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[i++]));
+        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[i++]));
+        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[i++]));
 
         std::vector<const edm4eic::ClusterCollection*> cluster_collections;
         std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> cluster_assoc_collections;
 
-        while (! input_tags.empty()) {
-            auto clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(input_tags.pop_front()));
+        // FIXME Use proper stride and adjacent views in C++23
+        auto stride = [](int n) {
+            return [s = -1, n](auto const&) mutable { s = (s + 1) % n; return s == 0; };
+        };
+
+        for (auto& input_tag : GetInputTags() | std::views::drop(i) | std::views::filter(stride(2))) {
+            auto clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(input_tag));
             cluster_collections.push_back(clusters);
 
             m_log->debug("Clusters '{}' len: {}", input_tag,  clusters->size());
             for(const auto cluster : *clusters) {
                 m_log->debug("  {} {}", cluster.getObjectID().collectionID, cluster.getEnergy());
             }
+        }
 
-            auto assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag.pop_front()));
+        for (auto& input_tag : GetInputTags() | std::views::drop(i+1) | std::views::filter(stride(2))) {
+            auto assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag));
             cluster_assoc_collections.push_back(assocs);
 
             m_log->debug("Associations '{}' len: {}", input_tag, assocs->size());
