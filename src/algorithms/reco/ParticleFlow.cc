@@ -20,7 +20,9 @@ namespace eicrecon {
 
 
   /*! Primary algorithm call.  The particular algorithm to be run for
-   *  a pair of calorimeters is specified by the `flowAlgo` option. 
+   *  a pair of calorimeters is specified by the `flowAlgo` option.
+   *  Returns collection of particle flow objects, i.e. tracks or
+   *  combinations of calorimeter clusters.
    */ 
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> ParticleFlow::process(
         TrkInput     inTrks,
@@ -68,11 +70,9 @@ namespace eicrecon {
     /* TODO
      *   - sum energy in calos
      *   - subtract reco particle energy from calo energy sums
-     *   = remove clusters with no energy after subtraction
+     *   - remove clusters with no energy after subtraction
      *   - combine leftover clusters into neutral particles
      */
-
-    return;
 
   }  // end 'do_pf_alpha(CaloInput)'
 

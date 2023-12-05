@@ -4,6 +4,8 @@
 #pragma once
 
 #include <map>
+#include <vector>
+#include <utility>
 #include <spdlog/logger.h>
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <extensions/jana/JChainMultifactoryT.h>
@@ -22,7 +24,7 @@ namespace eicrecon {
     public:
 
       // aliases for brevity
-      using TrkInput     = const edm4eic::TrackSegmentCollection*;
+      using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
       using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
       using VecCaloInput = std::vector<CaloInput>;
 

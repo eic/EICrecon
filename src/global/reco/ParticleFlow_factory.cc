@@ -54,12 +54,19 @@ namespace eicrecon {
     std::vector<const edm4eic::ClusterCollection*> vecHCalInput(m_const.nCaloPairs);
 
     // grab and organize input collections
-    TrkInput trkProjectInput;
+    TrkInput trkInput;
     for (const std::string& input_tag : GetInputTags()) {
+
+      // check if input is a track collection
+      if (input_tag.find("ReconstructedChargedParticles") != std::string::npos) {
+        trkInput.first = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(input_tag));
+        m_log->debug("Found input track collectio {}", input_tag);
+        continue;
+      }
 
       // check if input is a track projection collection
       if (input_tag.find("TrackProjection") != std::string::npos) {
-        trkProjectInput = static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag));
+        trkInput.second = static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase(input_tag));
         m_log->debug("Found input track projection collection {}", input_tag);
         continue;
       }
@@ -75,6 +82,7 @@ namespace eicrecon {
         try {
           iInput = m_mapCaloInputToIndex[input_tag];
         } catch (std::out_of_range &out) {
+          m_log->error("Using unknown calo collection {} as input to particle flow!", input_tag);
           throw JException(out.what());
         }
         m_log->debug("Assigned input calo collection {} an index of {}", input_tag, iInput);
@@ -92,7 +100,7 @@ namespace eicrecon {
     }
 
     // run algorithm
-    auto pf_objects = m_pf_algo.process(trkProjectInput, vecCaloInput);
+    auto pf_objects = m_pf_algo.process(trkInput, vecCaloInput);
 
     // set output collection
     SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(pf_objects));

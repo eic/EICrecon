@@ -34,7 +34,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
-        { "EcalEndcapNClusters",
+        {"EcalEndcapNClusters",
           "EcalBarrelScFiClusters",
           "EcalEndcapPClusters",
         },
@@ -43,7 +43,6 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
-
 
     app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsElectron_factory>(
         "InclusiveKinematicsElectron",
@@ -176,10 +175,8 @@ void InitPlugin(JApplication *app) {
     app->Add(new JChainMultifactoryGeneratorT<ParticleFlow_factory>(
         "ParticleFlow",
         {
-          // FIXME replace particle input with tracks
-          "MCParticles",
           "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations",
+          "CalorimeterTrackProjections",
           "EcalEndcapNClusters",
           "HcalEndcapNClusters",
           "EcalBarrelScFiClusters",
@@ -188,6 +185,7 @@ void InitPlugin(JApplication *app) {
           "LFHCALClusters"
         },
         {"ParticleFlowObjects"},
+        {},
         app
     ));
 
