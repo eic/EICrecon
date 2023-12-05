@@ -24,7 +24,8 @@ namespace eicrecon{
   //! Particle Flow
   /*! This algorithm takes a collection of tracks (and their projections)
    *  and a pair of calorimeter collections, from an ECal and an HCal,
-   *  and returns a collection of reconstructed particles.
+   *  and returns a collection of "particle flow objects", reconstructed
+   *  particles constructed from either tracks or calorimeter clusters.
    *
    *  As there will likely need to be multiple PF algorithms at any given
    *  time, the particular choice of algorithm is set by a user-configurable
@@ -38,7 +39,7 @@ namespace eicrecon{
     public:
 
       // aliases for brevity
-      using TrkInput     = const edm4eic::TrackSegmentCollection*;
+      using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
       using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
       using VecCaloInput = std::vector<CaloInput>;
 
@@ -47,26 +48,27 @@ namespace eicrecon{
 
       // primary algorithm call
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        TrkInput     inTrks,
+        TrkInput inTrks,
         VecCaloInput vecInCalos
       );
 
     private:
-
-      std::shared_ptr<spdlog::logger> m_log;
-
-      // input collections
-      TrkInput     m_inTrks;
-      VecCaloInput m_vecInCalos;
-
-      // output collection
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPars;
 
       // particle flow algorithms
       void do_pf_alpha(CaloInput inCalos);
 
       // helper methods
       // will go here...
+
+      // logging service
+      std::shared_ptr<spdlog::logger> m_log;
+
+      // input collections
+      TrkInput m_inTrks;
+      VecCaloInput m_vecInCalos;
+
+      // output collection
+      std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPars;
 
       // class-wide constants
       const struct constants {
