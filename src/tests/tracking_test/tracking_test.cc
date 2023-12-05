@@ -4,7 +4,6 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
 
 #include "TrackingTest_processor.h"
 //#include "JFactory_EcalBarrelRawCalorimeterHit.h.bck"

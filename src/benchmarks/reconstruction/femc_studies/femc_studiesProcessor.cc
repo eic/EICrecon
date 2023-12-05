@@ -5,34 +5,38 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "femc_studiesProcessor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/rootfile/RootFile_service.h"
-#include <spdlog/spdlog.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-
-// Include appropriate class headers. e.g.
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/vector_utils.h>
-
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TVector3.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <RtypesCore.h>
+#include <TMath.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <gsl/pointers>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <vector>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 
 //******************************************************************************************//
@@ -207,8 +211,7 @@ void femc_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector* detector = dd4hep_service->detector();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
+  auto detector = dd4hep_service->detector();
   std::cout << "--------------------------\nID specification:\n";
   try {
     m_decoder = detector->readout("EcalEndcapPHits").idSpec().decoder();
@@ -555,7 +558,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   if (enableTree){
     t_fEMC_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-      m_log->trace("{} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
+      m_log->trace("{} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
 
       t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;

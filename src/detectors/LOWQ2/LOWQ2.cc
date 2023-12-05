@@ -3,15 +3,19 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <string>
 
 #include "factories/digi/SiliconTrackerDigi_factoryT.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factoryT.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factoryT.h"
 #include "factories/fardetectors/FarDetectorMLReconstruction_factoryT.h"
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 
 
 extern "C" {
@@ -33,19 +37,19 @@ extern "C" {
     FarDetectorMLReconstructionConfig recon_cfg;
 
     // Digitization of silicon hits
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {"TaggerTrackerHits"},
          {"TaggerTrackerRawHits"},
          {
-           .threshold = 1 * dd4hep::keV,
+           .threshold = 1.5 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,
          },
          app
     ));
 
     // Clustering of hits
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
         "TaggerTrackerClusterPositions",
         {"TaggerTrackerRawHits"},
         {"TaggerTrackerClusterPositions"},
@@ -56,13 +60,13 @@ extern "C" {
     ));
 
     // Reconstrution of tracks on common plane
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
 
     // Reconstrution of tracks on common plane
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorLinearProjection_factoryT>("LowQ2Projections",{"LowQ2Tracks"},{"LowQ2Projections"}, projection_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factoryT>("LowQ2Projections",{"LowQ2Tracks"},{"LowQ2Projections"}, projection_cfg, app));
 
     // Vector reconstruction at origin
-    app->Add(new JChainMultifactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Projections"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Projections"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
 
   }
 }

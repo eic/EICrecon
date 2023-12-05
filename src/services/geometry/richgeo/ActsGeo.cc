@@ -3,13 +3,25 @@
 
 #include "ActsGeo.h"
 
-// ACTS
-#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
+// ACTS
+#include <Acts/Surfaces/Surface.hpp>
+#include <DD4hep/Objects.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <ctype.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <exception>
+
+#include "services/geometry/richgeo/RichGeo.h"
 
 // constructor
-richgeo::ActsGeo::ActsGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
+richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, std::shared_ptr<spdlog::logger> log_)
   : m_detName(detName_), m_det(det_), m_log(log_)
 {
   // capitalize m_detName

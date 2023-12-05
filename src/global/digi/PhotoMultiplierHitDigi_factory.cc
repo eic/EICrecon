@@ -3,6 +3,18 @@
 
 #include "PhotoMultiplierHitDigi_factory.h"
 
+#include <DD4hep/Objects.h>
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <functional>
+#include <gsl/pointers>
+
 // services
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
@@ -48,7 +60,7 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Init() {
 
   // Initialize digitization algorithm
   m_digi_algo.applyConfig(cfg);
-  m_digi_algo.AlgorithmInit(geo_service->detector(), m_log);
+  m_digi_algo.AlgorithmInit(geo_service->detector(), geo_service->converter(), m_log);
 
   // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
   if(use_richgeo) {
@@ -72,9 +84,9 @@ void eicrecon::PhotoMultiplierHitDigi_factory::Process(const std::shared_ptr<con
   const auto *sim_hits = static_cast<const edm4hep::SimTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
   try {
-    auto result = m_digi_algo.AlgorithmProcess(sim_hits);
-    SetCollection<edm4eic::RawTrackerHit>(GetOutputTags()[0], std::move(result.raw_hits));
-    SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(result.hit_assocs));
+    auto [raw_hits, hit_assocs] = m_digi_algo.AlgorithmProcess(sim_hits);
+    SetCollection<edm4eic::RawTrackerHit>(GetOutputTags()[0], std::move(raw_hits));
+    SetCollection<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1], std::move(hit_assocs));
   }
   catch(std::exception &e) {
     throw JException(e.what());

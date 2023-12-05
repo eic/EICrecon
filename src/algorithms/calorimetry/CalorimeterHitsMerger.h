@@ -10,28 +10,22 @@
 
 #pragma once
 
-#include <algorithm>
-#include <bitset>
-#include <memory>
-#include <tuple>
-#include <unordered_map>
-
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
+#include <memory>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitsMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
   class CalorimeterHitsMerger : public WithPodConfig<CalorimeterHitsMergerConfig>  {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &input);
 
   private:
@@ -39,7 +33,7 @@ namespace eicrecon {
 
   private:
     const dd4hep::Detector* m_detector;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
   };

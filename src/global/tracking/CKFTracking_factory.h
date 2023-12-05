@@ -4,15 +4,20 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
+#include <ActsExamples/EventData/Track.hpp>
+#include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "ActsExamples/EventData/Trajectories.hpp"
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
@@ -32,6 +37,7 @@ namespace eicrecon {
             DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
             DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
             DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
+            DeclareOutput<ActsExamples::ConstTrackContainer>(GetOutputTags()[3]);
 
         }
 

@@ -4,12 +4,22 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticle.h>
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
 #include "algorithms/pid/ParticlesWithPID.h"
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
-#include <spdlog/logger.h>
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 
 namespace eicrecon {

@@ -10,11 +10,34 @@
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
+
 namespace eicrecon {
 
-void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
-    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_converter = converter;
     m_log = logger;
 
     if (m_cfg.readout.empty()) {

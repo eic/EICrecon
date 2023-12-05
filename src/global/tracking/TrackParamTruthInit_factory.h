@@ -4,28 +4,38 @@
 
 #pragma once
 
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <JANA/JEvent.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
 
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
     class TrackParamTruthInit_factory :
-            public JChainFactoryT<edm4eic::TrackParameters, TrackParamTruthInitConfig>,
+            public JChainMultifactoryT<TrackParamTruthInitConfig>,
             public SpdlogMixin {
 
     public:
-        TrackParamTruthInit_factory( std::vector<std::string> default_input_tags, TrackParamTruthInitConfig cfg):
-            JChainFactoryT<edm4eic::TrackParameters, TrackParamTruthInitConfig>(std::move(default_input_tags), cfg) {
+        explicit TrackParamTruthInit_factory(
+            std::string tag,
+            const std::vector<std::string>& input_tags,
+            const std::vector<std::string>& output_tags,
+            TrackParamTruthInitConfig cfg)
+        : JChainMultifactoryT<TrackParamTruthInitConfig>(std::move(tag), input_tags, output_tags, cfg) {
+            DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[0]);
         }
 
         /** One time initialization **/
         void Init() override;
-
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
 
         /** Event by event processing **/
         void Process(const std::shared_ptr<const JEvent> &event) override;

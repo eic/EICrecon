@@ -3,13 +3,20 @@
 
 #pragma once
 
-#include <spdlog/logger.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-// event data model definitions
+#include <JANA/JEvent.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <typeindex>
+#include <utility>
+#include <vector>
+
 // necessary algorithms
 #include "algorithms/reco/JetReconstruction.h"
+#include "algorithms/reco/JetReconstructionConfig.h"
 
 namespace eicrecon {
 

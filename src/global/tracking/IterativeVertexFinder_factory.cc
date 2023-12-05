@@ -2,11 +2,18 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#include <ActsExamples/EventData/Track.hpp>
+#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <edm4eic/TrackParametersCollection.h>
+#include <JANA/JException.h>
+#include <spdlog/logger.h>
+#include <exception>
+#include <map>
 
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "IterativeVertexFinder.h"
 #include "IterativeVertexFinder_factory.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "datamodel_glue.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -16,9 +23,6 @@ void eicrecon::IterativeVertexFinder_factory::Init() {
   // This prefix will be used for parameters
   std::string plugin_name  = GetPluginName();
   std::string param_prefix = plugin_name + ":" + GetTag();
-
-  // Initialize input tags
-  InitDataTags(param_prefix);
 
   // Initialize logger
   InitLogger(app, param_prefix, "info");
@@ -41,21 +45,16 @@ void eicrecon::IterativeVertexFinder_factory::Init() {
   m_vertexing_algo.init(acts_service->actsGeoProvider(), m_log);
 }
 
-void eicrecon::IterativeVertexFinder_factory::ChangeRun(
-    const std::shared_ptr<const JEvent>& event) {
-  JFactoryT::ChangeRun(event);
-}
-
 void eicrecon::IterativeVertexFinder_factory::Process(const std::shared_ptr<const JEvent>& event) {
 
-  std::string input_tag = GetInputTags()[0];
-  auto trajectories     = event->Get<ActsExamples::Trajectories>(input_tag);
+  auto trajectories = event->Get<ActsExamples::Trajectories>(GetInputTags()[0]);
+  auto tracks       = event->Get<ActsExamples::ConstTrackContainer>(GetInputTags()[1]);
 
   m_log->debug("Process method");
 
   try {
     auto vertices = m_vertexing_algo.produce(trajectories);
-    SetCollection(std::move(vertices));
+    SetCollection<edm4eic::Vertex>(GetOutputTags()[0], std::move(vertices));
   } catch (std::exception& e) {
     throw JException(e.what());
   }

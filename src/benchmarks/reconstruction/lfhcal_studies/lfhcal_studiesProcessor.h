@@ -4,17 +4,17 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <JANA/JEventProcessor.h>
-#include <JANA/JEventProcessorSequentialRoot.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <TH2D.h>
-#include <TH3D.h>
-#include <TFile.h>
+#include <JANA/JEvent.h>
+#include <JANA/JEventProcessor.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TDirectory.h>
+#include <TH2.h>
+#include <TH3.h>
 #include <TTree.h>
-
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "algorithms/tracking/TrackPropagation.h"
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <string>
 
 class lfhcal_studiesProcessor: public JEventProcessor {
 public:
@@ -95,7 +95,7 @@ public:
     int nEventsWithCaloHits = 0;
     bool isLFHCal = true;
     std::shared_ptr<spdlog::logger> m_log;
-    dd4hep::BitFieldCoder* m_decoder;
+    dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
     std::string nameSimHits         = "LFHCALHits";
     std::string nameRecHits         = "LFHCALRecHits";
     std::string nameClusters        = "LFHCALClusters";

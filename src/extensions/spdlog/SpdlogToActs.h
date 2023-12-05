@@ -39,7 +39,7 @@ inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
   try {
     return kSpdlogToActsLevel.left.at(input);
   } catch (...) {
-    auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", input);
+    auto err_msg = fmt::format("SpdlogToActsLevel don't know this log level: '{}'", fmt::underlying(input));
     throw JException(err_msg);
   }
 }
@@ -48,7 +48,7 @@ inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
   try {
     return kSpdlogToActsLevel.right.at(input);
   } catch (...) {
-    auto err_msg = fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", input);
+    auto err_msg = fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", fmt::underlying(input));
     throw JException(err_msg);
   }
 }
@@ -106,7 +106,6 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
       }
     }
 
-  #if 0 // name() and clone() require Acts 22.0.0, https://github.com/acts-project/acts/commit/85b4b292c980f358ed6ba3ce19cdcee361c8ea5b
     /// Fulfill @c OutputPrintPolicy interface. This policy doesn't actually have a
     /// name, so the assumption is that somewhere in the decorator hierarchy,
     /// there is something that returns a name without delegating to a wrappee,
@@ -127,7 +126,6 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
       (void)name;
       return std::make_unique<SpdlogPrintPolicy>(m_out);
     };
-  #endif
 
   private:
     /// pointer to destination output stream
@@ -138,11 +136,14 @@ class SpdlogPrintPolicy final : public Acts::Logging::OutputPrintPolicy {
 };
 
 inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(
+    const std::string& name,
     std::shared_ptr<spdlog::logger> log,
     std::vector<std::string> suppressions = {}) {
 
   const Acts::Logging::Level lvl = SpdlogToActsLevel(log->level());
-  auto output = std::make_unique<SpdlogPrintPolicy>(log, suppressions);
+  auto output = std::make_unique<Acts::Logging::NamedOutputDecorator>(
+      std::make_unique<SpdlogPrintPolicy>(log, suppressions),
+      name);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }

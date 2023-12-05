@@ -7,17 +7,31 @@
  *
  *  Author: Chao Peng (ANL), 09/27/2020
  */
-#include <boost/algorithm/string/join.hpp>
-#include <boost/range/adaptor/map.hpp>
-#include <fmt/format.h>
-#include <map>
-#include <optional>
-#include <Eigen/Dense>
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/MCParticle.h>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
+#include <cctype>
+#include <complex>
+#include <gsl/pointers>
+#include <limits>
+#include <map>
+#include <optional>
+#include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 
 namespace eicrecon {
 
@@ -26,11 +40,6 @@ namespace eicrecon {
   void CalorimeterClusterRecoCoG::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     m_detector = detector;
-
-    // update depth correction if a name is provided
-    if (!m_cfg.moduleDimZName.empty()) {
-      m_cfg.depthCorrection = m_detector->constantAsDouble(m_cfg.moduleDimZName);
-    }
 
     // select weighting method
     std::string ew = m_cfg.energyWeight;
@@ -44,13 +53,12 @@ namespace eicrecon {
     weightFunc = it->second;
   }
 
-  ClustersWithAssociations CalorimeterClusterRecoCoG::process(
-            const edm4eic::ProtoClusterCollection* proto,
-            const edm4hep::SimCalorimeterHitCollection* mchits) {
+  void CalorimeterClusterRecoCoG::process(
+      const CalorimeterClusterRecoCoG::Input& input,
+      const CalorimeterClusterRecoCoG::Output& output) const {
 
-    // output collections
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+    const auto [proto, mchits] = input;
+    auto [clusters, associations] = output;
 
     for (const auto& pcl : *proto) {
 
@@ -128,7 +136,7 @@ namespace eicrecon {
         m_log->debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
         m_log->debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
         m_log->debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
-        m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4eic::magnitude(mcp.getMomentum()));
+        m_log->debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
 
         // set association
         auto clusterassoc = associations->create();
@@ -141,8 +149,6 @@ namespace eicrecon {
         m_log->debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
     }
-
-    return std::make_pair(std::move(clusters), std::move(associations));
 }
 
 //------------------------------------------------------------------------
@@ -173,7 +179,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
     totalE += energy;
     if (energy > maxE) {
     }
-    const float eta = edm4eic::eta(hit.getPosition());
+    const float eta = edm4hep::utils::eta(hit.getPosition());
     if (eta < minHitEta) {
       minHitEta = eta;
     }
@@ -206,14 +212,14 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
   // Optionally constrain the cluster to the hit eta values
   if (m_cfg.enableEtaBounds) {
-    const bool overflow  = (edm4eic::eta(cl.getPosition()) > maxHitEta);
-    const bool underflow = (edm4eic::eta(cl.getPosition()) < minHitEta);
+    const bool overflow  = (edm4hep::utils::eta(cl.getPosition()) > maxHitEta);
+    const bool underflow = (edm4hep::utils::eta(cl.getPosition()) < minHitEta);
     if (overflow || underflow) {
       const double newEta   = overflow ? maxHitEta : minHitEta;
-      const double newTheta = edm4eic::etaToAngle(newEta);
-      const double newR     = edm4eic::magnitude(cl.getPosition());
-      const double newPhi   = edm4eic::angleAzimuthal(cl.getPosition());
-      cl.setPosition(edm4eic::sphericalToVector(newR, newTheta, newPhi));
+      const double newTheta = edm4hep::utils::etaToAngle(newEta);
+      const double newR     = edm4hep::utils::magnitude(cl.getPosition());
+      const double newPhi   = edm4hep::utils::angleAzimuthal(cl.getPosition());
+      cl.setPosition(edm4hep::utils::sphericalToVector(newR, newTheta, newPhi));
       m_log->debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
     }
   }
@@ -222,8 +228,8 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
   // best estimate on the cluster direction is the cluster position
   // for simple 2D CoG clustering
-  cl.setIntrinsicTheta(edm4eic::anglePolar(cl.getPosition()));
-  cl.setIntrinsicPhi(edm4eic::angleAzimuthal(cl.getPosition()));
+  cl.setIntrinsicTheta(edm4hep::utils::anglePolar(cl.getPosition()));
+  cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(cl.getPosition()));
   // TODO errors
 
   //_______________________________________
@@ -248,7 +254,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
       float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_cfg.logWeightBase, 0);
 
       // theta, phi
-      Eigen::Vector2f pos2D( edm4eic::anglePolar( hit.getPosition() ), edm4eic::angleAzimuthal( hit.getPosition() ) );
+      Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
       // x, y, z
       Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
 

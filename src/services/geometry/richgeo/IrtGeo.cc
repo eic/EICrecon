@@ -3,9 +3,27 @@
 
 #include "IrtGeo.h"
 
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <IRT/CherenkovRadiator.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TGDMLMatrix.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <fmt/core.h>
+#include <stdint.h>
+#include <cmath>
+#include <exception>
+#include <functional>
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "services/geometry/richgeo/RichGeo.h"
+
 // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-richgeo::IrtGeo::IrtGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_) :
-  m_detName(detName_), m_det(det_), m_log(log_)
+richgeo::IrtGeo::IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
+  m_detName(detName_), m_det(det_), m_converter(conv_), m_log(log_)
 {
   Bind();
 }
@@ -20,9 +38,6 @@ void richgeo::IrtGeo::Bind() {
   // IRT geometry handles
   m_irtDetectorCollection = new CherenkovDetectorCollection();
   m_irtDetector = m_irtDetectorCollection->AddNewDetector(m_detName.c_str());
-
-  // cellID conversion
-  m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_det);
 }
 // ------------------------------------------------
 
@@ -32,13 +47,13 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
   m_irtDetector->m_ReadoutIDToPosition = [
     &m_log = this->m_log, // capture logger by reference
     // capture instance members by value, so those owned by `this` are not mutable here
-    cell_mask        = this->m_irtDetector->GetReadoutCellMask(),
-    cellid_converter = this->m_cellid_converter,
-    sensor_info      = this->m_sensor_info
+    cell_mask   = this->m_irtDetector->GetReadoutCellMask(),
+    converter   = this->m_converter,
+    sensor_info = this->m_sensor_info
   ] (auto cell_id) {
     // decode cell ID to get the sensor ID and pixel volume centroid
     auto sensor_id = cell_id & cell_mask;
-    auto pixel_volume_centroid = (1/dd4hep::mm) * cellid_converter->position(cell_id);
+    auto pixel_volume_centroid = (1/dd4hep::mm) * converter->position(cell_id);
     // get sensor info
     auto sensor_info_it = sensor_info.find(sensor_id);
     if(sensor_info_it == sensor_info.end()) {
@@ -62,7 +77,7 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
 void richgeo::IrtGeo::SetRefractiveIndexTable() {
   m_log->debug("{:-^60}"," Refractive Index Tables ");
   for(auto rad_obj : m_irtDetector->Radiators()) {
-    m_log->debug("{}:", rad_obj.first);
+    m_log->debug("{}:", rad_obj.first.Data());
     auto *const rad = rad_obj.second;
     const auto *rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
     for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {

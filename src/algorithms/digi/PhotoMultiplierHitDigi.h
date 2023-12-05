@@ -15,33 +15,42 @@
 
 #pragma once
 
-#include <TRandomGen.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TRandomGen.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
 #include <cstddef>
 #include <functional>
+#include <memory>
+#include <stdexcept>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-struct PhotoMultiplierHitDigiResult {
-  std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
-  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
-};
+using PhotoMultiplierHitDigiResult = std::tuple<
+  std::unique_ptr<edm4eic::RawTrackerHitCollection>,
+  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection>
+>;
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
 public:
     PhotoMultiplierHitDigi() = default;
     ~PhotoMultiplierHitDigi(){}
-    void AlgorithmInit(dd4hep::Detector *detector, std::shared_ptr<spdlog::logger>& logger);
+    void AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
     void AlgorithmChangeRun();
     PhotoMultiplierHitDigiResult AlgorithmProcess(
         const edm4hep::SimTrackerHitCollection* sim_hits
@@ -106,10 +115,10 @@ private:
         bool             is_noise_hit = false
         );
 
-    dd4hep::Detector *m_detector   = nullptr;
+    const dd4hep::Detector* m_detector = nullptr;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
 
     std::shared_ptr<spdlog::logger> m_log;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
     // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
