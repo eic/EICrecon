@@ -65,9 +65,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
         "InclusiveKinematicsTruth",
         {
-          "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
+          "MCParticles"
         },
         {
           "InclusiveKinematicsTruth"
