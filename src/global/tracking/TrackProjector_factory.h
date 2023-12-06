@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
@@ -13,34 +14,35 @@
 
 #include "algorithms/tracking/TrackProjector.h"
 #include "algorithms/tracking/TrackProjectorConfig.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-    class TrackProjector_factory:
-    public JChainMultifactoryT<TrackProjectorConfig>,
-            public SpdlogMixin {
+class TrackProjector_factory :
+        public JOmniFactory<TrackProjector_factory, TrackProjectorConfig> {
 
-    public:
-        explicit TrackProjector_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags,
-            TrackProjectorConfig cfg)
-        : JChainMultifactoryT<TrackProjectorConfig>(std::move(tag), input_tags, output_tags, cfg) {
-            DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
-        }
+private:
+    using AlgoT = eicrecon::TrackProjector;
+    std::unique_ptr<AlgoT> m_algo;
 
-        /** One time initialization **/
-        void Init() override;
+    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+    PodioOutput<edm4eic::TrackSegment> m_segments_output {this};
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
-    private:
-        eicrecon::TrackProjector m_track_projector_algo;
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->applyConfig(config());
+        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    }
 
-    };
+    void ChangeRun(int64_t run_number) {
+    }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_segments_output() = m_algo->execute(m_acts_trajectories_input());
+    }
+};
 
 } // eicrecon
