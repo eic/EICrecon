@@ -11,7 +11,6 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
-#include <algorithm>
 #include <cmath>
 
 #include "Beam.h"
