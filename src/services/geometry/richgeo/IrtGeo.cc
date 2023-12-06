@@ -13,7 +13,6 @@
 #include <fmt/core.h>
 #include <stdint.h>
 #include <cmath>
-#include <exception>
 #include <functional>
 #include <map>
 #include <utility>

@@ -1,15 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <algorithm>
-#include <cmath>
-#include <exception>
-
-#include "Beam.h"
-#include "Boost.h"
-#include "InclusiveKinematicsDA.h"
-
 #include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -18,6 +11,12 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
+#include <cmath>
+
+#include "Beam.h"
+#include "Boost.h"
+#include "InclusiveKinematicsDA.h"
 
 using ROOT::Math::PxPyPzEVector;
 

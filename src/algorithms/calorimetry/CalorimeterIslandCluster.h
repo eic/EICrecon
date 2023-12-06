@@ -14,7 +14,6 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <functional>
 #include <memory>
 #include <set>
