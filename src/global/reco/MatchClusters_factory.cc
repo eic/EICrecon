@@ -24,20 +24,6 @@ namespace eicrecon {
         InitLogger(GetApplication(), GetPrefix(), "info");
 
         m_match_algo.init(m_log);
-
-        // Set up association tags
-        for (const std::string& input_tag : GetInputTags()) {
-            // "EcalEndcapNClusters" => "EcalEndcapNClusterAssociations"
-            auto pos = input_tag.find("Clusters");
-
-            // Validate that our input collection names conform to this convention
-            if (pos == std::string::npos) {
-                throw std::runtime_error(fmt::format("input_tag=\"{}\" doesn't end with \"Clusters\"", input_tag));
-            }
-            std::string output_tag = input_tag;
-            output_tag.replace(pos, 8, "ClusterAssociations");
-            m_input_assoc_tags.push_back(output_tag);
-        }
     }
 
     void MatchClusters_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
