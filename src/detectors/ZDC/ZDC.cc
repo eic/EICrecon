@@ -14,6 +14,9 @@
 #include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "factories/calorimetry/HEXPLIT_factoryT.h"
+#include "factories/calorimetry/LogWeightReco_factoryT.h"
+
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -50,6 +53,37 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+	
+	app->Add(new JChainMultifactoryGeneratorT<HEXPLIT_factoryT>(
+          "ZDCSubcellHits", {"ZDCRecHits"}, {"ZDCSubcellHits"},
+          {
+            .layer_spacing=25.1*dd4hep::mm,
+            .side_length=31.3 *dd4hep::mm,
+            .MIP = 470. * dd4hep::keV,
+	    .Emin= 470./10 * dd4hep::keV,
+            .tmax=320 * dd4hep::ns,
+	    .rot_x=0,
+	    .rot_y=-0.25,
+	    .rot_z=0,
+	    .trans_x=0,
+	    .trans_y=0,
+	    .trans_z=36601 * dd4hep::mm,
+          },
+          app   // TODO: Remove me once fixed
+	));
+
+	app->Add(new JChainMultifactoryGeneratorT<LogWeightReco_factoryT>(
+	  "ZDCLogWeightClusters", {"ZDCSubcellHits"}, {"ZDCLogWeightClusters"},
+          {
+            .sampling_fraction=0.0203,
+            .E0=50. * dd4hep::GeV,
+            .w0_a=5.0,
+	    .w0_b=0.65,
+	    .w0_c=0.31,
+          },
+          app   // TODO: Remove me once fixed
+	));
+	
         app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
           "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed

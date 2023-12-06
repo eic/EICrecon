@@ -180,6 +180,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ZDCRawHits",
             "ZDCRecHits",
             "ZDCClusters",
+	    "ZDCSubcellHits",
+	    "ZDCLogWeightClusters",
             "ZDCClusterAssociations",
             "HcalEndcapNTruthClusters",
             "HcalEndcapNTruthClusterAssociations",
