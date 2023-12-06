@@ -19,20 +19,20 @@ class FarDetectorTrackerCluster_factory :
 public JOmniFactory<FarDetectorTrackerCluster_factory,FarDetectorTrackerClusterConfig> {
 
 private:
-    eicrecon::FarDetectorTrackerCluster m_algo;       
+    eicrecon::FarDetectorTrackerCluster m_algo;
 
     PodioInput<edm4eic::RawTrackerHit> m_hits_input    {this};
     PodioOutput<edm4hep::TrackerHit>   m_tracks_output {this};
 
     Service<DD4hep_service> m_geoSvc {this};
 
-    
+
     ParameterRef<std::string> readout     {this, "readout",     config().readout     };
     ParameterRef<std::string> moduleField {this, "moduleField", config().moduleField };
     ParameterRef<std::string> layerField  {this, "layerField",  config().layerField  };
     ParameterRef<std::string> xField      {this, "xField",      config().xField      };
     ParameterRef<std::string> yField      {this, "yField",      config().yField      };
-    
+
     ParameterRef<int> n_module {this, "n_module", config().n_module };
     ParameterRef<int> n_layer  {this, "n_layer",  config().n_layer  };
 

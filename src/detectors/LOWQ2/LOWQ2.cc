@@ -57,9 +57,9 @@ extern "C" {
         {"TaggerTrackerClusterPositions"},
         {"LowQ2Tracks"},
         {
-	  .readout = tracker_readout,
-	},
-	app
+          .readout = tracker_readout,
+        },
+        app
     ));
 
     // Reconstrution of tracks on common plane
@@ -68,16 +68,16 @@ extern "C" {
         {"LowQ2Tracks"},
         {"LowQ2Projections"},
         {},
-	app
+        app
     ));
 
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-	"LowQ2Trajectories",
+        "LowQ2Trajectories",
         {"LowQ2Projections"},
         {"LowQ2Trajectories","LowQ2TrackParameters"},
-	{},
-	app
+        {},
+        app
     ));
 
   }

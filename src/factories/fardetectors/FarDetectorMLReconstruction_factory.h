@@ -28,14 +28,14 @@ private:
     PodioOutput<edm4eic::Trajectory>      m_trajectory_output {this};
     PodioOutput<edm4eic::TrackParameters> m_trackparam_output {this};
 
-    
+
     ParameterRef<std::string> modelPath       {this, "modelPath",       config().modelPath       };
     ParameterRef<std::string> methodName      {this, "methodName",      config().methodName      };
     ParameterRef<std::string> fileName        {this, "fileName",        config().fileName        };
     ParameterRef<std::string> environmentPath {this, "environmentPath", config().environmentPath };
 
     ParameterRef<float> electron_beamE  {this, "electron_beamE",  config().electron_beamE };
-    
+
 
 public:
     void Configure() {

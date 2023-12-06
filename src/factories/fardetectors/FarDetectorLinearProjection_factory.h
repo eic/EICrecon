@@ -38,6 +38,6 @@ public JOmniFactory<FarDetectorLinearProjection_factory,FarDetectorLinearProject
     void Process(int64_t run_number, uint64_t event_number) {
         m_tracks_output() = m_algo.process(*m_hits_input());
     }
-  };    
+  };
 
 } // eicrecon
