@@ -11,7 +11,6 @@
 #include <spdlog/logger.h>
 #include <memory>
 #include <ranges>
-#include <stdexcept>
 
 #include "MatchClusters_factory.h"
 
