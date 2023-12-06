@@ -32,22 +32,18 @@ namespace eicrecon {
 
     void ParticlesWithPID::init(std::shared_ptr<spdlog::logger> logger) {
         m_log = logger;
-
     }
 
     ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
             const edm4eic::TrajectoryCollection* trajectories,
-            std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
+            const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
             ) {
 
-        // input collection
-
         /// Resulting reconstructed particles
-        ParticlesWithAssociation out_colls;
-        out_colls.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        out_colls.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-        out_colls.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
+        auto parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        auto assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+        auto pids   = std::make_unique<edm4hep::ParticleIDCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
@@ -140,7 +136,7 @@ namespace eicrecon {
                     }
                 }
             }
-            auto rec_part = out_colls.parts->create();
+            auto rec_part = parts->create();
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
             // float time          = 0;
@@ -169,18 +165,16 @@ namespace eicrecon {
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
             // link Cherenkov PID objects
-            for (const auto& cherenkov_pids : cherenkov_pid_collections) {
-                auto success = linkCherenkovPID(rec_part, *cherenkov_pids, *(out_colls.pids));
-                if (success)
-                    m_log->trace("      true PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
-                            best_pid,
-                            rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
-                            );
-            }
+            auto success = linkCherenkovPID(rec_part, *drich_cherenkov_pid_collections, *pids);
+            if (success)
+                m_log->trace("      true PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
+                        best_pid,
+                        rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
+                        );
 
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
-                auto rec_assoc = out_colls.assocs->create();
+                auto rec_assoc = assocs->create();
                 rec_assoc.setRecID(rec_part.getObjectID().index);
                 rec_assoc.setSimID((*mc_particles)[best_match].getObjectID().index);
                 rec_assoc.setWeight(1);
@@ -216,7 +210,7 @@ namespace eicrecon {
           }
         }
 
-        return out_colls;
+        return std::make_tuple(std::move(parts), std::move(assocs), std::move(pids));
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
