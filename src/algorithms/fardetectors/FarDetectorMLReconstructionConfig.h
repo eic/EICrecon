@@ -11,7 +11,7 @@ namespace eicrecon {
     std::string fileName{"LowQ2_DNN_CPU.weights.xml"};
     std::string environmentPath{"JANA_PLUGIN_PATH"};
 
-    double electron_beamE{10*dd4hep::GeV};
+    float electron_beamE{10*dd4hep::GeV};
 
   };
 }

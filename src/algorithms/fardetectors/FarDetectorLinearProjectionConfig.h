@@ -6,9 +6,9 @@
 namespace eicrecon {
   struct FarDetectorLinearProjectionConfig {
 
-    float plane_position[3]{0.0, 0.0, 0.0};
-    float plane_a[3]       {0.0, 1.0, 0.0};
-    float plane_b[3]       {0.0, 0.0, 1.0};
+    std::vector<float> plane_position = {0.0, 0.0, 0.0};
+    std::vector<float> plane_a        = {0.0, 1.0, 0.0};
+    std::vector<float> plane_b        = {0.0, 0.0, 1.0};
 
   };
 }

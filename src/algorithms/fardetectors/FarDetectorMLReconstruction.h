@@ -13,6 +13,8 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "FarDetectorMLReconstructionConfig.h"
 
+#include <spdlog/logger.h>
+
 
 namespace eicrecon {
 
@@ -24,18 +26,19 @@ namespace eicrecon {
   public:
 
       /** One time initialization **/
-      void init();
+      void init(std::shared_ptr<spdlog::logger>& logger);
 
       /** Event by event processing **/
       std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
         std::unique_ptr<edm4eic::TrackParametersCollection>
       >
-      produce(const edm4eic::TrackParametersCollection &inputtracks);
+      process(const edm4eic::TrackParametersCollection &inputtracks);
 
       //----- Define constants here ------
 
   private:
+      std::shared_ptr<spdlog::logger> m_log;
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
       float nnInput[4]      = {0.0,0.0,0.0,0.0};

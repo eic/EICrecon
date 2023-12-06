@@ -7,16 +7,13 @@
 #include <JANA/JApplication.h>
 #include <string>
 
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
-#include "factories/fardetectors/FarDetectorLinearTracking_factoryT.h"
-#include "factories/fardetectors/FarDetectorLinearProjection_factoryT.h"
-#include "factories/fardetectors/FarDetectorMLReconstruction_factoryT.h"
-
-#include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
+#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -24,17 +21,12 @@ extern "C" {
 
     using namespace eicrecon;
 
-    //Clustering config
-    FarDetectorTrackerClusterConfig cluster_cfg;
-    //Ensure same detector is passed to digi and clustering
-    cluster_cfg.readout = "TaggerTrackerHits";
+    std::string tracker_readout = "TaggerTrackerHits";
 
-    FarDetectorLinearTrackingConfig tracking_cfg;
-    tracking_cfg.readout = cluster_cfg.readout;
 
-    FarDetectorLinearProjectionConfig projection_cfg;
+//     FarDetectorLinearProjectionConfig projection_cfg;
 
-    FarDetectorMLReconstructionConfig recon_cfg;
+//     FarDetectorMLReconstructionConfig recon_cfg;
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -49,24 +41,44 @@ extern "C" {
     ));
 
     // Clustering of hits
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
         "TaggerTrackerClusterPositions",
         {"TaggerTrackerRawHits"},
         {"TaggerTrackerClusterPositions"},
         {
-          .readout = "TaggerTrackerHits"
+          .readout = tracker_readout,
         },
         app
     ));
 
     // Reconstrution of tracks on common plane
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factoryT>("LowQ2Tracks",{"TaggerTrackerClusterPositions"},{"LowQ2Tracks"}, tracking_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
+        "LowQ2Tracks",
+        {"TaggerTrackerClusterPositions"},
+        {"LowQ2Tracks"},
+        {
+	  .readout = tracker_readout,
+	},
+	app
+    ));
 
     // Reconstrution of tracks on common plane
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factoryT>("LowQ2Projections",{"LowQ2Tracks"},{"LowQ2Projections"}, projection_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+        "LowQ2Projections",
+        {"LowQ2Tracks"},
+        {"LowQ2Projections"},
+        {},
+	app
+    ));
 
     // Vector reconstruction at origin
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factoryT>("LowQ2Trajectories",{"LowQ2Projections"},{"LowQ2Trajectories","LowQ2TrackParameters"}, recon_cfg, app));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+	"LowQ2Trajectories",
+        {"LowQ2Projections"},
+        {"LowQ2Trajectories","LowQ2TrackParameters"},
+	{},
+	app
+    ));
 
   }
 }

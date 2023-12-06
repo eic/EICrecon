@@ -4,6 +4,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include <filesystem>
 
@@ -14,7 +15,9 @@
 namespace eicrecon {
 
 
-  void FarDetectorMLReconstruction::init() {
+  void FarDetectorMLReconstruction::init(std::shared_ptr<spdlog::logger>& logger) {
+
+    m_log      = logger;
 
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
@@ -72,7 +75,7 @@ namespace eicrecon {
     std::unique_ptr<edm4eic::TrajectoryCollection>,
     std::unique_ptr<edm4eic::TrackParametersCollection>
   >
-  FarDetectorMLReconstruction::produce(const edm4eic::TrackParametersCollection &inputtracks) {
+  FarDetectorMLReconstruction::process(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
     auto outputFarDetectorMLTrajectories    = std::make_unique<edm4eic::TrajectoryCollection>();

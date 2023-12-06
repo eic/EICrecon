@@ -28,7 +28,7 @@ namespace eicrecon {
 
     }
 
-    std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearProjection::produce(const edm4eic::TrackSegmentCollection &inputSegments) {
+    std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearProjection::process(const edm4eic::TrackSegmentCollection &inputSegments) {
 
       auto outputTracks = std::make_unique<edm4eic::TrackParametersCollection>();
 

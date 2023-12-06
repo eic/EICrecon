@@ -24,7 +24,7 @@ namespace eicrecon {
         void init(std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
-        std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4eic::TrackSegmentCollection &inputhits);
+        std::unique_ptr<edm4eic::TrackParametersCollection> process(const edm4eic::TrackSegmentCollection &inputhits);
 
 
     private:
