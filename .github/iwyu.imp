@@ -14,7 +14,7 @@
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
 
   # Eigen
-  { include: ['@<Eigen/(src/)?(.*)/.*>', private, '<Eigen/$2>', public] },
+  { include: ['@<Eigen/(src/)?(.*?)/.*>', private, '<Eigen/$2>', public] },
   { include: ['@<Eigen/src/plugins/.*>', private, '<Eigen/Core>', public] },
   { include: ['@"src/(.*)/.*"', private, '<Eigen/$1>', public] },
   { include: ['@"src/plugins/.*"', private, '<Eigen/Core>', public] },
