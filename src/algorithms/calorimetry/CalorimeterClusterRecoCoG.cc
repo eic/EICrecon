@@ -12,9 +12,9 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
