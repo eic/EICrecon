@@ -144,14 +144,14 @@ jobs:
       run: tar -xaf build.tar.zst
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
-      if: ${{ github.event_name == 'pull_request' }}
+      if: false
       with:
         platform-release: "${{ env.platform-release }}"
         run: |
           git diff ${{github.event.pull_request.base.sha}} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
-      if: ${{ github.event_name == 'push' }}
+      if: true
       with:
         platform-release: "${{ env.platform-release }}"
         run: |
@@ -172,7 +172,7 @@ jobs:
         suggestions_per_comment: 10
     - name: Run include-what-you-use (iwyu) on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
-      if: false
+      if: ${{ github.event_name == 'pull_request' }}
       with:
         platform-release: "${{ env.platform-release }}"
         run: |
@@ -186,7 +186,7 @@ jobs:
           done
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
-      if: true
+      if: ${{ github.event_name == 'push' }}
       with:
         platform-release: "${{ env.platform-release }}"
         run: |
