@@ -9,7 +9,6 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -19,38 +18,40 @@
 
 #include "algorithms/pid/ParticlesWithPID.h"
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 
 namespace eicrecon {
 
-    class ParticlesWithPID_factory :
-            public JChainMultifactoryT<ParticlesWithPIDConfig>,
-            public SpdlogMixin {
+class ParticlesWithPID_factory : public JOmniFactory<ParticlesWithPID_factory, ParticlesWithPIDConfig> {
 
-    public:
-        explicit ParticlesWithPID_factory( std::string tag,
-                                                const std::vector<std::string>& input_tags,
-                                                const std::vector<std::string>& output_tags,
-                                                ParticlesWithPIDConfig cfg):
-            JChainMultifactoryT<ParticlesWithPIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
+private:
+    ParticlesWithPID m_algo;
 
-            if (GetOutputTags().size() != 3)
-              throw JException("incorrect number of input tags");
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags().at(0));
-            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags().at(1));
-            DeclarePodioOutput<edm4hep::ParticleID>(GetOutputTags().at(2));
-        }
+    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+    PodioInput<edm4eic::Trajectory> m_trajectories_input {this};
+    PodioInput<edm4eic::CherenkovParticleID> m_drich_particle_id_input {this};
 
-        /** One time initialization **/
-        void Init() override;
+    PodioOutput<edm4eic::ReconstructedParticle> m_particles_output {this};
+    PodioOutput<edm4eic::MCRecoParticleAssociation> m_particles_assoc_output {this};
+    PodioOutput<edm4hep::ParticleID> m_particle_id_output {this};
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+    ParameterRef<double> m_momentumRelativeTolerance {this, "momentumRelativeTolerance", config().momentumRelativeTolerance};
+    ParameterRef<double> m_phiTolerance {this, "phiTolerance", config().phiTolerance};
+    ParameterRef<double> m_etaTolerance {this, "etaTolerance", config().etaTolerance};
 
-    private:
-        eicrecon::ParticlesWithPID m_matching_algo;
-    };
+public:
+    void Configure() {
+        m_algo.applyConfig(config());
+        m_algo.init(logger());
+    }
+
+    void ChangeRun(int64_t run_number) {
+    }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        std::tie(m_particles_output(), m_particles_assoc_output(), m_particle_id_output()) = m_algo.process(m_mc_particles_input(), m_trajectories_input(), m_drich_particle_id_input());
+    }
+};
 
 } // eicrecon

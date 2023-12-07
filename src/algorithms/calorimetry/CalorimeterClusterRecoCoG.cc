@@ -8,7 +8,9 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
+#include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -20,15 +22,12 @@
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <Evaluator/DD4hepUnits.h>
 #include <cctype>
-#include <exception>
+#include <complex>
 #include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"

@@ -3,7 +3,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
 #include <map>
 #include <string>
 #include <utility>
@@ -13,7 +12,6 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
-#include "extensions/jana/JChainFactoryGeneratorT.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
@@ -118,9 +116,12 @@ extern "C" {
           track_cfg,
           app
           ));
-    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<MergeTrack_factory>(
+          "DRICHMergedTracks",
           {"DRICHAerogelTracks", "DRICHGasTracks"},
-          "DRICHMergedTracks"
+          {"DRICHMergedTracks"},
+          {},
+          app
           ));
 
     // PID algorithm
@@ -137,10 +138,12 @@ extern "C" {
           ));
 
     // merge aerogel and gas PID results
-    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+    app->Add(new JChainMultifactoryGeneratorT<MergeCherenkovParticleID_factory>(
           "DRICHMergedIrtCherenkovParticleID",
-          merge_cfg
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          {"DRICHMergedIrtCherenkovParticleID"},
+          merge_cfg,
+          app
           ));
 
     // clang-format on

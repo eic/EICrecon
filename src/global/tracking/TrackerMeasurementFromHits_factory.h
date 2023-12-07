@@ -5,11 +5,8 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
-#include <edm4eic/Measurement2D.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <spdlog/logger.h>
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -19,31 +16,38 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JOmniFactory.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
-    class TrackerMeasurementFromHits_factory : public JChainFactoryT<edm4eic::Measurement2D, NoConfig>{
+class TrackerMeasurementFromHits_factory :
+        public JOmniFactory<TrackerMeasurementFromHits_factory> {
 
-    public:
-        TrackerMeasurementFromHits_factory( std::vector<std::string> default_input_tags):
-                JChainFactoryT<edm4eic::Measurement2D, NoConfig>(std::move(default_input_tags) ) {
-        }
+private:
+    using AlgoT = eicrecon::TrackerMeasurementFromHits;
+    std::unique_ptr<AlgoT> m_algo;
 
-        /** One time initialization **/
-        void Init() override;
+    PodioInput<edm4eic::TrackerHit> m_hits_input {this};
+    PodioOutput<edm4eic::Measurement2D> m_measurements_output {this};
 
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+    Service<DD4hep_service> m_DD4hepSvc {this};
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->init(m_DD4hepSvc().detector(), m_DD4hepSvc().converter(), m_ACTSGeoSvc().actsGeoProvider(), logger());
+    }
 
-    private:
+    void ChangeRun(int64_t run_number) {
+    }
 
-        std::shared_ptr<spdlog::logger> m_log;              /// Logger for this factory
-        std::vector<std::string> m_input_tags;              /// Tags of factories that provide input data
-        eicrecon::TrackerMeasurementFromHits m_measurement;      /// Tracker measurement algorithm
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_measurements_output() = m_algo->produce(*m_hits_input());
+    }
+};
 
 } // eicrecon

@@ -9,14 +9,14 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factoryT.h"
 #include "factories/calorimetry/LogWeightReco_factoryT.h"
-
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -25,8 +25,8 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-         "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+          "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -38,7 +38,8 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "ZDCRecHits", {"ZDCRawHits"}, {"ZDCRecHits"},
           {
             .capADC = 32678,
@@ -84,11 +85,11 @@ extern "C" {
           app   // TODO: Remove me once fixed
 	));
 	
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "ZDCIslandProtoClusters", {"ZDCRecHits"}, {"ZDCIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
@@ -103,8 +104,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "ZDCTruthClusters",
             {"ZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "ZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -120,8 +120,7 @@ extern "C" {
           )
         );
 
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "ZDCClusters",
             {"ZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "ZDCHits"},                // edm4hep::SimCalorimeterHitCollection

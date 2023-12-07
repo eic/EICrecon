@@ -25,6 +25,13 @@ macro(plugin_add _name)
     # Include JANA by default
     find_package(JANA REQUIRED)
 
+    # TODO: NWB: This really needs to be a dependency of JANA itself.
+    # If we don't do this here, CMake will later refuse to accept that podio is
+    # indeed a dependency of JANA and aggressively reorders my target_link_list
+    # to reflect this misapprehension.
+    # https://gitlab.kitware.com/cmake/cmake/blob/v3.13.2/Source/cmComputeLinkDepends.cxx
+    find_package(podio REQUIRED)
+
     # include logging by default
     find_package(spdlog REQUIRED)
 
@@ -42,8 +49,7 @@ macro(plugin_add _name)
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
         set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-        target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
-        target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog fmt::fmt)
         target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
         # Install plugin
@@ -63,8 +69,8 @@ macro(plugin_add _name)
 
         target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
-        target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog)
+        target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO fmt::fmt)
         target_link_libraries(${_name}_library Microsoft.GSL::GSL)
 
         # Install plugin
@@ -156,23 +162,19 @@ macro(plugin_glob_all _name)
         # Remove plugin.cc file from libraries
         list(REMOVE_ITEM LIB_SRC_FILES ${PLUGIN_CC_FILE_ABS})
 
-        # >oO Debug output if needed
-        if(${EICRECON_VERBOSE_CMAKE})
-            message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-        endif()
+        # Debug output if needed
+        message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
 
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
     endif()     # WITH_LIBRARY
 
-    # >oO Debug output if needed
-    if(${EICRECON_VERBOSE_CMAKE})
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
-        message(STATUS "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
-        message(STATUS "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
-    endif()
+    # Debug output if needed
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
+    message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: HEADER_FILES     ${HEADER_FILES}")
+    message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
 
 endmacro()
 
