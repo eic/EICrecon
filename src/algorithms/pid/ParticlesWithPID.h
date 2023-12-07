@@ -12,7 +12,7 @@
 #include <edm4hep/ParticleIDCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
+#include <tuple>
 
 #include "ParticlesWithPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
