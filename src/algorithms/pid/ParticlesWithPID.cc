@@ -17,10 +17,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <limits>
 #include <map>
 #include <mutex>
+#include <utility>
+#include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
