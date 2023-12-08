@@ -74,7 +74,7 @@ extern "C" {
 	));
 
 	app->Add(new JChainMultifactoryGeneratorT<LogWeightReco_factoryT>(
-	  "ZDCLogWeightClusters", {"ZDCSubcellHits"}, {"ZDCLogWeightClusters"},
+	  "ZDC_HEXPLITClusters", {"ZDCSubcellHits"}, {"ZDC_HEXPLITClusters"},
           {
             .sampling_fraction=0.0203,
             .E0=50. * dd4hep::GeV,
