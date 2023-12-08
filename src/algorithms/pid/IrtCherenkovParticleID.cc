@@ -91,7 +91,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
       auto cfg_rad = cfg_rad_it->second;
       // pass `cfg_rad` params to `irt_rad`, the IRT radiator
       irt_rad->m_ID = Tools::GetRadiatorID(std::string(rad_name));
-      irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
+      // irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
       irt_rad->SetReferenceRefractiveIndex(cfg_rad.referenceRIndex);
       if(cfg_rad.attenuation>0)
         irt_rad->SetReferenceAttenuationLength(cfg_rad.attenuation);

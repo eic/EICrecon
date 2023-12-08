@@ -76,10 +76,11 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   auto filterMaterial   = m_det->constant<std::string>("DRICH_filter_material");
   m_aerogelFlatSurface  = new FlatSurface(TVector3(0, 0, aerogelZpos), normX, normY);
   m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos),  normX, normY);
-  for (int isec = 0; isec < nSectors; isec++) {
+  for (int isec = 0; isec < nSectors; isec++) {    
     auto *aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,                  // Cherenkov detector
         RadiatorName(kAerogel).c_str(), // name
+	CherenkovDetector::Upstream,    // where? up- or downstream
         isec,                           // path
         (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                        // G4RadiatorMaterial
@@ -89,6 +90,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     auto *filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
         m_irtDetector,           // Cherenkov detector
         "Filter",                // name
+	CherenkovDetector::Upstream,    // where? up- or downstream
         isec,                    // path
         (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                 // G4RadiatorMaterial
@@ -119,7 +121,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_mirrorSphericalSurface,            // surface
         false                                // bool refractive
         );
-    m_irtDetector->AddOpticalBoundary(isec, m_mirrorOpticalBoundary);
+    m_irtDetector->AddOpticalBoundary(	CherenkovDetector::Upstream, isec, m_mirrorOpticalBoundary);
     m_log->debug("");
     m_log->debug("  SECTOR {:d} MIRROR:", isec);
     m_log->debug("    mirror x = {:f} mm", mirrorCenter.x());

@@ -79,6 +79,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   auto *aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,                  // Cherenkov detector
       RadiatorName(kAerogel).c_str(), // name
+      CherenkovDetector::Upstream,    // where? up- or downstream
       0,                              // path
       (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                        // G4RadiatorMaterial
@@ -88,6 +89,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   auto *filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
       m_irtDetector,           // Cherenkov detector
       "Filter",                // name
+      CherenkovDetector::Upstream,    // where? up- or downstream
       0,                       // path
       (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                 // G4RadiatorMaterial

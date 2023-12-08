@@ -9,6 +9,7 @@
 #include <IRT/CherenkovPhotonDetector.h>
 #include <IRT/OpticalBoundary.h>
 #include <IRT/ParametricSurface.h>
+#include <IRT/SphericalSurface.h>
 #include <TVector3.h>
 #include <spdlog/logger.h>
 #include <gsl/pointers>
