@@ -37,13 +37,9 @@ namespace eicrecon {
     m_detector = detector;
   }
 
-
-  
-  //void subcell_reweight(TTreeReaderArray<float>&E,TTreeReaderArray<float>&t,TTreeReaderArray<float>&x,TTreeReaderArray<float>&y,TTreeReaderArray<float>&z, //number of hits, energies, time, and local x,y,z positions of the hits
-  //		      vector<double> & subcellE, vector<double>& subcellx, vector<double> & subcelly, vector<double> & subcellz,  //returned position of the cluster
-  //		  hexplit_opts opts) {
   std::unique_ptr<edm4eic::ClusterCollection> LogWeightReco::process(const edm4eic::CalorimeterHitCollection &hits){  
-    
+
+    double E0=m_cfg.E0/dd4hep::GeV;
     //first determine the total energy of the particle and of the shower
     double E_recon=0;
     double E_shower=0;
@@ -72,7 +68,6 @@ namespace eicrecon {
     auto outputClusters = std::make_unique<edm4eic::ClusterCollection>();
 
     edm4hep::Vector3f position(x_recon, y_recon, z_recon);
-    //auto cluster = new edm4eic::Cluster(
     auto clus = outputClusters->create();
 
     clus.setEnergy(E_recon);

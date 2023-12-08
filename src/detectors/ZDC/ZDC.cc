@@ -63,12 +63,12 @@ extern "C" {
             .MIP = 470. * dd4hep::keV,
 	    .Emin= 470./10 * dd4hep::keV,
             .tmax=320 * dd4hep::ns,
-	    .rot_x=0,
-	    .rot_y=-0.25,
-	    .rot_z=0,
 	    .trans_x=0,
-	    .trans_y=0,
-	    .trans_z=36601 * dd4hep::mm,
+            .trans_y=0,
+            .trans_z=36601 * dd4hep::mm,
+	    .rot_x=0,
+	    .rot_y=-0.025,
+	    .rot_z=0,
           },
           app   // TODO: Remove me once fixed
 	));

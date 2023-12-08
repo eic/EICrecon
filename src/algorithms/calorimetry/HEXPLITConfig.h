@@ -10,15 +10,15 @@ namespace eicrecon {
     double                   layer_spacing{24.9};
     double                   side_length{31.3};
     double                   MIP{0.000472};
-    double                   Emin{0.0000472};
-    double                   tmax{325};
-    //conversion from local to global coordinates
+    double                   Emin{0.0000472*dd4hep::GeV};
+    double                   tmax{325*dd4hep::ns};
+    //conversion from local to global coordinates.  translate first, then rotate
+    double                   trans_x{0};
+    double                   trans_y{0};
+    double                   trans_z{0};
     double                   rot_x{0};
     double    	      	     rot_y{0};
     double    	      	     rot_z{0};
-    double    	      	     trans_x{0};
-    double    	      	     trans_y{0};
-    double    	      	     trans_z{0};
   };
 
 } // eicrecon

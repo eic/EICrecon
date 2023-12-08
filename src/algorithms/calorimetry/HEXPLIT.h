@@ -55,9 +55,9 @@ namespace eicrecon {
 
 //positions of the centers of subcells
     double subcell_offsets_x[12]={0.75*cos(0), 0.75*cos(M_PI/3), 0.75*cos(2*M_PI/3), 0.75*cos(3*M_PI/3), 0.75*cos(4*M_PI/3), 0.75*cos(5*M_PI/3),
-                            -sqrt(3)/4*cos(0),-sqrt(3)/4*cos(M_PI/3),-sqrt(3)/4*cos(2*M_PI/3),-sqrt(3)/4*cos(3*M_PI/3),-sqrt(3)/4*cos(4*M_PI/3),-sqrt(3)/4*cos(5*M_PI/3)};
+                            -sqrt(3)/4*sin(0),-sqrt(3)/4*sin(M_PI/3),-sqrt(3)/4*sin(2*M_PI/3),-sqrt(3)/4*sin(3*M_PI/3),-sqrt(3)/4*sin(4*M_PI/3),-sqrt(3)/4*sin(5*M_PI/3)};
     double subcell_offsets_y[12]={0.75*sin(0), 0.75*sin(M_PI/3), 0.75*sin(2*M_PI/3), 0.75*sin(3*M_PI/3), 0.75*sin(4*M_PI/3), 0.75*sin(5*M_PI/3),
-                             sqrt(3)/4*sin(0), sqrt(3)/4*sin(M_PI/3), sqrt(3)/4*sin(2*M_PI/3), sqrt(3)/4*sin(3*M_PI/3), sqrt(3)/4*sin(4*M_PI/3), sqrt(3)/4*sin(5*M_PI/3)};
+                             sqrt(3)/4*cos(0), sqrt(3)/4*cos(M_PI/3), sqrt(3)/4*cos(2*M_PI/3), sqrt(3)/4*cos(3*M_PI/3), sqrt(3)/4*cos(4*M_PI/3), sqrt(3)/4*cos(5*M_PI/3)};
 
   private:
     const dd4hep::Detector* m_detector;
