@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov2f.h>
@@ -19,7 +18,6 @@
 #include <spdlog/logger.h>
 #include <stdint.h>
 #include <cmath>
-#include <exception>
 #include <iterator>
 #include <utility>
 

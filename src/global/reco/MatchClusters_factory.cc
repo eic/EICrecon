@@ -9,7 +9,6 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
-#include <exception>
 #include <memory>
 #include <stdexcept>
 

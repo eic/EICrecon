@@ -12,7 +12,6 @@
 #include <spdlog/common.h>
 #include <stdlib.h>
 #include <cmath>
-#include <exception>
 #include <limits>
 #include <memory>
 #include <utility>

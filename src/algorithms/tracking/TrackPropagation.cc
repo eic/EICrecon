@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
+#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -20,13 +21,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <cmath>
 #include <exception>
 #include <iterator>
 #include <optional>
+#include <tuple>
 #include <typeinfo>
 #include <utility>
-#include <variant>
 
 #include "ActsGeometryProvider.h"
 #include "TrackPropagation.h"

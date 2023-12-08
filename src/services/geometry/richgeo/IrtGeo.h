@@ -11,6 +11,8 @@
 #include <DDRec/DetectorData.h>
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
