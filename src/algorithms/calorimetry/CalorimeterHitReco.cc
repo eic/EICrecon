@@ -114,7 +114,7 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
     // local detector name has higher priority
     if (!m_cfg.localDetElement.empty()) {
         try {
-            local = m_detector->detector(m_cfg.localDetElement);
+            m_local = m_detector->detector(m_cfg.localDetElement);
             m_log->info("local coordinate system from DetElement {}", m_cfg.localDetElement);
         } catch (...) {
             m_log->error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
@@ -131,13 +131,15 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
             local_mask = ~static_cast<decltype(local_mask)>(0);
         }
     }
-
-    return;
 }
 
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(const edm4hep::RawCalorimeterHitCollection &rawhits) {
-    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+void CalorimeterHitReco::process(
+      const CalorimeterHitReco::Input& input,
+      const CalorimeterHitReco::Output& output) const {
+
+    const auto [rawhits] = input;
+    auto [recohits] = output;
 
     // For some detectors, the cellID in the raw hits may be broken
     // (currently this is the HcalBarrel). In this case, dd4hep
@@ -147,9 +149,9 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
+    if (NcellIDerrors >= MaxCellIDerrors) return;
 
-    for (const auto &rh: rawhits) {
+    for (const auto &rh: *rawhits) {
 
         //did not pass the zero-suppresion threshold
         const auto cellID = rh.getCellID();
@@ -180,6 +182,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
         const float time = rh.getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
 
+        dd4hep::DetElement local;
         dd4hep::Position gpos;
         try {
             // global positions
@@ -210,6 +213,8 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             if (m_cfg.localDetElement.empty()) {
                 auto volman = m_detector->volumeManager();
                 local = volman.lookupDetElement(cellID & local_mask);
+            } else {
+                local = m_local;
             }
         } catch (...) {
             // Error looking up cellID. Messages should already have been printed.
@@ -268,8 +273,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             lid,
             local_position);
     }
-
-    return recohits;
 }
 
 } // namespace eicrecon
