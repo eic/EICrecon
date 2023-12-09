@@ -12,6 +12,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <spdlog/logger.h>
 #include <stdint.h>
@@ -22,11 +23,28 @@
 
 namespace eicrecon {
 
-  class CalorimeterHitsMerger : public WithPodConfig<CalorimeterHitsMergerConfig>  {
+  using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::CalorimeterHitCollection
+    >
+  >;
+
+  class CalorimeterHitsMerger
+  : public CalorimeterHitsMergerAlgorithm,
+    public WithPodConfig<CalorimeterHitsMergerConfig> {
 
   public:
+    CalorimeterHitsMerger(std::string_view name)
+      : CalorimeterHitsMergerAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputHitCollection"},
+                            "Group readout hits from a calorimeter."} {}
+
     void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &input);
+    void process(const Input&, const Output&) const final;
 
   private:
     uint64_t id_mask{0}, ref_mask{0};

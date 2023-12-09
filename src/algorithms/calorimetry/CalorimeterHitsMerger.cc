@@ -63,13 +63,17 @@ void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep:
     m_log->debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
 }
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::process(const edm4eic::CalorimeterHitCollection &input) {
-    auto output = std::make_unique<edm4eic::CalorimeterHitCollection>();
+void CalorimeterHitsMerger::process(
+      const CalorimeterHitsMerger::Input& input,
+      const CalorimeterHitsMerger::Output& output) const {
+
+    const auto [in_hits] = input;
+    auto [out_hits] = output;
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
     std::size_t ix = 0;
-    for (const auto &h : input) {
+    for (const auto &h : *in_hits) {
         uint64_t id = h.getCellID() & id_mask;
         merge_map[id].push_back(ix);
 
@@ -79,7 +83,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
     // sort hits by energy from large to small
     for (auto &it : merge_map) {
         std::sort(it.second.begin(), it.second.end(), [&](std::size_t ix1, std::size_t ix2) {
-            return input[ix1].getEnergy() > input[ix2].getEnergy();
+            return (*in_hits)[ix1].getEnergy() > (*in_hits)[ix2].getEnergy();
         });
     }
 
@@ -102,7 +106,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
         float time = 0;
         float timeError = 0;
         for (auto ix : ixs) {
-            auto hit = input[ix];
+            auto hit = (*in_hits)[ix];
             energy += hit.getEnergy();
             energyError += hit.getEnergyError() * hit.getEnergyError();
             time += hit.getTime();
@@ -112,7 +116,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
         time /= ixs.size();
         timeError = sqrt(timeError) / ixs.size();
 
-        const auto href = input[ixs.front()];
+        const auto href = (*in_hits)[ixs.front()];
 
         // create const vectors for passing to hit initializer list
         const decltype(edm4eic::CalorimeterHitData::position) position(
@@ -122,7 +126,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
                 pos.x(), pos.y(), pos.z()
         );
 
-        output->create(
+        out_hits->create(
                         href.getCellID(),
                         energy,
                         energyError,
@@ -135,9 +139,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
                         local); // Can do better here? Right now position is mapped on the central hit
     }
 
-    m_log->debug("Size before = {}, after = {}", input.size(), output->size());
-
-    return output;
+    m_log->debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
 
 } // namespace eicrecon
