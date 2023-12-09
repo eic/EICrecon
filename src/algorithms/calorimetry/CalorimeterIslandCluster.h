@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/Vector2f.h>
@@ -26,15 +27,34 @@ namespace eicrecon {
 
   using CaloHit = edm4eic::CalorimeterHit;
 
-  class CalorimeterIslandCluster : public WithPodConfig<CalorimeterIslandClusterConfig> {
+  using CalorimeterIslandClusterAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ProtoClusterCollection
+    >
+  >;
+
+  class CalorimeterIslandCluster
+  : public CalorimeterIslandClusterAlgorithm,
+    public WithPodConfig<CalorimeterIslandClusterConfig> {
+
+  public:
+    CalorimeterIslandCluster(std::string_view name)
+      : CalorimeterIslandClusterAlgorithm{name,
+                            {"inputProtoClusterCollection"},
+                            {"outputClusterCollection"},
+                            "Island clustering."} {}
+
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
   private:
     const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits);
 
     // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)> hitsDist;

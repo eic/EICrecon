@@ -217,15 +217,21 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
 }
 
 
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::process(const edm4eic::CalorimeterHitCollection &hits) {
+void CalorimeterIslandCluster::process(
+      const CalorimeterIslandCluster::Input& input,
+      const CalorimeterIslandCluster::Output& output) const {
+
+    const auto [hits] = input;
+    auto [proto_clusters] = output;
+
     // group neighboring hits
     std::vector<std::set<std::size_t>> groups;
 
-    std::vector<bool> visits(hits.size(), false);
-    for (size_t i = 0; i < hits.size(); ++i) {
+    std::vector<bool> visits(hits->size(), false);
+    for (size_t i = 0; i < hits->size(); ++i) {
 
       {
-        const auto& hit = hits[i];
+        const auto& hit = (*hits)[i];
         m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
       }
       // already in a group
@@ -234,23 +240,18 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::proce
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      bfs_group(hits, groups.back(), i, visits);
+      bfs_group(*hits, groups.back(), i, visits);
     }
-
-    auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();
 
     for (auto& group : groups) {
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(hits, group, !m_cfg.splitCluster);
-      split_group(hits, group, maxima, protoClusters.get());
+      auto maxima = find_maxima(*hits, group, !m_cfg.splitCluster);
+      split_group(*hits, group, maxima, proto_clusters);
 
       m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
-
-    return protoClusters;
-
 }
 
 } // namespace eicrecon
