@@ -18,6 +18,8 @@
 #include <functional>
 #include <memory>
 #include <set>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "CalorimeterIslandClusterConfig.h"

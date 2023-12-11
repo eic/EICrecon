@@ -13,6 +13,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <algorithm>
+#include <gsl/pointers>
 #include <map>
 #include <set>
 #include <sstream>
