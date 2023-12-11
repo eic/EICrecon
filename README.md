@@ -21,13 +21,13 @@ A tutorial on JANA2 is available
 
 ### Compilation
 
-To configure, build, and install the geometry (to the `install` directory), use the following commands:
+To configure, build, and install (to the `install` directory), use the following commands:
 ```bash
 cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install
 cmake --build build
 cmake --install build
 ```
-To load the geometry, you can use the scripts in the `install` directory:
+To load, you can use the scripts in the `install` directory:
 ```bash
 source install/bin/eicrecon-this.sh
 ```
