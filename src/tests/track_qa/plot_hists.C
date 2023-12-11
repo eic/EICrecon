@@ -43,7 +43,7 @@ double** makeDGFits(TH1* hist, double** fit_widths, int i, double param0=20., do
 	dgfit->SetParLimits(5,0.,0.2);	
 	dgfit->SetParNames("Constant 1","Mean 1","Sigma 1","Constant 2","Mean 2","Sigma 2");
 
-	TFitResultPtr r1 = hist->Fit("dgfit", "RLMSIN");
+	// TFitResultPtr r1 = hist->Fit("dgfit", "RLMSIN");
 	double sigma1 = dgfit->GetParameter(2);
 	double sigma2 = dgfit->GetParameter(5);
 
@@ -78,6 +78,7 @@ double** makeDGFits(TH1* hist, double** fit_widths, int i, double param0=20., do
 	}
 
 	double FWHM = fwhm_right - fwhm_left;
+	cout << "FWHM left " << fwhm_left << " FWHM right " << fwhm_right << endl;
 
 	// double max = dgfit->GetMaximum();
 	// double x_maximum = dgfit->GetMaximumX();
@@ -86,7 +87,7 @@ double** makeDGFits(TH1* hist, double** fit_widths, int i, double param0=20., do
 	// double FWHM = fwhm_right - fwhm_left;
 	const char* fwhm = to_string(FWHM).c_str();
 	TPaveText* Pt2 = makeTexLabel(Form("%s%.4f", "FWHM = ", FWHM), 0.55, 0.65, 0.8, 0.8, 8);
-	// makeTexLabel(Form("FWHM = %.4f", fwhm_right - fwhm_left), 0.6, 0.62, 0.8, 0.72, 8)->Draw();
+	makeTexLabel(Form("FWHM = %.4f", fwhm_right - fwhm_left), 0.6, 0.62, 0.8, 0.72, 8)->Draw();
 	//Pt2->Draw();
 
 
@@ -132,7 +133,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 				TString output_fname = "plot_hists_brycecanyon_etarange_flat_thresh5keV.pdf"){
 	// Variables that the user should specify
 	input_fname = "eicrecon.root"; 
-	output_fname = "plot_hists_brycecanyon_realistic_seeding.pdf"; //"plot_hists_etarange_flat.pdf";
+	output_fname = "plots/plot_hists_brycecanyon_truth_seeding.pdf"; //"plot_hists_etarange_flat.pdf";
 
 	//Define Style
 	gStyle->SetOptStat(0);
@@ -284,7 +285,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		htrackstate_z[i] = (TH1*) f->Get(Form("track_qa/residuals/htrackstate_z_%d", vollay_arr[i]));
 		htrackstate_r_vs_z[i] = (TH2*) f->Get(Form("track_qa/residuals/htrackstate_r_vs_z_%d", vollay_arr[i]));
 		hresiduals_vollaybins[i] = (TH1*) f->Get(Form("track_qa/residuals/hresiduals_vollaybins_%d", vollay_arr[i]));
-		printf("%d\n", hresiduals_vollaybins[i]);
+		// printf("%d\n", hresiduals_vollaybins[i]);
 
 		int layID = vollay_arr[i] % 10;
 		int volID = floor(vollay_arr[i] / 10);
@@ -380,7 +381,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 	htracks_vs_eta->Draw("colz");
 
 	c1[11] = new TCanvas("c11","c11");
-	heta_vs_p_vs_chi2->Draw("lego2");
+	// heta_vs_p_vs_chi2->Draw("lego2");
 
 	c1[12] = new TCanvas("c12","c12");
 	hmeasptrack_vs_eta->Draw("colz");
@@ -606,6 +607,7 @@ void plot_hists(TString input_fname = "eicrecon_plugin_brycecanyon_etarange_flat
 		
 
 		fit_widths[i] = new double[3];
+		cout << hresiduals_vollaybins[i+2] << endl;
 		if (c1_params[i] == -1){
 			fit_widths = makeDGFits(hresiduals_vollaybins[i+2], fit_widths, i);
 		} else {

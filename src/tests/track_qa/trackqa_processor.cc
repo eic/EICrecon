@@ -196,7 +196,7 @@ void trackqa_processor::Init()
 
     const int n_eta_bins = 16;
     TVectorT<double> V_eta_edges(n_eta_bins+1);
-    printf("%d", V_eta_edges[0]);
+    // printf("%d", V_eta_edges[0]);
     //use 0.5i-4 to get lowerbound and 0.5i-3.5 to get upper bound
     for (int i=0; i<n_eta_bins; i++){
         double low_eta = 0.5*i-4;
@@ -235,7 +235,7 @@ void trackqa_processor::Init()
     // hchi2_vs_hits_etabins->SetDirectory(m_dir_main);
 
 
-    hmeaschi2_vs_volID = new TH2D("hmeaschi2_vs_volID","",50,0,50,50,0,20);
+    hmeaschi2_vs_volID = new TH2D("hmeaschi2_vs_volID","",100,0,100,50,0,20);
     hmeaschi2_vs_volID->GetXaxis()->SetTitle("Volume ID");hmeaschi2_vs_volID->GetXaxis()->CenterTitle();
     hmeaschi2_vs_volID->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_volID->GetYaxis()->CenterTitle();
     hmeaschi2_vs_volID->SetDirectory(m_dir_main);
@@ -245,7 +245,7 @@ void trackqa_processor::Init()
     hmeaschi2_vs_layID->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_layID->GetYaxis()->CenterTitle();
     hmeaschi2_vs_layID->SetDirectory(m_dir_main);
 
-    hmeaschi2_vs_vollayIDs = new TH2D("hmeaschi2_vs_vollayIDs","",400,0,400,50,0,20);
+    hmeaschi2_vs_vollayIDs = new TH2D("hmeaschi2_vs_vollayIDs","",1000,0,1000,50,0,20);
     hmeaschi2_vs_vollayIDs->GetXaxis()->SetTitle("Volume ID * 10 + Layer ID");hmeaschi2_vs_vollayIDs->GetXaxis()->CenterTitle();
     hmeaschi2_vs_vollayIDs->GetYaxis()->SetTitle("#Chi^{2} Individual Measurements");hmeaschi2_vs_vollayIDs->GetYaxis()->CenterTitle();
     hmeaschi2_vs_vollayIDs->SetDirectory(m_dir_main);
@@ -328,7 +328,7 @@ void trackqa_processor::Init()
         hmeas_r_vs_z.push_back(htemp5);
         hmeas_r_vs_z[i]->SetDirectory(m_dir_res);
 
-        TH1 *htemp6 = new TH1D(TString::Format("hresiduals_%s", eta_regions[i]),"Residuals",400,-0.5,0.5);
+        TH1 *htemp6 = new TH1D(TString::Format("hresiduals_%s", eta_regions[i]),"Residuals",400,-0.25,0.25);
         if (i==1) htemp6->GetXaxis()->SetTitle("#Delta z_{(track meas - hit)} [mm]"); else {htemp6->GetXaxis()->SetTitle("#Delta r_{(track meas - hit)} [mm]");}
         htemp6->GetXaxis()->CenterTitle();
         htemp6->GetYaxis()->SetTitle("Counts");htemp6->GetYaxis()->CenterTitle();
@@ -414,7 +414,7 @@ void trackqa_processor::Init()
         htrackstate_r_vs_z[i]->SetDirectory(m_dir_res);
 
         TH1 *htemp5 = new TH1D(TString::Format("hresiduals_vollaybins_%d", vollay_arr[i]),
-                    "Residuals",200,-0.5,0.5);
+                    "Residuals",200,-0.25,0.25);
         if (i == 7 || i == 8 ||  i == 9 ||  i == 11 ||  i == 13 ||  i == 17 || i == 18 ) htemp5->GetXaxis()->SetTitle("#Delta z_{(track meas - hit)} [mm]"); 
         else {htemp5->GetXaxis()->SetTitle("#Delta r_{(track meas - hit)} [mm]");}
         htemp5->GetXaxis()->CenterTitle();
@@ -462,6 +462,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 
     m_log->trace("");
     m_log->trace("trackqa_processor event");
+    // m_log->trace(event);
 
     //Generated particles (only one particle generated)
     double mceta = 0; //particle eta
@@ -542,7 +543,9 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             //Fill hists:
             if(num_primary==1){
                 hhits_in_r[index_reg]->Fill(r);
+                // if (r > 350 && r < 400){ // add in to check, delete later
                 hhits_in_z[index_reg]->Fill(z);
+                // }
                 hhits_r_vs_z[index_reg]->Fill(z,r);
 
                 r_hits_arr.push_back(r);
@@ -557,12 +560,12 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     m_log->trace("-------------------------");
 
     //Print out number of seeds from orthogonal seeder
-    auto seed_parameters = event->Get<eicrecon::TrackParameters>("SeededTrackParams");
-    m_log->trace("Number of ACTS Seeds: {}", seed_parameters.size());
+    // auto seed_parameters = event->Get<eicrecon::TrackParameters>("SeededTrackParams");
+    // m_log->trace("Number of ACTS Seeds: {}", seed_parameters.size());
 
     //ACTS Trajectories
-    //auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
-    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
+    auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFTrajectories"); //for truth-seeded tracjectories
+    // auto trajectories = event->Get<eicrecon::TrackingResultTrajectory>("CentralCKFSeededTrajectories"); // for realistic-seeded trajectories
 
     m_log->trace("Number of ACTS Trajectories: {}", trajectories.size());
     m_log->trace("");
@@ -743,7 +746,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 hlayID->Fill(layer);
                 hvollayIDs->Fill(volume*10+layer);
 
-                printf("vollayget = %d\n", volume * 10 + layer);
+                // printf("vollayget = %d\n", volume * 10 + layer);
                 int vollayID = vollay_index[volume * 10 + layer];
                 auto itr = find(vollay_arr, vollay_arr+20, volume*10+layer);
                 //int vollayID = distance(vollay_arr, itr); //DO NOT USE
@@ -768,8 +771,8 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 vollayids.push_back(vollayID);
                 int pbin = 3;
                 if (mcp > 1. && mcp < 2.) pbin = 0; else if (mcp < 5.) pbin = 1; else if (mcp < 7.) pbin = 2;
-                printf("Pbin is currently: %d\n", pbin);
-                printf("VollayID is currently: %d\n", vollayID);
+                // printf("Pbin is currently: %d\n", pbin);
+                // printf("VollayID is currently: %d\n", vollayID);
                 pbins.push_back(pbin);
                 indexregsaved = index_reg;
                 
@@ -831,6 +834,8 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             hchi2_by_hits->Fill(m_chi2Sum/nHitsallTrackers);
             hchi2_by_NDF->Fill(m_chi2Sum/m_NDF);
             hchi2_by_meas->Fill(m_chi2Sum/m_nMeasurements);
+
+            // cout << "checkpoint 1" << endl;
             
             hchi2_vs_eta->Fill(mceta, m_chi2Sum);
             hchi2SumNDF_vs_eta->Fill(mceta, m_chi2Sum/m_NDF);
@@ -838,20 +843,31 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
             hchi2_vs_hits_zoomed->Fill(nHitsallTrackers, m_chi2Sum);
             heta_vs_p_vs_chi2->Fill(mceta, mcp, m_chi2Sum);
 
+            // cout << "checkpoint 2" << endl;
+
             hNDF_states->Fill(m_NDF,state_counter);
             
             hmeasptrack_vs_eta->Fill(mceta, m_nMeasurements);
             hmeasptrack_vs_hits->Fill(nHitsallTrackers, m_nMeasurements);
             hmeasptrack_vs_chi2perNDF->Fill(m_chi2Sum/m_NDF, m_nMeasurements);
             hmeasptrack_vs_calstates->Fill(m_nCalibrated, m_nMeasurements);
+
+            // cout << "checkpoint 3" << endl;
             
             //floor(2*eta + 8) should give the index where bounds are [beg,end)
-            int index = floor(2*mceta+8);
+            cout << "mceta " << mceta << ", " << 2*mceta+8 << ", " << floor(2*mceta+8) << endl;
+            int index = floor(2*mceta+8); //doesn't work if eta<4, so catch those cases in next line
+            index = (index == 16) ? 15 : index;
+            // cout << "checkpoint 3a" << endl;
             hchi2_vs_hits_etabins[index]->Fill(nHitsallTrackers, m_chi2Sum);
+            // cout << "checkpoint 3b" << endl;
             hmeasptrack_vs_hits_etabins[index]->Fill(nHitsallTrackers, m_nMeasurements);
+            // cout << "checkpoint 3c" << endl;
             hmeasptrack_vs_hits_etabins_zoomed[index]->Fill(nHitsallTrackers, m_nMeasurements);
+            // cout << "checkpoint 3d" << endl;
             hmeasptrack_vs_chi2perNDF_etabins[index]->Fill(m_chi2Sum/m_NDF, m_nMeasurements);
             
+            // cout << "checkpoint 4" << endl;
 
             for (int j=0; j<m_measurementChi2.size(); j++){
                 hmeaschi2_vs_chi2->Fill(m_chi2Sum, m_measurementChi2[j]);
@@ -859,17 +875,23 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
                 hmeaschi2_vs_hits->Fill(nHitsallTrackers, m_measurementChi2[j]);
             }
 
+            // cout << "checkpoint 5" << endl;
+
             hholes_vs_hits->Fill(nHitsallTrackers, m_nHoles);
             houtliers_vs_hits->Fill(nHitsallTrackers, m_nOutliers);
             hsummation->Fill(m_nMeasurements + m_nOutliers, m_nCalibrated);
             hsummation2->Fill(m_nOutliers + m_nMeasurements, nHitsallTrackers);
             hsummation3->Fill(m_nMeasurements + m_nOutliers + m_nHoles, m_nCalibrated);
             //is m_nStates == state_counter??   
+
+            // cout << "checkpoint 6" << endl;
             
         }
 
     } //End loop over trajectories
-    printf("for loop finished\n");
+    // printf("for loop finished\n");
+
+    // cout << "checkpoint 7" << endl;
 
     if(num_primary==1){
         heta->Fill(mceta);
@@ -878,19 +900,25 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         hhits->Fill(nHitsallTrackers);
         htracks_vs_eta->Fill(mceta, num_traj);
 
+        // cout << "checkpoint 8" << endl;
+
         hhits_vs_eta->Fill(mceta, nHitsallTrackers);
         if(num_traj>0) hhits_vs_eta_1->Fill(mceta, nHitsallTrackers);
+
+        // cout << "checkpoint 9" << endl;
     }
     
     if (r_measurements_arr.size() == 0 || r_hits_arr.size() == 0) {
         m_log->trace("-------------------------");
         return;
     }
+    // cout << "checkpoint 10" << endl;
     event_number++;
     total_measurements += r_measurements_arr.size();
     average_number_of_measurements = (float) total_measurements / (float) event_number;
-    printf("Running total of measurements: %d\n", total_measurements);
-    printf("Running average of number of measurements %f\n", average_number_of_measurements);
+    // printf("Running total of measurements: %d\n", total_measurements);
+    // printf("Running average of number of measurements %f\n", average_number_of_measurements);
+    // cout << "checkpoint 11" << endl;
     sort(r_hits_arr.begin(), r_hits_arr.end());
     sort(z_hits_arr.begin(), z_hits_arr.end());
     bool* r_taken = new bool[r_hits_arr.size()];
@@ -901,13 +929,15 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
     for (int i = 0; i < z_hits_arr.size(); i++) {
         z_taken[i] = false;
     }
-    printf("check1\n");
+
+    // cout << "checkpoint 12" << endl;
+    // printf("check1\n");
     //now it works  
     //r_matches is an array that matches r_measurements to hit
     int* r_matches = new int[r_measurements_arr.size()];
     //z_matches is an array that matches r_measurements to hit
     int* z_matches = new int[z_measurements_arr.size()];
-    printf("check2\n");
+    // printf("check2\n");
     //matches is an array that has the index of the value to match it to
     float prev_diff = fabs(r_measurements_arr[0] - r_hits_arr[0]); 
     float curr_diff;
@@ -934,35 +964,38 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
         z_taken[z_matches[i]] = true;
         if (i < z_measurements_arr.size() - 1) prev_diff = fabs(z_measurements_arr[i+1] - z_hits_arr[0]);
     }
-    printf("# of rs: %d\n", r_measurements_arr.size());
-    printf("# of r hits: %d\n", r_hits_arr.size());
-    for (int i = 0; i < r_measurements_arr.size(); i++) {
-        printf("r measurement: %f\n", r_measurements_arr[i]);
-        printf("r match: %d\n", r_matches[i]);
-    }
-    printf("# of zs: %d\n", z_measurements_arr.size());
-    printf("# of z hits: %d\n", z_hits_arr.size());
-    for (int i = 0; i < z_measurements_arr.size(); i++) {
-        printf("z measurement: %f\n", z_measurements_arr[i]);
-        printf("z match: %d\n", z_matches[i]);      
-    }
+    // printf("# of rs: %d\n", r_measurements_arr.size());
+    // printf("# of r hits: %d\n", r_hits_arr.size());
+    // for (int i = 0; i < r_measurements_arr.size(); i++) {
+    //     printf("r measurement: %f\n", r_measurements_arr[i]);
+    //     printf("r match: %d\n", r_matches[i]);
+    // }
+    // printf("# of zs: %d\n", z_measurements_arr.size());
+    // printf("# of z hits: %d\n", z_hits_arr.size());
+    // for (int i = 0; i < z_measurements_arr.size(); i++) {
+    //     printf("z measurement: %f\n", z_measurements_arr[i]);
+    //     printf("z match: %d\n", z_matches[i]);      
+    // }
     //Calculate Residuals
+    
     for (int i = 0; i < r_measurements_arr.size(); i++) {
         if (indexregsaved == 1) hresiduals[indexregsaved]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
-        printf("Vollay ID[i] for r = %d\n", vollayids[i]);
-        printf("pbins[i] for r = %d\n", pbins[i]);
+        // printf("Vollay ID[i] for r = %d\n", vollayids[i]);
+        // printf("pbins[i] for r = %d\n", pbins[i]);
         hresiduals_vollaybins[vollayids[i]]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
         hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(z_measurements_arr[i] - z_hits_arr[z_matches[i]]);
     }
     for (int i = 0; i < z_measurements_arr.size(); i++) {
-        printf("Vollay ID[i] for z = %d\n", vollayids[i]);
-        printf("pbins[i] for z = %d\n", pbins[i]);
+        // printf("Vollay ID[i] for z = %d\n", vollayids[i]);
+        // printf("pbins[i] for z = %d\n", pbins[i]);
         if (indexregsaved != 1) hresiduals[indexregsaved]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
         hresiduals_vollaybins[vollayids[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
         hresiduals_layers_in_pbins[vollayids[i]][pbins[i]]->Fill(r_measurements_arr[i] - r_hits_arr[r_matches[i]]);
     }
+
+    
     m_log->trace("-------------------------");
-    printf("final check");
+    // printf("final check");
 }
  
 //------------------
@@ -970,7 +1003,7 @@ void trackqa_processor::Process(const std::shared_ptr<const JEvent>& event)
 //------------------
 void trackqa_processor::Finish()
 {
-    printf("is it finish");
+    // printf("is it finish");
     cout << "The number of times the state counter and meas chi^2 are diff is " << test_counter <<"/10000" << endl;
 
 	m_log->trace("trackqa_processor finished\n");
