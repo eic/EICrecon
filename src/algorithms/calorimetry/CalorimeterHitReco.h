@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "CalorimeterHitRecoConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <ostream>
 #include <stdexcept>
