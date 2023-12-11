@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Sebouh Paul
 
-// An algorithm for splitting calorimeter hits in overlapping cells into "subhits" based on the relative
-// energies of hits on neighboring layers
+// An algorithm for producing a single cluster with a log-energy-weighted position from a collection of hits.  
 //
 // Author: Sebouh Paul
 // Date: 12/04/2023
