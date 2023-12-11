@@ -3,6 +3,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <algorithm>
 #include <map>
 #include <string>
 #include <utility>

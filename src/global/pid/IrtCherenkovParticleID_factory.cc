@@ -13,7 +13,6 @@
 #include <exception>
 #include <map>
 
-#include "datamodel_glue.h"
 #include "services/geometry/richgeo/IrtGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"
 

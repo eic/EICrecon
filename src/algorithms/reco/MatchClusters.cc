@@ -16,9 +16,7 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <cmath>
-#include <exception>
 #include <map>
-#include <type_traits>
 #include <vector>
 
 #include "MatchClusters.h"

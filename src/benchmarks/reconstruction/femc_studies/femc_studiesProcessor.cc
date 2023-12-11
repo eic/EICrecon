@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <algorithm>
 #include <cmath>
-#include <exception>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>

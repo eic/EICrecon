@@ -18,15 +18,13 @@
 #include <DD4hep/VolumeManager.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>

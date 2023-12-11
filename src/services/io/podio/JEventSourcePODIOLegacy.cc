@@ -14,7 +14,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/JLogger.h>
-#include <JANA/Podio/JFactoryPodioT.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
@@ -28,7 +27,6 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
-#include <typeindex>
 #include <utility>
 #include <vector>
 

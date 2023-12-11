@@ -18,12 +18,12 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
-#include <exception>
 #include <functional>
 #include <map>
 #include <ostream>

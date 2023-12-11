@@ -11,7 +11,6 @@
 #include <podio/RelationRange.h>
 #include <spdlog/logger.h>
 #include <cmath>
-#include <exception>
 #include <vector>
 
 #include "services/rootfile/RootFile_service.h"

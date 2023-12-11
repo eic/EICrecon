@@ -14,7 +14,6 @@
 #include <Acts/Surfaces/PlanarBounds.hpp>
 #include <Acts/Surfaces/PlaneSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/SurfaceArray.hpp>
 #include <Acts/Surfaces/SurfaceBounds.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Result.hpp>

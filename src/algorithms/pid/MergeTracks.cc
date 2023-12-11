@@ -9,7 +9,6 @@
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cstddef>
-#include <exception>
 #include <iterator>
 #include <unordered_map>
 #include <utility>
