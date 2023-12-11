@@ -17,6 +17,8 @@
 #include <spdlog/logger.h>
 #include <stdint.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "CalorimeterHitsMergerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

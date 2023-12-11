@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <string>
 #include <unordered_map>
 #include <utility>
