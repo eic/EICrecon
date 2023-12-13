@@ -4,22 +4,22 @@
 //
 
 #include <JANA/JApplication.h>
-
-#include "extensions/jana/JChainFactoryGeneratorT.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <string>
 
 #include "ChargedParticleSelector_factory.h"
+#include "GeneratedJets_factory.h"
+#include "InclusiveKinematicsDA_factory.h"
+#include "InclusiveKinematicsElectron_factory.h"
+#include "InclusiveKinematicsJB_factory.h"
+#include "InclusiveKinematicsSigma_factory.h"
+#include "InclusiveKinematicsTruth_factory.h"
+#include "InclusiveKinematicseSigma_factory.h"
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
-#include "InclusiveKinematicsElectron_factory.h"
-#include "InclusiveKinematicsTruth_factory.h"
-#include "InclusiveKinematicsJB_factory.h"
-#include "InclusiveKinematicsDA_factory.h"
-#include "InclusiveKinematicseSigma_factory.h"
-#include "InclusiveKinematicsSigma_factory.h"
-#include "GeneratedJets_factory.h"
-#include "ReconstructedJets_factory.h"
 #include "ReconstructedElectrons_factory.h"
+#include "ReconstructedJets_factory.h"
+#include "algorithms/reco/ChargedParticleSelector.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "ParticleFlow_factory.h"
 
 //
@@ -29,12 +29,16 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    app->Add(new JChainFactoryGeneratorT<MC2SmearedParticle_factory>(
-            {"MCParticles"}, "GeneratedParticles"));
+    app->Add(new JChainMultifactoryGeneratorT<MC2SmearedParticle_factory>(
+            "GeneratedParticles",
+            {"MCParticles"},
+            {"GeneratedParticles"},
+            app
+            ));
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
-        {"EcalEndcapNClusters",
+        { "EcalEndcapNClusters",
           "EcalBarrelScFiClusters",
           "EcalEndcapPClusters",
         },
@@ -43,6 +47,7 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
+
 
     app->Add(new JChainMultifactoryGeneratorT<InclusiveKinematicsElectron_factory>(
         "InclusiveKinematicsElectron",
@@ -122,7 +127,8 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainFactoryGeneratorT<ReconstructedElectrons_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<ReconstructedElectrons_factory>(
+        "ReconstructedElectrons",
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
         "EcalBarrelScFiClusterAssociations",
         "EcalEndcapNClusterAssociations",
@@ -130,7 +136,8 @@ void InitPlugin(JApplication *app) {
         "EcalEndcapPInsertClusterAssociations",
         "EcalLumiSpecClusterAssociations",
         },
-        "ReconstructedElectrons"
+        {"ReconstructedElectrons"},
+        app
     ));
 
     app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
