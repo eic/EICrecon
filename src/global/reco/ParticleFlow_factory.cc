@@ -9,6 +9,8 @@
 // event data model definitions
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+// for geometry services
+#include <DD4hep/Detector.h>
 // factory-specific includes
 #include "ParticleFlow_factory.h"
 
@@ -28,12 +30,18 @@ namespace eicrecon {
     // Algorithm configuration
     auto cfg = GetDefaultConfig();
 
-    app->SetDefaultParameter(param_prefix + ":flowAlgo",  cfg.flowAlgo);
-    app->SetDefaultParameter(param_prefix + ":mergeAlgo", cfg.mergeAlgo);
+    app->SetDefaultParameter(param_prefix + ":flowAlgo",      cfg.flowAlgo);
+    app->SetDefaultParameter(param_prefix + ":ecalSumRadius", cfg.ecalSumRadius);
+    app->SetDefaultParameter(param_prefix + ":hcalSumRadius", cfg.hcalSumRadius);
+    app->SetDefaultParameter(param_prefix + ":ecalFracSub",   cfg.ecalFracSub);
+    app->SetDefaultParameter(param_prefix + ":hcalFracSub",   cfg.hcalFracSub);
 
     // initialize particle flow algorithm
     m_pf_algo.applyConfig(cfg);
     m_pf_algo.init(logger());
+
+    // initialize geometry service
+    m_geoSvc = app -> template GetService<DD4hep_service>();
 
   }  // end 'Init()'
 
@@ -72,15 +80,15 @@ namespace eicrecon {
       }
 
       // check if input is a calo collection
-      bool isECalCollect = (input_tag.find("Ecal")     != std::string::npos);
-      bool isHCalCollect = (input_tag.find("Hcal")     != std::string::npos);
+      bool isECalCollect = (input_tag.find("Ecal") != std::string::npos);
+      bool isHCalCollect = ((input_tag.find("Hcal") != std::string::npos) || (input_tag.find("HCAL") != std::string::npos));
       bool endsInClust   = (input_tag.find("Clusters") != std::string::npos);
       if ((isECalCollect || isHCalCollect) && endsInClust) {
 
         // set location in input vectors
         size_t iInput = -1;
         try {
-          iInput = m_mapCaloInputToIndex[input_tag];
+          iInput = m_mapCaloInputToIndex.at(input_tag);
         } catch (std::out_of_range &out) {
           m_log->error("Using unknown calo collection {} as input to particle flow!", input_tag);
           throw JException(out.what());
@@ -99,8 +107,16 @@ namespace eicrecon {
       vecCaloInput[iCaloPair] = std::make_pair(vecECalInput[iCaloPair], vecHCalInput[iCaloPair]);
     }
 
+    // prepare vector of pairs of ECal-HCal IDs
+    VecCaloIDs vecCaloIDs(m_const.nCaloPairs);
+    for (size_t iCaloPair = 0; iCaloPair < m_const.nCaloPairs; iCaloPair++) {
+      const uint32_t idECal = m_geoSvc -> detector() -> constant<uint32_t>(m_mapIndexToECalID[iCaloPair]);
+      const uint32_t idHCal = m_geoSvc -> detector() -> constant<uint32_t>(m_mapIndexToHCalID[iCaloPair]);
+      vecCaloIDs[iCaloPair] = std::make_pair(idECal, idHCal);
+    }
+
     // run algorithm
-    auto pf_objects = m_pf_algo.process(trkInput, vecCaloInput);
+    auto pf_objects = m_pf_algo.process(trkInput, vecCaloInput, vecCaloIDs);
 
     // set output collection
     SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(pf_objects));
