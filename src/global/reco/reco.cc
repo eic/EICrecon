@@ -39,9 +39,16 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
-        { "EcalEndcapNClusters",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations",
+          "EcalEndcapNClusters",
+          "EcalEndcapNClusterAssociations",
           "EcalBarrelScFiClusters",
+          "EcalBarrelScFiClusterAssociations",
           "EcalEndcapPClusters",
+          "EcalEndcapPClusterAssociations"
         },
         { "ReconstructedParticles",           // edm4eic::ReconstructedParticle
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
