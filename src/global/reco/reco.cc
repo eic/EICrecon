@@ -40,6 +40,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
+<<<<<<< HEAD
         {
           "MCParticles",
           "ReconstructedChargedParticles",
