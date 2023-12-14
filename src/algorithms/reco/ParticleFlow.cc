@@ -122,7 +122,7 @@ namespace eicrecon {
     // initialize cluster maps
     initialize_cluster_map(inCalos.first, m_ecalClustMap);
     initialize_cluster_map(inCalos.second, m_hcalClustMap);
-    m_log -> debug("{} ECal and {} HCal clusters to process", m_ecalClustMap.size(), m_hcalClustMap.size());
+    m_log -> debug("Starting PFAlpha: {} ECal and {} HCal clusters to process", m_ecalClustMap.size(), m_hcalClustMap.size());
 
     // initialize projection map
     initialize_projection_map(m_inTrks.second, {idECal, idHCal}, m_projMap);
@@ -279,50 +279,36 @@ namespace eicrecon {
 
         // if the projection sum is less than the calo sum,
         //   - subtract energy of nearest projection from clusters
-        //   - and add subtracted cluster to vector for merging
-        //
-        // FIXME this could be done more carefully: it would be better
-        // to subtract only the energy of the projection closest to
-        // the cluster
+        //   - and add subtracted cluster to vector for merging if
+        //     subtracted energy is nonzero
         m_log -> trace("Step 1(d): subtract projection sum from calo sum");
 
-        if (ecalTrkSum.energy < ecalClustSum.energy) {
-          for (const auto clust : ecalClustSum.clusters) {
-            const float eSub = clust.getEnergy() - ecalTrkSum.energy;
+        // do subtraction for the ecal
+        for (const auto clust : ecalClustSum.clusters) {
+          if (ecalTrkSum.energy < ecalClustSum.energy) {
+            const float eProj = get_energy_of_nearest_projection(ecalTrkSum, clust.getPosition(), m_const.massPiCharged);
+            const float eSub  = clust.getEnergy() - (m_cfg.ecalFracSub[iCaloPair] * eProj);
             if (eSub > 0.) {
-              MergedCluster forMerging;
-              forMerging.energy = eSub;
-              forMerging.weighted_position = clust.getPosition();
-              forMerging.clusters.push_back(clust);
-              m_ecalClustVec.push_back(forMerging);
-              m_log -> trace("Adding subtracted ecal cluster to list for merging; subtracted energy = {}", eSub);
+              m_ecalClustVec.push_back( make_merged_cluster(0, 0., 0., eSub, {0., 0., 0.}, clust.getPosition(), {clust}) );
+              m_log -> trace("Adding subtracted ecal cluster to list for merging; cluster energy = {} GeV, subtracted energy = {} GeV", clust.getEnergy(), eSub);
             }
-          }  // end clust loop
-        } else {
-          for (const auto clust : ecalClustSum.clusters) {
-            m_ecalClustMap[clust] = true;
           }
-        } 
+          m_ecalClustMap[clust] = true;
+        }  // end clust loop
         m_log -> debug("Added {} ecal clusters to list for merging", m_ecalClustVec.size());
 
         // now do the same for the hcal
-        if (hcalTrkSum.energy < hcalClustSum.energy) {
-          for (const auto clust : hcalClustSum.clusters) {
-            const float eSub = clust.getEnergy() - hcalTrkSum.energy;
+        for (const auto clust : hcalClustSum.clusters) {
+          if (hcalTrkSum.energy < hcalClustSum.energy) {
+            const float eProj = get_energy_of_nearest_projection(hcalTrkSum, clust.getPosition(), m_const.massPiCharged);
+            const float eSub = clust.getEnergy() - (m_cfg.hcalFracSub[iCaloPair] * eProj);
             if (eSub > 0.) {
-              MergedCluster forMerging;
-              forMerging.energy = eSub;
-              forMerging.weighted_position = clust.getPosition();
-              forMerging.clusters.push_back(clust);
-              m_hcalClustVec.push_back(forMerging);
-              m_log -> trace("Adding subtracted hcal cluster to list for merging; subtracted energy = {}", eSub);
+              m_hcalClustVec.push_back( make_merged_cluster(0, 0., 0., eSub, {0., 0., 0.}, clust.getPosition(), {clust}) );
+              m_log -> trace("Adding subtracted hcal cluster to list for merging; cluster energy = {} GeV, subtracted energy = {} GeV", clust.getEnergy(), eSub);
             }
-          }  // end clust loop
-        } else {
-          for (const auto clust : hcalClustSum.clusters) {
-            m_hcalClustMap[clust] = true;
           }
-        }
+          m_hcalClustMap[clust] = true;
+        }  // end clust loop
         m_log -> debug("Added {} hcal clusters to list for merging", m_hcalClustVec.size());
 
       }  while (nAvailable > 0);
@@ -532,8 +518,59 @@ namespace eicrecon {
 
 
 
+
   // --------------------------------------------------------------------------
-  //! Merge Clusters (MergedCluster Input)
+  //! Get Energy From Nearest Track Projection
+  // --------------------------------------------------------------------------
+  /*! Helper function to get the energy of track projection nearest to a
+   *  point (e.g. the position of calorimeter cluster). 
+   */ 
+  float ParticleFlow::get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass) {
+
+    // identify nearest projection
+    float    dNearest = 9999.;
+    uint32_t iNearest = 0;
+    for (unsigned iProj = 0; const auto proj : bundle.projections) {
+      const float dist = calculate_dist_in_eta_phi(position, proj.position);
+      if (dist < dNearest) {
+        dNearest = dist;
+        iNearest = iProj;
+      }
+    }
+
+    // get energy
+    const float energy = calculate_energy_at_point(bundle.projections.at(iNearest), mass);
+    return energy;
+
+  }  // end 'get_energy_of_nearest_projection(ProjectionBundle&, edm4hep::Vector3f&, float)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Make Merged Cluster
+  // --------------------------------------------------------------------------
+  /*! Helper function to create a merged cluster.
+   */ 
+  ParticleFlow::MergedCluster ParticleFlow::make_merged_cluster(const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters) {
+
+    MergedCluster merged;
+    merged.pdg = pdg;
+    merged.mass = mass;
+    merged.charge = chrg;
+    merged.energy = ene;
+    merged.momentum = mom;
+    merged.weighted_position = pos;
+    for (const auto clust : clusters) {
+      merged.clusters.push_back(clust);
+    }
+    return merged;
+
+  }  // end 'make_merged_cluster(int32_t, float, float, float, edm4hep::Vector3f, std::vector<edm4eic::Cluster>)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Merge Clusters
   // --------------------------------------------------------------------------
   /*! Helper function to merge many MergedCluster objects into one.
    */
