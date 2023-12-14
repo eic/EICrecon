@@ -87,8 +87,8 @@ namespace eicrecon {
   /*! A rudimentary energy flow algorithm. This algorithm serves as a baseline against
    *  which we can compare subsequent iterations.
    *
-   *  In broad strokes, the algorithm goes like below.
-   *    (1) Subtract projected track energy from ecal and hcal clusters by:
+   *  The algorithm proceeds like so:
+   *    (1) Subtract projected track energy from ecal and hcal clusters
    *        (a) Identify seed projection with highest momentum at inner face
    *            of the ecal
    *        (b) Sum the energy of all track projections within ecalSumRadius or
@@ -97,12 +97,20 @@ namespace eicrecon {
    *            of the seed
    *        (d) If the projection sum is less than the cluster sum, subtract
    *            the projection sum from the clusters and pass them on to step 2.
-   *        --> Repeat 1(a) - 1(d) until all projections have been used.
-   *    (2) Combine remaining clusters by:
-   *        (a) 1st combine nearbly ecal + hcal clusters by:
-   *            (i)  Identify highest-energy cluster as seed
-   *            (ii) Add all ecal and hcal clusters within ecalSumRadius or
-   *                 hcalSumRadius 
+   *        (e) Repeat 1(a) - 1(d) until all projections have been used.
+   *    (2) Combine remaining calo clusters
+   *        (a) 1st combine nearby ecal + hcal clusters
+   *            (i)   Identify highest-energy ecal cluster as seed
+   *            (ii)  Add all ecal clusters within ecalSumRadius
+   *            (iii) Add all hcal clusters within hcalSumRadius
+   *            (iv)  Save combined cluster to output
+   *            (v)   Repeat 2(a)(i) - 2(a)(iv) until no ecal clusters are left
+   *        (b) 2nd combine remaining hcal clusters
+   *            (i)   Identify highest-energy hcal cluster as seed
+   *            (ii)  Add all hcal clusters within hcalSumRadius
+   *            (iii) Save combined cluster to output
+   *            (iv)  Repeat 2(b)(i) - 2(b)(iii) until no hcal clusters are left
+   *    (3) Save all tracks to output
    *
    *  FIXME there are several clear improvements that can be made here:
    *    - integrating more PID information: PFAlpha assumes everything is pions, and we can use
@@ -134,21 +142,25 @@ namespace eicrecon {
     m_ecalClustVec.clear();
     m_hcalClustVec.clear();
 
-    // step 1: subtract all track energy from ecal and hcal clusters
+    // ------------------------------------------------------------------------
+    // step 1
+    // ------------------------------------------------------------------------
     m_log -> trace("Step 1: subtract projected track energy from ecal and hcal clusters");
 
     size_t nAvailable = m_projMap.size();
     if (m_projMap.size() >= 1) {
       do {
 
-        // step 1(a): identify seed projection
-        edm4eic::TrackSegment seedProj;
+        // --------------------------------------------------------------------
+        // step 1(a)
+        // --------------------------------------------------------------------
         m_log -> trace("Step 1(a): find highest momentum projection to act as seed");
 
         // 1st loop over projections
-        bool     foundSeed = false;
-        float    pSeed     = -1;
-        unsigned iSeed     = 0;
+        bool foundSeed = false;
+        float pSeed = -1;
+        unsigned iSeed = 0;
+        edm4eic::TrackSegment seedProj;
         for (unsigned iProject = 0; const auto projection : m_projMap) {
 
           // ignore used projections
@@ -166,27 +178,32 @@ namespace eicrecon {
             iSeed    = iProject;
             pSeed    = pECalFace;
             seedProj = projection.first;
+            m_log -> trace("Updating projection seed: new momentum is {} GeV/c, index is {}", pSeed, iSeed);
           }
           ++iProject;
         }  // end 1st projection loop
 
         // if didn't find seed projection, continue on to step 2
         if (foundSeed) {
-          m_log -> debug("Seed track projection found: projection #{} with momentum {} GeV/c", iSeed, pSeed);
+          m_log -> trace("Seed track projection found: projection #{} with momentum {} GeV/c", iSeed, pSeed);
         } else {
-          m_log -> debug("Did not find seed track projection out of {} remainining", nAvailable);
+          m_log -> warn("Did not find seed track projection out of {} remainining", nAvailable);
           break;
         }
 
-        // step 1(b): sum the energy of all tracks in ecalSumRadius or hcalSumRadius
-        //   - FIXME this could be done more carefully: the seed may not have a
-        //     point at the HCal face, and there's no guarantee that a projection
-        //     will be within the sum radius at both the ecal face AND the hcal face
-        PointAndFound seedAtECalFace = find_point_at_surface(seedProj, idECal, m_const.innerSurface);
-        PointAndFound seedAtHCalFace = find_point_at_surface(seedProj, idHCal, m_const.innerSurface);
+        // --------------------------------------------------------------------
+        // step 1(b)
+        // --------------------------------------------------------------------
         m_log -> trace("Step 1(b): sum energy of track projections within specified radius at inner face of ecal and hcal");
 
+        PointAndFound seedAtECalFace = find_point_at_surface(seedProj, idECal, m_const.innerSurface);
+        PointAndFound seedAtHCalFace = find_point_at_surface(seedProj, idHCal, m_const.innerSurface);
+
         // add seed energy at ecal face to sum
+        //   - FIXME this could be done more carefully:
+        //       > the seed may not have a point at the HCal face
+        //       > and there's no guarantee that a projection will be within the
+        //         sum radius at both the ecal face AND the hcal face
         ProjectionBundle ecalTrkSum;
         if (seedAtECalFace.second) {
           ecalTrkSum.energy = calculate_energy_at_point(seedAtECalFace.first, m_const.massPiCharged);
@@ -240,12 +257,14 @@ namespace eicrecon {
         }  // end if (nAvailable >= 1)
         m_log -> debug("Added nearby projections to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", ecalTrkSum.energy, hcalTrkSum.energy);
 
-        // step 1c: subtract sum of track energy 
-        MergedCluster ecalClustSum;
-        MergedCluster hcalClustSum;
+        // --------------------------------------------------------------------
+        // step 1(c)
+        // --------------------------------------------------------------------
         m_log -> trace("Step 1(c): sum energy in of all calo clusters within a specified radius");
 
         // sum energy in ecal
+        MergedCluster ecalClustSum;
+        MergedCluster hcalClustSum;
         if (seedAtECalFace.second) {
           for (auto ecalClust : m_ecalClustMap) {
 
@@ -279,11 +298,10 @@ namespace eicrecon {
         }  // end if found seed point at hcal face
         m_log -> debug("Summed energy in hcal: sum = {} GeV, no. of clusters used = {}", hcalClustSum.energy, hcalClustSum.clusters.size());
 
-        // step 1(d): if the projection sum is less than the calo sum,
-        //   - subtract energy of nearest projection from clusters
-        //   - and add subtracted cluster to vector for merging if
-        //     subtracted energy is nonzero
-        m_log -> trace("Step 1(d): subtract projection sum from calo sum");
+        // --------------------------------------------------------------------
+        // step 1(d)
+        // --------------------------------------------------------------------
+        m_log -> trace("Step 1(d): if calo sum is more than track sum, subtract nearby projection energy from each calo cluster");
 
         // do subtraction for the ecal
         for (const auto clust : ecalClustSum.clusters) {
@@ -315,27 +333,45 @@ namespace eicrecon {
 
       }  while (nAvailable > 0);
     }  // end if (nAvailable >= 1)
+
+    // announce completion of step 1
     m_log -> trace("Step 1 complete: subtracted tracks from calorimeter clusters");
 
-    // step 2: combine leftover clusters into neutral particles
-    add_unused_clusters_to_vector(m_ecalClustMap, m_ecalClustVec);
-    add_unused_clusters_to_vector(m_hcalClustMap, m_hcalClustVec);
+    // ------------------------------------------------------------------------
+    // step 2
+    // ------------------------------------------------------------------------
+    //   - TODO much of this can be cleaned up by moving the repeated
+    //     code to helper functions which operate on a vector/map
+    //     of clusters
     m_log -> trace("Step 2: combine leftover clusters into neutral particles");
 
-    // step 2(a): combine ecal and hcal clusters
+    // prepare vectors for clustering
+    //   - TODO switch over to MergedCluster's for maps: this will remove
+    //     the need for these vectors
+    add_unused_clusters_to_vector(m_ecalClustMap, m_ecalClustVec);
+    add_unused_clusters_to_vector(m_hcalClustMap, m_hcalClustVec);
+
+    // ------------------------------------------------------------------------
+    // step 2(a)
+    // ------------------------------------------------------------------------
     size_t nECalLeft = m_ecalClustMap.size();
     size_t nHCalLeft = m_hcalClustMap.size();
     m_log -> trace("Step 2(a): combine ecal + hcal clusters, no. of ecal clusters left = {}, no. of hcal clusters left = {}", nECalLeft, nHCalLeft);
 
+    // combine ecal & hcal clusters
     if (nECalLeft >= 1) {
       do {
 
-        // step 2(a)(i): identify seed ecal cluster
-        MergedCluster merged;
+        // --------------------------------------------------------------------
+        // step 2(a)(i)
+        // --------------------------------------------------------------------
         m_log -> trace("Step 2(a)(i): identify seed ecal cluster");
 
+        // for combining clusters
+        MergedCluster merged;
+
         // 1st loop over ecal clusters
-        float    eSeed = 0.;
+        float eSeed = 0.;
         uint32_t iSeed = 0;
         for (unsigned iECalClust = 0; const auto ecalClust : m_ecalClustVec) {
 
@@ -357,8 +393,12 @@ namespace eicrecon {
         --nECalLeft;
         m_log -> debug("Found seed ecal cluster with energy {}: {} ecal clusters remaining", merged.energy, nECalLeft);
 
-        // step 2(a)(ii): add nearby ecal clusters to merged cluster
+        // add any remaining ecal clusters if needed
         if (nECalLeft >= 1) {
+
+          // ------------------------------------------------------------------
+          // step 2(a)(ii)
+          // ------------------------------------------------------------------
           m_log -> trace("Step 2(a)(ii): add nearby ecal clusters to merged cluster");
 
           // 2nd loop over ecal clusters
@@ -377,14 +417,17 @@ namespace eicrecon {
               ++nECalAdded;
             }
           }  // end 2nd ecal loop
-          m_log -> debug("Combined {} nearby ecal clusters for a total of energy = {} GeV: {} ecal clusters remaining", nECalAdded, merged.energy, nECalLeft);
+          m_log -> trace("Combined {} nearby ecal clusters for a total of energy = {} GeV: {} ecal clusters remaining", nECalAdded, merged.energy, nECalLeft);
         }  // end if (nECalLeft >= 1)
 
-        // step 2(a)(iii): add nearby hcal clusters to merged cluster
-        //   - FIXME the hcal energies need to be calibrated to make sure they're on the
-        //     same footing as the ecal!
+        // add any remaining hcal clusters if needed
+        //   - FIXME the hcal energies need to be calibrated to make sure they're
+        //     on the same footing as the ecal!
         if (nHCalLeft >= 1) {
 
+          // ------------------------------------------------------------------
+          // step 2(a)(iii)
+          // ------------------------------------------------------------------
           m_log -> trace("Step 2(a)(iii): add nearby hcal clusters to merged cluster");
 
           // loop over hcal clusters
@@ -403,29 +446,37 @@ namespace eicrecon {
               ++nHCalAdded;
             }
           }  // end hcal loop
-          m_log -> debug("Combined {} nearby hcal clusters for a total of energy = {} GeV: {} hcal clusters remaining", nHCalAdded, merged.energy, nHCalLeft);
+          m_log -> trace("Combined {} nearby hcal clusters for a total of energy = {} GeV: {} hcal clusters remaining", nHCalAdded, merged.energy, nHCalLeft);
         }  // end if (nHCalLeft < 1)
 
-        // set 2(a)(iv): save combined cluster
+        // --------------------------------------------------------------------
+        // step 2(a)(iv)
+        // --------------------------------------------------------------------
+        m_log -> trace("Step 2(a)(iv): save combined cluster as a neutral particle.");
+
         merged.pdg = m_const.idPi0;
         merged.mass = m_const.massPi0;
         merged.charge = 0.;
         merged.momentum = calculate_momentum(merged, {0., 0., 0.});
         add_clust_to_output(merged);
-        m_log -> trace("Saved merged cluster to output: total energy = {} GeV, no. of clusters used = {}", merged.energy, merged.clusters.size());
-
+        m_log -> debug("Saved merged cluster to output: total energy = {} GeV, no. of clusters used = {}", merged.energy, merged.clusters.size());
       } while (nECalLeft > 0);
     }  // end if (nECalLeft >= 1)
-    m_log -> debug("Completed 1st pass of combining ecal + hcal clusters: {} ecal clusters left, {} hcal clusters left", nECalLeft, nHCalLeft);
 
-    // step 2(b): combine any leftover hcal clusters
+    // ------------------------------------------------------------------------
+    // step 2(b)
+    // ------------------------------------------------------------------------
     m_log -> trace("Step 2(b): combine leftover hcal clusters; no. of hcal clusters left = {}", nECalLeft, nHCalLeft);
     if (nHCalLeft >= 1) {
       do {
 
-        // step 2(b)(i): identify seed hcal cluster
-        MergedCluster merged;
+        // --------------------------------------------------------------------
+        // step 2(b)(i)
+        // --------------------------------------------------------------------
         m_log -> trace("Step 2(b)(i): identify seed hcal cluster");
+
+        // for combining clusters
+        MergedCluster merged;
 
         // 1st loop over hcal clusters
         float    eSeed = 0.;
@@ -450,9 +501,12 @@ namespace eicrecon {
         --nHCalLeft;
         m_log -> debug("Found seed hcal cluster with energy {}: {} hcal clusters remaining", merged.energy, nHCalLeft);
 
-        // step 2(a)(ii): add nearby hcal clusters to merged cluster
         if (nHCalLeft >= 1) {
-          m_log -> trace("Step 2(a)(ii): add nearby hcal clusters to merged cluster");
+
+          // ------------------------------------------------------------------
+          // step 2(b)(ii)
+          // ------------------------------------------------------------------
+          m_log -> trace("Step 2(b)(ii): add nearby hcal clusters to merged cluster");
 
           // 2nd loop over hcal clusters
           uint32_t nHCalAdded = 0;
@@ -470,19 +524,21 @@ namespace eicrecon {
               ++nHCalAdded;
             }
           }  // end 2nd hcal loop
-          m_log -> debug("Combined {} nearby hcal clusters for a total of energy = {} GeV: {} hcal clusters remaining", nHCalAdded, merged.energy, nHCalLeft);
+          m_log -> trace("Combined {} nearby hcal clusters for a total of energy = {} GeV: {} hcal clusters remaining", nHCalAdded, merged.energy, nHCalLeft);
         }  // end if (nHCalLeft >= 1)
 
-        // set 2(a)(iii): save combined cluster
+        // --------------------------------------------------------------------
+        // set 2(b)(iii)
+        // --------------------------------------------------------------------
+        m_log -> trace("Step 2(b)(iii): save combined cluster as a neutral particle.");
+
         merged.pdg = m_const.idPi0;
         merged.mass = m_const.massPi0;
         merged.charge = 0.;
         merged.momentum = calculate_momentum(merged, {0., 0., 0.});
         add_clust_to_output(merged);
-        m_log -> trace("Saved merged cluster to output: total energy = {} GeV, no. of clusters used = {}", merged.energy, merged.clusters.size());
-
+        m_log -> debug("Saved merged cluster to output: total energy = {} GeV, no. of clusters used = {}", merged.energy, merged.clusters.size());
       } while (nHCalLeft > 0);
-      m_log -> debug("Completed 2nd pass of combining hcal clusters: {} hcal clusters left", nECalLeft, nHCalLeft);
     }  // end if (nHCalLeft >= 1)
 
     // announce end of PFAlpha
