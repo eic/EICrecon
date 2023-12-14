@@ -213,10 +213,10 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
       auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-                                          global, 
-					  direction,
-					  1E-3 //Set tolerance to 1.0 um -- 10 times default value
-					 );
+                                          global,
+                                          direction,
+                                          1E-3 //Set tolerance to 1.0 um -- 10 times default value
+                                         );
       if(local.ok())
         {
           localpos = local.value();
