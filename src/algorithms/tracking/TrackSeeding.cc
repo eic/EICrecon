@@ -207,10 +207,16 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
       Acts::Vector3 global(xypos.first, xypos.second, z0);
 
-      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-                                          global, Acts::Vector3(1,1,1));
-
+      //FIXME: localpos(0) can be either positive or negative
+      //Overwritten if call to globalToLocal is successful
       Acts::Vector2 localpos(sqrt(square(xypos.first) + square(xypos.second)), z0);
+
+      Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
+      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
+                                          global, 
+					  direction,
+					  1E-3 //Set tolerance to 1.0 um -- 10 times default value
+					 );
       if(local.ok())
         {
           localpos = local.value();
