@@ -56,6 +56,7 @@ namespace eicrecon{
        *  calo clusters merged so far.
        */
       struct MergedCluster {
+        bool done = false;
         int32_t pdg = 0;
         float mass = 0.;
         float charge = 0.;
@@ -109,17 +110,15 @@ namespace eicrecon{
       void initialize_cluster_map(const edm4eic::ClusterCollection* clusters, ClustMap& map);
       void initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, TrackMap& map);
       void initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, ProjectMap& map);
+      void save_unused_tracks_to_output(const TrackMap& map);
       void add_track_to_output(const edm4eic::ReconstructedParticle& track);
       void add_clust_to_output(const MergedCluster& merged);
-      void save_unused_tracks_to_output();
-
-      // OTHER HELPERS
-      float             calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass);
-      float             calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
-      float             get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass);
-      MergedCluster     make_merged_cluster(const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters);
-      MergedCluster     merge_clusters(const std::vector<MergedCluster>& vecToMerge); 
-      PointAndFound     find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
+      void add_unused_clusters_to_vector(ClustMap& map, VecClust& vec);
+      float calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass);
+      float calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
+      float get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass);
+      MergedCluster make_merged_cluster(const bool done, const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters);
+      PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
       edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
 
       // logging service
