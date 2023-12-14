@@ -68,7 +68,7 @@ namespace eicrecon {
       // check if input is a track collection
       if (input_tag.find("ReconstructedChargedParticles") != std::string::npos) {
         trkInput.first = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(input_tag));
-        m_log->debug("Found input track collectio {}", input_tag);
+        m_log->debug("Found input track collection {}", input_tag);
         continue;
       }
 
