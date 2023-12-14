@@ -15,7 +15,6 @@
 #include <cmath>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 #include "algorithms/pid/MergeParticleID.h"

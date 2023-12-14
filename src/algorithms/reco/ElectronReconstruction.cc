@@ -5,7 +5,6 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <exception>
 
 namespace eicrecon {
 

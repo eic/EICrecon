@@ -9,8 +9,6 @@
 #include <spdlog/logger.h>
 #include <exception>
 
-#include "datamodel_glue.h"
-
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Init() {
 
