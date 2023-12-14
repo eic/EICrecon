@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Derek Anderson
 
-#include <set>
 #include <cmath>
 #include <stdexcept>
 #include <functional>
 #include <Math/Point3D.h>
 #include <JANA/JException.h>
 // event data model related classes
-#include <edm4eic/Track.h>
 #include <edm4eic/MutableReconstructedParticle.h>
 // class definition
 #include "ParticleFlow.h"
@@ -56,9 +54,7 @@ namespace eicrecon {
     // loop over pairs of input calos
     for (size_t iCaloPair = 0; iCaloPair < m_const.nCaloPairs; iCaloPair++) {
 
-      std::cout << "Processing calo pair (" << iCaloPair << ")..." << std::endl;
-
-      // run selected algorithm:
+      // run selected algorithm
       //   - if unknown option is selected, throw exception
       switch (m_cfg.flowAlgo[iCaloPair]) {
 
@@ -91,7 +87,18 @@ namespace eicrecon {
   /*! A rudimentary energy flow algorithm. This algorithm serves as a baseline against
    *  which we can compare subsequent iterations.
    *
-   *  The algorithm is:
+   *  In broad strokes, the algorithm goes like below.
+   *    (1) Subtract projected track energy from ecal and hcal clusters by:
+   *        (a) Identify a seed, the projection with highest momentum at inner face
+   *            of the ecal
+   *        (b) Sum the energy of all track projections within ecalSumRadius or
+   *            hcalSumRadius of the seed at the inner faces of the ecal and hcal
+   *        (c) Sum energy of all clusters in within ecalSumRadius or hcalSumRadius
+   *            of the seed
+   *        (d) If the projection sum is less than the cluster sum, subtract
+   *            the projection sum from the clusters and pass them on to step 2.
+   *        --> Repeat 1(a) - 1(d) until all projections have been used.
+   *    (2) Combine remaining clusters by:
    *
    *  FIXME there are several clear improvements that can be made here:
    *    - integrating more PID information: PFAlpha assumes everything is pions, and we can use
@@ -99,13 +106,12 @@ namespace eicrecon {
    *      further discrimination
    *    - utilizing segmentation: PFAlpha makes no use of any radial segmentation in the
    *      calorimeters which have it
+   *    - using vertex information: the cluster momenta are calculated assuming the vertex
+   *      is at the origin
    */ 
   void ParticleFlow::do_pf_alpha(const uint16_t iCaloPair, const CaloInput inCalos, const CaloIDs idCalos) {
 
     /* TODO
-     *   - sum energy in calos
-     *   - subtract reco particle energy from calo energy sums
-     *   - remove clusters with no energy after subtraction
      *   - combine leftover clusters into neutral particles
      */
 
@@ -121,6 +127,10 @@ namespace eicrecon {
     // initialize projection map
     initialize_projection_map(m_inTrks.second, {idECal, idHCal}, m_projMap);
     m_log -> debug("{} projections to process", m_projMap.size());
+
+    // make sure cluster vectors are clear
+    m_ecalClustVec.clear();
+    m_hcalClustVec.clear();
 
     // step 1: subtract all track energy from ecal and hcal clusters
     //   within radius ecalSumRadius and hcalSumRadius respectively
@@ -151,9 +161,9 @@ namespace eicrecon {
           const float pECalFace = std::hypot(pntECalFace.first.momentum.x, pntECalFace.first.momentum.y, pntECalFace.first.momentum.z);
           if (pECalFace > pSeed) {
             foundSeed = true;
-            iSeed  = iProject;
-            pSeed  = pECalFace;
-            seedProj  = projection.first;
+            iSeed    = iProject;
+            pSeed    = pECalFace;
+            seedProj = projection.first;
           }
           ++iProject;
         }  // end 1st projection loop
@@ -167,24 +177,27 @@ namespace eicrecon {
         }
 
         // step 1b: sum the energy of all tracks in ecalSumRadius or hcalSumRadius
+        //   - FIXME this could be done more carefully: the seed may not have a
+        //     point at the HCal face, and there's no guarantee that a projection
+        //     will be within the sum radius at both the ecal face AND the hcal face
         PointAndFound seedAtECalFace = find_point_at_surface(seedProj, idECal, m_const.innerSurface);
         PointAndFound seedAtHCalFace = find_point_at_surface(seedProj, idHCal, m_const.innerSurface);
         m_log -> trace("Step 1(b): sum energy of track projections within specified radius at inner face of ecal and hcal");
 
         // add seed energy at ecal face to sum
-        float pTrkSumAtECal = 0.;
+        ProjectionBundle ecalTrkSum;
         if (seedAtECalFace.second) {
-          const float pTrkSeedAtECal = std::hypot(seedAtECalFace.first.momentum.x, seedAtECalFace.first.momentum.y, seedAtECalFace.first.momentum.z);
-          if (pTrkSeedAtECal > 0.) pTrkSumAtECal += std::hypot(pTrkSeedAtECal, m_const.massPiCharged);
+          ecalTrkSum.energy = calculate_energy_at_point(seedAtECalFace.first, m_const.massPiCharged);
+          ecalTrkSum.projections.push_back(seedAtECalFace.first);
         }
 
         // add seed energy at hcal face to sum
-        float pTrkSumAtHCal = 0.;
+        ProjectionBundle hcalTrkSum;
         if (seedAtHCalFace.second) {
-          const float pTrkSeedAtHCal = std::hypot(seedAtHCalFace.first.momentum.x, seedAtHCalFace.first.momentum.y, seedAtHCalFace.first.momentum.z);
-          if (pTrkSeedAtHCal > 0.) pTrkSumAtHCal += std::hypot(pTrkSeedAtHCal, m_const.massPiCharged);
+          hcalTrkSum.energy = calculate_energy_at_point(seedAtHCalFace.first, m_const.massPiCharged);
+          hcalTrkSum.projections.push_back(seedAtHCalFace.first);
         }
-        m_log -> debug("Added seeds to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", pTrkSumAtECal, pTrkSumAtHCal);
+        m_log -> debug("Added seeds to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", ecalTrkSum.energy, hcalTrkSum.energy);
  
         // flag seed as used and decrement no. of available projections
         m_projMap[seedProj] = true;
@@ -202,19 +215,19 @@ namespace eicrecon {
 
             // add track energy if projection is within ecalSumRadius of seed at ecal face
             if (projECalFace.second) {
-              const float dist        = calculate_dist_in_eta_phi(projECalFace.first.position, seedAtECalFace.first.position);
-              const float pProjAtECal = std::hypot(projECalFace.first.momentum.x, projECalFace.first.momentum.y, projECalFace.first.momentum.z);
-              if ((dist < m_cfg.ecalSumRadius[iCaloPair]) && (pProjAtECal > 0.)) {
-                pTrkSumAtECal += std::hypot(pProjAtECal, m_const.massPiCharged);
+              const float dist = calculate_dist_in_eta_phi(projECalFace.first.position, seedAtECalFace.first.position);
+              if (dist < m_cfg.ecalSumRadius[iCaloPair]) {
+                ecalTrkSum.energy += calculate_energy_at_point(projECalFace.first, m_const.massPiCharged);
+                ecalTrkSum.projections.push_back(projECalFace.first);
               }
             }  // end if found point at ecal face
 
-            // add track energy if projection is within hcalSumRadius of seed at hcal face
+            // add track energy if projection is within hcalClustSumRadius of seed at hcal face
             if (projHCalFace.second) {
-              const float dist        = calculate_dist_in_eta_phi(projHCalFace.first.position, seedAtHCalFace.first.position);
-              const float pProjAtHCal = std::hypot(projHCalFace.first.momentum.x, projHCalFace.first.momentum.y, projHCalFace.first.momentum.z);
-              if ((dist < m_cfg.hcalSumRadius[iCaloPair]) && (pProjAtHCal > 0.)) {
-                pTrkSumAtHCal += std::hypot(pProjAtHCal, m_const.massPiCharged);
+              const float dist = calculate_dist_in_eta_phi(projHCalFace.first.position, seedAtHCalFace.first.position);
+              if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+                hcalTrkSum.energy += calculate_energy_at_point(projHCalFace.first, m_const.massPiCharged);
+                hcalTrkSum.projections.push_back(projHCalFace.first);
               }
             }  // end if found point at hcal face
 
@@ -223,15 +236,100 @@ namespace eicrecon {
             --nAvailable;
           }  // end 2nd projection loop
         }  // end if (nAvailable >= 1)
-        m_log -> debug("Added nearby projections to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", pTrkSumAtECal, pTrkSumAtHCal);
+        m_log -> debug("Added nearby projections to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", ecalTrkSum.energy, hcalTrkSum.energy);
+
+        // step 1c: subtract sum of track energy 
+        MergedCluster ecalClustSum;
+        MergedCluster hcalClustSum;
+        m_log -> trace("Step 1(c): sum energy in of all calo clusters within a specified radius");
+
+        // sum energy in ecal
+        if (seedAtECalFace.second) {
+          for (auto ecalClust : m_ecalClustMap) {
+
+            // ignore used clusters
+            if (ecalClust.second) continue;
+
+            // if in ecalSumRadius, add to sum
+            const float dist = calculate_dist_in_eta_phi(ecalClust.first.getPosition(), seedAtECalFace.first.position);
+            if (dist < m_cfg.ecalSumRadius[iCaloPair]) {
+              ecalClustSum.energy += ecalClust.first.getEnergy();
+              ecalClustSum.clusters.push_back(ecalClust.first);
+            }
+          }  // end ecal clust loop
+        }  // end if found seed point at ecal face
+        m_log -> debug("Summed energy in ecal: sum = {} GeV, no. of clusters used = {}", ecalClustSum.energy, ecalClustSum.clusters.size());
+
+        // sum energy in hcal
+        if (seedAtHCalFace.second) {
+          for (auto hcalClust : m_hcalClustMap) {
+
+            // ignore used clusters
+            if (hcalClust.second) continue;
+
+            // if in hcalSumRadius, add to sum
+            const float dist = calculate_dist_in_eta_phi(hcalClust.first.getPosition(), seedAtHCalFace.first.position);
+            if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+              hcalClustSum.energy += hcalClust.first.getEnergy();
+              hcalClustSum.clusters.push_back(hcalClust.first);
+            }
+          }  // end hcal clust loop
+        }  // end if found seed point at hcal face
+        m_log -> debug("Summed energy in hcal: sum = {} GeV, no. of clusters used = {}", hcalClustSum.energy, hcalClustSum.clusters.size());
+
+        // if the projection sum is less than the calo sum,
+        //   - subtract energy of nearest projection from clusters
+        //   - and add subtracted cluster to vector for merging
+        //
+        // FIXME this could be done more carefully: it would be better
+        // to subtract only the energy of the projection closest to
+        // the cluster
+        m_log -> trace("Step 1(d): subtract projection sum from calo sum");
+
+        if (ecalTrkSum.energy < ecalClustSum.energy) {
+          for (const auto clust : ecalClustSum.clusters) {
+            const float eSub = clust.getEnergy() - ecalTrkSum.energy;
+            if (eSub > 0.) {
+              MergedCluster forMerging;
+              forMerging.energy = eSub;
+              forMerging.weighted_position = clust.getPosition();
+              forMerging.clusters.push_back(clust);
+              m_ecalClustVec.push_back(forMerging);
+              m_log -> trace("Adding subtracted ecal cluster to list for merging; subtracted energy = {}", eSub);
+            }
+          }  // end clust loop
+        } else {
+          for (const auto clust : ecalClustSum.clusters) {
+            m_ecalClustMap[clust] = true;
+          }
+        } 
+        m_log -> debug("Added {} ecal clusters to list for merging", m_ecalClustVec.size());
+
+        // now do the same for the hcal
+        if (hcalTrkSum.energy < hcalClustSum.energy) {
+          for (const auto clust : hcalClustSum.clusters) {
+            const float eSub = clust.getEnergy() - hcalTrkSum.energy;
+            if (eSub > 0.) {
+              MergedCluster forMerging;
+              forMerging.energy = eSub;
+              forMerging.weighted_position = clust.getPosition();
+              forMerging.clusters.push_back(clust);
+              m_hcalClustVec.push_back(forMerging);
+              m_log -> trace("Adding subtracted hcal cluster to list for merging; subtracted energy = {}", eSub);
+            }
+          }  // end clust loop
+        } else {
+          for (const auto clust : hcalClustSum.clusters) {
+            m_hcalClustMap[clust] = true;
+          }
+        }
+        m_log -> debug("Added {} hcal clusters to list for merging", m_hcalClustVec.size());
 
       }  while (nAvailable > 0);
     }  // end if (nAvailable >= 1)
     m_log -> trace("Step 1 complete: subtracted tracks from calorimeter clusters");
 
-
     /* cluster merging goes here */
-
 
   }  // end 'do_pf_alpha(uint16_t, CaloInput, CaloIDs)'
 
@@ -396,6 +494,22 @@ namespace eicrecon {
 
 
   // --------------------------------------------------------------------------
+  //! Calculate Energy at Point
+  // --------------------------------------------------------------------------
+  /*! Helper function to calculate energy of a track projection at a
+   *  point.
+   */ 
+  float ParticleFlow::calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass) {
+
+    const float momentum = edm4hep::utils::magnitude(point.momentum);
+    const float energy   = (momentum > 0.) ? std::hypot(momentum, mass) : 0.;
+    return energy;
+
+  }  // end 'calculate_energy_at_point(edm4hep::TrackPoint&, float)'
+
+
+
+  // --------------------------------------------------------------------------
   //! Calculate Distance in Eta-Phi Between Two Points
   // --------------------------------------------------------------------------
   /*! Helper function to calculate distance in the eta-phi plane between
@@ -410,10 +524,6 @@ namespace eicrecon {
     ROOT::Math::RhoEtaPhiPoint rhfA(xyzA);
     ROOT::Math::RhoEtaPhiPoint rhfB(xyzB);
 
-    // check if at same radius
-    //   - issue warning if not
-    if (rhfA.rho() != rhfB.rho()) m_log -> error("calculating eta-phi distance between 2 points at different radii ({} vs. {})", rhfA.rho(), rhfB.rho());
-
     // calculate distance and return
     const float dist = std::hypot(rhfA.eta() - rhfB.eta(), rhfA.phi() - rhfA.phi());
     return dist;
@@ -423,45 +533,22 @@ namespace eicrecon {
 
 
   // --------------------------------------------------------------------------
-  //! Merge Two Clusters
+  //! Merge Clusters (MergedCluster Input)
   // --------------------------------------------------------------------------
-  /*! Helper function to merge two clusters into one.
+  /*! Helper function to merge many MergedCluster objects into one.
    */
-  ParticleFlow::MergedCluster ParticleFlow::merge_clusters(const MergedCluster& lhs, const MergedCluster& rhs) {
+  ParticleFlow::MergedCluster ParticleFlow::merge_clusters(const std::vector<MergedCluster>& vecToMerge) {
 
-    // instantiate object to hold merging results and make sure members are empty
+    // instantiate object to hold merging results
     MergedCluster merged;
-    merged.pdg = 0;
-    merged.mass = 0.;
-    merged.charge = 0.;
-    merged.energy = 0.;
-    merged.momentum = {0., 0., 0.};
-    merged.clusters.clear();
 
-    // add lhs to output
-    merged.energy     += lhs.energy;
-    merged.momentum.x += lhs.momentum.x;
-    merged.momentum.y += lhs.momentum.y;
-    merged.momentum.z += lhs.momentum.z;
-    for (const auto lhsClust : lhs.clusters) {
-      merged.clusters.push_back(lhsClust);
+    // add each cluster to merging result and return
+    for (const MergedCluster toMerge : vecToMerge) {
+      merged += toMerge;
     }
-
-    // add rhs to output
-    merged.energy     += rhs.energy;
-    merged.momentum.x += rhs.momentum.x;
-    merged.momentum.y += rhs.momentum.y;
-    merged.momentum.z += rhs.momentum.z;
-    for (const auto rhsClust : rhs.clusters) {
-      merged.clusters.push_back(rhsClust);
-    }
-
-    // calculate mass of combined cluster
-    // and return output
-    merged.mass = std::sqrt((merged.energy * merged.energy) - std::hypot(merged.momentum.x, merged.momentum.y, merged.momentum.z));
     return merged;
 
-  }  // end 'merge_clusters(MergedCluster&, MergedCluster&)'
+  }  // end 'merge_clusters(std::vector<MergedCluster>&)'
 
 
 
@@ -489,5 +576,26 @@ namespace eicrecon {
     return pointAndWasFound;
 
   }  // end 'find_point_at_surface(edm4eic::TrackSegment, uint32_t, uint64_t)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Calculate Momentum for a Cluster
+  // --------------------------------------------------------------------------
+  /*! Helper function to calculate momentum for a cluster relative to a
+   *  given vertex.
+   */ 
+  edm4hep::Vector3f ParticleFlow::calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex) {
+
+    // get displacement vector and magnitudes
+    const auto  displace   = clust.weighted_position - vertex;
+    const float rMagnitude = edm4hep::utils::magnitude(displace);
+    const float pMagnitude = (clust.energy >= clust.mass) ? std::sqrt((clust.energy * clust.energy) - (clust.mass * clust.mass)) : 0.;
+
+    // calculate momentum and return
+    const edm4hep::Vector3f momentum = (pMagnitude / rMagnitude) * displace;
+    return momentum;
+
+  }  // end 'calculate_momentum(edm4eic::Cluster, edm4hep::Vector3f)'
 
 }  // end eicrecon namespace

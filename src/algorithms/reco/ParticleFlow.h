@@ -9,6 +9,8 @@
 #include <utility>
 #include <algorithm>
 #include <spdlog/spdlog.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 // event data model definitions
 #include <edm4eic/Cluster.h>
 #include <edm4eic/TrackPoint.h>
@@ -40,6 +42,29 @@ namespace eicrecon{
 
     public:
 
+      //! Projection Bundle
+      /*! An intermediate struct to make calculations easier. Holds track
+       *  projections grouped together and the running sum of energy.
+       */
+      struct ProjectionBundle {
+        float energy = 0.;
+        std::vector<edm4eic::TrackPoint> projections;
+      };
+
+      //! Merged Cluster
+      /*! An intermediate struct to make calculations easier. Holds info on
+       *  calo clusters merged so far.
+       */
+      struct MergedCluster {
+        int32_t pdg = 0;
+        float mass = 0.;
+        float charge = 0.;
+        float energy = 0.;
+        edm4hep::Vector3f momentum = {0., 0., 0.};
+        edm4hep::Vector3f weighted_position = {0., 0., 0.};
+        std::vector<edm4eic::Cluster> clusters;
+      };
+
       // aliases for input types
       using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
       using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
@@ -52,16 +77,7 @@ namespace eicrecon{
       using TrackMap      = std::map<edm4eic::ReconstructedParticle, bool>;
       using ProjectMap    = std::map<edm4eic::TrackSegment, bool>;
       using PointAndFound = std::pair<edm4eic::TrackPoint, bool>;
-
-      // intermediate struct to hold info on merged calo clusters
-      struct MergedCluster {
-        int32_t pdg;
-        float mass;
-        float charge;
-        float energy;
-        edm4hep::Vector3f momentum;
-        std::vector<edm4eic::Cluster> clusters;
-      };
+      using VecClust      = std::vector<MergedCluster>;
 
       // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
@@ -72,6 +88,17 @@ namespace eicrecon{
         VecCaloInput vecInCalos,
         VecCaloIDs   vecCaloIDs
       );
+
+      // overloaded += for combining MergedCluster objects
+      friend MergedCluster& operator+=(MergedCluster& lhs, const MergedCluster& rhs) {
+        lhs.energy += rhs.energy;
+        lhs.momentum = lhs.momentum + rhs.momentum;
+        lhs.weighted_position = ((lhs.energy * lhs.weighted_position) + (rhs.energy * rhs.weighted_position)) / (lhs.energy + rhs.energy);
+        for (const auto rhsClust : rhs.clusters) {
+          lhs.clusters.push_back(rhsClust);
+        }
+        return lhs;
+      }  // end +=(MergedCluster&, MergedCluster&)
 
     private:
 
@@ -87,9 +114,11 @@ namespace eicrecon{
       void save_unused_tracks_to_output();
 
       // OTHER HELPERS
-      float         calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
-      MergedCluster merge_clusters(const MergedCluster& lhs, const MergedCluster& rhs); 
-      PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
+      float             calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass);
+      float             calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
+      MergedCluster     merge_clusters(const std::vector<MergedCluster>& vecToMerge); 
+      PointAndFound     find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
+      edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
 
       // logging service
       std::shared_ptr<spdlog::logger> m_log;
@@ -103,6 +132,8 @@ namespace eicrecon{
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPFO;
 
       // vectors & maps for indexing objects, etc.
+      VecClust m_ecalClustVec;
+      VecClust m_hcalClustVec;
       ClustMap m_ecalClustMap;
       ClustMap m_hcalClustMap;
       TrackMap m_trkMap;
@@ -111,15 +142,12 @@ namespace eicrecon{
       // class-wide constants
       const struct Constants {
         size_t   nCaloPairs;
-        uint16_t iNegative;
-        uint16_t iCentral;
-        uint16_t iPositive;
         uint64_t innerSurface;
         int32_t  idPiPlus;
         int32_t  idPi0;
         float    massPiCharged;
         float    massPi0;
-      } m_const = {3, 0, 1, 2, 1, 211, 111, 0.140, 0.135};
+      } m_const = {3, 1, 211, 111, 0.140, 0.135};
 
       // algorithm options
       enum FlowAlgo {Alpha};
