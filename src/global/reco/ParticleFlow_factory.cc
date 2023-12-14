@@ -124,4 +124,3 @@ namespace eicrecon {
   }  // end 'Process(shared_ptr<JEvent>)'
 
 }  // end eicrecon namespace
-

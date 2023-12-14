@@ -37,7 +37,7 @@ namespace eicrecon{
    *  the particular choice of algorithm is set by a user-configurable
    *  flag. The `process()` call will then run whichever algorithm is
    *  specified.
-   */ 
+   */
   class ParticleFlow : public WithPodConfig<ParticleFlowConfig> {
 
     public:
@@ -158,7 +158,7 @@ namespace eicrecon{
       //! Algorithm Options
       // ----------------------------------------------------------------------
       /*! This tabulates the possible algorithms to be run.
-       */ 
+       */
       enum FlowAlgo {Alpha};
 
   };  // end ParticleFlow definition
