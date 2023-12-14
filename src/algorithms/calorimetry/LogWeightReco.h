@@ -11,6 +11,7 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -35,7 +36,7 @@ namespace eicrecon {
 
   public:
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-     std::unique_ptr<edm4eic::ClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits) ;
+     std::unique_ptr<edm4eic::ClusterCollection> process(const edm4eic::ProtoClusterCollection &proto) ;
     
   private:
     const dd4hep::Detector* m_detector;

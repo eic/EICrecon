@@ -17,7 +17,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factoryT.h"
 #include "factories/calorimetry/LogWeightReco_factoryT.h"
-
+//#include "factories/calorimetry/ONNXReco_factoryT.h"
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -73,8 +73,24 @@ extern "C" {
           app   // TODO: Remove me once fixed
 	));
 
+
+	app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+          "ZDCIslandProtoClusters_Hexplit", {"ZDCSubcellHits"}, {"ZDCIslandProtoClusters_Hexplit"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
+            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.1 * dd4hep::MeV,
+            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed                                                                                              
+        ));
+	
 	app->Add(new JChainMultifactoryGeneratorT<LogWeightReco_factoryT>(
-	  "ZDC_HEXPLITClusters", {"ZDCSubcellHits"}, {"ZDC_HEXPLITClusters"},
+	  "ZDC_HEXPLITClusters", {"ZDCIslandProtoClusters_Hexplit"}, {"ZDC_HEXPLITClusters"},
           {
             .sampling_fraction=0.0203,
             .E0=50. * dd4hep::GeV,
@@ -103,6 +119,14 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
+	/*app->Add(new JChainMultifactoryGeneratorT<ONNXReco_factoryT>(
+          "ZDC_ONNXClusters", {"ZDCIslandProtoClusters"}, {"ZDC_ONNXClusters"},
+          {
+            .model_path="/path/to/model.onnx",
+          },
+          app   // TODO: Remove me once fixed
+	  ));*/
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "ZDCTruthClusters",

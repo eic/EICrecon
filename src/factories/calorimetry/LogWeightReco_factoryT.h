@@ -57,10 +57,11 @@ class LogWeightReco_factoryT :
     }
 
     void Process(const std::shared_ptr<const JEvent> &event) override {
-        auto hits = static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
+      //obtain protoclusters from event
+        auto protos = static_cast<const edm4eic::ProtoClusterCollection*>(event->GetCollectionBase(GetInputTags()[0]));
 
         try {
-            auto clusters = m_algo.process(*hits);
+            auto clusters = m_algo.process(*protos);
             SetCollection<edm4eic::Cluster>(GetOutputTags()[0], std::move(clusters));
         }
         catch(std::exception &e) {
