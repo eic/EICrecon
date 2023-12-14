@@ -42,7 +42,9 @@ namespace eicrecon{
 
     public:
 
+      // ----------------------------------------------------------------------
       //! Projection Bundle
+      // ----------------------------------------------------------------------
       /*! An intermediate struct to make calculations easier. Holds track
        *  projections grouped together and the running sum of energy.
        */
@@ -51,7 +53,9 @@ namespace eicrecon{
         std::vector<edm4eic::TrackPoint> projections;
       };
 
+      // ----------------------------------------------------------------------
       //! Merged Cluster
+      // ----------------------------------------------------------------------
       /*! An intermediate struct to make calculations easier. Holds info on
        *  calo clusters merged so far.
        */
@@ -67,6 +71,7 @@ namespace eicrecon{
       };
 
       // aliases for input types
+      //   - FIXME switch over to tracks when Track EDM is ready
       using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
       using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
       using CaloIDs      = std::pair<uint32_t, uint32_t>;
@@ -144,13 +149,16 @@ namespace eicrecon{
       const struct Constants {
         size_t   nCaloPairs;
         uint64_t innerSurface;
-        int32_t  idPiPlus;
         int32_t  idPi0;
         float    massPiCharged;
         float    massPi0;
-      } m_const = {3, 1, 211, 111, 0.140, 0.135};
+      } m_const = {3, 1, 111, 0.140, 0.135};
 
-      // algorithm options
+      // ----------------------------------------------------------------------
+      //! Algorithm Options
+      // ----------------------------------------------------------------------
+      /*! This tabulates the possible algorithms to be run.
+       */ 
       enum FlowAlgo {Alpha};
 
   };  // end ParticleFlow definition
