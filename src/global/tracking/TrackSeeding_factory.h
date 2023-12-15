@@ -50,6 +50,7 @@ private:
     ParameterRef<float> m_impactMax {this, "impactMax", config().m_impactMax, "maximum impact parameter allowed for seeds for Acts::OrthogonalSeedFinder. rMin should be larger than impactMax."};
     ParameterRef<float> m_rMinMiddle {this, "rMinMiddle", config().m_rMinMiddle, "min radius for middle space point for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_rMaxMiddle {this, "rMaxMiddle", config().m_rMaxMiddle, "max radius for middle space point for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_tolerance {this,"tolerance",config().m_tolerance,"tolerance for seed globalToLocal position conversion"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 

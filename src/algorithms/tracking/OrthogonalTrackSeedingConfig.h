@@ -78,5 +78,9 @@ namespace eicrecon {
     float  m_seedConfMaxZOrigin_forw = 150.0 * Acts::UnitConstants::mm;
     float  m_minImpactSeedConf_forw = 1.0 * Acts::UnitConstants::mm;
 
+    ///////////////////////////////////////
+    // SEED tolerance for globalToLocal position conversion
+    float  m_tolerance = 1.0 * Acts::UnitConstants::mm;
+
   };
 }
