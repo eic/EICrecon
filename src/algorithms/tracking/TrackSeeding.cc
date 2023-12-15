@@ -212,13 +212,13 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
       auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-                                          global, 
-					  direction,
-					  m_cfg.m_tolerance //Tolerance -- default value is 0.1um
-					 );
+                                          global,
+                                          direction,
+                                          m_cfg.m_tolerance //Tolerance -- default value is 0.1um
+                                         );
       if(local.ok())
       {
-      	localpos = local.value();
+        localpos = local.value();
       }
 
       auto trackparam = trackparams->create();
