@@ -9,9 +9,10 @@
 #include <utility>
 #include <algorithm>
 #include <spdlog/spdlog.h>
+#include <DD4hep/Detector.h>
+// event data model definitions
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-// event data model definitions
 #include <edm4eic/Cluster.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackCollection.h>
@@ -37,7 +38,7 @@ namespace eicrecon{
    *  the particular choice of algorithm is set by a user-configurable
    *  flag. The `process()` call will then run whichever algorithm is
    *  specified.
-   */ 
+   */
   class ParticleFlow : public WithPodConfig<ParticleFlowConfig> {
 
     public:
@@ -86,13 +87,22 @@ namespace eicrecon{
       using VecClust      = std::vector<MergedCluster>;
 
       // algorithm initialization
-      void init(std::shared_ptr<spdlog::logger> logger);
+      void init(
+        const dd4hep::Detector* detector,
+        std::shared_ptr<spdlog::logger>& logger
+      );
 
       // primary algorithm call
+      // TODO move eta regions into separate factories in reco.cc
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        TrkInput inTrks,
-        VecCaloInput vecInCalos,
-        VecCaloIDs   vecCaloIDs
+        const edm4eic::ReconstructedParticleCollection* inputTrks,
+        const edm4eic::TrackSegmentCollection* inputProjections,
+        const edm4eic::ClusterCollection* inputNegativeECalClusters,
+        const edm4eic::ClusterCollection* inputNegativeHCalClusters,
+        const edm4eic::ClusterCollection* inputCentralECalClusters,
+        const edm4eic::ClusterCollection* inputCentralHCalClusters,
+        const edm4eic::ClusterCollection* inputPositiveECalClusters,
+        const edm4eic::ClusterCollection* inputPositiveHCalClusters
       );
 
       // overloaded += for combining MergedCluster objects
@@ -126,7 +136,8 @@ namespace eicrecon{
       PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
       edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
 
-      // logging service
+      // detector & logging service
+      const dd4hep::Detector* m_detector;
       std::shared_ptr<spdlog::logger> m_log;
 
       // input collections and lists
@@ -157,9 +168,13 @@ namespace eicrecon{
       // ----------------------------------------------------------------------
       //! Algorithm Options
       // ----------------------------------------------------------------------
-      /*! This tabulates the possible algorithms to be run.
-       */ 
       enum FlowAlgo {Alpha};
+
+      // ----------------------------------------------------------------------
+      //! Rapidity Regions
+      // ----------------------------------------------------------------------
+      // TODO move eta regions into separate factories in reco.cc
+      enum Region {Negative, Central, Positive};
 
   };  // end ParticleFlow definition
 

@@ -3,89 +3,76 @@
 
 #pragma once
 
-#include <map>
-#include <vector>
-#include <utility>
-#include <spdlog/logger.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <extensions/jana/JChainMultifactoryT.h>
-// event data model definitions
-#include <edm4eic/ReconstructedParticleCollection.h>
-// for geometry services
 #include <services/geometry/dd4hep/DD4hep_service.h>
-// necessary algorithms and configurations
+#include <extensions/jana/JOmniFactory.h>
 #include "algorithms/reco/ParticleFlow.h"
-#include "algorithms/reco/ParticleFlowConfig.h"
 
 namespace eicrecon {
 
-  class ParticleFlow_factory :
-          public JChainMultifactoryT<ParticleFlowConfig>,
-          public SpdlogMixin {
+  class ParticleFlow_factory : public JOmniFactory<ParticleFlow_factory, ParticleFlowConfig> {
+
+    private:
+
+      // algorithm to run
+      using AlgoT = eicrecon::ParticleFlow;
+      std::unique_ptr<AlgoT> m_algo;
+
+      // input collections
+      // TODO split eta regions into separate factories
+      // in reco.cc
+      PodioInput<edm4eic::ReconstructedParticle> m_tracks_input {this};
+      PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
+      PodioInput<edm4eic::Cluster> m_negative_ecal_input {this};
+      PodioInput<edm4eic::Cluster> m_negative_hcal_input {this};
+      PodioInput<edm4eic::Cluster> m_central_ecal_input {this};
+      PodioInput<edm4eic::Cluster> m_central_hcal_input {this};
+      PodioInput<edm4eic::Cluster> m_positive_ecal_input {this};
+      PodioInput<edm4eic::Cluster> m_positive_hcal_input {this};
+
+      // output collections
+      PodioOutput<edm4eic::ReconstructedParticle> m_particle_output {this};
+
+      // parameter bindings
+      // TODO split eta regions into separate factories
+      // in reco.cc
+      ParameterRef<std::vector<int>> m_flowAlgo {this, "flowAlgo", config().flowAlgo};
+      ParameterRef<std::vector<float>> m_ecalSumRadius {this, "ecalSumRadius", config().ecalSumRadius};
+      ParameterRef<std::vector<float>> m_hcalSumRadius {this, "hcalSumRadius", config().hcalSumRadius};
+      ParameterRef<std::vector<float>> m_ecalFracSub {this, "ecalFracSub", config().ecalFracSub};
+      ParameterRef<std::vector<float>> m_hcalFracSub {this, "hcalFracSub", config().hcalFracSub};
+
+      // geometry service
+      Service<DD4hep_service> m_geoSvc {this};
 
     public:
 
-      // aliases for brevity
-      using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
-      using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
-      using CaloIDs      = std::pair<uint32_t, uint32_t>;
-      using VecCaloInput = std::vector<CaloInput>;
-      using VecCaloIDs   = std::vector<CaloIDs>;
+      void Configure() {
+        // TODO the following line might become relevant when I switch
+        // over to inherting from algorithm...
+        //m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo = std::make_unique<AlgoT>();
+        m_algo -> applyConfig(config());
+        m_algo -> init(m_geoSvc().detector(), logger());
+      }
 
-      // ctor
-      explicit ParticleFlow_factory(std::string tag,
-                                         const std::vector<std::string>& input_tags,
-                                         const std::vector<std::string>& output_tags,
-                                         ParticleFlowConfig cfg) :
-               JChainMultifactoryT<ParticleFlowConfig>(std::move(tag), input_tags, output_tags, cfg) {
+      void ChangeRun(int64_t run_number) {
+        /* nothing to do here */
+      }
 
-          DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-      }  // end ctor
-
-      /** One time initialization **/
-      void Init() override;
-
-      /** On run change preparations **/
-      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
-
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    protected:
-
-      // particle flow algorithm
-      ParticleFlow m_pf_algo;
-
-      // geometry service
-      std::shared_ptr<DD4hep_service> m_geoSvc;
-
-      // class-wide constants
-      const struct constants {
-        size_t nCaloPairs;
-        size_t iNegative;
-        size_t iCentral;
-        size_t iPositive;
-      } m_const = {3, 0, 1, 2};
-
-      // map of calo collection tags, id names onto indices
-      std::map<std::string, size_t> m_mapCaloInputToIndex = {
-        {"EcalEndcapNClusters",    m_const.iNegative},
-        {"HcalEndcapNClusters",    m_const.iNegative},
-        {"EcalBarrelScFiClusters", m_const.iCentral},
-        {"HcalBarrelClusters",     m_const.iCentral},
-        {"EcalEndcapPClusters",    m_const.iPositive},
-        {"LFHCALClusters",         m_const.iPositive}
-      };
-      std::map<size_t, std::string> m_mapIndexToECalID = {
-        {m_const.iNegative, "ECalEndcapN_ID"},
-        {m_const.iCentral,  "ECalBarrel_ID"},
-        {m_const.iPositive, "ECalEndcapP_ID"}
-      };
-      std::map<size_t, std::string> m_mapIndexToHCalID = {
-        {m_const.iNegative, "HCalEndcapN_ID"},
-        {m_const.iCentral,  "HCalBarrel_ID"},
-        {m_const.iPositive, "HCalEndcapP_ID"}
-      };
+      void Process(int64_t run_number, int64_t event_number) {
+        // TODO split eta regions into separate factories
+        // in reco.cc
+        m_particle_output() = m_algo -> process(
+          m_tracks_input(),
+          m_track_projections_input(),
+          m_negative_ecal_input(),
+          m_negative_hcal_input(),
+          m_central_ecal_input(),
+          m_central_hcal_input(),
+          m_positive_ecal_input(),
+          m_positive_hcal_input()
+        );
+      }
 
   };  // end ParticleFlow_factory definition
 

@@ -16,13 +16,13 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Algorithm Initialization
   // -------------------------------------------------------------------------
-  void ParticleFlow::init(std::shared_ptr<spdlog::logger> logger) {
+  void ParticleFlow::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
 
     // initialize logger
     m_log = logger;
     m_log -> trace("Initialized particle flow algorithm");
 
-  }  // end 'init(std::shared_ptr<spdlog::logger>)'
+  }  // end 'init(dd4hep::Detector*, std::shared_ptr<spdlog::logger>&)'
 
 
 
@@ -32,12 +32,38 @@ namespace eicrecon {
   /*! The particular algorithm to be run for a pair of calorimeters is specified
    *  by the `flowAlgo` option. Returns collection of particle flow objects, i.e.
    *  tracks or  combinations of calorimeter clusters.
-   */ 
+   */
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> ParticleFlow::process(
-        TrkInput     inTrks,
-        VecCaloInput vecInCalos,
-        VecCaloIDs   vecCaloIDs
+    const edm4eic::ReconstructedParticleCollection* inputTrks,
+    const edm4eic::TrackSegmentCollection* inputProjections,
+    const edm4eic::ClusterCollection* inputNegativeECalClusters,
+    const edm4eic::ClusterCollection* inputNegativeHCalClusters,
+    const edm4eic::ClusterCollection* inputCentralECalClusters,
+    const edm4eic::ClusterCollection* inputCentralHCalClusters,
+    const edm4eic::ClusterCollection* inputPositiveECalClusters,
+    const edm4eic::ClusterCollection* inputPositiveHCalClusters
   ) {
+
+    // orgnanize inputs
+    //   - TODO remove after moving regions to separate factories in reco.cc
+    TrkInput inTrks = std::make_pair(inputTrks, inputProjections);
+
+    VecCaloInput vecInCalos = {
+      std::make_pair(inputNegativeECalClusters, inputNegativeHCalClusters),
+      std::make_pair(inputCentralECalClusters, inputCentralHCalClusters),
+      std::make_pair(inputPositiveECalClusters, inputPositiveHCalClusters)
+    };
+    m_log -> trace("Organized input collections");
+
+    // set detector IDs
+    //   - TODO automate via grabbing detector ID by inspecting hits
+    //     and remove this particular input
+    VecCaloIDs vecCaloIDs = {
+      {103, 113},
+      {101, 111},
+      {102, 112}
+    };
+    m_log -> trace("Set detector IDs");
 
     // set inputs
     m_inTrks     = inTrks;
@@ -77,7 +103,7 @@ namespace eicrecon {
     // return output collection
     return std::move(m_outPFO);
 
-  }  // end 'process(ParticleFlow::TrkInput, ParticleFlow::VecCaloInput, ParticleFlow::VecCaloIDs)'
+  }  // end 'process(edm4eic::ReconstructedParticleCollection, edm4eic::TrackSgementCollection, edm4eic::ClusterCollection x6)'
 
 
 
@@ -120,7 +146,7 @@ namespace eicrecon {
    *      calorimeters which have it
    *    - using vertex information: the cluster momenta are calculated assuming the vertex
    *      is at the origin
-   */ 
+   */
   void ParticleFlow::do_pf_alpha(const uint16_t iCaloPair, const CaloInput inCalos, const CaloIDs idCalos) {
 
     // grab detector ids
@@ -217,7 +243,7 @@ namespace eicrecon {
           hcalTrkSum.projections.push_back(seedAtHCalFace.first);
         }
         m_log -> debug("Added seeds to sum of track energies: sum at ecal = {} GeV, sum at hcal = {} GeV", ecalTrkSum.energy, hcalTrkSum.energy);
- 
+
         // flag seed as used and decrement no. of available projections
         m_projMap[seedProj] = true;
         --nAvailable;
@@ -629,7 +655,7 @@ namespace eicrecon {
           }
         }
       }  // end point loop
- 
+
       // if pointing to a specified system, add projection to map onto whether or not it's been used
       if (isPointingToSys) {
         map[projection] = false;
@@ -645,7 +671,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! Helper function which loops over list of tracks, and adds any which are
    *  flagged as not having been used yet.
-   */ 
+   */
   void ParticleFlow::save_unused_tracks_to_output(const TrackMap& map) {
 
     for (const auto track : map) {
@@ -737,7 +763,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! Helper function to calculate energy of a track projection at a
    *  point.
-   */ 
+   */
   float ParticleFlow::calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass) {
 
     const float momentum = edm4hep::utils::magnitude(point.momentum);
@@ -753,7 +779,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! Helper function to calculate distance in the eta-phi plane between
    *  two points in cartesian coordinates.
-   */ 
+   */
   float ParticleFlow::calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB) {
 
     ROOT::Math::XYZPoint xyzA(pntA.x, pntA.y, pntA.z);
@@ -776,8 +802,8 @@ namespace eicrecon {
   //! Get Energy From Nearest Track Projection
   // --------------------------------------------------------------------------
   /*! Helper function to get the energy of track projection nearest to a
-   *  point (e.g. the position of calorimeter cluster). 
-   */ 
+   *  point (e.g. the position of calorimeter cluster).
+   */
   float ParticleFlow::get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass) {
 
     // identify nearest projection
@@ -803,7 +829,7 @@ namespace eicrecon {
   //! Make Merged Cluster
   // --------------------------------------------------------------------------
   /*! Helper function to create a merged cluster.
-   */ 
+   */
   ParticleFlow::MergedCluster ParticleFlow::make_merged_cluster(
     const bool done,
     const int32_t pdg,
@@ -836,7 +862,7 @@ namespace eicrecon {
   //! Identify Point at a Surface
   // --------------------------------------------------------------------------
   /*! Helper function to identify a point at a particular surface in a given system.
-   */ 
+   */
   ParticleFlow::PointAndFound ParticleFlow::find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface) {
 
     // instantiate object to hold point and whether or not it was found
@@ -852,7 +878,7 @@ namespace eicrecon {
         pointAndWasFound.second = true;
         break;
       }
-    }  // end point loop  
+    }  // end point loop
     return pointAndWasFound;
 
   }  // end 'find_point_at_surface(edm4eic::TrackSegment, uint32_t, uint64_t)'
@@ -864,7 +890,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! Helper function to calculate momentum for a cluster relative to a
    *  given vertex.
-   */ 
+   */
   edm4hep::Vector3f ParticleFlow::calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex) {
 
     // get displacement vector and magnitudes

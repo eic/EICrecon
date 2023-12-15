@@ -185,20 +185,26 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ParticleFlow_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
         "ParticleFlow",
         {
-          "ReconstructedChargedParticles",
-          "CalorimeterTrackProjections",
-          "EcalEndcapNClusters",
-          "HcalEndcapNClusters",
-          "EcalBarrelScFiClusters",
-          "HcalBarrelClusters",
-          "EcalEndcapPClusters",
-          "LFHCALClusters"
+          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
+          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
+          "EcalEndcapNClusters",            // edm4eic::Cluster
+          "HcalEndcapNClusters",            // edm4eic::Cluster
+          "EcalBarrelScFiClusters",         // edm4eic::Cluster
+          "HcalBarrelClusters",             // edm4eic::Cluster
+          "EcalEndcapPClusters",            // edm4eic::Cluster
+          "LFHCALClusters"                  // edm4eic::Cluster
         },
-        {"ParticleFlowObjects"},
-        {},
+        {"ParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = {0, 0, 0},
+          .ecalSumRadius = {1.0, 1.0, 1.0},
+          .hcalSumRadius = {1.0, 1.0, 1.0},
+          .ecalFracSub = {1.0, 1.0, 1.0},
+          .hcalFracSub = {1.0, 1.0, 1.0}
+        },
         app
     ));
 
