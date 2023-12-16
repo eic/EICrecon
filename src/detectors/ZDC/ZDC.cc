@@ -8,22 +8,25 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/HEXPLIT_factoryT.h"
-#include "factories/calorimetry/LogWeightReco_factoryT.h"
-//#include "factories/calorimetry/ONNXReco_factoryT.h"
+#include "factories/calorimetry/HEXPLIT_factory.h"
+#include "factories/calorimetry/LogWeightReco_factory.h"
+
 extern "C" {
     void InitPlugin(JApplication *app) {
 
         using namespace eicrecon;
 
         InitJANAPlugin(app);
+
+	auto side_length = 31.3 * dd4hep::mm;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
@@ -51,15 +54,17 @@ extern "C" {
             .thresholdValue = -100.0,
             .sampFrac = 1.0,
             .readout = "HcalFarForwardZDCHits",
+	    .layerField = "layer",
+	    .sectorField = "system",
           },
           app   // TODO: Remove me once fixed
         ));
 	
-	app->Add(new JChainMultifactoryGeneratorT<HEXPLIT_factoryT>(
+	app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
           "ZDCSubcellHits", {"ZDCRecHits"}, {"ZDCSubcellHits"},
           {
             .layer_spacing=25.1*dd4hep::mm,
-            .side_length=31.3 *dd4hep::mm,
+            .side_length = side_length,
             .MIP = 470. * dd4hep::keV,
 	    .Emin= 470./10 * dd4hep::keV,
             .tmax=320 * dd4hep::ns,
@@ -73,24 +78,37 @@ extern "C" {
           app   // TODO: Remove me once fixed
 	));
 
+	app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+	    "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
+	    {
+		.neighbourLayersRange = 1,
+		.localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+		.layerDistEtaPhi = {17e-3, 18.1e-3},
+		.sectorDist = 10.0 * dd4hep::cm,
+		.minClusterHitEdep = 100.0 * dd4hep::keV,
+		.minClusterCenterEdep = 11.0 * dd4hep::MeV,
+		.minClusterEdep = 11.0 * dd4hep::MeV,
+		.minClusterNhits = 10,
+	    },
+	    app   // TODO: Remove me once fixed
+	));
 
 	app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "ZDCIslandProtoClusters_Hexplit", {"ZDCSubcellHits"}, {"ZDCIslandProtoClusters_Hexplit"},
-          {
-            .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
-            .splitCluster = true,
-            .minClusterHitEdep = 0.1 * dd4hep::MeV,
-            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 1.,
-          },
-          app   // TODO: Remove me once fixed                                                                                              
-        ));
-	
-	app->Add(new JChainMultifactoryGeneratorT<LogWeightReco_factoryT>(
-	  "ZDC_HEXPLITClusters", {"ZDCIslandProtoClusters_Hexplit"}, {"ZDC_HEXPLITClusters"},
+	  "ZDCIslandClusterContributions", {"ZDCSubcellHits"}, {"ZDCIslandClusterContributions"},
+	  {
+	    .sectorDist = 1.5 * dd4hep::cm,                                 
+	    .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},                  
+	    .splitCluster = false,                                          
+	    .minClusterHitEdep = 100.0 * dd4hep::keV,                       
+	    .minClusterCenterEdep = 1.0 * dd4hep::MeV,                    
+	    // .transverseEnergyProfileMetric = "globalDistEtaPhi",         
+	    // .transverseEnergyProfileScale = 1.,   
+	  },
+	  app
+	));
+
+	app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
+	  "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
           {
             .sampling_fraction=0.0203,
             .E0=50. * dd4hep::GeV,
@@ -119,14 +137,6 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-
-	/*app->Add(new JChainMultifactoryGeneratorT<ONNXReco_factoryT>(
-          "ZDC_ONNXClusters", {"ZDCIslandProtoClusters"}, {"ZDC_ONNXClusters"},
-          {
-            .model_path="/path/to/model.onnx",
-          },
-          app   // TODO: Remove me once fixed
-	  ));*/
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "ZDCTruthClusters",
