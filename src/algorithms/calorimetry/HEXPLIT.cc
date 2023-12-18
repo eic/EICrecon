@@ -39,9 +39,10 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
   int nhits=hits.size();
   double sl=m_cfg.side_length/dd4hep::mm;
   double layer_spacing=m_cfg.layer_spacing/dd4hep::mm;
-  double Emin=m_cfg.Emin/dd4hep::GeV;
-  double tmax=m_cfg.tmax/dd4hep::ns;
   double MIP=m_cfg.MIP/dd4hep::GeV;
+  double Emin=m_cfg.Emin_in_MIPs*MIP/dd4hep::GeV;
+  double tmax=m_cfg.tmax/dd4hep::ns;
+
 
   double x[nhits];
   double y[nhits];

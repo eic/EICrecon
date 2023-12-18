@@ -10,7 +10,7 @@ namespace eicrecon {
     double                   layer_spacing{24.9};
     double                   side_length{31.3};
     double                   MIP{0.000472};
-    double                   Emin{0.0000472*dd4hep::GeV};
+    double                   Emin_in_MIPs{0.1};
     double                   tmax{325*dd4hep::ns};
     //conversion from local to global coordinates.  translate first, then rotate
     double                   trans_x{0};

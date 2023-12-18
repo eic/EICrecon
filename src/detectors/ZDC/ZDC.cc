@@ -65,8 +65,8 @@ extern "C" {
           {
             .layer_spacing=25.1*dd4hep::mm,
             .side_length = side_length,
-            .MIP = 470. * dd4hep::keV,
-	    .Emin= 470./10 * dd4hep::keV,
+            .MIP = 472. * dd4hep::keV,
+	    .Emin_in_MIPs=0.1,
             .tmax=320 * dd4hep::ns,
 	    .trans_x=0,
             .trans_y=0,
