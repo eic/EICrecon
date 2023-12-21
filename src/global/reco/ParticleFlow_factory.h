@@ -36,6 +36,8 @@ namespace eicrecon {
       // TODO split eta regions into separate factories
       // in reco.cc
       ParameterRef<std::vector<int>> m_flowAlgo {this, "flowAlgo", config().flowAlgo};
+      ParameterRef<std::vector<std::string>> m_ecalDetName {this, "ecalDetName", config().ecalDetName};
+      ParameterRef<std::vector<std::string>> m_hcalDetName {this, "hcalDetName", config().hcalDetName};
       ParameterRef<std::vector<float>> m_ecalSumRadius {this, "ecalSumRadius", config().ecalSumRadius};
       ParameterRef<std::vector<float>> m_hcalSumRadius {this, "hcalSumRadius", config().hcalSumRadius};
       ParameterRef<std::vector<float>> m_ecalFracSub {this, "ecalFracSub", config().ecalFracSub};

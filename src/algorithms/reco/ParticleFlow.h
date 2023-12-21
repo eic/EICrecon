@@ -134,6 +134,7 @@ namespace eicrecon{
       float get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass);
       MergedCluster make_merged_cluster(const bool done, const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters);
       PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
+      VecCaloIDs get_detector_ids();
       edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
 
       // detector & logging service

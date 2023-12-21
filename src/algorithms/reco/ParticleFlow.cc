@@ -6,6 +6,7 @@
 #include <functional>
 #include <Math/Point3D.h>
 #include <JANA/JException.h>
+#include <DD4hep/DetElement.h>
 // event data model related classes
 #include <edm4eic/MutableReconstructedParticle.h>
 // class definition
@@ -21,6 +22,10 @@ namespace eicrecon {
     // initialize logger
     m_log = logger;
     m_log -> trace("Initialized particle flow algorithm");
+
+    // initialize detector
+    m_detector = detector;
+    m_log -> trace("Initialized detector");
 
   }  // end 'init(dd4hep::Detector*, std::shared_ptr<spdlog::logger>&)'
 
@@ -55,21 +60,17 @@ namespace eicrecon {
     };
     m_log -> trace("Organized input collections");
 
-    // set detector IDs
-    //   - TODO automate via grabbing detector ID by inspecting hits
-    //     and remove this particular input
-    VecCaloIDs vecCaloIDs = {
-      {103, 113},
-      {101, 111},
-      {102, 112}
-    };
-    m_log -> trace("Set detector IDs");
-
     // set inputs
     m_inTrks     = inTrks;
     m_vecInCalos = vecInCalos;
-    m_vecCaloIDs = vecCaloIDs;
     m_log -> trace("Running particle flow algorithm");
+
+    // set detector ids
+    m_vecCaloIDs = get_detector_ids();
+    for (unsigned iCaloPair = 0; const auto caloIDs : m_vecCaloIDs) {
+      m_log -> debug("Set calo pair [{}] ids: ecal = {}, hcal = {}", iCaloPair, caloIDs.first, caloIDs.second);
+      ++iCaloPair;
+    }
 
     // instantiate collection to hold produced reco particles
     m_outPFO = std::make_unique<edm4eic::ReconstructedParticleCollection>();
@@ -882,6 +883,48 @@ namespace eicrecon {
     return pointAndWasFound;
 
   }  // end 'find_point_at_surface(edm4eic::TrackSegment, uint32_t, uint64_t)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get Detector IDs for Calorimeters
+  // --------------------------------------------------------------------------
+  /*! Helper function to generate list of detector IDs for all of the utilized
+   *  calorimeters.
+   *
+   *  TODO this will be simplified once eta regions are split into separate
+   *  factories
+   */ 
+  ParticleFlow::VecCaloIDs ParticleFlow::get_detector_ids() {
+
+    VecCaloIDs vecCaloIDs(m_const.nCaloPairs);
+    for (size_t iCaloPair = 0; iCaloPair < m_const.nCaloPairs; iCaloPair++) {
+
+      // get ecal detector element
+      dd4hep::DetElement ecalElement;
+      try {
+        ecalElement = m_detector -> detector(m_cfg.ecalDetName[iCaloPair].data());
+      } catch (...) {
+        m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.ecalDetName[iCaloPair].data());
+        throw JException("unknown detector name");
+      }
+
+      // get hcal detector element
+      dd4hep::DetElement hcalElement;
+      try {
+         hcalElement = m_detector -> detector(m_cfg.hcalDetName[iCaloPair].data());
+      } catch (...) {
+        m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.hcalDetName[iCaloPair].data());
+        throw JException("unknown detector name");
+      }
+
+      // set detector ids
+      vecCaloIDs[iCaloPair].first  = ecalElement.id();
+      vecCaloIDs[iCaloPair].second = hcalElement.id();
+    }
+    return vecCaloIDs;
+
+  }  // end 'get_detector_ids()'
 
 
 
