@@ -18,30 +18,22 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
 
       // input collections
-      // TODO split eta regions into separate factories
-      // in reco.cc
       PodioInput<edm4eic::ReconstructedParticle> m_tracks_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
-      PodioInput<edm4eic::Cluster> m_negative_ecal_input {this};
-      PodioInput<edm4eic::Cluster> m_negative_hcal_input {this};
-      PodioInput<edm4eic::Cluster> m_central_ecal_input {this};
-      PodioInput<edm4eic::Cluster> m_central_hcal_input {this};
-      PodioInput<edm4eic::Cluster> m_positive_ecal_input {this};
-      PodioInput<edm4eic::Cluster> m_positive_hcal_input {this};
+      PodioInput<edm4eic::Cluster> m_ecal_input {this};
+      PodioInput<edm4eic::Cluster> m_hcal_input {this};
 
       // output collections
       PodioOutput<edm4eic::ReconstructedParticle> m_particle_output {this};
 
       // parameter bindings
-      // TODO split eta regions into separate factories
-      // in reco.cc
-      ParameterRef<std::vector<int>> m_flowAlgo {this, "flowAlgo", config().flowAlgo};
-      ParameterRef<std::vector<std::string>> m_ecalDetName {this, "ecalDetName", config().ecalDetName};
-      ParameterRef<std::vector<std::string>> m_hcalDetName {this, "hcalDetName", config().hcalDetName};
-      ParameterRef<std::vector<float>> m_ecalSumRadius {this, "ecalSumRadius", config().ecalSumRadius};
-      ParameterRef<std::vector<float>> m_hcalSumRadius {this, "hcalSumRadius", config().hcalSumRadius};
-      ParameterRef<std::vector<float>> m_ecalFracSub {this, "ecalFracSub", config().ecalFracSub};
-      ParameterRef<std::vector<float>> m_hcalFracSub {this, "hcalFracSub", config().hcalFracSub};
+      ParameterRef<uint8_t> m_flowAlgo {this, "flowAlgo", config().flowAlgo};
+      ParameterRef<std::string> m_ecalDetName {this, "ecalDetName", config().ecalDetName};
+      ParameterRef<std::string> m_hcalDetName {this, "hcalDetName", config().hcalDetName};
+      ParameterRef<float> m_ecalSumRadius {this, "ecalSumRadius", config().ecalSumRadius};
+      ParameterRef<float> m_hcalSumRadius {this, "hcalSumRadius", config().hcalSumRadius};
+      ParameterRef<float> m_ecalFracSub {this, "ecalFracSub", config().ecalFracSub};
+      ParameterRef<float> m_hcalFracSub {this, "hcalFracSub", config().hcalFracSub};
 
       // geometry service
       Service<DD4hep_service> m_geoSvc {this};
@@ -62,17 +54,11 @@ namespace eicrecon {
       }
 
       void Process(int64_t run_number, int64_t event_number) {
-        // TODO split eta regions into separate factories
-        // in reco.cc
         m_particle_output() = m_algo -> process(
           m_tracks_input(),
           m_track_projections_input(),
-          m_negative_ecal_input(),
-          m_negative_hcal_input(),
-          m_central_ecal_input(),
-          m_central_hcal_input(),
-          m_positive_ecal_input(),
-          m_positive_hcal_input()
+          m_ecal_input(),
+          m_hcal_input()
         );
       }
 

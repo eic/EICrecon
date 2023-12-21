@@ -41,63 +41,43 @@ namespace eicrecon {
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> ParticleFlow::process(
     const edm4eic::ReconstructedParticleCollection* inputTrks,
     const edm4eic::TrackSegmentCollection* inputProjections,
-    const edm4eic::ClusterCollection* inputNegativeECalClusters,
-    const edm4eic::ClusterCollection* inputNegativeHCalClusters,
-    const edm4eic::ClusterCollection* inputCentralECalClusters,
-    const edm4eic::ClusterCollection* inputCentralHCalClusters,
-    const edm4eic::ClusterCollection* inputPositiveECalClusters,
-    const edm4eic::ClusterCollection* inputPositiveHCalClusters
+    const edm4eic::ClusterCollection* inputECalClusters,
+    const edm4eic::ClusterCollection* inputHCalClusters
   ) {
 
-    // orgnanize inputs
-    //   - TODO remove after moving regions to separate factories in reco.cc
-    TrkInput inTrks = std::make_pair(inputTrks, inputProjections);
-
-    VecCaloInput vecInCalos = {
-      std::make_pair(inputNegativeECalClusters, inputNegativeHCalClusters),
-      std::make_pair(inputCentralECalClusters, inputCentralHCalClusters),
-      std::make_pair(inputPositiveECalClusters, inputPositiveHCalClusters)
-    };
+    // set inputs
+    m_inTrks  = std::make_pair(inputTrks, inputProjections);
+    m_inCalos = std::make_pair(inputECalClusters, inputHCalClusters);
     m_log -> trace("Organized input collections");
 
-    // set inputs
-    m_inTrks     = inTrks;
-    m_vecInCalos = vecInCalos;
-    m_log -> trace("Running particle flow algorithm");
-
     // set detector ids
-    m_vecCaloIDs = get_detector_ids();
-    for (unsigned iCaloPair = 0; const auto caloIDs : m_vecCaloIDs) {
-      m_log -> debug("Set calo pair [{}] ids: ecal = {}, hcal = {}", iCaloPair, caloIDs.first, caloIDs.second);
-      ++iCaloPair;
-    }
+    m_caloIDs = get_detector_ids();
+    m_log -> debug("Set calo pair ids: ecal = {}, hcal = {}", m_caloIDs.first, m_caloIDs.second);
 
     // instantiate collection to hold produced reco particles
     m_outPFO = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
     // initialize track map
     initialize_track_map(m_inTrks.first, m_trkMap);
+    m_log -> trace("Running particle flow algorithm");
 
-    // loop over pairs of input calos
-    for (size_t iCaloPair = 0; iCaloPair < m_const.nCaloPairs; iCaloPair++) {
+    // run selected algorithm
+    //   - if unknown option is selected, throw exception
+    switch (m_cfg.flowAlgo) {
 
-      // run selected algorithm
-      //   - if unknown option is selected, throw exception
-      switch (m_cfg.flowAlgo[iCaloPair]) {
+      case FlowAlgo::Alpha:
+        m_log -> trace("Running PF Alpha algorithm");
+        do_pf_alpha(m_inCalos, m_caloIDs);
+        break;
 
-        case FlowAlgo::Alpha:
-          m_log -> trace("Running PF Alpha algorithm for calorimeter pair #{}", iCaloPair);
-          do_pf_alpha(iCaloPair, m_vecInCalos[iCaloPair], m_vecCaloIDs[iCaloPair]);
-          break;
-
-        default:
-          m_log -> error("Unknown PF algorithm option ({}) selected!", m_cfg.flowAlgo[iCaloPair]);
-          throw JException("invalid argument");
-          break;
-      }
-    }  // end calo pair loop
+      default:
+        m_log -> error("Unknown PF algorithm option ({}) selected!", m_cfg.flowAlgo);
+        throw JException("invalid argument");
+        break;
+    }
 
     // save unused tracks and return output collection
+    // FIXME save only tracks pointing in the relevant eta region
     save_unused_tracks_to_output(m_trkMap);
     m_log -> trace("Finished running particle flow algorithm");
 
@@ -148,7 +128,7 @@ namespace eicrecon {
    *    - using vertex information: the cluster momenta are calculated assuming the vertex
    *      is at the origin
    */
-  void ParticleFlow::do_pf_alpha(const uint16_t iCaloPair, const CaloInput inCalos, const CaloIDs idCalos) {
+  void ParticleFlow::do_pf_alpha(const CaloInput inCalos, const CaloIDs idCalos) {
 
     // grab detector ids
     const uint32_t idECal = idCalos.first;
@@ -262,7 +242,7 @@ namespace eicrecon {
             // add track energy if projection is within ecalSumRadius of seed at ecal face
             if (projECalFace.second) {
               const float dist = calculate_dist_in_eta_phi(projECalFace.first.position, seedAtECalFace.first.position);
-              if (dist < m_cfg.ecalSumRadius[iCaloPair]) {
+              if (dist < m_cfg.ecalSumRadius) {
                 ecalTrkSum.energy += calculate_energy_at_point(projECalFace.first, m_const.massPiCharged);
                 ecalTrkSum.projections.push_back(projECalFace.first);
               }
@@ -271,7 +251,7 @@ namespace eicrecon {
             // add track energy if projection is within hcalClustSumRadius of seed at hcal face
             if (projHCalFace.second) {
               const float dist = calculate_dist_in_eta_phi(projHCalFace.first.position, seedAtHCalFace.first.position);
-              if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+              if (dist < m_cfg.hcalSumRadius) {
                 hcalTrkSum.energy += calculate_energy_at_point(projHCalFace.first, m_const.massPiCharged);
                 hcalTrkSum.projections.push_back(projHCalFace.first);
               }
@@ -300,7 +280,7 @@ namespace eicrecon {
 
             // if in ecalSumRadius, add to sum
             const float dist = calculate_dist_in_eta_phi(ecalClust.first.getPosition(), seedAtECalFace.first.position);
-            if (dist < m_cfg.ecalSumRadius[iCaloPair]) {
+            if (dist < m_cfg.ecalSumRadius) {
               ecalClustSum.energy += ecalClust.first.getEnergy();
               ecalClustSum.clusters.push_back(ecalClust.first);
             }
@@ -317,7 +297,7 @@ namespace eicrecon {
 
             // if in hcalSumRadius, add to sum
             const float dist = calculate_dist_in_eta_phi(hcalClust.first.getPosition(), seedAtHCalFace.first.position);
-            if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+            if (dist < m_cfg.hcalSumRadius) {
               hcalClustSum.energy += hcalClust.first.getEnergy();
               hcalClustSum.clusters.push_back(hcalClust.first);
             }
@@ -334,7 +314,7 @@ namespace eicrecon {
         for (const auto clust : ecalClustSum.clusters) {
           if (ecalTrkSum.energy < ecalClustSum.energy) {
             const float eProj = get_energy_of_nearest_projection(ecalTrkSum, clust.getPosition(), m_const.massPiCharged);
-            const float eSub  = clust.getEnergy() - (m_cfg.ecalFracSub[iCaloPair] * eProj);
+            const float eSub  = clust.getEnergy() - (m_cfg.ecalFracSub * eProj);
             if (eSub > 0.) {
               m_ecalClustVec.push_back( make_merged_cluster(false, 0, 0., 0., eSub, {0., 0., 0.}, clust.getPosition(), {clust}) );
               m_log -> trace("Adding subtracted ecal cluster to list for merging; energy = {} GeV, subtracted energy = {} GeV", clust.getEnergy(), eSub);
@@ -348,7 +328,7 @@ namespace eicrecon {
         for (const auto clust : hcalClustSum.clusters) {
           if (hcalTrkSum.energy < hcalClustSum.energy) {
             const float eProj = get_energy_of_nearest_projection(hcalTrkSum, clust.getPosition(), m_const.massPiCharged);
-            const float eSub = clust.getEnergy() - (m_cfg.hcalFracSub[iCaloPair] * eProj);
+            const float eSub = clust.getEnergy() - (m_cfg.hcalFracSub * eProj);
             if (eSub > 0.) {
               m_hcalClustVec.push_back( make_merged_cluster(false, 0, 0., 0., eSub, {0., 0., 0.}, clust.getPosition(), {clust}) );
               m_log -> trace("Adding subtracted hcal cluster to list for merging; energy = {} GeV, subtracted energy = {} GeV", clust.getEnergy(), eSub);
@@ -437,7 +417,7 @@ namespace eicrecon {
 
             // if in ecalSumRadius, add to combined cluster
             const float dist = calculate_dist_in_eta_phi(ecalClust.weighted_position, merged.weighted_position);
-            if (dist < m_cfg.ecalSumRadius[iCaloPair]) {
+            if (dist < m_cfg.ecalSumRadius) {
               merged += ecalClust;
               ecalClust.done = true;
               --nECalLeft;
@@ -466,7 +446,7 @@ namespace eicrecon {
 
             // if in hcalSumRadius, add to combined cluster
             const float dist = calculate_dist_in_eta_phi(hcalClust.weighted_position, merged.weighted_position);
-            if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+            if (dist < m_cfg.hcalSumRadius) {
               merged += hcalClust;
               hcalClust.done = true;
               --nHCalLeft;
@@ -544,7 +524,7 @@ namespace eicrecon {
 
             // if in hcalSumRadius, add to combined cluster
             const float dist = calculate_dist_in_eta_phi(hcalClust.weighted_position, merged.weighted_position);
-            if (dist < m_cfg.hcalSumRadius[iCaloPair]) {
+            if (dist < m_cfg.hcalSumRadius) {
               merged += hcalClust;
               hcalClust.done = true;
               --nHCalLeft;
@@ -889,40 +869,31 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Get Detector IDs for Calorimeters
   // --------------------------------------------------------------------------
-  /*! Helper function to generate list of detector IDs for all of the utilized
-   *  calorimeters.
-   *
-   *  TODO this will be simplified once eta regions are split into separate
-   *  factories
+  /*! Helper function to generate detector IDs for the utilized calorimeters.
    */ 
-  ParticleFlow::VecCaloIDs ParticleFlow::get_detector_ids() {
+  ParticleFlow::CaloIDs ParticleFlow::get_detector_ids() {
 
-    VecCaloIDs vecCaloIDs(m_const.nCaloPairs);
-    for (size_t iCaloPair = 0; iCaloPair < m_const.nCaloPairs; iCaloPair++) {
-
-      // get ecal detector element
-      dd4hep::DetElement ecalElement;
-      try {
-        ecalElement = m_detector -> detector(m_cfg.ecalDetName[iCaloPair].data());
-      } catch (...) {
-        m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.ecalDetName[iCaloPair].data());
-        throw JException("unknown detector name");
-      }
-
-      // get hcal detector element
-      dd4hep::DetElement hcalElement;
-      try {
-         hcalElement = m_detector -> detector(m_cfg.hcalDetName[iCaloPair].data());
-      } catch (...) {
-        m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.hcalDetName[iCaloPair].data());
-        throw JException("unknown detector name");
-      }
-
-      // set detector ids
-      vecCaloIDs[iCaloPair].first  = ecalElement.id();
-      vecCaloIDs[iCaloPair].second = hcalElement.id();
+    // get ecal detector element
+    dd4hep::DetElement ecalElement;
+    try {
+      ecalElement = m_detector -> detector(m_cfg.ecalDetName.data());
+    } catch (...) {
+      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.ecalDetName.data());
+      throw JException("unknown detector name");
     }
-    return vecCaloIDs;
+
+    // get hcal detector element
+    dd4hep::DetElement hcalElement;
+    try {
+       hcalElement = m_detector -> detector(m_cfg.hcalDetName.data());
+    } catch (...) {
+      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.hcalDetName.data());
+      throw JException("unknown detector name");
+    }
+
+    // set detector ids
+    CaloIDs caloIDs = std::make_pair(ecalElement.id(), hcalElement.id());
+    return caloIDs;
 
   }  // end 'get_detector_ids()'
 

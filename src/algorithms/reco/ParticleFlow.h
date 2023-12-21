@@ -93,16 +93,11 @@ namespace eicrecon{
       );
 
       // primary algorithm call
-      // TODO move eta regions into separate factories in reco.cc
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
         const edm4eic::ReconstructedParticleCollection* inputTrks,
         const edm4eic::TrackSegmentCollection* inputProjections,
-        const edm4eic::ClusterCollection* inputNegativeECalClusters,
-        const edm4eic::ClusterCollection* inputNegativeHCalClusters,
-        const edm4eic::ClusterCollection* inputCentralECalClusters,
-        const edm4eic::ClusterCollection* inputCentralHCalClusters,
-        const edm4eic::ClusterCollection* inputPositiveECalClusters,
-        const edm4eic::ClusterCollection* inputPositiveHCalClusters
+        const edm4eic::ClusterCollection* inputECalClusters,
+        const edm4eic::ClusterCollection* inputHCalClusters
       );
 
       // overloaded += for combining MergedCluster objects
@@ -119,7 +114,7 @@ namespace eicrecon{
     private:
 
       // particle flow algorithms
-      void do_pf_alpha(const uint16_t iCaloPair, const CaloInput inCalos, const CaloIDs idCalos);
+      void do_pf_alpha(const CaloInput inCalos, const CaloIDs idCalos);
 
       // helper methods
       void initialize_cluster_map(const edm4eic::ClusterCollection* clusters, ClustMap& map);
@@ -132,9 +127,9 @@ namespace eicrecon{
       float calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass);
       float calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
       float get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass);
+      CaloIDs get_detector_ids();
       MergedCluster make_merged_cluster(const bool done, const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters);
       PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
-      VecCaloIDs get_detector_ids();
       edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
 
       // detector & logging service
@@ -142,9 +137,9 @@ namespace eicrecon{
       std::shared_ptr<spdlog::logger> m_log;
 
       // input collections and lists
-      TrkInput m_inTrks;
-      VecCaloInput m_vecInCalos;
-      VecCaloIDs m_vecCaloIDs;
+      TrkInput  m_inTrks;
+      CaloInput m_inCalos;
+      CaloIDs   m_caloIDs;
 
       // output collection
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPFO;
@@ -170,12 +165,6 @@ namespace eicrecon{
       //! Algorithm Options
       // ----------------------------------------------------------------------
       enum FlowAlgo {Alpha};
-
-      // ----------------------------------------------------------------------
-      //! Rapidity Regions
-      // ----------------------------------------------------------------------
-      // TODO move eta regions into separate factories in reco.cc
-      enum Region {Negative, Central, Positive};
 
   };  // end ParticleFlow definition
 

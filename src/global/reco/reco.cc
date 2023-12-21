@@ -186,24 +186,64 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
-        "ParticleFlow",
+        "ParticleFlowEndcapN",
         {
           "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
           "CalorimeterTrackProjections",    // edm4eic::TrackSegment
           "EcalEndcapNClusters",            // edm4eic::Cluster
-          "HcalEndcapNClusters",            // edm4eic::Cluster
+          "HcalEndcapNClusters"             // edm4eic::Cluster
+        },
+        {"EndcapNParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = 0,
+          .ecalDetName = "EcalEndcapN",
+          .hcalDetName = "HcalEndcapN",
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlowBarrel",
+        {
+          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
+          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
           "EcalBarrelScFiClusters",         // edm4eic::Cluster
-          "HcalBarrelClusters",             // edm4eic::Cluster
+          "HcalBarrelClusters"              // edm4eic::Cluster
+        },
+        {"BarrelParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = 0,
+          .ecalDetName = "EcalBarrelScFi",
+          .hcalDetName = "HcalBarrel",
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlowEndcapP",
+        {
+          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
+          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
           "EcalEndcapPClusters",            // edm4eic::Cluster
           "LFHCALClusters"                  // edm4eic::Cluster
         },
-        {"ParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {"EndcapPParticleFlowObjects"},  // edm4eic::ReconstructedParticle
         {
-          .flowAlgo = {0, 0, 0},
-          .ecalSumRadius = {1.0, 1.0, 1.0},
-          .hcalSumRadius = {1.0, 1.0, 1.0},
-          .ecalFracSub = {1.0, 1.0, 1.0},
-          .hcalFracSub = {1.0, 1.0, 1.0}
+          .flowAlgo = 0,
+          .ecalDetName = "EcalEndcapP",
+          .hcalDetName = "LFHCAL",
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
         },
         app
     ));
