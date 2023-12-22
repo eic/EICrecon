@@ -90,7 +90,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
                                  std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.m_maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
-  VertexFinder finder(std::move(finderCfg));
+  VertexFinder finder(finderCfg);
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
