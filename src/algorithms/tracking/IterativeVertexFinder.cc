@@ -86,7 +86,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexSeeder::Config seederCfg(ipEst);
   VertexSeeder seeder(seederCfg);
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(vertexFitter, std::move(linearizer),
+  VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
                                  std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.m_maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
