@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <DD4hep/DD4hepUnits.h>
 #include <algorithm>
 #include <string>
 
@@ -198,6 +199,9 @@ void InitPlugin(JApplication *app) {
           .flowAlgo = 0,
           .ecalDetName = "EcalEndcapN",
           .hcalDetName = "HcalEndcapN",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
           .ecalSumRadius = 1.0,
           .hcalSumRadius = 1.0,
           .ecalFracSub = 1.0,
@@ -219,6 +223,9 @@ void InitPlugin(JApplication *app) {
           .flowAlgo = 0,
           .ecalDetName = "EcalBarrelScFi",
           .hcalDetName = "HcalBarrel",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
           .ecalSumRadius = 1.0,
           .hcalSumRadius = 1.0,
           .ecalFracSub = 1.0,
@@ -240,6 +247,9 @@ void InitPlugin(JApplication *app) {
           .flowAlgo = 0,
           .ecalDetName = "EcalEndcapP",
           .hcalDetName = "LFHCAL",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
           .ecalSumRadius = 1.0,
           .hcalSumRadius = 1.0,
           .ecalFracSub = 1.0,

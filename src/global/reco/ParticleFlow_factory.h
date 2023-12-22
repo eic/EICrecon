@@ -30,6 +30,9 @@ namespace eicrecon {
       ParameterRef<uint8_t> m_flowAlgo {this, "flowAlgo", config().flowAlgo};
       ParameterRef<std::string> m_ecalDetName {this, "ecalDetName", config().ecalDetName};
       ParameterRef<std::string> m_hcalDetName {this, "hcalDetName", config().hcalDetName};
+      ParameterRef<float> m_minTrkMomentum {this, "minTrkMomentum", config().minTrkMomentum};
+      ParameterRef<float> m_minECalEnergy {this, "minECalEnergy", config().minECalEnergy};
+      ParameterRef<float> m_minHCalEnergy {this, "minHCalEnergy", config().minHCalEnergy};
       ParameterRef<float> m_ecalSumRadius {this, "ecalSumRadius", config().ecalSumRadius};
       ParameterRef<float> m_hcalSumRadius {this, "hcalSumRadius", config().hcalSumRadius};
       ParameterRef<float> m_ecalFracSub {this, "ecalFracSub", config().ecalFracSub};

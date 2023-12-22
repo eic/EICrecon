@@ -117,9 +117,9 @@ namespace eicrecon{
       void do_pf_alpha(const CaloInput inCalos, const CaloIDs idCalos);
 
       // helper methods
-      void initialize_cluster_map(const edm4eic::ClusterCollection* clusters, ClustMap& map);
-      void initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, TrackMap& map);
-      void initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, ProjectMap& map);
+      void initialize_cluster_map(const edm4eic::ClusterCollection* clusters, const float minEnergy, ClustMap& map);
+      void initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, const float minMomentum, TrackMap& map);
+      void initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, const float minMomentum, ProjectMap& map);
       void save_unused_tracks_to_output(const TrackMap& map);
       void add_track_to_output(const edm4eic::ReconstructedParticle& track);
       void add_clust_to_output(const MergedCluster& merged);

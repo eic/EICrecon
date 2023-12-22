@@ -58,7 +58,7 @@ namespace eicrecon {
     m_outPFO = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
     // initialize track map
-    initialize_track_map(m_inTrks.first, m_trkMap);
+    initialize_track_map(m_inTrks.first, m_cfg.minTrkMomentum, m_trkMap);
     m_log -> trace("Running particle flow algorithm");
 
     // run selected algorithm
@@ -137,12 +137,12 @@ namespace eicrecon {
     // initialize cluster maps
     //   - TODO switch over to using MergedCluster's for the map:
     //     this will let us use the same map for steps 1 & 2
-    initialize_cluster_map(inCalos.first, m_ecalClustMap);
-    initialize_cluster_map(inCalos.second, m_hcalClustMap);
+    initialize_cluster_map(inCalos.first, m_cfg.minECalEnergy, m_ecalClustMap);
+    initialize_cluster_map(inCalos.second, m_cfg.minHCalEnergy, m_hcalClustMap);
     m_log -> debug("Starting PFAlpha: {} ECal and {} HCal clusters to process", m_ecalClustMap.size(), m_hcalClustMap.size());
 
     // initialize projection map
-    initialize_projection_map(m_inTrks.second, {idECal, idHCal}, m_projMap);
+    initialize_projection_map(m_inTrks.second, {idECal, idHCal}, m_cfg.minTrkMomentum, m_projMap);
     m_log -> debug("{} projections to process", m_projMap.size());
 
     // make sure cluster vectors are clear
@@ -558,48 +558,52 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Cluster Map Initialization
   // --------------------------------------------------------------------------
-  /*! Helper function to initialize a map of calorimeter clusers onto whether or
-   *  not they've been used.
+  /*! Helper function to initialize a map of all calorimeter clusers above a
+   *  specified minimum energy onto whether or not they've been used.
    *
    *  TODO it might be useful to sort the cluster in order for decreasing
    *  energy for more complex algorithms.
    */
-  void ParticleFlow::initialize_cluster_map(const edm4eic::ClusterCollection* clusters, ClustMap& map) {
+  void ParticleFlow::initialize_cluster_map(const edm4eic::ClusterCollection* clusters, const float minEnergy, ClustMap& map) {
 
     // make sure map is clear
     map.clear();
 
-    // create map of cluser
+    // create map of all clusers above minEnergy
     for (const auto cluster : (*clusters)) {
-      map[cluster] = false;
+      if (cluster.getEnergy() > minEnergy) {
+        map[cluster] = false;
+      }
     }
 
-  }  // end 'initialize_cluster_map(edm4eic::ClusterCollection*, ClustMap&)'
+  }  // end 'initialize_cluster_map(edm4eic::ClusterCollection*, float, ClustMap&)'
 
 
 
   // --------------------------------------------------------------------------
   //! Track Map Initialization
   // --------------------------------------------------------------------------
-  /*! Helper function to initialize map of tracks onto whether or not they've
-   *  been used.
+  /*! Helper function to initialize map of all tracks above a specified
+   *  minimum momentum onto whether or not they've been used.
    *
    *  TODO it might be useful to sort tracks in order of decreasing momentum
    *  for more complex algorithms
    *
    *  FIXME switch over to using tracks when Track EDM is ready
    */
-  void ParticleFlow::initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, TrackMap& map) {
+  void ParticleFlow::initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, const float minMomentum, TrackMap& map) {
 
     // make sure track map is clear
     map.clear();
 
-    // add track to map onto whether or not it's been used
+    // create a map of all tracks above minMomentum
     for (const auto track : (*tracks)) {
-      map[track] = false;
+      if (edm4hep::utils::magnitude(track.getMomentum()) > minMomentum) {
+        map[track] = false;
+      }
     }
 
-  }  // end 'intialize_track_map(edm4eic::ReconstructedParticleCollection*, TrackMap&)'
+  }  // end 'intialize_track_map(edm4eic::ReconstructedParticleCollection*, float, TrackMap&)'
 
 
 
@@ -608,12 +612,14 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! Helper function to initialize map of track projections pointing into
    *  the systems defined in sysToUse onto whether or not they've been used.
+   *  Only projections with total momentum above minMomentum will be added
+   *  to the map.
    *
    *  TODO it might be useful to enable sorting the projections by their
    *  momentum at specific surfaces (e.g. the front of the ecal for a given
    *  rapidity range)
    */
-  void ParticleFlow::initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, ProjectMap& map) {
+  void ParticleFlow::initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, const float minMomentum, ProjectMap& map) {
 
     if (sysToUse.size() == 0) {
       m_log -> error("Error! Trying to initialize projection map without specifying to what system(s)!");
@@ -630,7 +636,7 @@ namespace eicrecon {
       bool isPointingToSys = false;
       for (const auto point : projection.getPoints()) {
         for (const auto sys : sysToUse) {
-          if (point.system == sys) {
+          if ((point.system == sys) && (edm4hep::utils::magnitude(point.momentum) > minMomentum)) {
             isPointingToSys = true;
             break;
           }
@@ -643,7 +649,7 @@ namespace eicrecon {
       }
     }  // end projection loop
 
-  }  // end 'intialize_track_projection_map(const edm4eic::TrackSegmentCollection*, std::vector<uint32_t>, ProjectMap&)'
+  }  // end 'intialize_track_projection_map(const edm4eic::TrackSegmentCollection*, std::vector<uint32_t>, float, ProjectMap&)'
 
 
 
@@ -778,7 +784,6 @@ namespace eicrecon {
 
 
 
-
   // --------------------------------------------------------------------------
   //! Get Energy From Nearest Track Projection
   // --------------------------------------------------------------------------
@@ -803,6 +808,39 @@ namespace eicrecon {
     return energy;
 
   }  // end 'get_energy_of_nearest_projection(ProjectionBundle&, edm4hep::Vector3f&, float)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get Detector IDs for Calorimeters
+  // --------------------------------------------------------------------------
+  /*! Helper function to generate detector IDs for the utilized calorimeters.
+   */ 
+  ParticleFlow::CaloIDs ParticleFlow::get_detector_ids() {
+
+    // get ecal detector element
+    dd4hep::DetElement ecalElement;
+    try {
+      ecalElement = m_detector -> detector(m_cfg.ecalDetName.data());
+    } catch (...) {
+      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.ecalDetName.data());
+      throw JException("unknown detector name");
+    }
+
+    // get hcal detector element
+    dd4hep::DetElement hcalElement;
+    try {
+       hcalElement = m_detector -> detector(m_cfg.hcalDetName.data());
+    } catch (...) {
+      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.hcalDetName.data());
+      throw JException("unknown detector name");
+    }
+
+    // set detector ids
+    CaloIDs caloIDs = std::make_pair(ecalElement.id(), hcalElement.id());
+    return caloIDs;
+
+  }  // end 'get_detector_ids()'
 
 
 
@@ -863,39 +901,6 @@ namespace eicrecon {
     return pointAndWasFound;
 
   }  // end 'find_point_at_surface(edm4eic::TrackSegment, uint32_t, uint64_t)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Get Detector IDs for Calorimeters
-  // --------------------------------------------------------------------------
-  /*! Helper function to generate detector IDs for the utilized calorimeters.
-   */ 
-  ParticleFlow::CaloIDs ParticleFlow::get_detector_ids() {
-
-    // get ecal detector element
-    dd4hep::DetElement ecalElement;
-    try {
-      ecalElement = m_detector -> detector(m_cfg.ecalDetName.data());
-    } catch (...) {
-      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.ecalDetName.data());
-      throw JException("unknown detector name");
-    }
-
-    // get hcal detector element
-    dd4hep::DetElement hcalElement;
-    try {
-       hcalElement = m_detector -> detector(m_cfg.hcalDetName.data());
-    } catch (...) {
-      m_log -> error("Trying to get ID of unknown detector with name {}!", m_cfg.hcalDetName.data());
-      throw JException("unknown detector name");
-    }
-
-    // set detector ids
-    CaloIDs caloIDs = std::make_pair(ecalElement.id(), hcalElement.id());
-    return caloIDs;
-
-  }  // end 'get_detector_ids()'
 
 
 
