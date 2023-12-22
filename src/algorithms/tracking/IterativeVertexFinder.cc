@@ -4,7 +4,6 @@
 
 #include "IterativeVertexFinder.h"
 
-#include <Acts/ActsVersion.hpp>
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
