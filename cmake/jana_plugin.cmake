@@ -248,6 +248,12 @@ macro(plugin_add_acts _name)
         ActsPluginDD4hep
         ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
+    if(${_name}_WITH_LIBRARY)
+        target_compile_definitions(${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+    endif()
+    if(${_name}_WITH_PLUGIN)
+        target_compile_definitions(${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+    endif()
 
 endmacro()
 
