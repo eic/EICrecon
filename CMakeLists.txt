@@ -35,6 +35,20 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
+# Set a default build type if none was specified
+set(default_build_type "Release")
+if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+  set(default_build_type "Debug")
+endif()
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
 set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
