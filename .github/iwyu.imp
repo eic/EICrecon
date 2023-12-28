@@ -13,6 +13,7 @@
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
   { include: ['@<Acts/(.*)/detail/(.*)\.ipp>', private, '<Acts/$1/$2.hpp>', public] },
+  { include: ['<Acts/Geometry/detail/DefaultDetectorElementBase.hpp>', private, '<Acts/Geometry/DetectorElementBase.hpp>', public] },
 
   # Eigen
   { include: ['@<Eigen/(src/)?(.*?)/.*>', private, '<Eigen/$2>', public] },

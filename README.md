@@ -16,5 +16,18 @@ If you are new to EIC software then you should start with the tutorials which
 can be found here:
 [https://indico.bnl.gov/category/443/](https://indico.bnl.gov/category/443/)
 
-A preliminary tutorial on JANA2
-[is being developed here](https://eic.github.io/EICrecon/#/tutorial/01-introduction)
+A tutorial on JANA2 is available
+[here](https://eic.github.io/EICrecon/#/tutorial/01-introduction)
+
+### Compilation
+
+To configure, build, and install (to the `install` directory), use the following commands:
+```bash
+cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install
+cmake --build build
+cmake --install build
+```
+To load, you can use the scripts in the `install` directory:
+```bash
+source install/bin/eicrecon-this.sh
+```
