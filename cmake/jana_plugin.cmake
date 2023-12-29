@@ -298,10 +298,10 @@ macro(plugin_add_event_model _name)
 
     # Add include directories
     # ${datamodel_BINARY_DIR} is an include path to datamodel_glue.h
-    file(RELATIVE_PATH datamodel_RELATIVE_PATH ${PROJECT_BINARY_DIR}/src ${datamodel_BINARY_DIR})
+    set(datamodel_RELATIVE_PATH "services/io/podio")
     plugin_include_directories(${PLUGIN_NAME}
       PUBLIC
-        $<BUILD_INTERFACE:${datamodel_BINARY_DIR}>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/${datamodel_RELATIVE_PATH}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${datamodel_RELATIVE_PATH}>
     )
 
