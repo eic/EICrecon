@@ -1,8 +1,6 @@
 # Common macro to add plugins
 macro(plugin_add _name)
 
-    project(${_name}_project)
-
     # Default to plugin without library
     set(${_name}_WITH_LIBRARY OFF)
     set(${_name}_WITH_PLUGIN ON)
