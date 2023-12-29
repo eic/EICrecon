@@ -126,6 +126,9 @@ find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
+# spdlog
+find_package(spdlog REQUIRED)
+
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
 
