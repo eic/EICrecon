@@ -140,8 +140,8 @@ macro(plugin_glob_all _name)
     endif()
     file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
-    # We need plugin relative path for correct headers installation
-    string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
+    # We need plugin relative path for correct headers installation (FIXME cmake 3.20: cmake_path)
+    file(RELATIVE_PATH PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Add sources to plugin
     if(TARGET ${_name}_plugin)
