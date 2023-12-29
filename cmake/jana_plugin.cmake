@@ -150,7 +150,6 @@ macro(plugin_glob_all _name)
     endif()
 
     # FIXME cmake 3.23: define FILE_SET on target_sources
-    set_target_properties(${_name}_plugin PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
     install(FILES ${HEADER_FILES}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${PLUGIN_RELATIVE_PATH}
     )
