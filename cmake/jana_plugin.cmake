@@ -292,7 +292,12 @@ macro(plugin_add_event_model _name)
 
     # Add include directories
     # ${datamodel_BINARY_DIR} is an include path to datamodel_glue.h
-    plugin_include_directories(${PLUGIN_NAME} PUBLIC ${datamodel_BINARY_DIR})
+    file(RELATIVE_PATH datamodel_RELATIVE_PATH ${PROJECT_BINARY_DIR}/src ${datamodel_BINARY_DIR})
+    plugin_include_directories(${PLUGIN_NAME}
+      PUBLIC
+        $<BUILD_INTERFACE:${datamodel_BINARY_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${datamodel_RELATIVE_PATH}>
+    )
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)
