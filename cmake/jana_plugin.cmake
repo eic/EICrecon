@@ -162,9 +162,6 @@ macro(plugin_glob_all _name)
         # Remove plugin.cc file from libraries
         list(REMOVE_ITEM LIB_SRC_FILES ${PLUGIN_CC_FILE_ABS})
 
-        # Debug output if needed
-        message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
     endif(${_name}_WITH_LIBRARY)
