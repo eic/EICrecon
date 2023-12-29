@@ -1,3 +1,6 @@
+# Ensure GNU filesystem layout
+include(GNUInstallDirs)
+
 # Common macro to add plugins
 macro(plugin_add _name)
 
@@ -146,9 +149,11 @@ macro(plugin_glob_all _name)
         target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
     endif()
 
-    #Add correct headers installation
-    # Install headers for plugin
-    install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH})
+    # FIXME cmake 3.23: define FILE_SET on target_sources
+    set_target_properties(${_name}_plugin PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+    install(FILES ${HEADER_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${PLUGIN_RELATIVE_PATH}
+    )
 
     if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc but Plugin does
