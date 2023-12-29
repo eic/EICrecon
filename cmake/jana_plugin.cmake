@@ -54,7 +54,10 @@ macro(plugin_add _name)
         target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
         # Install plugin
-        install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
+        install(TARGETS ${_name}_plugin
+            EXPORT EICreconTargets
+            DESTINATION ${PLUGIN_OUTPUT_DIRECTORY}
+        )
     endif(${_name}_WITH_PLUGIN)
 
     # Define library
@@ -74,8 +77,11 @@ macro(plugin_add _name)
         target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO fmt::fmt)
         target_link_libraries(${_name}_library Microsoft.GSL::GSL)
 
-        # Install plugin
-        install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
+        # Install library
+        install(TARGETS ${_name}_library
+            EXPORT EICreconTargets
+            DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}
+        )
     endif(${_name}_WITH_LIBRARY)
 
     if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
