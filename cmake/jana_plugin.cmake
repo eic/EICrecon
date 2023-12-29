@@ -54,7 +54,7 @@ macro(plugin_add _name)
 
         # Install plugin
         install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
-    endif()     # WITH_PLUGIN
+    endif(${_name}_WITH_PLUGIN)
 
     # Define library
     if(${_name}_WITH_LIBRARY)
@@ -75,7 +75,7 @@ macro(plugin_add _name)
 
         # Install plugin
         install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 
     if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
         target_link_libraries(${_name}_plugin ${_name}_library)
@@ -87,11 +87,11 @@ endmacro()
 macro(plugin_link_libraries _name)
     if(${_name}_WITH_PLUGIN)
         target_link_libraries(${_name}_plugin ${ARGN})
-    endif()     # WITH_PLUGIN
+    endif(${_name}_WITH_PLUGIN)
 
     if(${_name}_WITH_LIBRARY)
         target_link_libraries(${_name}_library ${ARGN})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 
@@ -99,11 +99,11 @@ endmacro()
 macro(plugin_include_directories _name)
     if(${_name}_WITH_PLUGIN)
         target_include_directories(${_name}_plugin  ${ARGN})
-    endif()     # WITH_PLUGIN
+    endif(${_name}_WITH_PLUGIN)
 
     if(${_name}_WITH_LIBRARY)
         target_include_directories(${_name}_library ${ARGN})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 
@@ -123,7 +123,7 @@ macro(plugin_sources _name)
 
         # Add sources to library
         target_sources(${_name}_library PRIVATE ${SOURCES})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
@@ -167,7 +167,7 @@ macro(plugin_glob_all _name)
 
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 
     # Debug output if needed
     message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
