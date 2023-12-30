@@ -141,6 +141,22 @@ macro(plugin_sources _name)
     endif(${_name}_WITH_LIBRARY)
 endmacro()
 
+
+# installs headers in current directory
+macro(plugin_headers_only _name)
+    # get all headers
+    file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
+
+    # We need plugin relative path for correct headers installation (FIXME cmake 3.20: cmake_path)
+    file(RELATIVE_PATH PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # FIXME cmake 3.23: define FILE_SET on target_sources
+    install(FILES ${HEADER_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${PLUGIN_RELATIVE_PATH}
+    )
+endmacro()
+
+
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
 # Adds headers to the correct installation directory
