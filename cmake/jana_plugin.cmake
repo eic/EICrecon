@@ -46,7 +46,11 @@ macro(plugin_add _name)
     if(${_name}_WITH_PLUGIN)
         add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
 
-        target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_plugin
+          PUBLIC
+            $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+        )
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
         set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
@@ -71,7 +75,11 @@ macro(plugin_add _name)
         endif()
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ${suffix})
 
-        target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_library
+          PUBLIC
+            $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+        )
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog)
         target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO fmt::fmt)
@@ -297,12 +305,10 @@ macro(plugin_add_event_model _name)
     endif()
 
     # Add include directories
-    # ${datamodel_BINARY_DIR} is an include path to datamodel_glue.h
-    set(datamodel_RELATIVE_PATH "services/io/podio")
     plugin_include_directories(${PLUGIN_NAME}
       PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/${datamodel_RELATIVE_PATH}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${datamodel_RELATIVE_PATH}>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
     )
 
     # Add libraries
