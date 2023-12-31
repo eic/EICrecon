@@ -5,6 +5,8 @@
 #include <JANA/JException.h>
 #include <JANA/JLogger.h>
 #include <Parsers/Printout.h>
+#include <algorithms/geo.h>
+#include <algorithms/service.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -151,6 +153,14 @@ void DD4hep_service::Initialize() {
         m_log->error("Problem loading geometry: {}", e.what());
         throw std::runtime_error(fmt::format("Problem loading geometry: {}", e.what()));
     }
+
+    // Register as algorithms::GeoSvc
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
+        // FIXME (wdconinc) algorithms::GeoSvc should accept const dd4hep::Detector*
+        // See https://github.com/eic/algorithms/issues/11
+        g.init(const_cast<dd4hep::Detector*>(m_dd4hepGeo.get()));
+    });
 
     // Restore the ticker setting
     m_app->SetTicker( tickerEnabled );
