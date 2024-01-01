@@ -126,6 +126,9 @@ find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
+# spdlog
+find_package(spdlog REQUIRED)
+
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
 
@@ -216,6 +219,8 @@ add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
 add_subdirectory( src/detectors )
 add_subdirectory( src/examples )
+add_subdirectory( src/extensions )
+add_subdirectory( src/factories )
 add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
@@ -226,4 +231,5 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake VERSION ${CMAKE_PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(EXPORT ${PROJECT_NAME}Targets NAMESPACE ${PROJECT_NAME}:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)
