@@ -42,6 +42,14 @@ macro(plugin_add _name)
     # include gsl by default
     find_package(Microsoft.GSL CONFIG)
 
+    # Interface target for all plugins/libraries
+    if(NOT TARGET ${PROJECT_NAME})
+        add_library(${PROJECT_NAME} INTERFACE)
+        install(TARGETS ${PROJECT_NAME}
+            EXPORT EICreconTargets
+        )
+    endif()
+
     # Define plugin
     if(${_name}_WITH_PLUGIN)
         add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
@@ -62,6 +70,8 @@ macro(plugin_add _name)
             EXPORT EICreconTargets
             DESTINATION ${PLUGIN_OUTPUT_DIRECTORY}
         )
+        # Link plugin into interface library
+        target_link_libraries(${PROJECT_NAME} INTERFACE ${_name}_plugin)
     endif(${_name}_WITH_PLUGIN)
 
     # Define library
@@ -90,6 +100,8 @@ macro(plugin_add _name)
             EXPORT EICreconTargets
             DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}
         )
+        # Link library into interface library
+        target_link_libraries(${PROJECT_NAME} INTERFACE ${_name}_library)
     endif(${_name}_WITH_LIBRARY)
 
     if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
@@ -216,7 +228,7 @@ macro(plugin_add_algorithms _name)
     endif()
 
     plugin_link_libraries(${_name}
-        algocore
+        algorithms::algocore
     )
 
 endmacro()

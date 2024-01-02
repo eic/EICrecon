@@ -23,7 +23,6 @@ cmake_minimum_required(VERSION 3.16)
 project({0}_project)
 
 find_package(EICrecon REQUIRED)
-find_package(spdlog REQUIRED)
 
 set(CMAKE_CXX_STANDARD ${{EICrecon_CXX_STANDARD}})
 
@@ -33,7 +32,7 @@ set( {0}_PLUGIN_SOURCES ${{mysourcefiles}} )
 
 # Create plugin
 add_library({0}_plugin SHARED ${{{0}_PLUGIN_SOURCES}})
-target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}} spdlog::spdlog)
+target_link_libraries({0}_plugin PRIVATE EICrecon::EICrecon)
 set_target_properties({0}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "{0}" SUFFIX ".so")
 target_compile_definitions({0}_plugin PUBLIC HAVE_PODIO)
 
