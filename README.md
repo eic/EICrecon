@@ -2,9 +2,9 @@
 [![DOI](https://zenodo.org/badge/512187504.svg)](https://zenodo.org/badge/latestdoi/512187504)
 
 # EICrecon
-JANA based reconstruction for the EPIC detector
+JANA based reconstruction for the ePIC detector
 
-The repository contains reconstruction source code for the EPIC detector. It's function
+The repository contains reconstruction source code for the ePIC detector. Its function
 is to take real or simulated data and reconstruct it into physical values
 for later analysis.
 
@@ -27,6 +27,8 @@ cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install
 cmake --build build
 cmake --install build
 ```
+To change the default build type, add for example `-DCMAKE_BUILD_TYPE=Debug` to the first CMake configure step.
+
 To load, you can use the scripts in the `install` directory:
 ```bash
 source install/bin/eicrecon-this.sh
