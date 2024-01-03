@@ -29,10 +29,17 @@ void DD4hep_service::acquire_services(JServiceLocator *srv_locator) {
     // logging service
     auto log_service = srv_locator->get<Log_service>();
     m_log = log_service->logger("dd4hep");
-    std::string log_level_str = "info";
+    std::string log_level_str{"info"};
     m_app->SetDefaultParameter("dd4hep:LogLevel", log_level_str, "Log level for DD4hep_service");
     m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-    m_log->debug("DD4hep log level is set to {} ({})", log_level_str, fmt::underlying(m_log->level()));
+
+    // Set the DD4hep print level to be quieter by default, but let user adjust it
+    std::string print_level_str{"WARNING"};
+    m_app->SetDefaultParameter("dd4hep:print_level", print_level_str, "Set DD4hep print level (see DD4hep/Printout.h)");
+    dd4hep::setPrintLevel(dd4hep::decodePrintLevel(print_level_str));
+
+    // Set the TGeoManager verbose level (lower dd4hep level is more verbose)
+    TGeoManager::SetVerboseLevel(dd4hep::printLevel() <= dd4hep::PrintLevel::INFO ? 1 : 0);
 }
 
 //----------------------------------------------------------------
@@ -113,10 +120,6 @@ void DD4hep_service::Initialize() {
         throw std::runtime_error("No dd4hep XML file specified.");
     }
 
-    // Set the DD4hep print level to be quieter by default, but let user adjust it
-    int print_level = dd4hep::WARNING;
-    m_app->SetDefaultParameter("dd4hep:print_level", print_level, "Set DD4hep print level (see DD4hep/Printout.h)");
-
     // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
     // while no other output is coming which makes it look like something is wrong. Disable the ticker
     // while parsing and loading the geometry
@@ -126,7 +129,6 @@ void DD4hep_service::Initialize() {
     // load geometry
     auto detector = dd4hep::Detector::make_unique("");
     try {
-        dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
         m_log->info("Loading DD4hep geometry from {} files", m_xml_files.size());
         for (auto &filename : m_xml_files) {
 
