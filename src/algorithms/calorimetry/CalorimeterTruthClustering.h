@@ -10,6 +10,8 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 namespace eicrecon {
 

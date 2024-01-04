@@ -9,8 +9,8 @@
 #include <podio/ObjectID.h>
 #include <cstddef>
 #include <cstdint>
+#include <gsl/pointers>
 #include <map>
-#include <utility>
 
 using namespace dd4hep;
 
