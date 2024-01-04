@@ -4,7 +4,7 @@
 
 #include "TrackParamTruthInit.h"
 
-#include <Evaluator/DD4hepUnits.hpp>
+#include <Evaluator/DD4hepUnits.h>
 #include <TParticlePDG.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
