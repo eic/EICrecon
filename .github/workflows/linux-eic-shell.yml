@@ -51,7 +51,7 @@ jobs:
       release: ${{ steps.define.outputs.release }}
     steps:
     - id: define
-      run:
+      run: |
         echo "platform=${{ env.platform }}" >> $GITHUB_OUTPUT
         echo "release=${{ env.release }}" >> $GITHUB_OUTPUT
 
