@@ -44,8 +44,20 @@ env:
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1
 
 jobs:
+  env:
+    runs-on: ubuntu-latest
+    outputs:
+      platform: ${{ steps.define.outputs.platform }}
+      release: ${{ steps.define.outputs.release }}
+    steps:
+    - id: define
+      run:
+        echo "platform=${{ env.platform }}" >> $GITHUB_OUTPUT
+        echo "release=${{ env.release }}" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
+    needs: env
     strategy:
       matrix:
         include:
@@ -73,7 +85,7 @@ jobs:
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: ${{ env.release }}
+            release: ${{ needs.env.outputs.release }}
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
