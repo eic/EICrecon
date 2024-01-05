@@ -24,8 +24,6 @@ namespace eicrecon {
   void CalorimeterTruthClustering::process(
       const CalorimeterTruthClustering::Input& input,
       const CalorimeterTruthClustering::Output& output) const {
-
-
     const auto [hits, mc] = input;
     auto [clusters] = output;
 
