@@ -65,30 +65,21 @@ jobs:
       # include multiple compilers for one release version,
       # and one compiler for a range of release versions
       matrix:
+        CC: [gcc, clang]
+        CMAKE_BUILD_TYPE: [Release, Debug]
+        release: ${{ needs.env.outputs.release }}
         include:
           - CC: gcc
             CXX: g++
-            CMAKE_BUILD_TYPE: Release
-            release: ${{ needs.env.outputs.release }}
-          - CC: gcc
-            CXX: g++
-            CMAKE_BUILD_TYPE: Debug
-            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
-            CMAKE_BUILD_TYPE: Release
-            release: ${{ needs.env.outputs.release }}
           - CC: clang
-            CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
-            release: ${{ needs.env.outputs.release }}
           - CC: clang
-            CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: nightly
           - CC: clang
-            CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 23.12-alpha
     steps:
