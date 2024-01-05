@@ -64,16 +64,20 @@ jobs:
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Release
+            release: ${{ needs.env.outputs.release }}
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Debug
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
@@ -82,10 +86,6 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 23.12-alpha
-          - CC: clang
-            CXX: clang++
-            CMAKE_BUILD_TYPE: Release
-            release: ${{ needs.env.outputs.release }}
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
