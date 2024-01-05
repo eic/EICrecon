@@ -56,7 +56,7 @@ jobs:
     - id: define
       run: |
         echo "platform=${{ env.platform }}" >> $GITHUB_OUTPUT
-        echo "release=[${{ env.release }}]" >> $GITHUB_OUTPUT
+        echo "release=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
