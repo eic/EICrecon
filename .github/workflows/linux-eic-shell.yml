@@ -170,7 +170,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
-        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -246,7 +246,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
-        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -413,7 +413,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
@@ -473,7 +473,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -520,7 +520,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -561,7 +561,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -671,7 +671,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -726,7 +726,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
