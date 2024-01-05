@@ -34,6 +34,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  platform: ${{ inputs.platform || 'jug_xl' }}
+  release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
   clang-tidy-iwyu-CC: clang
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
@@ -71,7 +73,7 @@ jobs:
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: ${{ inputs.release }}
+            release: ${{ env.release }}
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
@@ -106,7 +108,7 @@ jobs:
     - name: Build and install
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ matrix.release }}"
+        platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
           CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
@@ -115,7 +117,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ matrix.release }}"
+        platform-release: "${{ env.platform }}:${{ matrix.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
@@ -126,7 +128,7 @@ jobs:
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ matrix.release }}"
+        platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ctest --test-dir build -V
@@ -135,7 +137,7 @@ jobs:
     - name: Upload install directory
       uses: actions/upload-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ inputs.platform }}-${{ matrix.release }}$
+        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}$
         path: install.tar.zst
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
@@ -146,7 +148,7 @@ jobs:
       if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ inputs.platform }}-${{ matrix.release }}
+        name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: build.tar.zst
         if-no-files-found: error
 
@@ -169,14 +171,14 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20'
     - name: Upload clang-tidy fixes as artifact
@@ -197,7 +199,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # reduce headers until diff is stable
           while [[ ${sha:-} != $(git diff | sha256sum) ]] ; do
@@ -211,7 +213,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # don't aim for stability for all files
           iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
@@ -307,7 +309,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
@@ -342,7 +344,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
@@ -379,7 +381,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
@@ -424,7 +426,7 @@ jobs:
     - name: Run EICrecon (digitization)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -440,7 +442,7 @@ jobs:
     - name: Run EICrecon (reconstruction)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -486,7 +488,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -587,7 +589,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -632,7 +634,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -640,7 +642,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -681,7 +683,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
@@ -707,7 +709,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           echo "::group::diff ref -> new"
@@ -746,7 +748,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -805,7 +807,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
@@ -854,7 +856,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           pip install 'pygithub>=2' 'bokeh>=3'
@@ -888,7 +890,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        platform-release: "${{ inputs.platform }}:${{ inputs.release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           echo "::group::pip install"
