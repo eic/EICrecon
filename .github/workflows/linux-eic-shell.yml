@@ -34,6 +34,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # inputs doesn't always exist, so we make sure env does
   platform: ${{ inputs.platform || 'jug_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
@@ -45,6 +46,8 @@ env:
 
 jobs:
   env:
+    # env cannot be used in matrix, but outputs can
+    # so this job turns env into outputs
     runs-on: ubuntu-latest
     outputs:
       platform: ${{ steps.define.outputs.platform }}
@@ -59,6 +62,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: env
     strategy:
+      # include multiple compilers for one release version,
+      # and one compiler for a range of release versions
       matrix:
         include:
           - CC: gcc
