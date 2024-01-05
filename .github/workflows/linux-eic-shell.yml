@@ -67,8 +67,8 @@ jobs:
       matrix:
         CC: [gcc, clang]
         CMAKE_BUILD_TYPE: [Release, Debug]
-        release: ${{ needs.env.outputs.release }}
         include:
+          - release: ${{ needs.env.outputs.release }}
           - CC: gcc
             CXX: g++
           - CC: clang
