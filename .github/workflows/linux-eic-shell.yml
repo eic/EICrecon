@@ -50,12 +50,12 @@ jobs:
     # so this job turns env into outputs
     runs-on: ubuntu-latest
     outputs:
-      platform: ${{ steps.define.outputs.platform }}
+      platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
     steps:
     - id: define
       run: |
-        echo "platform=${{ env.platform }}" >> $GITHUB_OUTPUT
+        echo "platform_json=[\"${{ env.platform }}\"]" >> $GITHUB_OUTPUT
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
 
   build:
