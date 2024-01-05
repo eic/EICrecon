@@ -11,8 +11,10 @@
 namespace eicrecon {
 
 class CalorimeterTruthClustering_factory : public JOmniFactory<CalorimeterTruthClustering_factory> {
+public:
+    using AlgoT = eicrecon::CalorimeterTruthClustering;
 private:
-    CalorimeterTruthClustering m_algo;
+    std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::CalorimeterHit> m_rc_hits_input {this};
     PodioInput<edm4hep::SimCalorimeterHit> m_mc_hits_input {this};
@@ -20,14 +22,16 @@ private:
 
 public:
     void Configure() {
-        m_algo.init(logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->init(logger());
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_proto_clusters_output() = m_algo.process(*m_rc_hits_input(), *m_mc_hits_input());
+        m_algo->process({m_rc_hits_input(), m_mc_hits_input()},
+                        {m_proto_clusters_output().get()});
     }
 };
 
