@@ -69,13 +69,17 @@ jobs:
         CMAKE_BUILD_TYPE: [Release, Debug]
         release: ${{ fromJSON(needs.env.outputs.release) }}
         include:
+          # all gcc jobs use g++
           - CC: gcc
             CXX: g++
+          # all clang jobs use clang++
           - CC: clang
             CXX: clang++
-          - CC: clang
+          # all clang debug jobs get extra flags
+           - CC: clang
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+          # include some configs explicitly (if not yet included)
           - CC: clang
             CMAKE_BUILD_TYPE: Release
             release: nightly
