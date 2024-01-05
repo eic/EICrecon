@@ -64,16 +64,20 @@ jobs:
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Release
+            release: ${{ needs.env.outputs.release }}
           - CC: gcc
             CXX: g++
             CMAKE_BUILD_TYPE: Debug
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            release: ${{ needs.env.outputs.release }}
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
@@ -82,10 +86,6 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 23.12-alpha
-          - CC: clang
-            CXX: clang++
-            CMAKE_BUILD_TYPE: Release
-            release: ${{ needs.env.outputs.release }}
     steps:
     - uses: actions/checkout@v4
     - name: Prepare ccache timestamp
