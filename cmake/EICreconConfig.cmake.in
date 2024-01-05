@@ -1,7 +1,6 @@
 @PACKAGE_INIT@
 
 # Can't seem to make this work with CMAKE_MODULE_PATH
-include(${PACKAGE_PREFIX_DIR}/lib/cmake/EICrecon/print_functions.cmake)
 set(EICrecon_INCLUDE_DIR ${PACKAGE_PREFIX_DIR}/include)
 
 set(EICrecon_CXX_STANDARD @CMAKE_CXX_STANDARD@)

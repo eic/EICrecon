@@ -182,7 +182,6 @@ endif()
 
 
 # Add CMake additional functionality:
-include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
