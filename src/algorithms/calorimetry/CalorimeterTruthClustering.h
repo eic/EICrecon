@@ -4,23 +4,43 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 namespace eicrecon {
 
-  class CalorimeterTruthClustering {
+  using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection,
+      edm4hep::SimCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ProtoClusterCollection
+    >
+  >;
 
-  protected:
-    // Insert any member variables here
-    std::shared_ptr<spdlog::logger> m_log;
+  class CalorimeterTruthClustering
+      : public CalorimeterTruthClusteringAlgorithm {
 
   public:
-    void init(std::shared_ptr<spdlog::logger> &logger);
-    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc);
+    CalorimeterTruthClustering(std::string_view name)
+      : CalorimeterTruthClusteringAlgorithm{name,
+                            {"inputHitCollection", "inputSimHitCollection"},
+                            {"outputProtoClusterCollection"},
+                            "Use truth information for clustering."} {}
+
+  public:
+    void init(std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
+
+  private:
+    std::shared_ptr<spdlog::logger> m_log;
 
   };
 

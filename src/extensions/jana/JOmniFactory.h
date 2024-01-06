@@ -10,7 +10,7 @@
  * which might be changed by user parameters.
  */
 
-#include "datamodel_glue.h"
+#include "services/io/podio/datamodel_glue.h"
 #include <JANA/CLI/JVersion.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
