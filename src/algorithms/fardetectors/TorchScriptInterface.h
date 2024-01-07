@@ -11,7 +11,7 @@
 namespace eicrecon {
 
   class TorchScriptInterface : public WithPodConfig<TorchScriptInterfaceConfig> {
- 
+
   public:
 
     void init(const dd4hep::Detector* det, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger> &logger);
@@ -26,4 +26,3 @@ namespace eicrecon {
 
   };
 }
-
