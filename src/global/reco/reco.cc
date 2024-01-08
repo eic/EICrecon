@@ -133,7 +133,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ReconstructedElectrons_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
         "ReconstructedElectrons",
         {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
         "EcalBarrelScFiClusterAssociations",
