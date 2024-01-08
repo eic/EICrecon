@@ -34,7 +34,9 @@ public:
 
     struct InputBase {
         std::string type_name;
-        std::string collection_name;
+        std::vector<std::string> collection_names;
+        bool is_variadic = false;
+
         virtual void GetCollection(const JEvent& event) = 0;
     };
 
@@ -46,7 +48,7 @@ public:
     public:
         Input(JOmniFactory* owner, std::string default_tag="") {
             owner->RegisterInput(this);
-            this->collection_name = default_tag;
+            this->collection_names.push_back(default_tag);
             this->type_name = JTypeInfo::demangle<T>();
         }
 
@@ -56,7 +58,7 @@ public:
         friend class JOmniFactory;
 
         void GetCollection(const JEvent& event) {
-            m_data = event.Get<T>(this->collection_name);
+            m_data = event.Get<T>(this->collection_names[0]);
         }
     };
 
@@ -70,7 +72,7 @@ public:
 
         PodioInput(JOmniFactory* owner, std::string default_collection_name="") {
             owner->RegisterInput(this);
-            this->collection_name = default_collection_name;
+            this->collection_names.push_back(default_collection_name);
             this->type_name = JTypeInfo::demangle<PodioT>();
         }
 
@@ -82,14 +84,42 @@ public:
         friend class JOmniFactory;
 
         void GetCollection(const JEvent& event) {
-            m_data = event.GetCollection<PodioT>(this->collection_name);
+            m_data = event.GetCollection<PodioT>(this->collection_names[0]);
+        }
+    };
+
+
+    template <typename PodioT>
+    class VariadicPodioInput : public InputBase {
+
+        std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
+
+    public:
+
+        VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}) {
+            owner->RegisterInput(this);
+            this->collection_names = default_names;
+            this->type_name = JTypeInfo::demangle<PodioT>();
+            this->is_variadic = true;
+        }
+
+        const std::vector<const typename PodioTypeMap<PodioT>::collection_t*> operator()() {
+            return m_data;
+        }
+
+    private:
+        friend class JOmniFactory;
+
+        void GetCollection(const JEvent& event) {
+            for (auto& coll_name : this->collection_names) {
+                m_data.push_back(event.GetCollection<PodioT>(coll_name));
+            }
         }
     };
 
     void RegisterInput(InputBase* input) {
         m_inputs.push_back(input);
     }
-
 
 
     /// =========================
@@ -377,12 +407,47 @@ public:
         m_app->SetDefaultParameter(m_prefix + ":OutputTags", default_output_collection_names, "Output collection names");
 
         // Set input collection names
-        if (m_inputs.size() != default_input_collection_names.size()) {
-            throw JException("JOmniFactory '%s': Wrong number of input collection names: %d expected, %d found.",
-                             m_prefix.c_str(), m_inputs.size(), default_input_collection_names.size());
+        size_t tic = m_inputs.size();
+        size_t vic = 0;
+        size_t tcc = default_input_collection_names.size();
+
+        for (auto* input : m_inputs) {
+            if (input->is_variadic) { 
+               vic += 1; 
+            }
         }
+        size_t vcc = tcc - (tic - vic);
+
+        if (vic == 0) {
+            // No variadic inputs: check that collection_name count matches input count exactly
+            if (tic != tcc) {
+                throw JException("JOmniFactory '%s': Wrong number of input collection names: %d expected, %d found.",
+                                m_prefix.c_str(), tic, tcc);
+            }
+        }
+        else {
+            // Variadic inputs: check that we have enough collection names for the non-variadic inputs
+            if (tic-vic > tcc) {
+                throw JException("JOmniFactory '%s': Not enough input collection names: %d needed, %d found.",
+                                m_prefix.c_str(), tic-vic, tcc);
+            }
+
+            // Variadic inputs: check that the variadic collection names is evenly divided by the variadic input count
+            if (vcc % vic != 0) {
+                throw JException("JOmniFactory '%s': Wrong number of input collection names: %d found total, but %d can't be distributed among %d variadic inputs evenly.",
+                                m_prefix.c_str(), tcc, vcc, vic);
+            }
+        }
+
         for (size_t i = 0; auto* input : m_inputs) {
-           input->collection_name = default_input_collection_names[i++];
+            if (input->is_variadic) {
+                for (size_t j = 0; j<(vcc/vic); ++j) {
+                    input->collection_names.push_back(default_input_collection_names[i++]);
+                }
+            }
+            else {
+                input->collection_names.push_back(default_input_collection_names[i++]);
+            }
         }
 
         // Set output collection names and create corresponding helper factories
@@ -443,7 +508,6 @@ public:
             // TODO: NWB: JMultifactory ought to already do this... test and fix if it doesn't
         }
     }
-
 
     using ConfigType = ConfigT;
 
