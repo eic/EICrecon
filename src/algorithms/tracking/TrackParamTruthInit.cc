@@ -93,7 +93,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         track_parameter.setType(-1); // type --> seed(-1)
         track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y) / dd4hep::mm), static_cast<float>(v.z / dd4hep::mm)}); // 2d location on surface [mm]
         track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
-        track_parameter.setTheta(theta); // heta [rad]
+        track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
         track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
