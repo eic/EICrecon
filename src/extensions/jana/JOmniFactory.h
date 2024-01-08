@@ -412,8 +412,8 @@ public:
         size_t tcc = default_input_collection_names.size();
 
         for (auto* input : m_inputs) {
-            if (input->is_variadic) { 
-               vic += 1; 
+            if (input->is_variadic) {
+               vic += 1;
             }
         }
         size_t vcc = tcc - (tic - vic);

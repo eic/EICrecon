@@ -23,19 +23,19 @@ private:
 
     VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_in_clu_assoc {this};
 
-    // Declare outputs 
+    // Declare outputs
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
 
     // Declare parameters here, e.g.
     // ParameterRef<double> m_samplingFraction {this, "samplingFraction", config().sampFrac};
     // ParameterRef<std::string> m_energyWeight {this, "energyWeight", config().energyWeight};
-    
+
     // Declare services here, e.g.
     // Service<DD4hep_service> m_geoSvc {this};
 
 public:
     void Configure() {
-        // This is called when the factory is instantiated. 
+        // This is called when the factory is instantiated.
         // Use this callback to make sure the algorithm is configured.
         // The logger, parameters, and services have all been fetched before this is called
         m_algo = std::make_unique<eicrecon::ElectronReconstruction>();
@@ -50,7 +50,7 @@ public:
     }
 
     void ChangeRun(int64_t run_number) {
-        // This is called whenever the run number is changed. 
+        // This is called whenever the run number is changed.
         // Use this callback to retrieve state that is keyed off of run number.
         // This state should usually be managed by a Service.
         // Note: You usually don't need this, because you can declare a Resource instead.
