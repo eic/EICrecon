@@ -111,6 +111,7 @@ public:
         friend class JOmniFactory;
 
         void GetCollection(const JEvent& event) {
+            m_data.clear();
             for (auto& coll_name : this->collection_names) {
                 m_data.push_back(event.GetCollection<PodioT>(coll_name));
             }
@@ -440,6 +441,7 @@ public:
         }
 
         for (size_t i = 0; auto* input : m_inputs) {
+            input->collection_names.clear();
             if (input->is_variadic) {
                 for (size_t j = 0; j<(vcc/vic); ++j) {
                     input->collection_names.push_back(default_input_collection_names[i++]);
