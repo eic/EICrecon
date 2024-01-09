@@ -18,7 +18,6 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
 
       // input collections
-      PodioInput<edm4eic::ReconstructedParticle> m_tracks_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
       PodioInput<edm4eic::Cluster> m_ecal_input {this};
       PodioInput<edm4eic::Cluster> m_hcal_input {this};
@@ -44,9 +43,6 @@ namespace eicrecon {
     public:
 
       void Configure() {
-        // TODO the following line might become relevant when I switch
-        // over to inherting from algorithm...
-        //m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo = std::make_unique<AlgoT>();
         m_algo -> applyConfig(config());
         m_algo -> init(m_geoSvc().detector(), logger());
@@ -58,7 +54,6 @@ namespace eicrecon {
 
       void Process(int64_t run_number, int64_t event_number) {
         m_particle_output() = m_algo -> process(
-          m_tracks_input(),
           m_track_projections_input(),
           m_ecal_input(),
           m_hcal_input()

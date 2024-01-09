@@ -189,10 +189,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
         "ParticleFlowEndcapN",
         {
-          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
-          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
-          "EcalEndcapNClusters",            // edm4eic::Cluster
-          "HcalEndcapNClusters"             // edm4eic::Cluster
+          "CalorimeterTrackProjections",  // edm4eic::TrackSegment
+          "EcalEndcapNClusters",          // edm4eic::Cluster
+          "HcalEndcapNClusters"           // edm4eic::Cluster
         },
         {"EndcapNParticleFlowObjects"},  // edm4eic::ReconstructedParticle
         {
@@ -213,10 +212,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
         "ParticleFlowBarrel",
         {
-          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
-          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
-          "EcalBarrelScFiClusters",         // edm4eic::Cluster
-          "HcalBarrelClusters"              // edm4eic::Cluster
+          "CalorimeterTrackProjections", // edm4eic::TrackSegment
+          "EcalBarrelScFiClusters",      // edm4eic::Cluster
+          "HcalBarrelClusters"           // edm4eic::Cluster
         },
         {"BarrelParticleFlowObjects"},  // edm4eic::ReconstructedParticle
         {
@@ -237,7 +235,6 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
         "ParticleFlowEndcapP",
         {
-          "ReconstructedChargedParticles",  // edm4eic::ReconstructedParticle
           "CalorimeterTrackProjections",    // edm4eic::TrackSegment
           "EcalEndcapPClusters",            // edm4eic::Cluster
           "LFHCALClusters"                  // edm4eic::Cluster
