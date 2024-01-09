@@ -4,9 +4,11 @@
 #ifndef EICRECON_PARTICLEFLOW_H
 #define EICRECON_PARTICLEFLOW_H
 
-#include <map>
+#include <set>
+#include <vector>
 #include <string>
 #include <utility>
+#include <optional>
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
@@ -22,6 +24,7 @@
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "ParticleFlowConfig.h"
+#include "ParticleFlowTools.h"
 
 namespace eicrecon{
 
@@ -43,48 +46,12 @@ namespace eicrecon{
 
     public:
 
-      // ----------------------------------------------------------------------
-      //! Projection Bundle
-      // ----------------------------------------------------------------------
-      /*! An intermediate struct to make calculations easier. Holds track
-       *  projections grouped together and the running sum of energy.
-       */
-      struct ProjectionBundle {
-        float energy = 0.;
-        std::vector<edm4eic::TrackPoint> projections;
-      };
+      // aliases for brevity
+      using TrkInput   = const edm4eic::TrackSegmentCollection*;
+      using CaloInput  = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
+      using CaloSet    = std::set<edm4eic::Cluster, PFTools::is_clust_ene_greater_than>;
+      using ProjectSet = std::set<edm4eic::TrackSegment, PFTools::is_project_mom_greater_than>;
 
-      // ----------------------------------------------------------------------
-      //! Merged Cluster
-      // ----------------------------------------------------------------------
-      /*! An intermediate struct to make calculations easier. Holds info on
-       *  calo clusters merged so far.
-       */
-      struct MergedCluster {
-        bool done = false;
-        int32_t pdg = 0;
-        float mass = 0.;
-        float charge = 0.;
-        float energy = 0.;
-        edm4hep::Vector3f momentum = {0., 0., 0.};
-        edm4hep::Vector3f weighted_position = {0., 0., 0.};
-        std::vector<edm4eic::Cluster> clusters;
-      };
-
-      // aliases for input types
-      //   - FIXME switch over to tracks when Track EDM is ready
-      using TrkInput     = std::pair<const edm4eic::ReconstructedParticleCollection*, const edm4eic::TrackSegmentCollection*>;
-      using CaloInput    = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
-      using CaloIDs      = std::pair<uint32_t, uint32_t>;
-      using VecCaloInput = std::vector<CaloInput>;
-      using VecCaloIDs   = std::vector<CaloIDs>;
-
-      // aliases for internal types
-      using ClustMap      = std::map<edm4eic::Cluster, bool>;
-      using TrackMap      = std::map<edm4eic::ReconstructedParticle, bool>;
-      using ProjectMap    = std::map<edm4eic::TrackSegment, bool>;
-      using PointAndFound = std::pair<edm4eic::TrackPoint, bool>;
-      using VecClust      = std::vector<MergedCluster>;
 
       // algorithm initialization
       void init(
@@ -94,72 +61,43 @@ namespace eicrecon{
 
       // primary algorithm call
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        const edm4eic::ReconstructedParticleCollection* inputTrks,
         const edm4eic::TrackSegmentCollection* inputProjections,
         const edm4eic::ClusterCollection* inputECalClusters,
         const edm4eic::ClusterCollection* inputHCalClusters
       );
 
-      // overloaded += for combining MergedCluster objects
-      friend MergedCluster& operator+=(MergedCluster& lhs, const MergedCluster& rhs) {
-        lhs.energy += rhs.energy;
-        lhs.momentum = lhs.momentum + rhs.momentum;
-        lhs.weighted_position = ((lhs.energy * lhs.weighted_position) + (rhs.energy * rhs.weighted_position)) / (lhs.energy + rhs.energy);
-        for (const auto rhsClust : rhs.clusters) {
-          lhs.clusters.push_back(rhsClust);
-        }
-        return lhs;
-      }  // end +=(MergedCluster&, MergedCluster&)
-
     private:
 
       // particle flow algorithms
-      void do_pf_alpha(const CaloInput inCalos, const CaloIDs idCalos);
+      void do_pf_alpha(const CaloInput inCalos);
 
       // helper methods
-      void initialize_cluster_map(const edm4eic::ClusterCollection* clusters, const float minEnergy, ClustMap& map);
-      void initialize_track_map(const edm4eic::ReconstructedParticleCollection* tracks, const float minMomentum, TrackMap& map);
-      void initialize_projection_map(const edm4eic::TrackSegmentCollection* projections, const std::vector<uint32_t> sysToUse, const float minMomentum, ProjectMap& map);
-      void save_unused_tracks_to_output(const TrackMap& map);
-      void add_track_to_output(const edm4eic::ReconstructedParticle& track);
-      void add_clust_to_output(const MergedCluster& merged);
-      void add_unused_clusters_to_vector(ClustMap& map, VecClust& vec);
-      float calculate_energy_at_point(const edm4eic::TrackPoint& point, const float mass);
-      float calculate_dist_in_eta_phi(const edm4hep::Vector3f& pntA, const edm4hep::Vector3f& pntB);
-      float get_energy_of_nearest_projection(const ProjectionBundle& bundle, const edm4hep::Vector3f& position, const float mass);
-      CaloIDs get_detector_ids();
-      MergedCluster make_merged_cluster(const bool done, const int32_t pdg, const float mass, const float chrg, const float ene, const edm4hep::Vector3f mom, const edm4hep::Vector3f pos, const std::vector<edm4eic::Cluster> clusters);
-      PointAndFound find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface);
-      edm4hep::Vector3f calculate_momentum(const MergedCluster& clust, const edm4hep::Vector3f vertex);
+      void initialize_cluster_set(const edm4eic::ClusterCollection* clustCollect, CaloSet& clustSet, std::optional<float> minEnergy = std::nullopt);
+      void initialize_projection_set(const edm4eic::TrackSegmentCollection* projCollect, const std::vector<uint32_t> sysToUse, ProjectSet& projSet, std::optional<float> minMomentim = std::nullopt);
+      void add_track_to_output(const edm4eic::TrackSegment track, const uint32_t system, const uint64_t surface, std::optional<std::vector<edm4eic::Cluster>> assocClusters = std::nullopt);
+      void add_clusters_to_output(std::vector<edm4eic::Cluster> clusters, std::optional<float> mass = std::nullopt, std::optional<int32_t> pdg = std::nullopt);
 
       // detector & logging service
       const dd4hep::Detector* m_detector;
       std::shared_ptr<spdlog::logger> m_log;
 
-      // input collections and lists
+      // input collections
       TrkInput  m_inTrks;
       CaloInput m_inCalos;
-      CaloIDs   m_caloIDs;
 
       // output collection
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> m_outPFO;
 
-      // vectors & maps for indexing objects, etc.
-      VecClust m_ecalClustVec;
-      VecClust m_hcalClustVec;
-      ClustMap m_ecalClustMap;
-      ClustMap m_hcalClustMap;
-      TrackMap m_trkMap;
-      ProjectMap m_projMap;
+      // sets for indexing input objct
+      CaloSet    m_ecalClustSet;
+      CaloSet    m_hcalClustSet;
+      ProjectSet m_projectSet;
 
-      // class-wide constants
-      const struct Constants {
-        size_t   nCaloPairs;
-        uint64_t innerSurface;
-        int32_t  idPi0;
-        float    massPiCharged;
-        float    massPi0;
-      } m_const = {3, 1, 111, 0.140, 0.135};
+      // vectors for collecting projections to use or clusters to merge
+      std::vector<edm4eic::TrackPoint> m_nearbyECalProjectVec;
+      std::vector<edm4eic::TrackPoint> m_nearbyHCalProjectVec;
+      std::vector<edm4eic::Cluster>    m_ecalClustsToMergeVec;
+      std::vector<edm4eic::Cluster>    m_hcalClustsToMergeVec;
 
       // ----------------------------------------------------------------------
       //! Algorithm Options
