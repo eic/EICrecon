@@ -12,8 +12,11 @@
 namespace eicrecon {
 
 class CalorimeterHitsMerger_factory : public JOmniFactory<CalorimeterHitsMerger_factory, CalorimeterHitsMergerConfig> {
+
+public:
+    using AlgoT = eicrecon::CalorimeterHitsMerger;
 private:
-    CalorimeterHitsMerger m_algo;
+    std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::CalorimeterHit> m_hits_input {this};
     PodioOutput<edm4eic::CalorimeterHit> m_hits_output {this};
@@ -26,15 +29,16 @@ private:
 
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->applyConfig(config());
+        m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_hits_output() = m_algo.process(*m_hits_input());
+        m_algo->process({m_hits_input()}, {m_hits_output().get()});
     }
 };
 

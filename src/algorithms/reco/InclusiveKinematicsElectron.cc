@@ -2,6 +2,7 @@
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
 #include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -11,7 +12,6 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <cmath>
-#include <exception>
 #include <vector>
 
 #include "Beam.h"

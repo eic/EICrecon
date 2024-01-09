@@ -5,7 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <stddef.h>
-#include <string>
+#include <algorithm>
 #include <utility>
 #include <vector>
 

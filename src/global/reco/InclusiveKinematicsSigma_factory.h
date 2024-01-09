@@ -5,10 +5,8 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 

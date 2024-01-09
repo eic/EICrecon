@@ -20,17 +20,14 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <exception>
+#include <gsl/pointers>
 #include <limits>
 #include <stdexcept>
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 

@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include <algorithm>
 
+#include <algorithms/algorithm.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
@@ -32,22 +33,37 @@
 
 namespace eicrecon {
 
-/** Imaging cluster reconstruction.
- *
- *  Reconstruct the cluster/layer info for imaging calorimeter
- *  Logarithmic weighting is used to describe energy deposit in transverse direction
- *
- *  \ingroup reco
- */
-  class ImagingClusterReco : public WithPodConfig<ImagingClusterRecoConfig> {
-
-  using ClustersWithAssociations = std::tuple<
-        std::unique_ptr<edm4eic::ClusterCollection>,
-        std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>,
-        std::unique_ptr<edm4eic::ClusterCollection>
+  using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      edm4hep::SimCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection,
+      edm4eic::ClusterCollection
+    >
   >;
 
-  protected:
+  /** Imaging cluster reconstruction.
+   *
+   *  Reconstruct the cluster/layer info for imaging calorimeter
+   *  Logarithmic weighting is used to describe energy deposit in transverse direction
+   *
+   *  \ingroup reco
+   */
+  class ImagingClusterReco
+      : public ImagingClusterRecoAlgorithm,
+        public WithPodConfig<ImagingClusterRecoConfig> {
+
+  public:
+    ImagingClusterReco(std::string_view name)
+      : ImagingClusterRecoAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+                            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
+
+  private:
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
@@ -56,17 +72,12 @@ namespace eicrecon {
         m_log = logger;
     }
 
-    ClustersWithAssociations process(
-        const edm4eic::ProtoClusterCollection& proto,
-        const edm4hep::SimCalorimeterHitCollection& mchits
-    ) {
+    void process(const Input& input, const Output& output) const final {
 
-        // output collections
-        auto layers = std::make_unique<edm4eic::ClusterCollection>();
-        auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-        auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+        const auto [proto, mchits] = input;
+        auto [clusters, associations, layers] = output;
 
-        for (const auto& pcl: proto) {
+        for (const auto& pcl: *proto) {
             if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
                 m_log->warn("Protocluster hit relation is invalid, skipping protocluster");
                 continue;
@@ -89,7 +100,7 @@ namespace eicrecon {
             clusters->push_back(cl);
 
             // If mcHits are available, associate cluster with MCParticle
-            if (mchits.size() > 0) {
+            if (mchits->size() > 0) {
 
                 // 1. find pclhit with the largest energy deposition
                 auto pclhits = pcl.getHits();
@@ -103,7 +114,7 @@ namespace eicrecon {
 
                 // 2. find mchit with same CellID
                 const edm4hep::SimCalorimeterHit* mchit = nullptr;
-                for (auto h : mchits) {
+                for (auto h : *mchits) {
                     if (h.getCellID() == pclhit->getCellID()) {
                         mchit = &h;
                         break;
@@ -136,8 +147,6 @@ namespace eicrecon {
                          cl.getIntrinsicPhi() / M_PI * 180.
             );
         }
-
-        return std::make_tuple(std::move(clusters), std::move(associations), std::move(layers));
     }
 
   private:
@@ -205,7 +214,7 @@ namespace eicrecon {
         return layer;
     }
 
-    edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
+    static edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
         edm4eic::MutableCluster cluster;
 
         const auto& hits = pcl.getHits();

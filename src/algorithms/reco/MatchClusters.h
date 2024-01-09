@@ -27,7 +27,10 @@ namespace eicrecon {
 
     public:
 
-        using MatchingResults = std::tuple<edm4eic::ReconstructedParticleCollection*, edm4eic::MCRecoParticleAssociationCollection*>;
+        using MatchingResults = std::tuple<
+            std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
+            std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>
+        >;
 
         void init(std::shared_ptr<spdlog::logger> logger);
 

@@ -24,7 +24,6 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
-#include <variant>
 
 namespace
 {
@@ -208,14 +207,20 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
       Acts::Vector3 global(xypos.first, xypos.second, z0);
 
-      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-                                          global, Acts::Vector3(1,1,1));
+      //Compute local position at PCA
+      Acts::Vector2 localpos;
+      Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
 
-      Acts::Vector2 localpos(sqrt(square(xypos.first) + square(xypos.second)), z0);
-      if(local.ok())
-        {
-          localpos = local.value();
-        }
+      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
+                                          global,
+                                          direction);
+
+      if(!local.ok())
+      {
+        continue;
+      }
+
+      localpos = local.value();
 
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)

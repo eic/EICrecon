@@ -16,9 +16,7 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <cmath>
-#include <exception>
 #include <map>
-#include <type_traits>
 #include <vector>
 
 #include "MatchClusters.h"
@@ -41,8 +39,8 @@ namespace eicrecon {
         m_log->debug("Processing cluster info for new event");
 
         // Resulting reconstructed particles and associations
-        auto* outparts = new edm4eic::ReconstructedParticleCollection();
-        auto* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
+        auto outparts = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        auto outpartsassoc = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
 
         m_log->debug("Step 0/2: Getting indexed list of clusters...");
 
@@ -130,7 +128,7 @@ namespace eicrecon {
             assoc.setSim((*mcparticles)[mcID]);
         }
 
-        return {outparts, outpartsassoc};
+        return {std::move(outparts), std::move(outpartsassoc)};
     }
 
 

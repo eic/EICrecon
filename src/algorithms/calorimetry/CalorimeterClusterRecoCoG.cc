@@ -10,7 +10,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -37,9 +36,8 @@ namespace eicrecon {
 
   using namespace dd4hep;
 
-  void CalorimeterClusterRecoCoG::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+  void CalorimeterClusterRecoCoG::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
-    m_detector = detector;
 
     // select weighting method
     std::string ew = m_cfg.energyWeight;

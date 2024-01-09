@@ -10,7 +10,15 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
 # Explicit linking to podio::podio is needed due to https://github.com/JeffersonLab/JANA2/issues/151
-target_include_directories(${TEST_NAME} PRIVATE ${PROJECT_BINARY_DIR} ${EICRECON_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${datamodel_BINARY_DIR})
+target_include_directories(${TEST_NAME}
+  PRIVATE
+    ${PROJECT_BINARY_DIR}
+    ${EICRECON_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}
+    ${JANA_INCLUDE_DIR}
+    ${ROOT_INCLUDE_DIRS}
+    ${PROJECT_BINARY_DIR}/include
+)
 target_link_libraries(${TEST_NAME} PRIVATE
   log_plugin
   EDM4EIC::edm4eic

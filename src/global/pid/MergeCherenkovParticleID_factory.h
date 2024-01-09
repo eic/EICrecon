@@ -7,10 +7,8 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 

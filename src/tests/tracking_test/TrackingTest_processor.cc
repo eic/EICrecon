@@ -15,13 +15,12 @@
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <stddef.h>
-#include <exception>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
