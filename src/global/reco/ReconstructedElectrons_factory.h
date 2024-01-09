@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-class ReconstructedElectrons_factory : public JOmniFactory<ReconstructedElectrons_factory> {
+class ReconstructedElectrons_factory : public JOmniFactory<ReconstructedElectrons_factory, ElectronReconstructionConfig> {
 private:
 
     // Underlying algorithm
@@ -26,9 +26,9 @@ private:
     // Declare outputs
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
 
-    // Declare parameters here, e.g.
-    // ParameterRef<double> m_samplingFraction {this, "samplingFraction", config().sampFrac};
-    // ParameterRef<std::string> m_energyWeight {this, "energyWeight", config().energyWeight};
+    // Declare parameters
+    ParameterRef<double> m_min_energy_over_momentum {this, "minEnergyOverMomentum", config().min_energy_over_momentum};
+    ParameterRef<double> m_max_energy_over_momentum {this, "maxEnergyOverMomentum", config().max_energy_over_momentum};
 
     // Declare services here, e.g.
     // Service<DD4hep_service> m_geoSvc {this};
@@ -40,8 +40,8 @@ public:
         // The logger, parameters, and services have all been fetched before this is called
         m_algo = std::make_unique<eicrecon::ElectronReconstruction>();
 
-        // If we had a config object, we'd apply it like so:
-        // m_algo->applyConfig(config());
+        // Pass config object to algorithmm
+        m_algo->applyConfig(config());
 
         // If we needed geometry, we'd obtain it like so
         // m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());

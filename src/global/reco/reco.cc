@@ -143,6 +143,7 @@ void InitPlugin(JApplication *app) {
         "EcalLumiSpecClusterAssociations",
         },
         {"ReconstructedElectrons"},
+        {},
         app
     ));
 
