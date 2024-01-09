@@ -252,7 +252,7 @@ struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig
     void Process(int64_t run_number, uint64_t event_number) {
         m_process_call_count++;
         logger()->info("Calling VariadicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
-        
+
         REQUIRE(m_hits_in()->size() == 3);
         REQUIRE(m_variadic_hits_in().size() == 2);
         REQUIRE(m_variadic_hits_in()[0]->size() == 1);
@@ -293,7 +293,7 @@ TEST_CASE("VariadicOmniFactoryTests") {
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(mains), "main_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(funs), "fun_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(funners), "funner_hits");
-    
+
     auto processed = event->GetCollection<edm4hep::SimCalorimeterHit>("processed_hits");
     REQUIRE(processed->size() == 4);
 }
