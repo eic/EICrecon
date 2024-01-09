@@ -14,6 +14,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "extensions/jana/JOmniFactory.h"
@@ -297,3 +298,76 @@ TEST_CASE("VariadicOmniFactoryTests") {
     auto processed = event->GetCollection<edm4hep::SimCalorimeterHit>("processed_hits");
     REQUIRE(processed->size() == 4);
 }
+
+struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
+
+    VariadicPodioInput<edm4hep::SimCalorimeterHit> m_left_hits_in {this};
+    PodioInput<edm4hep::SimCalorimeterHit> m_center_hits_in {this};
+    VariadicPodioInput<edm4hep::SimCalorimeterHit> m_right_hits_in {this};
+    PodioOutput<edm4hep::SimCalorimeterHit> m_hits_out {this};
+
+    std::vector<OutputBase*> GetOutputs() { return this->m_outputs; }
+
+    void Configure() {}
+
+    void ChangeRun(int64_t run_number) {}
+
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    void Process(int64_t run_number, uint64_t event_number) {
+        
+        // Variadic collection count constrained to be same size
+        REQUIRE(m_left_hits_in().size() == 1);
+        REQUIRE(m_right_hits_in().size() == 1);
+
+        REQUIRE(m_left_hits_in()[0]->size() == 2);
+        REQUIRE(m_right_hits_in()[0]->size() == 1);
+
+        REQUIRE(m_center_hits_in()->size() == 3);
+
+        m_hits_out() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
+        m_hits_out()->setSubsetCollection();
+
+        auto* lhi = m_left_hits_in()[0];
+        for (const auto& hit : *lhi) {
+            m_hits_out()->push_back(hit);
+        }
+        for (const auto& hit : *m_center_hits_in()) {
+            m_hits_out()->push_back(hit);
+        }
+    }
+};
+
+
+TEST_CASE("SubsetOmniFactoryTests") {
+    VariadicTestAlg alg;
+    JApplication app;
+    app.AddPlugin("log");
+
+    auto facgen = new JOmniFactoryGeneratorT<SubsetTestAlg>("SubsetTest", {"left","center","right"}, {"processed_hits"}, &app);
+    app.Add(facgen);
+    app.Initialize();
+
+    auto event = std::make_shared<JEvent>();
+    app.GetService<JComponentManager>()->configure_event(*event);
+
+    edm4hep::SimCalorimeterHitCollection left;
+    edm4hep::SimCalorimeterHitCollection center;
+    edm4hep::SimCalorimeterHitCollection right;
+
+    left.push_back(edm4hep::SimCalorimeterHit());
+    left.push_back(edm4hep::SimCalorimeterHit());
+    right.push_back(edm4hep::SimCalorimeterHit());
+
+    center.push_back(edm4hep::SimCalorimeterHit());
+    center.push_back(edm4hep::SimCalorimeterHit());
+    center.push_back(edm4hep::SimCalorimeterHit());
+
+    event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left), "left");
+    event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(center), "center");
+    event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right), "right");
+    
+    auto processed = event->GetCollection<edm4hep::SimCalorimeterHit>("processed_hits");
+    REQUIRE(processed->size() == 5);
+}
+
+
