@@ -45,26 +45,6 @@ namespace eicrecon {
 
 
 
-    /*! Comparator to input track projections in decreasing momentum.
-     */
-    struct is_project_mom_greater_than {
-      bool operator() (const edm4eic::TrackSegment& lhs, const edm4eic::TrackSegment& rhs) const {
-        return (edm4hep::utils::magnitude(lhs.getTrack().getMomentum()) > edm4hep::utils::magnitude(rhs.getTrack().getMomentum()));
-      }
-    };
-
-
-
-    /*! Comparator to sort input clsuters in decreasing energy.
-     */
-    struct is_clust_ene_greater_than {
-      bool operator() (const edm4eic::Cluster& lhs, const edm4eic::Cluster& rhs) const {
-        return (lhs.getEnergy() > rhs.getEnergy());
-      }
-    };
-
-
-
     // ------------------------------------------------------------------------
     //! Get ID of Detector Subsystem
     // ------------------------------------------------------------------------
@@ -147,69 +127,6 @@ namespace eicrecon {
 
 
     // ------------------------------------------------------------------------
-    //! Calculate Sum of Cluster Energies
-    // ------------------------------------------------------------------------
-    /*! Overloaded function to calculate the sum of energies from a provided
-     *  list of edm4eic::Cluster's.
-     */
-    float calculate_sum_of_energies(std::vector<edm4eic::Cluster>& vecClust) {
-
-      float sum = 0.;
-      for (const auto clust : vecClust) {
-        sum += clust.getEnergy();
-      }
-      return sum;
-
-    }  // end 'calculate_sum_of_energies(std::vector<edm4eic::Cluster>&)'
-
-
-
-    // ------------------------------------------------------------------------
-    //! Calculate Sum of Track Energies at Points
-    // ------------------------------------------------------------------------
-    /*! Overloaded function to calculate the sum of energies from a provided
-     *  list of edm4eic::TrackPoint's.
-     */
-    float calculate_sum_of_energies(std::vector<edm4eic::TrackPoint>& points, std::optional<float> mass = std::nullopt) {
-
-      float sum = 0.;
-      for (const auto point : points) {
-	if (mass.has_value()) {
-          sum += calculate_energy_at_point(point, mass.value());
-	} else {
-	  sum += calculate_energy_at_point(point, consts.massPiCharged);
-	}
-      }
-      return sum;
-
-    }  // end 'calculate_sum_of_energies(std::vector<edm4eic::TrackPoint>&, std::optional<float>)'
-
-
-
-    // ------------------------------------------------------------------------
-    //! Calculate Energy-Weighted Position
-    // ------------------------------------------------------------------------
-    /*! Calculates the energy-weighted position of a collection of clusters.
-     *
-     *  TODO it might be handy to let the weighting function be configurable
-     *  in a way similar to ClusterRecoCoG...
-     */ 
-    edm4hep::Vector3f calculate_energy_weighted_centroid(std::vector<edm4eic::Cluster>& clusters) {
-
-      // get sum of energy
-      float sum_energy = calculate_sum_of_energies(clusters);;
-
-      edm4hep::Vector3f weighted_position = clusters.at(0).getEnergy() * clusters.at(0).getPosition();
-      for (size_t iClust = 1; iClust < clusters.size(); iClust++) {
-        weighted_position = weighted_position + (clusters.at(iClust).getEnergy() * clusters.at(iClust).getPosition());
-      }
-      return weighted_position / sum_energy;
-
-    }  // end 'calculate_energy_weighted_centroid(std::vector<edm4eic::Cluster>&)'
-
-
-
-    // ------------------------------------------------------------------------
     //! Calculate Momentum for a Cluster
     // ------------------------------------------------------------------------
     /*! Calculates momentum for an edm4eic::Cluster relative to a
@@ -250,61 +167,6 @@ namespace eicrecon {
 
 
     // ------------------------------------------------------------------------
-    //! Create Cluster with Substracted Energy
-    // ------------------------------------------------------------------------
-    /*! Creates a copy of a cluster but with subtracted energy.
-     */
-    edm4eic::Cluster make_subtracted_cluster(const edm4eic::Cluster& original, const float eneToSub) {
-
-      // recalculate energy error
-      const float eneSub = original.getEnergy() - eneToSub;
-      const float perErr = original.getEnergyError() / original.getEnergy();
-      const float newErr = perErr * eneSub;
-
-      // create new cluster
-      edm4eic::MutableCluster subtracted;
-      subtracted.setEnergy( eneSub );
-      subtracted.setEnergyError( newErr );
-      subtracted.setTime( original.getTime() );
-      subtracted.setNhits( original.getNhits() );
-      subtracted.setPosition( original.getPosition() );
-      subtracted.setPositionError( original.getPositionError() );
-      subtracted.addToClusters( original );
-
-      // return non-mutable rep
-      return static_cast<edm4eic::Cluster>(subtracted);
-
-    }  // end 'make_subtracted_cluster(edm4eic::Cluster&, float)'
-
-
-
-    // ------------------------------------------------------------------------
-    //! Get Nearest Track Projection
-    // ------------------------------------------------------------------------
-    /*! Returns the track projection nearest to the provided position in the
-     *  eta-phi plane from the provided set of projections.  If no point is
-     *  found, then std::nullopt is returned.
-     */
-    std::optional<edm4eic::TrackPoint> get_nearest_projection(std::vector<edm4eic::TrackPoint>& projections, const edm4hep::Vector3f& position) {
-  
-      // instantiate point to return
-      std::optional<edm4eic::TrackPoint> nearest = std::nullopt;
-
-      // loop over projections
-      float dNearest = std::numeric_limits<float>::max();
-      for (const auto project : projections) {
-        const float dist = calculate_dist_in_eta_phi(position, project.position);
-        if (dist < dNearest) {
-          nearest = project;
-        }
-      }
-      return nearest;
-
-    }  // end 'get_nearest_projection(std::vector<>, edm4hep::Vector3f&)
-
-
-
-    // ------------------------------------------------------------------------
     //! Find Track Projection at a Specific Surface
     // ------------------------------------------------------------------------
     /*! Returns the corresponding to the track projected to the specified
@@ -318,7 +180,7 @@ namespace eicrecon {
 
       // select from points comprising track projection
       for (const auto point : projection.getPoints()) {
-        const bool isInSystem = (point.system == system);
+        const bool isInSystem  = (point.system == system);
         const bool isAtSurface = (point.surface == surface);
         if (isInSystem && isAtSurface) {
           foundPoint = point;
@@ -326,7 +188,110 @@ namespace eicrecon {
         }
       }  // end point loop
       return foundPoint;
+
     }  // end 'find_point_at_surface(edm4eic::TrackSegment, uint32_t, uint64_t)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get Nearest Track Projection
+    // ------------------------------------------------------------------------
+    /*! Returns the track projection nearest to the provided position in the
+     *  eta-phi plane from the provided set of projections.  If no point is
+     *  found, then std::nullopt is returned.
+     */
+    std::optional<edm4eic::TrackSegment> get_nearest_projection(const edm4hep::Vector3f& position, std::vector<edm4eic::TrackSegment>& projections, const uint32_t system, const uint64_t surface) {
+  
+      // instantiate point to return
+      std::optional<edm4eic::TrackSegment> nearest = std::nullopt;
+
+      // loop over projections
+      float dNearest = std::numeric_limits<float>::max();
+      for (const auto project : projections) {
+
+        // grab projection at specified point
+        const auto point = find_point_at_surface(project, system, surface);
+
+        // if found, calculate distance
+        if (point.has_value()) {
+          const float dist = calculate_dist_in_eta_phi(position, point.value().position);
+          if (dist < dNearest) {
+            nearest = project;
+          }
+        }
+      }  // end projection loop
+      return nearest;
+
+    }  // end 'get_nearest_projection(std::vector<>, edm4hep::Vector3f&)
+
+
+
+    // ------------------------------------------------------------------------
+    //! Calculate Sum of Track Energies at Points
+    // ------------------------------------------------------------------------
+    /*! Overloaded function to calculate the sum of energies from a provided
+     *  list of edm4eic::TrackSegment's evaluated at the specified point
+     */
+    float calculate_sum_of_energies(std::vector<edm4eic::TrackSegment>& projections, const uint32_t system, const uint64_t surface, std::optional<float> mass = std::nullopt) {
+
+      float sum = 0.;
+      for (const auto projection : projections) {
+
+        // grab point
+        const auto point = find_point_at_surface(projection, system, surface);
+        if (!point.has_value()) continue;
+
+        // increment sum
+	if (mass.has_value()) {
+          sum += calculate_energy_at_point(point.value(), mass.value());
+	} else {
+	  sum += calculate_energy_at_point(point.value(), consts.massPiCharged);
+	}
+      }
+      return sum;
+
+    }  // end 'calculate_sum_of_energies(std::vector<edm4eic::TrackPoint>&, uint32_t, uint64_t, std::optional<float>)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Calculate Sum of Cluster Energies
+    // ------------------------------------------------------------------------
+    /*! Overloaded function to calculate the sum of energies from a provided
+     *  list of edm4eic::Cluster's.
+     */
+    float calculate_sum_of_energies(std::vector<edm4eic::Cluster>& vecClust) {
+
+      float sum = 0.;
+      for (const auto clust : vecClust) {
+        sum += clust.getEnergy();
+      }
+      return sum;
+
+    }  // end 'calculate_sum_of_energies(std::vector<edm4eic::Cluster>&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Calculate Energy-Weighted Position
+    // ------------------------------------------------------------------------
+    /*! Calculates the energy-weighted position of a collection of clusters.
+     *
+     *  TODO it might be handy to let the weighting function be configurable
+     *  in a way similar to CalorimeterClusterRecoCoG...
+     */ 
+    edm4hep::Vector3f calculate_energy_weighted_centroid(std::vector<edm4eic::Cluster>& clusters) {
+
+      // get sum of energy
+      float sum_energy = calculate_sum_of_energies(clusters);;
+
+      edm4hep::Vector3f weighted_position = clusters.at(0).getEnergy() * clusters.at(0).getPosition();
+      for (size_t iClust = 1; iClust < clusters.size(); iClust++) {
+        weighted_position = weighted_position + (clusters.at(iClust).getEnergy() * clusters.at(iClust).getPosition());
+      }
+      return weighted_position / sum_energy;
+
+    }  // end 'calculate_energy_weighted_centroid(std::vector<edm4eic::Cluster>&)'
 
   }  // end PFTools namespace
 }  // end eicrecon namespace

@@ -47,10 +47,11 @@ namespace eicrecon{
     public:
 
       // aliases for brevity
+      //   - TODO make comparators to sort sets by decreasing momentum/energy 
       using TrkInput   = const edm4eic::TrackSegmentCollection*;
       using CaloInput  = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
-      using CaloSet    = std::set<edm4eic::Cluster, PFTools::is_clust_ene_greater_than>;
-      using ProjectSet = std::set<edm4eic::TrackSegment, PFTools::is_project_mom_greater_than>;
+      using CaloSet    = std::set<edm4eic::Cluster>;
+      using ProjectSet = std::set<edm4eic::TrackSegment>;
 
 
       // algorithm initialization
@@ -73,9 +74,9 @@ namespace eicrecon{
 
       // helper methods
       void initialize_cluster_set(const edm4eic::ClusterCollection* clustCollect, CaloSet& clustSet, std::optional<float> minEnergy = std::nullopt);
-      void initialize_projection_set(const edm4eic::TrackSegmentCollection* projCollect, const std::vector<uint32_t> sysToUse, ProjectSet& projSet, std::optional<float> minMomentim = std::nullopt);
-      void add_track_to_output(const edm4eic::TrackSegment track, const uint32_t system, const uint64_t surface, std::optional<std::vector<edm4eic::Cluster>> assocClusters = std::nullopt);
-      void add_clusters_to_output(std::vector<edm4eic::Cluster> clusters, std::optional<float> mass = std::nullopt, std::optional<int32_t> pdg = std::nullopt);
+      void initialize_projection_set(const edm4eic::TrackSegmentCollection* projCollect, const std::vector<uint32_t> sysToUse, ProjectSet& projSet, std::optional<float> minMomentum = std::nullopt);
+      void add_track_to_output(const edm4eic::TrackSegment track, const uint32_t system, const uint64_t surface);
+      void add_clusters_to_output(std::vector<edm4eic::Cluster> clusters, std::optional<int32_t> pdg = std::nullopt, std::optional<float> mass = std::nullopt, std::optional<float> subtract = std::nullopt);
 
       // detector & logging service
       const dd4hep::Detector* m_detector;
@@ -94,10 +95,10 @@ namespace eicrecon{
       ProjectSet m_projectSet;
 
       // vectors for collecting projections to use or clusters to merge
-      std::vector<edm4eic::TrackPoint> m_nearbyECalProjectVec;
-      std::vector<edm4eic::TrackPoint> m_nearbyHCalProjectVec;
-      std::vector<edm4eic::Cluster>    m_ecalClustsToMergeVec;
-      std::vector<edm4eic::Cluster>    m_hcalClustsToMergeVec;
+      std::vector<edm4eic::TrackSegment> m_nearbyProjectVec;
+      std::vector<edm4eic::Cluster>      m_ecalClustToMergeVec;
+      std::vector<edm4eic::Cluster>      m_hcalClustToMergeVec;
+      std::vector<edm4eic::Cluster>      m_clustToMergeVec;
 
       // ----------------------------------------------------------------------
       //! Algorithm Options
