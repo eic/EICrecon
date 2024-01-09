@@ -314,7 +314,7 @@ struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
     // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     void Process(int64_t run_number, uint64_t event_number) {
-        
+
         // Variadic collection count constrained to be same size
         REQUIRE(m_left_hits_in().size() == 1);
         REQUIRE(m_right_hits_in().size() == 1);
@@ -365,9 +365,7 @@ TEST_CASE("SubsetOmniFactoryTests") {
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left), "left");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(center), "center");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right), "right");
-    
+
     auto processed = event->GetCollection<edm4hep::SimCalorimeterHit>("processed_hits");
     REQUIRE(processed->size() == 5);
 }
-
-
