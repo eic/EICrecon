@@ -408,42 +408,42 @@ public:
         m_app->SetDefaultParameter(m_prefix + ":OutputTags", default_output_collection_names, "Output collection names");
 
         // Set input collection names
-        size_t tic = m_inputs.size();
-        size_t vic = 0;
-        size_t tcc = default_input_collection_names.size();
+        size_t total_input_count = m_inputs.size();
+        size_t variadic_input_count = 0;
+        size_t total_collection_count = default_input_collection_names.size();
 
         for (auto* input : m_inputs) {
             if (input->is_variadic) {
-               vic += 1;
+               variadic_input_count += 1;
             }
         }
-        size_t vcc = tcc - (tic - vic);
+        size_t variadic_collection_count = total_collection_count - (total_input_count - variadic_input_count);
 
-        if (vic == 0) {
+        if (variadic_input_count == 0) {
             // No variadic inputs: check that collection_name count matches input count exactly
-            if (tic != tcc) {
+            if (total_input_count != total_collection_count) {
                 throw JException("JOmniFactory '%s': Wrong number of input collection names: %d expected, %d found.",
-                                m_prefix.c_str(), tic, tcc);
+                                m_prefix.c_str(), total_input_count, total_collection_count);
             }
         }
         else {
             // Variadic inputs: check that we have enough collection names for the non-variadic inputs
-            if (tic-vic > tcc) {
+            if (total_input_count-variadic_input_count > total_collection_count) {
                 throw JException("JOmniFactory '%s': Not enough input collection names: %d needed, %d found.",
-                                m_prefix.c_str(), tic-vic, tcc);
+                                m_prefix.c_str(), total_input_count-variadic_input_count, total_collection_count);
             }
 
             // Variadic inputs: check that the variadic collection names is evenly divided by the variadic input count
-            if (vcc % vic != 0) {
+            if (variadic_collection_count % variadic_input_count != 0) {
                 throw JException("JOmniFactory '%s': Wrong number of input collection names: %d found total, but %d can't be distributed among %d variadic inputs evenly.",
-                                m_prefix.c_str(), tcc, vcc, vic);
+                                m_prefix.c_str(), total_collection_count, variadic_collection_count, variadic_input_count);
             }
         }
 
         for (size_t i = 0; auto* input : m_inputs) {
             input->collection_names.clear();
             if (input->is_variadic) {
-                for (size_t j = 0; j<(vcc/vic); ++j) {
+                for (size_t j = 0; j<(variadic_collection_count/variadic_input_count); ++j) {
                     input->collection_names.push_back(default_input_collection_names[i++]);
                 }
             }
