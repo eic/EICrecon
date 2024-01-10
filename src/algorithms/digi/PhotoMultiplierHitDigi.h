@@ -49,12 +49,9 @@ class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig
 
 public:
     PhotoMultiplierHitDigi() = default;
-    ~PhotoMultiplierHitDigi(){}
-    void AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
-    void AlgorithmChangeRun();
-    PhotoMultiplierHitDigiResult AlgorithmProcess(
-        const edm4hep::SimTrackerHitCollection* sim_hits
-        );
+    ~PhotoMultiplierHitDigi(){};
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    PhotoMultiplierHitDigiResult process(const edm4hep::SimTrackerHitCollection* sim_hits);
 
     // EDM datatype member types
     using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);

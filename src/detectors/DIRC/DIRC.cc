@@ -11,7 +11,7 @@
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
 
@@ -65,7 +65,7 @@ extern "C" {
 
 
     // digitization
-    app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+    app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
           "DIRCRawHits",
           {"DIRCBarHits"},
           {"DIRCRawHits", "DIRCRawHitsAssociations"},
