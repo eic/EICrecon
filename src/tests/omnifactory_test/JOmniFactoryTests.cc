@@ -419,7 +419,3 @@ TEST_CASE("VariadicPodioOutputTests") {
     REQUIRE(left_hits->size() == 2);
     REQUIRE(right_hits->size() == 1);
 }
-
-
-
-
