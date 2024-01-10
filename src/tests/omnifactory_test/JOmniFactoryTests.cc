@@ -339,7 +339,6 @@ struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
 
 TEST_CASE("SubsetOmniFactoryTests") {
-    VariadicTestAlg alg;
     JApplication app;
     app.AddPlugin("log");
 
@@ -369,3 +368,58 @@ TEST_CASE("SubsetOmniFactoryTests") {
     auto processed = event->GetCollection<edm4hep::SimCalorimeterHit>("processed_hits");
     REQUIRE(processed->size() == 5);
 }
+
+struct VariadicOutputTestAlg : public JOmniFactory<VariadicOutputTestAlg, BasicTestAlgConfig> {
+
+    PodioInput<edm4hep::SimCalorimeterHit> m_hits_in {this};
+
+    VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_hits_out {this};
+
+    void Configure() {}
+    void ChangeRun(int64_t run_number) {}
+
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    void Process(int64_t run_number, uint64_t event_number) {
+
+        REQUIRE(m_hits_out().size() == 2);
+        m_hits_out()[0]->setSubsetCollection();
+        m_hits_out()[1]->setSubsetCollection();
+
+        int i = 0;
+        for (const auto& hit : *(m_hits_in())) {
+            m_hits_out()[i]->push_back(hit);
+            i = (i == 1) ? 0 : 1;
+        }
+    }
+};
+
+
+
+TEST_CASE("VariadicPodioOutputTests") {
+    JApplication app;
+    app.AddPlugin("log");
+
+    auto facgen = new JOmniFactoryGeneratorT<VariadicOutputTestAlg>("VariadicOutputTest", {"all_hits"}, {"left_hits", "right_hits"}, &app);
+    app.Add(facgen);
+    app.Initialize();
+
+    auto event = std::make_shared<JEvent>();
+    app.GetService<JComponentManager>()->configure_event(*event);
+
+    edm4hep::SimCalorimeterHitCollection all_hits;
+
+    all_hits.push_back(edm4hep::SimCalorimeterHit());
+    all_hits.push_back(edm4hep::SimCalorimeterHit());
+    all_hits.push_back(edm4hep::SimCalorimeterHit());
+
+    event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(all_hits), "all_hits");
+
+    auto left_hits = event->GetCollection<edm4hep::SimCalorimeterHit>("left_hits");
+    auto right_hits = event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits");
+    REQUIRE(left_hits->size() == 2);
+    REQUIRE(right_hits->size() == 1);
+}
+
+
+
+

@@ -231,11 +231,17 @@ public:
                 throw JException("JOmniFactory: VariadicPodioOutput SetCollection failed: Declared %d collections, but provided %d.", this->collection_names.size(), m_data.size());
                 // Otherwise this leads to a PODIO segfault
             }
-            fac.SetCollection<PodioT>(this->collection_names[0], std::move(this->m_data));
+            size_t i = 0;
+            for (auto& coll_name : this->collection_names) {
+                fac.SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
+            }
         }
 
         void Reset() override {
             m_data.clear();
+            for (auto& coll_name : this->collection_names) {
+                m_data.push_back(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
+            }
         }
     };
 
@@ -553,11 +559,8 @@ public:
             for (auto* input : m_inputs) {
                 input->GetCollection(*event);
             }
-
-            if constexpr (requires { typename AlgoT::AlgoT::Output; } ) {
-                for (auto* output : m_outputs) {
-                    output->Reset();
-                }
+            for (auto* output : m_outputs) {
+                output->Reset();
             }
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
             for (auto* output : m_outputs) {
@@ -566,7 +569,6 @@ public:
         }
         catch(std::exception &e) {
             throw JException(e.what());
-            // TODO: NWB: JMultifactory ought to already do this... test and fix if it doesn't
         }
     }
 
