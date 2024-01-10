@@ -3,85 +3,74 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
-#include <JANA/JEvent.h>
+#include "extensions/jana/JOmniFactory.h"
 
-// algorithms
 #include "algorithms/reco/ElectronReconstruction.h"
 
-// services
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
-  class ReconstructedElectrons_factory :
-    public JChainMultifactoryT<NoConfig>,
-    public SpdlogMixin
-  {
+class ReconstructedElectrons_factory : public JOmniFactory<ReconstructedElectrons_factory, ElectronReconstructionConfig> {
+private:
 
-    public:
+    // Underlying algorithm
+    std::unique_ptr<eicrecon::ElectronReconstruction> m_algo;
 
-      explicit ReconstructedElectrons_factory(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags)
-      : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
-          DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-      }
+    // Declare inputs
+    PodioInput<edm4hep::MCParticle> m_in_mc_particles {this, "MCParticles"};
+    PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles {this, "ReconstructedChargedParticles"};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_in_rc_particles_assoc {this, "ReconstructedChargedParticleAssociations"};
 
-      /** One time initialization **/
-      void Init() override {
-        // get plugin name and tag
-        auto app    = GetApplication();
-        auto plugin = GetPluginName();
-        auto prefix = plugin + ":" + GetTag();
+    VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_in_clu_assoc {this};
 
-        // services
-        InitLogger(app, prefix, "info");
-        m_algo.init(m_log);
-      }
+    // Declare outputs
+    PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
 
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override{
-        // Step 1. lets collect the Cluster associations from various detectors
-        std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> in_clu_assoc;
-        for(auto& input_tag : GetInputTags()){
-          // only collect from the sources that provide ClusterAssociations
-          if ( input_tag.find( "ClusterAssociations" ) == std::string::npos ) {
-            continue;
-          }
-          m_log->trace( "Adding cluster associations from: {}", input_tag );
-          in_clu_assoc.push_back(
-            static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag))
-          );
-        }
+    // Declare parameters
+    ParameterRef<double> m_min_energy_over_momentum {this, "minEnergyOverMomentum", config().min_energy_over_momentum};
+    ParameterRef<double> m_max_energy_over_momentum {this, "maxEnergyOverMomentum", config().max_energy_over_momentum};
 
-        // Step 2. Get MC, RC, and MC-RC association info
-        // This is needed as a bridge to get RecoCluster - RC Particle associations
+    // Declare services here, e.g.
+    // Service<DD4hep_service> m_geoSvc {this};
 
-        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
-        auto rc_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
-        auto rc_particles_assoc = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
+public:
+    void Configure() {
+        // This is called when the factory is instantiated.
+        // Use this callback to make sure the algorithm is configured.
+        // The logger, parameters, and services have all been fetched before this is called
+        m_algo = std::make_unique<eicrecon::ElectronReconstruction>();
 
-        // Step 3. Pass everything to "the algorithm"
-        // in the future, select appropriate algorithm (truth, fully reco, etc.)
-        auto output = m_algo.execute(
-          mc_particles,
-          rc_particles,
-          rc_particles_assoc,
-          in_clu_assoc
+        // Pass config object to algorithm
+        m_algo->applyConfig(config());
+
+        // If we needed geometry, we'd obtain it like so
+        // m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+
+        m_algo->init(logger());
+    }
+
+    void ChangeRun(int64_t run_number) {
+        // This is called whenever the run number is changed.
+        // Use this callback to retrieve state that is keyed off of run number.
+        // This state should usually be managed by a Service.
+        // Note: You usually don't need this, because you can declare a Resource instead.
+    }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        // This is called on every event.
+        // Use this callback to call your Algorithm using all inputs and outputs
+        // The inputs will have already been fetched for you at this point.
+        auto output = m_algo->execute(
+          m_in_mc_particles(),
+          m_in_rc_particles(),
+          m_in_rc_particles_assoc(),
+          m_in_clu_assoc()
         );
 
-        m_log->debug( "We have found {} reconstructed electron candidates this event", output->size() );
-        // Step 4. Output the collection
-        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(output));
-      }
+        logger()->debug( "Event {}: Found {} reconstructed electron candidates", event_number, output->size() );
 
-    private:
-
-      // underlying algorithm
-      eicrecon::ElectronReconstruction m_algo;
-  };
-}
+        m_out_reco_particles() = std::move(output);
+        // JANA will take care of publishing the outputs for you.
+    }
+};
+} // namespace eicrecon

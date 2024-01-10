@@ -34,7 +34,9 @@ public:
 
     struct InputBase {
         std::string type_name;
-        std::string collection_name;
+        std::vector<std::string> collection_names;
+        bool is_variadic = false;
+
         virtual void GetCollection(const JEvent& event) = 0;
     };
 
@@ -46,7 +48,7 @@ public:
     public:
         Input(JOmniFactory* owner, std::string default_tag="") {
             owner->RegisterInput(this);
-            this->collection_name = default_tag;
+            this->collection_names.push_back(default_tag);
             this->type_name = JTypeInfo::demangle<T>();
         }
 
@@ -56,7 +58,7 @@ public:
         friend class JOmniFactory;
 
         void GetCollection(const JEvent& event) {
-            m_data = event.Get<T>(this->collection_name);
+            m_data = event.Get<T>(this->collection_names[0]);
         }
     };
 
@@ -70,7 +72,7 @@ public:
 
         PodioInput(JOmniFactory* owner, std::string default_collection_name="") {
             owner->RegisterInput(this);
-            this->collection_name = default_collection_name;
+            this->collection_names.push_back(default_collection_name);
             this->type_name = JTypeInfo::demangle<PodioT>();
         }
 
@@ -82,7 +84,37 @@ public:
         friend class JOmniFactory;
 
         void GetCollection(const JEvent& event) {
-            m_data = event.GetCollection<PodioT>(this->collection_name);
+            m_data = event.GetCollection<PodioT>(this->collection_names[0]);
+        }
+    };
+
+
+    template <typename PodioT>
+    class VariadicPodioInput : public InputBase {
+
+        std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
+
+    public:
+
+        VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}) {
+            owner->RegisterInput(this);
+            this->collection_names = default_names;
+            this->type_name = JTypeInfo::demangle<PodioT>();
+            this->is_variadic = true;
+        }
+
+        const std::vector<const typename PodioTypeMap<PodioT>::collection_t*> operator()() {
+            return m_data;
+        }
+
+    private:
+        friend class JOmniFactory;
+
+        void GetCollection(const JEvent& event) {
+            m_data.clear();
+            for (auto& coll_name : this->collection_names) {
+                m_data.push_back(event.GetCollection<PodioT>(coll_name));
+            }
         }
     };
 
@@ -91,14 +123,15 @@ public:
     }
 
 
-
     /// =========================
     /// Handle output collections
     /// =========================
 
     struct OutputBase {
         std::string type_name;
-        std::string collection_name;
+        std::vector<std::string> collection_names;
+        bool is_variadic = false;
+
         virtual void CreateHelperFactory(JOmniFactory& fac) = 0;
         virtual void SetCollection(JOmniFactory& fac) = 0;
         virtual void Reset() = 0;
@@ -111,7 +144,7 @@ public:
     public:
         Output(JOmniFactory* owner, std::string default_tag_name="") {
             owner->RegisterOutput(this);
-            this->collection_name = default_tag_name;
+            this->collection_names.push_back(default_tag_name);
             this->type_name = JTypeInfo::demangle<T>();
         }
 
@@ -121,11 +154,11 @@ public:
         friend class JOmniFactory;
 
         void CreateHelperFactory(JOmniFactory& fac) override {
-            fac.DeclareOutput<T>(this->collection_name);
+            fac.DeclareOutput<T>(this->collection_names[0]);
         }
 
         void SetCollection(JOmniFactory& fac) override {
-            fac.SetData<T>(this->collection_name, this->m_data);
+            fac.SetData<T>(this->collection_names[0], this->m_data);
         }
 
         void Reset() override { }
@@ -141,7 +174,7 @@ public:
 
         PodioOutput(JOmniFactory* owner, std::string default_collection_name="") {
             owner->RegisterOutput(this);
-            this->collection_name = default_collection_name;
+            this->collection_names.push_back(default_collection_name);
             this->type_name = JTypeInfo::demangle<PodioT>();
         }
 
@@ -151,19 +184,64 @@ public:
         friend class JOmniFactory;
 
         void CreateHelperFactory(JOmniFactory& fac) override {
-            fac.DeclarePodioOutput<PodioT>(this->collection_name);
+            fac.DeclarePodioOutput<PodioT>(this->collection_names[0]);
         }
 
         void SetCollection(JOmniFactory& fac) override {
             if (m_data == nullptr) {
-                throw JException("JOmniFactory: SetCollection failed due to missing output collection '%s'", this->collection_name.c_str());
+                throw JException("JOmniFactory: SetCollection failed due to missing output collection '%s'", this->collection_names[0].c_str());
                 // Otherwise this leads to a PODIO segfault
             }
-            fac.SetCollection<PodioT>(this->collection_name, std::move(this->m_data));
+            fac.SetCollection<PodioT>(this->collection_names[0], std::move(this->m_data));
         }
 
         void Reset() override {
             m_data = std::move(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
+        }
+    };
+
+
+    template <typename PodioT>
+    class VariadicPodioOutput : public OutputBase {
+
+        std::vector<std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>> m_data;
+
+    public:
+
+        VariadicPodioOutput(JOmniFactory* owner, std::vector<std::string> default_collection_names={}) {
+            owner->RegisterOutput(this);
+            this->collection_names = default_collection_names;
+            this->type_name = JTypeInfo::demangle<PodioT>();
+            this->is_variadic = true;
+        }
+
+        std::vector<std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>>& operator()() { return m_data; }
+
+    private:
+        friend class JOmniFactory;
+
+        void CreateHelperFactory(JOmniFactory& fac) override {
+            for (auto& coll_name : this->collection_names) {
+                fac.DeclarePodioOutput<PodioT>(coll_name);
+            }
+        }
+
+        void SetCollection(JOmniFactory& fac) override {
+            if (m_data.size() != this->collection_names.size()) {
+                throw JException("JOmniFactory: VariadicPodioOutput SetCollection failed: Declared %d collections, but provided %d.", this->collection_names.size(), m_data.size());
+                // Otherwise this leads to a PODIO segfault
+            }
+            size_t i = 0;
+            for (auto& coll_name : this->collection_names) {
+                fac.SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
+            }
+        }
+
+        void Reset() override {
+            m_data.clear();
+            for (auto& coll_name : this->collection_names) {
+                m_data.push_back(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
+            }
         }
     };
 
@@ -364,6 +442,34 @@ private:
     ConfigT m_config;
 
 public:
+
+    size_t FindVariadicCollectionCount(size_t total_input_count, size_t variadic_input_count, size_t total_collection_count, bool is_input) {
+
+        size_t variadic_collection_count = total_collection_count - (total_input_count - variadic_input_count);
+
+        if (variadic_input_count == 0) {
+            // No variadic inputs: check that collection_name count matches input count exactly
+            if (total_input_count != total_collection_count) {
+                throw JException("JOmniFactory '%s': Wrong number of %s collection names: %d expected, %d found.",
+                                m_prefix.c_str(), (is_input ? "input" : "output"), total_input_count, total_collection_count);
+            }
+        }
+        else {
+            // Variadic inputs: check that we have enough collection names for the non-variadic inputs
+            if (total_input_count-variadic_input_count > total_collection_count) {
+                throw JException("JOmniFactory '%s': Not enough %s collection names: %d needed, %d found.",
+                                m_prefix.c_str(), (is_input ? "input" : "output"), total_input_count-variadic_input_count, total_collection_count);
+            }
+
+            // Variadic inputs: check that the variadic collection names is evenly divided by the variadic input count
+            if (variadic_collection_count % variadic_input_count != 0) {
+                throw JException("JOmniFactory '%s': Wrong number of %s collection names: %d found total, but %d can't be distributed among %d variadic inputs evenly.",
+                                m_prefix.c_str(), (is_input ? "input" : "output"), total_collection_count, variadic_collection_count, variadic_input_count);
+            }
+        }
+        return variadic_collection_count;
+    }
+
     inline void PreInit(std::string tag,
                         std::vector<std::string> default_input_collection_names,
                         std::vector<std::string> default_output_collection_names ) {
@@ -376,22 +482,48 @@ public:
         m_app->SetDefaultParameter(m_prefix + ":InputTags", default_input_collection_names, "Input collection names");
         m_app->SetDefaultParameter(m_prefix + ":OutputTags", default_output_collection_names, "Output collection names");
 
-        // Set input collection names
-        if (m_inputs.size() != default_input_collection_names.size()) {
-            throw JException("JOmniFactory '%s': Wrong number of input collection names: %d expected, %d found.",
-                             m_prefix.c_str(), m_inputs.size(), default_input_collection_names.size());
+        // Figure out variadic inputs
+        size_t variadic_input_count = 0;
+        for (auto* input : m_inputs) {
+            if (input->is_variadic) {
+               variadic_input_count += 1;
+            }
         }
+        size_t variadic_input_collection_count = FindVariadicCollectionCount(m_inputs.size(), variadic_input_count, default_input_collection_names.size(), true);
+
+        // Set input collection names
         for (size_t i = 0; auto* input : m_inputs) {
-           input->collection_name = default_input_collection_names[i++];
+            input->collection_names.clear();
+            if (input->is_variadic) {
+                for (size_t j = 0; j<(variadic_input_collection_count/variadic_input_count); ++j) {
+                    input->collection_names.push_back(default_input_collection_names[i++]);
+                }
+            }
+            else {
+                input->collection_names.push_back(default_input_collection_names[i++]);
+            }
         }
 
-        // Set output collection names and create corresponding helper factories
-        if (m_outputs.size() != default_output_collection_names.size()) {
-            throw JException("JOmniFactory '%s': Wrong number of output collection names: %d expected, %d found.",
-                             m_prefix.c_str(), m_outputs.size(), default_output_collection_names.size());
+        // Figure out variadic outputs
+        size_t variadic_output_count = 0;
+        for (auto* output : m_outputs) {
+            if (output->is_variadic) {
+               variadic_output_count += 1;
+            }
         }
+        size_t variadic_output_collection_count = FindVariadicCollectionCount(m_outputs.size(), variadic_output_count, default_output_collection_names.size(), true);
+
+        // Set output collection names and create corresponding helper factories
         for (size_t i = 0; auto* output : m_outputs) {
-            output->collection_name = default_output_collection_names[i++];
+            output->collection_names.clear();
+            if (output->is_variadic) {
+                for (size_t j = 0; j<(variadic_output_collection_count/variadic_output_count); ++j) {
+                    output->collection_names.push_back(default_output_collection_names[i++]);
+                }
+            }
+            else {
+                output->collection_names.push_back(default_output_collection_names[i++]);
+            }
             output->CreateHelperFactory(*this);
         }
 
@@ -427,11 +559,8 @@ public:
             for (auto* input : m_inputs) {
                 input->GetCollection(*event);
             }
-
-            if constexpr (requires { typename AlgoT::AlgoT::Output; } ) {
-                for (auto* output : m_outputs) {
-                    output->Reset();
-                }
+            for (auto* output : m_outputs) {
+                output->Reset();
             }
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
             for (auto* output : m_outputs) {
@@ -440,10 +569,8 @@ public:
         }
         catch(std::exception &e) {
             throw JException(e.what());
-            // TODO: NWB: JMultifactory ought to already do this... test and fix if it doesn't
         }
     }
-
 
     using ConfigType = ConfigT;
 

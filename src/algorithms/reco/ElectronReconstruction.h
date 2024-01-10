@@ -11,10 +11,13 @@
 #include <memory>
 #include <vector>
 
+#include "ElectronReconstructionConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
 
 namespace eicrecon {
 
-    class ElectronReconstruction {
+    class ElectronReconstruction : public WithPodConfig<ElectronReconstructionConfig>{
 
     public:
 
@@ -28,12 +31,9 @@ namespace eicrecon {
                 const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
         );
 
-        void setEnergyOverMomentumCut( double minEoP, double maxEoP ) { min_energy_over_momentum = minEoP; max_energy_over_momentum = maxEoP; }
-
     private:
         std::shared_ptr<spdlog::logger> m_log;
         double m_electron{0.000510998928};
-        double min_energy_over_momentum{0.9}, max_energy_over_momentum{1.2};
 
     };
 } // namespace eicrecon
