@@ -40,7 +40,7 @@ public:
         // The logger, parameters, and services have all been fetched before this is called
         m_algo = std::make_unique<eicrecon::ElectronReconstruction>();
 
-        // Pass config object to algorithmm
+        // Pass config object to algorithm
         m_algo->applyConfig(config());
 
         // If we needed geometry, we'd obtain it like so
