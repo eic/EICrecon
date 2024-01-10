@@ -30,6 +30,7 @@ private:
     PodioInput<edm4eic::Trajectory> m_trajectories_input {this};
     PodioInput<edm4eic::CherenkovParticleID> m_drich_particle_id_input {this};
 
+    PodioOutput<edm4eic::Track> m_tracks_output {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_particles_output {this};
     PodioOutput<edm4eic::MCRecoParticleAssociation> m_particles_assoc_output {this};
     PodioOutput<edm4hep::ParticleID> m_particle_id_output {this};
@@ -48,7 +49,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        std::tie(m_particles_output(), m_particles_assoc_output(), m_particle_id_output()) = m_algo.process(m_mc_particles_input(), m_trajectories_input(), m_drich_particle_id_input());
+        std::tie(m_tracks_output(), m_particles_output(), m_particles_assoc_output(), m_particle_id_output()) = m_algo.process(m_mc_particles_input(), m_trajectories_input(), m_drich_particle_id_input());
     }
 };
 
