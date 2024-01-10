@@ -74,12 +74,11 @@ namespace eicrecon {
                             "association provided both optional arguments are provided."} {}
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(std::shared_ptr<spdlog::logger>& logger);
 
     void process(const Input&, const Output&) const final;
 
   private:
-    const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
     std::function<double(double, double, double, int)> weightFunc;
