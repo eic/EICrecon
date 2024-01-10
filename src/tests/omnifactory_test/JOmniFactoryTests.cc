@@ -78,11 +78,11 @@ MultifactoryT* RetrieveMultifactory(JFactorySet* facset, std::string output_coll
 TEST_CASE("Registering Podio outputs works") {
     BasicTestAlg alg;
     REQUIRE(alg.GetOutputs().size() == 3);
-    REQUIRE(alg.GetOutputs()[0]->collection_name == "output_hits_left");
+    REQUIRE(alg.GetOutputs()[0]->collection_names[0] == "output_hits_left");
     REQUIRE(alg.GetOutputs()[0]->type_name == "edm4hep::SimCalorimeterHit");
-    REQUIRE(alg.GetOutputs()[1]->collection_name == "output_hits_right");
+    REQUIRE(alg.GetOutputs()[1]->collection_names[0] == "output_hits_right");
     REQUIRE(alg.GetOutputs()[1]->type_name == "edm4hep::SimCalorimeterHit");
-    REQUIRE(alg.GetOutputs()[2]->collection_name == "output_vechits");
+    REQUIRE(alg.GetOutputs()[2]->collection_names[0] == "output_vechits");
     REQUIRE(alg.GetOutputs()[2]->type_name == "edm4hep::SimCalorimeterHit");
 }
 
