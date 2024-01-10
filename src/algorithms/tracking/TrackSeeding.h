@@ -44,7 +44,7 @@ namespace eicrecon {
         Acts::SeedFinderOptions m_seedFinderOptions;
         Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
 
-        int determineCharge(std::vector<std::pair<float,float>>& positions, float xpca, float ypca) const;
+        int determineCharge(std::vector<std::pair<float,float>>& positions) const;
         std::pair<float,float> findPCA(std::tuple<float,float,float>& circleParams) const;
         std::vector<const eicrecon::SpacePoint*> getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
         std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);

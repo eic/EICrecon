@@ -183,7 +183,15 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto slopeZ0 = lineFit(rzHitPositions);
       const auto xypos = findPCA(RX0Y0);
 
-      int charge = determineCharge(xyHitPositions,xypos.first,xypos.second);
+      //Determine charge
+      std::vector<std::pair<float,float>> xyrelPos;
+
+      for ( const auto& spptr : seed.sp() )
+      {
+        xyrelPos.emplace_back(spptr->x()-xypos.first, spptr->y()-xypos.second);
+      }
+
+      int charge = determineCharge(xyrelPos);
 
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
@@ -252,15 +260,15 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
   return std::make_pair(xmin,ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, float xpca, float ypca) const
+int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions) const
 {
   // determine the charge by the bend angle of the first two hits
   int charge = 1;
   const auto& firstpos = positions.at(0);
   const auto& secondpos = positions.at(1);
 
-  const auto firstphi = atan2(firstpos.second - ypca , firstpos.first - xpca);
-  const auto secondphi = atan2(secondpos.second - ypca , secondpos.first - xpca);
+  const auto firstphi = atan2(firstpos.second, firstpos.first);
+  const auto secondphi = atan2(secondpos.second, secondpos.first);
   auto dphi = secondphi - firstphi;
   if(dphi > M_PI) dphi = 2.*M_PI - dphi;
   if(dphi < -M_PI) dphi = 2*M_PI + dphi;
