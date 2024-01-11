@@ -180,6 +180,10 @@ if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
   message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
 endif()
 
+# TORCH
+list(APPEND CMAKE_PREFIX_PATH "/opt/software/linux-debian12-x86_64_v2/gcc-12.2.0/py-torch-2.1.0-wdoylpbmycgoq2fq4upnnx3tli4335mv/lib/python3.10/site-packages/torch/share/cmake/Torch")
+find_package(Torch REQUIRED)
+
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
