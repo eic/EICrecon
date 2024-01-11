@@ -11,13 +11,12 @@ void eicrecon::TorchScriptInterface::init(const dd4hep::Detector* det,
   m_log       = logger;
   m_detector  = det;
   m_converter = id_conv;
- 
+
 }
 
 std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::TorchScriptInterface::process(const edm4hep::SimTrackerHitCollection&){
-  
+
 
   return 0;
 
-} 
-
+}
