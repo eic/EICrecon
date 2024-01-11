@@ -71,6 +71,19 @@ extern "C" {
         app
     ));
 
+    // Reconstrution of tracks on common plane
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+        "LowQ2Projections2",
+        {"LowQ2Tracks"},
+        {"LowQ2Projections2"},
+        {
+	  .plane_position = {0.0,0.0,-14.865},
+	  .plane_a        = {1.0,0.0,0.0    },
+	  .plane_b        = {0.0,1.0,0.0    },
+	},
+        app
+    ));
+
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "LowQ2Trajectories",
