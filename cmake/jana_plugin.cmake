@@ -378,9 +378,9 @@ macro(plugin_add_torch _name)
 
     # Add include directories
     plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${TORCH_INCLUDE_DIR})
-    
+
     # Add libraries
     plugin_link_libraries(${PLUGIN_NAME} ${TORCH_LIBRARIES})
-   
 
-endmacro()    
+
+endmacro()
