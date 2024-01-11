@@ -1,6 +1,8 @@
 #include "TorchScriptInterface.h"
 #include "algorithms/fardetectors/TorchScriptInterfaceConfig.h"
+#ifdef ClassDef
 #undef ClassDef
+#endif
 #include <torch/script.h>
 
 
