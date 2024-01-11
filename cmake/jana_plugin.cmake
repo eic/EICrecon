@@ -368,3 +368,19 @@ macro(plugin_add_fastjet _name)
     plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
 
 endmacro()
+
+# Adds Torch for a plugin
+macro(plugin_add_torch _name)
+
+    if(NOT TORCH_FOUND)
+        find_package(Torch REQUIRED PATHS "/opt/software/linux-debian12-x86_64_v2/gcc-12.2.0/py-torch-2.1.0-wdoylpbmycgoq2fq4upnnx3tli4335mv/lib/python3.10/site-packages/torch/share/cmake/Torch")
+    endif()
+
+    # Add include directories
+    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${TORCH_INCLUDE_DIR})
+    
+    # Add libraries
+    plugin_link_libraries(${PLUGIN_NAME} ${TORCH_LIBRARIES})
+   
+
+endmacro()    
