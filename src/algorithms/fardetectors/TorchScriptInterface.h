@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "TorchScriptInterfaceConfig.h"
-#include "algorithm/interfaces/WithPodConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
