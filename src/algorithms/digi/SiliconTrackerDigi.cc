@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <exception>
 #include <unordered_map>
 #include <utility>
 

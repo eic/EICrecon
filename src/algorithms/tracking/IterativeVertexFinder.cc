@@ -4,15 +4,20 @@
 
 #include "IterativeVertexFinder.h"
 
-#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/GenericParticleHypothesis.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
-#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/VectorHelpers.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
@@ -21,10 +26,16 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
+#include <math.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
+#include <optional>
+#include <tuple>
 #include <utility>
-#include <variant>
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -75,11 +86,15 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexSeeder::Config seederCfg(ipEst);
   VertexSeeder seeder(seederCfg);
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(vertexFitter, std::move(linearizer),
-                                 std::move(seeder), ipEst);
+  VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
+                                 std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.m_maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
+  #if Acts_VERSION_MAJOR >= 31
+  VertexFinder finder(std::move(finderCfg));
+  #else
   VertexFinder finder(finderCfg);
+  #endif
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 

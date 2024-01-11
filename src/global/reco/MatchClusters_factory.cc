@@ -9,9 +9,8 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
-#include <exception>
 #include <memory>
-#include <stdexcept>
+#include <ranges>
 
 #include "MatchClusters_factory.h"
 
@@ -24,20 +23,6 @@ namespace eicrecon {
         InitLogger(GetApplication(), GetPrefix(), "info");
 
         m_match_algo.init(m_log);
-
-        // Set up association tags
-        for (const std::string& input_tag : GetInputTags()) {
-            // "EcalEndcapNClusters" => "EcalEndcapNClusterAssociations"
-            auto pos = input_tag.find("Clusters");
-
-            // Validate that our input collection names conform to this convention
-            if (pos == std::string::npos) {
-                throw std::runtime_error(fmt::format("input_tag=\"{}\" doesn't end with \"Clusters\"", input_tag));
-            }
-            std::string output_tag = input_tag;
-            output_tag.replace(pos, 8, "ClusterAssociations");
-            m_input_assoc_tags.push_back(output_tag);
-        }
     }
 
     void MatchClusters_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
@@ -45,15 +30,20 @@ namespace eicrecon {
     }
 
     void MatchClusters_factory::Process(const std::shared_ptr<const JEvent> &event) {
-        // TODO make input tags changeable
-        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
-        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase("ReconstructedChargedParticles"));
-        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase("ReconstructedChargedParticleAssociations"));
+        size_t tag_ix = 0;
+        auto mc_particles = static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase(GetInputTags()[tag_ix++]));
+        auto charged_particles = static_cast<const edm4eic::ReconstructedParticleCollection*>(event->GetCollectionBase(GetInputTags()[tag_ix++]));
+        auto charged_particle_assocs = static_cast<const edm4eic::MCRecoParticleAssociationCollection*>(event->GetCollectionBase(GetInputTags()[tag_ix++]));
 
         std::vector<const edm4eic::ClusterCollection*> cluster_collections;
         std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> cluster_assoc_collections;
 
-        for(auto &input_tag: GetInputTags()) {
+        // FIXME Use proper stride and adjacent views in C++23
+        auto stride = [](int n) {
+            return [s = -1, n](auto const&) mutable { s = (s + 1) % n; return s == 0; };
+        };
+
+        for (auto& input_tag : GetInputTags() | std::views::drop(tag_ix) | std::views::filter(stride(2))) {
             auto clusters = static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(input_tag));
             cluster_collections.push_back(clusters);
 
@@ -63,7 +53,7 @@ namespace eicrecon {
             }
         }
 
-        for(auto &input_tag: m_input_assoc_tags) {
+        for (auto& input_tag : GetInputTags() | std::views::drop(tag_ix + 1) | std::views::filter(stride(2))) {
             auto assocs = static_cast<const edm4eic::MCRecoClusterParticleAssociationCollection*>(event->GetCollectionBase(input_tag));
             cluster_assoc_collections.push_back(assocs);
 
@@ -80,8 +70,8 @@ namespace eicrecon {
                                                                               cluster_collections,
                                                                               cluster_assoc_collections);
 
-        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::unique_ptr<edm4eic::ReconstructedParticleCollection>(matched_particles));
-        SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>(matched_assocs));
+        SetCollection<edm4eic::ReconstructedParticle>(GetOutputTags()[0], std::move(matched_particles));
+        SetCollection<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1], std::move(matched_assocs));
 
     }
 } // eicrecon

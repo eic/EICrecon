@@ -4,44 +4,45 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 #include "algorithms/tracking/TrackProjector.h"
 #include "algorithms/tracking/TrackProjectorConfig.h"
-#include "extensions/jana/JChainFactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-    class TrackProjector_factory:
-    public JChainFactoryT<edm4eic::TrackSegment, TrackProjectorConfig>,
-            public SpdlogMixin {
+class TrackProjector_factory :
+        public JOmniFactory<TrackProjector_factory, TrackProjectorConfig> {
 
-    public:
-        explicit TrackProjector_factory( std::vector<std::string> default_input_tags, TrackProjectorConfig cfg):
-        JChainFactoryT<edm4eic::TrackSegment, TrackProjectorConfig>(std::move(default_input_tags), cfg) {
-        }
+private:
+    using AlgoT = eicrecon::TrackProjector;
+    std::unique_ptr<AlgoT> m_algo;
 
-        /** One time initialization **/
-        void Init() override;
+    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+    PodioOutput<edm4eic::TrackSegment> m_segments_output {this};
 
-        /** On run change preparations **/
-        void ChangeRun(const std::shared_ptr<const JEvent> &event) override;
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->applyConfig(config());
+        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    }
 
-    private:
-        eicrecon::TrackProjector m_track_projector_algo;
+    void ChangeRun(int64_t run_number) {
+    }
 
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_segments_output() = m_algo->execute(m_acts_trajectories_input());
+    }
+};
 
 } // eicrecon

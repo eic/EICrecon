@@ -4,6 +4,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/kinematics.h>
@@ -11,7 +12,6 @@
 
 // factory-specific includes
 #include "ReconstructedJets_factory.h"
-#include "datamodel_glue.h"
 
 namespace eicrecon {
 

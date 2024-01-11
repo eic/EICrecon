@@ -17,11 +17,11 @@
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <cstddef>
-#include <exception>
 #include <functional>
 #include <iterator>
 #include <set>

@@ -7,10 +7,8 @@
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
@@ -47,7 +45,6 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
     protected:
 
-        std::vector<std::string> m_input_assoc_tags;
         MatchClusters m_match_algo;
 
     };

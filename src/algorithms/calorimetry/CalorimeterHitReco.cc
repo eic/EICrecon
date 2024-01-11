@@ -18,13 +18,14 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
-#include <exception>
 #include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <ostream>
 #include <stdexcept>
@@ -44,6 +45,12 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
     m_log = logger;
 
     // threshold for firing
+    // Should set either m_cfg.thresholdFactor or m_cfg.thresholdValue, not both
+    if ( m_cfg.thresholdFactor * m_cfg.thresholdValue != 0 ){
+        m_log->error("thresholdFactor = {}, thresholdValue = {}. Only one of these should be non-zero.",
+                    m_cfg.thresholdFactor, m_cfg.thresholdValue);
+        throw; // throw with an argument doesn't trigger abort
+    }
     thresholdADC = m_cfg.thresholdFactor * m_cfg.pedSigmaADC + m_cfg.thresholdValue;
     // TDC channels to timing conversion
     stepTDC = dd4hep::ns / m_cfg.resolutionTDC;
@@ -108,7 +115,7 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
     // local detector name has higher priority
     if (!m_cfg.localDetElement.empty()) {
         try {
-            local = m_detector->detector(m_cfg.localDetElement);
+            m_local = m_detector->detector(m_cfg.localDetElement);
             m_log->info("local coordinate system from DetElement {}", m_cfg.localDetElement);
         } catch (...) {
             m_log->error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
@@ -125,13 +132,15 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
             local_mask = ~static_cast<decltype(local_mask)>(0);
         }
     }
-
-    return;
 }
 
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(const edm4hep::RawCalorimeterHitCollection &rawhits) {
-    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+void CalorimeterHitReco::process(
+      const CalorimeterHitReco::Input& input,
+      const CalorimeterHitReco::Output& output) const {
+
+    const auto [rawhits] = input;
+    auto [recohits] = output;
 
     // For some detectors, the cellID in the raw hits may be broken
     // (currently this is the HcalBarrel). In this case, dd4hep
@@ -141,9 +150,9 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
+    if (NcellIDerrors >= MaxCellIDerrors) return;
 
-    for (const auto &rh: rawhits) {
+    for (const auto &rh: *rawhits) {
 
         //did not pass the zero-suppresion threshold
         const auto cellID = rh.getCellID();
@@ -174,6 +183,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
         const float time = rh.getTimeStamp() / stepTDC;
         m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
 
+        dd4hep::DetElement local;
         dd4hep::Position gpos;
         try {
             // global positions
@@ -204,6 +214,8 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             if (m_cfg.localDetElement.empty()) {
                 auto volman = m_detector->volumeManager();
                 local = volman.lookupDetElement(cellID & local_mask);
+            } else {
+                local = m_local;
             }
         } catch (...) {
             // Error looking up cellID. Messages should already have been printed.
@@ -262,8 +274,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             lid,
             local_position);
     }
-
-    return recohits;
 }
 
 } // namespace eicrecon

@@ -29,6 +29,8 @@ concurrency:
 env:
   platform-release: ${{ inputs.platform-release || 'jug_xl:nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
+  clang-tidy-iwyu-CC: clang
+  clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1
@@ -112,9 +114,12 @@ jobs:
         name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
         path: install.tar.zst
         if-no-files-found: error
+    # Only compress and upload build directory if we are going to use it later
     - name: Compress build directory
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
+      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}
@@ -133,7 +138,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -175,7 +180,7 @@ jobs:
           while [[ ${sha:-} != $(git diff | sha256sum) ]] ; do
             sha=$(git diff | sha256sum)
             echo $sha
-            iwyu_tool.py -p build $(git diff --name-only ${{github.event.pull_request.head.sha}} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp | tee iwyu_fixes.log
+            iwyu_tool.py -p build $(git diff --name-only ${{github.event.pull_request.head.sha}} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
@@ -186,7 +191,7 @@ jobs:
         platform-release: "${{ env.platform-release }}"
         run: |
           # don't aim for stability for all files
-          iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp | tee iwyu_fixes.log
+          iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
           fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
           git diff | tee iwyu_fixes.patch
     - name: Upload iwyu patch as artifact
@@ -209,7 +214,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v3
       with:
-        name: build-clang-eic-shell-Debug
+        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -453,7 +458,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicmkplugin.py MyCustomPlugin
-          cmake -S MyCustomPlugin -B MyCustomPlugin/build -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/install/lib/EICrecon/plugins
+          cmake -S MyCustomPlugin -B MyCustomPlugin/build -DEICrecon_ROOT=$PWD/install -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/install/lib/EICrecon/plugins
           cmake --build MyCustomPlugin/build --target install
           $PWD/install/bin/eicrecon -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
 
@@ -604,13 +609,6 @@ jobs:
       with:
         repository: 'eic/epic-capybara'
         path: epic-capybara
-    - name: Build and install epic-capybara
-      if: steps.download_previous_artifact.outputs.found_artifact == 'true'
-      run: |
-        pip install hatch
-        cd epic-capybara
-        hatch build
-        pip install dist/*.whl
     - name: Compare to previous artifacts (local capybara)
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
@@ -618,9 +616,6 @@ jobs:
         platform-release: "${{ env.platform-release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
-          echo "::group::pip install"
-          python3 -m pip install -r ${{ github.workspace }}/.github/requirements.txt
-          echo "::endgroup::"
           echo "::group::diff ref -> new"
           python3 ${{ github.workspace }}/epic-capybara/bara.py ref/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           echo "::endgroup::"

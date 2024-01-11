@@ -14,7 +14,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/JLogger.h>
-#include <JANA/Podio/JFactoryPodioT.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
@@ -28,13 +27,12 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 // These files are generated automatically by make_datamodel_glue.py
-#include "datamodel_glue.h"
-#include "datamodel_includes.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h"
+#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
 
 
 //------------------------------------------------------------------------------

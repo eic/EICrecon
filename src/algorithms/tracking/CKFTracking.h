@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>

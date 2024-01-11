@@ -8,9 +8,9 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factoryT.h"
-#include "factories/tracking/TrackerHitReconstruction_factoryT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -19,7 +19,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JChainMultifactoryGeneratorT<SiliconTrackerDigi_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "B0TrackerRawHits",
         {"B0TrackerHits"},
         {"B0TrackerRawHits"},
@@ -31,7 +31,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitReconstruction_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "B0TrackerRecHits",
         {"B0TrackerRawHits"},
         {"B0TrackerRecHits"},

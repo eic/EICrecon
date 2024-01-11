@@ -18,6 +18,8 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -28,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -37,21 +40,18 @@
 
 namespace eicrecon {
 
-struct PhotoMultiplierHitDigiResult {
-  std::unique_ptr<edm4eic::RawTrackerHitCollection> raw_hits;
-  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection> hit_assocs;
-};
+using PhotoMultiplierHitDigiResult = std::tuple<
+  std::unique_ptr<edm4eic::RawTrackerHitCollection>,
+  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection>
+>;
 
 class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
 public:
     PhotoMultiplierHitDigi() = default;
-    ~PhotoMultiplierHitDigi(){}
-    void AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
-    void AlgorithmChangeRun();
-    PhotoMultiplierHitDigiResult AlgorithmProcess(
-        const edm4hep::SimTrackerHitCollection* sim_hits
-        );
+    ~PhotoMultiplierHitDigi(){};
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    PhotoMultiplierHitDigiResult process(const edm4hep::SimTrackerHitCollection* sim_hits);
 
     // EDM datatype member types
     using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);

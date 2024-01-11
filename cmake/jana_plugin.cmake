@@ -1,7 +1,8 @@
+# Ensure GNU filesystem layout
+include(GNUInstallDirs)
+
 # Common macro to add plugins
 macro(plugin_add _name)
-
-    project(${_name}_project)
 
     # Default to plugin without library
     set(${_name}_WITH_LIBRARY OFF)
@@ -25,6 +26,13 @@ macro(plugin_add _name)
     # Include JANA by default
     find_package(JANA REQUIRED)
 
+    # TODO: NWB: This really needs to be a dependency of JANA itself.
+    # If we don't do this here, CMake will later refuse to accept that podio is
+    # indeed a dependency of JANA and aggressively reorders my target_link_list
+    # to reflect this misapprehension.
+    # https://gitlab.kitware.com/cmake/cmake/blob/v3.13.2/Source/cmComputeLinkDepends.cxx
+    find_package(podio REQUIRED)
+
     # include logging by default
     find_package(spdlog REQUIRED)
 
@@ -38,17 +46,23 @@ macro(plugin_add _name)
     if(${_name}_WITH_PLUGIN)
         add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
 
-        target_include_directories(${_name}_plugin PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_plugin
+          PUBLIC
+            $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+        )
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
         target_include_directories(${_name}_plugin SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} )
         set_target_properties(${_name}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "${_name}" SUFFIX ".so")
-        target_link_libraries(${_name}_plugin ${JANA_LIB} spdlog::spdlog)
-        target_link_libraries(${_name}_plugin ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog fmt::fmt)
         target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
         # Install plugin
-        install(TARGETS ${_name}_plugin DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
-    endif()     # WITH_PLUGIN
+        install(TARGETS ${_name}_plugin
+            EXPORT EICreconTargets
+            DESTINATION ${PLUGIN_OUTPUT_DIRECTORY}
+        )
+    endif(${_name}_WITH_PLUGIN)
 
     # Define library
     if(${_name}_WITH_LIBRARY)
@@ -61,15 +75,22 @@ macro(plugin_add _name)
         endif()
         set_target_properties(${_name}_library PROPERTIES PREFIX "lib" OUTPUT_NAME "${_name}" SUFFIX ${suffix})
 
-        target_include_directories(${_name}_library PUBLIC ${EICRECON_SOURCE_DIR}/src)
+        target_include_directories(${_name}_library
+          PUBLIC
+            $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+        )
         target_include_directories(${_name}_library SYSTEM PUBLIC ${JANA_INCLUDE_DIR} )
-        target_link_libraries(${_name}_library ${JANA_LIB} spdlog::spdlog)
-        target_link_libraries(${_name}_library ${JANA_LIB} fmt::fmt)
+        target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog)
+        target_link_libraries(${_name}_library ${JANA_LIB} podio::podio podio::podioRootIO fmt::fmt)
         target_link_libraries(${_name}_library Microsoft.GSL::GSL)
 
-        # Install plugin
-        install(TARGETS ${_name}_library DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY})
-    endif()     # WITH_LIBRARY
+        # Install library
+        install(TARGETS ${_name}_library
+            EXPORT EICreconTargets
+            DESTINATION ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}
+        )
+    endif(${_name}_WITH_LIBRARY)
 
     if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
         target_link_libraries(${_name}_plugin ${_name}_library)
@@ -81,11 +102,11 @@ endmacro()
 macro(plugin_link_libraries _name)
     if(${_name}_WITH_PLUGIN)
         target_link_libraries(${_name}_plugin ${ARGN})
-    endif()     # WITH_PLUGIN
+    endif(${_name}_WITH_PLUGIN)
 
     if(${_name}_WITH_LIBRARY)
         target_link_libraries(${_name}_library ${ARGN})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 
@@ -93,11 +114,11 @@ endmacro()
 macro(plugin_include_directories _name)
     if(${_name}_WITH_PLUGIN)
         target_include_directories(${_name}_plugin  ${ARGN})
-    endif()     # WITH_PLUGIN
+    endif(${_name}_WITH_PLUGIN)
 
     if(${_name}_WITH_LIBRARY)
         target_include_directories(${_name}_library ${ARGN})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 
@@ -117,8 +138,24 @@ macro(plugin_sources _name)
 
         # Add sources to library
         target_sources(${_name}_library PRIVATE ${SOURCES})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 endmacro()
+
+
+# installs headers in current directory
+macro(plugin_headers_only _name)
+    # get all headers
+    file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
+
+    # We need plugin relative path for correct headers installation (FIXME cmake 3.20: cmake_path)
+    file(RELATIVE_PATH PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # FIXME cmake 3.23: define FILE_SET on target_sources
+    install(FILES ${HEADER_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${PLUGIN_RELATIVE_PATH}
+    )
+endmacro()
+
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
 # Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
@@ -134,17 +171,18 @@ macro(plugin_glob_all _name)
     endif()
     file(GLOB HEADER_FILES CONFIGURE_DEPENDS *.h *.hh *.hpp)
 
-    # We need plugin relative path for correct headers installation
-    string(REPLACE ${EICRECON_SOURCE_DIR}/src "" PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR})
+    # We need plugin relative path for correct headers installation (FIXME cmake 3.20: cmake_path)
+    file(RELATIVE_PATH PLUGIN_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Add sources to plugin
     if(TARGET ${_name}_plugin)
         target_sources(${_name}_plugin PRIVATE ${PLUGIN_SRC_FILES})
     endif()
 
-    #Add correct headers installation
-    # Install headers for plugin
-    install(FILES ${HEADER_FILES} DESTINATION include/${PLUGIN_RELATIVE_PATH})
+    # FIXME cmake 3.23: define FILE_SET on target_sources
+    install(FILES ${HEADER_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${PLUGIN_RELATIVE_PATH}
+    )
 
     if(${_name}_WITH_LIBRARY)
         # Library don't need <plugin_name>.cc but Plugin does
@@ -156,12 +194,9 @@ macro(plugin_glob_all _name)
         # Remove plugin.cc file from libraries
         list(REMOVE_ITEM LIB_SRC_FILES ${PLUGIN_CC_FILE_ABS})
 
-        # Debug output if needed
-        message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
-
         # Finally add sources to library
         target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
-    endif()     # WITH_LIBRARY
+    endif(${_name}_WITH_LIBRARY)
 
     # Debug output if needed
     message(VERBOSE "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
@@ -242,6 +277,12 @@ macro(plugin_add_acts _name)
         ActsPluginDD4hep
         ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
+    if(${_name}_WITH_LIBRARY)
+        target_compile_definitions(${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+    endif()
+    if(${_name}_WITH_PLUGIN)
+        target_compile_definitions(${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+    endif()
 
 endmacro()
 
@@ -280,8 +321,11 @@ macro(plugin_add_event_model _name)
     endif()
 
     # Add include directories
-    # ${datamodel_BINARY_DIR} is an include path to datamodel_glue.h
-    plugin_include_directories(${PLUGIN_NAME} PUBLIC ${datamodel_BINARY_DIR})
+    plugin_include_directories(${PLUGIN_NAME}
+      PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+    )
 
     # Add libraries
     # (same as target_include_directories but for both plugin and library)

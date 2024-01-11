@@ -5,44 +5,38 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 #include "algorithms/reco/InclusiveKinematicsTruth.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-    class InclusiveKinematicsTruth_factory :
-            public JChainMultifactoryT<>,
-            public SpdlogMixin {
+class InclusiveKinematicsTruth_factory :
+        public JOmniFactory<InclusiveKinematicsTruth_factory> {
 
-    public:
+private:
+    using AlgoT = eicrecon::InclusiveKinematicsTruth;
+    std::unique_ptr<AlgoT> m_algo;
 
-        explicit InclusiveKinematicsTruth_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags)
-        : JChainMultifactoryT<>(std::move(tag), input_tags, output_tags) {
+    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+    PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
 
-            DeclarePodioOutput<edm4eic::InclusiveKinematics>(GetOutputTags()[0]);
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->init(logger());
+    }
 
-        }
+    void ChangeRun(int64_t run_number) {
+    }
 
-        /** One time initialization **/
-        void Init() override;
-
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    protected:
-        InclusiveKinematicsTruth m_inclusive_kinematics_algo;
-
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_inclusive_kinematics_output() = m_algo->execute(*m_mc_particles_input());
+    }
+};
 
 } // eicrecon

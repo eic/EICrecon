@@ -1,7 +1,6 @@
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
@@ -18,7 +17,6 @@
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Core>
-#include <exception>
 #include <iterator>
 #include <map>
 #include <optional>

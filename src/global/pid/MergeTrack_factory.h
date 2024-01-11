@@ -4,39 +4,39 @@
 #pragma once
 
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 // algorithms
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
 // JANA
-#include "extensions/jana/JChainFactoryT.h"
+#include "extensions/jana/JChainMultifactoryT.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
   class MergeTrack_factory :
-    public JChainFactoryT<edm4eic::TrackSegment>,
+    public JChainMultifactoryT<NoConfig>,
     public SpdlogMixin
   {
 
     public:
 
-      explicit MergeTrack_factory(std::vector<std::string> default_input_tags) :
-        JChainFactoryT<edm4eic::TrackSegment>(std::move(default_input_tags)) {}
+      explicit MergeTrack_factory(
+          std::string tag,
+          const std::vector<std::string>& input_tags,
+          const std::vector<std::string>& output_tags)
+      : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+        DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
+      }
 
       /** One time initialization **/
       void Init() override;
-
-      /** On run change preparations **/
-      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;

@@ -26,7 +26,7 @@ namespace eicrecon {
 
     void init(const dd4hep::Detector* det, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger> &logger);
 
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::SimTrackerHitCollection &inputhits);
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const edm4hep::SimTrackerHitCollection &inputhits);
 
   private:
 

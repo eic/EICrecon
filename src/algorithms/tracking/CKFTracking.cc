@@ -12,6 +12,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -22,8 +23,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
-#include <Acts/TrackFitting/KalmanFitter.hpp>
-#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
@@ -37,15 +36,13 @@
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <functional>
 #include <list>
 #include <optional>
-#include <string>
 #include <utility>
-#include <variant>
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
