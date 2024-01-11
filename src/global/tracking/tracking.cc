@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <algorithm>
 #include <string>
 
 #include "CKFTrackingConfig.h"
@@ -15,6 +16,7 @@
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/tracking/TrackerHitCollector_factory.h"
 #include "factories/tracking/TrackerTrajectoryCollector_factory.h"
 
@@ -25,10 +27,11 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
-    app->Add(new JChainMultifactoryGeneratorT<TrackParamTruthInit_factory>(
+    app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
             "InitTrackParams",
             {"MCParticles"},
             {"InitTrackParams"},
+            {},
             app
             ));
 
@@ -51,14 +54,14 @@ void InitPlugin(JApplication *app) {
         {"CentralTrackingRecHits"}, // Output collection name
         app));
 
-    app->Add(new JChainMultifactoryGeneratorT<TrackerMeasurementFromHits_factory>(
+    app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
             "CentralTrackerMeasurements",
             {"CentralTrackingRecHits"},
             {"CentralTrackerMeasurements"},
             app
             ));
 
-    app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFTrajectories",
         {
             "InitTrackParams",
@@ -73,14 +76,15 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<TrackSeeding_factory>(
+    app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
         "CentralTrackSeedingResults",
         {"CentralTrackingRecHits"},
         {"CentralTrackSeedingResults"},
+        {},
         app
         ));
 
-    app->Add(new JChainMultifactoryGeneratorT<CKFTracking_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFSeededTrajectories",
         {
             "CentralTrackSeedingResults",
@@ -95,17 +99,18 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<TrackProjector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
             "CentralTrackSegments",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+            {"CentralCKFActsTrajectories"},
             {"CentralTrackSegments"},
             app
             ));
 
-    app->Add(new JChainMultifactoryGeneratorT<IterativeVertexFinder_factory>(
+    app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+            {"CentralCKFActsTrajectories"},
             {"CentralTrackVertices"},
+            {},
             app
             ));
 

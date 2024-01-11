@@ -13,36 +13,37 @@
 #include <vector>
 
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-    class InclusiveKinematicseSigma_factory :
-            public JChainMultifactoryT<>,
-            public SpdlogMixin {
+class InclusiveKinematicseSigma_factory :
+        public JOmniFactory<InclusiveKinematicseSigma_factory> {
 
-    public:
+private:
+    using AlgoT = eicrecon::InclusiveKinematicseSigma;
+    std::unique_ptr<AlgoT> m_algo;
 
-        explicit InclusiveKinematicseSigma_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags)
-        : JChainMultifactoryT<>(std::move(tag), input_tags, output_tags) {
+    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
+    PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
 
-            DeclarePodioOutput<edm4eic::InclusiveKinematics>(GetOutputTags()[0]);
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->init(logger());
+    }
 
-        }
+    void ChangeRun(int64_t run_number) {
+    }
 
-        /** One time initialization **/
-        void Init() override;
-
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    protected:
-        InclusiveKinematicseSigma m_inclusive_kinematics_algo;
-
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_inclusive_kinematics_output() = m_algo->execute(
+            *m_mc_particles_input(),
+            *m_rc_particles_input(),
+            *m_rc_particles_assoc_input());
+    }
+};
 
 } // eicrecon

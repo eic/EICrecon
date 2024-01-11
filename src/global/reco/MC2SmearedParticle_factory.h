@@ -13,36 +13,33 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/MC2SmearedParticle.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-    class MC2SmearedParticle_factory:
-            public JChainMultifactoryT<NoConfig>,
-            public SpdlogMixin {
-    public:
+class MC2SmearedParticle_factory :
+        public JOmniFactory<MC2SmearedParticle_factory> {
 
-        explicit MC2SmearedParticle_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags)
-        : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-        }
+private:
+    using AlgoT = eicrecon::MC2SmearedParticle;
+    std::unique_ptr<AlgoT> m_algo;
 
-        /** One time initialization **/
-        void Init() override;
+    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+    PodioOutput<edm4eic::ReconstructedParticle> m_rc_particles_output {this};
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->init(logger());
+    }
 
-    private:
+    void ChangeRun(int64_t run_number) {
+    }
 
-        eicrecon::MC2SmearedParticle m_smearing_algo;       /// Actual digitisation algorithm
-
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_rc_particles_output() = m_algo->produce(m_mc_particles_input());
+    }
+};
 
 } // eicrecon

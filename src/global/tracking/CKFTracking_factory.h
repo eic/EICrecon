@@ -16,41 +16,53 @@
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/jana/JOmniFactory.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
-    class CKFTracking_factory :
-            public JChainMultifactoryT<CKFTrackingConfig>,
-            public SpdlogMixin {
+class CKFTracking_factory :
+        public JOmniFactory<CKFTracking_factory, CKFTrackingConfig> {
 
-    public:
+private:
+    using AlgoT = eicrecon::CKFTracking;
+    std::unique_ptr<AlgoT> m_algo;
 
-        explicit CKFTracking_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags,
-            CKFTrackingConfig cfg)
-        : JChainMultifactoryT<CKFTrackingConfig>(std::move(tag), input_tags, output_tags, cfg) {
+    PodioInput<edm4eic::TrackParameters> m_parameters_input {this};
+    PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
+    PodioOutput<edm4eic::Trajectory> m_trajectories_output {this};
+    PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
+    Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
+    Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
 
-            DeclarePodioOutput<edm4eic::Trajectory>(GetOutputTags()[0]);
-            DeclarePodioOutput<edm4eic::TrackParameters>(GetOutputTags()[1]);
-            DeclareOutput<ActsExamples::Trajectories>(GetOutputTags()[2]);
-            DeclareOutput<ActsExamples::ConstTrackContainer>(GetOutputTags()[3]);
+    ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().m_etaBins, "Eta Bins for ACTS CKF tracking reco"};
+    ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().m_chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
+    ParameterRef<std::vector<size_t>> m_numMeasurementsCutOff {this, "NumMeasurementsCutOff", config().m_numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking"};
 
-        }
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
-        /** One time initialization **/
-        void Init() override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->applyConfig(config());
+        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    }
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+    void ChangeRun(int64_t run_number) {
+    }
 
-    private:
-
-        CKFTracking m_tracking_algo;                      /// Proxy tracking algorithm
-
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        std::tie(
+            m_trajectories_output(),
+            m_parameters_output(),
+            m_acts_trajectories_output(),
+            m_acts_tracks_output()
+        ) = m_algo->process(
+            *m_measurements_input(),
+            *m_parameters_input()
+        );
+    }
+};
 
 } // eicrecon
