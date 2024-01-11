@@ -12,7 +12,6 @@
 #include <spdlog/spdlog.h>
 #include <cmath>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "algorithms/pid/MergeTracks.h"

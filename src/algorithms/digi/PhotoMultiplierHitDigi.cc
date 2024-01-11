@@ -27,9 +27,9 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
 //------------------------
-// AlgorithmInit
+// init
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
+void eicrecon::PhotoMultiplierHitDigi::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_detector = detector;
@@ -66,24 +66,14 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* det
 }
 
 
-
 //------------------------
-// AlgorithmChangeRun
+// process
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
-}
-
-//------------------------
-// AlgorithmProcess
-//------------------------
-eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
+eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::process(
     const edm4hep::SimTrackerHitCollection* sim_hits
     )
 {
-        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
+        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::process ");
         std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal

@@ -13,8 +13,6 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <memory>
-#include <string>
-#include <string_view>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"

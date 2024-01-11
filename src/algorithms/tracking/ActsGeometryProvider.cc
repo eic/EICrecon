@@ -2,9 +2,9 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/detail/DefaultDetectorElementBase.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
@@ -14,7 +14,6 @@
 #include <Acts/Surfaces/PlanarBounds.hpp>
 #include <Acts/Surfaces/PlaneSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/SurfaceArray.hpp>
 #include <Acts/Surfaces/SurfaceBounds.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Result.hpp>

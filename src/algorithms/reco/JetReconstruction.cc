@@ -13,7 +13,6 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fmt/core.h>
-#include <exception>
 #include <stdexcept>
 
 #include "algorithms/reco/JetReconstructionConfig.h"

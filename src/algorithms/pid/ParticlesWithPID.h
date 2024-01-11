@@ -12,7 +12,7 @@
 #include <edm4hep/ParticleIDCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
+#include <tuple>
 
 #include "ParticlesWithPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -20,11 +20,11 @@
 
 namespace eicrecon {
 
-    struct ParticlesWithAssociation {
-        std::unique_ptr<edm4eic::ReconstructedParticleCollection>     parts;
-        std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection> assocs;
-        std::unique_ptr<edm4hep::ParticleIDCollection>                pids;
-    };
+    using ParticlesWithAssociation = std::tuple<
+        std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
+        std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>,
+        std::unique_ptr<edm4hep::ParticleIDCollection>
+    >;
 
     class ParticlesWithPID : public WithPodConfig<ParticlesWithPIDConfig> {
 
@@ -35,7 +35,7 @@ namespace eicrecon {
         ParticlesWithAssociation process(
                 const edm4hep::MCParticleCollection* mc_particles,
                 const edm4eic::TrajectoryCollection* track_params,
-                std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
+                const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
                 );
 
     private:

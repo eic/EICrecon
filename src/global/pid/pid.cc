@@ -8,7 +8,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 // algorithm configurations
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/pid/ParticlesWithPID_factory.h"
 
@@ -31,7 +31,7 @@ extern "C" {
     // clang-format off
 
     // link charged particles to PID and to MC truth
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithPID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
@@ -47,7 +47,7 @@ extern "C" {
           app
           ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithPID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle

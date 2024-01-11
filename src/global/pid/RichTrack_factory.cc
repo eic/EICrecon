@@ -14,7 +14,6 @@
 
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "TrackPropagation.h"
-#include "datamodel_glue.h"
 #include "services/geometry/richgeo/RichGeo.h"
 
 //-----------------------------------------------------------------------------

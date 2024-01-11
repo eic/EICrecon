@@ -8,6 +8,7 @@
 #include <DD4hep/Fields.h>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Eigen/Core>
 #include <limits>

@@ -5,7 +5,6 @@
 
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Fields.h>
-#include <DD4hep/Objects.h>
 #include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <IRT/CherenkovDetector.h>
@@ -20,9 +19,8 @@
 #include <fmt/core.h>
 #include <math.h>
 #include <stdint.h>
-#include <exception>
 #include <map>
-#include <type_traits>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
