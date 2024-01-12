@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-    class GeneratedJets_factory : public JOmniFactory<GeneratedJets_factory, JetReconstructionConfig> {
+    class JetReconstruction_factory : public JOmniFactory<JetReconstruction_factory, JetReconstructionConfig> {
 
     private:
 
@@ -52,6 +52,6 @@ namespace eicrecon {
         m_output() = m_algo -> process(m_input());
       }
 
-    };  // end GeneratedJets_factory definition
+    };  // end JetReconstruction_factory definition
 
 }  // end eicrecon namespace
