@@ -3,50 +3,55 @@
 
 #pragma once
 
-#include <JANA/JEvent.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <memory>
 #include <string>
-#include <utility>
-#include <vector>
-
-// necessary algorithms
+#include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/JetReconstruction.h"
 #include "algorithms/reco/JetReconstructionConfig.h"
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
-    class GeneratedJets_factory :
-            public JChainMultifactoryT<JetReconstructionConfig>,
-            public SpdlogMixin {
+    class GeneratedJets_factory : public JOmniFactory<GeneratedJets_factory, JetReconstructionConfig> {
+
+    private:
+
+      // algorithm to run
+      using Algo = eicrecon::JetReconstruction;
+      std::unique_ptr<Algo> m_algo;
+
+      // input collection
+      PodioInput<edm4eic::ReconstructedParticle> m_input {this};
+
+      // output collection
+      PodioOutput<edm4eic::ReconstructedParticle> m_output {this};
+
+      // parameter bindings
+      ParameterRef<float>       m_rJet {this, "rJet", config().rJet};
+      ParameterRef<double>      m_minCstPt {this, "minCstPt", config().minCstPt};
+      ParameterRef<double>      m_maxCstPt {this, "maxCstPt", config().maxCstPt};
+      ParameterRef<double>      m_minJetPt {this, "minJetPt", config().minJetPt};
+      ParameterRef<double>      m_ghostMaxRap {this, "ghostMaxRap", config().ghostMaxRap};
+      ParameterRef<double>      m_ghostArea {this, "ghostArea", config().ghostArea};
+      ParameterRef<int>         m_numGhostRepeat {this, "numGhostRepeat", config().numGhostRepeat};
+      ParameterRef<std::string> m_jetAlgo {this, "jetAlgo", config().jetAlgo};
+      ParameterRef<std::string> m_recombScheme {this, "recombScheme", config().recombScheme};
+      ParameterRef<std::string> m_areaType {this, "areaType", config().areaType};
 
     public:
 
-        // ctor
-        explicit GeneratedJets_factory(std::string tag,
-                                       const std::vector<std::string>& input_tags,
-                                       const std::vector<std::string>& output_tags,
-                                       JetReconstructionConfig cfg) :
-                 JChainMultifactoryT<JetReconstructionConfig>(std::move(tag), input_tags, output_tags, cfg) {
+      void Configure() {
+        m_algo = std::make_unique<Algo>();
+        m_algo -> applyConfig(config());
+        m_algo -> init(logger());
+      }
 
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-        }  // end ctor
+      void ChangeRun(int64_t run_number) {
+        /* nothing to do */
+      }
 
-        /** One time initialization **/
-        void Init() override;
+      void Process(int64_t run_number, int64_t event_number) {
+        m_output() = m_algo -> process(m_input());
+      }
 
-        /** On run change preparations **/
-        void BeginRun(const std::shared_ptr<const JEvent> &event) override;
-
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    protected:
-
-        JetReconstruction m_jet_algo;
-
-  };  // end GeneratedJets_factory definition
+    };  // end GeneratedJets_factory definition
 
 }  // end eicrecon namespace
