@@ -35,8 +35,8 @@ namespace eicrecon {
       : SiliconTrackerDigiAlgorithm{name,
                             {"inputHitCollection"},
                             {"outputRawHitCollection"},
-                            "Smear energy deposit, digitize within ADC range, add pedestal, "
-                            "convert time with smearing resolution, and sum signals."} {}
+                            "Apply threshold, digitize within ADC range, "
+                            "convert time with smearing resolution."} {}
 
     void init(std::shared_ptr<spdlog::logger>& logger);
     void process(const Input&, const Output&) const final;
