@@ -194,6 +194,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
+	    "ZDCEcalTruthClusters",
+            "ZDCEcalTruthClusterAssociations",
             "ZDCTruthClusters",
             "ZDCTruthClusterAssociations",
 
