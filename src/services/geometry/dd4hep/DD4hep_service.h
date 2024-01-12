@@ -9,6 +9,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <gsl/pointers>
+#include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -17,7 +18,7 @@
 class DD4hep_service : public JService
 {
 public:
-    DD4hep_service( JApplication *app ) : app(app) {}
+    DD4hep_service( JApplication *app ) : m_app(app) {}
     virtual ~DD4hep_service();
 
     virtual gsl::not_null<const dd4hep::Detector*> detector();
@@ -27,14 +28,17 @@ protected:
     void Initialize();
 
 private:
-    DD4hep_service()=default;
+    DD4hep_service() = default;
+    void acquire_services(JServiceLocator *) override;
 
     std::once_flag init_flag;
-    JApplication *app = nullptr;
+    JApplication *m_app = nullptr;
     std::unique_ptr<const dd4hep::Detector> m_dd4hepGeo = nullptr;
     std::unique_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter = nullptr;
     std::vector<std::string> m_xml_files;
 
     /// Ensures there is a geometry file that should be opened
     std::string resolveFileName(const std::string &filename, char *detector_path_env);
+
+    std::shared_ptr<spdlog::logger> m_log;
 };

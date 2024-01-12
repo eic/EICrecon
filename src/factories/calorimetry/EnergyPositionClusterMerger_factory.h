@@ -12,8 +12,10 @@ namespace eicrecon {
 class EnergyPositionClusterMerger_factory :
     public JOmniFactory<EnergyPositionClusterMerger_factory, EnergyPositionClusterMergerConfig> {
 
+public:
+    using AlgoT = eicrecon::EnergyPositionClusterMerger;
 private:
-    eicrecon::EnergyPositionClusterMerger m_algo;
+    std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::Cluster> m_energy_cluster_input {this};
     PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_energy_assoc_input {this};
@@ -29,16 +31,18 @@ private:
 
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->applyConfig(config());
+        m_algo->init(logger());
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        std::tie(m_cluster_output(), m_assoc_output()) = m_algo.process(*m_energy_cluster_input(), *m_energy_assoc_input(),
-                                                                        *m_position_cluster_input(), *m_position_assoc_input());
+        m_algo->process({m_energy_cluster_input(), m_energy_assoc_input(),
+                         m_position_cluster_input(), m_position_assoc_input()},
+                        {m_cluster_output().get(), m_assoc_output().get()});
     }
 };
 

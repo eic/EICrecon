@@ -35,6 +35,17 @@ include(CheckCXXCompilerFlag)
 include(cmake/git_version.cmake)
 set_git_version(CMAKE_PROJECT_VERSION)
 
+# Set a default build type if none was specified
+set(default_build_type "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
 set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
@@ -126,6 +137,9 @@ find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 2.1 REQUIRED)
 
+# spdlog
+find_package(spdlog REQUIRED)
+
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
 
@@ -168,7 +182,6 @@ endif()
 
 
 # Add CMake additional functionality:
-include(cmake/print_functions.cmake)                        # Helpers to print fancy headers, file names, etc
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
 list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
 
@@ -216,6 +229,8 @@ add_subdirectory( src/algorithms )
 add_subdirectory( src/benchmarks )
 add_subdirectory( src/detectors )
 add_subdirectory( src/examples )
+add_subdirectory( src/extensions )
+add_subdirectory( src/factories )
 add_subdirectory( src/global )
 add_subdirectory( src/scripts )
 add_subdirectory( src/tests )
@@ -226,4 +241,5 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake VERSION ${CMAKE_PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(EXPORT ${PROJECT_NAME}Targets NAMESPACE ${PROJECT_NAME}:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)

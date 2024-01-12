@@ -14,6 +14,7 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
 #include "global/pid/IrtCherenkovParticleID_factory.h"
@@ -101,7 +102,7 @@ extern "C" {
     // clang-format off
 
     // digitization
-    app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+    app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
           "DRICHRawHits",
           {"DRICHHits"},
           {"DRICHRawHits", "DRICHRawHitsAssociations"},

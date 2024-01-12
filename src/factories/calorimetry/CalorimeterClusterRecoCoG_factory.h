@@ -29,14 +29,11 @@ private:
     ParameterRef<double> m_logWeightBase {this, "logWeightBase", config().logWeightBase};
     ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
 
-    Service<DD4hep_service> m_geoSvc {this};
-    // Resource<DD4hep_service, const dd4hep::Detector*> m_detector {this, [](std::shared_ptr<DD4hep_service> s, int64_t run_nr){ return s->detector(); }}
-
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), logger());
+        m_algo->init(logger());
     }
 
     void ChangeRun(int64_t run_number) {
