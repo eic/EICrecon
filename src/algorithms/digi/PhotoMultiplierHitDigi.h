@@ -21,6 +21,8 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/random.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -40,18 +42,30 @@
 
 namespace eicrecon {
 
-using PhotoMultiplierHitDigiResult = std::tuple<
-  std::unique_ptr<edm4eic::RawTrackerHitCollection>,
-  std::unique_ptr<edm4eic::MCRecoTrackerHitAssociationCollection>
->;
+  using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::SimTrackerHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::RawTrackerHitCollection,
+      edm4eic::MCRecoTrackerHitAssociationCollection
+    >
+  >;
 
-class PhotoMultiplierHitDigi : public WithPodConfig<PhotoMultiplierHitDigiConfig> {
+  class PhotoMultiplierHitDigi
+  : public PhotoMultiplierHitDigiAlgorithm,
+    public WithPodConfig<PhotoMultiplierHitDigiConfig> {
 
-public:
-    PhotoMultiplierHitDigi() = default;
-    ~PhotoMultiplierHitDigi(){};
+  public:
+    PhotoMultiplierHitDigi(std::string_view name)
+      : PhotoMultiplierHitDigiAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputRawHitCollection", "outputRawHitAssociations"},
+                            "Digitize within ADC range, add pedestal, convert time "
+                            "with smearing resolution."} {}
+
     void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
-    PhotoMultiplierHitDigiResult process(const edm4hep::SimTrackerHitCollection* sim_hits);
+    void process(const Input&, const Output&) const final;
 
     // EDM datatype member types
     using CellIDType = decltype(edm4hep::SimTrackerHitData::cellID);
@@ -110,7 +124,7 @@ private:
         TimeType         time,
         std::size_t      sim_hit_index,
         bool             is_noise_hit = false
-        );
+        ) const;
 
     const dd4hep::Detector* m_detector = nullptr;
     const dd4hep::rec::CellIDPositionConverter* m_converter;
