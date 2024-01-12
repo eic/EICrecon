@@ -53,14 +53,14 @@ namespace eicrecon {
 
 
 
-  template <typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const T& input_collection) {
+  template <typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const T* input_collection) {
 
     // Store the jets
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
 
     // extract input momenta and collect into pseudojets
     std::vector<PseudoJet> particles;
-    for (unsigned iInput = 0; const auto& input : input_collection) {
+    for (unsigned iInput = 0; const auto& input : *input_collection) {
 
       // get 4-vector
       const auto& momentum = input.getMomentum();
@@ -107,7 +107,7 @@ namespace eicrecon {
       // link constituents to jet kinematic info
       std::vector<PseudoJet> csts = jets[i].constituents();
       for (unsigned j = 0; j < csts.size(); j++) {
-        add_to_jet_kinematics(input_collection[csts[j].user_index()], jet_output, jet_collection.get());
+        add_to_jet_kinematics(input_collection -> at(csts[j].user_index()), jet_output, jet_collection.get());
       } // for constituent j
     } // for jet i
 
@@ -116,7 +116,7 @@ namespace eicrecon {
   }  // end 'process(const T&)'
 
   // template instantiations for ReconstructedParticle or MCParticle input
-  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection& input_collection);
-  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4hep::MCParticleCollection& input_collection);
+  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection* input_collection);
+  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4hep::MCParticleCollection* input_collection);
 
 }  // end namespace eicrecon

@@ -29,7 +29,7 @@ namespace eicrecon {
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
-      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T& input_collection);
+      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T* input_collection);
 
     private:
 
