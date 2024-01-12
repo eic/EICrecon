@@ -55,6 +55,59 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
+	app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
+          "ZDCEcalTruthProtoClusters", {"ZDCEcalRecHits", "ZDCEcalHits"}, {"ZDCEcalTruthProtoClusters"},
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+          "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
+          {
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
+            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.1 * dd4hep::MeV,
+            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "ZDCEcalTruthClusters",
+            {"ZDCEcalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "ZDCEcalHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"ZDCEcalTruthClusters",             // edm4eic::Cluster
+             "ZDCEcalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 3.6,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "ZDCEcalClusters",
+            {"ZDCEcalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "ZDCEcalHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"ZDCEcalClusters",             // edm4eic::Cluster
+             "ZDCEcalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
 	    
 	//side length of hexagonal cells in SiPM-on-tile part of the ZDC
 	auto side_length = 31.3 * dd4hep::mm;
