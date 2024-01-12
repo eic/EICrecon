@@ -52,7 +52,7 @@ namespace eicrecon {
                 break;
         }
 
-        auto err_msg = fmt::format("ParseLogLevel don't know this log level: '{}'", input);
+        auto err_msg = fmt::format("ParseLogLevel don't know this log level: '{}'", fmt::underlying(input));
         throw JException(err_msg);
     }
 }

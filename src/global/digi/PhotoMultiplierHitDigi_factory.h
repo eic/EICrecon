@@ -3,58 +3,77 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
 #include <JANA/JEvent.h>
-
-// data model
-#include <edm4hep/SimTrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociation.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/digi/PhotoMultiplierHitDigi.h"
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-
+// JANA
+#include "extensions/jana/JOmniFactory.h"
 // services
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
 
 namespace eicrecon {
 
-    class PhotoMultiplierHitDigi;
+class PhotoMultiplierHitDigi_factory :
+        public JOmniFactory<PhotoMultiplierHitDigi_factory, PhotoMultiplierHitDigiConfig> {
 
-    class PhotoMultiplierHitDigi_factory :
-            public JChainMultifactoryT<PhotoMultiplierHitDigiConfig>,
-            public SpdlogMixin {
+private:
+    PhotoMultiplierHitDigi m_algo;
 
-    public:
+    PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input {this};
+    PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output {this};
+    PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output {this};
 
-        explicit PhotoMultiplierHitDigi_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags,
-            PhotoMultiplierHitDigiConfig cfg
-            ):
-          JChainMultifactoryT<PhotoMultiplierHitDigiConfig>(std::move(tag), input_tags, output_tags, cfg) {
-            DeclarePodioOutput<edm4eic::RawTrackerHit>(GetOutputTags()[0]);
-            DeclarePodioOutput<edm4eic::MCRecoTrackerHitAssociation>(GetOutputTags()[1]);
-          }
+    ParameterRef<unsigned long> m_seed {this, "seed", config().seed, "random number generator seed"};
+    ParameterRef<double> m_hitTimeWindow {this, "hitTimeWindow", config().hitTimeWindow, ""};
+    ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution, ""};
+    ParameterRef<double> m_speMean {this, "speMean", config().speMean, ""};
+    ParameterRef<double> m_speError {this, "speError", config().speError, ""};
+    ParameterRef<double> m_pedMean {this, "pedMean", config().pedMean, ""};
+    ParameterRef<double> m_pedError {this, "pedError", config().pedError, ""};
+    ParameterRef<bool> m_enablePixelGaps {this, "enablePixelGaps", config().enablePixelGaps, "enable/disable removal of hits in gaps between pixels"};
+    ParameterRef<double> m_safetyFactor {this, "safetyFactor", config().safetyFactor, "overall safety factor"};
+    ParameterRef<bool> m_enableNoise {this, "enableNoise", config().enableNoise, ""};
+    ParameterRef<double> m_noiseRate {this, "noiseRate", config().noiseRate, ""};
+    ParameterRef<double> m_noiseTimeWindow {this, "noiseTimeWindow", config().noiseTimeWindow, ""};
+    //ParameterRef<std::vector<std::pair<double, double>>> m_quantumEfficiency {this, "quantumEfficiency", config().quantumEfficiency, ""};
 
-        /** One time initialization **/
-        void Init() override;
+    Service<DD4hep_service> m_DD4hepSvc {this};
+    Service<RichGeo_service> m_RichGeoSvc {this};
 
-        /** On run change preparations **/
-        void BeginRun(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
+        // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
+        if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
+            m_RichGeoSvc().GetReadoutGeo(GetPluginName())->SetSeed(config().seed);
+            m_algo.SetVisitRngCellIDs(
+                [this] (std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) { m_RichGeoSvc().GetReadoutGeo(GetPluginName())->VisitAllRngPixels(lambda, p); }
+                );
+            m_algo.SetPixelGapMask(
+                [this] (PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) { return m_RichGeoSvc().GetReadoutGeo(GetPluginName())->PixelGapMask(cellID, pos); }
+                );
+        }
 
-    private:
+        m_algo.applyConfig(config());
+        m_algo.init(m_DD4hepSvc().detector(), m_DD4hepSvc().converter(), logger());
+    }
 
-        eicrecon::PhotoMultiplierHitDigi m_digi_algo;       /// Actual digitisation algorithm
-        std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
-    };
+    void ChangeRun(int64_t run_number) {
+    }
 
-}
+    void Process(int64_t run_number, uint64_t event_number) {
+        std::tie(m_raw_hits_output(), m_raw_assocs_output()) = m_algo.process(m_sim_hits_input());
+    }
+};
+
+} // eicrecon

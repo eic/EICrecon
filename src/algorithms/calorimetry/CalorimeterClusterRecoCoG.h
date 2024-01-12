@@ -11,16 +11,24 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <cmath>
+#include <functional>
 #include <map>
-#include <spdlog/spdlog.h>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterClusterRecoCoGConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
 static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }
@@ -41,24 +49,43 @@ namespace eicrecon {
     std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>
   >;
 
-  class CalorimeterClusterRecoCoG : public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+  using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      std::optional<edm4hep::SimCalorimeterHitCollection>
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
+    >
+  >;
+
+  class CalorimeterClusterRecoCoG
+      : public CalorimeterClusterRecoCoGAlgorithm,
+        public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    CalorimeterClusterRecoCoG(std::string_view name)
+      : CalorimeterClusterRecoCoGAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputAssociations"},
+                            "Reconstruct a cluster with the Center of Gravity method. For "
+                            "simulation results it optionally creates a Cluster <-> MCParticle "
+                            "association provided both optional arguments are provided."} {}
 
-    ClustersWithAssociations process(
-            const edm4eic::ProtoClusterCollection* proto,
-            const edm4hep::SimCalorimeterHitCollection* mchits);
+  public:
+    void init(std::shared_ptr<spdlog::logger>& logger);
+
+    void process(const Input&, const Output&) const final;
 
   private:
-    const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
     std::function<double(double, double, double, int)> weightFunc;
 
   private:
 
-    edm4eic::Cluster reconstruct(const edm4eic::ProtoCluster& pcl) const;
+    std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
 
   };
 

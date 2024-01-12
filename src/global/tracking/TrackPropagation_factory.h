@@ -3,18 +3,20 @@
 
 #pragma once
 
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <services/geometry/dd4hep/JDD4hep_service.h>
-#include <extensions/spdlog/SpdlogMixin.h>
-#include <algorithms/tracking/TrackPropagation.h>
-#include <spdlog/logger.h>
-
+#include <Acts/Surfaces/Surface.hpp>
+#include <JANA/JEvent.h>
+#include "algorithms/tracking/TrackPropagation.h"
 #include <edm4eic/TrackSegmentCollection.h>
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
-// Forward declarations
-namespace Acts {
-    class Surface;
-}
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -37,7 +39,7 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
 
         // Pointer to the geometry service
-        std::shared_ptr<JDD4hep_service> m_geoSvc;
+        std::shared_ptr<DD4hep_service> m_geoSvc;
 
     private:
 

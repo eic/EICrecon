@@ -3,10 +3,12 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
-
-#include <DD4hep/Detector.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <mutex>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
 
@@ -28,7 +30,7 @@ private:
 
     std::once_flag m_init_flag;
     JApplication *m_app = nullptr;
-    dd4hep::Detector* m_dd4hepGeo = nullptr;
+    const dd4hep::Detector* m_dd4hepGeo = nullptr;
     std::shared_ptr<ActsGeometryProvider> m_acts_provider;
 
     // General acts log

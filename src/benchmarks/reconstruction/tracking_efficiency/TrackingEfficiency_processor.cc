@@ -1,22 +1,31 @@
 #include "TrackingEfficiency_processor.h"
 
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4hep/MCParticle.h>
-
-#include <Math/LorentzVector.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
+#include <Rtypes.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <Eigen/Core>
+#include <iterator>
+#include <map>
+#include <optional>
+#include <string>
+#include <vector>
 
-#include <spdlog/spdlog.h>
-
-#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include "services/rootfile/RootFile_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 //--------------------------------
 // OccupancyAnalysis (Constructor)

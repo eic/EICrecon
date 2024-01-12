@@ -1,11 +1,17 @@
 
 #include "JEventProcessorPODIO.h"
-#include "services/log/Log_service.h"
-#include <JANA/Services/JComponentManager.h>
-#include <podio/Frame.h>
 
-#include "datamodel_glue.h"
-#include <algorithm>
+#include <JANA/JApplication.h>
+#include <JANA/JLogger.h>
+#include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <fmt/core.h>
+#include <podio/CollectionBase.h>
+#include <podio/Frame.h>
+#include <spdlog/common.h>
+#include <exception>
+
+#include "services/log/Log_service.h"
 
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -36,11 +42,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
     // Get the list of output collections to include/exclude
     std::vector<std::string> output_include_collections={
+            // Header and other metadata
+            "EventHeader",
+
+            // Truth record
             "MCParticles",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
             "CentralTrackSeedingResults",
+            "CentralTrackerMeasurements",
 
             // Si tracker hits
             "SiBarrelTrackerRecHits",
@@ -148,13 +159,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapNClusterAssociations",
-            "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
-            "HcalEndcapPRecHits",
-            "HcalEndcapPMergedHits",
-            "HcalEndcapPTruthClusters",
-            "HcalEndcapPTruthClusterAssociations",
-            "HcalEndcapPClusters",
-            "HcalEndcapPClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -279,6 +283,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     //            all). See also below, at "TODO: NWB:".
     for (const auto& coll_name : m_collections_to_write) {
         try {
+            [[maybe_unused]]
             const auto* coll_ptr = event->GetCollectionBase(coll_name);
         }
         catch(std::exception &e) {

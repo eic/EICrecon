@@ -5,34 +5,37 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "femc_studiesProcessor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/rootfile/RootFile_service.h"
-#include <spdlog/spdlog.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/log/Log_service.h"
-#include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-
-// Include appropriate class headers. e.g.
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/vector_utils.h>
-
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TVector3.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <RtypesCore.h>
+#include <TMath.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <gsl/pointers>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <vector>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 
 //******************************************************************************************//
@@ -55,6 +58,9 @@ void femc_studiesProcessor::Init() {
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
+
+  // Ask service locator for the DD4hep geometry
+  auto dd4hep_service = app->GetService<DD4hep_service>();
 
   // Get TDirectory for histograms root file
   auto globalRootLock = app->GetService<JGlobalRootLock>();
@@ -129,12 +135,12 @@ void femc_studiesProcessor::Init() {
   // ===============================================================================================
   // rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
+  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,island clus}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
                                             1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
-  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
+  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,island clus high.}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
                                             1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
@@ -204,12 +210,11 @@ void femc_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector& detector = dd4hep::Detector::getInstance();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(detector);
+  auto detector = dd4hep_service->detector();
   std::cout << "--------------------------\nID specification:\n";
   try {
-    m_decoder         = detector.readout("EcalEndcapPHits").idSpec().decoder();
-    std::cout <<"1st: "<< m_decoder << std::endl;
+    m_decoder = detector->readout("EcalEndcapPHits").idSpec().decoder();
+    std::cout << "1st: "<< m_decoder << std::endl;
     std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
       std::cout <<"2nd: "  << m_decoder << std::endl;
@@ -228,18 +233,18 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // ===============================================================================================
   // process MC particles
   // ===============================================================================================
-  auto mcParticles = event -> Get<edm4hep::MCParticle>("MCParticles");
+  const auto &mcParticles = *static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
   double mceta    = 0;
   double mcphi    = 0;
   double mcp      = 0;
   double mcenergy = 0;
   int iMC         = 0;
-  for (auto mcparticle : mcParticles) {
-    if (mcparticle->getGeneratorStatus() != 1)
+  for (const auto mcparticle : mcParticles) {
+    if (mcparticle.getGeneratorStatus() != 1)
       continue;
-    const auto& mom = mcparticle->getMomentum();
+    const auto& mom = mcparticle.getMomentum();
     // get particle energy
-    mcenergy = mcparticle->getEnergy();
+    mcenergy = mcparticle.getEnergy();
     //determine mceta from momentum
     mceta = -log(tan(atan2(sqrt(mom.x * mom.x + mom.y * mom.y), mom.z) / 2.));
     // determine mcphi from momentum
@@ -266,15 +271,15 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   int nCaloHitsSim = 0;
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
-  auto simHits = event -> Get<edm4hep::SimCalorimeterHit>(nameSimHits.data());
-  for (const auto *caloHit : simHits) {
-    float x         = caloHit->getPosition().x / 10.;
-    float y         = caloHit->getPosition().y / 10.;
-    float z         = caloHit->getPosition().z / 10.;
-    uint64_t cellID = caloHit->getCellID();
-    float energy    = caloHit->getEnergy();
+  const auto &simHits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(nameSimHits));
+  for (const auto caloHit : simHits) {
+    float x         = caloHit.getPosition().x / 10.;
+    float y         = caloHit.getPosition().y / 10.;
+    float z         = caloHit.getPosition().z / 10.;
+    uint64_t cellID = caloHit.getCellID();
+    float energy    = caloHit.getEnergy();
     double time = std::numeric_limits<double>::max();
-    for (const auto& c : caloHit->getContributions()) {
+    for (const auto& c : caloHit.getContributions()) {
         if (c.getTime() <= time) {
             time = c.getTime();
         }
@@ -329,18 +334,18 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // ===============================================================================================
   // read rec hits & fill structs
   // ===============================================================================================
-  auto recHits = event -> Get<edm4eic::CalorimeterHit>(nameRecHits.data());
+  const auto &recHits = *static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(nameRecHits));
   int nCaloHitsRec = 0;
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
   // process rec hits
-  for (const auto *caloHit : recHits) {
-    float x         = caloHit->getPosition().x / 10.;
-    float y         = caloHit->getPosition().y / 10.;
-    float z         = caloHit->getPosition().z / 10.;
-    uint64_t cellID = caloHit->getCellID();
-    float energy    = caloHit->getEnergy();
-    float time      = caloHit->getTime();
+  for (const auto caloHit : recHits) {
+    float x         = caloHit.getPosition().x / 10.;
+    float y         = caloHit.getPosition().y / 10.;
+    float z         = caloHit.getPosition().z / 10.;
+    uint64_t cellID = caloHit.getCellID();
+    float energy    = caloHit.getEnergy();
+    float time      = caloHit.getTime();
 
     auto detector_passive = 0;
     auto detector_layer_x = floor((x+246)/2.5);
@@ -478,7 +483,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     m_log->info("-----> found {} clusters" , clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
-    for (auto& cluster : clusters_calo) {
+    for (const auto cluster : clusters_calo) {
       if (iCl < maxNCluster && enableTreeCluster){
         t_fEMC_cluster_E[iCl]       = (float)cluster.cluster_E;
         t_fEMC_cluster_NCells[iCl]  = (int)cluster.cluster_NTowers;
@@ -486,7 +491,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         t_fEMC_cluster_Phi[iCl]     = (float)cluster.cluster_Phi;
       }
       hRecClusterEcalib_E_eta->Fill(mcenergy, cluster.cluster_E/mcenergy, mceta);
-      for (auto & cluster_tower : cluster.cluster_towers){
+      for (const auto cluster_tower : cluster.cluster_towers){
         int pSav = 0;
         while(cluster_tower.cellID !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) {
           pSav++;
@@ -518,16 +523,16 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   float highestEFr  = 0;
   int iClFHigh      = 0;
 
-  auto fecalClustersF = event -> Get<edm4eic::Cluster>(nameClusters.data());
-  for (auto& cluster : fecalClustersF) {
-    if (cluster->getEnergy() > highestEFr){
+  const auto &fecalClustersF = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(nameClusters));
+  for (const auto cluster : fecalClustersF) {
+    if (cluster.getEnergy() > highestEFr){
       iClFHigh    = iClF;
-      highestEFr  = cluster->getEnergy();
+      highestEFr  = cluster.getEnergy();
     }
-    hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
-    m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster->getEnergy(), cluster->getNhits());
+    hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster.getEnergy()/mcenergy, mceta);
+    m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster.getEnergy(), cluster.getNhits());
 
-    for (const auto& hit: cluster->getHits()){
+    for (const auto& hit: cluster.getHits()){
       int pSav = 0;
       while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
       if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)
@@ -538,10 +543,10 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);
   // fill hists for highest Island cluster
   iClF          = 0;
-  for (auto& cluster : fecalClustersF) {
+  for (const auto cluster : fecalClustersF) {
     if (iClF == iClFHigh){
-      hRecFClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster->getEnergy()/mcenergy, mceta);
-      hRecFClusterNCells_Ehigh_eta->Fill(mcenergy, cluster->getNhits(), mceta);
+      hRecFClusterEcalib_Ehigh_eta->Fill(mcenergy, cluster.getEnergy()/mcenergy, mceta);
+      hRecFClusterNCells_Ehigh_eta->Fill(mcenergy, cluster.getNhits(), mceta);
     }
     iClF++;
   }
@@ -552,7 +557,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   if (enableTree){
     t_fEMC_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-      m_log->trace("{} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
+      m_log->trace("{} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
 
       t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
@@ -609,4 +614,24 @@ void femc_studiesProcessor::Finish() {
   std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present"<< std::endl;
   if (enableTreeCluster) cluster_tree->Write();
   // Do any final calculations here.
+
+  if (enableTree) {
+    delete[] t_fEMC_towers_cellE;
+    delete[] t_fEMC_towers_cellT;
+    delete[] t_fEMC_towers_cellIDx;
+    delete[] t_fEMC_towers_cellIDy;
+    delete[] t_fEMC_towers_clusterIDA;
+    delete[] t_fEMC_towers_clusterIDB;
+    delete[] t_fEMC_towers_cellTrueID;
+  }
+
+  if (enableTreeCluster) {
+    delete[] t_mc_E;
+    delete[] t_mc_Phi;
+    delete[] t_mc_Eta;
+    delete[] t_fEMC_cluster_E;
+    delete[] t_fEMC_cluster_NCells;
+    delete[] t_fEMC_cluster_Phi;
+    delete[] t_fEMC_cluster_Eta;
+  }
 }

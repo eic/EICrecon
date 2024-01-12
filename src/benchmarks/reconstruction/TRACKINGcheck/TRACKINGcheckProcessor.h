@@ -3,20 +3,18 @@
 // Template for this file generated with eicmkplugin.py
 //
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
-
-#include <edm4hep/MCParticle.h>
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
+#include <map>
+#include <memory>
+#include <string>
 
 
 class TRACKINGcheckProcessor: public JEventProcessorSequentialRoot {
 private:
-
-    // Data objects we will need from JANA
-    PrefetchT<edm4hep::MCParticle>  MCParticles   = {this, "MCParticles" };
-    PrefetchT<ActsExamples::Trajectories>    Trajectories  = {this, "CentralCKFActsTrajectories"};
 
     // Containers for histograms
     std::map<std::string, TH1*> hist1D;

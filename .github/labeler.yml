@@ -15,7 +15,7 @@
   - "src/detectors/B0ECAL/**"
   - "src/detectors/BEMC/**"
   - "src/detectors/BHCAL/**"
-  - "src/detectors/EEMC/**"
+  - "src/detectors/EHCAL/**"
   - "src/detectors/EEMC/**"
   - "src/detectors/FEMC/**"
   - "src/detectors/FHCAL/**"
@@ -39,7 +39,6 @@
   - "src/detectors/ZDC/**"
 
 "topic: forward":
-  - "src/detectors/ECGEM/**"
   - "src/detectors/ECTOF/**"
   - "src/detectors/FEMC/**"
   - "src/detectors/FHCAL/**"
@@ -53,7 +52,6 @@
   - "src/algorithms/pid/**"
   - "src/detectors/BTOF/**"
   - "src/detectors/DRICH/**"
-  - "src/detectors/ECGEM/**"
   - "src/detectors/ECTOF/**"
   - "src/tests/algorithms_test/pid_*"
 

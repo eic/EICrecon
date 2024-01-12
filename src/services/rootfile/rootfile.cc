@@ -3,6 +3,9 @@
 //
 //
 
+#include <JANA/JApplication.h>
+#include <memory>
+
 #include "RootFile_service.h"
 
 

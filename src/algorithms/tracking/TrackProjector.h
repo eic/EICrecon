@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include <edm4eic/TrackSegment.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <ActsExamples/EventData/Trajectories.hpp>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
-#include <spdlog/fmt/ostr.h>
-#include "TrackProjectorConfig.h"
+#include <memory>
+#include <vector>
+
 #include "ActsGeometryProvider.h"
-#include "ActsExamples/EventData/Trajectories.hpp"
+#include "TrackProjectorConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {
@@ -27,7 +28,7 @@ namespace eicrecon {
 
             void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
-            std::vector<edm4eic::TrackSegment*> execute(std::vector<const ActsExamples::Trajectories*> trajectories);
+            std::unique_ptr<edm4eic::TrackSegmentCollection> execute(std::vector<const ActsExamples::Trajectories*> trajectories);
 
         private:
             std::shared_ptr<const ActsGeometryProvider> m_geo_provider;

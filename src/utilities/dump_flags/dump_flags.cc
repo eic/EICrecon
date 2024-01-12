@@ -4,7 +4,6 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
 
 #include "DumpFlags_processor.h"
 

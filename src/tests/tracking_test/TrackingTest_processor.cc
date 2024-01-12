@@ -1,25 +1,27 @@
 
 #include "TrackingTest_processor.h"
-#include "algorithms/tracking/ActsExamples/EventData/Trajectories.hpp"
-#include "extensions/spdlog/SpdlogExtensions.h"
-
-#include "datamodel_glue.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <fmt/core.h>
-
-#include <Math/LorentzVector.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <JANA/Services/JParameterManager.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-
-#include <spdlog/spdlog.h>
-#include <edm4hep/MCParticle.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "algorithms/tracking/ActsExamples/EventData/Track.hpp"
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -105,9 +107,6 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
     auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
 
-    const auto *particles = event->GetSingle<edm4eic::ReconstructedParticle>("ReconstructedParticles");
-    const auto *track_params = event->GetSingle<edm4eic::TrackParameters>("outputTrackParameters");
-
     m_log->debug("MC particles N={}: ", mc_particles.size());
     m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}","[i]", "status", "[PDG]",  "[px]", "[py]", "[pz]", "[P]");
     for(size_t i=0; i < mc_particles.size(); i++) {
@@ -130,21 +129,18 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
 void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const JEvent> &event) {
     m_log->debug("Associations [simId] [recID] [simE] [recE] [simPDG] [recPDG]");
-    // auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 
-    const auto *particles = event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
     const auto *associations = event->GetCollection<edm4eic::MCRecoParticleAssociation>("ReconstructedChargedParticleAssociations");
-
-
 
     for(auto assoc: *associations) {
         auto sim = assoc.getSim();
         auto rec = assoc.getRec();
 
-        m_log->debug("  {:<6} {:<6} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", assoc.getSimID(), assoc.getRecID(), sim.getPDG(), rec.getPDG());
+        m_log->debug("  {:<6} {:<6} {:>8d} {:>8d}", assoc.getSimID(), assoc.getRecID(), sim.getPDG(), rec.getPDG());
     }
 
 //    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");
+//    auto prt_with_assoc = event->GetSingle<edm4hep::ReconstructedParticle>("ChargedParticlesWithAssociations");
 //    for(auto part: prt_with_assoc->particles()) {
 //
 //        // auto sim = assoc->getSim();
@@ -171,5 +167,4 @@ void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const J
         m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(), part->getCharge(), part->getEnergy());
     }
 
-    const auto *final_generated_particles = event->GetSingle<edm4eic::ReconstructedParticle>("GeneratedParticles");
 }

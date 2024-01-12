@@ -3,8 +3,29 @@
 
 #include "ParticlesWithPID.h"
 
-#include <edm4eic/vector_utils.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <limits>
+#include <map>
+#include <mutex>
+#include <utility>
+#include <vector>
+
+#include "algorithms/pid/ConvertParticleID.h"
+#include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "algorithms/pid/Tools.h"
 
 
 
@@ -12,22 +33,18 @@ namespace eicrecon {
 
     void ParticlesWithPID::init(std::shared_ptr<spdlog::logger> logger) {
         m_log = logger;
-
     }
 
     ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
             const edm4eic::TrajectoryCollection* trajectories,
-            std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pid_collections
+            const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
             ) {
 
-        // input collection
-
         /// Resulting reconstructed particles
-        ParticlesWithAssociation out_colls;
-        out_colls.parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        out_colls.assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-        out_colls.pids   = std::make_unique<edm4hep::ParticleIDCollection>();
+        auto parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        auto assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
+        auto pids   = std::make_unique<edm4hep::ParticleIDCollection>();
 
         const double sinPhiOver2Tolerance = sin(0.5 * m_cfg.phiTolerance);
         tracePhiToleranceOnce(sinPhiOver2Tolerance, m_cfg.phiTolerance);
@@ -36,14 +53,14 @@ namespace eicrecon {
 
         for (const auto &trajectory: *trajectories) {
           for (const auto &trk: trajectory.getTrackParameters()) {
-            const auto mom = edm4eic::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
+            const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
             const auto charge_rec = trk.getCharge();
 
 
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");
             m_log->debug(" Track : {:<4} {:<8.3f} {:<8.3f} {:<8.2f} {:<4}",
-                         trk.getObjectID().index, edm4eic::magnitude(mom), edm4eic::anglePolar(mom), edm4eic::angleAzimuthal(mom), charge_rec);
+                         trk.getObjectID().index, edm4hep::utils::magnitude(mom), edm4hep::utils::anglePolar(mom), edm4hep::utils::angleAzimuthal(mom), charge_rec);
 
             // utility variables for matching
             int best_match = -1;
@@ -53,7 +70,7 @@ namespace eicrecon {
                 const auto &p = mc_part.getMomentum();
 
                 m_log->trace("  MCParticle with id={:<4} mom={:<8.3f} charge={}", mc_part.getObjectID().index,
-                             edm4eic::magnitude(p), mc_part.getCharge());
+                             edm4hep::utils::magnitude(p), mc_part.getCharge());
 
                 // Check if used
                 if (mc_prt_is_consumed[ip]) {
@@ -79,14 +96,14 @@ namespace eicrecon {
                     continue;
                 }
 
-                const auto p_mag = edm4eic::magnitude(p);
-                const auto p_phi = edm4eic::angleAzimuthal(p);
-                const auto p_eta = edm4eic::eta(p);
-                const double dp_rel = std::abs((edm4eic::magnitude(mom) - p_mag) / p_mag);
+                const auto p_mag = edm4hep::utils::magnitude(p);
+                const auto p_phi = edm4hep::utils::angleAzimuthal(p);
+                const auto p_eta = edm4hep::utils::eta(p);
+                const double dp_rel = std::abs((edm4hep::utils::magnitude(mom) - p_mag) / p_mag);
                 // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
                 // for phi rollovers
-                const double dsphi = std::abs(sin(0.5 * (edm4eic::angleAzimuthal(mom) - p_phi)));
-                const double deta = std::abs((edm4eic::eta(mom) - p_eta));
+                const double dsphi = std::abs(sin(0.5 * (edm4hep::utils::angleAzimuthal(mom) - p_phi)));
+                const double deta = std::abs((edm4hep::utils::eta(mom) - p_eta));
 
                 bool is_matching = dp_rel < m_cfg.momentumRelativeTolerance &&
                                    deta < m_cfg.etaTolerance &&
@@ -95,11 +112,11 @@ namespace eicrecon {
                 // Matching kinematics with the static variables doesn't work at low angles and within beam divergence
                 // TODO - Maybe reconsider variables used or divide into regions
                 // Backward going
-                if ((p_eta < -5) && (edm4eic::eta(mom) < -5)) {
+                if ((p_eta < -5) && (edm4hep::utils::eta(mom) < -5)) {
                   is_matching = true;
                 }
                 // Forward going
-                if ((p_eta >  5) && (edm4eic::eta(mom) >  5)) {
+                if ((p_eta >  5) && (edm4hep::utils::eta(mom) >  5)) {
                   is_matching = true;
                 }
 
@@ -120,7 +137,7 @@ namespace eicrecon {
                     }
                 }
             }
-            auto rec_part = out_colls.parts->create();
+            auto rec_part = parts->create();
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
             // float time          = 0;
@@ -139,7 +156,7 @@ namespace eicrecon {
             }
 
             rec_part.setType(static_cast<int16_t>(best_match >= 0 ? 0 : -1)); // @TODO: determine type codes
-            rec_part.setEnergy((float) std::hypot(edm4eic::magnitude(mom), mass));
+            rec_part.setEnergy((float) std::hypot(edm4hep::utils::magnitude(mom), mass));
             rec_part.setMomentum(mom);
             rec_part.setReferencePoint(referencePoint);
             rec_part.setCharge(charge_rec);
@@ -149,18 +166,16 @@ namespace eicrecon {
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
             // link Cherenkov PID objects
-            for (const auto& cherenkov_pids : cherenkov_pid_collections) {
-                auto success = linkCherenkovPID(rec_part, *cherenkov_pids, *(out_colls.pids));
-                if (success)
-                    m_log->trace("      true PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
-                            best_pid,
-                            rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
-                            );
-            }
+            auto success = linkCherenkovPID(rec_part, *drich_cherenkov_pid_collections, *pids);
+            if (success)
+                m_log->trace("      true PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
+                        best_pid,
+                        rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
+                        );
 
             // Also write MC <--> truth particle association if match was found
             if (best_match >= 0) {
-                auto rec_assoc = out_colls.assocs->create();
+                auto rec_assoc = assocs->create();
                 rec_assoc.setRecID(rec_part.getObjectID().index);
                 rec_assoc.setSimID((*mc_particles)[best_match].getObjectID().index);
                 rec_assoc.setWeight(1);
@@ -172,9 +187,9 @@ namespace eicrecon {
 
                     const auto &mcpart = (*mc_particles)[best_match];
                     const auto &p = mcpart.getMomentum();
-                    const auto p_mag = edm4eic::magnitude(p);
-                    const auto p_phi = edm4eic::angleAzimuthal(p);
-                    const auto p_theta = edm4eic::anglePolar(p);
+                    const auto p_mag = edm4hep::utils::magnitude(p);
+                    const auto p_phi = edm4hep::utils::angleAzimuthal(p);
+                    const auto p_theta = edm4hep::utils::anglePolar(p);
                     m_log->debug(" MCPart: {:<4} {:<8.3f} {:<8.3f} {:<8.2f} {:<6}",
                                  mcpart.getObjectID().index, p_mag, p_theta, p_phi, mcpart.getCharge(),
                                  mcpart.getPDG());
@@ -196,7 +211,7 @@ namespace eicrecon {
           }
         }
 
-        return out_colls;
+        return std::make_tuple(std::move(parts), std::move(assocs), std::move(pids));
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {
@@ -315,7 +330,7 @@ namespace eicrecon {
         // relate matched ParticleID objects to output particle
         for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
             const auto& out_pid = out_pids->at(out_pids_index);
-            if (out_pid.id() != out_pids_id) { // sanity check
+            if (out_pid.getObjectID().index != out_pids_id) { // sanity check
                 m_log->error("indexing error in `edm4eic::ParticleID` collection");
                 return false;
             }

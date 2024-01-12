@@ -3,25 +3,25 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
-
-// data model
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
+#include <IRT/CherenkovDetectorCollection.h>
+#include <JANA/JEvent.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/pid/IrtCherenkovParticleID.h"
-
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+// JANA
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 // services
 #include "services/geometry/richgeo/RichGeo_service.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
-
-  class IrtCherenkovParticleID;
 
   class IrtCherenkovParticleID_factory :
     public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,

@@ -3,18 +3,27 @@
 //
 
 #include "eicrecon_cli.h"
-#include "print_info.h"
 
-#include <JANA/CLI/JVersion.h>
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
-
+#include <JANA/CLI/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
-
-#include <set>
-#include <iostream>
-#include <string>
+#include <string.h>
+#include <algorithm>
+#include <cstdlib>
 #include <filesystem>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+#include "JANA/JApplication.h"
+#include "JANA/JEventSource.h"
+#include "JANA/JException.h"
+#include "JANA/Services/JParameterManager.h"
+#include "print_info.h"
 
 #define QUOTE(name) #name
 #define STR(macro) QUOTE(macro)
@@ -391,10 +400,12 @@ namespace jana {
             catch (JException& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << e << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
             catch (std::runtime_error& e) {
                 std::cout << "----------------------------------------------------------" << std::endl;
                 std::cout << "Exception: " << e.what() << std::endl;
+                app->SetExitCode(EXIT_FAILURE);
             }
         }
         return (int) app->GetExitCode();

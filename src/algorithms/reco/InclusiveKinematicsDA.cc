@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <algorithm>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/Vector4Dfwd.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
 #include <cmath>
-#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"
 #include "InclusiveKinematicsDA.h"
 
-#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 
 namespace eicrecon {
 
@@ -137,14 +138,15 @@ namespace eicrecon {
 
     // DIS kinematics calculations
     auto sigma_h = Esum - pzsum;
-    auto ptsum = sqrt(pxsum*pxsum + pysum*pysum);
-    auto theta_h = 2.*atan(sigma_h/ptsum);
 
-    // If no scattered electron was found
+    // If no scattered hadron was found
     if (sigma_h <= 0) {
-      m_log->debug("No scattered electron found");
+      m_log->debug("No scattered hadron found");
       return kinematics;
     }
+
+    auto ptsum = sqrt(pxsum*pxsum + pysum*pysum);
+    auto theta_h = 2.*atan(sigma_h/ptsum);
 
     // Calculate kinematic variables
     const auto y_da = tan(theta_h/2.) / ( tan(theta_e/2.) + tan(theta_h/2.) );
