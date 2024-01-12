@@ -36,8 +36,8 @@ namespace eicrecon {
   }
 
   std::unique_ptr<edm4eic::ClusterCollection>
-    LogWeightReco::process(const edm4eic::ProtoClusterCollection &proto) {  
-    
+    LogWeightReco::process(const edm4eic::ProtoClusterCollection &proto) {
+
     auto outputClusters = std::make_unique<edm4eic::ClusterCollection>();
     for (const auto& pcl : proto)
     {
@@ -54,12 +54,12 @@ namespace eicrecon {
       E_recon += E_shower/m_cfg.sampling_fraction;
 
       //now determine the value of w0 to use
-      double w0=m_cfg.w0_a+m_cfg.w0_b*log(E_recon/m_cfg.E0)+m_cfg.w0_c*pow(log(E_recon/m_cfg.E0),2);  
+      double w0=m_cfg.w0_a+m_cfg.w0_b*log(E_recon/m_cfg.E0)+m_cfg.w0_c*pow(log(E_recon/m_cfg.E0),2);
       m_log->debug("w0: {}", w0);
       double sum_weights=0;
       //position of the cluster
       double x_recon=0, y_recon=0, z_recon=0, t_recon=0;
-      for (int i=0; i<hits.size(); i++){    
+      for (int i=0; i<hits.size(); i++){
         double weight=std::max(log(hits[i].getEnergy()/E_shower)+w0, 0.);
         sum_weights+=weight;
         x_recon+=hits[i].getPosition().x*weight;

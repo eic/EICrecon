@@ -9,7 +9,7 @@ namespace eicrecon {
     // strawman energy reconstruction
     double                   sampling_fraction{0.0203};
     //parameters to determine the cut-off parameter w0
-    // as a function of energy based on an optimized 
+    // as a function of energy based on an optimized
     double                   E0{50};
     double                   w0_a{5.0};
     double                   w0_b{0.65};

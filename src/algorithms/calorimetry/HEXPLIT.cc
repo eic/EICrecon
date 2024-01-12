@@ -35,7 +35,7 @@ void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::log
     m_detector = detector;
 }
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){  
+std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
   int nhits=hits.size();
   double sl=m_cfg.side_length/dd4hep::mm;
   double layer_spacing=m_cfg.layer_spacing/dd4hep::mm;
@@ -68,27 +68,27 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     double Eneighbors[SUBCELLS];
     for (int j=0; j<SUBCELLS; j++)
       Eneighbors[j]=0;
-      
+
     for (int j=0; j<nhits; j++){
       //only look at hits nearby within two layers of the current layer
       if (abs(z[i]-z[j])>2.5*layer_spacing || z[i]==z[j])
-	continue;
+        continue;
       if (E[j]<Emin || t[j]>tmax)
-	continue;
+        continue;
       //difference in transverse position (in units of side lengths)
       double dx=(x[j]-x[i])/sl;
       double dy=(y[j]-y[i])/sl;
       if (abs(dx)>2 || abs(dy)>sqrt(3))
-	continue;
-      
+        continue;
+
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
       double tol=0.01; //tolerance for rounding errors
       for(int k=0;k<SUBCELLS;k++){
-	if(abs(dx-neighbor_offsets_x[k])<tol && abs(dy-neighbor_offsets_y[k])<tol){
-	  Eneighbors[k]+=E[j];
-	  break;
-	}
+        if(abs(dx-neighbor_offsets_x[k])<tol && abs(dy-neighbor_offsets_y[k])<tol){
+          Eneighbors[k]+=E[j];
+          break;
+        }
       }
     }
     double weights[SUBCELLS];
@@ -102,7 +102,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     }
     for(int k=0; k<SUBCELLS;k++){
 
-      //create the subcell hits.  First determine their positions in local coordinates.  
+      //create the subcell hits.  First determine their positions in local coordinates.
       Eigen::Vector3d local(x[i]+subcell_offsets_x[k]*sl, y[i]+subcell_offsets_y[k]*sl, z[i]);
       const decltype(edm4eic::CalorimeterHitData::local) local_position(local[0], local[1], local[2]);
 
@@ -113,21 +113,21 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       Eigen::AngleAxisd pitchAngle(m_cfg.rot_x, Eigen::Vector3d::UnitX());
 
       Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
-      
+
       Eigen::Matrix3d rotationMatrix = q.matrix();
 
       auto gpos = rotationMatrix*(local+translation);
 
       const decltype(edm4eic::CalorimeterHitData::position) position(gpos[0], gpos[1], gpos[2]);
-      
+
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = k%3==0;
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(sl*(orientation?1:1.5), sl*sqrt(3)/2.*(orientation?2:1),
-								       hits[i].getDimension()[2]);
-      
+                                                                       hits[i].getDimension()[2]);
+
       subcellHits->create(
-	    hits[i].getCellID(),
-	    E[i]*weights[k]/sum_weights,
+            hits[i].getCellID(),
+            E[i]*weights[k]/sum_weights,
             0,
             hits[i].getTime(),
             0,
@@ -135,7 +135,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
             dimension,
             hits[i].getSector(),
             hits[i].getLayer(),
-	    local_position);
+            local_position);
     }
   }
   return subcellHits;
@@ -143,4 +143,3 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
 
 } // namespace eicrecon
-

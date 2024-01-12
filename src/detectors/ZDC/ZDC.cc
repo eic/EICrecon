@@ -25,7 +25,7 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-	// LYSO part of the ZDC
+        // LYSO part of the ZDC
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
           {
@@ -106,9 +106,9 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
-	    
-	//side length of hexagonal cells in SiPM-on-tile part of the ZDC
-	auto side_length = 31.3 * dd4hep::mm;
+
+        //side length of hexagonal cells in SiPM-on-tile part of the ZDC
+        auto side_length = 31.3 * dd4hep::mm;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
@@ -136,71 +136,71 @@ extern "C" {
             .thresholdValue = -100.0,
             .sampFrac = 1.0,
             .readout = "HcalFarForwardZDCHits",
-	    .layerField = "layer",
-	    .sectorField = "system",
+            .layerField = "layer",
+            .sectorField = "system",
           },
           app   // TODO: Remove me once fixed
         ));
-	
-	app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+
+        app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
           "ZDCSubcellHits", {"ZDCRecHits"}, {"ZDCSubcellHits"},
           {
             .layer_spacing=25.1*dd4hep::mm,
             .side_length = side_length,
             .MIP = 472. * dd4hep::keV,
-	    .Emin_in_MIPs=0.1,
+            .Emin_in_MIPs=0.1,
             .tmax=320 * dd4hep::ns,
-	    .trans_x=0,
+            .trans_x=0,
             .trans_y=0,
             .trans_z=36601 * dd4hep::mm,
-	    .rot_x=0,
-	    .rot_y=-0.025,
-	    .rot_z=0,
+            .rot_x=0,
+            .rot_y=-0.025,
+            .rot_z=0,
           },
           app   // TODO: Remove me once fixed
-	));
+        ));
 
-	app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-	    "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
-	    {
-		.neighbourLayersRange = 1,
-		.localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-		.layerDistEtaPhi = {17e-3, 18.1e-3},
-		.sectorDist = 10.0 * dd4hep::cm,
-		.minClusterHitEdep = 100.0 * dd4hep::keV,
-		.minClusterCenterEdep = 11.0 * dd4hep::MeV,
-		.minClusterEdep = 11.0 * dd4hep::MeV,
-		.minClusterNhits = 10,
-	    },
-	    app   // TODO: Remove me once fixed
-	));
+        app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+            "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
+            {
+                .neighbourLayersRange = 1,
+                .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+                .layerDistEtaPhi = {17e-3, 18.1e-3},
+                .sectorDist = 10.0 * dd4hep::cm,
+                .minClusterHitEdep = 100.0 * dd4hep::keV,
+                .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+                .minClusterEdep = 11.0 * dd4hep::MeV,
+                .minClusterNhits = 10,
+            },
+            app   // TODO: Remove me once fixed
+        ));
 
-	app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-	  "ZDCIslandClusterContributions", {"ZDCSubcellHits"}, {"ZDCIslandClusterContributions"},
-	  {
-	    .sectorDist = 1.5 * dd4hep::cm,                                 
-	    .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},                  
-	    .splitCluster = false,                                          
-	    .minClusterHitEdep = 100.0 * dd4hep::keV,                       
-	    .minClusterCenterEdep = 1.0 * dd4hep::MeV,                    
-	    // .transverseEnergyProfileMetric = "globalDistEtaPhi",         
-	    // .transverseEnergyProfileScale = 1.,   
-	  },
-	  app
-	));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+          "ZDCIslandClusterContributions", {"ZDCSubcellHits"}, {"ZDCIslandClusterContributions"},
+          {
+            .sectorDist = 1.5 * dd4hep::cm,
+            .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+            .splitCluster = false,
+            .minClusterHitEdep = 100.0 * dd4hep::keV,
+            .minClusterCenterEdep = 1.0 * dd4hep::MeV,
+            // .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            // .transverseEnergyProfileScale = 1.,
+          },
+          app
+        ));
 
-	app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
-	  "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
+        app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
+          "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
           {
             .sampling_fraction=0.0203,
             .E0=50. * dd4hep::GeV,
             .w0_a=5.0,
-	    .w0_b=0.65,
-	    .w0_c=0.31,
+            .w0_b=0.65,
+            .w0_c=0.31,
           },
           app   // TODO: Remove me once fixed
-	));
-	
+        ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed

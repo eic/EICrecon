@@ -17,8 +17,8 @@ namespace eicrecon {
     double                   trans_y{0};
     double                   trans_z{0};
     double                   rot_x{0};
-    double    	      	     rot_y{0};
-    double    	      	     rot_z{0};
+    double                   rot_y{0};
+    double                   rot_z{0};
   };
 
 } // eicrecon
