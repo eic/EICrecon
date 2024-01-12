@@ -26,6 +26,37 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+	// LYSO part of the ZDC
+	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+          "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
+          {
+            .tRes = 0.0 * dd4hep::ns,
+            .capADC = 32768,
+            .dyRangeADC = 2000 * dd4hep::MeV,
+            .pedMeanADC = 400,
+            .pedSigmaADC = 3.2,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .corrMeanScale = 1.0,
+          },
+          app   // TODO: Remove me once fixed
+        ));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
+          "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          {
+            .capADC = 32768,
+            .dyRangeADC = 2000. * dd4hep::MeV,
+            .pedMeanADC = 400,
+            .pedSigmaADC = 3.2,
+            .resolutionTDC = 10 * dd4hep::picosecond,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 0.0,
+            .sampFrac = 1.0,
+            .readout = "ZDCEcalHits",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+	    
+	//side length of hexagonal cells in SiPM-on-tile part of the ZDC
 	auto side_length = 31.3 * dd4hep::mm;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
