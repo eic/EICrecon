@@ -9,7 +9,6 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
@@ -27,7 +26,7 @@ extern "C" {
         InitJANAPlugin(app);
 
 	// LYSO part of the ZDC
-	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
@@ -55,8 +54,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-
-	app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "ZDCEcalTruthProtoClusters", {"ZDCEcalRecHits", "ZDCEcalHits"}, {"ZDCEcalTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
