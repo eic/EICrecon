@@ -33,7 +33,7 @@ extern "C" {
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
-            .dyRangeADC = 200 * dd4hep::MeV,
+            .dyRangeADC = 800 * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
@@ -46,7 +46,7 @@ extern "C" {
           "ZDCRecHits", {"ZDCRawHits"}, {"ZDCRecHits"},
           {
             .capADC = 32678,
-            .dyRangeADC = 200. * dd4hep::MeV,
+            .dyRangeADC = 800. * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
