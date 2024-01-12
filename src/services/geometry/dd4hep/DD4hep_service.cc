@@ -1,18 +1,46 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
 //
 
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <filesystem>
+#include <JANA/JException.h>
+#include <JANA/JLogger.h>
+#include <Parsers/Printout.h>
 #include <fmt/color.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/log/Log_service.h"
 
 #include "DD4hep_service.h"
 
-#include <DD4hep/Printout.h>
+//----------------------------------------------------------------
+// Services
+//----------------------------------------------------------------
+void DD4hep_service::acquire_services(JServiceLocator *srv_locator) {
+    // logging service
+    auto log_service = srv_locator->get<Log_service>();
+    m_log = log_service->logger("dd4hep");
+    std::string log_level_str{"info"};
+    m_app->SetDefaultParameter("dd4hep:LogLevel", log_level_str, "Log level for DD4hep_service");
+    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+
+    // Set the DD4hep print level to be quieter by default, but let user adjust it
+    std::string print_level_str{"WARNING"};
+    m_app->SetDefaultParameter("dd4hep:print_level", print_level_str, "Set DD4hep print level (see DD4hep/Printout.h)");
+    dd4hep::setPrintLevel(dd4hep::decodePrintLevel(print_level_str));
+
+    // Set the TGeoManager verbose level (lower dd4hep level is more verbose)
+    TGeoManager::SetVerboseLevel(dd4hep::printLevel() <= dd4hep::PrintLevel::INFO ? 1 : 0);
+}
 
 //----------------------------------------------------------------
 // destructor
@@ -30,9 +58,22 @@ DD4hep_service::~DD4hep_service(){
 /// Return pointer to the dd4hep::Detector object.
 /// Call Initialize if needed.
 //----------------------------------------------------------------
-dd4hep::Detector* DD4hep_service::detector() {
-    std::call_once( init_flag, &DD4hep_service::Initialize, this);
-    return (m_dd4hepGeo);
+gsl::not_null<const dd4hep::Detector*>
+DD4hep_service::detector() {
+    std::call_once(init_flag, &DD4hep_service::Initialize, this);
+    return m_dd4hepGeo.get();
+}
+
+//----------------------------------------------------------------
+// converter
+//
+/// Return pointer to the cellIDPositionConverter object.
+/// Call Initialize if needed.
+//----------------------------------------------------------------
+gsl::not_null<const dd4hep::rec::CellIDPositionConverter*>
+DD4hep_service::converter() {
+    std::call_once(init_flag, &DD4hep_service::Initialize, this);
+    return m_cellid_converter.get();
 }
 
 //----------------------------------------------------------------
@@ -45,11 +86,9 @@ dd4hep::Detector* DD4hep_service::detector() {
 //----------------------------------------------------------------
 void DD4hep_service::Initialize() {
 
-    if( m_dd4hepGeo ) {
-        LOG_WARN(default_cout_logger) << "DD4hep_service already initialized!" << LOG_END;
+    if (m_dd4hepGeo) {
+        m_log->warn("DD4hep_service already initialized!");
     }
-
-    m_dd4hepGeo = &(dd4hep::Detector::getInstance());
 
     // The current recommended way of getting the XML file is to use the environment variables
     // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
@@ -71,53 +110,50 @@ void DD4hep_service::Initialize() {
 
     // User may specify multiple geometry files via the config. parameter. Normally, this
     // will be a single file which itself has includes for other files.
-    app->SetDefaultParameter("dd4hep:xml_files", m_xml_files, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml using envars.)");
+    m_app->SetDefaultParameter("dd4hep:xml_files", m_xml_files, "Comma separated list of XML files describing the DD4hep geometry. (Defaults to ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml using envars.)");
 
     if( m_xml_files.empty() ){
-        LOG_ERROR(default_cerr_logger) << "No dd4hep XML file specified for the geometry!" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "Set your DETECTOR_PATH and DETECTOR_CONFIG environment variables" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "(the latter is typically done by sourcing the setup.sh" << LOG_END;
-        LOG_ERROR(default_cerr_logger) << "script the epic directory.)" << LOG_END;
+        m_log->error("No dd4hep XML file specified for the geometry!");
+        m_log->error("Set your DETECTOR_PATH and DETECTOR_CONFIG environment variables");
+        m_log->error("(the latter is typically done by sourcing the setup.sh");
+        m_log->error("script the epic directory.)");
         throw std::runtime_error("No dd4hep XML file specified.");
     }
-
-    // Set the DD4hep print level to be quieter by default, but let user adjust it
-    int print_level = dd4hep::WARNING;
-    app->SetDefaultParameter("dd4hep:print_level", print_level, "Set DD4hep print level (see DD4hep/Printout.h)");
 
     // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
     // while no other output is coming which makes it look like something is wrong. Disable the ticker
     // while parsing and loading the geometry
-    auto tickerEnabled = app->IsTickerEnabled();
-    app->SetTicker( false );
+    auto tickerEnabled = m_app->IsTickerEnabled();
+    m_app->SetTicker( false );
 
     // load geometry
+    auto detector = dd4hep::Detector::make_unique("");
     try {
-        dd4hep::setPrintLevel(static_cast<dd4hep::PrintLevel>(print_level));
-        LOG << "Loading DD4hep geometry from " << m_xml_files.size() << " files" << LOG_END;
+        m_log->info("Loading DD4hep geometry from {} files", m_xml_files.size());
         for (auto &filename : m_xml_files) {
 
             auto resolved_filename = resolveFileName(filename, detector_path_env);
 
-            LOG << "  - loading geometry file:  '" << resolved_filename << "' (patience ....)" << LOG_END;
+            m_log->info("  - loading geometry file:  '{}' (patience ....)", resolved_filename);
             try {
-                m_dd4hepGeo->fromCompact(resolved_filename);
+                detector->fromCompact(resolved_filename);
             } catch(std::runtime_error &e) {        // dd4hep throws std::runtime_error, no way to detail further
                 throw JException(e.what());
             }
         }
-        m_dd4hepGeo->volumeManager();
-        m_dd4hepGeo->apply("DD4hepVolumeManager", 0, nullptr);
-        m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_dd4hepGeo);
+        detector->volumeManager();
+        detector->apply("DD4hepVolumeManager", 0, nullptr);
+        m_cellid_converter = std::make_unique<const dd4hep::rec::CellIDPositionConverter>(*detector);
+        m_dd4hepGeo = std::move(detector); // const
 
-        LOG << "Geometry successfully loaded." << LOG_END;
-    }catch(std::exception &e){
-        LOG_ERROR(default_cerr_logger)<< "Problem loading geometry: " << e.what() << LOG_END;
+        m_log->info("Geometry successfully loaded.");
+    } catch(std::exception &e) {
+        m_log->error("Problem loading geometry: {}", e.what());
         throw std::runtime_error(fmt::format("Problem loading geometry: {}", e.what()));
     }
 
     // Restore the ticker setting
-    app->SetTicker( tickerEnabled );
+    m_app->SetTicker( tickerEnabled );
 }
 
 std::string DD4hep_service::resolveFileName(const std::string &filename, char *detector_path_env) {

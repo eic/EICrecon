@@ -4,13 +4,13 @@
 #pragma once
 
 #include <Math/Vector4D.h>
-using ROOT::Math::PxPyPzEVector;
-
 #include <Math/LorentzRotation.h>
 #include <Math/LorentzVector.h>
 #include <Math/RotationX.h>
 #include <Math/RotationY.h>
 #include <Math/Boost.h>
+
+using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 

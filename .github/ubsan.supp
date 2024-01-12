@@ -1,0 +1,3 @@
+implicit-integer-sign-change:JsonMaterialDecorator
+implicit-integer-sign-change:/usr/local/include/eigen3/Eigen/src/Core/arch/SSE/PacketMath.h
+implicit-integer-sign-change:TObject

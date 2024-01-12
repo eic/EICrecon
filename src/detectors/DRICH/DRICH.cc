@@ -1,23 +1,27 @@
 // Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
-#include "extensions/jana/JChainFactoryGeneratorT.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-
-// factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "global/pid/RichTrack_factory.h"
-#include "global/pid/MergeTrack_factory.h"
-#include "global/pid/IrtCherenkovParticleID_factory.h"
-#include "global/pid/MergeCherenkovParticleID_factory.h"
+#include <algorithm>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "global/pid/RichTrackConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+// factories
+#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "global/pid/IrtCherenkovParticleID_factory.h"
+#include "global/pid/MergeCherenkovParticleID_factory.h"
+#include "global/pid/MergeTrack_factory.h"
+#include "global/pid/RichTrackConfig.h"
+#include "global/pid/RichTrack_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -98,7 +102,7 @@ extern "C" {
     // clang-format off
 
     // digitization
-    app->Add(new JChainMultifactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+    app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
           "DRICHRawHits",
           {"DRICHHits"},
           {"DRICHRawHits", "DRICHRawHitsAssociations"},
@@ -109,14 +113,17 @@ extern "C" {
     // charged particle tracks
     app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
-          {"CentralCKFActsTrajectories"},
+          {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           track_cfg,
           app
           ));
-    app->Add(new JChainFactoryGeneratorT<MergeTrack_factory>(
+    app->Add(new JChainMultifactoryGeneratorT<MergeTrack_factory>(
+          "DRICHMergedTracks",
           {"DRICHAerogelTracks", "DRICHGasTracks"},
-          "DRICHMergedTracks"
+          {"DRICHMergedTracks"},
+          {},
+          app
           ));
 
     // PID algorithm
@@ -133,10 +140,12 @@ extern "C" {
           ));
 
     // merge aerogel and gas PID results
-    app->Add(new JChainFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+    app->Add(new JChainMultifactoryGeneratorT<MergeCherenkovParticleID_factory>(
           "DRICHMergedIrtCherenkovParticleID",
-          merge_cfg
+          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+          {"DRICHMergedIrtCherenkovParticleID"},
+          merge_cfg,
+          app
           ));
 
     // clang-format on

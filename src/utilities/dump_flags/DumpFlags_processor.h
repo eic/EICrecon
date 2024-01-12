@@ -1,10 +1,15 @@
 #pragma once
 
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <algorithm>
+#include <cctype>
+#include <memory>
+#include <string>
+#include <vector>
 
-class JEvent;
-class JApplication;
+#include "extensions/spdlog/SpdlogMixin.h"
 
 class DumpFlags_processor: public JEventProcessor, public eicrecon::SpdlogMixin
 {
@@ -64,7 +69,6 @@ private:
             "DRICH",
             "BTRK",
             "BVTX",
-            "ECGEM",
             "ECTRK",
             "EEMC",
             "FOFFMTRK",

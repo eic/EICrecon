@@ -5,34 +5,37 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "lfhcal_studiesProcessor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/rootfile/RootFile_service.h"
-#include <spdlog/spdlog.h>
-
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include <spdlog/fmt/ostr.h>
 
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-
-// Include appropriate class headers. e.g.
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/vector_utils.h>
-
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TVector3.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <RtypesCore.h>
+#include <TMath.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cmath>
+#include <gsl/pointers>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <vector>
 
 #include "clusterizer_MA.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 
 //******************************************************************************************//
@@ -142,12 +145,12 @@ void lfhcal_studiesProcessor::Init() {
   // ===============================================================================================
   // rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,fram clus}/E_{MC}; #eta",
+  hRecFClusterEcalib_E_eta      = new TH3D("hRecFClusterEcalib_E_eta", "; E_{MC} (GeV); E_{rec,island clus}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFNClusters_E_eta          = new TH3D("hRecFNClusters_E_eta", "; E_{MC} (GeV); N_{rec f. cl.}; #eta",
                                             1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
-  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,fram clus high.}/E_{MC}; #eta",
+  hRecFClusterEcalib_Ehigh_eta  = new TH3D("hRecFClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{rec,island clus high.}/E_{MC}; #eta",
                                             1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFClusterNCells_Ehigh_eta  = new TH3D("hRecFClusterNCells_Ehigh_eta", "; E_{MC} (GeV); N_{cells, rec f. cl., high.}; #eta",
                                             1500, 0., 150.0, 500, -0.5, 499.5, 50, 0, 5);
@@ -159,12 +162,12 @@ void lfhcal_studiesProcessor::Init() {
   // ===============================================================================================
   // FEcal rec cluster framework Island clusters histos
   // ===============================================================================================
-  hRecFEmClusterEcalib_E_eta      = new TH3D("hRecFEmClusterEcalib_E_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus}/E_{MC}; #eta",
+  hRecFEmClusterEcalib_E_eta      = new TH3D("hRecFEmClusterEcalib_E_eta", "; E_{MC} (GeV); E_{Ecal, rec,island clus}/E_{MC}; #eta",
                                               1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFEmNClusters_E_eta          = new TH3D("hRecFEmNClusters_E_eta", "; E_{MC} (GeV); N_{Ecal, rec f. cl.}; #eta",
                                               1500, 0., 150.0, 10, -0.5, 9.5, 50, 0, 5);
   // rec cluster framework highest
-  hRecFEmClusterEcalib_Ehigh_eta  = new TH3D("hRecFEmClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{Ecal, rec,fram clus high.}/E_{MC}; #eta",
+  hRecFEmClusterEcalib_Ehigh_eta  = new TH3D("hRecFEmClusterEcalib_Ehigh_eta", "; E_{MC} (GeV); E_{Ecal, rec,island clus high.}/E_{MC}; #eta",
                                               1500, 0., 150.0, 200, 0., 2.0, 50, 0, 5);
   hRecFEmClusterEcalib_E_eta->SetDirectory(m_dir_main);
   hRecFEmNClusters_E_eta->SetDirectory(m_dir_main);
@@ -243,8 +246,7 @@ void lfhcal_studiesProcessor::Init() {
   }
 
   std::cout << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  dd4hep::Detector* detector = dd4hep_service->detector();
-  dd4hep::rec::CellIDPositionConverter cellid_converter(*detector);
+  auto detector = dd4hep_service->detector();
   std::cout << "--------------------------\nID specification:\n";
   try {
     m_decoder = detector->readout("LFHCALHits").idSpec().decoder();
@@ -673,7 +675,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   if (enableTree){
     t_lFHCal_towers_N = (int)input_tower_recSav.size();
     for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++){
-      m_log->trace("{} \t {} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy, input_tower_recSav.at(iCell).cellIDz , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
+      m_log->trace("{} \t {} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx, input_tower_recSav.at(iCell).cellIDy, input_tower_recSav.at(iCell).cellIDz , input_tower_recSav.at(iCell).energy, input_tower_recSav.at(iCell).tower_clusterIDA, input_tower_recSav.at(iCell).tower_clusterIDB  );
 
       t_lFHCal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
       t_lFHCal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;

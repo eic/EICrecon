@@ -3,25 +3,18 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <algorithm>
-
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 // JANA
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
-#include <JANA/JException.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <mutex>
+#include <string>
 
-// services
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-
-// richgeo
-#include "RichGeo.h"
-#include "IrtGeo.h"
-#include "IrtGeoDRICH.h"
-#include "IrtGeoPFRICH.h"
 #include "ActsGeo.h"
+#include "IrtGeo.h"
 #include "ReadoutGeo.h"
 
 class RichGeo_service : public JService {
@@ -30,7 +23,7 @@ class RichGeo_service : public JService {
     virtual ~RichGeo_service();
 
     // return pointer to the main DD4hep Detector
-    virtual dd4hep::Detector *GetDD4hepGeo() { return m_dd4hepGeo; };
+    virtual const dd4hep::Detector* GetDD4hepGeo() { return m_dd4hepGeo; };
 
     // return pointers to geometry bindings; initializes the bindings upon the first time called
     virtual richgeo::IrtGeo *GetIrtGeo(std::string detector_name);
@@ -45,7 +38,8 @@ class RichGeo_service : public JService {
     std::once_flag   m_init_acts;
     std::once_flag   m_init_readout;
     JApplication        *m_app        = nullptr;
-    dd4hep::Detector    *m_dd4hepGeo  = nullptr;
+    const dd4hep::Detector* m_dd4hepGeo  = nullptr;
+    const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
     richgeo::IrtGeo     *m_irtGeo     = nullptr;
     richgeo::ActsGeo    *m_actsGeo    = nullptr;
     std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;

@@ -3,33 +3,60 @@
 
 #pragma once
 
-#include <memory>
-
 #include <DD4hep/Detector.h>
-#include <Evaluator/DD4hepUnits.h>
-
-#include <edm4hep/Vector2f.h>
+#include <DD4hep/IDDescriptor.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <spdlog/spdlog.h>
+#include <edm4hep/Vector2f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <memory>
+#include <set>
+#include <string>
+#include <string_view>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterIslandClusterConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
   using CaloHit = edm4eic::CalorimeterHit;
 
-  class CalorimeterIslandCluster : public WithPodConfig<CalorimeterIslandClusterConfig> {
+  using CalorimeterIslandClusterAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ProtoClusterCollection
+    >
+  >;
+
+  class CalorimeterIslandCluster
+  : public CalorimeterIslandClusterAlgorithm,
+    public WithPodConfig<CalorimeterIslandClusterConfig> {
+
+  public:
+    CalorimeterIslandCluster(std::string_view name)
+      : CalorimeterIslandClusterAlgorithm{name,
+                            {"inputProtoClusterCollection"},
+                            {"outputClusterCollection"},
+                            "Island clustering."} {}
+
+    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
   private:
     const dd4hep::Detector* m_detector;
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection &hits);
 
     // neighbor checking function
     std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)> hitsDist;
@@ -170,7 +197,7 @@ namespace eicrecon {
       // calculate weights for local maxima
       for (std::size_t cidx : maxima) {
         double energy   = hits[cidx].getEnergy();
-        double dist     = edm4eic::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
+        double dist     = edm4hep::utils::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
         weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) * energy;
         j += 1;
       }

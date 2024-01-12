@@ -1,3 +1,5 @@
+#include <JANA/JApplication.h>
+
 #include "lfhcal_studiesProcessor.h"
 
 // The following just makes this a JANA plugin

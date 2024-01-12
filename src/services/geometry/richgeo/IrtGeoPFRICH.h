@@ -4,16 +4,22 @@
 // bind IRT and DD4hep geometries for the pfRICH
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <IRT/CherenkovPhotonDetector.h>
+#include <IRT/ParametricSurface.h>
+#include <spdlog/logger.h>
+#include <gsl/pointers>
+#include <memory>
+
 #include "IrtGeo.h"
 
 namespace richgeo {
   class IrtGeoPFRICH : public IrtGeo {
 
     public:
-      IrtGeoPFRICH(std::string compactFile_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("PFRICH",compactFile_,log_) { DD4hep_to_IRT(); }
-      IrtGeoPFRICH(dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("PFRICH",det_,log_) { DD4hep_to_IRT(); }
+      IrtGeoPFRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
+        IrtGeo("PFRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
       ~IrtGeoPFRICH();
 
     protected:

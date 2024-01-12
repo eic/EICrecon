@@ -5,25 +5,21 @@
 // 1. Match clusters to their tracks using the mcID field
 // 2. For unmatched clusters create neutrals and add to the particle list
 
-#include <algorithm>
-#include <cmath>
-#include <vector>
-#include <map>
-
-#include <spdlog/spdlog.h>
-#include <fmt/format.h>
-
-#include "MatchClusters.h"
-
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <spdlog/common.h>
+#include <cmath>
+#include <map>
+#include <vector>
+
+#include "MatchClusters.h"
 
 
 
@@ -43,8 +39,8 @@ namespace eicrecon {
         m_log->debug("Processing cluster info for new event");
 
         // Resulting reconstructed particles and associations
-        auto* outparts = new edm4eic::ReconstructedParticleCollection();
-        auto* outpartsassoc = new edm4eic::MCRecoParticleAssociationCollection();
+        auto outparts = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        auto outpartsassoc = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
 
         m_log->debug("Step 0/2: Getting indexed list of clusters...");
 
@@ -132,7 +128,7 @@ namespace eicrecon {
             assoc.setSim((*mcparticles)[mcID]);
         }
 
-        return {outparts, outpartsassoc};
+        return {std::move(outparts), std::move(outpartsassoc)};
     }
 
 
@@ -197,7 +193,7 @@ namespace eicrecon {
         const float energy = cluster->getEnergy();
         const float p = energy < mass ? 0 : std::sqrt(energy * energy - mass * mass);
         const auto position = cluster->getPosition();
-        const auto momentum = p * (position / edm4eic::magnitude(position));
+        const auto momentum = p * (position / edm4hep::utils::magnitude(position));
         // setup our particle
         edm4eic::MutableReconstructedParticle part;
         part.setMomentum(momentum);

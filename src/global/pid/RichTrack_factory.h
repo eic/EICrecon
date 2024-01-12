@@ -3,22 +3,28 @@
 
 #pragma once
 
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
-
-// data model
+#include <Acts/Surfaces/Surface.hpp>
+#include <JANA/JEvent.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <functional>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 // algorithms
 #include "algorithms/tracking/TrackPropagation.h"
-
+// JANA
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 // configuration
 #include "global/pid/RichTrackConfig.h"
-
+#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/geometry/richgeo/ActsGeo.h"
 // services
 #include "services/geometry/richgeo/RichGeo_service.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
   class RichTrack_factory :

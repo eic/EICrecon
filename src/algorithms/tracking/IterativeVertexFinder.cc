@@ -4,33 +4,40 @@
 
 #include "IterativeVertexFinder.h"
 
-#include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/GenericParticleHypothesis.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/VectorHelpers.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/VertexFinderConcept.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-
+#include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
-#include <edm4eic/Vertex.h>
-
-#include "extensions/spdlog/SpdlogFormatters.h"
-#include "extensions/spdlog/SpdlogToActs.h"
-
-#include <TDatabasePDG.h>
+#include <math.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
+#include <optional>
 #include <tuple>
+#include <utility>
+
+#include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {
@@ -58,28 +65,36 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
 
-  Acts::EigenStepper<> stepper(m_BField);
-  auto propagator = std::make_shared<Propagator>(stepper);
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("IVF", m_log));
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
-  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx, Acts::LoggerWrapper{logger()});
+  Acts::EigenStepper<> stepper(m_BField);
+
+  // Set up propagator with void navigator
+  auto propagator = std::make_shared<Propagator>(
+    stepper, Acts::detail::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
 
   // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
   VertexFitter vertexFitter(vertexFitterCfg);
   // Setup the track linearizer
   Linearizer::Config linearizerCfg(m_BField, propagator);
-  Linearizer linearizer(linearizerCfg);
+  Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
   // Setup the seed finder
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagator);
   ImpactPointEstimator ipEst(ipEstCfg);
   VertexSeeder::Config seederCfg(ipEst);
   VertexSeeder seeder(seederCfg);
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(vertexFitter, linearizer, std::move(seeder), ipEst);
+  VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
+                                 std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.m_maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
+  #if Acts_VERSION_MAJOR >= 31
+  VertexFinder finder(std::move(finderCfg));
+  #else
   VertexFinder finder(finderCfg);
+  #endif
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 

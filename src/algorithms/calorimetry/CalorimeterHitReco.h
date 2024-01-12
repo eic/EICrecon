@@ -8,24 +8,47 @@
 
 #pragma once
 
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
-#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Parsers/Primitives.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitRecoConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class CalorimeterHitReco : public WithPodConfig<CalorimeterHitRecoConfig> {
+  using CalorimeterHitRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::RawCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::CalorimeterHitCollection
+    >
+  >;
+
+  class CalorimeterHitReco
+    : public CalorimeterHitRecoAlgorithm,
+      public WithPodConfig<CalorimeterHitRecoConfig> {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4hep::RawCalorimeterHitCollection &rawhits);
+    CalorimeterHitReco(std::string_view name)
+      : CalorimeterHitRecoAlgorithm{name,
+                            {"inputRawHitCollection"},
+                            {"outputRecHitCollection"},
+                            "Reconstruct hit from digitized input."} {}
+
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
   private:
 
@@ -34,19 +57,20 @@ namespace eicrecon {
     double stepTDC{0};
 
     dd4hep::BitFieldCoder* id_dec = nullptr;
-    uint32_t NcellIDerrors = 0;
+
+    mutable uint32_t NcellIDerrors = 0;
     uint32_t MaxCellIDerrors = 100;
 
     size_t sector_idx{0}, layer_idx{0};
 
-    bool warned_unsupported_segmentation = false;
+    mutable bool warned_unsupported_segmentation = false;
 
-    dd4hep::DetElement local;
+    dd4hep::DetElement m_local;
     size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
 
   private:
     const dd4hep::Detector* m_detector;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
   };

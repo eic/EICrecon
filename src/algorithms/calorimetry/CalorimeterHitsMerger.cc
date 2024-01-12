@@ -10,11 +10,33 @@
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <gsl/pointers>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
+
 namespace eicrecon {
 
-void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
     m_detector = detector;
-    m_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(const_cast<dd4hep::Detector&>(*detector));
+    m_converter = converter;
     m_log = logger;
 
     if (m_cfg.readout.empty()) {
@@ -42,13 +64,17 @@ void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, std::shared_p
     m_log->debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
 }
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::process(const edm4eic::CalorimeterHitCollection &input) {
-    auto output = std::make_unique<edm4eic::CalorimeterHitCollection>();
+void CalorimeterHitsMerger::process(
+      const CalorimeterHitsMerger::Input& input,
+      const CalorimeterHitsMerger::Output& output) const {
+
+    const auto [in_hits] = input;
+    auto [out_hits] = output;
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
     std::size_t ix = 0;
-    for (const auto &h : input) {
+    for (const auto &h : *in_hits) {
         uint64_t id = h.getCellID() & id_mask;
         merge_map[id].push_back(ix);
 
@@ -58,7 +84,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
     // sort hits by energy from large to small
     for (auto &it : merge_map) {
         std::sort(it.second.begin(), it.second.end(), [&](std::size_t ix1, std::size_t ix2) {
-            return input[ix1].getEnergy() > input[ix2].getEnergy();
+            return (*in_hits)[ix1].getEnergy() > (*in_hits)[ix2].getEnergy();
         });
     }
 
@@ -81,7 +107,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
         float time = 0;
         float timeError = 0;
         for (auto ix : ixs) {
-            auto hit = input[ix];
+            auto hit = (*in_hits)[ix];
             energy += hit.getEnergy();
             energyError += hit.getEnergyError() * hit.getEnergyError();
             time += hit.getTime();
@@ -91,7 +117,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
         time /= ixs.size();
         timeError = sqrt(timeError) / ixs.size();
 
-        const auto href = input[ixs.front()];
+        const auto href = (*in_hits)[ixs.front()];
 
         // create const vectors for passing to hit initializer list
         const decltype(edm4eic::CalorimeterHitData::position) position(
@@ -101,7 +127,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
                 pos.x(), pos.y(), pos.z()
         );
 
-        output->create(
+        out_hits->create(
                         href.getCellID(),
                         energy,
                         energyError,
@@ -114,9 +140,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitsMerger::proces
                         local); // Can do better here? Right now position is mapped on the central hit
     }
 
-    m_log->debug("Size before = {}, after = {}", input.size(), output->size());
-
-    return output;
+    m_log->debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
 
 } // namespace eicrecon

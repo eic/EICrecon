@@ -3,7 +3,15 @@
 
 #include "MergeTracks.h"
 
-#include <fmt/ranges.h>
+#include <edm4eic/TrackPoint.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
+#include <unordered_map>
+#include <utility>
 
 // AlgorithmInit
 //---------------------------------------------------------------------------

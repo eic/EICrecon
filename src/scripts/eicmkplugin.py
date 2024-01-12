@@ -33,8 +33,9 @@ set( {0}_PLUGIN_SOURCES ${{mysourcefiles}} )
 
 # Create plugin
 add_library({0}_plugin SHARED ${{{0}_PLUGIN_SOURCES}})
-target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}} spdlog::spdlog)
+target_link_libraries({0}_plugin EICrecon::rootfile_plugin)
 set_target_properties({0}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "{0}" SUFFIX ".so")
+target_compile_definitions({0}_plugin PUBLIC HAVE_PODIO)
 
 # Install plugin USER_PLUGIN_OUTPUT_DIRECTORY is set depending on EICrecon_MY envar.
 install(TARGETS {0}_plugin DESTINATION ${{USER_PLUGIN_OUTPUT_DIRECTORY}} )
@@ -49,10 +50,6 @@ processor_sequentialroot_header_template = """
 #include <JANA/JEventProcessorSequentialRoot.h>
 #include <TH2D.h>
 #include <TFile.h>
-
-// Include appropirate class headers. e.g.
-// #include <edm4hep/SimCalorimeterHit.h>
-
 
 class {0}: public JEventProcessorSequentialRoot {{
 private:
@@ -78,6 +75,8 @@ processor_sequentialroot_implementation_template = """
 #include "{0}.h"
 #include "services/rootfile/RootFile_service.h"
 
+// Include appropriate class headers. e.g.
+#include <edm4hep/SimCalorimeterHitCollection.h>
 
 // The following just makes this a JANA plugin
 extern "C" {{

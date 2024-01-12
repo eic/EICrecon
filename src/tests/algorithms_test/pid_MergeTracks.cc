@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Christopher Dilks
 
-#include <cmath>
-
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <spdlog/common.h>
 #include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <cmath>
+#include <memory>
+#include <vector>
 
 #include "algorithms/pid/MergeTracks.h"
 

@@ -3,6 +3,12 @@
 
 #include "MergeCherenkovParticleID_factory.h"
 
+#include <JANA/JApplication.h>
+#include <JANA/JException.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <exception>
+
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Init() {
 
@@ -10,7 +16,6 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
   auto app    = GetApplication();
   auto plugin = GetPluginName();
   auto prefix = plugin + ":" + GetTag();
-  InitDataTags(prefix);
 
   // services
   InitLogger(app, prefix, "info");
@@ -30,11 +35,6 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::MergeCherenkovParticleID_factory::BeginRun(const std::shared_ptr<const JEvent> &event) {
-  m_algo.AlgorithmChangeRun();
-}
-
-//-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // get input collections
@@ -47,7 +47,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<c
   // call the MergeParticleID algorithm
   try {
     auto merged_pids = m_algo.AlgorithmProcess(cherenkov_pids);
-    SetCollection(std::move(merged_pids));
+    SetCollection<edm4eic::CherenkovParticleID>(GetOutputTags()[0], std::move(merged_pids));
   }
   catch(std::exception &e) {
     throw JException(e.what());

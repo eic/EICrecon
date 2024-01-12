@@ -3,37 +3,46 @@
 
 #pragma once
 
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include <JANA/JEvent.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "algorithms/reco/InclusiveKinematicsDA.h"
+#include "extensions/jana/JOmniFactory.h"
+#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
-    class InclusiveKinematicsDA_factory :
-            public JChainMultifactoryT<>,
-            public SpdlogMixin {
+class InclusiveKinematicsDA_factory :
+        public JOmniFactory<InclusiveKinematicsDA_factory> {
 
-    public:
+private:
+    using AlgoT = eicrecon::InclusiveKinematicsDA;
+    std::unique_ptr<AlgoT> m_algo;
 
-        explicit InclusiveKinematicsDA_factory(
-            std::string tag,
-            const std::vector<std::string>& input_tags,
-            const std::vector<std::string>& output_tags)
-        : JChainMultifactoryT<>(std::move(tag), input_tags, output_tags) {
+    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
+    PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
 
-            DeclarePodioOutput<edm4eic::InclusiveKinematics>(GetOutputTags()[0]);
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>();
+        m_algo->init(logger());
+    }
 
-        }
+    void ChangeRun(int64_t run_number) {
+    }
 
-        /** One time initialization **/
-        void Init() override;
-
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    protected:
-        InclusiveKinematicsDA m_inclusive_kinematics_algo;
-
-    };
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_inclusive_kinematics_output() = m_algo->execute(
+            *m_mc_particles_input(),
+            *m_rc_particles_input(),
+            *m_rc_particles_assoc_input());
+    }
+};
 
 } // eicrecon

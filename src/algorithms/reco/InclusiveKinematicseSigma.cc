@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
 
-#include <algorithm>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/Vector4Dfwd.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
 #include <cmath>
-#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"
 #include "InclusiveKinematicseSigma.h"
 
-#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 
 namespace eicrecon {
 

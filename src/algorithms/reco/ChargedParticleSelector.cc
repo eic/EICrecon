@@ -3,6 +3,8 @@
 
 #include "ChargedParticleSelector.h"
 
+#include <utility>
+
 namespace eicrecon {
 
   void ChargedParticleSelector::init(std::shared_ptr<spdlog::logger>& logger) {
