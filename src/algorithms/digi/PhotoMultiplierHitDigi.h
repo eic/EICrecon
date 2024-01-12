@@ -22,7 +22,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/random.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -32,7 +31,8 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
-#include <tuple>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
