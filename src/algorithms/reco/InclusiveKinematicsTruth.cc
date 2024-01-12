@@ -10,6 +10,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <gsl/pointers>
 
 #include "Beam.h"
 #include "InclusiveKinematicsTruth.h"

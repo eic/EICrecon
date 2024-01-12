@@ -12,6 +12,7 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <cmath>
+#include <gsl/pointers>
 
 #include "Beam.h"
 #include "Boost.h"

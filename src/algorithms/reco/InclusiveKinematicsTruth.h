@@ -8,6 +8,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 
 namespace eicrecon {
