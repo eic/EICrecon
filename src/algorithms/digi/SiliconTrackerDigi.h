@@ -5,12 +5,13 @@
 
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/random.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <functional>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

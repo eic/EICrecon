@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <gsl/pointers>
 #include <unordered_map>
 #include <utility>
 
