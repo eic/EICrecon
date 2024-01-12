@@ -7,7 +7,8 @@
 #include <algorithm>
 #include <string>
 
-#include "ChargedParticleSelector_factory.h"
+#include "ChargedMCParticleSelector_factory.h"
+#include "ChargedReconstructedParticleSelector_factory.h"
 #include "GeneratedJets_factory.h"
 #include "InclusiveKinematicsDA_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
@@ -19,7 +20,6 @@
 #include "MatchClusters_factory.h"
 #include "ReconstructedElectrons_factory.h"
 #include "ReconstructedJets_factory.h"
-#include "algorithms/reco/ChargedParticleSelector.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 
@@ -163,7 +163,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ChargedParticleSelector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ChargedMCParticleSelector_factory>(
             "MCChargedParticles",
             {"MCParticles"},
             {"MCChargedParticles"},
