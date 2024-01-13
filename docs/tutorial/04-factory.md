@@ -3,6 +3,9 @@
 |----------------------------------------------------------------------------------------|----------|-----------|------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | Creating or modifying a JANA factory in order to implement a reconstruction algorithm  | 15       | 20        | How to write a reconstruction algorithm in EICrecon? | Learn how to create a new factory in EICrecon that supplies a reconstruction algorithm for all to use.<br/><br/>Understand the directory structure for where the factory should be placed in the source tree.<br/><br/>Understand how to use a generic algorithm in a JANA factory.  | Create a factory for reconstructing single subdetector data or for global reconstruction. |
 
+## Notice
+
+This section of the tutorial is outdated due to switch from `JFactory` to `JOmniFactory`. Refer to a [tutorial on reconstruction algorithms](https://eic.github.io/tutorial-reconstruction-algorithms/) for up-to-date information.
 
 ## Introduction
 
