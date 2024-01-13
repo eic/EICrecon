@@ -18,18 +18,18 @@ namespace eicrecon {
   public:
 
     /** One time initialization **/
-    void init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter>,
+    void init(const dd4hep::rec::CellIDPositionConverter* converter,
               const dd4hep::Detector* det,
               std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
-    std::unique_ptr<edm4hep::TrackerHitCollection> produce(const edm4eic::RawTrackerHitCollection &inputhits);
+    std::unique_ptr<edm4hep::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection &inputhits);
 
   private:
       const dd4hep::Detector*         m_detector{nullptr};
       const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
       std::shared_ptr<spdlog::logger> m_log;
-      std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_cellid_converter{nullptr};
+      const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
 
       int m_module_idx{0};
       int m_layer_idx{0};

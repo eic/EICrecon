@@ -32,7 +32,7 @@ extern "C" {
     ));
 
     // Clustering of hits
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factoryT>(
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
         "TaggerTrackerClusterPositions",
         {"TaggerTrackerRawHits"},
         {"TaggerTrackerClusterPositions"},

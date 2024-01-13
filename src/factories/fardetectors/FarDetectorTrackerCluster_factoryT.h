@@ -2,77 +2,44 @@
 // Copyright (C) 2023 Wouter Deconinck
 
 #pragma once
-#include "services/geometry/dd4hep/DD4hep_service.h"
-
-// Event Model related classes
-#include <edm4hep/TrackerHitCollection.h>
-#include <edm4eic/RawTrackerHit.h>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
-
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-  class FarDetectorTrackerCluster_factoryT :
-  public JChainMultifactoryT<FarDetectorTrackerClusterConfig>,
-  public SpdlogMixin {
+class FarDetectorTrackerCluster_factory :
+public JOmniFactory<FarDetectorTrackerCluster_factory, FarDetectorTrackerClusterConfig> {
 
-  public:
+  FarDetectorTrackerCluster m_algo;        // Actual digitisation algorithm
 
-    explicit FarDetectorTrackerCluster_factoryT(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags,
-          FarDetectorTrackerClusterConfig cfg ) :
-          JChainMultifactoryT<FarDetectorTrackerClusterConfig>(std::move(tag),input_tags,output_tags,cfg ) {
+  PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
+  PodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
-      DeclarePodioOutput<edm4hep::TrackerHit>(GetOutputTags()[0]);
+  Service<DD4hep_service> m_geoSvc {this};
 
-    }
+public:
 
-
-      /** One time initialization **/
-      void Init() override {
-
-        auto app = GetApplication();
-
-        // SpdlogMixin logger initialization, sets m_log
-        InitLogger(app, GetPrefix(), "info");
-
-        auto cfg = GetDefaultConfig();
-
-        auto geoSvc = app->GetService<DD4hep_service>();
-
-        // This prefix will be used for parameters
-        std::string param_prefix = GetPluginName() + ":" + GetTag();
-
-        japp->SetDefaultParameter(param_prefix+":hit_time_limit", cfg.time_limit,"Time limit for adding a hit to a cluster [ns]");
-
-        // Setup algorithm
-        m_reco_algo.applyConfig(cfg);
-        m_reco_algo.init(geoSvc->cellIDPositionConverter(),geoSvc->detector(),logger());
-
-      }
-
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override {
-        auto inputhits  = static_cast<const edm4eic::RawTrackerHitCollection*>(event->GetCollectionBase(GetInputTags()[0]));
-
-        try {
-          auto outputclusters = m_reco_algo.produce(*inputhits);
-          SetCollection<edm4hep::TrackerHit>(GetOutputTags()[0],std::move(outputclusters));
-        }
-        catch(std::exception &e) {
-          throw JException(e.what());
-        }
-      }
-
-
-  private:
-      eicrecon::FarDetectorTrackerCluster m_reco_algo;        // Actual digitisation algorithm
-
-  };
+  /** One time initialization **/
+  void Configure() {
+    
+    ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
+    
+    // Setup algorithm
+    m_algo.applyConfig(config());
+    m_algo.init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
+    
+  }
+  
+  
+  void ChangeRun(int64_t run_number) {
+  }
+  
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_clustered_hits_output() = m_algo.process(*m_raw_hits_input());
+  }
+    
+};
 
 } // eicrecon

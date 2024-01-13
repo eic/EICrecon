@@ -13,13 +13,13 @@
 namespace eicrecon {
 
 
-  void FarDetectorTrackerCluster::init(std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> cellid,
+  void FarDetectorTrackerCluster::init(const dd4hep::rec::CellIDPositionConverter* converter,
               const dd4hep::Detector* det,
               std::shared_ptr<spdlog::logger> log) {
 
     m_log = log;
     m_detector = det;
-    m_cellid_converter = cellid;
+    m_cellid_converter = converter;
 
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
@@ -49,7 +49,7 @@ namespace eicrecon {
 
   }
 
-  std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::produce(const edm4eic::RawTrackerHitCollection &inputhits) {
+  std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::process(const edm4eic::RawTrackerHitCollection &inputhits) {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
     ROOT::VecOps::RVec<long>  id;
