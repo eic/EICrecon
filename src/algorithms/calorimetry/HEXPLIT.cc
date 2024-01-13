@@ -104,7 +104,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     for(int k=0; k<SUBCELLS;k++){
 
       //create the subcell hits.  First determine their positions in local coordinates.
-      
       const decltype(edm4eic::CalorimeterHitData::local) local(hits[i].getLocal().x+subcell_offsets_x[k]*sl, hits[i].getLocal().y+subcell_offsets_y[k]*sl, hits[i].getLocal().z);
 
       //convert this to a position object so that the global position can be determined
@@ -112,7 +111,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       local_position.SetX(local.x);
       local_position.SetY(local.y);
       local_position.SetZ(local.z);
-      
+
       //also convert this to the detector's global coordinates.  To do: check if this is correct
       auto alignment = volman.lookupDetElement(hits[i].getCellID()).nominal();
 
