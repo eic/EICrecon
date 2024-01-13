@@ -17,61 +17,71 @@
 
 namespace eicrecon {
 
-/** Simple algorithm to merge the energy measurement from cluster1 with the position
- * measurement of cluster2 (in case matching clusters are found). If not, it will
- * propagate the raw cluster from cluster1 or cluster2
- *
- * Matching occurs based on the mc truth information of the clusters.
- *
- * \ingroup reco
- */
-  class TruthEnergyPositionClusterMerger : WithPodConfig<NoConfig> {
-
-  using ClustersWithAssociations = std::tuple<
-        std::unique_ptr<edm4eic::ClusterCollection>,
-        std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>
+  using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::MCParticleCollection,
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection,
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection
+    >
   >;
 
-  protected:
+  /** Simple algorithm to merge the energy measurement from cluster1 with the position
+   * measurement of cluster2 (in case matching clusters are found). If not, it will
+   * propagate the raw cluster from cluster1 or cluster2
+   *
+   * Matching occurs based on the mc truth information of the clusters.
+   *
+   * \ingroup reco
+   */
+  class TruthEnergyPositionClusterMerger
+      : public TruthEnergyPositionClusterMergerAlgorithm {
 
+  public:
+    TruthEnergyPositionClusterMerger(std::string_view name)
+      : TruthEnergyPositionClusterMergerAlgorithm{name,
+                            {"mcParticles",
+                             "energyClusterCollection", "energyClusterAssociations",
+                             "positionClusterCollection", "positionClusterAssociations"},
+                            {"outputClusterCollection", "outputClusterAssociations"},
+                            "Merge energy and position clusters based on truth."} {}
+
+  private:
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
-
     void init(std::shared_ptr<spdlog::logger>& logger) {
         m_log = logger;
     }
 
-    ClustersWithAssociations process(
-        const edm4hep::MCParticleCollection& mcparticles,
-        const edm4eic::ClusterCollection& energy_clus,
-        const edm4eic::MCRecoClusterParticleAssociationCollection& energy_assoc,
-        const edm4eic::ClusterCollection& pos_clus,
-        const edm4eic::MCRecoClusterParticleAssociationCollection& pos_assoc
-    ) {
+    void process(const Input& input, const Output& output) const final {
+
+        const auto [mcparticles, energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
+        auto [merged_clus, merged_assoc] = output;
 
         m_log->debug( "Merging energy and position clusters for new event" );
 
-        // output
-        auto merged_clus = std::make_unique<edm4eic::ClusterCollection>();
-        auto merged_assoc = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
-
-        if (energy_clus.size() == 0 && pos_clus.size() == 0) {
+        if (energy_clus->size() == 0 && pos_clus->size() == 0) {
             m_log->debug( "Nothing to do for this event, returning..." );
-            return std::make_tuple(std::move(merged_clus), std::move(merged_assoc));
+            return;
         }
 
         m_log->debug( "Step 0/2: Getting indexed list of clusters..." );
 
         // get an indexed map of all clusters
         m_log->debug(" --> Indexing energy clusters");
-        auto energyMap = indexedClusters(energy_clus, energy_assoc);
+        auto energyMap = indexedClusters(*energy_clus, *energy_assoc);
         m_log->trace(" --> Found these energy clusters:");
         for (const auto &[mcID, eclus]: energyMap) {
             m_log->trace("   --> energy cluster {}, mcID: {}, energy: {}", eclus.getObjectID().index, mcID, eclus.getEnergy());
         }
         m_log->debug(" --> Indexing position clusters");
-        auto posMap = indexedClusters(pos_clus, pos_assoc);
+        auto posMap = indexedClusters(*pos_clus, *pos_assoc);
         m_log->trace(" --> Found these position clusters:");
         for (const auto &[mcID, pclus]: posMap) {
             m_log->trace("   --> position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index, mcID, pclus.getEnergy());
@@ -113,7 +123,7 @@ namespace eicrecon {
                 clusterassoc.setSimID(mcID);
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(new_clus);
-                clusterassoc.setSim(mcparticles[mcID]);
+                clusterassoc.setSim((*mcparticles)[mcID]);
 
                 // erase the energy cluster from the map, so we can in the end account for all
                 // remaining clusters
@@ -130,7 +140,7 @@ namespace eicrecon {
                 clusterassoc.setSimID(mcID);
                 clusterassoc.setWeight(1.0);
                 clusterassoc.setRec(new_clus);
-                clusterassoc.setSim(mcparticles[mcID]);
+                clusterassoc.setSim((*mcparticles)[mcID]);
             }
         }
         // Collect remaining energy clusters. Use mc truth position for these clusters, as
@@ -138,7 +148,7 @@ namespace eicrecon {
         // to a clustering error).
         m_log->debug( "Step 2/2: Collecting remaining energy clusters..." );
         for (const auto &[mcID, eclus]: energyMap) {
-            const auto &mc = mcparticles[mcID];
+            const auto &mc = (*mcparticles)[mcID];
             const auto &p = mc.getMomentum();
             const auto phi = std::atan2(p.y, p.x);
             const auto theta = std::atan2(std::hypot(p.x, p.y), p.z);
@@ -163,8 +173,6 @@ namespace eicrecon {
             clusterassoc.setRec(new_clus);
             clusterassoc.setSim(mc);
         }
-
-        return std::make_tuple(std::move(merged_clus), std::move(merged_assoc));
     }
 
     // get a map of MCParticle index --> cluster

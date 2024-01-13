@@ -22,14 +22,17 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <algorithm>
+#include <gsl/pointers>
 #include <iterator>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
+namespace eicrecon {
+
 //------------------------
-// AlgorithmInit
+// init
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
+void PhotoMultiplierHitDigi::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
 {
     // services
     m_detector = detector;
@@ -66,24 +69,17 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* det
 }
 
 
-
 //------------------------
-// AlgorithmChangeRun
+// process
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
-}
-
-//------------------------
-// AlgorithmProcess
-//------------------------
-eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
-    const edm4hep::SimTrackerHitCollection* sim_hits
-    )
+void PhotoMultiplierHitDigi::process(
+      const PhotoMultiplierHitDigi::Input& input,
+      const PhotoMultiplierHitDigi::Output& output) const
 {
-        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
+        const auto [sim_hits] = input;
+        auto [raw_hits, hit_assocs] = output;
+
+        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::process ");
         std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
@@ -161,8 +157,6 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
         // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections
         m_log->trace("{:-<70}","Digitized raw hits ");
-        auto raw_hits   = std::make_unique<edm4eic::RawTrackerHitCollection>();
-        auto hit_assocs = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
 
@@ -187,10 +181,9 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 }
             }
         }
-        return std::make_tuple(std::move(raw_hits), std::move(hit_assocs));
 }
 
-void  eicrecon::PhotoMultiplierHitDigi::qe_init()
+void PhotoMultiplierHitDigi::qe_init()
 {
         // get quantum efficiency table
         qeff.clear();
@@ -225,7 +218,7 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
 }
 
 
-template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
+template<class RndmIter, typename T, class Compare> RndmIter PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
 {
         // special cases
         auto dist = std::distance(beg, end);
@@ -251,7 +244,7 @@ template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMul
         return mid;
 }
 
-bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
+bool PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 {
         auto it = interval_search(qeff.begin(), qeff.end(), ev,
                     [] (const std::pair<double, double> &vals, double val) {
@@ -276,14 +269,14 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 
 // add a hit to local `hit_groups` data structure
 // NOLINTBEGIN(bugprone-easily-swappable-parameters)
-void eicrecon::PhotoMultiplierHitDigi::InsertHit(
+void PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
     CellIDType       id,
     double           amp,
     TimeType         time,
     std::size_t      sim_hit_index,
     bool             is_noise_hit
-    ) // NOLINTEND(bugprone-easily-swappable-parameters)
+    ) const // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
   if (it != hit_groups.end()) {
@@ -315,3 +308,5 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
     m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }
 }
+
+} // namespace eicrecon

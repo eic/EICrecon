@@ -5,6 +5,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include "algorithms/reco/ElectronReconstructionConfig.h"
 
 namespace eicrecon {
 
@@ -56,7 +57,7 @@ namespace eicrecon {
               m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
 
               // Apply the E/p cut here to select electons
-              if ( EoverP >= min_energy_over_momentum && EoverP <= max_energy_over_momentum ) {
+              if ( EoverP >= m_cfg.min_energy_over_momentum && EoverP <= m_cfg.max_energy_over_momentum ) {
                 out_electrons->push_back(reco_part.clone());
               }
 

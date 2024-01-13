@@ -181,8 +181,18 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       }
 
       auto slopeZ0 = lineFit(rzHitPositions);
+      const auto xypos = findPCA(RX0Y0);
 
-      int charge = determineCharge(xyHitPositions);
+      //Determine charge
+      std::vector<std::pair<float,float>> xyrelPos;
+
+      for ( const auto& spptr : seed.sp() )
+      {
+        xyrelPos.emplace_back(spptr->x()-xypos.first, spptr->y()-xypos.second);
+      }
+
+      int charge = determineCharge(xyrelPos);
+
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
       if(theta < 0)
@@ -191,8 +201,6 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       float pt = R * m_cfg.m_bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
       float p = pt * cosh(eta);
       float qOverP = charge / p;
-
-      const auto xypos = findPCA(RX0Y0);
 
       //Calculate phi at xypos
       auto xpos = xypos.first;
@@ -207,14 +215,20 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
       Acts::Vector3 global(xypos.first, xypos.second, z0);
 
-      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
-                                          global, Acts::Vector3(1,1,1));
+      //Compute local position at PCA
+      Acts::Vector2 localpos;
+      Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
 
-      Acts::Vector2 localpos(sqrt(square(xypos.first) + square(xypos.second)), z0);
-      if(local.ok())
-        {
-          localpos = local.value();
-        }
+      auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(),
+                                          global,
+                                          direction);
+
+      if(!local.ok())
+      {
+        continue;
+      }
+
+      localpos = local.value();
 
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)
@@ -256,8 +270,8 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>&
   const auto firstphi = atan2(firstpos.second, firstpos.first);
   const auto secondphi = atan2(secondpos.second, secondpos.first);
   auto dphi = secondphi - firstphi;
-  if(dphi > M_PI) dphi = 2.*M_PI - dphi;
-  if(dphi < -M_PI) dphi = 2*M_PI + dphi;
+  if(dphi > M_PI) dphi -= 2.*M_PI;
+  if(dphi < -M_PI) dphi += 2*M_PI;
   if(dphi < 0) charge = -1;
 
   return charge;
