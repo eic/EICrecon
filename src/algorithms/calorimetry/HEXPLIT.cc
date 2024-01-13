@@ -36,7 +36,7 @@ void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::log
 }
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
-  int nhits=hits.size();
+  //int nhits=hits.size();
   double sl=m_cfg.side_length/dd4hep::mm;
   double layer_spacing=m_cfg.layer_spacing/dd4hep::mm;
   double MIP=m_cfg.MIP/dd4hep::GeV;
@@ -60,25 +60,25 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   double Esum=0;
-  for(int i=0; i<nhits; i++){
+  for(auto hit : hits){
     //skip hits that do not pass E and t cuts
-    if (hits[i].getEnergy()<Emin || hits[i].getTime()>tmax)
+    if (hit.getEnergy()<Emin || hit.getTime()>tmax)
       continue;
     //keep track of the energy in each neighboring cell
     double Eneighbors[SUBCELLS];
     for (int j=0; j<SUBCELLS; j++)
       Eneighbors[j]=0;
 
-    for (int j=0; j<nhits; j++){
+    for (auto other_hit : hits){
       //only look at hits nearby within two layers of the current layer
-      double dz=abs(hits[i].getLocal().z-hits[j].getLocal().z);
+      double dz=abs(hit.getLocal().z-other_hit.getLocal().z);
       if (dz>2.5*layer_spacing || dz==0)
         continue;
-      if (hits[j].getEnergy()<Emin || hits[j].getTime()>tmax)
+      if (other_hit.getEnergy()<Emin || other_hit.getTime()>tmax)
         continue;
       //difference in transverse position (in units of side lengths)
-      double dx=(hits[j].getLocal().x-hits[i].getLocal().x)/sl;
-      double dy=(hits[j].getLocal().y-hits[i].getLocal().y)/sl;
+      double dx=(other_hit.getLocal().x-hit.getLocal().x)/sl;
+      double dy=(other_hit.getLocal().y-hit.getLocal().y)/sl;
       if (abs(dx)>2 || abs(dy)>sqrt(3))
         continue;
 
@@ -87,7 +87,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       double tol=0.01; //tolerance for rounding errors
       for(int k=0;k<SUBCELLS;k++){
         if(abs(dx-neighbor_offsets_x[k])<tol && abs(dy-neighbor_offsets_y[k])<tol){
-          Eneighbors[k]+=hits[j].getEnergy();
+          Eneighbors[k]+=other_hit.getEnergy();
           break;
         }
       }
@@ -104,7 +104,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     for(int k=0; k<SUBCELLS;k++){
 
       //create the subcell hits.  First determine their positions in local coordinates.
-      const decltype(edm4eic::CalorimeterHitData::local) local(hits[i].getLocal().x+subcell_offsets_x[k]*sl, hits[i].getLocal().y+subcell_offsets_y[k]*sl, hits[i].getLocal().z);
+      const decltype(edm4eic::CalorimeterHitData::local) local(hit.getLocal().x+subcell_offsets_x[k]*sl, hit.getLocal().y+subcell_offsets_y[k]*sl, hit.getLocal().z);
 
       //convert this to a position object so that the global position can be determined
       dd4hep::Position local_position;
@@ -113,7 +113,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       local_position.SetZ(local.z);
 
       //also convert this to the detector's global coordinates.  To do: check if this is correct
-      auto alignment = volman.lookupDetElement(hits[i].getCellID()).nominal();
+      auto alignment = volman.lookupDetElement(hit.getCellID()).nominal();
 
       auto global_position = alignment.localToWorld(local_position);
       //convert this from position object to a vector object
@@ -122,18 +122,18 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = k%3==0;
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(sl*(orientation?1:1.5), sl*sqrt(3)/2.*(orientation?2:1),
-                                                                       hits[i].getDimension()[2]);
+                                                                       hit.getDimension()[2]);
 
       subcellHits->create(
-            hits[i].getCellID(),
-            hits[i].getEnergy()*weights[k]/sum_weights,
+            hit.getCellID(),
+            hit.getEnergy()*weights[k]/sum_weights,
             0,
-            hits[i].getTime(),
+            hit.getTime(),
             0,
             position,
             dimension,
-            hits[i].getSector(),
-            hits[i].getLayer(),
+            hit.getSector(),
+            hit.getLayer(),
             local);
     }
   }
