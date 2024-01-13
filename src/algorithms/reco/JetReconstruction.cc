@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin
 
 // class definition
 #include "JetReconstruction.h"
