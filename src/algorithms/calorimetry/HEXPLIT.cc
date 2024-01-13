@@ -57,7 +57,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     E[i]=hits[i].getEnergy();
     t[i]=hits[i].getTime();
   }
-
+  auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   double Esum=0;
   for(int i=0; i<nhits; i++){
@@ -106,17 +106,9 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       Eigen::Vector3d local(x[i]+subcell_offsets_x[k]*sl, y[i]+subcell_offsets_y[k]*sl, z[i]);
       const decltype(edm4eic::CalorimeterHitData::local) local_position(local[0], local[1], local[2]);
 
-      //also convert this to the detector's global coordinates.  First translate, then rotate.
-      Eigen::Vector3d translation(m_cfg.trans_x/dd4hep::mm, m_cfg.trans_y/dd4hep::mm, m_cfg.trans_z/dd4hep::mm);
-      Eigen::AngleAxisd rollAngle(m_cfg.rot_z, Eigen::Vector3d::UnitZ());
-      Eigen::AngleAxisd yawAngle(m_cfg.rot_y, Eigen::Vector3d::UnitY());
-      Eigen::AngleAxisd pitchAngle(m_cfg.rot_x, Eigen::Vector3d::UnitX());
-
-      Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
-
-      Eigen::Matrix3d rotationMatrix = q.matrix();
-
-      auto gpos = rotationMatrix*(local+translation);
+      //also convert this to the detector's global coordinates.  To do: check if this is correct
+      auto alignment = volman.lookupDetElement(hits[i].getCellID()).nominal();
+      auto gpos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));;
 
       const decltype(edm4eic::CalorimeterHitData::position) position(gpos[0], gpos[1], gpos[2]);
 
