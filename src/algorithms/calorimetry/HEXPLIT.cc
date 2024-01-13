@@ -36,27 +36,13 @@ void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::log
 }
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
-  //int nhits=hits.size();
+
   double sl=m_cfg.side_length/dd4hep::mm;
   double layer_spacing=m_cfg.layer_spacing/dd4hep::mm;
   double MIP=m_cfg.MIP/dd4hep::GeV;
   double Emin=m_cfg.Emin_in_MIPs*MIP;
   double tmax=m_cfg.tmax/dd4hep::ns;
 
-
-  /*double x[nhits];
-  double y[nhits];
-  double z[nhits];
-  double E[nhits];
-  double t[nhits];
-
-  for(int i=0; i<nhits; i++){
-    x[i]=hits[i].getLocal().x;
-    y[i]=hits[i].getLocal().y;
-    z[i]=hits[i].getLocal().z;
-    E[i]=hits[i].getEnergy();
-    t[i]=hits[i].getTime();
-    }*/
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   double Esum=0;
@@ -68,11 +54,13 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     double Eneighbors[SUBCELLS];
     for (int j=0; j<SUBCELLS; j++)
       Eneighbors[j]=0;
-
-    for (const auto& other_hit : hits){
+    
+    for (const auto& other_hit : hits){                                                                                            
+      double tol=0.01; //tolerance for rounding errors
+      
       //only look at hits nearby within two layers of the current layer
       double dz=abs(hit.getLocal().z-other_hit.getLocal().z);
-      if (dz>2.5*layer_spacing || dz==0)
+      if (dz>2.5*layer_spacing || dz<tol)
         continue;
       if (other_hit.getEnergy()<Emin || other_hit.getTime()>tmax)
         continue;
@@ -84,7 +72,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
-      double tol=0.01; //tolerance for rounding errors
       for(int k=0;k<SUBCELLS;k++){
         if(abs(dx-neighbor_offsets_x[k])<tol && abs(dy-neighbor_offsets_y[k])<tol){
           Eneighbors[k]+=other_hit.getEnergy();
