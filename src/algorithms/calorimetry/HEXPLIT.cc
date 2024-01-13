@@ -103,14 +103,21 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     for(int k=0; k<SUBCELLS;k++){
 
       //create the subcell hits.  First determine their positions in local coordinates.
-      Eigen::Vector3d local(x[i]+subcell_offsets_x[k]*sl, y[i]+subcell_offsets_y[k]*sl, z[i]);
-      const decltype(edm4eic::CalorimeterHitData::local) local_position(local[0], local[1], local[2]);
+      
+      const decltype(edm4eic::CalorimeterHitData::local) local(x[i]+subcell_offsets_x[k]*sl, y[i]+subcell_offsets_y[k]*sl, z[i]);
 
+      //convert this to a position object so that the global position can be determined
+      dd4hep::Position local_position;
+      local_position.SetX(local.x);
+      local_position.SetY(local.y);
+      local_position.SetZ(local.z);
+      
       //also convert this to the detector's global coordinates.  To do: check if this is correct
       auto alignment = volman.lookupDetElement(hits[i].getCellID()).nominal();
-      auto gpos = alignment.localToWorld(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));;
 
-      const decltype(edm4eic::CalorimeterHitData::position) position(gpos[0], gpos[1], gpos[2]);
+      auto global_position = alignment.localToWorld(local_position);
+      //convert this from position object to a vector object
+      const decltype(edm4eic::CalorimeterHitData::position) position = {global_position.X(), global_position.Y(), global_position.Z()};
 
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = k%3==0;
@@ -127,7 +134,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
             dimension,
             hits[i].getSector(),
             hits[i].getLayer(),
-            local_position);
+            local);
     }
   }
   return subcellHits;
