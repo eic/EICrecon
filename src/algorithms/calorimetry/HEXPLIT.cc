@@ -108,7 +108,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
       //also convert this to the detector's global coordinates.  To do: check if this is correct
       auto alignment = volman.lookupDetElement(hits[i].getCellID()).nominal();
-      auto gpos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));;
+      auto gpos = alignment.localToWorld(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));;
 
       const decltype(edm4eic::CalorimeterHitData::position) position(gpos[0], gpos[1], gpos[2]);
 
