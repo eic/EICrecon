@@ -150,12 +150,6 @@ extern "C" {
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.1,
             .tmax=320 * dd4hep::ns,
-            .trans_x=0,
-            .trans_y=0,
-            .trans_z=36601 * dd4hep::mm,
-            .rot_x=0,
-            .rot_y=-0.025,
-            .rot_z=0,
           },
           app   // TODO: Remove me once fixed
         ));
