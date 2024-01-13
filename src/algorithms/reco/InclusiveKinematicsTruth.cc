@@ -10,6 +10,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <gsl/pointers>
 
 #include "Beam.h"
 #include "InclusiveKinematicsTruth.h"
@@ -18,7 +19,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsTruth::init(std::shared_ptr<spdlog::logger> logger) {
+  void InclusiveKinematicsTruth::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
 
     // m_pidSvc = service("ParticleSvc");
@@ -30,11 +31,12 @@ namespace eicrecon {
     // }
   }
 
-  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsTruth::execute(
-    const edm4hep::MCParticleCollection& mcparts) {
+  void InclusiveKinematicsTruth::process(
+      const InclusiveKinematicsTruth::Input& input,
+      const InclusiveKinematicsTruth::Output& output) const {
 
-    // Resulting inclusive kinematics
-    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
+    const auto [mcparts] = input;
+    auto [kinematics] = output;
 
     // Loop over generated particles to get incoming electron and proton beams
     // and the scattered electron. In the presence of QED radition on the incoming
@@ -46,7 +48,7 @@ namespace eicrecon {
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
       m_log->debug("No beam electron found");
-      return kinematics;
+      return;
     }
     const auto ei_p = ei_coll[0].getMomentum();
     const auto ei_p_mag = edm4hep::utils::magnitude(ei_p);
@@ -57,7 +59,7 @@ namespace eicrecon {
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
       m_log->debug("No beam hadron found");
-      return kinematics;
+      return;
     }
     const auto pi_p = pi_coll[0].getMomentum();
     const auto pi_p_mag = edm4hep::utils::magnitude(pi_p);
@@ -72,7 +74,7 @@ namespace eicrecon {
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
       m_log->debug("No truth scattered electron found");
-      return kinematics;
+      return;
     }
     const auto ef_p = ef_coll[0].getMomentum();
     const auto ef_p_mag = edm4hep::utils::magnitude(ef_p);
@@ -91,8 +93,6 @@ namespace eicrecon {
 
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    return kinematics;
   }
 
 } // namespace Jug::Reco
