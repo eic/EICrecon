@@ -23,23 +23,23 @@ public:
 
   /** One time initialization **/
   void Configure() {
-    
+
     ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
-    
+
     // Setup algorithm
     m_algo.applyConfig(config());
     m_algo.init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
-    
+
   }
-  
-  
+
+
   void ChangeRun(int64_t run_number) {
   }
-  
+
   void Process(int64_t run_number, uint64_t event_number) {
     m_clustered_hits_output() = m_algo.process(*m_raw_hits_input());
   }
-    
+
 };
 
 } // eicrecon
