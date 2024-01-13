@@ -1,4 +1,5 @@
-/* COPYRIGHT STUFF */
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Derek Anderson
 
 #pragma once
 
@@ -24,7 +25,7 @@ namespace eicrecon {
 
       void Configure() {
         m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>();
-        m_algo -> init(logger());
+        m_algo->init(logger());
       }
 
       void ChangeRun(int64_t run_number) {
@@ -32,7 +33,7 @@ namespace eicrecon {
       }
 
      void Process(int64_t run_number, int64_t event_number) {
-        m_pars_out() = m_algo -> process(m_pars_in());
+        m_pars_out() = m_algo->process(m_pars_in());
       }
 
   };
