@@ -60,7 +60,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   double Esum=0;
-  for(auto hit : hits){
+  for(const auto& hit : hits){
     //skip hits that do not pass E and t cuts
     if (hit.getEnergy()<Emin || hit.getTime()>tmax)
       continue;
@@ -69,7 +69,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     for (int j=0; j<SUBCELLS; j++)
       Eneighbors[j]=0;
 
-    for (auto other_hit : hits){
+    for (const auto& other_hit : hits){
       //only look at hits nearby within two layers of the current layer
       double dz=abs(hit.getLocal().z-other_hit.getLocal().z);
       if (dz>2.5*layer_spacing || dz==0)
