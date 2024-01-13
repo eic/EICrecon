@@ -15,6 +15,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"

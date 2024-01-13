@@ -10,6 +10,8 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
