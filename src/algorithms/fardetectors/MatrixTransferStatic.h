@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
@@ -15,18 +16,36 @@
 
 namespace eicrecon {
 
-  class MatrixTransferStatic : public WithPodConfig<MatrixTransferStaticConfig> {
+  using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::SimTrackerHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ReconstructedParticleCollection
+    >
+  >;
+
+  class MatrixTransferStatic
+  : public MatrixTransferStaticAlgorithm,
+    public WithPodConfig<MatrixTransferStaticConfig> {
+
   public:
+    MatrixTransferStatic(std::string_view name)
+      : MatrixTransferStaticAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputParticleCollection"},
+                            "Apply matrix method reconstruction to hits."} {}
+
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
+
+  private:
 
     //----- Define constants here ------
     double aXinv[2][2] = {{0.0, 0.0},
                           {0.0, 0.0}};
     double aYinv[2][2] = {{0.0, 0.0},
                           {0.0, 0.0}};
-
-    void init(const dd4hep::Detector* det, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger> &logger);
-
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const edm4hep::SimTrackerHitCollection &inputhits);
 
   private:
 
