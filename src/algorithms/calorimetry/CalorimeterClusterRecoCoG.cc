@@ -163,7 +163,6 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
   // calculate total energy, find the cell with the maximum energy deposit
   float totalE = 0.;
-  float maxE   = 0.;
   // Used to optionally constrain the cluster eta to those of the contributing hits
   float minHitEta = std::numeric_limits<float>::max();
   float maxHitEta = std::numeric_limits<float>::min();
@@ -177,8 +176,6 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
     totalE += energy;
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
-    if (energy > maxE) {
-    }
     const float eta = edm4hep::utils::eta(hit.getPosition());
     if (eta < minHitEta) {
       minHitEta = eta;
