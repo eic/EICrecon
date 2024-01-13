@@ -44,7 +44,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
   double tmax=m_cfg.tmax/dd4hep::ns;
 
 
-  double x[nhits];
+  /*double x[nhits];
   double y[nhits];
   double z[nhits];
   double E[nhits];
@@ -56,13 +56,13 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     z[i]=hits[i].getLocal().z;
     E[i]=hits[i].getEnergy();
     t[i]=hits[i].getTime();
-  }
+    }*/
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   double Esum=0;
   for(int i=0; i<nhits; i++){
     //skip hits that do not pass E and t cuts
-    if (E[i]<Emin || t[i]>tmax)
+    if (hits[i].getEnergy()<Emin || hits[i].getTime()>tmax)
       continue;
     //keep track of the energy in each neighboring cell
     double Eneighbors[SUBCELLS];
@@ -71,13 +71,14 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
     for (int j=0; j<nhits; j++){
       //only look at hits nearby within two layers of the current layer
-      if (abs(z[i]-z[j])>2.5*layer_spacing || z[i]==z[j])
+      double dz=abs(hits[i].getLocal().z-hits[j].getLocal().z);
+      if (dz>2.5*layer_spacing || dz==0)
         continue;
-      if (E[j]<Emin || t[j]>tmax)
+      if (hits[j].getEnergy()<Emin || hits[j].getTime()>tmax)
         continue;
       //difference in transverse position (in units of side lengths)
-      double dx=(x[j]-x[i])/sl;
-      double dy=(y[j]-y[i])/sl;
+      double dx=(hits[j].getLocal().x-hits[i].getLocal().x)/sl;
+      double dy=(hits[j].getLocal().y-hits[i].getLocal().y)/sl;
       if (abs(dx)>2 || abs(dy)>sqrt(3))
         continue;
 
@@ -86,7 +87,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       double tol=0.01; //tolerance for rounding errors
       for(int k=0;k<SUBCELLS;k++){
         if(abs(dx-neighbor_offsets_x[k])<tol && abs(dy-neighbor_offsets_y[k])<tol){
-          Eneighbors[k]+=E[j];
+          Eneighbors[k]+=hits[j].getEnergy();
           break;
         }
       }
@@ -104,7 +105,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
       //create the subcell hits.  First determine their positions in local coordinates.
       
-      const decltype(edm4eic::CalorimeterHitData::local) local(x[i]+subcell_offsets_x[k]*sl, y[i]+subcell_offsets_y[k]*sl, z[i]);
+      const decltype(edm4eic::CalorimeterHitData::local) local(hits[i].getLocal().x+subcell_offsets_x[k]*sl, hits[i].getLocal().y+subcell_offsets_y[k]*sl, hits[i].getLocal().z);
 
       //convert this to a position object so that the global position can be determined
       dd4hep::Position local_position;
@@ -126,7 +127,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
       subcellHits->create(
             hits[i].getCellID(),
-            E[i]*weights[k]/sum_weights,
+            hits[i].getEnergy()*weights[k]/sum_weights,
             0,
             hits[i].getTime(),
             0,
