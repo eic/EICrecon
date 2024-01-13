@@ -238,7 +238,7 @@ void CalorimeterHitReco::process(
         // get segmentation dimensions
         auto& segmentation_type = typeid(m_converter->findReadout(local).segmentation());
         if (segmentation_type == typeid(dd4hep::DDSegmentation::CartesianGridXY)
-	       || segmentation_type == typeid(dd4hep::DDSegmentation::HexGrid)) {
+               || segmentation_type == typeid(dd4hep::DDSegmentation::HexGrid)) {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];
