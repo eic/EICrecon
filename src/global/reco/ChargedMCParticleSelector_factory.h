@@ -39,4 +39,3 @@ namespace eicrecon {
   };
 
 }  // end eicrecon namespace
-
