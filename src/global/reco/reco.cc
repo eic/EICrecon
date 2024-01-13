@@ -22,7 +22,7 @@
 #include "ReconstructedJets_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "extensions/spdlog/SpdlgExtensions.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
 
 //
 extern "C" {
