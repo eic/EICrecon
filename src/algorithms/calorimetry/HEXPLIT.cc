@@ -54,10 +54,10 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     double Eneighbors[SUBCELLS];
     for (int j=0; j<SUBCELLS; j++)
       Eneighbors[j]=0;
-    
-    for (const auto& other_hit : hits){                                                                                            
+
+    for (const auto& other_hit : hits){
       double tol=0.01; //tolerance for rounding errors
-      
+
       //only look at hits nearby within two layers of the current layer
       double dz=abs(hit.getLocal().z-other_hit.getLocal().z);
       if (dz>2.5*layer_spacing || dz<tol)
