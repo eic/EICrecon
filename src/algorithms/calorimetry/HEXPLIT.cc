@@ -51,9 +51,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     if (hit.getEnergy()<Emin || hit.getTime()>tmax)
       continue;
     //keep track of the energy in each neighboring cell
-    double Eneighbors[SUBCELLS];
-    for (int j=0; j<SUBCELLS; j++)
-      Eneighbors[j]=0;
+    std::vector<double> Eneighbors(SUBCELLS, 0.0);
     
     for (const auto& other_hit : hits){                                                                                            
       double tol=0.01; //tolerance for rounding errors
