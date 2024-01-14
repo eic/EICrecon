@@ -6,10 +6,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <string>
+#include <fmt/format.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/SplitGeometry_factory.h"
 
 
 extern "C" {
@@ -29,6 +31,37 @@ extern "C" {
          },
          app
     ));
+
+    // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.    
+    std::vector<int> moduleIDs{1,2};
+    std::vector<int> layerIDs {0,1,2,4};
+    std::vector<std::string> moduleDiv;
+    std::vector<std::vector<std::string>> layerDiv;
+    
+    
+    for(int mod_id : moduleIDs){
+      moduleDiv.push_back(fmt::format("TaggerTrackerM{}RawHits",mod_id));
+    }
+      
+
+    //std::vector<std::string> moduleDiv = {"TaggerTrackerM1RawHits","TaggerTrackerM2RawHits"};
+
+    app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory>(
+         "TaggerTrackerSplitHits",
+         {"TaggerTrackerRawHits"},
+         moduleDiv,
+         {
+	   .divisions = moduleIDs,
+           .readout   = "TaggerTrackerHits",
+           .division  = "module",
+         },
+         app
+    ));
+
+//     for(int lay_id : layerIDs){
+	
+//     } 
+
 
 
   }

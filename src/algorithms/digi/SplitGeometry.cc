@@ -10,9 +10,10 @@
 
 namespace eicrecon {
 
-void SplitGeometry::init(std::shared_ptr<spdlog::logger>& logger) {
+void SplitGeometry::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     // set logger
-    m_log  = logger;
+    m_log      = logger;
+    m_detector = detector;
 
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
@@ -41,22 +42,24 @@ SplitGeometry::process(const edm4eic::RawTrackerHitCollection& inputhits) {
   //, std::make_unique<edm4eic::RawTrackerHitCollection>()
 
   for(auto& collection : subdivided_hits){
+    collection = std::make_unique<edm4eic::RawTrackerHitCollection>();
     collection->setSubsetCollection();
   }
 
   for (auto hit : inputhits) {
     auto cellID  = hit.getCellID();
     int division = m_id_dec->get( cellID, m_division_idx );
-    
+
     auto div_index = std::find(m_cfg.divisions.begin(),m_cfg.divisions.end(),division); 
+
     if(div_index != m_cfg.divisions.end()){
-      subdivided_hits[*div_index]->push_back(hit);
+      int index = div_index-m_cfg.divisions.begin();
+      subdivided_hits[index]->push_back(hit);
     } else {
       m_log->debug("Hit division not requested as output = {}", division);      
     }
 
   }
-
   return std::move(subdivided_hits);
 
 }
