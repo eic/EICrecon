@@ -784,6 +784,7 @@ jobs:
 
   trigger-container:
     runs-on: ubuntu-latest
+    if: github.event_name != "merge_group"
     needs:
     - eicrecon-gun
     steps:
