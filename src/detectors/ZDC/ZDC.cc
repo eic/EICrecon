@@ -107,9 +107,6 @@ extern "C" {
           )
         );
 
-        //side length of hexagonal cells in SiPM-on-tile part of the ZDC
-        auto side_length = 31.3 * dd4hep::mm;
-
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
           {
@@ -145,8 +142,6 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
           "ZDCSubcellHits", {"ZDCRecHits"}, {"ZDCSubcellHits"},
           {
-            .layer_spacing=25.1*dd4hep::mm,
-            .side_length = side_length,
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.1,
             .tmax=320 * dd4hep::ns,
@@ -154,6 +149,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
+	double side_length=31.3 * dd4hep::mm;
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
             "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
             {

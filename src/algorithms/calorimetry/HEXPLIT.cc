@@ -37,15 +37,13 @@ void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::log
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
 
-  double sl=m_cfg.side_length/dd4hep::mm;
-  double layer_spacing=m_cfg.layer_spacing/dd4hep::mm;
   double MIP=m_cfg.MIP/dd4hep::GeV;
   double Emin=m_cfg.Emin_in_MIPs*MIP;
   double tmax=m_cfg.tmax/dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  double Esum=0;
+  
   for(const auto& hit : hits){
     //skip hits that do not pass E and t cuts
     if (hit.getEnergy()<Emin || hit.getTime()>tmax)
@@ -54,12 +52,13 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     //keep track of the energy in each neighboring cell
     std::vector<double> Eneighbors(SUBCELLS, 0.0);
 
+    double sl = hit.getDimension().x/2.;
     for (const auto& other_hit : hits){
       double tol=0.01; //tolerance for rounding errors
 
       //only look at hits nearby within two layers of the current layer
-      double dz=abs(hit.getLocal().z-other_hit.getLocal().z);
-      if (dz>2.5*layer_spacing || dz<tol)
+      int dz=abs(hit.getLayer()-other_hit.getLayer());
+      if (dz>2 || dz==0)
         continue;
       if (other_hit.getEnergy()<Emin || other_hit.getTime()>tmax)
         continue;

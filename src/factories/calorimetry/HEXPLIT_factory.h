@@ -20,8 +20,6 @@ private:
     ParameterRef<double> m_MIP      {this, "MIP",           config().MIP};
     ParameterRef<double> m_Emin_in_MIPs     {this, "Emin_in_MIPs",          config().Emin_in_MIPs};
     ParameterRef<double> m_tmax     {this, "tmax",          config().tmax};
-    ParameterRef<double> m_sl       {this, "side_length",   config().side_length};
-    ParameterRef<double> m_ls       {this, "layer_spacing", config().layer_spacing};
 
     Service<DD4hep_service> m_geoSvc {this};
 

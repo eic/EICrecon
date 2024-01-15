@@ -6,13 +6,9 @@
 namespace eicrecon {
 
   struct HEXPLITConfig {
-
-    double                   layer_spacing{24.9};
-    double                   side_length{31.3};
     double                   MIP{0.000472};
     double                   Emin_in_MIPs{0.1};
     double                   tmax{325*dd4hep::ns};
-
   };
 
 } // eicrecon
