@@ -3,8 +3,8 @@
 //
 
 #include <JANA/JException.h>
-#include <JANA/JLogger.h>
 #include <Parsers/Printout.h>
+#include <TGeoManager.h>
 #include <algorithms/geo.h>
 #include <algorithms/service.h>
 #include <fmt/color.h>
@@ -19,10 +19,9 @@
 #include <utility>
 #include <vector>
 
+#include "DD4hep_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
-
-#include "DD4hep_service.h"
 
 //----------------------------------------------------------------
 // Services
