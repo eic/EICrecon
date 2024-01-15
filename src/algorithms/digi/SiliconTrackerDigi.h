@@ -4,36 +4,58 @@
 #pragma once
 
 #include <TRandomGen.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <functional>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-    /** digitization algorithm for a silicon trackers **/
-    class SiliconTrackerDigi : public WithPodConfig<SiliconTrackerDigiConfig>  {
+  using SiliconTrackerDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::SimTrackerHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::RawTrackerHitCollection
+    >
+  >;
 
-    public:
-        void init(std::shared_ptr<spdlog::logger>& logger);
-        std::unique_ptr<edm4eic::RawTrackerHitCollection> process(const edm4hep::SimTrackerHitCollection& sim_hits);
+  class SiliconTrackerDigi
+  : public SiliconTrackerDigiAlgorithm,
+    public WithPodConfig<SiliconTrackerDigiConfig> {
 
-    private:
-        /** algorithm logger */
-        std::shared_ptr<spdlog::logger> m_log;
+  public:
+    SiliconTrackerDigi(std::string_view name)
+      : SiliconTrackerDigiAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputRawHitCollection"},
+                            "Apply threshold, digitize within ADC range, "
+                            "convert time with smearing resolution."} {}
 
-        /** Random number generation*/
-        TRandomMixMax m_random;
-        std::function<double()> m_gauss;
+    void init(std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
-        // FIXME replace with standard random engine
-        //std::default_random_engine generator; // TODO: need something more appropriate here
-        //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+  private:
+    /** algorithm logger */
+    std::shared_ptr<spdlog::logger> m_log;
 
-    };
+    /** Random number generation*/
+    TRandomMixMax m_random;
+    std::function<double()> m_gauss;
+
+    // FIXME replace with standard random engine
+    //std::default_random_engine generator; // TODO: need something more appropriate here
+    //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+
+    //algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+
+  };
 
 } // eicrecon
