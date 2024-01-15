@@ -27,6 +27,10 @@ private:
     ParameterRef<std::string> m_energyWeight {this, "energyWeight", config().energyWeight};
     ParameterRef<double> m_samplingFraction {this, "samplingFraction", config().sampFrac};
     ParameterRef<double> m_logWeightBase {this, "logWeightBase", config().logWeightBase};
+    ParameterRef<bool> m_variableLogWeightBase {this, "variableLogWeightBase", config().variableLogWeightBase};
+    ParameterRef<double> m_logWeightBase_lin {this, "logWeightBase_lin", config().logWeightBase_lin};
+    ParameterRef<double> m_logWeightBase_quad {this, "logWeightBase_quad", config().logWeightBase_quad};
+    ParameterRef<double> m_logWeightBase_Eref {this, "logWeightBase_Eref", config().logWeightBase_Eref};
     ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
 
 public:

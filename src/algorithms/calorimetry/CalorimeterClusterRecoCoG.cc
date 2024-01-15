@@ -193,11 +193,18 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   // center of gravity with logarithmic weighting
   float tw = 0.;
   auto v   = cl.getPosition();
+  
+  double logWeightBase=m_cfg.logWeightBase;
+  if (m_cfg.variableLogWeightBase){
+    double l=log(cl.getEnergy()/m_cfg.logWeightBase_Eref);
+    logWeightBase+=m_cfg.logWeightBase_lin*l+m_cfg.logWeightBase_quad*l*l;
+  }
+    
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
     //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
-    float w           = weightFunc(hit.getEnergy() * weight, totalE, m_cfg.logWeightBase, 0);
+    float w           = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
     tw += w;
     v = v + (hit.getPosition() * w);
   }

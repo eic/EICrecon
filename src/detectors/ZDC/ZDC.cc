@@ -179,7 +179,7 @@ extern "C" {
           app
         ));
 
-        app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
+        /*app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
           "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
           {
             .sampling_fraction=0.0203,
@@ -189,7 +189,21 @@ extern "C" {
             .w0_c=0.31,
           },
           app   // TODO: Remove me once fixed
-        ));
+        ));*/
+      
+      app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+        "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
+        {
+          .energyWeight = "log",
+          .sampFrac=0.0203,
+          .logWeightBase=5.0,
+          .variableLogWeightBase=true,
+          .logWeightBase_lin=0.65,
+          .logWeightBase_quad=0.31,
+          .logWeightBase_Eref=50*dd4hep::GeV,
+        },
+        app   // TODO: Remove me once fixed
+      ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
