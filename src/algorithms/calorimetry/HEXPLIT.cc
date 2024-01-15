@@ -30,9 +30,25 @@
 
 namespace eicrecon {
 
+const double HEXPLIT::neighbor_offsets_x[12]={1.5*cos(0), 1.5*cos(M_PI/3), 1.5*cos(2*M_PI/3),1.5*cos(3*M_PI/3), 1.5*cos(4*M_PI/3), 1.5*cos(5*M_PI/3),
+    -sqrt(3)/2.*sin(0),-sqrt(3)/2.*sin(M_PI/3),-sqrt(3)/2.*sin(2*M_PI/3),-sqrt(3)/2.*sin(3*M_PI/3),-sqrt(3)/2.*sin(4*M_PI/3),-sqrt(3)/2.*sin(5*M_PI/3)};
+const double HEXPLIT::neighbor_offsets_y[12]={1.5*sin(0), 1.5*sin(M_PI/3), 1.5*sin(2*M_PI/3),1.5*sin(3*M_PI/3), 1.5*sin(4*M_PI/3), 1.5*sin(5*M_PI/3),
+                          sqrt(3)/2.*cos(0), sqrt(3)/2.*cos(M_PI/3), sqrt(3)/2.*cos(2*M_PI/3), sqrt(3)/2.*cos(3*M_PI/3), sqrt(3)/2.*cos(4*M_PI/3), sqrt(3)/2.*cos(5*M_PI/3)};
+
+//indices of the neighboring cells which overlap to produce a given subcell
+const int HEXPLIT::neighbor_indices[12][3]={{0, 11,10}, {1, 6, 11},{2, 7, 6}, {3,8,7}, {4,9,8}, {5,10,9},
+                         {6, 11, 7}, {7, 6, 8}, {8, 7, 9}, {9,8,10},{10,9,11},{11,10,6}};
+
+//positions of the centers of subcells
+const double HEXPLIT::subcell_offsets_x[12]={0.75*cos(0), 0.75*cos(M_PI/3), 0.75*cos(2*M_PI/3), 0.75*cos(3*M_PI/3), 0.75*cos(4*M_PI/3), 0.75*cos(5*M_PI/3),
+                        -sqrt(3)/4*sin(0),-sqrt(3)/4*sin(M_PI/3),-sqrt(3)/4*sin(2*M_PI/3),-sqrt(3)/4*sin(3*M_PI/3),-sqrt(3)/4*sin(4*M_PI/3),-sqrt(3)/4*sin(5*M_PI/3)};
+const double HEXPLIT::subcell_offsets_y[12]={0.75*sin(0), 0.75*sin(M_PI/3), 0.75*sin(2*M_PI/3), 0.75*sin(3*M_PI/3), 0.75*sin(4*M_PI/3), 0.75*sin(5*M_PI/3),
+                         sqrt(3)/4*cos(0), sqrt(3)/4*cos(M_PI/3), sqrt(3)/4*cos(2*M_PI/3), sqrt(3)/4*cos(3*M_PI/3), sqrt(3)/4*cos(4*M_PI/3), sqrt(3)/4*cos(5*M_PI/3)};
+
 void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     m_detector = detector;
+   
 }
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
