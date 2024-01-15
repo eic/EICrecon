@@ -35,7 +35,7 @@ namespace eicrecon {
       : MergeTracksAlgorithm{name,
                             {"inputTrackSegments"},
                             {"outputTrackSegments"},
-                            "Effecitvely 'zip' the input track segments."} {}
+                            "Effectively 'zip' the input track segments."} {}
 
     void init(std::shared_ptr<spdlog::logger>& logger);
     void process(const Input&, const Output&) const final;
