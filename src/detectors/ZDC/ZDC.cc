@@ -189,7 +189,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));*/
-      
+
       app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
         "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
         {
