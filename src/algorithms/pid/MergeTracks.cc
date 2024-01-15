@@ -13,31 +13,22 @@
 #include <unordered_map>
 #include <utility>
 
-// AlgorithmInit
-//---------------------------------------------------------------------------
-void eicrecon::MergeTracks::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
+namespace eicrecon {
+
+void MergeTracks::init(std::shared_ptr<spdlog::logger>& logger)
 {
   m_log = logger;
 }
 
+void MergeTracks::process(
+    const MergeTracks::Input& input,
+    const MergeTracks::Output& output) const {
 
-// AlgorithmChangeRun
-//---------------------------------------------------------------------------
-void eicrecon::MergeTracks::AlgorithmChangeRun() {
-}
+  const auto [in_track_collections] = input;
+  auto [out_tracks] = output;
 
-
-// AlgorithmProcess
-//---------------------------------------------------------------------------
-std::unique_ptr<edm4eic::TrackSegmentCollection> eicrecon::MergeTracks::AlgorithmProcess(
-    std::vector<const edm4eic::TrackSegmentCollection*> in_track_collections
-    )
-{
   // logging
   m_log->trace("{:=^70}"," call MergeTracks::AlgorithmProcess ");
-
-  // start output collection
-  auto out_tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
 
   // check that all input collections have the same size
   std::unordered_map<std::size_t, std::size_t> in_track_collection_size_distribution;
@@ -50,7 +41,7 @@ std::unique_ptr<edm4eic::TrackSegmentCollection> eicrecon::MergeTracks::Algorith
       std::back_inserter(in_track_collection_sizes),
       [](const auto& in_track_collection) { return in_track_collection->size(); });
     m_log->error("cannot merge input track collections with different sizes {}", fmt::join(in_track_collection_sizes, ", "));
-    return out_tracks;
+    return;
   }
 
   // loop over track collection elements
@@ -84,6 +75,6 @@ std::unique_ptr<edm4eic::TrackSegmentCollection> eicrecon::MergeTracks::Algorith
      */
 
   } // end loop over tracks
-
-  return out_tracks;
 }
+
+} // namespace eicrecon

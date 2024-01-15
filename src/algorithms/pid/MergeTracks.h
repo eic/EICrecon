@@ -10,6 +10,7 @@
 #pragma once
 
 // data model
+#include <algorithms/algorithm.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
@@ -17,21 +18,27 @@
 
 namespace eicrecon {
 
-  class MergeTracks {
+  using MergeTracksAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      std::vector<const edm4eic::TrackSegmentCollection>
+    >,
+    algorithms::Output<
+      edm4eic::TrackSegmentCollection
+    >
+  >;
 
-    public:
-      MergeTracks() = default;
-      ~MergeTracks() {}
+  class MergeTracks
+  : public MergeTracksAlgorithm {
 
-      void AlgorithmInit(std::shared_ptr<spdlog::logger>& logger);
-      void AlgorithmChangeRun();
+  public:
+    MergeTracks(std::string_view name)
+      : MergeTracksAlgorithm{name,
+                            {"inputTrackSegments"},
+                            {"outputTrackSegments"},
+                            "Effecitvely 'zip' the input track segments."} {}
 
-      // AlgorithmProcess
-      // - input: a list of TrackSegment collections
-      // - output: the merged TrackSegment collections, effectively the "zip" of the input collections
-      std::unique_ptr<edm4eic::TrackSegmentCollection> AlgorithmProcess(
-          std::vector<const edm4eic::TrackSegmentCollection*> in_track_collections
-          );
+    void init(std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
     private:
       std::shared_ptr<spdlog::logger> m_log;
