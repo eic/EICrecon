@@ -48,7 +48,7 @@ const double HEXPLIT::subcell_offsets_y[12]={0.75*sin(0), 0.75*sin(M_PI/3), 0.75
 void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     m_detector = detector;
-   
+
 }
 
 std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
