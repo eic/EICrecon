@@ -91,9 +91,9 @@ void DD4hep_service::Initialize() {
     }
 
     // The current recommended way of getting the XML file is to use the environment variables
-    // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
+    // DETECTOR_PATH and DETECTOR_CONFIG.
     // Look for those first, so we can use it for the default
-    // config parameter. (see https://github.com/eic/EICrecon/issues/22)
+    // config parameter.
     auto *detector_config_env = std::getenv("DETECTOR_CONFIG");
     auto *detector_path_env = std::getenv("DETECTOR_PATH");
 
@@ -175,7 +175,7 @@ std::string DD4hep_service::resolveFileName(const std::string &filename, char *d
                 // on the screen to be that this file doesn't exist.
                 auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red), "ERROR: ");
                 mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!", filename);
-                mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
+                mess += "\nCheck that your DETECTOR_PATH and DETECTOR_CONFIG environment variables are set correctly.";
                 std::cerr << std::endl << std::endl << mess << std::endl << std::endl; // TODO standard log here!
                 std::_Exit(EXIT_FAILURE);
             }
