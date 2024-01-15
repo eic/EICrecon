@@ -2,6 +2,7 @@
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/core.h>
@@ -9,7 +10,6 @@
 #include <podio/Frame.h>
 #include <spdlog/common.h>
 #include <exception>
-#include <iosfwd>
 
 #include "services/log/Log_service.h"
 
