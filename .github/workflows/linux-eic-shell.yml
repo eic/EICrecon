@@ -400,7 +400,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon \
-            -Ppodio:output_include_collections=EventHeader,MCParticles,SiBarrelTrackerDigiHits,SiBarrelVertexDigiHits,SiEndcapTrackerDigiHits,TOFBarrelDigiHit,TOFEndcapRawHits,MPGDBarrelRawHits,MPGDDIRCRawHits,OuterMPGDBarrelRawHits,BackwardMPGDEndcapRawHits,ForwardMPGDEndcapRawHits,B0TrackerRawHits \
+            -Ppodio:output_include_collections=EventHeader,MCParticles,SiBarrelTrackerDigiHits,SiBarrelVertexDigiHits,SiEndcapTrackerDigiHits,TOFBarrelDigiHit,TOFEndcapRawHits,MPGDBarrelRawHits,OuterMPGDBarrelRawHits,BackwardMPGDEndcapRawHits,ForwardMPGDEndcapRawHits,B0TrackerRawHits \
             -Ppodio:output_file=raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
             -Pplugins=dump_flags,janadot \
             -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json \
