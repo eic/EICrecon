@@ -149,7 +149,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-	double side_length=31.3 * dd4hep::mm;
+        double side_length=31.3 * dd4hep::mm;
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
             "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
             {

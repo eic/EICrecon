@@ -43,7 +43,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
   auto volman = m_detector->volumeManager();
   auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  
+
   for(const auto& hit : hits){
     //skip hits that do not pass E and t cuts
     if (hit.getEnergy()<Emin || hit.getTime()>tmax)
