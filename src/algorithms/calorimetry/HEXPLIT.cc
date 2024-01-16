@@ -69,7 +69,10 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
     double sl = hit.getDimension().x/2.;
     for (const auto& other_hit : hits){
-      double tol=0.01; //tolerance for rounding errors
+      // maximum distance between where the neighboring cell is and where it should be 
+      // based on an ideal geometry using the staggered tesselation pattern.  
+      // Deviations could arise from rounding errors or from detector misalignment.  
+      double tol=0.1*sl; 
 
       //only look at hits nearby within two layers of the current layer
       int dz=abs(hit.getLayer()-other_hit.getLayer());
