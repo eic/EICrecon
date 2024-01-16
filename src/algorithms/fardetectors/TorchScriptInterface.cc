@@ -18,7 +18,7 @@ void eicrecon::TorchScriptInterface::init(const dd4hep::Detector* det,
 }
 
 void eicrecon::TorchScriptInterface::process(const Input& input,
-   					     const Output& output) const {
+                                             const Output& output) const {
 
   return;
 
