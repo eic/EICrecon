@@ -30,23 +30,26 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
   set_param("mergeMode", cfg.mergeMode, "");
 
   // initialize underlying algorithm
-  m_algo.applyConfig(cfg);
-  m_algo.AlgorithmInit(m_log);
+  m_algo = std::make_unique<AlgoT>(GetPrefix());
+  m_algo->applyConfig(cfg);
+  m_algo->init(m_log);
 }
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
 
   // get input collections
-  std::vector<const edm4eic::CherenkovParticleIDCollection*> cherenkov_pids;
-  for(auto& input_tag : GetInputTags())
+  std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> cherenkov_pids;
+  for(auto& input_tag : GetInputTags()) {
     cherenkov_pids.push_back(
         static_cast<const edm4eic::CherenkovParticleIDCollection*>(event->GetCollectionBase(input_tag))
-        );
+    );
+  }
 
   // call the MergeParticleID algorithm
   try {
-    auto merged_pids = m_algo.AlgorithmProcess(cherenkov_pids);
+    auto merged_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+    m_algo->process({cherenkov_pids}, {merged_pids.get()});
     SetCollection<edm4eic::CherenkovParticleID>(GetOutputTags()[0], std::move(merged_pids));
   }
   catch(std::exception &e) {
