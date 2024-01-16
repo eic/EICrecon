@@ -10,7 +10,6 @@
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
 #include <edm4hep/Vector3d.h>
-#include <Eigen/Dense>
 #include <fmt/format.h>
 #include <map>
 #include <set>
