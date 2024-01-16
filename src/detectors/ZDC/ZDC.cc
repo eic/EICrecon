@@ -26,7 +26,7 @@ extern "C" {
 
         // LYSO part of the ZDC
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "ZDCEcalRawHits", {"ZDCEcalHits"}, {"ZDCEcalRawHits"},
+          "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"}, {"EcalFarForwardZDCRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -39,7 +39,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-          "ZDCEcalRecHits", {"ZDCEcalRawHits"}, {"ZDCEcalRecHits"},
+          "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
           {
             .capADC = 32768,
             .dyRangeADC = 2000. * dd4hep::MeV,
@@ -49,16 +49,16 @@ extern "C" {
             .thresholdFactor = 4.0,
             .thresholdValue = 0.0,
             .sampFrac = 1.0,
-            .readout = "ZDCEcalHits",
+            .readout = "EcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-          "ZDCEcalTruthProtoClusters", {"ZDCEcalRecHits", "ZDCEcalHits"}, {"ZDCEcalTruthProtoClusters"},
+          "EcalFarForwardZDCTruthProtoClusters", {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCHits"}, {"EcalFarForwardZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "ZDCEcalIslandProtoClusters", {"ZDCEcalRecHits"}, {"ZDCEcalIslandProtoClusters"},
+          "EcalFarForwardZDCIslandProtoClusters", {"EcalFarForwardZDCRecHits"}, {"EcalFarForwardZDCIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
@@ -74,11 +74,11 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "ZDCEcalTruthClusters",
-            {"ZDCEcalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "ZDCEcalHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"ZDCEcalTruthClusters",             // edm4eic::Cluster
-             "ZDCEcalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "EcalFarForwardZDCTruthClusters",
+            {"EcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "EcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"EcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
+             "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -91,11 +91,11 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "ZDCEcalClusters",
-            {"ZDCEcalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "ZDCEcalHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"ZDCEcalClusters",             // edm4eic::Cluster
-             "ZDCEcalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "EcalFarForwardZDCClusters",
+            {"EcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "EcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"EcalFarForwardZDCClusters",             // edm4eic::Cluster
+             "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -107,7 +107,7 @@ extern "C" {
         );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "ZDCRawHits", {"HcalFarForwardZDCHits"}, {"ZDCRawHits"},
+          "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"}, {"HcalFarForwardZDCRawHits"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -121,7 +121,7 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-          "ZDCRecHits", {"ZDCRawHits"}, {"ZDCRecHits"},
+          "HcalFarForwardZDCRecHits", {"HcalFarForwardZDCRawHits"}, {"HcalFarForwardZDCRecHits"},
           {
             .capADC = 32678,
             .dyRangeADC = 800. * dd4hep::MeV,
@@ -139,7 +139,7 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-          "ZDCSubcellHits", {"ZDCRecHits"}, {"ZDCSubcellHits"},
+          "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"}, {"HcalFarForwardZDCSubcellHits"},
           {
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.1,
@@ -150,7 +150,7 @@ extern "C" {
 
         double side_length=31.3 * dd4hep::mm;
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-            "ZDCImagingClusterContributions", {"ZDCSubcellHits"}, {"ZDCImagingClusterContributions"},
+            "HcalFarForwardZDCImagingClusterContributions", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingClusterContributions"},
             {
                 .neighbourLayersRange = 1,
                 .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
@@ -165,7 +165,7 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "ZDCIslandClusterContributions", {"ZDCSubcellHits"}, {"ZDCIslandClusterContributions"},
+          "HcalFarForwardZDCIslandClusterContributions", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCIslandClusterContributions"},
           {
             .sectorDist = 1.5 * dd4hep::cm,
             .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
@@ -178,20 +178,8 @@ extern "C" {
           app
         ));
 
-        /*app->Add(new JOmniFactoryGeneratorT<LogWeightReco_factory>(
-          "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
-          {
-            .sampling_fraction=0.0203,
-            .E0=50. * dd4hep::GeV,
-            .w0_a=5.0,
-            .w0_b=0.65,
-            .w0_c=0.31,
-          },
-          app   // TODO: Remove me once fixed
-        ));*/
-
       app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-        "ZDC_HEXPLITClusters", {"ZDCImagingClusterContributions"}, {"ZDC_HEXPLITClusters"},
+        "HcalFarForwardZDC_HEXPLITClusters", {"HcalFarForwardZDCImagingClusterContributions"}, {"HcalFarForwardZDC_HEXPLITClusters"},
         {
           .energyWeight = "log",
           .sampFrac=0.0203,
@@ -205,11 +193,11 @@ extern "C" {
       ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-          "ZDCTruthProtoClusters", {"ZDCRecHits", "ZDCHits"}, {"ZDCTruthProtoClusters"},
+          "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "ZDCIslandProtoClusters", {"ZDCRecHits"}, {"ZDCIslandProtoClusters"},
+          "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCRecHits"}, {"HcalFarForwardZDCIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
@@ -224,11 +212,11 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "ZDCTruthClusters",
-            {"ZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "ZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"ZDCTruthClusters",             // edm4eic::Cluster
-             "ZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "HcalFarForwardZDCTruthClusters",
+            {"HcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+            {"HcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
+             "HcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -240,11 +228,11 @@ extern "C" {
         );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "ZDCClusters",
-            {"ZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "ZDCHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"ZDCClusters",             // edm4eic::Cluster
-             "ZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+             "HcalFarForwardZDCClusters",
+            {"HcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+            {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
+             "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
