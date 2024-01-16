@@ -1,3 +1,4 @@
+#include <gsl/pointers>
 #include "TorchScriptInterface.h"
 #include "algorithms/fardetectors/TorchScriptInterfaceConfig.h"
 #ifdef ClassDef
@@ -16,9 +17,9 @@ void eicrecon::TorchScriptInterface::init(const dd4hep::Detector* det,
 
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::TorchScriptInterface::process(const edm4hep::SimTrackerHitCollection&){
+void eicrecon::TorchScriptInterface::process(const Input& input,
+   					     const Output& output) const {
 
-
-  return 0;
+  return;
 
 }
