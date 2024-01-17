@@ -70,7 +70,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     double sl = hit.getDimension().x/2.;
     for (const auto& other_hit : hits){
       // maximum distance between where the neighboring cell is and where it should be
-      // based on an ideal geometry using the staggered tesselation pattern.
+      // based on an ideal geometry using the staggered tessellation pattern.
       // Deviations could arise from rounding errors or from detector misalignment.
       double tol=0.1; // in units of side lengths.
 
