@@ -168,7 +168,7 @@ extern "C" {
           "HcalFarForwardZDCIslandClusterContributions", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCIslandClusterContributions"},
           {
             .sectorDist = 1.5 * dd4hep::cm,
-            .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+            .localDistXY = {0.9*side_length, 0.76*side_length*sin(M_PI/3)},
             .splitCluster = false,
             .minClusterHitEdep = 100.0 * dd4hep::keV,
             .minClusterCenterEdep = 1.0 * dd4hep::MeV,
@@ -178,19 +178,23 @@ extern "C" {
           app
         ));
 
-      app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-        "HcalFarForwardZDC_HEXPLITClusters", {"HcalFarForwardZDCImagingClusterContributions"}, {"HcalFarForwardZDC_HEXPLITClusters"},
-        {
-          .energyWeight = "log",
-          .sampFrac=0.0203,
-          .logWeightBase=5.0,
-          .variableLogWeightBase=true,
-          .logWeightBase_lin=0.65,
-          .logWeightBase_quad=0.31,
-          .logWeightBase_Eref=50*dd4hep::GeV,
-        },
-        app   // TODO: Remove me once fixed
-      ));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+           "HcalFarForwardZDC_HEXPLITClusters",
+          {"HcalFarForwardZDCIslandClusterContributions",  // edm4eic::ProtoClusterCollection
+           "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+          {"HcalFarForwardZDC_HEXPLITClusters",             // edm4eic::Cluster
+           "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+          {
+            .energyWeight = "log",
+            .sampFrac = 0.0203,
+            .logWeightBase=5.0,
+            .variableLogWeightBase=true,
+            .logWeightBase_lin=0.65,
+	    .logWeightBase_quad=0.31,
+            .logWeightBase_Eref=50*dd4hep::GeV,
+          },
+          app   // TODO: Remove me once fixed
+        ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
