@@ -236,17 +236,17 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        auto& segmentation_type = typeid(m_converter->findReadout(local).segmentation());
-        if (segmentation_type == typeid(dd4hep::DDSegmentation::CartesianGridXY)
-               || segmentation_type == typeid(dd4hep::DDSegmentation::HexGrid)) {
+	auto segmentation_type = m_converter->findReadout(local).segmentation().type();
+	auto& segmentation_typeid = typeid(m_converter->findReadout(local).segmentation());
+        if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];
             cdim[1] = cell_dim[1];
             m_log->debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
-            if ((segmentation_type != typeid(dd4hep::DDSegmentation::NoSegmentation)) && (!warned_unsupported_segmentation)) {
-                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type.name());
+            if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
                 warned_unsupported_segmentation = true;
             }
 
