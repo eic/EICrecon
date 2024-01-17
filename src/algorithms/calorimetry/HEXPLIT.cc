@@ -121,7 +121,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       auto global_position = alignment.localToWorld(local_position);
 
       //convert this from position object to a vector object
-      const decltype(edm4eic::CalorimeterHitData::position) position = {(float)(global_position.X()/dd4hep::mm), (float)(global_position.Y()/dd4hep::mm), (float)(global_position.Z()/dd4hep::mm)};
+      const decltype(edm4eic::CalorimeterHitData::position) position = {static_cast<float>((global_position.X()/dd4hep::mm), static_cast<float>((global_position.Y()/dd4hep::mm), static_cast<float>((global_position.Z()/dd4hep::mm)};
 
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = k%3==0;
