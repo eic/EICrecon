@@ -72,7 +72,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       // maximum distance between where the neighboring cell is and where it should be
       // based on an ideal geometry using the staggered tesselation pattern.
       // Deviations could arise from rounding errors or from detector misalignment.
-      double tol=0.1*sl;
+      double tol=0.1; // in units of side lengths.
 
       //only look at hits nearby within two layers of the current layer
       int dz=abs(hit.getLayer()-other_hit.getLayer());
@@ -119,8 +119,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
       auto alignment = volman.lookupDetElement(hit.getCellID()).nominal();
 
       auto global_position = alignment.localToWorld(local_position);
-      //std::cout << "local: " << local_position.X() << " " << local_position.Y() << " " << local_position.Z() << std::endl;
-      //std::cout << "global: " << global_position.X() << " " << global_position.Y() << " " << global_position.Z() << std::endl <<std::endl;
 
       //convert this from position object to a vector object
       const decltype(edm4eic::CalorimeterHitData::position) position = {global_position.X()/dd4hep::mm, global_position.Y()/dd4hep::mm, global_position.Z()/dd4hep::mm};
