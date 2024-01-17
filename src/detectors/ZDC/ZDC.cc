@@ -190,7 +190,7 @@ extern "C" {
             .logWeightBase=5.0,
             .variableLogWeightBase=true,
             .logWeightBase_lin=0.65,
-	    .logWeightBase_quad=0.31,
+            .logWeightBase_quad=0.31,
             .logWeightBase_Eref=50*dd4hep::GeV,
           },
           app   // TODO: Remove me once fixed
