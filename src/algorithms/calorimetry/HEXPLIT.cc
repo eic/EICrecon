@@ -111,16 +111,19 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
 
       //convert this to a position object so that the global position can be determined
       dd4hep::Position local_position;
-      local_position.SetX(local.x);
-      local_position.SetY(local.y);
-      local_position.SetZ(local.z);
+      local_position.SetX(local.x*dd4hep::mm);
+      local_position.SetY(local.y*dd4hep::mm);
+      local_position.SetZ(local.z*dd4hep::mm);
 
       //also convert this to the detector's global coordinates.  To do: check if this is correct
       auto alignment = volman.lookupDetElement(hit.getCellID()).nominal();
 
       auto global_position = alignment.localToWorld(local_position);
+      //std::cout << "local: " << local_position.X() << " " << local_position.Y() << " " << local_position.Z() << std::endl;
+      //std::cout << "global: " << global_position.X() << " " << global_position.Y() << " " << global_position.Z() << std::endl <<std::endl;
+      
       //convert this from position object to a vector object
-      const decltype(edm4eic::CalorimeterHitData::position) position = {global_position.X(), global_position.Y(), global_position.Z()};
+      const decltype(edm4eic::CalorimeterHitData::position) position = {global_position.X()/dd4hep::mm, global_position.Y()/dd4hep::mm, global_position.Z()/dd4hep::mm};
 
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = k%3==0;
