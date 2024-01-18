@@ -48,7 +48,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
 
   const auto [hits] = input;
   auto [subcellHits] = output;
-                                                                    
+
   double MIP=m_cfg.MIP/dd4hep::GeV;
   double Emin=m_cfg.Emin_in_MIPs*MIP;
   double tmax=m_cfg.tmax/dd4hep::ns;

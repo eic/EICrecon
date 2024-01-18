@@ -19,7 +19,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-  
+
 using HEXPLITAlgorithm = algorithms::Algorithm<
      algorithms::Input<
         const edm4eic::CalorimeterHitCollection
@@ -39,7 +39,7 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
                                    {"inputHits"},
                                    {"outputSubcellHits"},
                                    "Split hits into subcell hits"} {}
-      
+
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
     void process(const Input&, const Output&) const final;
 
