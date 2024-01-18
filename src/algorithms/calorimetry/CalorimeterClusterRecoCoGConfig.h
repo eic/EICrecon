@@ -17,7 +17,6 @@ namespace eicrecon {
         //optional:  have the log weight base depend on the energy
         // logWeightBase+logWeightBase_lin*l+logWeightBase_quad*l*l
         // where l = log(cl.getEnergy()/logWeightBase_Eref)
-        bool variableLogWeightBase=false;
         double logWeightBase_lin=0;
         double logWeightBase_quad=0;
         double logWeightBase_Eref=50;
