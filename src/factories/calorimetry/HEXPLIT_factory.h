@@ -6,7 +6,6 @@
 #include <algorithms/calorimetry/HEXPLIT.h>
 #include <services/geometry/dd4hep/DD4hep_service.h>
 #include <extensions/jana/JOmniFactory.h>
-// #include <extensions/spdlog/SpdlogMixin.h>
 
 
 namespace eicrecon {
