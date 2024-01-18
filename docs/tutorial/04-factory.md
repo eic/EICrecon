@@ -5,7 +5,7 @@
 
 ## Notice
 
-This section of the tutorial is outdated due to switch from `JFactory` to `JOmniFactory`. Refer to a [tutorial on reconstruction algorithms](https://eic.github.io/tutorial-reconstruction-algorithms/) for up-to-date information.
+**This section of the tutorial is outdated due to switch from `JFactory` to `JOmniFactory`. Refer to a [tutorial on reconstruction algorithms](https://eic.github.io/tutorial-reconstruction-algorithms/) for up-to-date information.**
 
 ## Introduction
 
