@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <cmath>
- #include <vector>
+#include <vector>
 
- #include "HEXPLIT.h"
- #include "algorithms/calorimetry/HEXPLITConfig.h"
+#include "HEXPLIT.h"
+#include "algorithms/calorimetry/HEXPLITConfig.h"
 
 namespace eicrecon {
 
@@ -43,16 +43,19 @@ void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::log
 
 }
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4eic::CalorimeterHitCollection &hits){
+void HEXPLIT::process(const HEXPLIT::Input& input,
+                      const HEXPLIT::Output& output) const {
 
+  const auto [hits] = input;
+  auto [subcellHits] = output;
+                                                                    
   double MIP=m_cfg.MIP/dd4hep::GeV;
   double Emin=m_cfg.Emin_in_MIPs*MIP;
   double tmax=m_cfg.tmax/dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
-  auto subcellHits = std::make_unique<edm4eic::CalorimeterHitCollection>();
 
-  for(const auto& hit : hits){
+  for(const auto& hit : *hits){
     //skip hits that do not pass E and t cuts
     if (hit.getEnergy()<Emin || hit.getTime()>tmax)
       continue;
@@ -61,7 +64,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
     std::vector<double> Eneighbors(SUBCELLS, 0.0);
 
     double sl = hit.getDimension().x/2.;
-    for (const auto& other_hit : hits){
+    for (const auto& other_hit : *hits){
       // maximum distance between where the neighboring cell is and where it should be
       // based on an ideal geometry using the staggered tessellation pattern.
       // Deviations could arise from rounding errors or from detector misalignment.
@@ -134,7 +137,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> HEXPLIT::process(const edm4ei
             local);
     }
   }
-  return subcellHits;
 }
 
 

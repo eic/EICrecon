@@ -19,12 +19,29 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
+  
+using HEXPLITAlgorithm = algorithms::Algorithm<
+     algorithms::Input<
+        const edm4eic::CalorimeterHitCollection
+     >,
+     algorithms::Output<
+        edm4eic::CalorimeterHitCollection
+     >
+   >;
 
-  class HEXPLIT : public WithPodConfig<HEXPLITConfig> {
+  class HEXPLIT
+  : public HEXPLITAlgorithm,
+    public WithPodConfig<HEXPLITConfig> {
 
   public:
+    HEXPLIT(std::string_view name)
+             : HEXPLITAlgorithm{name,
+                                   {"inputHits"},
+                                   {"outputSubcellHits"},
+                                   "Split hits into subcell hits"} {}
+      
     void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &hits) ;
+    void process(const Input&, const Output&) const final;
 
   private:
     const int SUBCELLS=12;

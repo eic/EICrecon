@@ -11,8 +11,10 @@
 namespace eicrecon {
 
 class HEXPLIT_factory : public JOmniFactory<HEXPLIT_factory, HEXPLITConfig> {
-private:
-    HEXPLIT m_algo;
+
+   using AlgoT = eicrecon::HEXPLIT;
+     private:
+         std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::CalorimeterHit> m_rec_hits_input {this};
     PodioOutput<edm4eic::CalorimeterHit> m_subcell_hits_output {this};
 
@@ -24,15 +26,16 @@ private:
 
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(m_geoSvc().detector(), logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->applyConfig(config());
+        m_algo->init(m_geoSvc().detector(), logger());
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_subcell_hits_output() = m_algo.process(*m_rec_hits_input());
+      m_algo->process({m_rec_hits_input()},{m_subcell_hits_output().get()});
     }
 };
 
