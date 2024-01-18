@@ -14,7 +14,7 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
- 
+
 #include "HEXPLITConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
