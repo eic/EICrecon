@@ -6,7 +6,7 @@
 namespace eicrecon {
 
   struct HEXPLITConfig {
-    double                   MIP{0.000472};
+    double                   MIP{472.*dd4hep::keV};
     double                   Emin_in_MIPs{0.1};
     double                   tmax{325*dd4hep::ns};
   };
