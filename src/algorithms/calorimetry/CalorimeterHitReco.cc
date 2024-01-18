@@ -17,9 +17,6 @@
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <DDSegmentation/CartesianGridXY.h>
-#include <DDSegmentation/HexGrid.h>
-#include <DDSegmentation/NoSegmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
