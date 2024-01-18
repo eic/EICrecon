@@ -27,9 +27,6 @@ namespace eicrecon {
     std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &hits) ;
 
   private:
-
-
-
     const int SUBCELLS=12;
 //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
     static const double neighbor_offsets_x[12];
