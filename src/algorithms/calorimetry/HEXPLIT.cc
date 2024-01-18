@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <cmath>
  #include <vector>
- 
+
  #include "HEXPLIT.h"
  #include "algorithms/calorimetry/HEXPLITConfig.h"
 
