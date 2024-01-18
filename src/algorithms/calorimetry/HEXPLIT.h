@@ -7,28 +7,16 @@
 // Author: Sebouh Paul
 // Date: 12/04/2023
 
-
 #pragma once
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/Vector2f.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <spdlog/logger.h>
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstddef>
-#include <exception>
-#include <functional>
-#include <memory>
-#include <set>
-#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <algorithms/algorithm.h>
+#include <DD4hep/Detector.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <spdlog/logger.h>
+#include <memory>
+ 
 #include "HEXPLITConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
