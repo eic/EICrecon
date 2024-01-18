@@ -194,7 +194,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   auto v   = cl.getPosition();
 
   double logWeightBase=m_cfg.logWeightBase;
-  if (m_cfg.variableLogWeightBase){
+  if ((m_cfg.logWeightBase_lin != 0) || (m_cfg.logWeightBase_quad != 0)){
     double l=log(cl.getEnergy()/m_cfg.logWeightBase_Eref);
     logWeightBase+=m_cfg.logWeightBase_lin*l+m_cfg.logWeightBase_quad*l*l;
   }
