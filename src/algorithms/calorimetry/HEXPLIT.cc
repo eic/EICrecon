@@ -4,26 +4,21 @@
 // References:
 //   https://arxiv.org/abs/2308.06939
 
-
-#include <DD4hep/Readout.h>
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/VolumeManager.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <TInterpreter.h>
-#include <TInterpreterValue.h>
-#include <edm4hep/Vector3d.h>
-#include <fmt/format.h>
-#include <map>
-#include <set>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <tuple>
-#include <utility>
-#include <vector>
-#include <iostream>
-
-#include "HEXPLIT.h"
-
-#include "algorithms/calorimetry/HEXPLITConfig.h"
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4hep/Vector3f.h>
+#include <stdlib.h>
+#include <algorithm>
+#include <cmath>
+ #include <vector>
+ 
+ #include "HEXPLIT.h"
+ #include "algorithms/calorimetry/HEXPLITConfig.h"
 
 namespace eicrecon {
 
