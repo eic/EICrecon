@@ -44,17 +44,18 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
     void process(const Input&, const Output&) const final;
 
   private:
-    const int SUBCELLS=12;
-//positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-    static const double neighbor_offsets_x[12];
-    static const double neighbor_offsets_y[12];
+    static constexpr int SUBCELLS = 12;
 
-    //indices of the neighboring cells which overlap to produce a given subcell
-    static const int neighbor_indices[12][3];
+    // positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
+    static const std::array<double, SUBCELLS> neighbor_offsets_x;
+    static const std::array<double, SUBCELLS> neighbor_offsets_y;
 
-//positions of the centers of subcells
-    static const double subcell_offsets_x[12];
-    static const double subcell_offsets_y[12];
+    // indices of the neighboring cells which overlap to produce a given subcell
+    static const std::array<std::array<int, 3>, SUBCELLS> neighbor_indices;
+
+    // positions of the centers of subcells
+    static const std::array<double, SUBCELLS> subcell_offsets_x;
+    static const std::array<double, SUBCELLS> subcell_offsets_y;
 
   private:
     const dd4hep::Detector* m_detector;
