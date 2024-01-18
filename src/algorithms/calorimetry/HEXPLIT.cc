@@ -25,8 +25,6 @@
 
 #include "algorithms/calorimetry/HEXPLITConfig.h"
 
-//using namespace edm4eic;
-
 namespace eicrecon {
 
 const double HEXPLIT::neighbor_offsets_x[12]={1.5*cos(0), 1.5*cos(M_PI/3), 1.5*cos(2*M_PI/3),1.5*cos(3*M_PI/3), 1.5*cos(4*M_PI/3), 1.5*cos(5*M_PI/3),
