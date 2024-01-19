@@ -109,13 +109,14 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
                      );
   }
   std::cout << "created input hits"<<std::endl;
-  auto context = new dd4hep::VolumeManagerContext;
-  std::cout <<"created volume manager context" << std::endl;
-  detector->volumeManager().adoptPlacement(0,context);
-  std::cout <<"applied volume manager context" << std::endl;
+  //auto context = new dd4hep::VolumeManagerContext;
+  //std::cout <<"created volume manager context" << std::endl;
+  //detector->volumeManager().adoptPlacement(0,context);
+  //std::cout <<"applied volume manager context" << std::endl;
   
   
   auto subcellhits_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  //edm4eic::CalorimeterHitCollection subcellhits_coll;
   std::cout << "created output subcell hits collection"<<std::endl;
   algo.process({&hits_coll}, {subcellhits_coll.get()});
   std::cout << "processed hits;  subcells found=" << subcellhits_coll->size() << std::endl;
