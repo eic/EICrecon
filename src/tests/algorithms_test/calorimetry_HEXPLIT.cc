@@ -49,18 +49,18 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   std::cout << "added id_desc to detector"<<std::endl;
   detector->add(readout);
   std::cout << "added readout to detector"<<std::endl;
-  
-  
 
-  
-  
-  
+
+
+
+
+
   //create a geometry for the fake detector.
-  
+
   double side_length=31.3*dd4hep::mm;
   double layer_spacing=25.1*dd4hep::mm;
   double thickness=3*dd4hep::mm;
-  
+
 //  int detID=0;
 //
 //  //I'm not sure how much of this is necessary
@@ -77,18 +77,18 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
 //  dd4hep::PlacedVolume phv = motherVol.placeVolume(envelopeVol, tr);
 //  phv.addPhysVolID("system", detID);
 //  det.setPlacement(phv);
-  
+
   //dimension of a cell
   auto dimension = edm4hep::Vector3f(2*side_length, sqrt(3)*side_length, thickness);
-  
+
   algo.applyConfig(cfg);
   std::cout << "applied config to algo"<<std::endl;
   algo.init(detector.get(), logger);
   std::cout << "initiated algo"<<std::endl;
-  
-  
+
+
   edm4eic::CalorimeterHitCollection hits_coll;
-  
+
   //create a set of 5 hits in consecutive layers, all of which overlap in a single rhombus,
   // centered at (3/8, sqrt(3)/8)*side_length
   std::array<double,5> layer={0,1,2,3,4};
@@ -109,12 +109,12 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
                      );
   }
   std::cout << "created input hits"<<std::endl;
+
   //auto context = new dd4hep::VolumeManagerContext;
   //std::cout <<"created volume manager context" << std::endl;
   //detector->volumeManager().adoptPlacement(0,context);
   //std::cout <<"applied volume manager context" << std::endl;
-  
-  
+
   auto subcellhits_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
   //edm4eic::CalorimeterHitCollection subcellhits_coll;
   std::cout << "created output subcell hits collection"<<std::endl;
@@ -122,14 +122,14 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   std::cout << "processed hits;  subcells found=" << subcellhits_coll->size() << std::endl;
   for(auto subcell : *subcellhits_coll){
     std::cout << subcell.getLayer() << " " << subcell.getLocal().x/side_length << " " << subcell.getLocal().z/side_length << " " << subcell.getLocal().z/side_length << " " << subcell.getEnergy() << std::endl;
-    
+
   }
-  
+
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
   REQUIRE( (*subcellhits_coll).size() == 60);
   //REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
   //REQUIRE( (*protoclust_coll)[0].weights_size() == 1 );
-  
+
 
 }
