@@ -59,7 +59,7 @@ extern "C" {
             .sampFrac = 0.033, // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
             .layerField = "tower",
-            .sectorField = "sector",
+            .sectorField = "",
           },
           app   // TODO: Remove me once fixed
         ));
