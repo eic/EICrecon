@@ -89,7 +89,10 @@ namespace eicrecon {
                 auto global = trackstate.referenceSurface().localToGlobal(
                         m_geo_provider->getActsGeometryContext(),
                         {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]},
-                        {0, 0, 0}
+                        Acts::makeDirectionFromPhiTheta(
+                            parameter[Acts::eBoundPhi],
+                            parameter[Acts::eBoundTheta]
+                        )
                 );
                 // global position
                 const decltype(edm4eic::TrackPoint::position) position{
