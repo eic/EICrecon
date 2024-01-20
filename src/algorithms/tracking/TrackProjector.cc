@@ -4,6 +4,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
