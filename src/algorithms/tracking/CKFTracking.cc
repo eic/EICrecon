@@ -396,7 +396,7 @@ namespace eicrecon {
               }
               pars.setCovariance(cov);
             #else
-              pars.setCharge(static_cast<float>(boundParam.charge())});
+              pars.setCharge(static_cast<float>(boundParam.charge()));
               pars.setLocError({
                     static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
                     static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
