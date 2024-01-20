@@ -347,8 +347,10 @@ namespace eicrecon {
 
             // Create trajectory
             auto trajectory = trajectories->create();
-            trajectory.setChi2(trajectoryState.chi2Sum);
-            trajectory.setNdf(trajectoryState.NDF);
+            #if EDM4EIC_VERSION_MAJOR < 5
+              trajectory.setChi2(trajectoryState.chi2Sum);
+              trajectory.setNdf(trajectoryState.NDF);
+            #endif
             trajectory.setNMeasurements(trajectoryState.nMeasurements);
             trajectory.setNStates(trajectoryState.nStates);
             trajectory.setNOutliers(trajectoryState.nOutliers);
