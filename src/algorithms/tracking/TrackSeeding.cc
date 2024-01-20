@@ -18,12 +18,18 @@
 #include <Acts/Utilities/Result.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/vector.hpp>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/TrackParameters.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <functional>
 #include <limits>
 #include <tuple>
 #include <type_traits>
+
+#if EDM4EIC_VERSION_MAJOR >= 5
+#include <edm4eic/Cov6f.h>
+#endif
 
 namespace
 {
@@ -233,14 +239,25 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)
       trackparam.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface
-      trackparam.setLocError({0.1,0.1}); //covariance of location
       trackparam.setTheta(theta); //theta [rad]
       trackparam.setPhi((float)phi); // phi [rad]
       trackparam.setQOverP(qOverP); // Q/p [e/GeV]
-      trackparam.setMomentumError({0.05,0.05,0.05}); // covariance on theta/phi/q/p
       trackparam.setTime(10); // time in ns
-      trackparam.setTimeError(0.1); // error on time
-      trackparam.setCharge((float)charge); // charge
+      #if EDM4EIC_VERSION_MAJOR >= 5
+        edm4eic::Cov6f cov;
+        cov(0,0) = 0.1; // loc0
+        cov(1,1) = 0.1; // loc1
+        cov(2,2) = 0.05; // theta
+        cov(3,3) = 0.05; // phi
+        cov(4,4) = 0.05; // qOverP
+        cov(5,5) = 0.1; // time
+        trackparam.setCovariance(cov);
+      #else
+        trackparam.setCharge(static_cast<float>(charge)); // charge
+        trackparam.setLocError({0.1,0.1}); //covariance of location
+        trackparam.setMomentumError({0.05,0.05,0.05}); // covariance on theta/phi/q/p
+        trackparam.setTimeError(0.1); // error on time
+      #endif
     }
 
   return std::move(trackparams);
