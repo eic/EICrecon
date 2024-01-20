@@ -238,9 +238,9 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)
-      trackparam.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface
+      trackparam.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
       trackparam.setTheta(theta); //theta [rad]
-      trackparam.setPhi((float)phi); // phi [rad]
+      trackparam.setPhi(static_cast<float>(phi)); // phi [rad]
       trackparam.setQOverP(qOverP); // Q/p [e/GeV]
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
