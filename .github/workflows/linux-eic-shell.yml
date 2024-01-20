@@ -897,32 +897,6 @@ jobs:
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
-      - name: Populate capybara summary
-        if: github.event.pull_request.number == matrix.pr || steps.download_capybara.outputs.found_artifact == 'true'
-        run: |
-         echo "### Capybara summary for PR ${{ matrix.pr }}" >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
-         find publishing_docs/pr/${{ matrix.pr }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
-           "- [%f](https://eicrecon.epic-eic.org/pr/${{ matrix.pr }}/capybara/%f/index.html)\n" | sort >> publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
-      - name: Create capybara step summary (this PR)
-        if: github.event.pull_request.number == matrix.pr
-        run: |
-          cat publishing_docs/pr/${{ matrix.pr }}/capybara/index.md >> $GITHUB_STEP_SUMMARY
-      - name: Find capybara comment
-        id: find_comment
-        uses: peter-evans/find-comment@v2
-        if: github.event.pull_request.number == matrix.pr
-        with:
-          issue-number: ${{ matrix.pr }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Capybara summary
-      - name: Create or update capybara comment
-        if: github.event.pull_request.number == matrix.pr
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          comment-id: ${{ steps.find_comment.outputs.comment-id }}
-          issue-number: ${{ matrix.pr }}
-          body-file: publishing_docs/pr/${{ matrix.pr }}/capybara/index.md
-          edit-mode: replace
       - name: Remove doxygen in PR
         run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v3
@@ -1030,3 +1004,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+      - name: Populate capybara summary
+        run: |
+         echo "### Capybara summary for PR ${{ github.event.pull_request.number }}" >> publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/index.md
+         find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
+           "- [%f](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/%f/index.html)\n" | sort >> publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/index.md
+      - name: Create capybara step summary (this PR)
+        run: |
+          cat publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/index.md >> $GITHUB_STEP_SUMMARY
+      - name: Find capybara comment
+        id: find_comment
+        uses: peter-evans/find-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Capybara summary
+      - name: Create or update capybara comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/index.md
+          edit-mode: replace
