@@ -117,6 +117,7 @@ namespace eicrecon {
             cov(0, 0) = meas2D.getCovariance().xx;
             cov(1, 1) = meas2D.getCovariance().yy;
             cov(0, 1) = meas2D.getCovariance().xy;
+            cov(1, 0) = meas2D.getCovariance().xy;
 
             auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
             measurements->emplace_back(std::move(measurement));
