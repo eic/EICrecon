@@ -55,7 +55,7 @@ namespace eicrecon {
           for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
-            const auto charge_rec = trk.getCharge();
+            const auto charge_rec = std::copysign(1., trk.getQOverP());
 
 
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");

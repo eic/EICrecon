@@ -135,7 +135,7 @@ namespace eicrecon {
             params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
             params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
-            double charge = track_parameter.getCharge();
+            double charge = std::copysign(1., track_parameter.getQOverP());
 
             Acts::BoundSquareMatrix cov                 = Acts::BoundSquareMatrix::Zero();
             cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
