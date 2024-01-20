@@ -437,14 +437,22 @@ namespace eicrecon {
                     } else {
                         auto meas2D = meas2Ds[srclink_index];
                         if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+                          #if EDM4EIC_VERSION_MAJOR >= 5
+                            //track.addToMeasurementHits(meas2D);
+                          #else
                             trajectory.addToMeasurementHits(meas2D);
-                            m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
+                          #endif
+                          m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
                                 geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
                         }
                         else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+                          #if EDM4EIC_VERSION_MAJOR >= 5
+                            //track.addToOutlierHits(meas2D);
+                          #else
                             trajectory.addToOutlierHits(meas2D);
-                            m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
+                          #endif
+                          m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
                                 geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
                         }
