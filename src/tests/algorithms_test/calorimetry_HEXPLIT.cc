@@ -36,19 +36,12 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   HEXPLITConfig cfg;
   cfg.MIP = 472. * dd4hep::keV;
   cfg.tmax = 1000. * dd4hep::ns;
-  std::cout << "creating mock detector"<<std::endl;
   auto detector = dd4hep::Detector::make_unique("");
-  std::cout << "created mock detector"<<std::endl;
   dd4hep::Readout readout(std::string("MockCalorimeterHits"));
-  std::cout << "created mock detector readout"<<std::endl;
   dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,layer:8,x:8,y:8");
-  std::cout << "created mock detector readout id_desc"<<std::endl;
   readout.setIDDescriptor(id_desc);
-  std::cout << "set readout's id_desc"<<std::endl;
   detector->add(id_desc);
-  std::cout << "added id_desc to detector"<<std::endl;
   detector->add(readout);
-  std::cout << "added readout to detector"<<std::endl;
 
   //create a geometry for the fake detector.
   double side_length=31.3*dd4hep::mm;
@@ -59,10 +52,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   auto dimension = edm4hep::Vector3f(2*side_length, sqrt(3)*side_length, thickness);
 
   algo.applyConfig(cfg);
-  std::cout << "applied config to algo"<<std::endl;
   algo.init(detector.get(), logger);
-  std::cout << "initiated algo"<<std::endl;
-
 
   edm4eic::CalorimeterHitCollection hits_coll;
 
@@ -86,22 +76,10 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
                      edm4hep::Vector3f(x[i], y[i], layer[i]*layer_spacing) // edm4hep::Vector3f local
                      );
   }
-  std::cout << "created input hits"<<std::endl;
-
-  //auto context = new dd4hep::VolumeManagerContext;
-  //std::cout <<"created volume manager context" << std::endl;
-  //detector->volumeManager().adoptPlacement(0,context);
-  //std::cout <<"applied volume manager context" << std::endl;
 
   auto subcellhits_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  //edm4eic::CalorimeterHitCollection subcellhits_coll;
-  std::cout << "created output subcell hits collection"<<std::endl;
   algo.process({&hits_coll}, {subcellhits_coll.get()});
-  std::cout << "processed hits;  subcells found=" << subcellhits_coll->size() << std::endl;
-  for(auto subcell : *subcellhits_coll){
-    std::cout << subcell.getLayer() << " " << subcell.getLocal().x/side_length << " " << subcell.getLocal().z/side_length << " " << subcell.getLocal().z/side_length << " " << subcell.getEnergy() << std::endl;
-
-  }
+  
 
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
@@ -112,7 +90,6 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   double Esum=0;
   int i=0;
   for (auto subcell : *subcellhits_coll){
-    std::cout << "Esum=" << Esum << ",i="<< i << ", E expected="<<E[i/12]<<std::endl;
     Esum+=subcell.getEnergy();
     i++;
     if (i%12==0){
