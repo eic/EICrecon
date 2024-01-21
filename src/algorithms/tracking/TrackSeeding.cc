@@ -19,7 +19,6 @@
 #include <boost/container/small_vector.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackParameters.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <functional>
