@@ -106,7 +106,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
   REQUIRE( (*subcellhits_coll).size() == 60);
-  
+
   //next check that the sum of the hit energies equals the energy that I gave the hits
   double tol=0.001;
   double Esum=0;
