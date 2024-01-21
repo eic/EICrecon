@@ -413,7 +413,6 @@ namespace eicrecon {
               pars.setTimeError(sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
             #endif
 
-            track_parameters->push_back(pars);
             trajectory.addToTrackParameters(pars);
 
             // save measurement2d to good measurements or outliers according to srclink index
