@@ -195,7 +195,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
+        /*app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -244,6 +244,6 @@ extern "C" {
             },
             app   // TODO: Remove me once fixed
           )
-        );
+        );*/
     }
 }
