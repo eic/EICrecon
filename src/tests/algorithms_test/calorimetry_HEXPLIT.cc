@@ -50,33 +50,10 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   detector->add(readout);
   std::cout << "added readout to detector"<<std::endl;
 
-
-
-
-
-
   //create a geometry for the fake detector.
-
   double side_length=31.3*dd4hep::mm;
   double layer_spacing=25.1*dd4hep::mm;
   double thickness=3*dd4hep::mm;
-
-//  int detID=0;
-//
-//  //I'm not sure how much of this is necessary
-//  dd4hep::Box envelope(10*side_length, 10*side_length, layer_spacing*10);
-//  dd4hep::Material   mat        = detector->material("Pb");
-//  // Defining envelope volume
-//  dd4hep::Volume envelopeVol("MockDetector", envelope, mat);
-//
-//  dd4hep::DetElement   det("MockDetector", detID);
-//  dd4hep::Volume motherVol = detector->pickMotherVolume(det);
-//
-//  // Placing detector in world volume
-//  auto tr = dd4hep::Transform3D(dd4hep::RotationZYX(0, 0, 0),dd4hep::Position(0, 0, 0));
-//  dd4hep::PlacedVolume phv = motherVol.placeVolume(envelopeVol, tr);
-//  phv.addPhysVolID("system", detID);
-//  det.setPlacement(phv);
 
   //dimension of a cell
   auto dimension = edm4hep::Vector3f(2*side_length, sqrt(3)*side_length, thickness);
@@ -94,10 +71,11 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   std::array<double,5> layer={0,1,2,3,4};
   std::array<double,5> x={0,0.75*side_length,0,0.75*side_length,0};
   std::array<double,5> y={sqrt(3)/2*side_length,-0.25*sqrt(3)*side_length,0,0.25*sqrt(3)*side_length,sqrt(3)/2*side_length};
+  std::array<double,5> E={50*dd4hep::MeV,50*dd4hep::MeV,50*dd4hep::MeV,50*dd4hep::MeV,50*dd4hep::MeV};
   for(size_t i=0; i<5; i++){
     hits_coll.create(
                      id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-                     5.0*dd4hep::MeV, // float energy,
+                     E[i], // float energy,
                      0.0, // float energyError,
                      0.0, // float time,
                      0.0, // float timeError,
@@ -128,8 +106,23 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
   REQUIRE( (*subcellhits_coll).size() == 60);
-  //REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
-  //REQUIRE( (*protoclust_coll)[0].weights_size() == 1 );
+  
+  //next check that the sum of the hit energies equals the energy that I gave the hits
+  double tol=0.001;
+  double Esum=0;
+  int i=0;
+  for (auto subcell : *subcellhits_coll){
+    std::cout << "Esum=" << Esum << ",i="<< i << ", E expected="<<E[i/12]<<std::endl;
+    Esum+=subcell.getEnergy();
+    i++;
+    if (i%12==0){
+      REQUIRE(abs(Esum-E[i/12-1])/E[i/12-1]<tol);
+      Esum=0;
+    }
+  }
+  // next check that almost all of the energy of the hit in the middle layer
+  // is in the subcell where the other hits overlap
+  REQUIRE((*subcellhits_coll)[35].getEnergy()/E[2]>0.95);
 
 
 }

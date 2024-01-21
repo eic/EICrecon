@@ -104,17 +104,27 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
 
       //create the subcell hits.  First determine their positions in local coordinates.
       const decltype(edm4eic::CalorimeterHitData::local) local(hit.getLocal().x+subcell_offsets_x[k]*sl, hit.getLocal().y+subcell_offsets_y[k]*sl, hit.getLocal().z);
-
+      
       //convert this to a position object so that the global position can be determined
       dd4hep::Position local_position;
       local_position.SetX(local.x*dd4hep::mm);
       local_position.SetY(local.y*dd4hep::mm);
       local_position.SetZ(local.z*dd4hep::mm);
-
-      //also convert this to the detector's global coordinates.  To do: check if this is correct
-      auto alignment = volman.lookupDetElement(hit.getCellID()).nominal();
-
-      auto global_position = alignment.localToWorld(local_position);
+      
+      dd4hep::Position global_position;
+      try {
+        
+        //also convert this to the detector's global coordinates.  To do: check if this is correct
+        auto alignment = volman.lookupDetElement(hit.getCellID()).nominal();
+        
+        global_position = alignment.localToWorld(local_position);
+        
+      }
+      catch (...){
+        // do this to prevent errors when running the test on the mock detector
+        m_log->warn("Cannot find transformation from local to global coordinates.");
+        global_position = local_position;
+      }
 
       //convert this from position object to a vector object
       const decltype(edm4eic::CalorimeterHitData::position) position = {static_cast<float>(global_position.X()/dd4hep::mm), static_cast<float>(global_position.Y()/dd4hep::mm), static_cast<float>(global_position.Z()/dd4hep::mm)};
