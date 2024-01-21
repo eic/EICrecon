@@ -79,7 +79,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
 
   auto subcellhits_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo.process({&hits_coll}, {subcellhits_coll.get()});
-  
+
 
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
