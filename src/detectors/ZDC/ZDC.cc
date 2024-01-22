@@ -213,7 +213,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalFarForwardZDCTruthClusters",
             {"HcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
