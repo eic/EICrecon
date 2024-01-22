@@ -63,7 +63,7 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
-            .refs = {4, 0},
+            .refs = {4, 0}, // place merged hits at ~1 interaction length deep
           },
           app   // TODO: Remove me once fixed
         ));
