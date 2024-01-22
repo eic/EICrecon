@@ -1013,6 +1013,7 @@ jobs:
       pages: write
       id-token: write
       issues: write
+      pull-requests: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
