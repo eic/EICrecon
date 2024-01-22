@@ -183,7 +183,7 @@ extern "C" {
           {"HcalFarForwardZDCIslandClusterContributions",  // edm4eic::ProtoClusterCollection
            "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
           {"HcalFarForwardZDC_HEXPLITClusters",             // edm4eic::Cluster
-           "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+           "HcalFarForwardZDC_HEXPLITClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
           {
             .energyWeight = "log",
             .sampFrac = 0.0203,
