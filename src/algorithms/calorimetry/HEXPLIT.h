@@ -45,15 +45,20 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
     void process(const Input&, const Output&) const final;
 
   private:
-      const int SUBCELLS=12;
+      // number of subcells that a single cell is divided into
+      static const int SUBCELLS=12;
+      // number of neighboring positions whose overlap define the subcells
+      static const int NEIGHBORS=12;
+      // number of neighboring cells that overlap to obtain a subcell
+      static const int OVERLAP=3;
   //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-      static const double neighbor_offsets_x[12];
-      static const double neighbor_offsets_y[12];
+      static const double neighbor_offsets_x[NEIGHBORS];
+      static const double neighbor_offsets_y[NEIGHBORS];
       //indices of the neighboring cells which overlap to produce a given subcell
-      static const int neighbor_indices[12][3];
+      static const int neighbor_indices[SUBCELLS][OVERLAP];
   //positions of the centers of subcells
-      static const double subcell_offsets_x[12];
-      static const double subcell_offsets_y[12];
+      static const double subcell_offsets_x[SUBCELLS];
+      static const double subcell_offsets_y[SUBCELLS];
 
   private:
     const dd4hep::Detector* m_detector;
