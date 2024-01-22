@@ -1,30 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Sebouh Paul
 
-#include "DD4hep/DetFactoryHelper.h"
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include "DD4hep/VolumeManager.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/generators/catch_generators.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/Vector3f.h>
-#include <podio/RelationRange.h>
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
-#include <spdlog/spdlog.h>
-#include <limits>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "algorithms/calorimetry/HEXPLIT.h"
-#include "algorithms/calorimetry/HEXPLITConfig.h"
+#include <DD4hep/Detector.h>                       // for Detector
+#include <DD4hep/IDDescriptor.h>                   // for IDDescriptor
+#include <DD4hep/Readout.h>                        // for Readout
+#include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
+#include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
+#include <edm4hep/Vector3f.h>                      // for Vector3f
+#include <spdlog/common.h>                         // for level_enum
+#include <spdlog/logger.h>                         // for logger
+#include <spdlog/spdlog.h>                         // for default_logger
+#include <stddef.h>                                // for size_t
+#include <array>                                   // for array
+#include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <cmath>                                   // for sqrt, abs
+#include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <string>                                  // for string
+#include <utility>                                 // for pair
+#include "algorithms/calorimetry/HEXPLIT.h"        // for HEXPLIT
+#include "algorithms/calorimetry/HEXPLITConfig.h"  // for HEXPLITConfig
 
 using eicrecon::HEXPLIT;
 using eicrecon::HEXPLITConfig;

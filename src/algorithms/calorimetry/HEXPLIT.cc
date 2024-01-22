@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <cmath>
+#include <gsl/pointers>                            // for not_null
 #include <vector>
-
 #include "HEXPLIT.h"
 #include "algorithms/calorimetry/HEXPLITConfig.h"
 
