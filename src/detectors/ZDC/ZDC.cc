@@ -238,7 +238,7 @@ extern "C" {
              "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0203,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
