@@ -191,7 +191,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalFarForwardZDCClusterAssociations",
             "EcalFarForwardZDCTruthClusters",
             "EcalFarForwardZDCTruthClusterAssociations",
-      
+
             //ZDC HCal
             "HcalFarForwardZDCRawHits",
             "HcalFarForwardZDCRecHits",
@@ -204,8 +204,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-      
-      
+
+
             // DIRC
             "DIRCRawHits"
     };
