@@ -199,7 +199,7 @@ extern "C" {
           "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-      
+
         //Clusters with the baseline algorithm (no HEXPLIT)
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalFarForwardZDCIslandProtoClustersBaseline", {"HcalFarForwardZDCRecHits"}, {"HcalFarForwardZDCIslandProtoClustersBaseline"},
