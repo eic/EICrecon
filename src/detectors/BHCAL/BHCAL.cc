@@ -71,13 +71,13 @@ extern "C" {
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
             // Magic constants:
-            //  24 - number of sectors
-            //  5  - number of towers per sector
+            //  24 - number of towers per row in eta
+            //  5  - number of tiles per tower
             .adjacencyMatrix =
               "("
-              "  abs(fmod(tower_1, 48) - fmod(tower_2, 24))"
+              "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
               "  + min("
-              "      abs(floor(tower_1 / 48) - floor(tower_2 / 48)) + abs(tile_1 - tile_2),"
+              "      abs(floor(tower_1 / 24) - floor(tower_2 / 24)) + abs(tile_1 - tile_2),"
               "      5 - abs(tile_1 - tile_2)"
               "    )"
               ") == 1",
