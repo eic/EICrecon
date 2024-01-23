@@ -21,7 +21,7 @@ class SplitGeometry_factory : public JOmniFactory<SplitGeometry_factory<T>, Spli
     typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::template PodioInput<T> m_raw_hits_input {this};
     typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::template VariadicPodioOutput<T> m_split_hits_output {this};
 
-    typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::Service<DD4hep_service> m_geoSvc {this};
+    typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::template Service<DD4hep_service> m_geoSvc {this};
 
 public:
     void Configure() {
