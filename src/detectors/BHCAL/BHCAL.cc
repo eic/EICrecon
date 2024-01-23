@@ -58,7 +58,7 @@ extern "C" {
             .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
             .sampFrac = 0.033, // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
-            .layerField = "tower",
+            .layerField = "",
             .sectorField = "",
           },
           app   // TODO: Remove me once fixed
