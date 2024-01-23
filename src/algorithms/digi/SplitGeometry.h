@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
@@ -15,11 +14,6 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-
-//    using SplitGeometryAlgorithm =  algorithms::Algorithm<
-//    algorithms::Input<const edm4eic::RawTrackerHitCollection>,
-//    algorithms::Output<std::vector<edm4eic::RawTrackerHitCollection>>
-//    >;
 
    template<class T>
      using SplitGeometryAlgorithm =  algorithms::Algorithm<
