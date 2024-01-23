@@ -52,13 +52,13 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
       // number of neighboring cells that overlap to obtain a subcell
       static const int OVERLAP=3;
   //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-      static const double neighbor_offsets_x[NEIGHBORS];
-      static const double neighbor_offsets_y[NEIGHBORS];
+      static const std::vector<double> neighbor_offsets_x;
+      static const std::vector<double>  neighbor_offsets_y;
       //indices of the neighboring cells which overlap to produce a given subcell
       static const int neighbor_indices[SUBCELLS][OVERLAP];
   //positions of the centers of subcells
-      static const double subcell_offsets_x[SUBCELLS];
-      static const double subcell_offsets_y[SUBCELLS];
+      static const std::vector<double>  subcell_offsets_x;
+      static const std::vector<double>  subcell_offsets_y;
 
   private:
     const dd4hep::Detector* m_detector;
