@@ -7,10 +7,12 @@
 
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include <gsl/pointers>
 
 namespace eicrecon {
 
-void SplitGeometry::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
+template<class T>
+void SplitGeometry<T>::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
     // set logger
     m_log      = logger;
     m_detector = detector;
@@ -34,20 +36,21 @@ void SplitGeometry::init(const dd4hep::Detector* detector, std::shared_ptr<spdlo
 
 }
 
-std::vector<std::unique_ptr<edm4eic::RawTrackerHitCollection>>
-SplitGeometry::process(const edm4eic::RawTrackerHitCollection& inputhits) {
+template<class T>
+void SplitGeometry<T>::process(const typename SplitGeometryAlgorithm<T>::Input& input,
+                               const typename SplitGeometryAlgorithm<T>::Output& output) const {
 
-  std::vector<std::unique_ptr<edm4eic::RawTrackerHitCollection>> subdivided_hits(m_cfg.divisions.size());
+  const auto [hits]      = input;
+  auto [subdivided_hits] = output;
 
-  //, std::make_unique<edm4eic::RawTrackerHitCollection>()
-
-  for(auto& collection : subdivided_hits){
-    collection = std::make_unique<edm4eic::RawTrackerHitCollection>();
-    collection->setSubsetCollection();
+  for(int i=0; i<m_cfg.divisions.size(); i++){
+    subdivided_hits.push_back(std::make_unique<SplitGeometry::Input>());
+    //subdivided_hits.push_back(std::make_unique<SplitGeometry::Input>());
+    subdivided_hits.back()->setSubsetCollection();
   }
 
-  for (auto hit : inputhits) {
-    auto cellID  = hit.getCellID();
+  for (auto hit : hits) {
+    auto cellID  = hit->getCellID();
     int division = m_id_dec->get( cellID, m_division_idx );
 
     auto div_index = std::find(m_cfg.divisions.begin(),m_cfg.divisions.end(),division); 
@@ -60,8 +63,7 @@ SplitGeometry::process(const edm4eic::RawTrackerHitCollection& inputhits) {
     }
 
   }
-  return std::move(subdivided_hits);
-
+  
 }
 
 } // namespace eicrecon

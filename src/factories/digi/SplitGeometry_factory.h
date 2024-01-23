@@ -10,27 +10,42 @@
 
 namespace eicrecon {
 
-class SplitGeometry_factory : public JOmniFactory<SplitGeometry_factory, SplitGeometryConfig> {
+template <class T>
+class SplitGeometry_factory : public JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig> {
 
-    SplitGeometry m_algo;
+  public:
+    using AlgoT = eicrecon::SplitGeometry<typename T::collection_type>;
+  private:
+    std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
-    VariadicPodioOutput<edm4eic::RawTrackerHit> m_split_hits_output {this};
+    typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::template PodioInput<T> m_raw_hits_input {this};
+    typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::template VariadicPodioOutput<T> m_split_hits_output {this};
 
-    Service<DD4hep_service> m_geoSvc {this};
+    typename JOmniFactory<SplitGeometry_factory<T>, SplitGeometryConfig>::Service<DD4hep_service> m_geoSvc {this};
 
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(m_geoSvc().detector(),logger());
+      m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+        m_algo->applyConfig(this->config());
+        m_algo->init(m_geoSvc().detector(),this->logger());
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_split_hits_output() = m_algo.process(*m_raw_hits_input());
+
+    try {
+      const typename T::collection_type* raw_hits = m_raw_hits_input();
+      std::vector<gsl::not_null<typename T::collection_type*>> split_hits;
+      for (const auto& split_hit : m_split_hits_output()) {
+        split_hits.push_back(gsl::not_null<typename T::collection_type*>(split_hit.get()));
+      }
+      m_algo->process(raw_hits,split_hits);
+    } 
+    catch(std::exception &e) {
+      throw JException(e.what());
     }
 };
-
+}; // SplitGeometry_factory
 } // eicrecon

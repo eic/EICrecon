@@ -46,7 +46,7 @@ extern "C" {
 
     //std::vector<std::string> moduleDiv = {"TaggerTrackerM1RawHits","TaggerTrackerM2RawHits"};
 
-    app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory>(
+    app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitHits",
          {"TaggerTrackerRawHits"},
          moduleDiv,
@@ -56,7 +56,8 @@ extern "C" {
            .division  = "module",
          },
          app
-    ));
+      )
+    );
 
 //     for(int lay_id : layerIDs){
 	
