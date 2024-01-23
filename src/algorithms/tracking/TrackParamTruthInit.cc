@@ -88,10 +88,34 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // modify initial momentum to avoid bleeding truth to results when fit fails
         const auto pinit = pmag * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
 
+	// define line surface for local position values
+	// auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+
+	// track particle back to transverse point-of-closest approach
+	// with respect to the defined line surface
+	// auto xpca = ;
+	// auto ypca = ;
+	// auto zpca = ;
+	// Acts::Vector3 global(xpca, ypca, zpca);	
+	
+	// convert from global to local coordinates using the defined line surface
+	// Acts::Vector2 localpos;
+      	// Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
+	// auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+
+      	//if(!local.ok())
+      	//{
+	  //continue;
+      	//}
+
+        //localpos = local.value();
+
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
         track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y)), static_cast<float>(v.z)}); // 2d location on surface [mm]
+	// Replace above line
+	// track_param.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface [mm]
         track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
