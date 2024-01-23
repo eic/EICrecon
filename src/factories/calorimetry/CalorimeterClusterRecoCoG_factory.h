@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <algorithms/property.h>
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -11,7 +12,9 @@
 
 namespace eicrecon {
 
-class CalorimeterClusterRecoCoG_factory : public JOmniFactory<CalorimeterClusterRecoCoG_factory, CalorimeterClusterRecoCoGConfig> {
+using ConfigMap = std::map<std::string_view, algorithms::PropertyValue>;
+
+class CalorimeterClusterRecoCoG_factory : public JOmniFactory<CalorimeterClusterRecoCoG_factory, ConfigMap> {
 
 public:
     using AlgoT = eicrecon::CalorimeterClusterRecoCoG;
@@ -24,16 +27,15 @@ private:
     PodioOutput<edm4eic::Cluster> m_cluster_output {this};
     PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output {this};
 
-    ParameterRef<std::string> m_energyWeight {this, "energyWeight", config().energyWeight};
-    ParameterRef<double> m_samplingFraction {this, "samplingFraction", config().sampFrac};
-    ParameterRef<double> m_logWeightBase {this, "logWeightBase", config().logWeightBase};
-    ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
+    std::vector<std::unique_ptr<ParameterBase>> m_parameters;
 
 public:
     void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->applyConfig(config());
-        m_algo->init(logger());
+      m_algo = std::make_unique<AlgoT>(GetPrefix());
+
+      RegisterAllParameters(m_algo, m_parameters);
+
+      m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

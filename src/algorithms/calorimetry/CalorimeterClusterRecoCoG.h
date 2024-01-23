@@ -27,9 +27,6 @@
 #include <string_view>
 #include <utility>
 
-#include "CalorimeterClusterRecoCoGConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
-
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
 static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }
 static double logWeight(double E, double tE, double base, int /*type*/) {
@@ -61,8 +58,7 @@ namespace eicrecon {
   >;
 
   class CalorimeterClusterRecoCoG
-      : public CalorimeterClusterRecoCoGAlgorithm,
-        public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
+      : public CalorimeterClusterRecoCoGAlgorithm {
 
   public:
     CalorimeterClusterRecoCoG(std::string_view name)
@@ -86,6 +82,14 @@ namespace eicrecon {
   private:
 
     std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
+
+    Property<double> m_samplingFraction{this, "samplingFraction", 1.0, "Sampling fraction"};
+    Property<double> m_logWeightBase{this, "logWeightBase", 3.6, "Weight base for log weighting"};
+    Property<std::string> m_energyWeight{this, "energyWeight", "log", "Default hit weight method"};
+    // Constrain the cluster position eta to be within
+    // the eta of the contributing hits. This is useful to avoid edge effects
+    // for endcaps.
+    Property<bool> m_enableEtaBounds{this, "enableEtaBounds", false, "Constrain cluster to hit eta?"};
 
   };
 

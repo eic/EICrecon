@@ -87,10 +87,10 @@ extern "C" {
             {"EcalEndcapNTruthClusters",             // edm4eic::Cluster
              "EcalEndcapNTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.6,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 4.6},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )
@@ -104,10 +104,10 @@ extern "C" {
             {"EcalEndcapNClusters",             // edm4eic::Cluster
              "EcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = false,
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 3.6},
+              {"enableEtaBounds", false}
             },
             app   // TODO: Remove me once fixed
           )

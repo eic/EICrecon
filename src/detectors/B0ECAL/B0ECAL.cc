@@ -80,10 +80,10 @@ extern "C" {
             {"B0ECalClusters",             // edm4eic::Cluster
              "B0ECalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 3.6},
+              {"enableEtaBounds", false}
             },
             app
           )
@@ -97,10 +97,10 @@ extern "C" {
             {"B0ECalTruthClusters",             // edm4eic::Cluster
              "B0ECalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 6.2,
-              .enableEtaBounds = false
+              {"energyWeight", "log"},
+              {"samplingFraction", 1.0},
+              {"logWeightBase", 6.2},
+              {"enableEtaBounds", false}
             },
             app
           )
