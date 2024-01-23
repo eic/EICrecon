@@ -88,7 +88,7 @@ extern "C" {
               "  ( (abs(tower_1-tower_2) == 0)    && (abs(tile_1-tile_2) == 1) ) ||"
               "  ( (abs(tower_1-tower_2) == 24)   && (abs(tile_1-tile_2) == 4) ) ||"
               "  ( (abs(tower_1-tower_2) == 1512) && (abs(tile_1-tile_2) == 4) )"
-              ") == 1";
+              ") == 1",
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
