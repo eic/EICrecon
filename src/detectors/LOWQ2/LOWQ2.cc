@@ -32,17 +32,17 @@ extern "C" {
          app
     ));
 
-    // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.    
+    // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
     std::vector<int> moduleIDs{1,2};
     std::vector<int> layerIDs {0,1,2,4};
     std::vector<std::string> moduleDiv;
     std::vector<std::vector<std::string>> layerDiv;
-    
-    
+
+
     for(int mod_id : moduleIDs){
       moduleDiv.push_back(fmt::format("TaggerTrackerM{}RawHits",mod_id));
     }
-      
+
 
     //std::vector<std::string> moduleDiv = {"TaggerTrackerM1RawHits","TaggerTrackerM2RawHits"};
 
@@ -51,7 +51,7 @@ extern "C" {
          {"TaggerTrackerRawHits"},
          moduleDiv,
          {
-	   .divisions = moduleIDs,
+           .divisions = moduleIDs,
            .readout   = "TaggerTrackerHits",
            .division  = "module",
          },
@@ -60,8 +60,8 @@ extern "C" {
     );
 
 //     for(int lay_id : layerIDs){
-	
-//     } 
+
+//     }
 
 
 

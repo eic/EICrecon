@@ -42,7 +42,7 @@ public:
         split_hits.push_back(gsl::not_null<typename T::collection_type*>(split_hit.get()));
       }
       m_algo->process(raw_hits,split_hits);
-    } 
+    }
     catch(std::exception &e) {
       throw JException(e.what());
     }
