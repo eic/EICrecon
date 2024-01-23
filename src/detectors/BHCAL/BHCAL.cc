@@ -70,17 +70,25 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
+            // Notes:
+            //  - line 1 checks for vertically adjacent tiles
+            //  - line 2 checks for horizontally adjacent tiles in the same tower
+            //  - line 3 checks for horizontally adjacent tiles in neighboring
+            //    towers along phi
+            //  - line 4 checks for horizontally adjacent tiles in neighboring
+            //    towers along phi at the wraparound
             // Magic constants:
-            //  24 - number of towers per row in eta
-            //  5  - number of tiles per tower
+            //  1512 - 64 * 24
+            //  64   - number of rows in the barrel
+            //  24   - number of towers per row along eta
+            //  4    - 5, the number of tiles per tower, - 1
             .adjacencyMatrix =
               "("
-              "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
-              "  + min("
-              "      abs(floor(tower_1 / 24) - floor(tower_2 / 24)) + abs(tile_1 - tile_2),"
-              "      5 - abs(tile_1 - tile_2)"
-              "    )"
-              ") == 1",
+              "  ( (abs(tower_1-tower_2) == 1)    && (abs(tile_1-tile_2) == 0) ) ||"
+              "  ( (abs(tower_1-tower_2) == 0)    && (abs(tile_1-tile_2) == 1) ) ||"
+              "  ( (abs(tower_1-tower_2) == 24)   && (abs(tile_1-tile_2) == 4) ) ||"
+              "  ( (abs(tower_1-tower_2) == 1512) && (abs(tile_1-tile_2) == 4) )"
+              ") == 1";
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
