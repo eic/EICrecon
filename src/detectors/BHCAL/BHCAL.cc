@@ -75,10 +75,10 @@ extern "C" {
             //  5  - number of towers per sector
             .adjacencyMatrix =
               "("
-              "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+              "  abs(fmod(tower_1, 48) - fmod(tower_2, 24))"
               "  + min("
-              "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
-              "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
+              "      abs(floor(tower_1 / 48) - floor(tower_2 / 48)) + abs(tile_1 - tile_2),"
+              "      5 - abs(tile_1 - tile_2)"
               "    )"
               ") == 1",
             .readout = "HcalBarrelHits",
