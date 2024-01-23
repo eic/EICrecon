@@ -12,6 +12,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/SplitGeometry_factory.h"
+#include "factories/digi/MergeCollections_factory.h"
 
 
 extern "C" {
@@ -55,6 +56,14 @@ extern "C" {
            .readout   = "TaggerTrackerHits",
            .division  = "module",
          },
+         app
+      )
+    );
+
+    app->Add(new JOmniFactoryGeneratorT<MergeCollections_factory<edm4eic::RawTrackerHit>>(
+         "TaggerTrackerMergedHits",
+         moduleDiv,
+         {"TaggerTrackerMergedHits"},
          app
       )
     );
