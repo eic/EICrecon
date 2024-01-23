@@ -150,7 +150,7 @@ extern "C" {
 
         double side_length=31.3 * dd4hep::mm;
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-            "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters},
+            "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
             {
                 .neighbourLayersRange = 1,
                 .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
