@@ -194,9 +194,12 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   auto v   = cl.getPosition();
 
   double logWeightBase=m_cfg.logWeightBase;
-  if ((m_cfg.logWeightBase_lin != 0) || (m_cfg.logWeightBase_quad != 0)){
+  if (m_cfg.logWeightBaseCoeffs.size() != 0){
     double l=log(cl.getEnergy()/m_cfg.logWeightBase_Eref);
-    logWeightBase+=m_cfg.logWeightBase_lin*l+m_cfg.logWeightBase_quad*l*l;
+    logWeightBase=0;
+    for(std::size_t i =0; i<m_cfg.logWeightBaseCoeffs.size(); i++){
+      logWeightBase += m_cfg.logWeightBaseCoeffs[i]*pow(l,i);
+    }
   }
 
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {

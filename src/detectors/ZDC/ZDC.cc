@@ -187,9 +187,7 @@ extern "C" {
           {
             .energyWeight = "log",
             .sampFrac = 0.0203,
-            .logWeightBase=5.0,
-            .logWeightBase_lin=0.65,
-            .logWeightBase_quad=0.31,
+            .logWeightBaseCoeffs={5.0,0.65,0.31},
             .logWeightBase_Eref=50*dd4hep::GeV,
           },
           app   // TODO: Remove me once fixed
