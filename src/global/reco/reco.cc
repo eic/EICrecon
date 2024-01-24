@@ -22,6 +22,7 @@
 #include "algorithms/reco/ChargedParticleSelector.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "ParticleFlow_factory.h"
 
 //
 extern "C" {
@@ -55,7 +56,6 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
-
 
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
         "InclusiveKinematicsElectron",
@@ -184,6 +184,23 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedChargedJets"},
             {},
             app
+    ));
+
+    app->Add(new JChainMultifactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlow",
+        {
+          "ReconstructedChargedParticles",
+          "CalorimeterTrackProjections",
+          "EcalEndcapNClusters",
+          "HcalEndcapNClusters",
+          "EcalBarrelScFiClusters",
+          "HcalBarrelClusters",
+          "EcalEndcapPClusters",
+          "LFHCALClusters"
+        },
+        {"ParticleFlowObjects"},
+        {},
+        app
     ));
 
 }
