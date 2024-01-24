@@ -107,7 +107,7 @@ namespace eicrecon {
                         static_cast<float>(parameter[Acts::eBoundLoc0]),
                         static_cast<float>(parameter[Acts::eBoundLoc1])
                 };
-                const decltype(edm4eic::TrackParametersData::locError) locError{
+                const edm4eic::Cov2f locError{
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
                         static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
