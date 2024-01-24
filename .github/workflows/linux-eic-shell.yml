@@ -1,6 +1,8 @@
 name: Build against eic-shell
 
 on:
+  schedule: # run regularly on main branch
+    - cron:  '13 0/8 * * *'
   push:
     branches:
       - main
