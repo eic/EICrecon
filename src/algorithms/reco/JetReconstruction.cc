@@ -107,7 +107,7 @@ namespace eicrecon {
       // link constituents to jet kinematic info
       std::vector<PseudoJet> csts = jets[i].constituents();
       for (unsigned j = 0; j < csts.size(); j++) {
-        add_to_jet_kinematics(input_collection -> at(csts[j].user_index()), jet_output, jet_collection.get());
+        add_to_jet_kinematics(input_collection->at(csts[j].user_index()), jet_output, jet_collection.get());
       } // for constituent j
     } // for jet i
 
