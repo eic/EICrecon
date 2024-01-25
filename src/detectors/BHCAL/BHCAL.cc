@@ -84,12 +84,16 @@ extern "C" {
             //  4    - 5, the number of tiles per tower, - 1
             .adjacencyMatrix =
               "("
-              "  ( (abs(tower_1-tower_2) == 1) && (abs(tile_1-tile_2) == 0) ) ||"
-              "  ( (abs(tower_1-tower_2) == 0) && (abs(tile_1-tile_2) == 1) ) ||"
-              "  ( (tower_1-tower_2 == -24)    && (tile_1-tile_2 == 4)      ) ||"
-              "  ( (tower_1-tower_2 == 24)     && (tile_1-tile_2 == -4)     ) ||"
-              "  ( (tower_1-tower_2 == -1512)  && (tile_1-tile_2 == -4)     ) ||"
-              "  ( (tower_1-tower_2 == 1512)   && (tile_1-tile_2 == 4)      )"
+              // check for vertically adjacent tiles
+              "  ( (abs(tower_1 - tower_2) == 1) && (abs(tile_1 - tile_2) == 0) ) ||"
+              // check for horizontally adjacent tiles in the same tower
+              "  ( (abs(tower_1 - tower_2) == 0) && (abs(tile_1 - tile_2) == 1) ) ||"
+              // check for horizontally adjacent tiles in neighboring towers along phi
+              "  ( ((tower_1 - tower_2) == -24)    && ((tile_1 - tile_2) == 4)      ) ||"
+              "  ( ((tower_1 - tower_2) == 24)     && ((tile_1 - tile_2) == -4)     ) ||"
+              // check for horizontally adjacent tiles in neighboring towers along phi at the wraparound
+              "  ( ((tower_1 - tower_2) == -1512)  && ((tile_1 - tile_2) == -4)     ) ||"
+              "  ( ((tower_1 - tower_2) == 1512)   && ((tile_1 - tile_2) == 4)      )"
               ") == 1",
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
