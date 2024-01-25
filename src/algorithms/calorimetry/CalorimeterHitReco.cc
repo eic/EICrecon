@@ -234,7 +234,7 @@ void CalorimeterHitReco::process(
         std::vector<double> cdim;
         // get segmentation dimensions
         auto segmentation_type = m_converter->findReadout(local).segmentation().type();
-        if (segmentation_type == "CartesianGridXY") {
+        if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];
