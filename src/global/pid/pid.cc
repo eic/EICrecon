@@ -48,7 +48,7 @@ extern "C" {
           ));
 
     app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
-          "ChargedParticlesWithAssociations",
+          "SeededChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
             "CentralCKFSeededTrajectories",     // edm4eic::Trajectory
