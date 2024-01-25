@@ -70,13 +70,6 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
-            // Notes:
-            //  - line 1 checks for vertically adjacent tiles
-            //  - line 2 checks for horizontally adjacent tiles in the same tower
-            //  - lines 3/4 check for horizontally adjacent tiles in neighboring
-            //    towers along phi
-            //  - line 5/6 checks for horizontally adjacent tiles in neighboring
-            //    towers along phi at the wraparound
             // Magic constants:
             //  1512 - 64 * 24
             //  64   - number of rows in the barrel
