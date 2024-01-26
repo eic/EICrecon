@@ -77,10 +77,10 @@ extern "C" {
         {"LowQ2Tracks"},
         {"LowQ2Projections2"},
         {
-	  .plane_position = {0.0,0.0,-14.865},
-	  .plane_a        = {1.0,0.0,0.0    },
-	  .plane_b        = {0.0,1.0,0.0    },
-	},
+          .plane_position = {0.0,0.0,-14.865},
+          .plane_a        = {1.0,0.0,0.0    },
+          .plane_b        = {0.0,1.0,0.0    },
+        },
         app
     ));
 
