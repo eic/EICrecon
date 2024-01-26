@@ -8,7 +8,6 @@
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -143,10 +142,8 @@ namespace eicrecon {
 
                 // Store track point
                 track_segment.addToPoints({
-#if EDM4EIC_VERSION_MAJOR >= 3
                                                   surface,
                                                   system,
-#endif
                                                   position,
                                                   positionError,
                                                   momentum,
