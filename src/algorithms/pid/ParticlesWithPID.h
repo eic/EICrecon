@@ -7,6 +7,7 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -21,6 +22,7 @@
 namespace eicrecon {
 
     using ParticlesWithAssociation = std::tuple<
+        std::unique_ptr<edm4eic::TrackCollection>,
         std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
         std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>,
         std::unique_ptr<edm4hep::ParticleIDCollection>

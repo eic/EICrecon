@@ -4,6 +4,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
@@ -89,7 +90,10 @@ namespace eicrecon {
                 auto global = trackstate.referenceSurface().localToGlobal(
                         m_geo_provider->getActsGeometryContext(),
                         {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]},
-                        {0, 0, 0}
+                        Acts::makeDirectionFromPhiTheta(
+                            parameter[Acts::eBoundPhi],
+                            parameter[Acts::eBoundTheta]
+                        )
                 );
                 // global position
                 const decltype(edm4eic::TrackPoint::position) position{
@@ -103,7 +107,7 @@ namespace eicrecon {
                         static_cast<float>(parameter[Acts::eBoundLoc0]),
                         static_cast<float>(parameter[Acts::eBoundLoc1])
                 };
-                const decltype(edm4eic::TrackParametersData::locError) locError{
+                const edm4eic::Cov2f locError{
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
                         static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
