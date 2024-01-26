@@ -6,14 +6,14 @@
 
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4hep/utils/kinematics.h>
+#include <edm4hep/Vector3f.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
 #include <spdlog/logger.h>
+#include <cmath>
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration

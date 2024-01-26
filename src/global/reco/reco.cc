@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <string>
 
-#include "ChargedMCParticleSelector_factory.h"
 #include "ChargedReconstructedParticleSelector_factory.h"
 #include "InclusiveKinematicsDA_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
