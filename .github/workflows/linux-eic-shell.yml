@@ -1041,7 +1041,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
       - name: Find capybara comment
         if: ${{ github.event_name == 'pull_request' }}
         id: find_comment
