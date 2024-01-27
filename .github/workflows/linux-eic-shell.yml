@@ -599,7 +599,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        name: capybara
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
           .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}/
@@ -750,7 +750,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
-        name: capybara
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.capy
         path: |
           .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
           rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}/
@@ -843,6 +843,12 @@ jobs:
         with:
           name: jana.dot
           path: publishing_docs/dot/
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: capybara
+          pattern: |
+            *.capy
+          delete-merged: true
       - uses: actions/upload-artifact@v4
         with:
           name: docs
