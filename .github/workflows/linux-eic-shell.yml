@@ -571,7 +571,7 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
-        name: jana.dot
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
         path: |
           *.dot
           *.svg
@@ -721,7 +721,7 @@ jobs:
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
-        name: jana.dot
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
         path: |
           *.dot
           *.svg
@@ -833,6 +833,12 @@ jobs:
           apk add doxygen graphviz ttf-freefont
           doxygen Doxyfile
           mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: jana.dot
+          pattern: |
+            *.dot
+          delete-merged: true
       - uses: actions/download-artifact@v4
         with:
           name: jana.dot
