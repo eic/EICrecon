@@ -39,6 +39,7 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
+            "CentralCKFTracks",                         // edm4eic::Track
             "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
             "ReconstructedChargedParticleIDs"           // edm4hep::ParticleID
@@ -55,6 +56,7 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
+            "CentralCKFSeededTracks",                         // edm4eic::Track
             "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
             "ReconstructedSeededChargedParticleIDs"           // edm4hep::ParticleID
