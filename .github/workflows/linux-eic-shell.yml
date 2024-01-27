@@ -915,7 +915,7 @@ jobs:
         run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v4
         with:
-          name: github-pages-staging
+          name: github-pages-staging-pr-${{ matrix.pr }}
           path: publishing_docs/
           if-no-files-found: ignore
 
@@ -968,7 +968,7 @@ jobs:
           cat publishing_docs/capybara/index.md >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
-          name: github-pages-staging
+          name: github-pages-staging-main
           path: publishing_docs/
           if-no-files-found: error
 
@@ -983,6 +983,13 @@ jobs:
         - /home/runner/work/_temp:/home/runner/work/_temp
       # FIXME hard-coded: see https://github.com/actions/upload-pages-artifact/pull/14
     steps:
+      - name: Merge GitHub Pages staging artifact
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: github-pages-staging
+          pattern: |
+            github-pages-staging-*
+          delete-merged: true
       - name: Download GitHub Pages staging artifact
         uses: actions/download-artifact@v4
         with:
