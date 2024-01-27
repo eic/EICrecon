@@ -401,12 +401,12 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - name: Upload digitization output
       uses: actions/upload-artifact@v4
       with:
-        name: raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        name: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Run EICrecon (reconstruction)
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -417,12 +417,12 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - name: Upload reconstruction output
       uses: actions/upload-artifact@v4
       with:
-        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
 
   eicrecon-eicmkplugin:
