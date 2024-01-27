@@ -40,8 +40,8 @@ namespace eicrecon {
 
       void Configure() {
         m_algo = std::make_unique<Algo>();
-        m_algo -> applyConfig(config());
-        m_algo -> init(logger());
+        m_algo->applyConfig(config());
+        m_algo->init(logger());
       }
 
       void ChangeRun(int64_t run_number) {
@@ -49,7 +49,7 @@ namespace eicrecon {
       }
 
       void Process(int64_t run_number, int64_t event_number) {
-        m_output() = m_algo -> process(m_input());
+        m_output() = m_algo->process(m_input());
       }
 
     };  // end GeneratedJets_factory definition
