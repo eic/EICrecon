@@ -5,18 +5,17 @@
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
-#include "algorithms/tracking/TrackPropagation.h"
 #include <edm4eic/TrackSegmentCollection.h>
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
+ 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/TrackPropagation.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
