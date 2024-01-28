@@ -15,7 +15,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
@@ -61,11 +60,9 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
         for(auto& surf : m_target_surface_list) {
             auto prop_point = m_track_propagation_algo.propagate(traj, surf);
             if(!prop_point) continue;
-            uint64_t sId = surf->geometryId().layer();
-            uint32_t dId = surf->geometryId().extra();
 #if EDM4EIC_VERSION_MAJOR >= 3
-            prop_point->surface = sId;
-            prop_point->system  = dId;
+            prop_point->surface = surf->geometryId().layer();;
+            prop_point->system  = surf->geometryId().extra();
 #endif
             this_propagated_track.addToPoints(*prop_point);
         }
