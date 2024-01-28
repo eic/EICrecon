@@ -60,10 +60,8 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
         for(auto& surf : m_target_surface_list) {
             auto prop_point = m_track_propagation_algo.propagate(traj, surf);
             if(!prop_point) continue;
-#if EDM4EIC_VERSION_MAJOR >= 3
             prop_point->surface = surf->geometryId().layer();
             prop_point->system  = surf->geometryId().extra();
-#endif
             this_propagated_track.addToPoints(*prop_point);
         }
         propagated_tracks.push_back(this_propagated_track);
