@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 #include <vector>
- 
+
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "extensions/jana/JChainMultifactoryT.h"
