@@ -20,7 +20,7 @@
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
 #include <map>
 
