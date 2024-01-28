@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin
 
-#ifndef EICRECON_JETRECONSTRUCTION_H
-#define EICRECON_JETRECONSTRUCTION_H
+#pragma once
 
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4hep/Vector3f.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
 #include <spdlog/logger.h>
-#include <cmath>
 #include <map>
 #include <memory>
 #include <string>
@@ -77,5 +73,3 @@ namespace eicrecon {
   };  // end JetReconstruction definition
 
 }  // end eicrecon namespace
-
-#endif
