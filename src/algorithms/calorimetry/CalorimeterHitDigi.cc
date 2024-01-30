@@ -13,6 +13,7 @@
 
 #include "CalorimeterHitDigi.h"
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/config.h>
@@ -21,7 +22,6 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>

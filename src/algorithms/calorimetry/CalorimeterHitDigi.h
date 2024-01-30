@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <algorithms/random.h>
