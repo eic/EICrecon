@@ -33,10 +33,10 @@ class ServiceSvc_service : public JService
         m_log = m_log_service->logger("ServiceSvc");
 
         // Register DD4hep_service as algorithms::GeoSvc
-        auto& [[maybe_unused]] geoSvc = algorithms::GeoSvc::instance();
+        [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
         serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
             this->m_log->info("Initializing algorithms::GeoSvc");
-            g.init(this->m_dd4hep_service->detector());
+            g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
         });
 
         // Register Log_service as algorithms::LogSvc
@@ -48,7 +48,7 @@ class ServiceSvc_service : public JService
         });
 
         // Register a random service (JANA2 does not have one)
-        auto& [[maybe_unused]] randomSvc = algorithms::RandomSvc::instance();
+        [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
         serviceSvc.setInit<algorithms::RandomSvc>([this](auto&& r) {
             this->m_log->info("Initializing algorithms::RandomSvc");
             r.setProperty("seed", static_cast<size_t>(1));
