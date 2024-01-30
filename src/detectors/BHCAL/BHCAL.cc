@@ -58,8 +58,8 @@ extern "C" {
             .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
             .sampFrac = 0.033, // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
-            .layerField = "tower",
-            .sectorField = "sector",
+            .layerField = "",
+            .sectorField = "",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -70,16 +70,26 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
+            // Notes:
+            //  - line 1 checks for vertically adjacent tiles
+            //  - line 2 checks for horizontally adjacent tiles in the same tower
+            //  - lines 3/4 check for horizontally adjacent tiles in neighboring
+            //    towers along phi
+            //  - line 5/6 checks for horizontally adjacent tiles in neighboring
+            //    towers along phi at the wraparound
             // Magic constants:
-            //  24 - number of sectors
-            //  5  - number of towers per sector
+            //  1512 - 64 * 24
+            //  64   - number of rows in the barrel
+            //  24   - number of towers per row along eta
+            //  4    - 5, the number of tiles per tower, - 1
             .adjacencyMatrix =
               "("
-              "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
-              "  + min("
-              "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
-              "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
-              "    )"
+              "  ( (abs(tower_1-tower_2) == 1) && (abs(tile_1-tile_2) == 0) ) ||"
+              "  ( (abs(tower_1-tower_2) == 0) && (abs(tile_1-tile_2) == 1) ) ||"
+              "  ( (tower_1-tower_2 == -24)    && (tile_1-tile_2 == 4)      ) ||"
+              "  ( (tower_1-tower_2 == 24)     && (tile_1-tile_2 == -4)     ) ||"
+              "  ( (tower_1-tower_2 == -1512)  && (tile_1-tile_2 == -4)     ) ||"
+              "  ( (tower_1-tower_2 == 1512)   && (tile_1-tile_2 == 4)      )"
               ") == 1",
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
