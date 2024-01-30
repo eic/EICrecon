@@ -3,10 +3,8 @@
 //
 
 #include <JANA/JException.h>
+#include <JANA/JLogger.h>
 #include <Parsers/Printout.h>
-#include <TGeoManager.h>
-#include <algorithms/geo.h>
-#include <algorithms/service.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
