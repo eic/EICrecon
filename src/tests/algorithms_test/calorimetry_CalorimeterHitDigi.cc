@@ -29,6 +29,18 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
 
   auto detector = dd4hep::Detector::make_unique("");
 
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
+  serviceSvc.setInit<algorithms::GeoSvc>([&detector](auto&& g) {
+    g.init(detector.get());
+  });
+  [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
+  serviceSvc.setInit<algorithms::RandomSvc>([](auto&& r) {
+    r.setProperty("seed", static_cast<size_t>(1));
+    r.init();
+  });
+  serviceSvc.init();
+
   CalorimeterHitDigiConfig cfg;
   cfg.threshold = 0. /* GeV */;
   cfg.corrMeanScale = 1.;
