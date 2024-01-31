@@ -10,7 +10,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factoryT.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 
 
 extern "C" {
