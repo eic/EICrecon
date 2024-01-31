@@ -22,8 +22,6 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
-  CalorimeterHitDigi algo("test");
-
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
@@ -40,6 +38,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     r.init();
   });
   serviceSvc.init();
+
+  CalorimeterHitDigi algo("test");
 
   CalorimeterHitDigiConfig cfg;
   cfg.threshold = 0. /* GeV */;
