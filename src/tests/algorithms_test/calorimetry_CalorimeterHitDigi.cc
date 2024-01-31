@@ -3,8 +3,8 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <catch2/catch_get_random_seed.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_random.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -34,7 +34,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     g.init(detector.get());
   });
   [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-  auto seed = Catch::getSeed();
+  auto seed = Catch::Generators::Detail::getSeed();
   serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
     r.setProperty("seed", static_cast<size_t>(seed));
     r.init();
