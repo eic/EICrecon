@@ -39,9 +39,14 @@ private:
     ParameterRef<double> crossingAngle       {this, "crossingAngle", config().crossingAngle};
     ParameterRef<double> nomMomentum         {this, "nomMomentum", config().nomMomentum};
 
-    // FIXME JANA2 does not support vector of vector
-    //ParameterRef<std::vector<std::vector<double>>> aX {this, "aX", config().aX};
-    //ParameterRef<std::vector<std::vector<double>>> aY {this, "aY", config().aY};
+    ParameterRef<double> aX00 {this, "aX00", config().aX[0][0]};
+    ParameterRef<double> aX01 {this, "aX01", config().aX[0][1]};
+    ParameterRef<double> aX10 {this, "aX10", config().aX[1][0]};
+    ParameterRef<double> aX11 {this, "aX11", config().aX[1][1]};
+    ParameterRef<double> aY00 {this, "aY00", config().aY[0][0]};
+    ParameterRef<double> aY01 {this, "aY01", config().aY[0][1]};
+    ParameterRef<double> aY10 {this, "aY10", config().aY[1][0]};
+    ParameterRef<double> aY11 {this, "aY11", config().aY[1][1]};
 
     ParameterRef<double> hit1minZ {this, "hit1minZ", config().hit1minZ};
     ParameterRef<double> hit1maxZ {this, "hit1maxZ", config().hit1maxZ};

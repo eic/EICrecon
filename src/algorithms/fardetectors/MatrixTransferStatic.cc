@@ -4,6 +4,8 @@
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
 #include "MatrixTransferStatic.h"
+#include <edm4hep/utils/vector_utils.h>
+
 
 void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
                                           std::shared_ptr<spdlog::logger> &logger) {

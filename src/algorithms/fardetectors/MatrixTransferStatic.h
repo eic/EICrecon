@@ -38,7 +38,7 @@ namespace eicrecon {
                             {"outputParticleCollection"},
                             "Apply matrix method reconstruction to hits."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector,  std::shared_ptr<spdlog::logger>& logger);
     void process(const Input&, const Output&) const final;
 
   private:
@@ -49,9 +49,6 @@ namespace eicrecon {
     double aYinv[2][2] = {{0.0, 0.0},
                           {0.0, 0.0}};
 
-    void init(const dd4hep::Detector* det,std::shared_ptr<spdlog::logger> &logger);
-
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::SimTrackerHitCollection &inputhits);
 
   private:
 
