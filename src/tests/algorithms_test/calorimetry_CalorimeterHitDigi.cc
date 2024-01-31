@@ -3,6 +3,9 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/geo.h>
+#include <algorithms/random.h>
+#include <algorithms/service.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_random.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -13,6 +16,8 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <stddef.h>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
