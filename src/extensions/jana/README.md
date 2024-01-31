@@ -35,7 +35,7 @@ Requirements satisfied
 - Works in JANA paradigm
 - Has the right defaults
 - Can be changed/rewired without recompilation
-- Can be raplaced by other plugin
+- Can be replaced by other plugin
 
 
 To simplify lets look at one chain:

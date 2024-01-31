@@ -4,11 +4,18 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticle.h>
+#include <JANA/JEvent.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/reco/MatchClusters.h"
 #include "extensions/jana/JChainMultifactoryT.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-#include <spdlog/logger.h>
-#include "algorithms/reco/MatchClusters.h"
 
 
 
@@ -38,7 +45,6 @@ namespace eicrecon {
         void Process(const std::shared_ptr<const JEvent> &event) override;
     protected:
 
-        std::vector<std::string> m_input_assoc_tags;
         MatchClusters m_match_algo;
 
     };

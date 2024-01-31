@@ -1,3 +1,5 @@
+#include <JANA/JApplication.h>
+
 #include "femc_studiesProcessor.h"
 
 // The following just makes this a JANA plugin

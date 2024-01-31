@@ -3,7 +3,34 @@
 
 #include "IrtCherenkovParticleID.h"
 
-#include <fmt/ranges.h>
+#include <IRT/ChargedParticle.h>
+#include <IRT/CherenkovPID.h>
+#include <IRT/OpticalPhoton.h>
+#include <IRT/RadiatorHistory.h>
+#include <IRT/SinglePDF.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <set>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
 
 // AlgorithmInit
 //---------------------------------------------------------------------------
@@ -52,7 +79,7 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
   for(auto [rad_name,irt_rad] : m_irt_det->Radiators()) {
     if(rad_name!="Filter") {
       m_pid_radiators.insert({ std::string(rad_name), irt_rad });
-      m_log->debug("- {}", rad_name);
+      m_log->debug("- {}", rad_name.Data());
     }
   }
 

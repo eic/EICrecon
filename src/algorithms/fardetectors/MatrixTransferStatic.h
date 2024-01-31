@@ -3,22 +3,45 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
-#include <spdlog/spdlog.h>
-
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
-// Event Model related classes
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class MatrixTransferStatic : public WithPodConfig<MatrixTransferStaticConfig> {
+  using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4hep::SimTrackerHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ReconstructedParticleCollection
+    >
+  >;
+
+  class MatrixTransferStatic
+  : public MatrixTransferStaticAlgorithm,
+    public WithPodConfig<MatrixTransferStaticConfig> {
+
   public:
+    MatrixTransferStatic(std::string_view name)
+      : MatrixTransferStaticAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputParticleCollection"},
+                            "Apply matrix method reconstruction to hits."} {}
+
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
+
+  private:
 
     //----- Define constants here ------
     double aXinv[2][2] = {{0.0, 0.0},

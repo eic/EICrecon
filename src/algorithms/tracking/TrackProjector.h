@@ -4,14 +4,15 @@
 
 #pragma once
 
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/TrackSegmentCollection.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include <spdlog/logger.h>
-#include <spdlog/fmt/ostr.h>
-#include "TrackProjectorConfig.h"
+#include <memory>
+#include <vector>
+
 #include "ActsGeometryProvider.h"
-#include "ActsExamples/EventData/Trajectories.hpp"
+#include "TrackProjectorConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {

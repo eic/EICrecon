@@ -1,16 +1,13 @@
 #pragma once
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TDirectory.h>
-
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <JANA/JEventProcessorSequentialRoot.h>
-
+#include <TDirectory.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <spdlog/fwd.h>
-
-class JEvent;
-class JApplication;
+#include <memory>
 
 class TrackingEfficiency_processor:public JEventProcessor
 {

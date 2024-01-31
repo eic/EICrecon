@@ -6,6 +6,7 @@ Checks: '
   modernize-*,
   portability-*,
   readability-*,
+  -bugprone-unchecked-optional-access,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,

@@ -13,6 +13,7 @@
 
 #include <algorithm>
 
+#include <algorithms/algorithm.h>
 #include <DD4hep/BitFieldCoder.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
@@ -23,26 +24,44 @@
 // Event Model related classes
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "ImagingTopoClusterConfig.h"
 
 namespace eicrecon {
 
-/** Topological Cell Clustering Algorithm.
- *
- * Topological Cell Clustering Algorithm for Imaging Calorimetry
- *  1. group all the adjacent pixels
- *
- *  Author: Chao Peng (ANL), 06/02/2021
- *  References: https://arxiv.org/pdf/1603.02934.pdf
- *
- * \ingroup reco
- */
-  class ImagingTopoCluster : public WithPodConfig<ImagingTopoClusterConfig> {
+  using ImagingTopoClusterAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ProtoClusterCollection
+    >
+  >;
 
-  protected:
+  /** Topological Cell Clustering Algorithm.
+   *
+   * Topological Cell Clustering Algorithm for Imaging Calorimetry
+   *  1. group all the adjacent pixels
+   *
+   *  Author: Chao Peng (ANL), 06/02/2021
+   *  References: https://arxiv.org/pdf/1603.02934.pdf
+   *
+   * \ingroup reco
+   */
+  class ImagingTopoCluster
+      : public ImagingTopoClusterAlgorithm,
+        public WithPodConfig<ImagingTopoClusterConfig> {
+
+  public:
+    ImagingTopoCluster(std::string_view name)
+      : ImagingTopoClusterAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputProtoClusterCollection"},
+                            "Topological cell clustering algorithm for imaging calorimetry."} {}
+
+  private:
 
     std::shared_ptr<spdlog::logger> m_log;
 
@@ -90,25 +109,26 @@ namespace eicrecon {
         );
     }
 
-    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection& hits) {
+    void process(const Input& input, const Output& output) const final {
 
-        auto proto = std::make_unique<edm4eic::ProtoClusterCollection>();
+        const auto [hits] = input;
+        auto [proto] = output;
 
         // group neighbouring hits
-        std::vector<bool> visits(hits.size(), false);
+        std::vector<bool> visits(hits->size(), false);
         std::vector<std::set<std::size_t>> groups;
-        for (size_t i = 0; i < hits.size(); ++i) {
+        for (size_t i = 0; i < hits->size(); ++i) {
             m_log->debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
-                         hits[i].getLocal().x, hits[i].getLocal().y, hits[i].getPosition().z,
-                         hits[i].getPosition().x, hits[i].getPosition().y, hits[i].getPosition().z
+                         (*hits)[i].getLocal().x, (*hits)[i].getLocal().y, (*hits)[i].getPosition().z,
+                         (*hits)[i].getPosition().x, (*hits)[i].getPosition().y, (*hits)[i].getPosition().z
             );
             // already in a group, or not energetic enough to form a cluster
-            if (visits[i] || hits[i].getEnergy() < minClusterCenterEdep) {
+            if (visits[i] || (*hits)[i].getEnergy() < minClusterCenterEdep) {
                 continue;
             }
             // create a new group, and group all the neighbouring hits
             groups.emplace_back();
-            bfs_group(hits, groups.back(), i, visits);
+            bfs_group(*hits, groups.back(), i, visits);
         }
         m_log->debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -122,19 +142,17 @@ namespace eicrecon {
             }
             double energy = 0.;
             for (std::size_t idx : group) {
-                energy += hits[idx].getEnergy();
+                energy += (*hits)[idx].getEnergy();
             }
             if (energy < minClusterEdep) {
                 continue;
             }
             auto pcl = proto->create();
             for (std::size_t idx : group) {
-                pcl.addToHits(hits[idx]);
+                pcl.addToHits((*hits)[idx]);
                 pcl.addToWeights(1);
             }
         }
-
-        return std::move(proto);
     }
 
   private:
@@ -155,8 +173,8 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
-            return (std::abs(edm4eic::eta(h1.getPosition()) - edm4eic::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
-                   (std::abs(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition())) <=
+            return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
+                   (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
         }
 

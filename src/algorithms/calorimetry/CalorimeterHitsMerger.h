@@ -10,36 +10,50 @@
 
 #pragma once
 
-#include <algorithm>
-#include <bitset>
-#include <memory>
-#include <tuple>
-#include <unordered_map>
-
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/vector_utils.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/logger.h>
+#include <stdint.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "CalorimeterHitsMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class CalorimeterHitsMerger : public WithPodConfig<CalorimeterHitsMergerConfig>  {
+  using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::CalorimeterHitCollection
+    >
+  >;
+
+  class CalorimeterHitsMerger
+  : public CalorimeterHitsMergerAlgorithm,
+    public WithPodConfig<CalorimeterHitsMergerConfig> {
 
   public:
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
-    std::unique_ptr<edm4eic::CalorimeterHitCollection> process(const edm4eic::CalorimeterHitCollection &input);
+    CalorimeterHitsMerger(std::string_view name)
+      : CalorimeterHitsMergerAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputHitCollection"},
+                            "Group readout hits from a calorimeter."} {}
+
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    void process(const Input&, const Output&) const final;
 
   private:
     uint64_t id_mask{0}, ref_mask{0};
 
   private:
     const dd4hep::Detector* m_detector;
-    std::shared_ptr<const dd4hep::rec::CellIDPositionConverter> m_converter;
+    const dd4hep::rec::CellIDPositionConverter* m_converter;
     std::shared_ptr<spdlog::logger> m_log;
 
   };

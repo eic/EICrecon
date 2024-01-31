@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include <algorithm>
 
+#include <algorithms/algorithm.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
@@ -32,22 +33,37 @@
 
 namespace eicrecon {
 
-/** Imaging cluster reconstruction.
- *
- *  Reconstruct the cluster/layer info for imaging calorimeter
- *  Logarithmic weighting is used to describe energy deposit in transverse direction
- *
- *  \ingroup reco
- */
-  class ImagingClusterReco : public WithPodConfig<ImagingClusterRecoConfig> {
-
-  using ClustersWithAssociations = std::tuple<
-        std::unique_ptr<edm4eic::ClusterCollection>,
-        std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>,
-        std::unique_ptr<edm4eic::ClusterCollection>
+  using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      edm4hep::SimCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection,
+      edm4eic::ClusterCollection
+    >
   >;
 
-  protected:
+  /** Imaging cluster reconstruction.
+   *
+   *  Reconstruct the cluster/layer info for imaging calorimeter
+   *  Logarithmic weighting is used to describe energy deposit in transverse direction
+   *
+   *  \ingroup reco
+   */
+  class ImagingClusterReco
+      : public ImagingClusterRecoAlgorithm,
+        public WithPodConfig<ImagingClusterRecoConfig> {
+
+  public:
+    ImagingClusterReco(std::string_view name)
+      : ImagingClusterRecoAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+                            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
+
+  private:
     std::shared_ptr<spdlog::logger> m_log;
 
   public:
@@ -56,17 +72,12 @@ namespace eicrecon {
         m_log = logger;
     }
 
-    ClustersWithAssociations process(
-        const edm4eic::ProtoClusterCollection& proto,
-        const edm4hep::SimCalorimeterHitCollection& mchits
-    ) {
+    void process(const Input& input, const Output& output) const final {
 
-        // output collections
-        auto layers = std::make_unique<edm4eic::ClusterCollection>();
-        auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-        auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+        const auto [proto, mchits] = input;
+        auto [clusters, associations, layers] = output;
 
-        for (const auto& pcl: proto) {
+        for (const auto& pcl: *proto) {
             if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
                 m_log->warn("Protocluster hit relation is invalid, skipping protocluster");
                 continue;
@@ -89,7 +100,7 @@ namespace eicrecon {
             clusters->push_back(cl);
 
             // If mcHits are available, associate cluster with MCParticle
-            if (mchits.size() > 0) {
+            if (mchits->size() > 0) {
 
                 // 1. find pclhit with the largest energy deposition
                 auto pclhits = pcl.getHits();
@@ -103,7 +114,7 @@ namespace eicrecon {
 
                 // 2. find mchit with same CellID
                 const edm4hep::SimCalorimeterHit* mchit = nullptr;
-                for (auto h : mchits) {
+                for (auto h : *mchits) {
                     if (h.getCellID() == pclhit->getCellID()) {
                         mchit = &h;
                         break;
@@ -131,13 +142,11 @@ namespace eicrecon {
 
         // debug output
         for (const auto& cl: *clusters) {
-            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.id(),
+            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
                          cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
                          cl.getIntrinsicPhi() / M_PI * 180.
             );
         }
-
-        return std::make_tuple(std::move(clusters), std::move(associations), std::move(layers));
     }
 
   private:
@@ -197,7 +206,7 @@ namespace eicrecon {
         // Calculate radius as the standard deviation of the hits versus the cluster center
         double radius = 0.;
         for (const auto &[hit, weight]: hits) {
-            radius += std::pow(edm4eic::magnitude(hit.getPosition() - layer.getPosition()), 2);
+            radius += std::pow(edm4hep::utils::magnitude(hit.getPosition() - layer.getPosition()), 2);
         }
         layer.addToShapeParameters(std::sqrt(radius / layer.getNhits()));
         // TODO Skewedness
@@ -205,7 +214,7 @@ namespace eicrecon {
         return layer;
     }
 
-    edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
+    static edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
         edm4eic::MutableCluster cluster;
 
         const auto& hits = pcl.getHits();
@@ -228,9 +237,9 @@ namespace eicrecon {
             const double energyWeight = hit.getEnergy() * weight;
             time += hit.getTime() * energyWeight;
             timeError += std::pow(hit.getTimeError() * energyWeight, 2);
-            meta += edm4eic::eta(hit.getPosition()) * energyWeight;
-            mphi += edm4eic::angleAzimuthal(hit.getPosition()) * energyWeight;
-            r = std::min(edm4eic::magnitude(hit.getPosition()), r);
+            meta += edm4hep::utils::eta(hit.getPosition()) * energyWeight;
+            mphi += edm4hep::utils::angleAzimuthal(hit.getPosition()) * energyWeight;
+            r = std::min(edm4hep::utils::magnitude(hit.getPosition()), r);
             cluster.addToHits(hit);
         }
         cluster.setEnergy(energy);
@@ -238,15 +247,15 @@ namespace eicrecon {
         cluster.setTime(time / energy);
         cluster.setTimeError(std::sqrt(timeError) / energy);
         cluster.setNhits(hits.size());
-        cluster.setPosition(edm4eic::sphericalToVector(r, edm4eic::etaToAngle(meta / energy), mphi / energy));
+        cluster.setPosition(edm4hep::utils::sphericalToVector(r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
 
         // shower radius estimate (eta-phi plane)
         double radius = 0.;
         for (const auto &hit: hits) {
             radius += std::pow(
               std::hypot(
-                (edm4eic::eta(hit.getPosition()) - edm4eic::eta(cluster.getPosition())),
-                (edm4eic::angleAzimuthal(hit.getPosition()) - edm4eic::angleAzimuthal(cluster.getPosition()))
+                (edm4hep::utils::eta(hit.getPosition()) - edm4hep::utils::eta(cluster.getPosition())),
+                (edm4hep::utils::angleAzimuthal(hit.getPosition()) - edm4hep::utils::angleAzimuthal(cluster.getPosition()))
               ),
               2.0
             );

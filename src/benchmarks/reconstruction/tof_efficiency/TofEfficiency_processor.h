@@ -3,10 +3,16 @@
 // Template for this file generated with eicmkplugin.py
 //
 
+#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
-#include <TNtuple.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TDirectory.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
+#include <TNtuple.h>
+#include <map>
+#include <memory>
+#include <string>
 
 #include "extensions/spdlog/SpdlogMixin.h"
 

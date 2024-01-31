@@ -1,18 +1,27 @@
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-
-#include "TrackPropagationTest_processor.h"
-
+#include <Acts/Surfaces/Surface.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <JANA/Services/JGlobalRootLock.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <stddef.h>
+#include <Eigen/Geometry>
+#include <exception>
+#include <map>
+#include <string>
+#include <vector>
 
-#include <Math/GenVector/PxPyPzM4D.h>
-
-#include <spdlog/spdlog.h>
-
-#include "services/rootfile/RootFile_service.h"
+#include "TrackPropagationTest_processor.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 
 

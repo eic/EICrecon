@@ -1,0 +1,33 @@
+[
+  # https://github.com/include-what-you-use/include-what-you-use/blob/master/docs/IWYUMappings.md
+
+  # Boost
+  { ref: '/usr/local/share/include-what-you-use/boost-all.imp' },
+
+  # libc++
+  { ref: '/usr/local/share/include-what-you-use/libcxx.imp' },
+
+  # STL
+  { ref: '/usr/local/share/include-what-you-use/gcc.stl.headers.imp' },
+
+  # Acts
+  { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
+  { include: ['@<Acts/(.*)/detail/(.*)\.ipp>', private, '<Acts/$1/$2.hpp>', public] },
+  { include: ['<Acts/Geometry/detail/DefaultDetectorElementBase.hpp>', private, '<Acts/Geometry/DetectorElementBase.hpp>', public] },
+
+  # Eigen
+  { include: ['@<Eigen/(src/)?(.*?)/.*>', private, '<Eigen/$2>', public] },
+  { include: ['@<Eigen/src/plugins/.*>', private, '<Eigen/Core>', public] },
+  { include: ['@"src/(.*)/.*"', private, '<Eigen/$1>', public] },
+  { include: ['@"src/plugins/.*"', private, '<Eigen/Core>', public] },
+
+  # EDM4hep and EDM4eic
+  { include: ['@<(edm4(eic|hep))/(Mutable)?([^/]*?)(Collection|Data|Obj)?\.h>', public, '<$1/$4Collection.h>', public] },
+  { include: ['<edm4hep/utils/vector_utils_legacy.h>', private, '<edm4hep/utils/vector_utils.h>', public] },
+
+  # the rest
+  { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
+  { include: ['<bits/utility.h>', private, '<tuple>', public] },
+  # https://github.com/include-what-you-use/include-what-you-use/issues/166
+  { include: ['<ext/alloc_traits.h>', private, '<vector>', public] }
+]

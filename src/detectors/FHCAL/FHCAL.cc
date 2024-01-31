@@ -1,16 +1,19 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <TString.h>
+#include <string>
 
-#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -19,131 +22,44 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
-           "HcalEndcapPRawHits", {"HcalEndcapPHits"}, {"HcalEndcapPRawHits"},
-           {
-             .eRes = {},
-             .tRes = 0.001 * dd4hep::ns,
-             .capADC = 65536,
-             .dyRangeADC = 1 * dd4hep::GeV,
-             .pedMeanADC = 20,
-             .pedSigmaADC = 0.8,
-             .resolutionTDC = 10 * dd4hep::picosecond,
-             .corrMeanScale = 1.0,
-           },
-           app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
-          "HcalEndcapPRecHits", {"HcalEndcapPRawHits"}, {"HcalEndcapPRecHits"},
-          {
-            .capADC = 65536,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 1.0,
-            .thresholdValue = 3.0,
-            .sampFrac = 0.033,
-            .readout = "HcalEndcapPHits",
-          },
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitsMerger_factoryT>(
-          "HcalEndcapPMergedHits", {"HcalEndcapPRecHits"}, {"HcalEndcapPMergedHits"},
-          {
-            .readout = "HcalEndcapPHits",
-            .fields = {"layer", "slice"},
-            .refs = {1, 0},
-          },
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
-          "HcalEndcapPTruthProtoClusters", {"HcalEndcapPRecHits", "HcalEndcapPHits"}, {"HcalEndcapPTruthProtoClusters"},
-          app   // TODO: Remove me once fixed
-        ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
-          "HcalEndcapPIslandProtoClusters", {"HcalEndcapPRecHits"}, {"HcalEndcapPIslandProtoClusters"},
-          {
-            .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .splitCluster = true,
-            .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 1.,
-          },
-          app   // TODO: Remove me once fixed
-        ));
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapPInsert_capADC = 32768;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapPInsert_dyRangeADC = 200 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapPInsert_pedMeanADC = 10;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapPInsert_pedSigmaADC = 2;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
 
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "HcalEndcapPTruthClusters",
-            {"HcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "HcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
-            {"HcalEndcapPTruthClusters",             // edm4eic::Cluster
-             "HcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = false
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
-        app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
-             "HcalEndcapPClusters",
-            {"HcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "HcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
-            {"HcalEndcapPClusters",             // edm4eic::Cluster
-             "HcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .moduleDimZName = "",
-              .sampFrac = 0.033,
-              .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
-              .enableEtaBounds = false,
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 32768,
-             .dyRangeADC = 200 * dd4hep::MeV,
-             .pedMeanADC = 400,
-             .pedSigmaADC = 10,
-             .resolutionTDC = 10 * dd4hep::picosecond,
+             .capADC = HcalEndcapPInsert_capADC,
+             .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+             .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+             .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+             .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
              .corrMeanScale = 1.0,
            },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
           {
-            .capADC = 32768,
-            .dyRangeADC = 200. * dd4hep::MeV,
-            .pedMeanADC = 400,
-            .pedSigmaADC = 10.,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .capADC = HcalEndcapPInsert_capADC,
+            .dyRangeADC = HcalEndcapPInsert_dyRangeADC,
+            .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
+            .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
+            .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
             .thresholdFactor = 0.,
-            .thresholdValue = -100.,
+            .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
+
             .sampFrac = 0.0098,
             .readout = "HcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitsMerger_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
           "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
           {
             .readout = "HcalEndcapPInsertHits",
@@ -152,11 +68,11 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
@@ -172,7 +88,7 @@ extern "C" {
         ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -180,10 +96,8 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .depthCorrection = 0.0,
               .enableEtaBounds = true
             },
             app   // TODO: Remove me once fixed
@@ -191,7 +105,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -199,43 +113,48 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
           )
         );
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        LFHCAL_capADC = 65536;
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    LFHCAL_dyRangeADC = 1 * dd4hep::GeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    LFHCAL_pedMeanADC = 50;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   LFHCAL_pedSigmaADC = 10;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
+
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 65536,
+            .capADC = LFHCAL_capADC,
             .capTime = 100,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
             .corrMeanScale = 1.0,
             .readout = "LFHCALHits",
             .fields = {"layerz"},
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
           {
-            .capADC = 65536,
-            .dyRangeADC = 1 * dd4hep::GeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.8,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 1.0,
-            .thresholdValue = 3.0,
+            .capADC = LFHCAL_capADC,
+            .dyRangeADC = LFHCAL_dyRangeADC,
+            .pedMeanADC = LFHCAL_pedMeanADC,
+            .pedSigmaADC = LFHCAL_pedSigmaADC,
+            .resolutionTDC = LFHCAL_resolutionTDC,
+            .thresholdFactor = 0.0,
+            .thresholdValue = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
             .sampFrac = 0.033,
             .sampFracLayer = {
               0.019, //  0
@@ -254,10 +173,11 @@ extern "C" {
               0.037, // 13
             },
             .readout = "LFHCALHits",
+            .layerField = "rlayerz",
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterTruthClustering_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -280,7 +200,7 @@ extern "C" {
                                   deltaZ.data(), deltaX.data(), deltaY.data(),
                                   deltaZ.data(), deltaX.data(), deltaY.data());
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "LFHCALIslandProtoClusters", {"LFHCALRecHits"}, {"LFHCALIslandProtoClusters"},
           {
             .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
@@ -296,7 +216,7 @@ extern "C" {
         ));
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
@@ -304,10 +224,8 @@ extern "C" {
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -315,7 +233,7 @@ extern "C" {
         );
 
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALClusters",
             {"LFHCALIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "LFHCALHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -323,10 +241,8 @@ extern "C" {
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .moduleDimZName = "",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .depthCorrection = 0.0,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

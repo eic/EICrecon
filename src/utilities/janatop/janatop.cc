@@ -4,7 +4,8 @@
 //
 
 #include <JANA/JApplication.h>
-#include <JANA/JFactoryGenerator.h>
+#include <JANA/Services/JParameterManager.h>
+#include <memory>
 
 #include "JEventProcessorJANATOP.h"
 

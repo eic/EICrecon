@@ -64,7 +64,7 @@ namespace eicrecon {
           // create output `ParticleID` object
           auto out_index = out_pids.size();
           auto out_pid   = out_pids.create();
-          out_indices.insert({out_index, out_pid.id()});
+          out_indices.insert({out_index, out_pid.getObjectID().index});
 
           // fill scalars
           out_pid.setPDG(           static_cast<decltype(edm4hep::ParticleIDData::PDG)>           (in_hyp.PDG)    );

@@ -40,14 +40,14 @@ void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
   aYinv[0][1] = -aY[0][1] / determinate;
   aYinv[1][0] = -aY[1][0] / determinate;
   aYinv[1][1] =  aY[0][0] / determinate;
-
-  return;
-
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransferStatic::produce(const edm4hep::SimTrackerHitCollection& rawhits) {
+void eicrecon::MatrixTransferStatic::process(
+    const Input& input,
+    const Output& output) const {
 
-  auto outputParticles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+  const auto [rawhits] = input;
+  auto [outputParticles] = output;
 
   //---- begin Reconstruction code ----
 
@@ -60,7 +60,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
   bool goodHit1 = false;
   bool goodHit2 = false;
 
-  for (const auto &h: rawhits) {
+  for (const auto &h: *rawhits) {
 
     auto cellID = h.getCellID();
 
@@ -144,7 +144,7 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       edm4eic::MutableReconstructedParticle reconTrack;
       reconTrack.setType(0);
       reconTrack.setMomentum(prec);
-      reconTrack.setEnergy(std::hypot(edm4eic::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+      reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
       reconTrack.setReferencePoint(refPoint);
       reconTrack.setCharge(m_cfg.partCharge);
       reconTrack.setMass(m_cfg.partMass);
@@ -154,7 +154,5 @@ std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::MatrixTransf
       outputParticles->push_back(reconTrack);
     }
   } // end enough hits for matrix reco
-
-  return outputParticles;
 
 }

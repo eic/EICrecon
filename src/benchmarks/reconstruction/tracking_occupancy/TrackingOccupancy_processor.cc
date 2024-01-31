@@ -1,19 +1,16 @@
 #include "TrackingOccupancy_processor.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
+#include <JANA/Services/JGlobalRootLock.h>
 #include <TDirectory.h>
-#include <TCanvas.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <Math/LorentzVector.h>
-#include <Math/GenVector/PxPyPzM4D.h>
+#include <spdlog/logger.h>
+#include <string>
 
-#include <spdlog/spdlog.h>
-
+#include "benchmarks/reconstruction/tracking_occupancy/HitReconstructionAnalysis.h"
+#include "benchmarks/reconstruction/tracking_occupancy/TrackingOccupancyAnalysis.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //------------------

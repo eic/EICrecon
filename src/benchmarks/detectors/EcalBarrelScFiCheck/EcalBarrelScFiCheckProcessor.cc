@@ -4,13 +4,19 @@
 //
 
 #include "EcalBarrelScFiCheckProcessor.h"
-#include "services/rootfile/RootFile_service.h"
 
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <TDirectory.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
+#include <cmath>
+
+#include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
 // InitWithGlobalRootLock

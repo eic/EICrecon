@@ -1,11 +1,17 @@
 
 #include "JEventProcessorPODIO.h"
-#include "services/log/Log_service.h"
-#include <JANA/Services/JComponentManager.h>
-#include <podio/Frame.h>
 
-#include "datamodel_glue.h"
-#include <algorithm>
+#include <JANA/JApplication.h>
+#include <JANA/JLogger.h>
+#include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <fmt/core.h>
+#include <podio/CollectionBase.h>
+#include <podio/Frame.h>
+#include <spdlog/common.h>
+#include <exception>
+
+#include "services/log/Log_service.h"
 
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -45,6 +51,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // All tracking hits combined
             "CentralTrackingRecHits",
             "CentralTrackSeedingResults",
+            "CentralTrackerMeasurements",
 
             // Si tracker hits
             "SiBarrelTrackerRecHits",
@@ -92,8 +99,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
+            "CentralCKFTracks",
             "CentralCKFTrackParameters",
             "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
@@ -152,13 +161,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapNClusterAssociations",
-            "HcalEndcapPRawHits",   // this causes premature exit of eicrecon
-            "HcalEndcapPRecHits",
-            "HcalEndcapPMergedHits",
-            "HcalEndcapPTruthClusters",
-            "HcalEndcapPTruthClusterAssociations",
-            "HcalEndcapPClusters",
-            "HcalEndcapPClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -176,10 +178,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalRawHits",
-            "ZDCEcalRecHits",
-            "ZDCEcalClusters",
-            "ZDCEcalClusterAssociations",
             "HcalEndcapNTruthClusters",
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
@@ -187,8 +185,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalTruthClusters",
-            "ZDCEcalTruthClusterAssociations",
+
+            //ZDC Ecal
+            "EcalFarForwardZDCRawHits",
+            "EcalFarForwardZDCRecHits",
+            "EcalFarForwardZDCClusters",
+            "EcalFarForwardZDCClusterAssociations",
+            "EcalFarForwardZDCTruthClusters",
+            "EcalFarForwardZDCTruthClusterAssociations",
+
+            //ZDC HCal
+            "HcalFarForwardZDCRawHits",
+            "HcalFarForwardZDCRecHits",
+            "HcalFarForwardZDCSubcellHits",
+            "HcalFarForwardZDCProtoClusters",
+            "HcalFarForwardZDCClusters",
+            "HcalFarForwardZDCClusterAssociations",
+            "HcalFarForwardZDCProtoClustersBaseline",
+            "HcalFarForwardZDCClustersBaseline",
+            "HcalFarForwardZDCClusterAssociationsBaseline",
+            "HcalFarForwardZDCTruthClusters",
+            "HcalFarForwardZDCTruthClusterAssociations",
+
 
             // DIRC
             "DIRCRawHits"

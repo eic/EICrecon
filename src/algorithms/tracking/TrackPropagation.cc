@@ -1,45 +1,38 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
-#include <cmath>
-#include <algorithm>
-
-#include "TrackPropagation.h"
-
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/SurfaceManager.h>
-#include <DDRec/Surface.h>
-
-#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-
-// Event Model related classes
-#include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include "ActsExamples/EventData/IndexSourceLink.hpp"
-#include "ActsExamples/EventData/Track.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
-
-#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <cmath>
+#include <exception>
+#include <iterator>
+#include <optional>
+#include <tuple>
+#include <typeinfo>
+#include <utility>
 
 #include "ActsGeometryProvider.h"
-
-#include "extensions/spdlog/SpdlogToActs.h"
-
-#include <edm4eic/vector_utils.h>
-
-
-#include <Acts/Geometry/TrackingGeometry.hpp>
-
 #include "TrackPropagation.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 
 namespace eicrecon {
@@ -149,7 +142,7 @@ namespace eicrecon {
           if(track_segment.points_size()>0) {
             auto pos0 = point->position;
             auto pos1 = std::prev(track_segment.points_end())->position;
-            auto dist = edm4eic::magnitude(pos0-pos1);
+            auto dist = edm4hep::utils::magnitude(pos0-pos1);
             length += dist;
             m_log->trace("               dist to previous point: {}", dist);
           }
@@ -212,9 +205,9 @@ namespace eicrecon {
         Stepper stepper(magneticField);
         Propagator propagator(stepper);
 
-        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger(m_log));
+        ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
-        Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext, Acts::LoggerWrapper{logger()});
+        Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
 
         auto result = propagator.propagate(initial_bound_parameters, *targetSurf, options);
 
@@ -248,7 +241,7 @@ namespace eicrecon {
         m_log->trace("    pos z = {}", position.z);
 
         // Momentum
-        const decltype(edm4eic::TrackPoint::momentum) momentum = edm4eic::sphericalToVector(
+        const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
                 static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
                 static_cast<float>(parameter[Acts::eBoundTheta]),
                 static_cast<float>(parameter[Acts::eBoundPhi])
@@ -292,7 +285,7 @@ namespace eicrecon {
         m_log->trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
 
 #if EDM4EIC_VERSION_MAJOR >= 3
-        uint64_t surface = 0; // targetSurf->geometryId().value(); // FIXME - ASAN is not happy with this
+        uint64_t surface = targetSurf->geometryId().value();
         uint32_t system = 0; // default value...will be set in TrackPropagation factory
 #endif
 

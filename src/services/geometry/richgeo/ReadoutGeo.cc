@@ -5,9 +5,27 @@
 
 #include "ReadoutGeo.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/Fields.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <TGeoMatrix.h>
+#include <ctype.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <map>
+
+#include "services/geometry/richgeo/RichGeo.h"
+
 // constructor
-richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, std::shared_ptr<spdlog::logger> log_)
-  : m_detName(detName_), m_det(det_), m_log(log_)
+richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_)
+  : m_detName(detName_), m_det(det_), m_conv(conv_), m_log(log_)
 {
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
@@ -22,10 +40,9 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
   m_rngCellIDs = [] (std::function<void(CellIDType)> lambda, float p) { return; };
 
   // common objects
-  m_readoutCoder     = m_det->readout(m_detName+"Hits").idSpec().decoder();
-  m_detRich          = m_det->detector(m_detName);
-  m_systemID         = m_detRich.id();
-  m_cellid_converter = std::make_shared<const dd4hep::rec::CellIDPositionConverter>(*m_det);
+  m_readoutCoder = m_det->readout(m_detName+"Hits").idSpec().decoder();
+  m_detRich      = m_det->detector(m_detName);
+  m_systemID     = m_detRich.id();
 
   // dRICH readout --------------------------------------------------------------------
   if(m_detName=="DRICH") {
@@ -101,7 +118,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, dd4hep::Detector *det_, st
 // pixel gap mask
 // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
 bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) {
-  auto pos_pixel_global = m_cellid_converter->position(cellID);
+  auto pos_pixel_global = m_conv->position(cellID);
   auto pos_pixel_local  = GetSensorLocalPosition(cellID, pos_pixel_global);
   auto pos_hit_local    = GetSensorLocalPosition(cellID, pos_hit_global);
   return ! (
@@ -116,7 +133,7 @@ bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_h
 dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID, dd4hep::Position pos) {
 
   // get the VolumeManagerContext for this sensitive detector
-  auto context = m_cellid_converter->findContext(cellID);
+  auto context = m_conv->findContext(cellID);
 
   // transformation vector buffers
   double xyz_l[3], xyz_e[3], xyz_g[3];
@@ -153,7 +170,7 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID, 
     print_pos("input position",  pos);
     print_pos("sensor position", pos_sensor);
     print_pos("output position", pos_transformed);
-    // auto dim = m_cellid_converter->cellDimensions(cellID);
+    // auto dim = m_conv->cellDimensions(cellID);
     // for (std::size_t j = 0; j < std::size(dim); ++j)
     //   m_log->trace("   - dimension {:<5} size: {:.2}",  j, dim[j]);
   }

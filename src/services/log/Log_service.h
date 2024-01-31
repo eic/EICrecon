@@ -1,14 +1,13 @@
 #pragma once
 
 
-#include <iostream>
-#include <vector>
-#include <string>
-
 #include <JANA/JApplication.h>
 #include <JANA/Services/JServiceLocator.h>
-
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <memory>
+#include <mutex>
+#include <string>
 
 /**
  * The Service centralizes use of spdlog

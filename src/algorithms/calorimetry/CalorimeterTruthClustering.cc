@@ -3,28 +3,35 @@
 
 #include "CalorimeterTruthClustering.h"
 
-#include <Evaluator/DD4hepUnits.h>
-#include <fmt/format.h>
-#include <edm4hep/MCParticle.h>
+#include <DD4hep/config.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <podio/ObjectID.h>
+#include <cstddef>
+#include <cstdint>
+#include <gsl/pointers>
+#include <map>
 
 using namespace dd4hep;
 
-namespace eicrecon{
+namespace eicrecon {
 
-void CalorimeterTruthClustering::init(std::shared_ptr<spdlog::logger> &logger) {
-    m_log = logger;
-}
+  void CalorimeterTruthClustering::init(std::shared_ptr<spdlog::logger> &logger) {
+      m_log = logger;
+  }
 
 
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::process(const edm4eic::CalorimeterHitCollection &hits, const edm4hep::SimCalorimeterHitCollection &mc) {
-    // Create output collections
-    auto output = std::make_unique<edm4eic::ProtoClusterCollection>();
+  void CalorimeterTruthClustering::process(
+      const CalorimeterTruthClustering::Input& input,
+      const CalorimeterTruthClustering::Output& output) const {
+    const auto [hits, mc] = input;
+    auto [clusters] = output;
 
     // Map mc track ID to protoCluster index
     std::map<int32_t, int32_t> protoIndex;
 
     // Loop over all calorimeter hits and sort per mcparticle
-    for (const auto& hit : hits) {
+    for (const auto& hit : *hits) {
         // The original algorithm used the following to get the mcHit:
         //
         //    const auto& mcHit     = mc[hit->getObjectID().index];
@@ -44,12 +51,12 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::pro
         // FIXME: to be fixed so proper object tracking can be done without
         // FIXME: requiring Collection classes be used to manage all objects.
         std::size_t mcIndex;
-        if ((hit.getObjectID().index >= 0) && (hit.getObjectID().index < mc.size())) {
+        if ((hit.getObjectID().index >= 0) && (hit.getObjectID().index < mc->size())) {
             mcIndex = hit.getObjectID().index;
         } else {
             mcIndex = 0;
             bool success = false;
-            for (auto tmpmc : mc) {
+            for (auto tmpmc : *mc) {
                 if (tmpmc.getCellID() == hit.getCellID()) {
                     success = true;
                     break;
@@ -61,18 +68,17 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterTruthClustering::pro
             }
         }
 
-        const auto &trackID = mc[mcIndex].getContributions(0).getParticle().id();
+        const auto &trackID = (*mc)[mcIndex].getContributions(0).getParticle().getObjectID().index;
         // Create a new protocluster if we don't have one for this trackID
         if (protoIndex.count(trackID) == 0) {
-            output->create();
-            protoIndex[trackID] = output->size() - 1;
+            clusters->create();
+            protoIndex[trackID] = clusters->size() - 1;
         }
         // Add hit to the appropriate protocluster
-        (*output)[protoIndex[trackID]].addToHits(hit);
-        (*output)[protoIndex[trackID]].addToWeights(1);
+        (*clusters)[protoIndex[trackID]].addToHits(hit);
+        (*clusters)[protoIndex[trackID]].addToWeights(1);
     }
 
-    return std::move(output);
-}
+  }
 
 } // namespace eicrecon

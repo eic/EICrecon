@@ -3,18 +3,21 @@
 //
 //
 
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <math.h>
+#include <string>
 
-#include "factories/calorimetry/CalorimeterClusterRecoCoG_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitDigi_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitReco_factoryT.h"
-#include "factories/calorimetry/CalorimeterHitsMerger_factoryT.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factoryT.h"
-#include "factories/calorimetry/CalorimeterIslandCluster_factoryT.h"
-#include "factories/calorimetry/ImagingTopoCluster_factoryT.h"
-#include "factories/calorimetry/ImagingClusterReco_factoryT.h"
-#include "factories/calorimetry/EnergyPositionClusterMerger_factoryT.h"
-#include "factories/calorimetry/TruthEnergyPositionClusterMerger_factoryT.h"
+#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
+#include "factories/calorimetry/ImagingClusterReco_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 
 
 extern "C" {
@@ -24,34 +27,42 @@ extern "C" {
 
         InitJANAPlugin(app);
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelScFi_pedMeanADC = 100;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelScFi_pedSigmaADC = 1;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
            {"EcalBarrelScFiRawHits"},
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 16384,
-             .dyRangeADC = 750 * dd4hep::MeV,
-             .pedMeanADC = 20,
-             .pedSigmaADC = 0.3,
-             .resolutionTDC = 10 * dd4hep::picosecond,
+             .threshold = 0.0*dd4hep::keV, // threshold is set in ADC in reco
+             .capADC        = EcalBarrelScFi_capADC,
+             .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
+             .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
+             .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
+             .resolutionTDC = EcalBarrelScFi_resolutionTDC,
              .corrMeanScale = 1.0,
              .readout = "EcalBarrelScFiHits",
              .fields = {"fiber", "z"},
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
           {
-            .capADC = 16384,
-            .dyRangeADC = 750. * dd4hep::MeV,
-            .pedMeanADC = 20,
-            .pedSigmaADC = 0.3,
-            .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 36.0488,
-            .thresholdValue = 0.0,
+            .capADC        = EcalBarrelScFi_capADC,
+            .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
+            .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
+            .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
+            .resolutionTDC = EcalBarrelScFi_resolutionTDC,
+            .thresholdFactor = 0.0, // use only thresholdValue
+            .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
             .sampFrac = 0.10200085,
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
@@ -64,19 +75,19 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterIslandCluster_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
           {
             .sectorDist = 50. * dd4hep::mm,
             .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
             .splitCluster = false,
-            .minClusterHitEdep = 1.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
+            .minClusterHitEdep = 5.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 100.0 * dd4hep::MeV,
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(
-          new JChainMultifactoryGeneratorT<CalorimeterClusterRecoCoG_factoryT>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
@@ -84,41 +95,46 @@ extern "C" {
              "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {
                .energyWeight = "log",
-               .moduleDimZName = "",
                .sampFrac = 1.0,
                .logWeightBase = 6.2,
-               .depthCorrection = 0.0,
                .enableEtaBounds = false
              },
             app   // TODO: Remove me once fixed
           )
         );
 
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitDigi_factoryT>(
+        // Make sure digi and reco use the same value
+        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelImaging_capADC = 8192; //8192,  13bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelImaging_dyRangeADC = 3 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelImaging_pedMeanADC = 14; // Noise floor at 5 keV: 8192 / 3 * 0.005
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelImaging_pedSigmaADC = 5; // Upper limit for sigma for AstroPix
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC = 3.25 * dd4hep::nanosecond;
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
           {"EcalBarrelImagingRawHits"},
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
-             .capADC = 8192,
-             .dyRangeADC = 3 * dd4hep::MeV,
-             .pedMeanADC = 100,
-             .pedSigmaADC = 14,
-             .resolutionTDC = 3.25 * dd4hep::nanosecond,
+             .capADC        = EcalBarrelImaging_capADC,
+             .dyRangeADC    = EcalBarrelImaging_dyRangeADC,
+             .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
+             .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
+             .resolutionTDC = EcalBarrelImaging_resolutionTDC,
              .corrMeanScale = 1.0,
            },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<CalorimeterHitReco_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
           {
-            .capADC = 8192,
-            .dyRangeADC = 3 * dd4hep::MeV,
-            .pedMeanADC = 100,
-            .pedSigmaADC = 14,
-            .resolutionTDC = 3.25 * dd4hep::nanosecond,
-            .thresholdFactor = 3.0,
+            .capADC     = EcalBarrelImaging_capADC,
+            .dyRangeADC = EcalBarrelImaging_dyRangeADC,
+            .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
+            .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC, // not needed; use only thresholdValue
+            .resolutionTDC = EcalBarrelImaging_resolutionTDC,
+            .thresholdFactor = 0.0, // use only thresholdValue
+            .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
             .sampFrac = 0.00619766,
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
@@ -126,7 +142,7 @@ extern "C" {
           },
            app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<ImagingTopoCluster_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"}, {"EcalBarrelImagingProtoClusters"},
           {
             .neighbourLayersRange = 2,                    //  # id diff for adjacent layer
@@ -136,12 +152,12 @@ extern "C" {
             .minClusterHitEdep    = 0,
             .minClusterCenterEdep = 0,
             .minClusterEdep       = 100 * dd4hep::MeV,
-            .minClusterNhits      = 10, // From Maria Z. comment in PR
+            .minClusterNhits      = 10,
           },
           app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JChainMultifactoryGeneratorT<ImagingClusterReco_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
            "EcalBarrelImagingClusters",
           {"EcalBarrelImagingProtoClusters",
            "EcalBarrelImagingHits"},
@@ -154,7 +170,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<EnergyPositionClusterMerger_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
           "EcalBarrelClusters",
           {
             "EcalBarrelScFiClusters",
@@ -173,7 +189,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JChainMultifactoryGeneratorT<TruthEnergyPositionClusterMerger_factoryT>(
+        app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
           "EcalBarrelTruthClusters",
           {
             "MCParticles",

@@ -5,22 +5,26 @@
 //   https://cds.cern.ch/record/687345/files/note01_034.pdf
 //   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
 
-#include <vector>
-#include <set>
-
-#include <sstream>
-
+#include <DD4hep/Readout.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-
-#include "CalorimeterIslandCluster.h"
-
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-
-#include <edm4hep/SimCalorimeterHit.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <fmt/format.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "CalorimeterIslandCluster.h"
+#include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
 
 using namespace edm4eic;
 
@@ -55,10 +59,10 @@ static edm4hep::Vector2f globalDistRPhi(const CaloHit &h1, const CaloHit &h2) {
   using vector_type = decltype(edm4hep::Vector2f::a);
   return {
     static_cast<vector_type>(
-      edm4eic::magnitude(h1.getPosition()) - edm4eic::magnitude(h2.getPosition())
+      edm4hep::utils::magnitude(h1.getPosition()) - edm4hep::utils::magnitude(h2.getPosition())
     ),
     static_cast<vector_type>(
-      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
+      Phi_mpi_pi(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition()))
     )
   };
 }
@@ -66,10 +70,10 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) 
   using vector_type = decltype(edm4hep::Vector2f::a);
   return {
     static_cast<vector_type>(
-      edm4eic::eta(h1.getPosition()) - edm4eic::eta(h2.getPosition())
+      edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())
     ),
     static_cast<vector_type>(
-      Phi_mpi_pi(edm4eic::angleAzimuthal(h1.getPosition()) - edm4eic::angleAzimuthal(h2.getPosition()))
+      Phi_mpi_pi(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition()))
     )
   };
 }
@@ -181,7 +185,7 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
             } else {
               // sector may have rotation (barrel), so z is included
               // (EDM4hep units are mm, so convert sectorDist to mm)
-              return (edm4eic::magnitude(h1.getPosition() - h2.getPosition()) <= m_cfg.sectorDist / dd4hep::mm);
+              return (edm4hep::utils::magnitude(h1.getPosition() - h2.getPosition()) <= m_cfg.sectorDist / dd4hep::mm);
             }
           };
 
@@ -214,15 +218,21 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
 }
 
 
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::process(const edm4eic::CalorimeterHitCollection &hits) {
+void CalorimeterIslandCluster::process(
+      const CalorimeterIslandCluster::Input& input,
+      const CalorimeterIslandCluster::Output& output) const {
+
+    const auto [hits] = input;
+    auto [proto_clusters] = output;
+
     // group neighboring hits
     std::vector<std::set<std::size_t>> groups;
 
-    std::vector<bool> visits(hits.size(), false);
-    for (size_t i = 0; i < hits.size(); ++i) {
+    std::vector<bool> visits(hits->size(), false);
+    for (size_t i = 0; i < hits->size(); ++i) {
 
       {
-        const auto& hit = hits[i];
+        const auto& hit = (*hits)[i];
         m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
       }
       // already in a group
@@ -231,23 +241,18 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::proce
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      bfs_group(hits, groups.back(), i, visits);
+      bfs_group(*hits, groups.back(), i, visits);
     }
-
-    auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();
 
     for (auto& group : groups) {
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(hits, group, !m_cfg.splitCluster);
-      split_group(hits, group, maxima, protoClusters.get());
+      auto maxima = find_maxima(*hits, group, !m_cfg.splitCluster);
+      split_group(*hits, group, maxima, proto_clusters);
 
       m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
-
-    return protoClusters;
-
 }
 
 } // namespace eicrecon

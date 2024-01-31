@@ -3,32 +3,35 @@
 
 #include "MergeParticleID.h"
 
-// AlgorithmInit
-//---------------------------------------------------------------------------
-void eicrecon::MergeParticleID::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
+#include <stddef.h>
+#include <stdexcept>
+#include <unordered_map>
+#include <utility>
+
+#include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
+
+namespace eicrecon {
+
+void MergeParticleID::init(std::shared_ptr<spdlog::logger>& logger)
 {
   m_log = logger;
   m_cfg.Print(m_log, spdlog::level::debug);
 }
 
+void MergeParticleID::process(
+    const MergeParticleID::Input& input,
+    const MergeParticleID::Output& output) const {
 
-// AlgorithmChangeRun
-//---------------------------------------------------------------------------
-void eicrecon::MergeParticleID::AlgorithmChangeRun() {
-}
-
-
-// AlgorithmProcess
-//---------------------------------------------------------------------------
-std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleID::AlgorithmProcess(
-    std::vector<const edm4eic::CherenkovParticleIDCollection*> in_pid_collections_list
-    )
-{
-  // logging
-  m_log->trace("{:=^70}"," call MergeParticleID::AlgorithmProcess ");
-
-  // start output collection
-  auto out_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+  const auto [in_pid_collections_list] = input;
+  auto [out_pids] = output;
 
   /* match input `CherenkovParticleIDCollection` elements from each list of
    * collections in `in_pid_collections_list`
@@ -63,7 +66,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
 
   // fill `particle_pids`
   // -------------------------------------------------------------------------------
-  std::unordered_map< unsigned int, std::vector<std::pair<size_t,size_t>> > particle_pids;
+  std::unordered_map< decltype(podio::ObjectID::index), std::vector<std::pair<size_t,size_t>> > particle_pids;
   m_log->trace("{:-<70}","Build `particle_pids` indexing data structure ");
 
   // loop over list of PID collections
@@ -80,7 +83,7 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
         m_log->error("PID object found with no charged particle");
         continue;
       }
-      auto id_particle = charged_particle_track_segment.id();
+      auto id_particle = charged_particle_track_segment.getObjectID().index;
       auto idx_paired  = std::make_pair(idx_coll, idx_pid);
       m_log->trace("  idx_pid={}  id_particle={}", idx_pid, id_particle);
 
@@ -194,6 +197,6 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
       Tools::PrintHypothesisTableLine(m_log,out_hyp,6);
 
   } // end `particle_pids` loop over charged particles
-
-  return out_pids;
 }
+
+} // namespace eicrecon

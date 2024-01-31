@@ -1,26 +1,28 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <algorithm>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/Vector4Dfwd.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <vector>
 
 #include "Beam.h"
-#include "Boost.h"
 #include "InclusiveKinematicsElectron.h"
 
-#include <Math/Vector4D.h>
 using ROOT::Math::PxPyPzEVector;
-
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 
 namespace eicrecon {
 
-  void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger> logger) {
+  void InclusiveKinematicsElectron::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
@@ -29,13 +31,12 @@ namespace eicrecon {
     // }
   }
 
-  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsElectron::execute(
-    const edm4hep::MCParticleCollection& mcparts,
-    const edm4eic::ReconstructedParticleCollection& rcparts,
-    const edm4eic::MCRecoParticleAssociationCollection& rcassoc) {
+  void InclusiveKinematicsElectron::process(
+      const InclusiveKinematicsElectron::Input& input,
+      const InclusiveKinematicsElectron::Output& output) const {
 
-    // Resulting inclusive kinematics
-    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
+    const auto [mcparts, rcparts, rcassoc] = input;
+    auto [kinematics] = output;
 
     // 1. find_if
     //const auto mc_first_electron = std::find_if(
@@ -89,7 +90,7 @@ namespace eicrecon {
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
       m_log->debug("No beam electron found");
-      return kinematics;
+      return;
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
@@ -103,7 +104,7 @@ namespace eicrecon {
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
       m_log->debug("No beam hadron found");
-      return kinematics;
+      return;
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
@@ -117,22 +118,22 @@ namespace eicrecon {
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
       m_log->debug("No truth scattered electron found");
-      return kinematics;
+      return;
     }
     // Associate first scattered electron with reconstructed electrons
     //const auto ef_assoc = std::find_if(
-    //  rcassoc.begin(),
-    //  rcassoc.end(),
+    //  rcassoc->begin(),
+    //  rcassoc->end(),
     //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
-    auto ef_assoc = rcassoc.begin();
-    for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
+    auto ef_assoc = rcassoc->begin();
+    for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
       if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
         break;
       }
     }
-    if (!(ef_assoc != rcassoc.end())) {
+    if (!(ef_assoc != rcassoc->end())) {
       m_log->debug("Truth scattered electron not in reconstructed particles");
-      return kinematics;
+      return;
     }
     const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
@@ -140,7 +141,7 @@ namespace eicrecon {
     // Loop over reconstructed particles to get outgoing scattered electron
     // Use the true scattered electron from the MC information
     std::vector<PxPyPzEVector> electrons;
-    for (const auto& p: rcparts) {
+    for (const auto& p: *rcparts) {
       if (p.getObjectID().index == ef_rc_id) {
         electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         break;
@@ -150,7 +151,7 @@ namespace eicrecon {
     // If no scattered electron was found
     if (electrons.size() == 0) {
       m_log->debug("No scattered electron found");
-      return kinematics;
+      return;
     }
 
     // DIS kinematics calculations
@@ -167,9 +168,6 @@ namespace eicrecon {
 
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    return kinematics;
   }
-
 
 } // namespace Jug::Reco

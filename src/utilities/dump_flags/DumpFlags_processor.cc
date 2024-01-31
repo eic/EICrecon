@@ -2,8 +2,15 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-
+#include <JANA/JException.h>
+#include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <string.h>
+#include <exception>
+#include <map>
+#include <ostream>
 
 
 using namespace fmt;

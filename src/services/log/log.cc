@@ -3,6 +3,9 @@
 //
 //
 
+#include <JANA/JApplication.h>
+#include <memory>
+
 #include "Log_service.h"
 
 

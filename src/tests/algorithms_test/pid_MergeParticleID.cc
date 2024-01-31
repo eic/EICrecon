@@ -1,16 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Christopher Dilks
 
-#include <cmath>
-
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector2f.h>
+#include <podio/RelationRange.h>
+#include <spdlog/common.h>
 #include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <cmath>
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
 #include "algorithms/pid/MergeParticleID.h"
-
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
+#include "algorithms/pid/MergeParticleIDConfig.h"
 
 TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
 
@@ -114,7 +122,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   // Cherenkov PID tests
   //----------------------------------------------------------
 
-  std::vector<const edm4eic::CherenkovParticleIDCollection*> coll_cherenkov_list = {
+  std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> coll_cherenkov_list = {
     coll_cherenkov_1.get(),
     coll_cherenkov_2.get()
   };
@@ -133,13 +141,14 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   // additive weights
   SECTION("merge CherenkovParticleID: add hypothesis weights") {
 
-    eicrecon::MergeParticleID algo;
+    eicrecon::MergeParticleID algo("test");
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kAddWeights;
     algo.applyConfig(cfg);
-    algo.AlgorithmInit(logger);
+    algo.init(logger);
 
-    auto result = algo.AlgorithmProcess(coll_cherenkov_list);
+    auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+    algo.process({coll_cherenkov_list}, {result.get()});
     auto pid_0  = find_cherenkov_pid_for_track(result, tracks->at(0));
     auto pid_1  = find_cherenkov_pid_for_track(result, tracks->at(1));
 
@@ -197,13 +206,14 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
    */
   SECTION("merge CherenkovParticleID: multiply hypothesis weights") {
 
-    eicrecon::MergeParticleID algo;
+    eicrecon::MergeParticleID algo("test");
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kMultiplyWeights;
     algo.applyConfig(cfg);
-    algo.AlgorithmInit(logger);
+    algo.init(logger);
 
-    auto result = algo.AlgorithmProcess(coll_cherenkov_list);
+    auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+    algo.process({coll_cherenkov_list}, {result.get()});
     auto pid_0  = find_cherenkov_pid_for_track(result, tracks->at(0));
     auto pid_1  = find_cherenkov_pid_for_track(result, tracks->at(1));
 

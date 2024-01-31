@@ -3,13 +3,14 @@
 
 
 #include <JANA/JApplication.h>
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include <string>
 
-// factories
-#include "global/pid/ParticlesWithPID_factory.h"
-
+#include "algorithms/interfaces/WithPodConfig.h"
 // algorithm configurations
 #include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+// factories
+#include "global/pid/ParticlesWithPID_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -30,7 +31,7 @@ extern "C" {
     // clang-format off
 
     // link charged particles to PID and to MC truth
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithPID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
@@ -38,6 +39,7 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
+            "CentralCKFTracks",                         // edm4eic::Track
             "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
             "ReconstructedChargedParticleIDs"           // edm4hep::ParticleID
@@ -46,14 +48,15 @@ extern "C" {
           app
           ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ParticlesWithPID_factory>(
-          "ChargedParticlesWithAssociations",
+    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
+          "SeededChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
             "CentralCKFSeededTrajectories",     // edm4eic::Trajectory
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
+            "CentralCKFSeededTracks",                         // edm4eic::Track
             "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
             "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
             "ReconstructedSeededChargedParticleIDs"           // edm4hep::ParticleID

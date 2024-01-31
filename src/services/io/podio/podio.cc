@@ -3,9 +3,12 @@
 //
 //
 
+#include <JANA/JApplication.h>
+#include <JANA/JEventSourceGeneratorT.h>
+
+#include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO.h"
 #include "JEventSourcePODIOLegacy.h"
-#include "JEventProcessorPODIO.h"
 
 
 // Make this a JANA plugin
