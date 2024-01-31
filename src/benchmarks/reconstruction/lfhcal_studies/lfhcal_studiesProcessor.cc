@@ -28,6 +28,7 @@
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <vector>
 

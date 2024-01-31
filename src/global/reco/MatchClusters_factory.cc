@@ -9,6 +9,8 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
+#include <stddef.h>
+#include <map>
 #include <memory>
 #include <ranges>
 

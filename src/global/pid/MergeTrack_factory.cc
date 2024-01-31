@@ -7,6 +7,8 @@
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <exception>
+#include <gsl/pointers>
+#include <map>
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeTrack_factory::Init() {
