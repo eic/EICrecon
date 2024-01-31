@@ -34,8 +34,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     g.init(detector.get());
   });
   [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-  serviceSvc.setInit<algorithms::RandomSvc>([](auto&& r) {
-    r.setProperty("seed", static_cast<size_t>(1));
+  auto seed = Catch::getSeed();
+  serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
+    r.setProperty("seed", static_cast<size_t>(seed));
     r.init();
   });
   serviceSvc.init();
