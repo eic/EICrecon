@@ -40,11 +40,12 @@ public:
 
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         // Remove spaces from adjacency matrix
         // cfg.adjacencyMatrix.erase(
         //  std::remove_if(cfg.adjacencyMatrix.begin(), cfg.adjacencyMatrix.end(), ::isspace), cfg.adjacencyMatrix.end());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), logger());
+        m_algo->init(m_geoSvc().detector());
     }
 
     void ChangeRun(int64_t run_number) {

@@ -46,8 +46,7 @@ namespace eicrecon {
 //   values here. This needs to be confirmed.
 
 
-void CalorimeterHitDigi::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
+void CalorimeterHitDigi::init() {
 
     // Gaudi implements a random number generator service. It is not clear to me how this
     // can work. There are multiple race conditions that occur in parallel event processing:
@@ -67,7 +66,7 @@ void CalorimeterHitDigi::init(std::shared_ptr<spdlog::logger>& logger) {
     if (m_cfg.eRes.empty()) {
       m_cfg.eRes.resize(3);
     } else if (m_cfg.eRes.size() != 3) {
-      m_log->error("Invalid m_cfg.eRes.size()");
+      error("Invalid m_cfg.eRes.size()");
       throw std::runtime_error("Invalid m_cfg.eRes.size()");
     }
 
@@ -80,11 +79,11 @@ void CalorimeterHitDigi::init(std::shared_ptr<spdlog::logger>& logger) {
     if (!m_cfg.fields.empty()) {
         // sanity checks
         if (!m_geo.detector()) {
-            m_log->error("Unable to locate geometry.");
+            error("Unable to locate geometry.");
             throw std::runtime_error("Unable to locate Geometry Service.");
         }
         if (m_cfg.readout.empty()) {
-            m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids.");
+            error("readoutClass is not provided, it is needed to know the fields in readout ids.");
             throw std::runtime_error("readoutClass is not provided.");
         }
 
@@ -97,11 +96,11 @@ void CalorimeterHitDigi::init(std::shared_ptr<spdlog::logger>& logger) {
         } catch (...) {
             // a workaround to avoid breaking the whole analysis if a field is not in some configurations
             // TODO: it should be a fatal error to not cause unexpected analysis results
-            m_log->warn("Failed to load ID decoder for {}, hits will not be merged.", m_cfg.readout);
+            warning("Failed to load ID decoder for {}, hits will not be merged.", m_cfg.readout);
             // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
             return;
         }
-        m_log->debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
+        debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
     }
     id_mask = ~id_inverse_mask;
 }
@@ -120,8 +119,8 @@ void CalorimeterHitDigi::process(
     for (const auto &ahit : *simhits) {
         uint64_t hid = ahit.getCellID() & id_mask;
 
-        m_log->trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
-        m_log->trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
+        trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
+        trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
 
         merge_map[hid].push_back(ix);
 
@@ -147,7 +146,7 @@ void CalorimeterHitDigi::process(
             }
             if (timeC > m_cfg.capTime) continue;
             edep += hit.getEnergy();
-            m_log->trace("adding {} \t total: {}", hit.getEnergy(), edep);
+            trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
             // change maximum hit energy & time if necessary
             if (hit.getEnergy() > max_edep) {
@@ -172,7 +171,7 @@ void CalorimeterHitDigi::process(
         unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
 
-        if (edep> 1.e-3) m_log->trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
+        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
         rawhits->create(
                 mid,
                 (adc > m_cfg.capADC ? m_cfg.capADC : adc),

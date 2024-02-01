@@ -62,8 +62,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     cfg.dyRangeADC = 5.0 /* GeV */;
     cfg.pedMeanADC = 123;
     cfg.resolutionTDC = 1.0 * dd4hep::ns;
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
     algo.applyConfig(cfg);
-    algo.init(logger);
+    algo.init();
 
     auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
     auto simhits = std::make_unique<edm4hep::SimCalorimeterHitCollection>();

@@ -36,11 +36,8 @@ namespace eicrecon {
                             "Use truth information for clustering."} {}
 
   public:
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
-
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
 
   };
 

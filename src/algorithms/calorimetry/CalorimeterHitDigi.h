@@ -50,7 +50,7 @@ namespace eicrecon {
                             "Smear energy deposit, digitize within ADC range, add pedestal, "
                             "convert time with smearing resolution, and sum signals."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -62,9 +62,6 @@ namespace eicrecon {
 
   private:
     const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-    std::shared_ptr<spdlog::logger> m_log;
-
-  private:
     algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
 
   };
