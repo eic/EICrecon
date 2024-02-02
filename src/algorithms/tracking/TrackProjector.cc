@@ -84,7 +84,6 @@ namespace eicrecon {
                 const auto &parameter = trackstate.predicted();
                 const auto &covariance = trackstate.predictedCovariance();
 
-
                 // convert local to global
                 auto global = trackstate.referenceSurface().localToGlobal(
                         m_geo_provider->getActsGeometryContext(),
@@ -94,6 +93,12 @@ namespace eicrecon {
                             parameter[Acts::eBoundTheta]
                         )
                 );
+                auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
+                        m_geo_provider->getActsGeometryContext(),
+                        parameter
+                );
+                auto free_covariance = jacobian * covariance * jacobian.transpose();
+
                 // global position
                 const decltype(edm4eic::TrackPoint::position) position{
                         static_cast<float>(global.x()),
@@ -111,7 +116,16 @@ namespace eicrecon {
                         static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
                         static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
                 };
-                const decltype(edm4eic::TrackPoint::positionError) positionError{0, 0, 0};
+                const decltype(edm4eic::TrackPoint::positionError) positionError{
+                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos0)),
+                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos1)),
+                        static_cast<float>(free_covariance(Acts::eFreePos2, Acts::eFreePos2)),
+                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos1)),
+                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos2)),
+                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos2)),
+                };
+
+                // momentum
                 const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
                         static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
                         static_cast<float>(parameter[Acts::eBoundTheta]),
