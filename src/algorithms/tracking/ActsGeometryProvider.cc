@@ -49,7 +49,7 @@ struct fmt::formatter<
 > : fmt::ostream_formatter {};
 #endif // FMT_VERSION >= 90000
 
-void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
+void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx, std::shared_ptr<spdlog::logger> init_log,
                    const std::string &fname) {
     using namespace Acts;
     std::vector<const Surface *> surfaces;
@@ -191,7 +191,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     // Visit surfaces
     m_init_log->info("Checking surfaces...");
     if (m_trackingGeo) {
-        draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
+        draw_surfaces(m_trackingGeo, m_trackingGeoCtx, m_init_log, "tracking_geometry.obj");
 
         m_init_log->debug("visiting all the surfaces  ");
         m_trackingGeo->visitSurfaces([this](const Acts::Surface *surface) {
