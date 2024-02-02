@@ -21,6 +21,7 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "ScatteredElectronsTruth_factory.h"
 
 //
 extern "C" {
@@ -183,6 +184,19 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedChargedJets"},
             {},
             app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
+        "ScatteredElectronsTruth",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "ScatteredElectronsTruth"
+        },
+        app
     ));
 
 }
