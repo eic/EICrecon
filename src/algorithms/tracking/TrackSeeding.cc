@@ -211,10 +211,22 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto xpos = xypos.first;
       auto ypos = xypos.second;
 
-      auto vxpos = -1.*charge*(ypos-Y0);
-      auto vypos = charge*(xpos-X0);
+      
+	const auto& firstpos = xyHitPositions.at(0);                                                                                                                          
 
-      auto phi = atan2(vypos,vxpos);
+	TVector2 tangent_vector_candidate_1( (Y0-ypos) , -(X0-xpos) );
+	TVector2 tangent_vector_candidate_2( -(Y0-ypos) , (X0-xpos) );
+
+	TVector2 first_hit_vector(firstpos.first-xpos,firstpos.second-ypos);
+
+	auto dot_1 = tangent_vector_candidate_1*first_hit_vector;
+	auto dot_2 = tangent_vector_candidate_2*first_hit_vector;
+
+	TVector2 tangent_vector = (dot_1>dot_2) ? tangent_vector_candidate_1 : tangent_vector_candidate_2;
+
+	auto phi = atan2(tangent_vector.Py(),tangent_vector.Px());
+
+	
 
       const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
