@@ -68,6 +68,10 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
     size_t nVtx = 0;
     for (const auto &srfx: surfaces) {
         const auto *srf = dynamic_cast<const PlaneSurface *>(srfx);
+        if (srf==nullptr){
+          m_init_log->info("Warning: Attempting cast a {} to Acts::PlaneSurface returns nullptr. This surface will not be added to the .obj output.")
+          continue;
+        }
         const auto *bounds = dynamic_cast<const PlanarBounds *>(&srf->bounds());
         for (const auto &vtxloc: bounds->vertices()) {
             Vector3 vtx = srf->transform(geo_ctx) * Vector3(vtxloc.x(), vtxloc.y(), 0);
