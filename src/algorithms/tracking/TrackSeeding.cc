@@ -213,19 +213,19 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto ypos = xypos.second;
 
 
-	const auto& firstpos = xyHitPositions.at(0); 
-	
-	TVector2 tangent_vector_candidate_1( (Y0-ypos) , -(X0-xpos) );
-	TVector2 tangent_vector_candidate_2( -(Y0-ypos) , (X0-xpos) );
+        const auto& firstpos = xyHitPositions.at(0);
 
-	TVector2 first_hit_vector(firstpos.first-xpos,firstpos.second-ypos);
+        TVector2 tangent_vector_candidate_1( (Y0-ypos) , -(X0-xpos) );
+        TVector2 tangent_vector_candidate_2( -(Y0-ypos) , (X0-xpos) );
 
-	auto dot_1 = tangent_vector_candidate_1*first_hit_vector;
-	auto dot_2 = tangent_vector_candidate_2*first_hit_vector;
+        TVector2 first_hit_vector(firstpos.first-xpos,firstpos.second-ypos);
 
-	TVector2 tangent_vector = (dot_1>dot_2) ? tangent_vector_candidate_1 : tangent_vector_candidate_2;
+        auto dot_1 = tangent_vector_candidate_1*first_hit_vector;
+        auto dot_2 = tangent_vector_candidate_2*first_hit_vector;
 
-	auto phi = atan2(tangent_vector.Py(),tangent_vector.Px());	
+        TVector2 tangent_vector = (dot_1>dot_2) ? tangent_vector_candidate_1 : tangent_vector_candidate_2;
+
+        auto phi = atan2(tangent_vector.Py(),tangent_vector.Px());
 
       const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
