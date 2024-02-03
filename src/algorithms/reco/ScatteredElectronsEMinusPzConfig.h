@@ -11,7 +11,7 @@ namespace eicrecon {
   struct ScatteredElectronsEMinusPzConfig {
 
     // For now these are wide open
-    // In the future the cut should depend 
+    // In the future the cut should depend
     // on the generator settings
     float minEMinusPz = 0.0; // GeV
     float maxEMinusPz = 1000000.0; // GeV

@@ -57,7 +57,7 @@ namespace eicrecon {
               m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
               auto reco_electron = reco_part.clone();
               reco_electron.addToClusters( clu );
-              
+
               m_log->trace( "ReconstructedElectron: nClusters={}", reco_electron.clusters_size() );
               m_log->trace( "ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", reco_electron.getClusters(0).getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), (reco_electron.getClusters(0).getEnergy() / edm4hep::utils::magnitude(reco_part.getMomentum())), sim.getPDG() );
               // Apply the E/p cut here to select electons

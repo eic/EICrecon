@@ -26,7 +26,7 @@ private:
     PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
     PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
     PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
-    
+
     // Declare outputs
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
 

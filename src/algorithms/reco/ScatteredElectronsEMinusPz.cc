@@ -24,8 +24,8 @@ namespace eicrecon {
 
   /**
    * @brief Initialize the ScatteredElectronsEMinusPz Algorithm
-   * 
-   * @param logger 
+   *
+   * @param logger
    */
   void ScatteredElectronsEMinusPz::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
@@ -33,18 +33,18 @@ namespace eicrecon {
 
   /**
    * @brief Produce a list of scattered electron candidates
-   * 
+   *
    * @param rcparts - input collection of all reconstructed particles
    * @param rcele  - input collection of all electron candidates
-   * @return std::unique_ptr<edm4eic::ReconstructedParticleCollection> 
+   * @return std::unique_ptr<edm4eic::ReconstructedParticleCollection>
    */
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> ScatteredElectronsEMinusPz::execute(
                 const edm4eic::ReconstructedParticleCollection *rcparts,
                 const edm4eic::ReconstructedParticleCollection *rcele
         ){
 
-    // this map will store intermediate results 
-    // so that we can sort them before filling output 
+    // this map will store intermediate results
+    // so that we can sort them before filling output
     // collection
     std::map<double, edm4eic::MutableReconstructedParticle> scatteredElectronsMap;
 
@@ -54,11 +54,11 @@ namespace eicrecon {
         edm4eic::ReconstructedParticleCollection
       >();
 
-    m_log->trace( "We have {} candidate electrons", 
-        rcele->size() 
+    m_log->trace( "We have {} candidate electrons",
+        rcele->size()
       );
 
-    // Lorentz Vector for the scattered electron, 
+    // Lorentz Vector for the scattered electron,
     // hadronic final state, and individual hadron
     // We do it here to avoid creating objects inside the loops
     PxPyPzMVector  vScatteredElectron;
@@ -76,32 +76,32 @@ namespace eicrecon {
       vHadronicFinalState.SetCoordinates(0, 0, 0, 0);
 
       // Set a vector for the electron we are considering now
-      vScatteredElectron.SetCoordinates( 
-          e.getMomentum().x, 
-          e.getMomentum().y, 
-          e.getMomentum().z, 
-          m_electron 
+      vScatteredElectron.SetCoordinates(
+          e.getMomentum().x,
+          e.getMomentum().y,
+          e.getMomentum().z,
+          m_electron
         );
 
-      // Loop over reconstructed particles to 
+      // Loop over reconstructed particles to
       // sum hadronic final state
       for (const auto& p: *rcparts) {
-        // this is a hack - getObjectID() only works within 
+        // this is a hack - getObjectID() only works within
         // a collections, not unique across all collections.
-        // What we want is to add all reconstructed particles 
-        // except the one we are currently considering as the 
+        // What we want is to add all reconstructed particles
+        // except the one we are currently considering as the
         // (scattered) electron candidate.
-        // This does work though and in general it has only 
+        // This does work though and in general it has only
         // one match as I would hope (tested on pythia events)
-        if ( edm4hep::utils::magnitude(p.getMomentum()) 
-          != edm4hep::utils::magnitude(e.getMomentum()) ) { 
-          vHadron.SetCoordinates( 
-              p.getMomentum().x, 
-              p.getMomentum().y, 
-              p.getMomentum().z, 
+        if ( edm4hep::utils::magnitude(p.getMomentum())
+          != edm4hep::utils::magnitude(e.getMomentum()) ) {
+          vHadron.SetCoordinates(
+              p.getMomentum().x,
+              p.getMomentum().y,
+              p.getMomentum().z,
               m_pion // Assume pion for hadronic state
             );
-          
+
           // Sum hadronic final state
           vHadronicFinalState += vHadron;
         } else {
@@ -109,11 +109,11 @@ namespace eicrecon {
         }
       } // hadron loop (reconstructed particles)
 
-      // Calculate the E-Pz for this electron 
+      // Calculate the E-Pz for this electron
       // + hadron final state combination
-      // For now we keep all electron 
+      // For now we keep all electron
       // candidates but we will rank them by their E-Pz
-      double EPz=(vScatteredElectron+vHadronicFinalState).E() 
+      double EPz=(vScatteredElectron+vHadronicFinalState).E()
               - (vScatteredElectron+vHadronicFinalState).Pz();
       m_log->trace( "\tE-Pz={}", EPz );
       m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z );
@@ -125,15 +125,15 @@ namespace eicrecon {
     m_log->trace( "Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz );
 
     // map sorts in descending order by default
-    // sort by descending 
+    // sort by descending
     bool first = true;
     // for (auto kv : scatteredElectronsMap) {
     for (auto kv = scatteredElectronsMap.rbegin(); kv != scatteredElectronsMap.rend(); ++kv) {
-      
+
       double EMinusPz = kv->first;
-      // Do not save electron candidates that 
+      // Do not save electron candidates that
       // are not within range
-      if ( EMinusPz > m_cfg.maxEMinusPz 
+      if ( EMinusPz > m_cfg.maxEMinusPz
         || EMinusPz < m_cfg.minEMinusPz ){
         continue;
       }
@@ -150,7 +150,7 @@ namespace eicrecon {
     } // reverse loop on scatteredElectronsMap
 
 
-    // Return Electron candidates ranked 
+    // Return Electron candidates ranked
     // in order from largest E-Pz to smallest
     return out_electrons;
   }

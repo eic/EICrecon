@@ -25,21 +25,21 @@ namespace eicrecon {
 
   /**
    * @brief Initialize ScatteredElectronsTruth algorithm
-   * 
-   * @param logger 
+   *
+   * @param logger
    */
   void ScatteredElectronsTruth::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
   }
 
   /**
-   * @brief Selects the scattered electron based 
+   * @brief Selects the scattered electron based
    * on TRUTH information (Mc particle info).
    * Returns a collection of reconstructed particles
-   * corresponding to the chosen Mc electrons 
-   * 
-   * @param input - McParticleCollection, 
-   *                ReconstructedParticleCollection, 
+   * corresponding to the chosen Mc electrons
+   *
+   * @param input - McParticleCollection,
+   *                ReconstructedParticleCollection,
    *                MCRecoParticleAssociationCollection
    * @param output - ReconstructedParticleCollection
    */
@@ -58,7 +58,7 @@ namespace eicrecon {
       return;
     }
 
-    // Associate first scattered electron 
+    // Associate first scattered electron
     // with reconstructed electron
     auto ef_assoc = rcassoc->begin();
     for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
@@ -67,7 +67,7 @@ namespace eicrecon {
       }
     }
 
-    // Check to see if the associated reconstructed 
+    // Check to see if the associated reconstructed
     // particle is available
     if (!(ef_assoc != rcassoc->end())) {
       m_log->trace("Truth scattered electron not in reconstructed particles");
@@ -85,18 +85,18 @@ namespace eicrecon {
     PxPyPzMVector  vHadronicFinalState;
     PxPyPzMVector  vHadron;
 
-    // Loop over reconstructed particles to 
+    // Loop over reconstructed particles to
     // get outgoing scattered electron.
-    // Use the true scattered electron from the 
+    // Use the true scattered electron from the
     // MC information
     std::vector<PxPyPzEVector> electrons;
     for (const auto& p: *rcparts) {
       if (p.getObjectID().index == ef_rc_id) {
-        
+
         output_electrons->push_back( p.clone() );
         vScatteredElectron.SetCoordinates( p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, m_electron );
         electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-        // break; NOTE: if we are not computing E-Pz 
+        // break; NOTE: if we are not computing E-Pz
         // we can safely break here and save precious CPUs
       } else {
         // Compute the sum hadronic final state
@@ -113,16 +113,16 @@ namespace eicrecon {
 
     // Just for debug/development
     // report the computed E-Pz for the chosen electron
-    double EPz = (vScatteredElectron+vHadronicFinalState).E() 
+    double EPz = (vScatteredElectron+vHadronicFinalState).E()
               - (vScatteredElectron+vHadronicFinalState).Pz();
     m_log->trace("We found {} scattered electrons using Truth assocaition", electrons.size());
     m_log->trace( "TRUTH scattered electron has E-Pz = {}", EPz );
     m_log->trace(
-        "TRUTH scattered electron has Pxyz=( {}, {}, {} ) and E/p = {}", 
-        electrons[0].Px(), 
-        electrons[0].Py(), 
-        electrons[0].Pz(), 
-        (electrons[0].E()/electrons[0].P()) 
+        "TRUTH scattered electron has Pxyz=( {}, {}, {} ) and E/p = {}",
+        electrons[0].Px(),
+        electrons[0].Py(),
+        electrons[0].Pz(),
+        (electrons[0].E()/electrons[0].P())
       );
   } // process
 
