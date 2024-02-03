@@ -22,6 +22,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "ScatteredElectronsTruth_factory.h"
+#include "ScatteredElectronsEMinusPz_factory.h"
 
 //
 extern "C" {
@@ -195,6 +196,22 @@ void InitPlugin(JApplication *app) {
         },
         {
           "ScatteredElectronsTruth"
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
+        "ScatteredElectronsEMinusPz",
+        {
+          "ReconstructedChargedParticles",
+          "ReconstructedElectrons"
+        },
+        {
+          "ScatteredElectronsEMinusPz"
+        },
+        {
+          .minEMinusPz = 0, // GeV
+          .maxEMinusPz = 10000000.0 // GeV
         },
         app
     ));
