@@ -118,6 +118,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   }
 
   for (const auto& vtx : vertices) {
+    #if EDM4EIC_VERSION_MAJOR >= 5
      edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3), vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3), vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3), vtx.fullCovariance()(2,3));
     auto eicvertex = outputVertices->create();
     eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
@@ -130,7 +131,24 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 	   (float)vtx.time(),
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
-    
+    #else
+       edm4eic::Cov3f cov(vtx.covariance()(0, 0), vtx.covariance()(1, 1), vtx.covariance()(2, 2),
+                       vtx.covariance()(0, 1), vtx.covariance()(0, 2), vtx.covariance()(1, 2));
+
+    auto eicvertex = outputVertices->create();
+    eicvertex.setPrimary(1);                                  // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2((float)vtx.fitQuality().first);         // chi2
+    eicvertex.setProbability((float)vtx.fitQuality().second); // ndf
+    eicvertex.setPosition({
+         (float)vtx.position().x(),
+         (float)vtx.position().y(),
+         (float)vtx.position().z()
+    }); // vtxposition
+    eicvertex.setPositionError(cov);                          // covariance
+    eicvertex.setAlgorithmType(1);                            // algorithmtype
+    eicvertex.setTime((float)vtx.time());                     // time
+
+    #endif
   }
 
   return std::move(outputVertices);
