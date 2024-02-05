@@ -126,11 +126,11 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     eicvertex.setPosition({
          (float)vtx.position().x(),
          (float)vtx.position().y(),
-	   (float)vtx.position().z(),
-	   (float)vtx.time(),
+           (float)vtx.position().z(),
+           (float)vtx.time(),
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
-    
+
   }
 
   return std::move(outputVertices);
