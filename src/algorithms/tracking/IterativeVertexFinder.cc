@@ -11,7 +11,6 @@
 #include <Acts/EventData/GenericParticleHypothesis.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
