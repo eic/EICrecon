@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <Evaluator/DD4hepUnits.h>
 
 namespace eicrecon {
 
@@ -20,7 +21,7 @@ namespace eicrecon {
         // where l = log(cl.getEnergy()/logWeightBase_Eref)
         // If this is empty, use the logWeightBase parameter for backwards compatibility.
         std::vector<double> logWeightBaseCoeffs{};
-        double logWeightBase_Eref=50;
+        double logWeightBase_Eref = 50 * dd4hep::MeV;
 
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
