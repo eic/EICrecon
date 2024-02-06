@@ -80,6 +80,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // LOWQ2 hits
             "TaggerTrackerRawHits",
             "TaggerTrackerClusterPositions",
+	    "LowQ2Tracks",
+	    "LowQ2Projections",
+	    "LowQ2Trajectories",
+	    "LowQ2TrackParameters",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -105,6 +109,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
+	    "CombinedTrajectories",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
