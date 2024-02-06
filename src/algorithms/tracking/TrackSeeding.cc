@@ -225,7 +225,7 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
         TVector2 tangent_vector = (dot_1>dot_2) ? tangent_vector_candidate_1 : tangent_vector_candidate_2;
 
-        auto phi = atan2(tangent_vector.Py(),tangent_vector.Px());
+        auto phi = tangent_vector.Phi();
 
       const float z0 = seed.z();
       auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
