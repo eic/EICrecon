@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin
 
-#ifndef EICRECON_JETRECONSTRUCTION_H
-#define EICRECON_JETRECONSTRUCTION_H
+#pragma once
 
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/utils/kinematics.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
 #include <spdlog/logger.h>
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
@@ -24,10 +21,11 @@ namespace eicrecon {
 
     public:
 
+      // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        const std::vector<const edm4hep::LorentzVectorE*> momenta
-      );
+
+      // run algorithm
+      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T* input_collection);
 
     private:
 
@@ -75,5 +73,3 @@ namespace eicrecon {
   };  // end JetReconstruction definition
 
 }  // end eicrecon namespace
-
-#endif

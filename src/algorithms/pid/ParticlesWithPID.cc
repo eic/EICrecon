@@ -42,6 +42,7 @@ namespace eicrecon {
             ) {
 
         /// Resulting reconstructed particles
+        auto tracks = std::make_unique<edm4eic::TrackCollection>();
         auto parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
         auto assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
         auto pids   = std::make_unique<edm4hep::ParticleIDCollection>();
@@ -55,7 +56,7 @@ namespace eicrecon {
           for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
-            const auto charge_rec = trk.getCharge();
+            const auto charge_rec = std::copysign(1., trk.getQOverP());
 
 
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");
@@ -138,6 +139,9 @@ namespace eicrecon {
                 }
             }
             auto rec_part = parts->create();
+            auto track = tracks->create();
+            track.setTrajectory(trajectory);
+            rec_part.addToTracks(track);
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
             // float time          = 0;
@@ -211,7 +215,7 @@ namespace eicrecon {
           }
         }
 
-        return std::make_tuple(std::move(parts), std::move(assocs), std::move(pids));
+        return std::make_tuple(std::move(tracks), std::move(parts), std::move(assocs), std::move(pids));
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {

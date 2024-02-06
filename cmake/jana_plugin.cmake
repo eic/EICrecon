@@ -216,7 +216,7 @@ macro(plugin_add_algorithms _name)
     endif()
 
     plugin_link_libraries(${_name}
-        algocore
+        algorithms::algocore
     )
 
 endmacro()

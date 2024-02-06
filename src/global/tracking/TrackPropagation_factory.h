@@ -5,18 +5,17 @@
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
-#include "algorithms/tracking/TrackPropagation.h"
 #include <edm4eic/TrackSegmentCollection.h>
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/TrackPropagation.h"
+#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
@@ -46,8 +45,6 @@ namespace eicrecon {
         eicrecon::TrackPropagation m_track_propagation_algo;
 
         std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
-        std::vector<uint64_t> m_target_surface_ID;
-        std::vector<uint32_t> m_target_detector_ID;
 
         void SetPropagationSurfaces();
 
