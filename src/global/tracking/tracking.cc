@@ -18,6 +18,7 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/tracking/TrackerHitCollector_factory.h"
+#include "factories/tracking/TrackerTrajectoryCollector_factory.h"
 
 //
 extern "C" {
@@ -112,6 +113,28 @@ void InitPlugin(JApplication *app) {
             {},
             app
             ));
+
+    // Tracker trajectory collector from ACTS and other factories
+    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+         "CombinedTrajectories",
+         {
+            "CentralCKFTrajectories",  // ACTS output
+            "LowQ2Trajectories"        // Low Q2 output
+         },
+         {"CombinedTrajectories"},
+         app
+    ));    // Output collection name
+
+    // Tracker trajectory collector from ACTS and other factories
+    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+         "CombinedSeededTrajectories",
+         {
+            "CentralCKFSeededTrajectories",  // ACTS output
+            "LowQ2Trajectories"              // Low Q2 output
+         },
+         {"CombinedSeededTrajectories"},
+         app
+    ));  // Output collection name
 
     app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
             "CalorimeterTrackPropagator",
