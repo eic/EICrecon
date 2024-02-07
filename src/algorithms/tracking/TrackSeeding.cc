@@ -188,7 +188,7 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       auto slopeZ0 = lineFit(rzHitPositions);
       const auto xypos = findPCA(RX0Y0);
-      
+
       auto xpos = xypos.first;
       auto ypos = xypos.second;
 
