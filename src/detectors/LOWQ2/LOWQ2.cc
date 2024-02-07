@@ -59,9 +59,9 @@ extern "C" {
          app
       )
     );
-    
+
     std::vector<std::string> layerClusters;
-    
+
     // Clustering of hits in each layer
     for(int mod_id : moduleIDs){
       for(int lay_id : layerIDs){
@@ -83,7 +83,7 @@ extern "C" {
         ));
       }
     }
-    
+
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::TrackerHit>>(
          "TaggerTrackerClusterPositions",
          layerClusters,
