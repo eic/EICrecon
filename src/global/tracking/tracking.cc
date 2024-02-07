@@ -45,9 +45,6 @@ void InitPlugin(JApplication *app) {
             "TOFEndcapRecHits",
             "MPGDBarrelRecHits",           // MPGD
             "MPGDDIRCRecHits",
-            "OuterMPGDBarrelRecHits",
-            "BackwardMPGDEndcapRecHits",
-            "ForwardMPGDEndcapRecHits",
             "B0TrackerRecHits"          // B0TRK
         },
         {"CentralTrackingRecHits"}, // Output collection name
