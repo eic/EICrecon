@@ -51,7 +51,7 @@ namespace eicrecon {
               m_log->debug("Requested division field {}", div);
               m_division_idx.push_back(m_id_dec->index(div));
               m_log->debug("Find division field {}, index = {}", m_cfg.division, m_division_idx);
-            }            
+            }
           } catch (...) {
             m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
             throw JException("Failed to load ID decoder");
@@ -74,7 +74,7 @@ namespace eicrecon {
             for (auto div : m_division_idx) {
               division.push_back(m_id_dec->get(cellID, div));
             }
-             
+
             auto div_index = std::find(m_cfg.divisions.begin(),m_cfg.divisions.end(),division);
 
             if(div_index != m_cfg.divisions.end()){
