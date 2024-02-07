@@ -46,7 +46,7 @@ namespace eicrecon {
 
         // Check there aren't too many hits in any layer to handle
         // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
-        // TODO - Implement more sensible solution  
+        // TODO - Implement more sensible solution
         for(const auto& layerHits: inputhits){
           if((*layerHits).size()>m_cfg.layer_hits_max){
             m_log->info("Too many hits in layer");
@@ -60,7 +60,7 @@ namespace eicrecon {
         makeHitCombination(m_cfg.n_layer-1,&hitMatrix,inputhits,outputTracks);
 
     }
-    
+
 
     void FarDetectorLinearTracking::makeHitCombination(int level,
                                                        Eigen::MatrixXd* hitMatrix,
