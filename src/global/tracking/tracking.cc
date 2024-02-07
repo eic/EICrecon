@@ -17,7 +17,7 @@
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/CollectionCollector_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 //
 extern "C" {

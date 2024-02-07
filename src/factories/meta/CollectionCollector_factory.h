@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Simon Gardner
 
 #include "extensions/jana/JOmniFactory.h"
-#include "algorithms/digi/CollectionCollector.h"
+#include "algorithms/meta/CollectionCollector.h"
 
 namespace eicrecon {
 
