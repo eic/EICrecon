@@ -122,7 +122,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   // Cherenkov PID tests
   //----------------------------------------------------------
 
-  std::vector<const edm4eic::CherenkovParticleIDCollection*> coll_cherenkov_list = {
+  std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> coll_cherenkov_list = {
     coll_cherenkov_1.get(),
     coll_cherenkov_2.get()
   };
@@ -141,13 +141,14 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   // additive weights
   SECTION("merge CherenkovParticleID: add hypothesis weights") {
 
-    eicrecon::MergeParticleID algo;
+    eicrecon::MergeParticleID algo("test");
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kAddWeights;
     algo.applyConfig(cfg);
-    algo.AlgorithmInit(logger);
+    algo.init(logger);
 
-    auto result = algo.AlgorithmProcess(coll_cherenkov_list);
+    auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+    algo.process({coll_cherenkov_list}, {result.get()});
     auto pid_0  = find_cherenkov_pid_for_track(result, tracks->at(0));
     auto pid_1  = find_cherenkov_pid_for_track(result, tracks->at(1));
 
@@ -205,13 +206,14 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
    */
   SECTION("merge CherenkovParticleID: multiply hypothesis weights") {
 
-    eicrecon::MergeParticleID algo;
+    eicrecon::MergeParticleID algo("test");
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kMultiplyWeights;
     algo.applyConfig(cfg);
-    algo.AlgorithmInit(logger);
+    algo.init(logger);
 
-    auto result = algo.AlgorithmProcess(coll_cherenkov_list);
+    auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+    algo.process({coll_cherenkov_list}, {result.get()});
     auto pid_0  = find_cherenkov_pid_for_track(result, tracks->at(0));
     auto pid_1  = find_cherenkov_pid_for_track(result, tracks->at(1));
 

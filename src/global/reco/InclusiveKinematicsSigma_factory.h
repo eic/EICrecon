@@ -18,8 +18,9 @@ namespace eicrecon {
 class InclusiveKinematicsSigma_factory :
         public JOmniFactory<InclusiveKinematicsSigma_factory> {
 
-private:
+public:
     using AlgoT = eicrecon::InclusiveKinematicsSigma;
+private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
@@ -29,7 +30,7 @@ private:
 
 public:
     void Configure() {
-        m_algo = std::make_unique<AlgoT>();
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->init(logger());
     }
 
@@ -37,10 +38,8 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_inclusive_kinematics_output() = m_algo->execute(
-            *m_mc_particles_input(),
-            *m_rc_particles_input(),
-            *m_rc_particles_assoc_input());
+        m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_rc_particles_assoc_input()},
+                        {m_inclusive_kinematics_output().get()});
     }
 };
 
