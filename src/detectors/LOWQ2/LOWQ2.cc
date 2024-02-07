@@ -35,26 +35,25 @@ extern "C" {
 
     // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
     std::vector<int> moduleIDs{1,2};
-    std::vector<int> layerIDs {0,1,2,4};
-    std::vector<std::string> moduleDiv;
-    std::vector<std::vector<std::string>> layerDiv;
-
+    std::vector<int> layerIDs {0,1,2,3};
+    std::vector<std::vector<int>> segmentIDs{};
+    std::vector<std::string> segmentDiv;
 
     for(int mod_id : moduleIDs){
-      moduleDiv.push_back(fmt::format("TaggerTrackerM{}RawHits",mod_id));
+      for(int lay_id : layerIDs){
+        segmentIDs.push_back({mod_id,lay_id});
+        segmentDiv.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+      }
     }
-
-
-    //std::vector<std::string> moduleDiv = {"TaggerTrackerM1RawHits","TaggerTrackerM2RawHits"};
 
     app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitHits",
          {"TaggerTrackerRawHits"},
-         moduleDiv,
+         segmentDiv,
          {
-           .divisions = moduleIDs,
+           .divisions = segmentIDs,
            .readout   = "TaggerTrackerHits",
-           .division  = "module",
+           .division  = {"module","layer"},
          },
          app
       )
@@ -62,15 +61,12 @@ extern "C" {
 
     app->Add(new JOmniFactoryGeneratorT<MergeCollections_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerMergedHits",
-         moduleDiv,
+         segmentDiv,
          {"TaggerTrackerMergedHits"},
          app
       )
     );
 
-//     for(int lay_id : layerIDs){
-
-//     }
 
 
 

@@ -7,10 +7,10 @@ namespace eicrecon {
 
   struct SplitGeometryConfig {
 
-    std::vector<int> divisions{};
+    std::vector<std::vector<int>> divisions{};
 
     std::string readout{""};
-    std::string division{""};
+    std::vector<std::string> division{};
 
   };
 

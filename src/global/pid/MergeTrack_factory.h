@@ -26,6 +26,11 @@ namespace eicrecon {
   {
 
     public:
+        using AlgoT = eicrecon::MergeTracks;
+    private:
+        std::unique_ptr<AlgoT> m_algo;
+
+    public:
 
       explicit MergeTrack_factory(
           std::string tag,
@@ -41,9 +46,5 @@ namespace eicrecon {
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
 
-    private:
-
-      // underlying algorithm
-      eicrecon::MergeTracks m_algo;
   };
 }

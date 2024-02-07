@@ -47,8 +47,11 @@ namespace eicrecon {
 
           try {
             m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-            m_division_idx = m_id_dec->index(m_cfg.division);
-            m_log->debug("Find division field {}, index = {}", m_cfg.division, m_division_idx);
+            for (auto div : m_cfg.division) {
+              m_log->debug("Requested division field {}", div);
+              m_division_idx.push_back(m_id_dec->index(div));
+              m_log->debug("Find division field {}, index = {}", m_cfg.division, m_division_idx);
+            }
           } catch (...) {
             m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
             throw JException("Failed to load ID decoder");
@@ -56,7 +59,7 @@ namespace eicrecon {
 
         };
 
-              void process(const typename SplitGeometry::Input& input, const typename SplitGeometryAlgorithm<T>::Output& output) const final{
+        void process(const typename SplitGeometry::Input& input, const typename SplitGeometryAlgorithm<T>::Output& output) const final{
 
           const auto [hits]      = input;
           auto [subdivided_hits] = output;
@@ -67,7 +70,10 @@ namespace eicrecon {
 
           for (const auto& hit : *hits) {
             auto cellID  = hit.getCellID();
-            int division = m_id_dec->get( cellID, m_division_idx );
+            std::vector<int> division;
+            for (auto div : m_division_idx) {
+              division.push_back(m_id_dec->get(cellID, div));
+            }
 
             auto div_index = std::find(m_cfg.divisions.begin(),m_cfg.divisions.end(),division);
 
@@ -87,7 +93,7 @@ namespace eicrecon {
         const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
         std::shared_ptr<spdlog::logger> m_log;
 
-              int m_division_idx;
+        std::vector<int> m_division_idx;
 
   };
 

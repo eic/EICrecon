@@ -99,8 +99,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
+            "CentralCKFTracks",
             "CentralCKFTrackParameters",
             "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
@@ -176,10 +178,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalRawHits",
-            "ZDCEcalRecHits",
-            "ZDCEcalClusters",
-            "ZDCEcalClusterAssociations",
             "HcalEndcapNTruthClusters",
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
@@ -187,8 +185,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0ECalRecHits",
             "B0ECalClusters",
             "B0ECalClusterAssociations",
-            "ZDCEcalTruthClusters",
-            "ZDCEcalTruthClusterAssociations",
+
+            //ZDC Ecal
+            "EcalFarForwardZDCRawHits",
+            "EcalFarForwardZDCRecHits",
+            "EcalFarForwardZDCClusters",
+            "EcalFarForwardZDCClusterAssociations",
+            "EcalFarForwardZDCTruthClusters",
+            "EcalFarForwardZDCTruthClusterAssociations",
+
+            //ZDC HCal
+            "HcalFarForwardZDCRawHits",
+            "HcalFarForwardZDCRecHits",
+            "HcalFarForwardZDCSubcellHits",
+            "HcalFarForwardZDCProtoClusters",
+            "HcalFarForwardZDCClusters",
+            "HcalFarForwardZDCClusterAssociations",
+            "HcalFarForwardZDCProtoClustersBaseline",
+            "HcalFarForwardZDCClustersBaseline",
+            "HcalFarForwardZDCClusterAssociationsBaseline",
+            "HcalFarForwardZDCTruthClusters",
+            "HcalFarForwardZDCTruthClusterAssociations",
+
 
             // DIRC
             "DIRCRawHits"
