@@ -101,7 +101,7 @@ extern "C" {
       for(int lay_id : layerIDs){
         inputClusterTags.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
       }
-      
+
       std::string outputTrackTag   = fmt::format("TaggerTrackerM{}Tracks",mod_id);
       outputTrackTags.push_back(outputTrackTag);
 
@@ -117,7 +117,7 @@ extern "C" {
           app
       ));
     }
-    
+
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
          "TaggerTrackerTracks",
          outputTrackTags,

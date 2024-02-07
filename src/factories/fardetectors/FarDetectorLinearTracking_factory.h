@@ -47,13 +47,13 @@ private:
             for( const auto& hit : m_hits_input() ) {
                 hits.push_back(gsl::not_null<const edm4hep::TrackerHitCollection*>{hit});
             }
-            
+
             m_algo->process(hits, {m_tracks_output().get()});
         }
         catch(std::exception &e) {
             throw JException(e.what());
         }
-        
+
     }
     };
 
