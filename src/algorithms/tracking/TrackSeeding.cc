@@ -4,6 +4,7 @@
 
 #include "TrackSeeding.h"
 
+#include "TVector2.h"
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Seeding/Seed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
@@ -187,16 +188,13 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       auto slopeZ0 = lineFit(rzHitPositions);
       const auto xypos = findPCA(RX0Y0);
+      
+      auto xpos = xypos.first;
+      auto ypos = xypos.second;
 
       //Determine charge
-      std::vector<std::pair<float,float>> xyrelPos;
 
-      for ( const auto& spptr : seed.sp() )
-      {
-        xyrelPos.emplace_back(spptr->x()-xypos.first, spptr->y()-xypos.second);
-      }
-
-      int charge = determineCharge(xyrelPos);
+      int charge = determineCharge(xyHitPositions,X0,Y0,xpos,ypos);
 
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
@@ -208,9 +206,6 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       float qOverP = charge / p;
 
       //Calculate phi at xypos
-      auto xpos = xypos.first;
-      auto ypos = xypos.second;
-
       auto vxpos = -1.*charge*(ypos-Y0);
       auto vypos = charge*(xpos-X0);
 
@@ -276,19 +271,18 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
   return std::make_pair(xmin,ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions) const
+int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, float X0, float Y0, float xpos, float ypos) const
 {
   // determine the charge by the bend angle of the first two hits
   int charge = 1;
   const auto& firstpos = positions.at(0);
-  const auto& secondpos = positions.at(1);
 
-  const auto firstphi = atan2(firstpos.second, firstpos.first);
-  const auto secondphi = atan2(secondpos.second, secondpos.first);
-  auto dphi = secondphi - firstphi;
-  if(dphi > M_PI) dphi -= 2.*M_PI;
-  if(dphi < -M_PI) dphi += 2*M_PI;
-  if(dphi < 0) charge = -1;
+  TVector2 radial_vector( (X0-xpos), (Y0-ypos) );
+  TVector2 first_hit_vector(firstpos.first-xpos,firstpos.second-ypos);
+
+  auto del_phi = first_hit_vector.DeltaPhi(radial_vector);
+
+  if (del_phi>0) charge = -1;
 
   return charge;
 }
