@@ -12,6 +12,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/digi/SplitGeometry_factory.h"
 #include "factories/digi/CollectionCollector_factory.h"
 
@@ -88,6 +89,39 @@ extern "C" {
          "TaggerTrackerClusterPositions",
          layerClusters,
          {"TaggerTrackerClusterPositions"},
+         app
+      )
+    );
+
+    std::vector<std::string> outputTrackTags;
+
+    // Linear tracking for each module
+    for(int mod_id : moduleIDs){
+      std::vector<std::string> inputClusterTags;
+      for(int lay_id : layerIDs){
+        inputClusterTags.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
+      }
+      
+      std::string outputTrackTag   = fmt::format("TaggerTrackerM{}Tracks",mod_id);
+      outputTrackTags.push_back(outputTrackTag);
+
+      app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
+          outputTrackTag,
+          inputClusterTags,
+          {outputTrackTag},
+          {
+            .layer_hits_max = 10,
+            .chi2_max = 0.001,
+            .n_layer = 4,
+          },
+          app
+      ));
+    }
+    
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
+         "TaggerTrackerTracks",
+         outputTrackTags,
+         {"TaggerTrackerTracks"},
          app
       )
     );
