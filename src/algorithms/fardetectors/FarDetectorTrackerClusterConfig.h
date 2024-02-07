@@ -10,8 +10,6 @@ namespace eicrecon {
 
     // Readout identifiers for dividing detector
     std::string readout{""};
-    std::string moduleField{"module"};
-    std::string layerField{"layer"};
     std::string xField{"x"};
     std::string yField{"y"};
 

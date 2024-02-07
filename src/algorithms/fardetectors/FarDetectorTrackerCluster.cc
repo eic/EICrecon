@@ -26,14 +26,6 @@ namespace eicrecon {
     }
     try {
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-      if (!m_cfg.moduleField.empty()) {
-        m_module_idx = m_id_dec->index(m_cfg.moduleField);
-        m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
-      }
-      if (!m_cfg.layerField.empty()) {
-        m_layer_idx = m_id_dec->index(m_cfg.layerField);
-        m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
-      }
       if (!m_cfg.xField.empty()) {
         m_x_idx = m_id_dec->index(m_cfg.xField);
         m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
@@ -53,8 +45,6 @@ namespace eicrecon {
     // TODO check if this whole method is unnecessarily complicated/inefficient
 
     ROOT::VecOps::RVec<long>  id;
-    ROOT::VecOps::RVec<int>   module;
-    ROOT::VecOps::RVec<int>   layer;
     ROOT::VecOps::RVec<int>   x;
     ROOT::VecOps::RVec<int>   y;
     ROOT::VecOps::RVec<float> e;
@@ -64,8 +54,6 @@ namespace eicrecon {
     for(auto hit: inputhits){
       auto cellID = hit.getCellID();
       id.push_back    (cellID);
-      module.push_back(m_id_dec->get( cellID, m_module_idx ));
-      layer.push_back (m_id_dec->get( cellID, m_layer_idx  ));
       x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
       y.push_back     (m_id_dec->get( cellID, m_y_idx      ));
       e.push_back     (hit.getCharge());
@@ -73,8 +61,8 @@ namespace eicrecon {
     }
 
     // Set up clustering variables
-    ROOT::VecOps::RVec<bool> available(module.size(), 1);
-    auto indices = Enumerate(module);
+    ROOT::VecOps::RVec<bool> available(id.size(), 1);
+    auto indices = Enumerate(id);
 
     auto outputClusters = std::make_unique<edm4hep::TrackerHitCollection>();
 
@@ -98,9 +86,6 @@ namespace eicrecon {
       ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
 
-      // Filter to make sure everything is on the same detector layer
-      auto layerFilter = (module==module[maxIndex])*(layer==layer[maxIndex]);
-
       // Loop over hits, adding neighbouring hits as relevant
       while(clusterList.size()){
 
@@ -108,7 +93,7 @@ namespace eicrecon {
         auto index  = clusterList[0];
 
         // Finds neighbours of cluster within time limit
-        auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
+        auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
 
         // Adds the found hits to the cluster
         clusterList = Concatenate(clusterList,indices[filter]);

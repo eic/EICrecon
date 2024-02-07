@@ -34,16 +34,6 @@ extern "C" {
          app
     ));
 
-    // Clustering of hits
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-        "TaggerTrackerClusterPositions",
-        {"TaggerTrackerRawHits"},
-        {"TaggerTrackerClusterPositions"},
-        {
-          .readout = "TaggerTrackerHits"
-        },
-        app
-    ));
     // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
     std::vector<int> moduleIDs{1,2};
     std::vector<int> layerIDs {0,1,2,3};
@@ -69,17 +59,38 @@ extern "C" {
          app
       )
     );
+    
+    std::vector<std::string> layerClusters;
+    
+    // Clustering of hits in each layer
+    for(int mod_id : moduleIDs){
+      for(int lay_id : layerIDs){
+        std::string inputHitTag      = fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id);
+        std::string outputClusterTag = fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id);
+        layerClusters.push_back(outputClusterTag);
 
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-         "TaggerTrackerMergedHits",
-         segmentDiv,
-         {"TaggerTrackerMergedHits"},
+        app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
+            outputClusterTag,
+            {inputHitTag},
+            {outputClusterTag},
+            {
+              .readout = "TaggerTrackerHits",
+              .xField  = "x",
+              .yField  = "y",
+              .time_limit = 10 * dd4hep::ns,
+            },
+            app
+        ));
+      }
+    }
+    
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::TrackerHit>>(
+         "TaggerTrackerClusterPositions",
+         layerClusters,
+         {"TaggerTrackerClusterPositions"},
          app
       )
     );
-
-
-
 
   }
 }
