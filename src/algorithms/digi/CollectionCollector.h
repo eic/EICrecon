@@ -12,17 +12,17 @@
 namespace eicrecon {
 
    template<class T>
-     using MergeCollectionsAlgorithm =  algorithms::Algorithm<
+     using CollectionCollectorAlgorithm =  algorithms::Algorithm<
      typename algorithms::Input<std::vector<const T>>,
      typename algorithms::Output<T>
      >;
      
   template<class T>
-  class MergeCollections : public MergeCollectionsAlgorithm<T>  {
+  class CollectionCollector : public CollectionCollectorAlgorithm<T>  {
 
     public:
-    MergeCollections(std::string_view name)
-      : MergeCollectionsAlgorithm<T>{name,
+    CollectionCollector(std::string_view name)
+      : CollectionCollectorAlgorithm<T>{name,
                       {"inputCollections"},
                         {"outputCollection"},
                           "Merge content of collections into one subset collection"
@@ -32,7 +32,7 @@ namespace eicrecon {
             m_log      = logger;
         };
 
-        void process(const typename MergeCollections::Input& input, const typename MergeCollections::Output& output) const final{
+        void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
                         
             const auto [in_collections] = input;
             auto [out_collection]       = output;

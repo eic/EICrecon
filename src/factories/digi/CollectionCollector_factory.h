@@ -2,20 +2,20 @@
 // Copyright (C) 2024 Simon Gardner
 
 #include "extensions/jana/JOmniFactory.h"
-#include "algorithms/digi/MergeCollections.h"
+#include "algorithms/digi/CollectionCollector.h"
 
 namespace eicrecon {
 
     template<class T>
-    class MergeCollections_factory : public JOmniFactory<MergeCollections_factory<T>> {
+    class CollectionCollector_factory : public JOmniFactory<CollectionCollector_factory<T>> {
 public:
-    using AlgoT = eicrecon::MergeCollections<typename T::collection_type>;
+    using AlgoT = eicrecon::CollectionCollector<typename T::collection_type>;
 
 private:
     std::unique_ptr<AlgoT> m_algo;  
 
-    typename JOmniFactory<MergeCollections_factory<T>>::template VariadicPodioInput<T> m_inputs {this};
-    typename JOmniFactory<MergeCollections_factory<T>>::template PodioOutput<T> m_output {this};
+    typename JOmniFactory<CollectionCollector_factory<T>>::template VariadicPodioInput<T> m_inputs {this};
+    typename JOmniFactory<CollectionCollector_factory<T>>::template PodioOutput<T> m_output {this};
 
 public:
 
