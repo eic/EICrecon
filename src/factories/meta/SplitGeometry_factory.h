@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "algorithms/digi/SplitGeometry.h"
+#include "algorithms/meta/SplitGeometry.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 

@@ -11,7 +11,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/digi/SplitGeometry_factory.h"
+#include "factories/meta/SplitGeometry_factory.h"
 
 
 extern "C" {
