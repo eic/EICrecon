@@ -43,7 +43,6 @@ namespace eicrecon {
                  for (const auto& hit : *collection) {
                      out_collection->push_back(hit);
                  }
-            //    out_collection->insert(out_collection->end(), collection->begin(), collection->end());
             }
         }
 
