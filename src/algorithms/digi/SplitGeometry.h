@@ -42,7 +42,7 @@ namespace eicrecon {
           }
 
           if (m_cfg.division.empty()) {
-            throw JException("Readout devision is undefined");
+            throw JException("Readout division is undefined");
           }
 
           try {
