@@ -28,19 +28,23 @@ namespace eicrecon {
 
     }
 
-    std::unique_ptr<edm4eic::TrackParametersCollection> FarDetectorLinearProjection::process(const edm4eic::TrackSegmentCollection &inputSegments) {
+    void FarDetectorLinearProjection::process(const FarDetectorLinearProjection::Input& input,
+                                              const FarDetectorLinearProjection::Output& output) const {
 
-      auto outputTracks = std::make_unique<edm4eic::TrackParametersCollection>();
+      const auto [inputSegments] = input;
+      auto [outputTracks]        = output;
 
-      for( auto segment: inputSegments ) {
+      Eigen::Matrix3d directions = m_directions;
+
+      for(const auto& segment: *inputSegments ) {
 
         auto inputPoint = segment.getPoints()[0];
 
         Eigen::Vector3d point_position(inputPoint.position.x,inputPoint.position.y,inputPoint.position.z);
         Eigen::Vector3d positionDiff = point_position - m_plane_position;
-        m_directions.block<3,1>(0,2) << inputPoint.momentum.x,inputPoint.momentum.y,inputPoint.momentum.z;
+        directions.block<3,1>(0,2) << inputPoint.momentum.x,inputPoint.momentum.y,inputPoint.momentum.z;
 
-        auto projectedPoint = m_directions.inverse()*positionDiff;
+        auto projectedPoint = directions.inverse()*positionDiff;
 
         // Create track parameters edm4eic structure
         // TODO - populate more of the fields correctly
@@ -59,8 +63,6 @@ namespace eicrecon {
 
         outputTracks->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
       }
-
-      return outputTracks;
 
     }
 

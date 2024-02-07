@@ -12,19 +12,35 @@
 #include <spdlog/logger.h>
 #include "FarDetectorLinearProjectionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
+#include "algorithms/algorithm.h"
 
 namespace eicrecon {
 
-    class FarDetectorLinearProjection : public WithPodConfig<FarDetectorLinearProjectionConfig>  {
+    using FarDetectorLinearProjectionAlgorithm = algorithms::Algorithm<
+        algorithms::Input<
+            edm4eic::TrackSegmentCollection
+        >,
+        algorithms::Output<
+            edm4eic::TrackParametersCollection
+        >
+    >;
+
+    class FarDetectorLinearProjection
+    : public FarDetectorLinearProjectionAlgorithm,
+      public WithPodConfig<FarDetectorLinearProjectionConfig>  {
 
     public:
+        FarDetectorLinearProjection(std::string_view name)
+            : FarDetectorLinearProjectionAlgorithm{name,
+                {"inputTrackSegments"},
+                {"outputTrackParameters"},
+                "Project track segments to a plane"} {}
 
         /** One time initialization **/
         void init(std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
-        std::unique_ptr<edm4eic::TrackParametersCollection> process(const edm4eic::TrackSegmentCollection &inputhits);
+        void process(const Input&, const Output&) const final;
 
 
     private:
