@@ -16,7 +16,7 @@ namespace eicrecon {
      typename algorithms::Input<std::vector<const T>>,
      typename algorithms::Output<T>
      >;
-     
+
   template<class T>
   class CollectionCollector : public CollectionCollectorAlgorithm<T>  {
 
@@ -33,10 +33,10 @@ namespace eicrecon {
         };
 
         void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
-                        
+
             const auto [in_collections] = input;
             auto [out_collection]       = output;
-            
+
             out_collection->setSubsetCollection();
 
             for (const auto& collection : in_collections) {
@@ -46,7 +46,7 @@ namespace eicrecon {
             //    out_collection->insert(out_collection->end(), collection->begin(), collection->end());
             }
         }
-    
+
 
     private:
         std::shared_ptr<spdlog::logger> m_log; // logger

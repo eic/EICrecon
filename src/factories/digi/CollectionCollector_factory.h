@@ -12,7 +12,7 @@ public:
     using AlgoT = eicrecon::CollectionCollector<typename T::collection_type>;
 
 private:
-    std::unique_ptr<AlgoT> m_algo;  
+    std::unique_ptr<AlgoT> m_algo;
 
     typename JOmniFactory<CollectionCollector_factory<T>>::template VariadicPodioInput<T> m_inputs {this};
     typename JOmniFactory<CollectionCollector_factory<T>>::template PodioOutput<T> m_output {this};
