@@ -13,6 +13,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/digi/SplitGeometry_factory.h"
 #include "factories/digi/CollectionCollector_factory.h"
 
@@ -118,6 +119,7 @@ extern "C" {
       ));
     }
     
+    // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
          "TaggerTrackerTracks",
          outputTrackTags,
@@ -125,6 +127,19 @@ extern "C" {
          app
       )
     );
+
+    // Project tracks onto a plane
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+         "TaggerTrackerProjectedTracks",
+         {"TaggerTrackerTracks"},
+         {"TaggerTrackerProjectedTracks"},
+         {
+           .plane_position = {0,0,0},
+           .plane_a = {1,0,0},
+           .plane_b = {0,1,0},
+         },
+         app
+    ));
 
   }
 }
