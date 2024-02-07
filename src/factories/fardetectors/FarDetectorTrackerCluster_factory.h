@@ -12,23 +12,27 @@ namespace eicrecon {
 class FarDetectorTrackerCluster_factory :
 public JOmniFactory<FarDetectorTrackerCluster_factory, FarDetectorTrackerClusterConfig> {
 
-  FarDetectorTrackerCluster m_algo;        // Actual digitisation algorithm
+public:
+  using AlgoT = eicrecon::FarDetectorTrackerCluster;
+private:
+  std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
   PodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
   Service<DD4hep_service> m_geoSvc {this};
 
+  ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
+  
 public:
 
   /** One time initialization **/
   void Configure() {
 
-    ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
-
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     // Setup algorithm
-    m_algo.applyConfig(config());
-    m_algo.init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
+    m_algo->applyConfig(config());
+    m_algo->init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
 
   }
 
@@ -37,7 +41,7 @@ public:
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_clustered_hits_output() = m_algo.process(*m_raw_hits_input());
+    m_algo->process({m_raw_hits_input()}, {m_clustered_hits_output().get()});
   }
 
 };

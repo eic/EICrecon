@@ -3,19 +3,38 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <DDRec/CellIDPositionConverter.h>
 // Event Model related classes
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
+
+#include <string_view>
 
 #include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class FarDetectorTrackerCluster : public WithPodConfig<FarDetectorTrackerClusterConfig>  {
+  using FarDetectorTrackerClusterAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::RawTrackerHitCollection
+    >,
+    algorithms::Output<
+      edm4hep::TrackerHitCollection
+    >
+  >;
+
+  class FarDetectorTrackerCluster
+  : public FarDetectorTrackerClusterAlgorithm,
+    public WithPodConfig<FarDetectorTrackerClusterConfig>  {
 
   public:
+    FarDetectorTrackerCluster(std::string_view name)
+      : FarDetectorTrackerClusterAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputClusterPositionCollection"},
+                            "Simple weighted clustering of hits by x-y component of single detector element segmentation"} {}
 
     /** One time initialization **/
     void init(const dd4hep::rec::CellIDPositionConverter* converter,
@@ -23,7 +42,7 @@ namespace eicrecon {
               std::shared_ptr<spdlog::logger>);
 
     /** Event by event processing **/
-    std::unique_ptr<edm4hep::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection &inputhits);
+    void process(const Input&, const Output&) const final;
 
   private:
       const dd4hep::Detector*         m_detector{nullptr};
@@ -31,8 +50,6 @@ namespace eicrecon {
       std::shared_ptr<spdlog::logger> m_log;
       const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
 
-      int m_module_idx{0};
-      int m_layer_idx{0};
       int m_x_idx{0};
       int m_y_idx{0};
 

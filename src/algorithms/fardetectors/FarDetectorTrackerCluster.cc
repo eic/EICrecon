@@ -41,8 +41,12 @@ namespace eicrecon {
 
   }
 
-  std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::process(const edm4eic::RawTrackerHitCollection &inputhits) {
-    // TODO check if this whole method is unnecessarily complicated/inefficient
+  void FarDetectorTrackerCluster::process(
+      const FarDetectorTrackerCluster::Input& input,
+      const FarDetectorTrackerCluster::Output& output) const {
+
+    const auto [inputhits] = input;
+    auto [outputClusters]  = output;
 
     ROOT::VecOps::RVec<long>  id;
     ROOT::VecOps::RVec<int>   x;
@@ -51,7 +55,7 @@ namespace eicrecon {
     ROOT::VecOps::RVec<float> t;
 
     // Gather detector id positions
-    for(auto hit: inputhits){
+    for(const auto& hit: *inputhits){
       auto cellID = hit.getCellID();
       id.push_back    (cellID);
       x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
@@ -63,8 +67,6 @@ namespace eicrecon {
     // Set up clustering variables
     ROOT::VecOps::RVec<bool> available(id.size(), 1);
     auto indices = Enumerate(id);
-
-    auto outputClusters = std::make_unique<edm4hep::TrackerHitCollection>();
 
     // Loop while there are unclustered hits
     while(ROOT::VecOps::Any(available)){
@@ -105,11 +107,12 @@ namespace eicrecon {
         clusterList.erase(clusterList.begin());
 
         // Adds raw hit to TrackerHit contribution
-        cluster.addToRawHits(inputhits[index].getObjectID());
+        cluster.addToRawHits((*inputhits)[index].getObjectID());
 
         // Energy
         auto hitE = e[index];
         esum += hitE;
+        // TODO - See if now a single detector element is expected a better function is avaliable.
         auto pos = m_cellid_converter->position(id[index]);
 
         //Weighted position
@@ -140,8 +143,6 @@ namespace eicrecon {
       cluster.setTime    (t0);
 
     }
-
-    return outputClusters;
 
   }
 
