@@ -22,7 +22,6 @@
 namespace eicrecon {
 
     using ParticlesWithAssociation = std::tuple<
-        std::unique_ptr<edm4eic::TrackCollection>,
         std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
         std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>,
         std::unique_ptr<edm4hep::ParticleIDCollection>
@@ -36,7 +35,7 @@ namespace eicrecon {
 
         ParticlesWithAssociation process(
                 const edm4hep::MCParticleCollection* mc_particles,
-                const edm4eic::TrajectoryCollection* track_params,
+                const edm4eic::TrackCollection* tracks,
                 const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
                 );
 
