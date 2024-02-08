@@ -8,7 +8,6 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <spdlog/logger.h>
