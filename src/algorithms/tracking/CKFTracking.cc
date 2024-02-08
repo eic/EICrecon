@@ -32,7 +32,6 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/Track.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector2f.h>
