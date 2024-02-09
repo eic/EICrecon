@@ -4,6 +4,27 @@
 
 #include "TrackParamTruthInit.h"
 
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/GenericParticleHypothesis.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/VectorHelpers.hpp>
+#include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
+#include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
+#include <Acts/Vertexing/ImpactPointEstimator.hpp>
+#include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
+#include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <Evaluator/DD4hepUnits.h>
 #include <TParticlePDG.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -24,8 +45,9 @@
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 
-void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, const std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
+    m_geoSvc = geo_svc;
 
     // TODO make a service?
     m_pdg_db = std::make_shared<TDatabasePDG>();
@@ -93,10 +115,35 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // modify initial momentum to avoid bleeding truth to results when fit fails
         const auto pinit = pmag * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
 
+        // define line surface for local position values
+        auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+
+        // track particle back to transverse point-of-closest approach
+        // with respect to the defined line surface
+        auto linesurface_parameter = -(v.x*p.x + v.y*p.y)/(p.x*p.x + p.y*p.y);
+        
+        auto xpca = v.x + linesurface_parameter*p.x;
+        auto ypca = v.y + linesurface_parameter*p.y;
+        auto zpca = v.z + linesurface_parameter*p.z;
+
+        Acts::Vector3 global(xpca, ypca, zpca);	
+        
+        // convert from global to local coordinates using the defined line surface
+        Acts::Vector2 localpos;
+        Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
+        auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+
+        if(!local.ok())
+        {
+            continue;
+        }
+
+        localpos = local.value();
+
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y)), static_cast<float>(v.z)}); // 2d location on surface [mm]
+        track_parameter.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface [mm]
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
