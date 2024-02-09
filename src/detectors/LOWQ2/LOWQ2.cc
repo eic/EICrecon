@@ -13,7 +13,6 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/meta/SubDivideFunctors.h"
-#include "factories/meta/SubDivideFunctors.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -37,19 +36,13 @@ extern "C" {
     // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
     std::string readout = "TaggerTrackerHits";
     std::vector<std::string> geometryLabels {"module","layer"};
-    std::string readout = "TaggerTrackerHits";
-    std::vector<std::string> geometryLabels {"module","layer"};
     std::vector<int> moduleIDs{1,2};
     std::vector<int> layerIDs {0,1,2,3};
-    std::vector<std::vector<long int>> geometryDivisions{};
-    std::vector<std::string> geometryDivisionCollectionNames;
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
 
     for(int mod_id : moduleIDs){
       for(int lay_id : layerIDs){
-        geometryDivisions.push_back({mod_id,lay_id});
-        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
       }
@@ -60,9 +53,7 @@ extern "C" {
          "TaggerTrackerSplitHits",
          {"TaggerTrackerRawHits"},
          geometryDivisionCollectionNames,
-         geometryDivisionCollectionNames,
          {
-          .function = GeometrySplit{app,geometryDivisions,readout,geometryLabels},
           .function = GeometrySplit{app,geometryDivisions,readout,geometryLabels},
          },
          app
@@ -75,17 +66,13 @@ extern "C" {
 
     for(auto [low,high]  : chargeDivisions){
       chargeDivisionCollectionNames.push_back(fmt::format("TaggerTrackerChargeGT{}LT{}RawHits",low,high));
-    for(auto [low,high]  : chargeDivisions){
-      chargeDivisionCollectionNames.push_back(fmt::format("TaggerTrackerChargeGT{}LT{}RawHits",low,high));
     }           
     
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitEnergy",
          {"TaggerTrackerRawHits"},
          chargeDivisionCollectionNames,
-         chargeDivisionCollectionNames,
          {
-          .function = RangeSplit<&edm4eic::RawTrackerHit::getCharge>{chargeDivisions},
           .function = RangeSplit<&edm4eic::RawTrackerHit::getCharge>{chargeDivisions},
          },
          app
