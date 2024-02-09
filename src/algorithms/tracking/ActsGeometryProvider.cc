@@ -49,7 +49,7 @@ struct fmt::formatter<
 > : fmt::ostream_formatter {};
 #endif // FMT_VERSION >= 90000
 
-void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
+void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx, std::shared_ptr<spdlog::logger> init_log,
                    const std::string &fname) {
     using namespace Acts;
     std::vector<const Surface *> surfaces;
@@ -68,6 +68,10 @@ void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const 
     size_t nVtx = 0;
     for (const auto &srfx: surfaces) {
         const auto *srf = dynamic_cast<const PlaneSurface *>(srfx);
+        if (srf==nullptr){
+          init_log->error("Warning: Attempting cast a {} to Acts::PlaneSurface returns nullptr. This surface will not be added to the .obj output.", srfx->name());
+          continue;
+        }
         const auto *bounds = dynamic_cast<const PlanarBounds *>(&srf->bounds());
         for (const auto &vtxloc: bounds->vertices()) {
             Vector3 vtx = srf->transform(geo_ctx) * Vector3(vtxloc.x(), vtxloc.y(), 0);
@@ -187,7 +191,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     // Visit surfaces
     m_init_log->info("Checking surfaces...");
     if (m_trackingGeo) {
-        draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
+        draw_surfaces(m_trackingGeo, m_trackingGeoCtx, m_init_log, "tracking_geometry.obj");
 
         m_init_log->debug("visiting all the surfaces  ");
         m_trackingGeo->visitSurfaces([this](const Acts::Surface *surface) {
