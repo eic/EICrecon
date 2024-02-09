@@ -46,8 +46,7 @@ extern "C" {
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
       }
-    }
-            
+    }            
             
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitHits",
@@ -55,25 +54,6 @@ extern "C" {
          geometryDivisionCollectionNames,
          {
           .function = GeometrySplit{app,geometryDivisions,readout,geometryLabels},
-         },
-         app
-      )
-    );
-
-    // Divide collection based on charge values
-    std::vector<std::pair<long int,long int>> chargeDivisions{{0,10},{0,100},{100,200},{200,300},{200,400},{400,800},{400,1600},{1600,100000}};
-    std::vector<std::string> chargeDivisionCollectionNames;
-
-    for(auto [low,high]  : chargeDivisions){
-      chargeDivisionCollectionNames.push_back(fmt::format("TaggerTrackerChargeGT{}LT{}RawHits",low,high));
-    }           
-    
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
-         "TaggerTrackerSplitEnergy",
-         {"TaggerTrackerRawHits"},
-         chargeDivisionCollectionNames,
-         {
-          .function = RangeSplit<&edm4eic::RawTrackerHit::getCharge>{chargeDivisions},
          },
          app
       )
