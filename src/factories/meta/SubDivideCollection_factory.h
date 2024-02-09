@@ -15,7 +15,7 @@ class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_fact
 
   public:
     using AlgoT = eicrecon::SubDivideCollection<T>;
-    
+
   private:
 
     std::unique_ptr<AlgoT> m_algo;

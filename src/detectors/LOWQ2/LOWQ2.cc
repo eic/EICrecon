@@ -46,8 +46,8 @@ extern "C" {
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
       }
-    }            
-            
+    }
+
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitHits",
          {"TaggerTrackerRawHits"},
