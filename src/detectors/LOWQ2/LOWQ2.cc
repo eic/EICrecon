@@ -15,7 +15,6 @@
 #include "factories/meta/SubDivideFunctors.h"
 #include "factories/meta/SubDivideFunctors.h"
 
-
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
