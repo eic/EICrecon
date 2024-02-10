@@ -4,7 +4,6 @@
 
 #include "TrackSeeding.h"
 
-#include "TVector2.h"
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Seeding/Seed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
@@ -26,6 +25,7 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
+#include <Eigen/LU>
 
 #if EDM4EIC_VERSION_MAJOR >= 5
 #include <edm4eic/Cov6f.h>
@@ -271,21 +271,33 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
   return std::make_pair(xmin,ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, float X0, float Y0, float xpos, float ypos) const
+int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, const std::pair<float,float>& PCA, std::tuple<float,float,float>& RX0Y0) const
 {
-  // determine the charge by the bend angle of the first two hits
+  // determine the charge by the bend angle of the first two hits                                                                                                                                           
   int charge = 1;
+
   const auto& firstpos = positions.at(0);
+  auto hit_x = firstpos.first;
+  auto hit_y = firstpos.second;
 
-  TVector2 radial_vector( (X0-xpos), (Y0-ypos) );
-  TVector2 first_hit_vector(firstpos.first-xpos,firstpos.second-ypos);
+  auto xpos = PCA.first;
+  auto ypos = PCA.second;
 
-  auto del_phi = first_hit_vector.DeltaPhi(radial_vector);
+  float X0 = std::get<1>(RX0Y0);
+  float Y0 = std::get<2>(RX0Y0);
 
-  if (del_phi > 0) charge = -1;
+  Acts::Vector2 radial(X0-xpos, Y0-ypos);
+  Acts::Vector2 hit(hit_x-xpos, hit_y-ypos);
+
+  Eigen::Matrix2d  matrix;
+  matrix << radial(0), radial(1), hit(0), hit(1);
+  auto det = matrix.determinant();
+
+  if (det > 0) charge = -1;
 
   return charge;
 }
+
 
  /**
    * Circle fit to a given set of data points (in 2D)
