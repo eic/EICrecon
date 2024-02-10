@@ -273,7 +273,7 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
 
 int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, const std::pair<float,float>& PCA, std::tuple<float,float,float>& RX0Y0) const
 {
-  // determine the charge by the bend angle of the first two hits
+  
   int charge = 1;
 
   const auto& firstpos = positions.at(0);
