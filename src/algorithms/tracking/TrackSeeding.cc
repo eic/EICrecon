@@ -194,7 +194,7 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
 
       //Determine charge
 
-      int charge = determineCharge(xyHitPositions, X0, Y0, xpos, ypos);
+      int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
 
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
