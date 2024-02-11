@@ -121,13 +121,13 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // track particle back to transverse point-of-closest approach
         // with respect to the defined line surface
         auto linesurface_parameter = -(v.x*p.x + v.y*p.y)/(p.x*p.x + p.y*p.y);
-        
+
         auto xpca = v.x + linesurface_parameter*p.x;
         auto ypca = v.y + linesurface_parameter*p.y;
         auto zpca = v.z + linesurface_parameter*p.z;
 
-        Acts::Vector3 global(xpca, ypca, zpca);	
-        
+        Acts::Vector3 global(xpca, ypca, zpca);
+
         // convert from global to local coordinates using the defined line surface
         Acts::Vector2 localpos;
         Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
