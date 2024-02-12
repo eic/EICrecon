@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 
+#include "AmbiguitySolver_factory.h"
 #include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
@@ -21,104 +22,67 @@
 
 //
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  using namespace eicrecon;
 
-    using namespace eicrecon;
+  app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
+      "InitTrackParams", {"MCParticles"}, {"InitTrackParams"}, {}, app));
 
-    app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-            "InitTrackParams",
-            {"MCParticles"},
-            {"InitTrackParams"},
-            {},
-            app
-            ));
+  // Tracker hits collector
+  app->Add(new JChainMultifactoryGeneratorT<TrackerHitCollector_factory>(
+      "CentralTrackingRecHits",
+      {
+          "SiBarrelTrackerRecHits", // Si tracker hits
+          "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
+          "TOFBarrelRecHit", // TOF hits
+          "TOFEndcapRecHits",
+          "MPGDBarrelRecHits", // MPGD
+          "MPGDDIRCRecHits", "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+          "ForwardMPGDEndcapRecHits",
+          "B0TrackerRecHits" // B0TRK
+      },
+      {"CentralTrackingRecHits"}, // Output collection name
+      app));
 
-    // Tracker hits collector
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitCollector_factory>(
-        "CentralTrackingRecHits",
-        {
-            "SiBarrelTrackerRecHits",          // Si tracker hits
-            "SiBarrelVertexRecHits",
-            "SiEndcapTrackerRecHits",
-            "TOFBarrelRecHit",             // TOF hits
-            "TOFEndcapRecHits",
-            "MPGDBarrelRecHits",           // MPGD
-            "MPGDDIRCRecHits",
-            "OuterMPGDBarrelRecHits",
-            "BackwardMPGDEndcapRecHits",
-            "ForwardMPGDEndcapRecHits",
-            "B0TrackerRecHits"          // B0TRK
-        },
-        {"CentralTrackingRecHits"}, // Output collection name
-        app));
+  app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
+      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      app));
 
-    app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-            "CentralTrackerMeasurements",
-            {"CentralTrackingRecHits"},
-            {"CentralTrackerMeasurements"},
-            app
-            ));
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "CentralCKFTrajectories", {"InitTrackParams", "CentralTrackerMeasurements"},
+      {
+          "CentralCKFTrajectories",
+          "CentralCKFTrackParameters",
+          "CentralCKFActsTrajectories",
+          "CentralCKFActsTracks",
+      },
+      app));
 
-    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-        "CentralCKFTrajectories",
-        {
-            "InitTrackParams",
-            "CentralTrackerMeasurements"
-        },
-        {
-            "CentralCKFTrajectories",
-            "CentralCKFTrackParameters",
-            "CentralCKFActsTrajectories",
-            "CentralCKFActsTracks",
-        },
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
+      "CentralTrackSeedingResults", {"CentralTrackingRecHits"}, {"CentralTrackSeedingResults"}, {},
+      app));
 
-    app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-        "CentralTrackSeedingResults",
-        {"CentralTrackingRecHits"},
-        {"CentralTrackSeedingResults"},
-        {},
-        app
-        ));
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "CentralCKFSeededTrajectories", {"CentralTrackSeedingResults", "CentralTrackerMeasurements"},
+      {
+          "CentralCKFSeededTrajectories",
+          "CentralCKFSeededTrackParameters",
+          "CentralCKFSeededActsTrajectories",
+          "CentralCKFSeededActsTracks",
+      },
+      app));
+  std::cout<<"MJ DEBUG"<<std::endl;
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>( "AmbiguityResolutionSolver", {"CentralCKFSeededActsTracks"},{"CentralCKFSeededTrackParametersFiltered", "CentralCKFSeededActsTracksFiltered"}, app));
+  std::cout<<"MJ DEBUG"<<std::endl;
+  app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
+      "CentralTrackSegments", {"CentralCKFActsTrajectories"}, {"CentralTrackSegments"}, app));
 
-    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-        "CentralCKFSeededTrajectories",
-        {
-            "CentralTrackSeedingResults",
-            "CentralTrackerMeasurements"
-        },
-        {
-            "CentralCKFSeededTrajectories",
-            "CentralCKFSeededTrackParameters",
-            "CentralCKFSeededActsTrajectories",
-            "CentralCKFSeededActsTracks",
-        },
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
+      "CentralTrackVertices", {"CentralCKFActsTrajectories"}, {"CentralTrackVertices"}, {}, app));
 
-    app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
-            "CentralTrackSegments",
-            {"CentralCKFActsTrajectories"},
-            {"CentralTrackSegments"},
-            app
-            ));
-
-    app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-            "CentralTrackVertices",
-            {"CentralCKFActsTrajectories"},
-            {"CentralTrackVertices"},
-            {},
-            app
-            ));
-
-    app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
-            "CalorimeterTrackPropagator",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-            {"CalorimeterTrackProjections"},
-            app
-            ));
-
+  app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
+      "CalorimeterTrackPropagator", {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"CalorimeterTrackProjections"}, app));
 }
 } // extern "C"

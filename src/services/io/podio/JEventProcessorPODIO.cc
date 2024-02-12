@@ -104,6 +104,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
+            "CentralCKFSeededTrackParametersFiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
@@ -260,6 +261,9 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
                 m_collections_to_write.push_back(col);
                 m_log->info("Persisting collection '{}'", col);
             }
+	    else{
+		std::cout<<"MJDEBUG something wrong in this collection -- "<<col<<std::endl;
+}
         }
     }
     else {
