@@ -28,23 +28,22 @@ extern "C" {
 
     bool UseSectorIndexedBHCalReadout(JApplication *app) {
 
-      using namespace eicrecon;
+        using namespace eicrecon;
 
-      // grab detector
-      auto service    = app -> GetService<DD4hep_service>();
-      auto detector   = service -> detector(); 
-      auto descriptor = detector -> readout("HcalBarrelHits").idSpec();
+        // grab detector & segmentation descriptor
+        auto detector   = app->GetService<DD4hep_service>()->detector(); 
+        auto descriptor = detector->readout("HcalBarrelHits").idSpec();
 
-      // check if sector field is present
-      bool useSectorIndex = false;
-      try {
-        auto sector = descriptor.field("sector");
-        return true;
-      } catch(...) {
-        return false;
-      }
+        // check if sector field is present
+        bool useSectorIndex = false;
+        try {
+          auto sector = descriptor.field("sector");
+          return true;
+        } catch(...) {
+          return false;
+        }
 
-    }
+    }  // end 'UseSectorIndexedBHCalReadout(JApplication*)'
 
     void InitPlugin(JApplication *app) {
 
@@ -71,14 +70,15 @@ extern "C" {
           // check for horizontally adjacent tiles in the same tower
           "  ( (abs(tower_1 - tower_2) == 0) && (abs(tile_1 - tile_2) == 1) ) ||"
           // check for horizontally adjacent tiles in neighboring towers along phi
-          "  ( ((tower_1 - tower_2) == -24)    && ((tile_1 - tile_2) == 4)      ) ||"
-          "  ( ((tower_1 - tower_2) == 24)     && ((tile_1 - tile_2) == -4)     ) ||"
+          "  ( ((tower_1 - tower_2) == -24) && ((tile_1 - tile_2) == 4)  ) ||"
+          "  ( ((tower_1 - tower_2) == 24)  && ((tile_1 - tile_2) == -4) ) ||"
           // check for horizontally adjacent tiles in neighboring towers along phi at the wraparound
-          "  ( ((tower_1 - tower_2) == -1512)  && ((tile_1 - tile_2) == -4)     ) ||"
-          "  ( ((tower_1 - tower_2) == 1512)   && ((tile_1 - tile_2) == 4)      )"
+          "  ( ((tower_1 - tower_2) == -1512) && ((tile_1 - tile_2) == -4) ) ||"
+          "  ( ((tower_1 - tower_2) == 1512)  && ((tile_1 - tile_2) == 4)  )"
           ") == 1";
 
-        // If using readout structure with sector indices, check adjacency using those
+        // If using readout structure with sector segmentation,
+        // ensure adjacency matrix uses sector indices
         if ( UseSectorIndexedBHCalReadout(app) ) {
           HcalBarrel_adjacentMatrix =
             "("
