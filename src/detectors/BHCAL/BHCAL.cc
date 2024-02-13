@@ -31,7 +31,7 @@ extern "C" {
         using namespace eicrecon;
 
         // grab detector & segmentation descriptor
-        auto detector   = app->GetService<DD4hep_service>()->detector(); 
+        auto detector   = app->GetService<DD4hep_service>()->detector();
         auto descriptor = detector->readout("HcalBarrelHits").idSpec();
 
         // check if sector field is present
