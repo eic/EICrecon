@@ -15,8 +15,6 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 
-// TEST
-#include <iostream>
 #include <DD4hep/Detector.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/IDDescriptor.h>
