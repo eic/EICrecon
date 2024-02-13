@@ -15,7 +15,37 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 
+// TEST
+#include <iostream>
+#include <DD4hep/Detector.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include "services/geometry/dd4hep/DD4hep_service.h"
+
 extern "C" {
+
+    bool UseSectorIndexedBHCalReadout(JApplication *app) {
+
+      using namespace eicrecon;
+
+      // grab detector
+      auto service    = app -> GetService<DD4hep_service>();
+      auto detector   = service -> detector(); 
+      auto descriptor = detector -> readout("HcalBarrelHits").idSpec();
+
+      // check if sector field is present
+      bool useSectorIndex = false;
+      try {
+        auto sector = descriptor.field("sector");
+        return true;
+      } catch(...) {
+        return false;
+      }
+
+    }
+
     void InitPlugin(JApplication *app) {
 
         using namespace eicrecon;
@@ -47,6 +77,18 @@ extern "C" {
           "  ( ((tower_1 - tower_2) == -1512)  && ((tile_1 - tile_2) == -4)     ) ||"
           "  ( ((tower_1 - tower_2) == 1512)   && ((tile_1 - tile_2) == 4)      )"
           ") == 1";
+
+        // If using readout structure with sector indices, check adjacency using those
+        if ( UseSectorIndexedBHCalReadout(app) ) {
+          HcalBarrel_adjacentMatrix =
+            "("
+            "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
+            "  + min("
+            "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
+            "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
+            "    )"
+            ") == 1";
+        }
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
