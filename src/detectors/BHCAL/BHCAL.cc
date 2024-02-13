@@ -29,6 +29,25 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalBarrel_pedSigmaADC = 2;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalBarrel_resolutionTDC = 1 * dd4hep::picosecond;
 
+        // Set default adjacency matrix. Magic constants:
+        //  1512 - 64 * 24
+        //  64   - number of rows in the barrel
+        //  24   - number of towers per row along eta
+        //  4    - 5, the number of tiles per tower, - 1
+        decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacentMatrix =
+          "("
+          // check for vertically adjacent tiles
+          "  ( (abs(tower_1 - tower_2) == 1) && (abs(tile_1 - tile_2) == 0) ) ||"
+          // check for horizontally adjacent tiles in the same tower
+          "  ( (abs(tower_1 - tower_2) == 0) && (abs(tile_1 - tile_2) == 1) ) ||"
+          // check for horizontally adjacent tiles in neighboring towers along phi
+          "  ( ((tower_1 - tower_2) == -24)    && ((tile_1 - tile_2) == 4)      ) ||"
+          "  ( ((tower_1 - tower_2) == 24)     && ((tile_1 - tile_2) == -4)     ) ||"
+          // check for horizontally adjacent tiles in neighboring towers along phi at the wraparound
+          "  ( ((tower_1 - tower_2) == -1512)  && ((tile_1 - tile_2) == -4)     ) ||"
+          "  ( ((tower_1 - tower_2) == 1512)   && ((tile_1 - tile_2) == 4)      )"
+          ") == 1";
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
           {
@@ -70,24 +89,7 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
-            // Magic constants:
-            //  1512 - 64 * 24
-            //  64   - number of rows in the barrel
-            //  24   - number of towers per row along eta
-            //  4    - 5, the number of tiles per tower, - 1
-            .adjacencyMatrix =
-              "("
-              // check for vertically adjacent tiles
-              "  ( (abs(tower_1 - tower_2) == 1) && (abs(tile_1 - tile_2) == 0) ) ||"
-              // check for horizontally adjacent tiles in the same tower
-              "  ( (abs(tower_1 - tower_2) == 0) && (abs(tile_1 - tile_2) == 1) ) ||"
-              // check for horizontally adjacent tiles in neighboring towers along phi
-              "  ( ((tower_1 - tower_2) == -24)    && ((tile_1 - tile_2) == 4)      ) ||"
-              "  ( ((tower_1 - tower_2) == 24)     && ((tile_1 - tile_2) == -4)     ) ||"
-              // check for horizontally adjacent tiles in neighboring towers along phi at the wraparound
-              "  ( ((tower_1 - tower_2) == -1512)  && ((tile_1 - tile_2) == -4)     ) ||"
-              "  ( ((tower_1 - tower_2) == 1512)   && ((tile_1 - tile_2) == 4)      )"
-              ") == 1",
+            .adjacencyMatrix = HcalBarrel_adjacentMatrix,
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
