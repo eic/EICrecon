@@ -7,19 +7,17 @@
 #include <algorithm>
 #include <string>
 
-#include "ChargedMCParticleSelector_factory.h"
 #include "ChargedReconstructedParticleSelector_factory.h"
-#include "GeneratedJets_factory.h"
 #include "InclusiveKinematicsDA_factory.h"
 #include "InclusiveKinematicsElectron_factory.h"
 #include "InclusiveKinematicsJB_factory.h"
 #include "InclusiveKinematicsSigma_factory.h"
 #include "InclusiveKinematicsTruth_factory.h"
 #include "InclusiveKinematicseSigma_factory.h"
+#include "JetReconstruction_factory.h"
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedElectrons_factory.h"
-#include "ReconstructedJets_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -148,15 +146,15 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
             "GeneratedJets",
-            {"MCParticles"},
+            {"GeneratedParticles"},
             {"GeneratedJets"},
             {},
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
             "ReconstructedJets",
             {"ReconstructedParticles"},
             {"ReconstructedJets"},
@@ -164,22 +162,22 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<ChargedMCParticleSelector_factory>(
-            "MCChargedParticles",
-            {"MCParticles"},
-            {"MCChargedParticles"},
+    app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
+            "GeneratedChargedParticles",
+            {"GeneratedParticles"},
+            {"GeneratedChargedParticles"},
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<GeneratedJets_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
             "GeneratedChargedJets",
-            {"MCChargedParticles"},
+            {"GeneratedChargedParticles"},
             {"GeneratedChargedJets"},
             {},
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ReconstructedJets_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},

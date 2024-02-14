@@ -15,13 +15,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
 #include <map>
 
@@ -58,15 +57,12 @@ void eicrecon::TrackPropagation_factory::Process(const std::shared_ptr<const JEv
 
     for(auto traj: trajectories) {
         edm4eic::MutableTrackSegment this_propagated_track;
-        for(size_t isurf = 0; auto surf: m_target_surface_list) {
+        for(auto& surf : m_target_surface_list) {
             auto prop_point = m_track_propagation_algo.propagate(traj, surf);
             if(!prop_point) continue;
-#if EDM4EIC_VERSION_MAJOR >= 3
-            prop_point->surface = m_target_surface_ID[isurf];
-            prop_point->system = m_target_detector_ID[isurf];
-#endif
+            prop_point->surface = surf->geometryId().layer();
+            prop_point->system  = surf->geometryId().extra();
             this_propagated_track.addToPoints(*prop_point);
-            isurf++;
         }
         propagated_tracks.push_back(this_propagated_track);
     }
@@ -100,11 +96,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     BEMC_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(BEMC_system_id).setLayer(1));
     BEMC_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(BEMC_system_id).setLayer(2));
     m_target_surface_list.push_back(BEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalBarrel_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(BEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalBarrel_ID"));
-    m_target_surface_ID.push_back(2);
 
     // Create propagation surface for FEMC
     const double FEMC_Z    = (m_geoSvc->detector()->constant<double>("EcalEndcapP_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
@@ -119,11 +111,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     FEMC_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(FEMC_system_id).setLayer(1));
     FEMC_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(FEMC_system_id).setLayer(2));
     m_target_surface_list.push_back(FEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapP_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(FEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapP_ID"));
-    m_target_surface_ID.push_back(2);
 
     // Create propagation surface for EEMC
     const double EEMC_Z    = -(m_geoSvc->detector()->constant<double>("EcalEndcapN_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
@@ -138,11 +126,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     EEMC_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(EEMC_system_id).setLayer(1));
     EEMC_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(EEMC_system_id).setLayer(2));
     m_target_surface_list.push_back(EEMC_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapN_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(EEMC_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("ECalEndcapN_ID"));
-    m_target_surface_ID.push_back(2);
 
     // Create propagation surface for OHCAL
     const double OHCAL_R     = (m_geoSvc->detector()->constant<double>("HcalBarrel_rmin") / dd4hep::mm) * Acts::UnitConstants::mm;
@@ -155,11 +139,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     OHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(1));
     OHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(OHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(OHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(OHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalBarrel_ID"));
-    m_target_surface_ID.push_back(2);
 
     // Create propagation surface for LFHCAL
     const double LFHCAL_Z    = (m_geoSvc->detector()->constant<double>("LFHCAL_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
@@ -170,15 +150,11 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto LFHCAL_Trf2         = transform * Acts::Translation3(Acts::Vector3(0, 0, LFHCAL_Z + HCAL_avgClusterDepth));
     auto LFHCAL_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf1, LFHCAL_Bounds);
     auto LFHCAL_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf2, LFHCAL_Bounds);
-    auto LFHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID");
+    auto LFHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("LFHCAL_ID");
     LFHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(LFHCAL_system_id).setLayer(1));
     LFHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(LFHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(LFHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapP_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(LFHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapP_ID"));
-    m_target_surface_ID.push_back(2);
 
     // Create propagation surface for EHCAL
     const double EHCAL_Z    = -(m_geoSvc->detector()->constant<double>("HcalEndcapN_zmin") / dd4hep::mm) * Acts::UnitConstants::mm;
@@ -193,11 +169,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     EHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(EHCAL_system_id).setLayer(1));
     EHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(EHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(EHCAL_prop_surface1);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID"));
-    m_target_surface_ID.push_back(1);
     m_target_surface_list.push_back(EHCAL_prop_surface2);
-    m_target_detector_ID.push_back(m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID"));
-    m_target_surface_ID.push_back(2);
 
 
     m_log->info("Setting track propagation surfaces to:");
