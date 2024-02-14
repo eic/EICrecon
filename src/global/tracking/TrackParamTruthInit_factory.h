@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "extensions/jana/JOmniFactory.h"
