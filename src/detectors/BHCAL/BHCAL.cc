@@ -3,23 +3,23 @@
 //
 //
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <string>
+#include <algorithm>
+#include <gsl/pointers>
+#include <memory>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-
-#include <DD4hep/Detector.h>
-#include <DD4hep/DetElement.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include <DDSegmentation/BitFieldCoder.h>
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
