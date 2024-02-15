@@ -150,7 +150,7 @@ void eicrecon::TrackPropagation_factory::SetPropagationSurfaces() {
     auto LFHCAL_Trf2         = transform * Acts::Translation3(Acts::Vector3(0, 0, LFHCAL_Z + HCAL_avgClusterDepth));
     auto LFHCAL_prop_surface1   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf1, LFHCAL_Bounds);
     auto LFHCAL_prop_surface2   = Acts::Surface::makeShared<Acts::DiscSurface>(LFHCAL_Trf2, LFHCAL_Bounds);
-    auto LFHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("HCalEndcapN_ID");
+    auto LFHCAL_system_id = m_geoSvc->detector()->constant<uint32_t>("LFHCAL_ID");
     LFHCAL_prop_surface1->assignGeometryId(Acts::GeometryIdentifier().setExtra(LFHCAL_system_id).setLayer(1));
     LFHCAL_prop_surface2->assignGeometryId(Acts::GeometryIdentifier().setExtra(LFHCAL_system_id).setLayer(2));
     m_target_surface_list.push_back(LFHCAL_prop_surface1);
