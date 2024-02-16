@@ -290,7 +290,7 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>&
 
   auto cross = radial.cross(hit);
 
-  float dot = cross.dot(z);
+  float dot = cross.dot(B_z);
 
   return copysign(1., -dot);
 }
