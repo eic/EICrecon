@@ -25,7 +25,6 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
-#include <Eigen/LU>
 
 #if EDM4EIC_VERSION_MAJOR >= 5
 #include <edm4eic/Cov6f.h>
