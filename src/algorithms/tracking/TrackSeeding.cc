@@ -189,11 +189,8 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto slopeZ0 = lineFit(rzHitPositions);
       const auto xypos = findPCA(RX0Y0);
 
-      auto xpos = xypos.first;
-      auto ypos = xypos.second;
 
       //Determine charge
-
       int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
 
       float theta = atan(1./std::get<0>(slopeZ0));
@@ -206,6 +203,9 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       float qOverP = charge / p;
 
       //Calculate phi at xypos
+      auto xpos = xypos.first;
+      auto ypos = xypos.second;
+
       auto vxpos = -1.*charge*(ypos-Y0);
       auto vypos = charge*(xpos-X0);
 
@@ -274,8 +274,6 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
 int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, const std::pair<float,float>& PCA, std::tuple<float,float,float>& RX0Y0) const
 {
 
-  int charge = 1;
-
   const auto& firstpos = positions.at(0);
   auto hit_x = firstpos.first;
   auto hit_y = firstpos.second;
@@ -286,16 +284,15 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>&
   float X0 = std::get<1>(RX0Y0);
   float Y0 = std::get<2>(RX0Y0);
 
-  Acts::Vector2 radial(X0-xpos, Y0-ypos);
-  Acts::Vector2 hit(hit_x-xpos, hit_y-ypos);
+  Acts::Vector3 B_z(0,0,1);
+  Acts::Vector3 radial(X0-xpos, Y0-ypos, 0);
+  Acts::Vector3 hit(hit_x-xpos, hit_y-ypos, 0);
 
-  Eigen::Matrix2d  matrix;
-  matrix << radial(0), radial(1), hit(0), hit(1);
-  auto det = matrix.determinant();
+  auto cross = radial.cross(hit);
 
-  if (det > 0) charge = -1;
+  float dot = cross.dot(z);
 
-  return charge;
+  return copysign(1., -dot);
 }
 
 
