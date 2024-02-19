@@ -20,6 +20,7 @@
 #include <boost/container/vector.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <cmath>
 #include <functional>
 #include <limits>
