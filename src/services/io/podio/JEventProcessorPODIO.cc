@@ -72,7 +72,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             "TOFBarrelRawHit",
             "TOFEndcapRawHits",
-            
+
             "TOFBarrelHits",
             "TOFEndcapHits",
             // DRICH
