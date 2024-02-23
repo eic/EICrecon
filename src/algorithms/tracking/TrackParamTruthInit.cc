@@ -111,10 +111,9 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         auto zpca = v.z + linesurface_parameter*p.z;
 
         Acts::Vector3 global(xpca, ypca, zpca);
+        Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
 
         // convert from global to local coordinates using the defined line surface
-        Acts::Vector2 localpos;
-        Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
         auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
 
         if(!local.ok())
@@ -123,12 +122,12 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
             continue;
         }
 
-        localpos = local.value();
+        Acts::Vector2 localpos = local.value();
 
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({(float)localpos(0), (float)localpos(1)}); // 2d location on surface [mm]
+        track_parameter.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface [mm]
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
