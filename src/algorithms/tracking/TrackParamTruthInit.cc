@@ -119,6 +119,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
 
         if(!local.ok())
         {
+            m_log->error("skipping the track because globaltoLocal function failed");
             continue;
         }
 
