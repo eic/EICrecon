@@ -57,10 +57,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "SiBarrelTrackerRecHits",
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
+            "SiBarrelRawHits",
+            "SiBarrelVertexRawHits",
+            "SiEndcapTrackerRawHits",
 
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
+            "TOFBarrelRawHit",
+            "TOFEndcapRawHits",
 
             // DRICH
             "DRICHRawHits",
@@ -76,13 +81,18 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "OuterMPGDBarrelRecHits",
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
+            "MPGDBarrelRawHits",
+            "MPGDDIRCRawHits",
+            "OuterMPGDBarrelRawHits",
+            "BackwardMPGDEndcapRawHits",
+            "ForwardMPGDEndcapRawHits",
 
             // LOWQ2 hits
             "TaggerTrackerRawHits",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
-
+            "B0TrackerRawHits",
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
