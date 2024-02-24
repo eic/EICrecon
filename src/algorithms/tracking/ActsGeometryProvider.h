@@ -38,7 +38,7 @@ namespace dd4hep::rec {
  *  This is useful for debugging the ACTS geometry. The obj file can
  *  be loaded into various tools, such as FreeCAD, for inspection.
  */
-void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const std::string &fname);
+void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, std::shared_ptr<spdlog::logger> init_log, const std::string &fname);
 
 class ActsGeometryProvider {
 public:

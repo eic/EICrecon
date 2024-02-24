@@ -8,6 +8,8 @@
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <exception>
+#include <gsl/pointers>
+#include <map>
 
 //-----------------------------------------------------------------------------
 void eicrecon::MergeCherenkovParticleID_factory::Init() {
@@ -42,7 +44,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<c
   std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> cherenkov_pids;
   for(auto& input_tag : GetInputTags()) {
     cherenkov_pids.push_back(
-        static_cast<const edm4eic::CherenkovParticleIDCollection*>(event->GetCollectionBase(input_tag))
+        (event->GetCollection<edm4eic::CherenkovParticleID>(input_tag))
     );
   }
 

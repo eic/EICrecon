@@ -135,7 +135,7 @@ find_package(algorithms 1.0.0 REQUIRED Core)
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
-find_package(EDM4EIC 2.1 REQUIRED)
+find_package(EDM4EIC 3.0 REQUIRED)
 
 # spdlog
 find_package(spdlog REQUIRED)
