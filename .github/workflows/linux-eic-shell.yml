@@ -877,6 +877,7 @@ jobs:
         with:
           __case: snake
           include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
+          include.*.draft: ${{ toJSON(fromJSON(steps.query.outputs.data).*.draft) }}
           include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
 
   get-docs-from-open-prs:
@@ -891,7 +892,7 @@ jobs:
     steps:
       - name: Download docs artifact (other PRs)
         uses: dawidd6/action-download-artifact@v3
-        if: github.event.pull_request.number != matrix.pr
+        if: github.event.pull_request.number != matrix.pr && matrix.draft == 'false'
         with:
           commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/
@@ -901,14 +902,14 @@ jobs:
           if_no_artifact_found: ignore
       - name: Download docs artifact (this PR)
         uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
+        if: github.event.pull_request.number == matrix.pr && matrix.draft == 'false'
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
         uses: dawidd6/action-download-artifact@v3
-        if: github.event.pull_request.number != matrix.pr
+        if: github.event.pull_request.number != matrix.pr && matrix.draft == 'false'
         with:
           commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
@@ -918,13 +919,15 @@ jobs:
           if_no_artifact_found: ignore
       - name: Download capybara artifact (this PR)
         uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
+        if: github.event.pull_request.number == matrix.pr && matrix.draft == 'false'
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
       - name: Remove doxygen in PR
+        if: matrix.draft == 'false'
         run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v4
+        if: matrix.draft == 'false'
         with:
           name: github-pages-staging-pr-${{ matrix.pr }}
           path: publishing_docs/
