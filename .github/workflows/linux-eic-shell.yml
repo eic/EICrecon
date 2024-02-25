@@ -1029,13 +1029,13 @@ jobs:
           path: publishing_docs/
           retention-days: 7
       - name: Populate capybara summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         run: |
          echo "### Capybara summary for PR ${{ github.event.pull_request.number }}" >> capybara_${{ github.event.pull_request.number }}.md
          find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
            "- [%f](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/%f/index.html)\n" | sort >> capybara_${{ github.event.pull_request.number }}.md
       - name: Create capybara step summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         run: |
           cat capybara_${{ github.event.pull_request.number }}.md >> $GITHUB_STEP_SUMMARY
       - name: Upload capybara summary
@@ -1061,7 +1061,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Find capybara comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         id: find_comment
         uses: peter-evans/find-comment@v3
         with:
@@ -1069,12 +1069,12 @@ jobs:
           comment-author: 'github-actions[bot]'
           body-includes: Capybara summary
       - name: Fetch capybara summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
