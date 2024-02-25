@@ -57,22 +57,15 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalBarrel_resolutionTDC = 1 * dd4hep::picosecond;
 
         // Set default adjacency matrix. Magic constants:
-        //  1512 - 64 * 24
-        //  64   - number of rows in the barrel
-        //  24   - number of towers per row along eta
-        //  4    - 5, the number of tiles per tower, - 1
+        //  320 - number of tiles per row
         decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacentMatrix =
           "("
           // check for vertically adjacent tiles
-          "  ( (abs(tower_1 - tower_2) == 1) && (abs(tile_1 - tile_2) == 0) ) ||"
-          // check for horizontally adjacent tiles in the same tower
-          "  ( (abs(tower_1 - tower_2) == 0) && (abs(tile_1 - tile_2) == 1) ) ||"
-          // check for horizontally adjacent tiles in neighboring towers along phi
-          "  ( ((tower_1 - tower_2) == -24) && ((tile_1 - tile_2) == 4)  ) ||"
-          "  ( ((tower_1 - tower_2) == 24)  && ((tile_1 - tile_2) == -4) ) ||"
-          // check for horizontally adjacent tiles in neighboring towers along phi at the wraparound
-          "  ( ((tower_1 - tower_2) == -1512) && ((tile_1 - tile_2) == -4) ) ||"
-          "  ( ((tower_1 - tower_2) == 1512)  && ((tile_1 - tile_2) == 4)  )"
+          "  ( abs(tile_1 - tile_2) == 320 ) ||"
+          // check for horizontally adjacent tiles
+          "  ( abs(tile_1 - tile_2) == 1 ) ||"
+          // check for horizontally adjacent tiles at wraparound
+          "  ( abs(tile_1 - tile_2) == (320 - 1) )"
           ") == 1";
 
         // If using readout structure with sector segmentation,
