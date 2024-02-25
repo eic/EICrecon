@@ -21,17 +21,24 @@ pathadd() {
 
     eval "oldvalue=\${${varname}:-}"
 
+    # surround with colon so also first and last entry are individually surrounded
     canonical=":${oldvalue}:"
+    # check whether removing newpath changes old path
     if [ "${canonical#*:${newpath}:}" = "${canonical}" ];
     then
+        # newpath not in old path
         if [ -n "${oldvalue}" ]; then
             eval "export $varname=${newpath}:${oldvalue}"
         else
             eval "export $varname=${newpath}"
         fi
     else
+        # newpath not in old path
+        # redefine as what's before newpath plus what's after newpath
         canonical=${canonical%%:${newpath}:*}:${canonical##*:${newpath}:}
+        # substring without surrounding colons
         canonical=$(expr substr ${canonical} 2 $(expr ${#canonical} - 2))
+        # prepend newpath
         eval "export $varname=${newpath}:${canonical}"
     fi
 }
