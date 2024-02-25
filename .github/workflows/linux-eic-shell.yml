@@ -874,6 +874,7 @@ jobs:
         uses: nickofthyme/object-remap@v2
         with:
           include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
+          include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
 
   get-docs-from-open-prs:
     runs-on: ubuntu-latest
@@ -889,7 +890,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         if: github.event.pull_request.number != matrix.pr
         with:
-          pr: ${{ matrix.pr }}
+          commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
           workflow_conclusion: ""
@@ -905,7 +906,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         if: github.event.pull_request.number != matrix.pr
         with:
-          pr: ${{ matrix.pr }}
+          commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
           name: capybara
           workflow_conclusion: ""
@@ -952,7 +953,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         if: github.ref_name != 'main'
         with:
-          pr: ${{ matrix.pr }}
+          commit: ${{ matrix.head_sha }}
           path: publishing_docs/capybara/
           name: capybara
           workflow_conclusion: ""
