@@ -584,7 +584,7 @@ jobs:
         path: ref/
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         workflow: ".github/workflows/linux-eic-shell.yml"
-        workflow_conclusion: ""
+        workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -736,7 +736,7 @@ jobs:
         path: ref/
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         workflow: ".github/workflows/linux-eic-shell.yml"
-        workflow_conclusion: ""
+        workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -897,7 +897,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
           name: docs
           workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: ""
+          workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download docs artifact (this PR)
         uses: actions/download-artifact@v4
@@ -914,7 +914,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
           name: capybara
           workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: ""
+          workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (this PR)
         uses: actions/download-artifact@v4
@@ -946,7 +946,7 @@ jobs:
           path: publishing_docs/
           name: docs
           workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: ""
+          workflow_conclusion: "completed"
           if_no_artifact_found: fail
       - name: Download docs artifact (on main)
         uses: actions/download-artifact@v4
@@ -963,7 +963,7 @@ jobs:
           path: publishing_docs/capybara/
           name: capybara
           workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: ""
+          workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (on main)
         uses: actions/download-artifact@v4
