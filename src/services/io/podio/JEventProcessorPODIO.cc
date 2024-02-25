@@ -103,6 +103,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapHits",
             // LOWQ2 hits
             "TaggerTrackerRawHits",
+            "TaggerTrackerClusterPositions",
+            "TaggerTrackerM1Tracks",
+            "TaggerTrackerM2Tracks",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
