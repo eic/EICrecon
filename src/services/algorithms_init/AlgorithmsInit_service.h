@@ -47,6 +47,16 @@ class AlgorithmsInit_service : public JService
             static_cast<algorithms::LogLevel>(m_log->level())};
         serviceSvc.setInit<algorithms::LogSvc>([this,level](auto&& logger) {
             this->m_log->info("Initializing algorithms::LogSvc");
+            logger.init([this](const algorithms::LogLevel l, std::string_view caller, std::string_view msg){
+                static std::mutex m;
+                std::lock_guard<std::mutex> lock(m);
+                static std::map<std::string_view, std::shared_ptr<spdlog::logger>> loggers;
+                if (! loggers.contains(caller)) {
+                    this->m_log->info("Initializing algorithms::LogSvc logger {}", caller);
+                    loggers[caller] = this->m_log_service->logger(std::string(caller));
+                }
+                loggers[caller]->log(static_cast<spdlog::level::level_enum>(l), msg);
+            });
             logger.defaultLevel(level);
         });
 
