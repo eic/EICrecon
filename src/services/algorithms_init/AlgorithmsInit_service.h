@@ -17,13 +17,13 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 /**
- * The ServiceSvc_service centralizes use of ServiceSvc
+ * The AlgorithmsInit_service centralizes use of ServiceSvc
  */
-class ServiceSvc_service : public JService
+class AlgorithmsInit_service : public JService
 {
   public:
-    ServiceSvc_service(JApplication *app) { };
-    virtual ~ServiceSvc_service() { };
+    AlgorithmsInit_service(JApplication *app) { };
+    virtual ~AlgorithmsInit_service() { };
 
     void acquire_services(JServiceLocator *srv_locator) override {
         auto& serviceSvc = algorithms::ServiceSvc::instance();
@@ -63,7 +63,7 @@ class ServiceSvc_service : public JService
     }
 
   private:
-    ServiceSvc_service() = default;
+    AlgorithmsInit_service() = default;
     std::shared_ptr<Log_service> m_log_service;
     std::shared_ptr<DD4hep_service> m_dd4hep_service;
     std::shared_ptr<spdlog::logger> m_log;

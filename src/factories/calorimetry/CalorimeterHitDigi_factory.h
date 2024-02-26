@@ -4,7 +4,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
-#include "services/algorithms/services/ServiceSvc_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
@@ -32,7 +32,7 @@ private:
     ParameterRef<std::vector<std::string>> m_fields {this, "signalSumFields", config().fields};
     ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
 
-    Service<ServiceSvc_service> m_serviceSvc {this};
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
