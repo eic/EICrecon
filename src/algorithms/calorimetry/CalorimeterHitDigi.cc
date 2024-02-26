@@ -13,6 +13,7 @@
 
 #include "CalorimeterHitDigi.h"
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/config.h>
@@ -21,7 +22,6 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
@@ -46,8 +46,7 @@ namespace eicrecon {
 //   values here. This needs to be confirmed.
 
 
-void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
-    m_detector = detector;
+void CalorimeterHitDigi::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
 
     // Gaudi implements a random number generator service. It is not clear to me how this
@@ -80,7 +79,7 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
     // all these are for signal sum at digitization level
     if (!m_cfg.fields.empty()) {
         // sanity checks
-        if (!m_detector) {
+        if (!m_geo.detector()) {
             m_log->error("Unable to locate geometry.");
             throw std::runtime_error("Unable to locate Geometry Service.");
         }
@@ -91,7 +90,7 @@ void CalorimeterHitDigi::init(const dd4hep::Detector* detector, std::shared_ptr<
 
         // get decoders
         try {
-            auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
+            auto id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
             for (auto & field : m_cfg.fields) {
                 id_inverse_mask |= id_desc.field(field)->mask();
             }
