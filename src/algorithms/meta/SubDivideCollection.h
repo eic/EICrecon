@@ -50,9 +50,9 @@ namespace eicrecon {
 
           for (const auto& entry : *entries) {
 
-            auto div_indecies = this->m_cfg.function(entry);
+            auto div_indices = this->m_cfg.function(entry);
 
-            for (auto index : div_indecies){
+            for (auto index : div_indices){
               subdivided_entries[index]->push_back(entry);
             }
 
