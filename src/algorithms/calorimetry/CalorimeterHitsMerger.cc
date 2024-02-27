@@ -34,13 +34,12 @@
 
 namespace eicrecon {
 
-void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
+void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter) {
     m_detector = detector;
     m_converter = converter;
-    m_log = logger;
 
     if (m_cfg.readout.empty()) {
-        m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
+        error("readoutClass is not provided, it is needed to know the fields in readout ids");
         return;
     }
 
@@ -57,11 +56,11 @@ void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep:
         ref_mask = id_desc.encode(ref_fields);
     } catch (...) {
         auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
-        m_log->warn(mess);
+        warning(mess);
 //        throw std::runtime_error(mess);
     }
     id_mask = ~id_mask;
-    m_log->debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
+    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
 }
 
 void CalorimeterHitsMerger::process(
@@ -100,7 +99,7 @@ void CalorimeterHitsMerger::process(
         // local positions
         auto alignment = volman.lookupDetElement(ref_id).nominal();
         const auto pos = alignment.worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z()));
-        m_log->debug("{}, {}", volman.lookupDetElement(ref_id).path(), volman.lookupDetector(ref_id).path());
+        debug("{}, {}", volman.lookupDetElement(ref_id).path(), volman.lookupDetector(ref_id).path());
         // sum energy
         float energy = 0.;
         float energyError = 0.;
@@ -140,7 +139,7 @@ void CalorimeterHitsMerger::process(
                         local); // Can do better here? Right now position is mapped on the central hit
     }
 
-    m_log->debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
+    debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
 
 } // namespace eicrecon
