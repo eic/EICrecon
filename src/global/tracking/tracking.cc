@@ -36,9 +36,9 @@ void InitPlugin(JApplication *app) {
 
     // Possible collections from arches, brycecanyon and craterlake configurations
     std::vector<std::pair<std::string, std::string>> possible_collections = {
-        {"SiBarrelTrackerHits", "SiBarrelTrackerRecHits"},
-        {"SiBarrelVertexHits", "SiBarrelVertexRecHits"},
-        {"SiEndcapTrackerHits", "SiEndcapTrackerRecHits"},
+        {"SiBarrelHits", "SiBarrelTrackerRecHits"},
+        {"VertexBarrelHits", "SiBarrelVertexRecHits"},
+        {"TrackerEndcapHits", "SiEndcapTrackerRecHits"},
         {"TOFBarrelHits", "TOFBarrelRecHit"},
         {"TOFEndcapHits", "TOFEndcapRecHits"},
         {"MPGDBarrelHits", "MPGDBarrelRecHits"},
