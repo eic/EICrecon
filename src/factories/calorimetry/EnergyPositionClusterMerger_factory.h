@@ -5,6 +5,7 @@
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 
 namespace eicrecon {
@@ -28,6 +29,8 @@ private:
     ParameterRef<double> m_energyRelTolerance {this, "energyRelTolerance", config().energyRelTolerance};
     ParameterRef<double> m_phiTolerance {this, "phiTolerance", config().phiTolerance};
     ParameterRef<double> m_etaTolerance {this, "etaTolerance", config().etaTolerance};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {

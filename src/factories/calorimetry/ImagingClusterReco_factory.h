@@ -5,7 +5,7 @@
 
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -25,6 +25,8 @@ private:
     PodioOutput<edm4eic::Cluster> m_layers_output {this};
 
     ParameterRef<int> m_trackStopLayer {this, "trackStopLayer", config().trackStopLayer};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {

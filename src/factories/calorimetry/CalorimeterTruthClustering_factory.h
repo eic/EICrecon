@@ -5,6 +5,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 

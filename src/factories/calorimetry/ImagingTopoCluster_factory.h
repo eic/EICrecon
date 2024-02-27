@@ -5,7 +5,7 @@
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -27,6 +27,8 @@ private:
     ParameterRef<double> m_mcced {this, "minClusterCenterEdep", config().minClusterCenterEdep};
     ParameterRef<double> m_mced {this, "minClusterEdep", config().minClusterEdep};
     ParameterRef<int> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {

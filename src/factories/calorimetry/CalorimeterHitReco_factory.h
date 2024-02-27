@@ -4,6 +4,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitReco.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
@@ -35,8 +36,8 @@ private:
     ParameterRef<std::string> m_localDetElement {this, "localDetElement", config().localDetElement};
     ParameterRef<std::vector<std::string>> m_localDetFields {this, "localDetFields", config().localDetFields};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
     Service<DD4hep_service> m_geoSvc {this};
-
 
 public:
     void Configure() {

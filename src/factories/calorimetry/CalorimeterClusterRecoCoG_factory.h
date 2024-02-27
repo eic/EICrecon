@@ -5,7 +5,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -30,6 +30,8 @@ private:
     ParameterRef<std::vector<double>> m_logWeightBaseCoeffs {this, "logWeightBaseCoeffs", config().logWeightBaseCoeffs};
     ParameterRef<double> m_logWeightBase_Eref {this, "logWeightBase_Eref", config().logWeightBase_Eref};
     ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
