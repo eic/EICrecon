@@ -38,7 +38,7 @@ class AlgorithmsInit_service : public JService
         // Register DD4hep_service as algorithms::GeoSvc
         [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
         serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
-            this->m_log->info("Initializing algorithms::GeoSvc");
+            this->m_log->debug("Initializing algorithms::GeoSvc");
             g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
         });
 
@@ -46,14 +46,24 @@ class AlgorithmsInit_service : public JService
         const algorithms::LogLevel level{
             static_cast<algorithms::LogLevel>(m_log->level())};
         serviceSvc.setInit<algorithms::LogSvc>([this,level](auto&& logger) {
-            this->m_log->info("Initializing algorithms::LogSvc");
+            this->m_log->debug("Initializing algorithms::LogSvc");
+            logger.init([this](const algorithms::LogLevel l, std::string_view caller, std::string_view msg){
+                static std::mutex m;
+                std::lock_guard<std::mutex> lock(m);
+                static std::map<std::string_view, std::shared_ptr<spdlog::logger>> loggers;
+                if (! loggers.contains(caller)) {
+                    this->m_log->debug("Initializing algorithms::LogSvc logger {}", caller);
+                    loggers[caller] = this->m_log_service->logger(std::string(caller));
+                }
+                loggers[caller]->log(static_cast<spdlog::level::level_enum>(l), msg);
+            });
             logger.defaultLevel(level);
         });
 
         // Register a random service (JANA2 does not have one)
         [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
         serviceSvc.setInit<algorithms::RandomSvc>([this](auto&& r) {
-            this->m_log->info("Initializing algorithms::RandomSvc");
+            this->m_log->debug("Initializing algorithms::RandomSvc");
             r.setProperty("seed", static_cast<size_t>(1));
             r.init();
         });

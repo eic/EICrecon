@@ -5,7 +5,7 @@
 
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -24,10 +24,13 @@ private:
     PodioOutput<edm4eic::Cluster> m_clusters_output {this};
     PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output {this};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level((algorithms::LogLevel)logger()->level());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
