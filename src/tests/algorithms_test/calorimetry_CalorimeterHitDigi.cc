@@ -32,21 +32,6 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
-  auto detector = dd4hep::Detector::make_unique("");
-
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
-  serviceSvc.setInit<algorithms::GeoSvc>([&detector](auto&& g) {
-    g.init(detector.get());
-  });
-  [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-  auto seed = Catch::Generators::Detail::getSeed();
-  serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
-    r.setProperty("seed", static_cast<size_t>(seed));
-    r.init();
-  });
-  serviceSvc.init();
-
   CalorimeterHitDigi algo("test");
 
   CalorimeterHitDigiConfig cfg;

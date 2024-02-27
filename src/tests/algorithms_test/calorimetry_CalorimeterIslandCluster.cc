@@ -38,12 +38,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   cfg.minClusterHitEdep = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
 
-  auto detector = dd4hep::Detector::make_unique("");
-  dd4hep::Readout readout(std::string("MockCalorimeterHits"));
-  dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,x:8,y:8");
-  readout.setIDDescriptor(id_desc);
-  detector->add(id_desc);
-  detector->add(readout);
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
   SECTION( "without splitting" ) {
     bool use_adjacencyMatrix = GENERATE(false, true);
