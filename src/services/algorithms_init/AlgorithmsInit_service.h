@@ -33,7 +33,7 @@ class AlgorithmsInit_service : public JService
         m_dd4hep_service = srv_locator->get<DD4hep_service>();
 
         // Logger for ServiceSvc
-        m_log = m_log_service->logger("ServiceSvc");
+        m_log = m_log_service->logger("AlgorithmsInit");
 
         // Register DD4hep_service as algorithms::GeoSvc
         [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
