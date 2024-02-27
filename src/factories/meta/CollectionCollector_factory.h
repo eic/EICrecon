@@ -28,18 +28,12 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-
-        try {
-            std::vector<gsl::not_null<const typename T::collection_type*>>  in_collections;
-            for (const auto& in_collection : m_inputs()) {
-                in_collections.push_back(gsl::not_null<const typename T::collection_type*>{in_collection});
-            }
-            typename T::collection_type* merged_collection = m_output().get();
-            m_algo->process(in_collections, merged_collection);
+        std::vector<gsl::not_null<const typename T::collection_type*>>  in_collections;
+        for (const auto& in_collection : m_inputs()) {
+            in_collections.push_back(gsl::not_null<const typename T::collection_type*>{in_collection});
         }
-        catch(std::exception &e) {
-            throw JException(e.what());
-        }
+        typename T::collection_type* merged_collection = m_output().get();
+        m_algo->process(in_collections, merged_collection);
     };
 
     };
