@@ -90,6 +90,7 @@ void CalorimeterHitDigi::init() {
         // get decoders
         try {
             auto id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
+            auto id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
             for (auto & field : m_cfg.fields) {
                 id_inverse_mask |= id_desc.field(field)->mask();
             }

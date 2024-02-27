@@ -9,6 +9,7 @@
 #include <algorithms/service.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_random.hpp>
+#include <catch2/generators/catch_generators_random.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -17,6 +18,8 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <stddef.h>
+#include <cstdint>
 #include <stddef.h>
 #include <cstdint>
 #include <memory>
@@ -33,6 +36,21 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   logger->set_level(spdlog::level::trace);
 
   auto detector = dd4hep::Detector::make_unique("");
+
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
+  serviceSvc.setInit<algorithms::GeoSvc>([&detector](auto&& g) {
+    g.init(detector.get());
+  });
+  [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
+  auto seed = Catch::Generators::Detail::getSeed();
+  serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
+    r.setProperty("seed", static_cast<size_t>(seed));
+    r.init();
+  });
+  serviceSvc.init();
+
+  CalorimeterHitDigi algo("test");
 
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
