@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -36,11 +37,13 @@ private:
     ParameterRef<double> m_maxEtaBackward {this, "MaxEtaBackward", config().m_maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed"};
     ParameterRef<double> m_momentumSmear {this, "MomentumSmear", config().m_momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing"};
 
+    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>();
         m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
     }
 
     void ChangeRun(int64_t run_number) {
