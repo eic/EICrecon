@@ -27,7 +27,6 @@
 #include <functional>
 #include <gsl/pointers>
 #include <map>
-#include <memory>
 #include <ostream>
 #include <stdexcept>
 #include <string>
