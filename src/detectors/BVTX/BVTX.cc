@@ -20,9 +20,9 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "BarrelVertexRawHits",
+        "SiBarrelVertexRawHits",
         {"VertexBarrelHits"},
-        {"BarrelVertexRawHits"},
+        {"SiBarrelVertexRawHits"},
         {
             .threshold = 0.54 * dd4hep::keV,
         },
@@ -32,7 +32,7 @@ void InitPlugin(JApplication *app) {
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "SiBarrelVertexRecHits",
-        {"BarrelVertexRawHits"},
+        {"SiBarrelVertexRawHits"},
         {"SiBarrelVertexRecHits"},
         {}, // default config
         app
