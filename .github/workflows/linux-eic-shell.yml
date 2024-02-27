@@ -877,6 +877,7 @@ jobs:
         with:
           __case: snake
           include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
+          include.*.draft: ${{ toJSON(fromJSON(steps.query.outputs.data).*.draft) }}
           include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
 
   get-docs-from-open-prs:
@@ -891,7 +892,7 @@ jobs:
     steps:
       - name: Download docs artifact (other PRs)
         uses: dawidd6/action-download-artifact@v3
-        if: github.event.pull_request.number != matrix.pr
+        if: github.event.pull_request.number != matrix.pr && matrix.draft == 'false'
         with:
           commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/
@@ -901,14 +902,14 @@ jobs:
           if_no_artifact_found: ignore
       - name: Download docs artifact (this PR)
         uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
+        if: github.event.pull_request.number == matrix.pr && matrix.draft == 'false'
         with:
           name: docs
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
         uses: dawidd6/action-download-artifact@v3
-        if: github.event.pull_request.number != matrix.pr
+        if: github.event.pull_request.number != matrix.pr && matrix.draft == 'false'
         with:
           commit: ${{ matrix.head_sha }}
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
@@ -918,13 +919,15 @@ jobs:
           if_no_artifact_found: ignore
       - name: Download capybara artifact (this PR)
         uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
+        if: github.event.pull_request.number == matrix.pr && matrix.draft == 'false'
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
       - name: Remove doxygen in PR
+        if: matrix.draft == 'false'
         run: rm -rf publishing_docs/pr/*/doxygen
       - uses: actions/upload-artifact@v4
+        if: matrix.draft == 'false'
         with:
           name: github-pages-staging-pr-${{ matrix.pr }}
           path: publishing_docs/
@@ -1026,14 +1029,14 @@ jobs:
           path: publishing_docs/
           retention-days: 7
       - name: Populate capybara summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         run: |
           echo "### Capybara summary for PR ${{ github.event.pull_request.number }}" >> capybara_${{ github.event.pull_request.number }}.md
           find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
             "- [%f](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/%f/index.html)\n" | sort >> capybara_${{ github.event.pull_request.number }}.md
           echo "<sup><sub>Last updated $(TZ=America/New_York date -Iminutes) ${{github.event.pull_request.head.sha}}</sub></sup>" >> capybara_${{ github.event.pull_request.number }}.md
       - name: Create capybara step summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         run: |
           cat capybara_${{ github.event.pull_request.number }}.md >> $GITHUB_STEP_SUMMARY
       - name: Upload capybara summary
@@ -1059,7 +1062,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Find capybara comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         id: find_comment
         uses: peter-evans/find-comment@v3
         with:
@@ -1067,12 +1070,12 @@ jobs:
           comment-author: 'github-actions[bot]'
           body-includes: Capybara summary
       - name: Fetch capybara summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event_name.pull_request.draft == 'false' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
