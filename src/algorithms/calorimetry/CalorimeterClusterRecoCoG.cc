@@ -21,7 +21,7 @@
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <Eigen/Householder>
+#include <Eigen/Householder> // IWYU pragma: keep
 #include <cctype>
 #include <complex>
 #include <cstddef>
