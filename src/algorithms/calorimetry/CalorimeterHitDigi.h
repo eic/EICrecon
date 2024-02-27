@@ -15,7 +15,6 @@
 
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
