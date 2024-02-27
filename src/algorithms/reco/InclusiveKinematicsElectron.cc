@@ -162,7 +162,7 @@ namespace eicrecon {
     const auto y = q_dot_pi / ei.Dot(pi);
     const auto nu = q_dot_pi / m_proton;
     const auto x = Q2 / (2. * q_dot_pi);
-    const auto W = sqrt( + 2.*q_dot_pi - Q2);
+    const auto W = sqrt(m_proton*m_proton + 2.*q_dot_pi - Q2);
     auto kin = kinematics->create(x, Q2, W, y, nu);
     kin.setScat(ef_rc);
 
