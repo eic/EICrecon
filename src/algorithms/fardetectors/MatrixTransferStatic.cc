@@ -20,13 +20,9 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
-void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
-                                          const dd4hep::rec::CellIDPositionConverter* id_conv,
-                                          std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logger) {
 
   m_log       = logger;
-  m_detector  = det;
-  m_converter = id_conv;
   //Calculate inverse of static transfer matrix
 
 }

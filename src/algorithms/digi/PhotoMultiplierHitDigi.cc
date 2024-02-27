@@ -32,11 +32,9 @@ namespace eicrecon {
 //------------------------
 // init
 //------------------------
-void PhotoMultiplierHitDigi::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
+void PhotoMultiplierHitDigi::init(std::shared_ptr<spdlog::logger>& logger)
 {
     // services
-    m_detector = detector;
-    m_converter = converter;
     m_log = logger;
 
     // print the configuration parameters

@@ -46,7 +46,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   auto dimension = edm4hep::Vector3f(2*side_length, sqrt(3)*side_length, thickness);
 
   algo.applyConfig(cfg);
-  algo.init(detector.get());
+  algo.init();
 
   edm4eic::CalorimeterHitCollection hits_coll;
 

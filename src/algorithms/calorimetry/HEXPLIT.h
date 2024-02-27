@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -41,7 +43,7 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
                                    {"outputSubcellHits"},
                                    "Split hits into subcell hits"} {}
 
-    void init(const dd4hep::Detector* detector);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -61,7 +63,7 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
       static const std::vector<double>  subcell_offsets_y;
 
   private:
-    const dd4hep::Detector* m_detector;
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   };
 

@@ -22,6 +22,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -64,7 +65,7 @@ namespace eicrecon {
                             "Digitize within ADC range, add pedestal, convert time "
                             "with smearing resolution."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    void init(std::shared_ptr<spdlog::logger>& logger);
     void process(const Input&, const Output&) const final;
 
     // EDM datatype member types
@@ -126,8 +127,8 @@ private:
         bool             is_noise_hit = false
         ) const;
 
-    const dd4hep::Detector* m_detector = nullptr;
-    const dd4hep::rec::CellIDPositionConverter* m_converter;
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
     std::shared_ptr<spdlog::logger> m_log;
 

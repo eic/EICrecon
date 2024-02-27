@@ -68,7 +68,7 @@ public:
         }
 
         m_algo->applyConfig(config());
-        m_algo->init(m_DD4hepSvc().detector(), m_DD4hepSvc().converter(), logger());
+        m_algo->init(logger());
     }
 
     void ChangeRun(int64_t run_number) {
