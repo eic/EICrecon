@@ -11,12 +11,10 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <spdlog/logger.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <memory>
 #include <set>
 #include <string>
 #include <string_view>

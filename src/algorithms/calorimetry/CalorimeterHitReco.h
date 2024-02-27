@@ -15,10 +15,8 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
 

@@ -9,13 +9,13 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
+#include <vector>
+
 #include "HEXPLITConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

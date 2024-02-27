@@ -4,6 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
+#include <algorithms/logger.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/catch_test_macros.hpp>

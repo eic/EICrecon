@@ -14,9 +14,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
 

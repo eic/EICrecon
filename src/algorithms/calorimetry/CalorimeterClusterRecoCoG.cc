@@ -21,8 +21,10 @@
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
+#include <Eigen/Householder>
 #include <cctype>
 #include <complex>
+#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <map>

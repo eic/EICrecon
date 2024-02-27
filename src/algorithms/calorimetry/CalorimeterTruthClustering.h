@@ -8,8 +8,6 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>
 #include <string_view>
 

@@ -18,9 +18,7 @@
 #include <algorithms/random.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
 

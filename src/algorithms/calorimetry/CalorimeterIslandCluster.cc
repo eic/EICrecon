@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <stdexcept>
