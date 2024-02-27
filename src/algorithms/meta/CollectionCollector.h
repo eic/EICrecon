@@ -11,11 +11,11 @@
 
 namespace eicrecon {
 
-   template<class T>
-     using CollectionCollectorAlgorithm =  algorithms::Algorithm<
-     typename algorithms::Input<std::vector<const T>>,
-     typename algorithms::Output<T>
-     >;
+  template<class T>
+    using CollectionCollectorAlgorithm =  algorithms::Algorithm<
+      typename algorithms::Input<std::vector<const T>>,
+      typename algorithms::Output<T>
+    >;
 
   template<class T>
   class CollectionCollector : public CollectionCollectorAlgorithm<T>  {
@@ -28,27 +28,26 @@ namespace eicrecon {
                           "Merge content of collections into one subset collection"
                       }{}
 
-        void init(std::shared_ptr<spdlog::logger>& logger){ // set logger
-            m_log      = logger;
-        };
+    void init(std::shared_ptr<spdlog::logger>& logger){ // set logger
+      m_log      = logger;
+    };
 
-        void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
+    void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
 
-            const auto [in_collections] = input;
-            auto [out_collection]       = output;
+      const auto [in_collections] = input;
+      auto [out_collection]       = output;
 
-            out_collection->setSubsetCollection();
+      out_collection->setSubsetCollection();
 
-            for (const auto& collection : in_collections) {
-                 for (const auto& hit : *collection) {
-                     out_collection->push_back(hit);
-                 }
-            }
+      for (const auto& collection : in_collections) {
+        for (const auto& hit : *collection) {
+          out_collection->push_back(hit);
         }
-
+      }
+    }
 
     private:
-        std::shared_ptr<spdlog::logger> m_log; // logger
+      std::shared_ptr<spdlog::logger> m_log; // logger
 
   };
 } // eicrecon
