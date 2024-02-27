@@ -17,7 +17,7 @@
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/tracking/TrackerHitCollector_factory.h"
+#include "factories/digi/CollectionCollector_factory.h"
 
 //
 extern "C" {
@@ -35,7 +35,7 @@ void InitPlugin(JApplication *app) {
             ));
 
     // Tracker hits collector
-    app->Add(new JChainMultifactoryGeneratorT<TrackerHitCollector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
         "CentralTrackingRecHits",
         {
             "SiBarrelTrackerRecHits",          // Si tracker hits
