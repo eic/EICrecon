@@ -5,8 +5,6 @@
 
 #include "algorithms/meta/SubDivideCollection.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-
 
 namespace eicrecon {
 
@@ -20,10 +18,8 @@ class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_fact
 
     std::unique_ptr<AlgoT> m_algo;
 
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template PodioInput<T> m_raw_hits_input {this};
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template VariadicPodioOutput<T> m_split_hits_output {this};
-
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template Service<DD4hep_service> m_geoSvc {this};
+    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template PodioInput<T> m_input {this};
+    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template VariadicPodioOutput<T> m_split_output {this};
 
 public:
     void Configure() {
@@ -41,18 +37,12 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
 
-    try {
-      const typename T::collection_type* raw_hits = m_raw_hits_input();
-      std::vector<gsl::not_null<typename T::collection_type*>> split_hits;
-      for (const auto& split_hit : m_split_hits_output()) {
-        split_hits.push_back(gsl::not_null<typename T::collection_type*>(split_hit.get()));
-      }
-      m_algo->process(raw_hits,split_hits);
+    std::vector<gsl::not_null<typename T::collection_type*>> split_collections;
+    for (const auto& split : m_split_output()) {
+      split_collections.push_back(gsl::not_null<typename T::collection_type*>(split.get()));
     }
-    catch(std::exception &e) {
-      logger()->warn(e.what());
-      throw JException(e.what());
-    }
+    m_algo->process(m_input(),split_collections);
+
 };
 }; // SplitGeometry_factory
 } // eicrecon
