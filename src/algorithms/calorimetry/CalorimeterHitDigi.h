@@ -13,14 +13,12 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
 
@@ -50,7 +48,7 @@ namespace eicrecon {
                             "Smear energy deposit, digitize within ADC range, add pedestal, "
                             "convert time with smearing resolution, and sum signals."} {}
 
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -61,10 +59,7 @@ namespace eicrecon {
     uint64_t         id_mask{0};
 
   private:
-    const dd4hep::Detector* m_detector;
-    std::shared_ptr<spdlog::logger> m_log;
-
-  private:
+    const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
     algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
 
   };

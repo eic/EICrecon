@@ -58,10 +58,23 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
 
+            "SiBarrelRawHits",
+            "SiBarrelVertexRawHits",
+            "SiEndcapTrackerRawHits",
+
+            "SiBarrelHits",
+            "VertexBarrelHits",
+            "TrackerEndcapHits",
+
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
 
+            "TOFBarrelRawHit",
+            "TOFEndcapRawHits",
+
+            "TOFBarrelHits",
+            "TOFEndcapHits",
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -77,12 +90,25 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 
+            "MPGDBarrelRawHits",
+            "MPGDDIRCRawHits",
+            "OuterMPGDBarrelRawHits",
+            "BackwardMPGDEndcapRawHits",
+            "ForwardMPGDEndcapRawHits",
+
+            "MPGDBarrelHits",
+            "MPGDDIRCHits",
+            "OuterMPGDBarrelHits",
+            "BackwardMPGDEndcapHits",
+            "ForwardMPGDEndcapHits",
             // LOWQ2 hits
             "TaggerTrackerRawHits",
             "TaggerTrackerClusterPositions",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
+            "B0TrackerRawHits",
+            "B0TrackerHits",
 
             //
             "ForwardRomanPotRecParticles",
@@ -199,10 +225,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCRawHits",
             "HcalFarForwardZDCRecHits",
             "HcalFarForwardZDCSubcellHits",
-            "HcalFarForwardZDCProtoClusters",
             "HcalFarForwardZDCClusters",
             "HcalFarForwardZDCClusterAssociations",
-            "HcalFarForwardZDCProtoClustersBaseline",
             "HcalFarForwardZDCClustersBaseline",
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",

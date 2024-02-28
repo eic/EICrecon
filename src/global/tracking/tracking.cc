@@ -17,7 +17,7 @@
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/CollectionCollector_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 //
 extern "C" {
@@ -34,22 +34,35 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
+    // Possible collections from arches, brycecanyon and craterlake configurations
+    std::vector<std::pair<std::string, std::string>> possible_collections = {
+        {"SiBarrelHits", "SiBarrelTrackerRecHits"},
+        {"VertexBarrelHits", "SiBarrelVertexRecHits"},
+        {"TrackerEndcapHits", "SiEndcapTrackerRecHits"},
+        {"TOFBarrelHits", "TOFBarrelRecHit"},
+        {"TOFEndcapHits", "TOFEndcapRecHits"},
+        {"MPGDBarrelHits", "MPGDBarrelRecHits"},
+        {"MPDGDIRCHits", "MPDGDIRCRecHits"},
+        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRecHits"},
+        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRecHits"},
+        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRecHits"},
+        {"B0TrackerHits", "B0TrackerRecHits"}
+    };
+
+    // Filter out collections that are not present in the current configuration
+    std::vector<std::string> input_collections;
+    auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
+    for (const auto& [hit_collection, rec_collection] : possible_collections) {
+        if (readouts.find(hit_collection) != readouts.end()) {
+            // Add the collection to the list of input collections
+            input_collections.push_back(rec_collection);
+        }
+    }
+
     // Tracker hits collector
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
         "CentralTrackingRecHits",
-        {
-            "SiBarrelTrackerRecHits",          // Si tracker hits
-            "SiBarrelVertexRecHits",
-            "SiEndcapTrackerRecHits",
-            "TOFBarrelRecHit",             // TOF hits
-            "TOFEndcapRecHits",
-            "MPGDBarrelRecHits",           // MPGD
-            "MPGDDIRCRecHits",
-            "OuterMPGDBarrelRecHits",
-            "BackwardMPGDEndcapRecHits",
-            "ForwardMPGDEndcapRecHits",
-            "B0TrackerRecHits"          // B0TRK
-        },
+        input_collections,
         {"CentralTrackingRecHits"}, // Output collection name
         app));
 
@@ -69,6 +82,7 @@ void InitPlugin(JApplication *app) {
         {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
+            "CentralCKFTracks",
             "CentralCKFActsTrajectories",
             "CentralCKFActsTracks",
         },
@@ -92,6 +106,7 @@ void InitPlugin(JApplication *app) {
         {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
+            "CentralCKFSeededTracks",
             "CentralCKFSeededActsTrajectories",
             "CentralCKFSeededActsTracks",
         },
