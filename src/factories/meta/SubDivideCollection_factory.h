@@ -50,6 +50,7 @@ public:
       m_algo->process(raw_hits,split_hits);
     }
     catch(std::exception &e) {
+      logger()->warn(e.what());
       throw JException(e.what());
     }
 };
