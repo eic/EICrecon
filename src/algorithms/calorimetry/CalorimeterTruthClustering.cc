@@ -16,9 +16,7 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
-  void CalorimeterTruthClustering::init(std::shared_ptr<spdlog::logger> &logger) {
-      m_log = logger;
-  }
+  void CalorimeterTruthClustering::init() { }
 
 
   void CalorimeterTruthClustering::process(
