@@ -53,7 +53,10 @@ public:
         std::vector<int> ids;
         //Check if requested value is within the ranges
         auto cellID = instance.getCellID();
-        std::vector<long int> det_ids {m_id_dec->get(cellID, m_div[0]),m_id_dec->get(cellID, m_div[1])};
+        std::vector<long int> det_ids;
+        for(auto d : m_div){
+            det_ids.push_back(m_id_dec->get(cellID, d));
+        }
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
         if(index != m_ids.end()){
             ids.push_back(index-m_ids.begin());
