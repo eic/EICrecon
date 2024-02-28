@@ -1,4 +1,4 @@
-// Copyright (C) 2022, 2023 Christopher Dilks
+// Copyright (C) 2022 - 2024 Christopher Dilks, Wouter Deconinck
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #pragma once
