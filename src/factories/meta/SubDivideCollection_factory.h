@@ -29,7 +29,7 @@ public:
     void Configure() {
       m_algo = std::make_unique<AlgoT>(this->GetPrefix());
       m_algo->applyConfig(this->config());
-      m_algo->init(this->logger());
+      m_algo->init();
     }
 
     void setFunctions(std::function<std::vector<int>(const T&)> f) {
