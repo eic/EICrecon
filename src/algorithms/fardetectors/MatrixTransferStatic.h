@@ -42,13 +42,18 @@ namespace eicrecon {
                             {"outputParticleCollection"},
                             "Apply matrix method reconstruction to hits."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
 
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger>   m_log;
+    //----- Define constants here ------
+    double aXinv[2][2] = {{0.0, 0.0},
+                          {0.0, 0.0}};
+    double aYinv[2][2] = {{0.0, 0.0},
+                          {0.0, 0.0}};
+
+  private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 

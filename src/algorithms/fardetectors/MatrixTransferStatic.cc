@@ -20,9 +20,8 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
-void eicrecon::MatrixTransferStatic::init(std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::MatrixTransferStatic::init() {
 
-  m_log       = logger;
   //Calculate inverse of static transfer matrix
 
 }
@@ -63,7 +62,7 @@ void eicrecon::MatrixTransferStatic::process(
         }
   }
 
-  if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
+  if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
 
   nomMomentum = runningMomentum/numBeamProtons;
 
@@ -145,14 +144,14 @@ void eicrecon::MatrixTransferStatic::process(
 
   }
   else {
-    m_log->error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+    error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
     return;
   }
 
   double determinant = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
 
   if (determinant == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
@@ -165,7 +164,7 @@ void eicrecon::MatrixTransferStatic::process(
   determinant = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
 
   if (determinant == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
@@ -236,7 +235,7 @@ void eicrecon::MatrixTransferStatic::process(
     double base = goodHit[1].z - goodHit[0].z;
 
     if (base == 0) {
-      m_log->info("Detector separation = 0! Cannot calculate slope!");
+      info("Detector separation = 0! Cannot calculate slope!");
     }
     else{
 

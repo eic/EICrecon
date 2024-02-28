@@ -66,7 +66,7 @@ namespace eicrecon {
                             "Digitize within ADC range, add pedestal, convert time "
                             "with smearing resolution."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
     // EDM datatype member types
@@ -130,8 +130,6 @@ private:
 
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
-
-    std::shared_ptr<spdlog::logger> m_log;
 
     // std::default_random_engine generator; // TODO: need something more appropriate here
     // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1

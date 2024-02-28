@@ -70,30 +70,30 @@ namespace eicrecon {
          };
          */
 
-      // ------------------------------------------------
-
-      // print all parameters
-      void Print(std::shared_ptr<spdlog::logger> m_log, spdlog::level::level_enum lvl=spdlog::level::debug) {
-        m_log->log(lvl, "{:=^60}"," PhotoMultiplierHitDigiConfig Settings ");
-        auto print_param = [&m_log, &lvl] (auto name, auto val) {
-          m_log->log(lvl, "  {:>20} = {:<}", name, val);
-        };
-        print_param("seed",seed);
-        print_param("hitTimeWindow",hitTimeWindow);
-        print_param("timeResolution",timeResolution);
-        print_param("speMean",speMean);
-        print_param("speError",speError);
-        print_param("pedMean",pedMean);
-        print_param("pedError",pedError);
-        print_param("enablePixelGaps",enablePixelGaps);
-        print_param("safetyFactor",safetyFactor);
-        print_param("enableNoise",enableNoise);
-        print_param("noiseRate",noiseRate);
-        print_param("noiseTimeWindow",noiseTimeWindow);
-        m_log->log(lvl, "{:-^60}"," Quantum Efficiency vs. Wavelength ");
-        for(auto& [wl,qe] : quantumEfficiency)
-          m_log->log(lvl, "  {:>10} {:<}",wl,qe);
-      }
+      friend std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg);
 
   };
+
+  std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
+    os << fmt::format("{:=^60}"," PhotoMultiplierHitDigiConfig Settings ") << std::endl;
+    auto print_param = [&os] (auto name, auto val) {
+      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+    };
+    print_param("seed",cfg.seed);
+    print_param("hitTimeWindow",cfg.hitTimeWindow);
+    print_param("timeResolution",cfg.timeResolution);
+    print_param("speMean",cfg.speMean);
+    print_param("speError",cfg.speError);
+    print_param("pedMean",cfg.pedMean);
+    print_param("pedError",cfg.pedError);
+    print_param("enablePixelGaps",cfg.enablePixelGaps);
+    print_param("safetyFactor",cfg.safetyFactor);
+    print_param("enableNoise",cfg.enableNoise);
+    print_param("noiseRate",cfg.noiseRate);
+    print_param("noiseTimeWindow",cfg.noiseTimeWindow);
+    os << fmt::format("{:-^60}"," Quantum Efficiency vs. Wavelength ") << std::endl;
+    for(auto& [wl,qe] : cfg.quantumEfficiency)
+      os << fmt::format("  {:>10} {:<}",wl,qe) << std::endl;
+  }
+
 }
