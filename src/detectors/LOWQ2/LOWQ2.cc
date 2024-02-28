@@ -12,7 +12,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "factories/meta/SubDivideFunctors.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
