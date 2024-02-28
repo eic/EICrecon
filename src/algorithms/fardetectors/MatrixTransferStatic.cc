@@ -75,6 +75,8 @@ void eicrecon::MatrixTransferStatic::process(
   bool goodHit1 = false;
   bool goodHit2 = false;
 
+  std::cout << "num of raw hits: " << rawhits->size() << std::endl;
+
   for (const auto &h: *rawhits) {
 
     auto cellID = h.getCellID();
@@ -86,9 +88,15 @@ void eicrecon::MatrixTransferStatic::process(
 
     auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
+	//std::cout << "gpos = " << gpos.z() << " pos0 = " << pos0.z() << std::endl;
+
     // convert into mm
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
+
+	std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
+
+	std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
@@ -115,6 +123,8 @@ void eicrecon::MatrixTransferStatic::process(
 
   if (goodHit1 && goodHit2) {
 
+	std::cout << "beginning roman pots reconstruction..." << std::endl;
+
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
     double XL[2] = {goodHit[0].x - m_cfg.local_x_offset, goodHit[1].x - m_cfg.local_x_offset};
@@ -122,15 +132,18 @@ void eicrecon::MatrixTransferStatic::process(
 
     double base = goodHit[1].z - goodHit[0].z;
 
+	std::cout << "base = " << base << std::endl;
+	std::cout << "dd4hep::mm = " << dd4hep::mm << " dd4hep::mrad = " << dd4hep::mrad << std::endl;
+
     if (base == 0) {
       m_log->info("Detector separation = 0! Cannot calculate slope!");
     }
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - m_cfg.local_x_slope_offset}; //- _SX0RP_;
+      double Xrp[2] = {XL[1], 1000*((XL[1] - XL[0]) / (base)) - m_cfg.local_x_slope_offset}; //- _SX0RP_;
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - m_cfg.local_y_slope_offset}; //- _SY0RP_;
+      double Yrp[2] = {YL[1], 1000*((YL[1] - YL[0]) / (base)) - m_cfg.local_y_slope_offset}; //- _SY0RP_;
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
