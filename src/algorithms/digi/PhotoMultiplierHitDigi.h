@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <cstddef>
 #include <functional>
+#include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
 #include <string>

@@ -5,6 +5,7 @@
 #include <DD4hep/IDDescriptor.h>                   // for IDDescriptor
 #include <DD4hep/Readout.h>                        // for Readout
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
+#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4hep/Vector3f.h>                      // for Vector3f
@@ -14,9 +15,10 @@
 #include <stddef.h>                                // for size_t
 #include <array>                                   // for array
 #include <cmath>                                   // for sqrt, abs
+#include <gsl/pointers>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
-#include <string>                                  // for string
 #include <utility>                                 // for pair
+
 #include "algorithms/calorimetry/HEXPLIT.h"        // for HEXPLIT
 #include "algorithms/calorimetry/HEXPLITConfig.h"  // for HEXPLITConfig
 

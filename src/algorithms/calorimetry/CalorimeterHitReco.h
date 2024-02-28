@@ -18,6 +18,7 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 

@@ -8,8 +8,14 @@
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/generators/catch_generators_random.hpp>
+#include <catch2/interfaces/catch_interfaces_reporter.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
+#include <stddef.h>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
 
 class algorithmsInitListener : public Catch::EventListenerBase {
 public:

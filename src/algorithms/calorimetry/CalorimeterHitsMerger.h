@@ -16,6 +16,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <stdint.h>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 

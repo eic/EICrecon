@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <gsl/pointers>
 #include <set>
 #include <string>
 #include <string_view>

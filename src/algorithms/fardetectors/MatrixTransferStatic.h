@@ -11,6 +11,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
+#include <gsl/pointers>
 #include <memory>
 #include <string>
 #include <string_view>

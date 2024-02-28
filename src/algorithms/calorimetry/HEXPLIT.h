@@ -9,11 +9,11 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
-#include <algorithms/geo.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <gsl/pointers>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
 #include <vector>
