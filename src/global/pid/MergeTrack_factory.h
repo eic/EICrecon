@@ -35,6 +35,7 @@ private:
 
 public:
     void Configure() {
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->init(logger());
     }
 
