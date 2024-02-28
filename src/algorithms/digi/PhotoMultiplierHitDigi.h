@@ -26,12 +26,10 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
