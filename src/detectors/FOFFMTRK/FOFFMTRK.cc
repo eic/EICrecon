@@ -8,6 +8,8 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 
 
@@ -17,6 +19,28 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     MatrixTransferStaticConfig recon_cfg;
+	
+	//Digitized hits, especially for thresholds
+	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+        "ForwardOffMTrackerRawHits",
+        {"ForwardOffMTrackerHits"},
+        {"ForwardOffMTrackerRawHits"},
+        {
+            .threshold = 10.0 * dd4hep::keV,
+            .timeResolution = 8,
+        },
+        app
+    ));
+
+	app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "ForwardOffMTrackerRecHits",
+        {"ForwardOffMTrackerRawHits"},
+        {"ForwardOffMTrackerRecHits"},
+        {
+            .timeResolution = 8,
+        },
+        app
+    ));
 
     //Static transport matrix for Off Momentum detectors
     recon_cfg.aX = {{1.6248, 12.966293},
@@ -35,9 +59,9 @@ void InitPlugin(JApplication *app) {
     recon_cfg.hit2minZ = 24499.0;
     recon_cfg.hit2maxZ = 24522.0;
 
-    recon_cfg.readout              = "ForwardOffMTrackerHits";
+    recon_cfg.readout              = "ForwardOffMTrackerRecHits";
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"ForwardOffMTrackerHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"MCParticles","ForwardOffMTrackerRecHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
 
 }
 }

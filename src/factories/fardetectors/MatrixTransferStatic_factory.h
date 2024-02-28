@@ -9,7 +9,9 @@
 
 // Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 
 #include "extensions/jana/JOmniFactory.h"
 
@@ -23,7 +25,8 @@ public:
 private:
     std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4hep::SimTrackerHit> m_hits_input {this};
+	PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
+    PodioInput<edm4eic::TrackerHit> m_hits_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_tracks_output {this};
 
     Service<DD4hep_service> m_geoSvc {this};
@@ -61,7 +64,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_hits_input()}, {m_tracks_output().get()});
+        m_algo->process({m_mcparts_input(), m_hits_input()}, {m_tracks_output().get()});
     }
 
 };
