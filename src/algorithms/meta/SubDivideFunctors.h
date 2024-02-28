@@ -5,6 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
