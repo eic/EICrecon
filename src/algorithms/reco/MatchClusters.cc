@@ -25,186 +25,171 @@
 
 namespace eicrecon {
 
-    void MatchClusters::init(std::shared_ptr<spdlog::logger> logger) {
-        m_log = logger;
+void MatchClusters::init(std::shared_ptr<spdlog::logger>& logger) {
+    m_log = logger;
+}
+
+void MatchClusters::process(
+    const MatchClusters::Input& input,
+    const MatchClusters::Output& output) const {
+
+    const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
+    auto [outparts, outpartsassoc] = output;
+
+    m_log->debug("Processing cluster info for new event");
+
+    m_log->debug("Step 0/2: Getting indexed list of clusters...");
+
+    // get an indexed map of all clusters
+    auto clusterMap = indexedClusters(clusters, clustersassoc);
+
+    // 1. Loop over all tracks and link matched clusters where applicable
+    // (removing matched clusters from the cluster maps)
+    m_log->debug("Step 1/2: Matching clusters to charged particles...");
+
+    for (const auto inpart: *inparts) {
+        m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart.getObjectID().index,
+                        inpart.getPDG(), inpart.getEnergy());
+
+        auto outpart = inpart.clone();
+        outparts->push_back(outpart);
+
+        int mcID = -1;
+
+        // find associated particle
+        for (const auto &assoc: *inpartsassoc) {
+            if (assoc.getRecID() == inpart.getObjectID().index) {
+                mcID = assoc.getSimID();
+                break;
+            }
+        }
+
+        m_log->trace("    --> Found particle with mcID {}", mcID);
+
+        if (mcID < 0) {
+            m_log->debug("    --> cannot match track without associated mcID");
+            continue;
+        }
+
+        if (clusterMap.count(mcID)) {
+            const auto &clus = clusterMap[mcID];
+            m_log->debug("    --> found matching cluster with energy: {}", clus.getEnergy());
+            m_log->debug("    --> adding cluster to reconstructed particle");
+            outpart.addToClusters(clus);
+            clusterMap.erase(mcID);
+        }
+
+        // create truth associations
+        auto assoc = outpartsassoc->create();
+        assoc.setRecID(outpart.getObjectID().index);
+        assoc.setSimID(mcID);
+        assoc.setWeight(1.0);
+        assoc.setRec(outpart);
+        assoc.setSim((*mcparticles)[mcID]);
     }
 
-    MatchClusters::MatchingResults MatchClusters::execute(
-        const edm4hep::MCParticleCollection* mcparticles,
-        const edm4eic::ReconstructedParticleCollection* inparts,
-        const edm4eic::MCRecoParticleAssociationCollection* inpartsassoc,
-        const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
-        const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &cluster_assoc_collections) {
+    // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
+    // if a matching cluster is available
+    m_log->debug("Step 2/2: Creating neutrals for remaining clusters...");
+    for (const auto &[mcID, clus]: clusterMap) {
+        m_log->debug(" --> Processing unmatched cluster with energy: {}", clus.getEnergy());
 
-        m_log->debug("Processing cluster info for new event");
 
-        // Resulting reconstructed particles and associations
-        auto outparts = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        auto outpartsassoc = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-
-        m_log->debug("Step 0/2: Getting indexed list of clusters...");
-
-        // get an indexed map of all clusters
-        auto clusterMap = indexedClusters(cluster_collections, cluster_assoc_collections);
-
-        // 1. Loop over all tracks and link matched clusters where applicable
-        // (removing matched clusters from the cluster maps)
-        m_log->debug("Step 1/2: Matching clusters to charged particles...");
-
-        for (const auto inpart: *inparts) {
-            m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart.getObjectID().index,
-                         inpart.getPDG(), inpart.getEnergy());
-
-            auto outpart = inpart.clone();
-            outparts->push_back(outpart);
-
-            int mcID = -1;
-
-            // find associated particle
-            for (const auto &assoc: *inpartsassoc) {
-                if (assoc.getRecID() == inpart.getObjectID().index) {
-                    mcID = assoc.getSimID();
-                    break;
-                }
+        // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
+        const auto mc = (*mcparticles)[mcID];
+        const double mass = (!mc.getCharge()) ? mc.getMass() : 0;
+        const int32_t pdg = (!mc.getCharge()) ? mc.getPDG() : 0;
+        if (m_log->level() <= spdlog::level::debug) {
+            if (mc.getCharge()) {
+                m_log->debug("   --> associated mcparticle is not a neutral (PDG: {}), "
+                                "setting the reconstructed particle ID to 0 (unidentified)", mc.getPDG());
             }
+            m_log->debug("   --> found matching associated mcparticle with PDG: {}, energy: {}", pdg,
+                            mc.getEnergy());
+        }
 
-            m_log->trace("    --> Found particle with mcID {}", mcID);
+        // Reconstruct our neutrals and add them to the list
+        const auto outpart = reconstruct_neutral(&clus, mass, pdg);
+        m_log->debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
+                        outpart.getEnergy());
 
-            if (mcID < 0) {
-                m_log->debug("    --> cannot match track without associated mcID");
+        outparts->push_back(outpart);
+
+        // Create truth associations
+        auto assoc = outpartsassoc->create();
+        assoc.setRecID(outpart.getObjectID().index);
+        assoc.setSimID(mcID);
+        assoc.setWeight(1.0);
+        assoc.setRec(outpart);
+        assoc.setSim((*mcparticles)[mcID]);
+    }
+}
+
+// get a map of mcID --> cluster
+// input: clusters --> all clusters
+std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
+        const edm4eic::ClusterCollection* clusters,
+        const edm4eic::MCRecoClusterParticleAssociationCollection* associations) const {
+
+    std::map<int, edm4eic::Cluster> matched = {};
+
+    // loop over clusters
+    for (const auto cluster: *clusters) {
+
+        int mcID = -1;
+
+        // find associated particle
+        for (const auto assoc: *associations) {
+            if (assoc.getRec() == cluster) {
+                mcID = assoc.getSimID();
+                break;
+            }
+        }
+
+        // found associated particle
+        if (mcID != -1) {
+            break;
+        }
+
+        m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
+
+        if (mcID < 0) {
+            m_log->trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
+            continue;
+        }
+
+        const bool duplicate = matched.count(mcID);
+        if (duplicate) {
+            m_log->trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
+
+            if (cluster.getEnergy() < matched[mcID].getEnergy()) {
                 continue;
             }
-
-            if (clusterMap.count(mcID)) {
-                const auto &clus = clusterMap[mcID];
-                m_log->debug("    --> found matching cluster with energy: {}", clus.getEnergy());
-                m_log->debug("    --> adding cluster to reconstructed particle");
-                outpart.addToClusters(clus);
-                clusterMap.erase(mcID);
-            }
-
-            // create truth associations
-            auto assoc = outpartsassoc->create();
-            assoc.setRecID(outpart.getObjectID().index);
-            assoc.setSimID(mcID);
-            assoc.setWeight(1.0);
-            assoc.setRec(outpart);
-            assoc.setSim((*mcparticles)[mcID]);
         }
-
-        // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
-        // if a matching cluster is available
-        m_log->debug("Step 2/2: Creating neutrals for remaining clusters...");
-        for (const auto &[mcID, clus]: clusterMap) {
-            m_log->debug(" --> Processing unmatched cluster with energy: {}", clus.getEnergy());
-
-
-            // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
-            const auto mc = (*mcparticles)[mcID];
-            const double mass = (!mc.getCharge()) ? mc.getMass() : 0;
-            const int32_t pdg = (!mc.getCharge()) ? mc.getPDG() : 0;
-            if (m_log->level() <= spdlog::level::debug) {
-                if (mc.getCharge()) {
-                    m_log->debug("   --> associated mcparticle is not a neutral (PDG: {}), "
-                                 "setting the reconstructed particle ID to 0 (unidentified)", mc.getPDG());
-                }
-                m_log->debug("   --> found matching associated mcparticle with PDG: {}, energy: {}", pdg,
-                             mc.getEnergy());
-            }
-
-            // Reconstruct our neutrals and add them to the list
-            const auto outpart = reconstruct_neutral(&clus, mass, pdg);
-            m_log->debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
-                         outpart.getEnergy());
-
-            outparts->push_back(outpart);
-
-            // Create truth associations
-            auto assoc = outpartsassoc->create();
-            assoc.setRecID(outpart.getObjectID().index);
-            assoc.setSimID(mcID);
-            assoc.setWeight(1.0);
-            assoc.setRec(outpart);
-            assoc.setSim((*mcparticles)[mcID]);
-        }
-
-        return {std::move(outparts), std::move(outpartsassoc)};
+        matched[mcID] = cluster;
     }
+    return matched;
+}
 
 
+// reconstruct a neutral cluster
+// (for now assuming the vertex is at (0,0,0))
+edm4eic::ReconstructedParticle MatchClusters::reconstruct_neutral(
+        const edm4eic::Cluster *cluster, const double mass, const int32_t pdg) const {
 
-    // get a map of mcID --> cluster
-    // input: cluster_collections --> list of handles to all cluster collections
-    std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
-            const std::vector<const edm4eic::ClusterCollection*> &cluster_collections,
-            const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &associations_collections) {
-        std::map<int, edm4eic::Cluster> matched = {};
-
-        // loop over cluster collections
-        for (const auto &clusters: cluster_collections) {
-
-            // loop over clusters
-            for (const auto cluster: *clusters) {
-
-                int mcID = -1;
-
-                // loop over association collections
-                for (const auto &associations: associations_collections) {
-
-                    // find associated particle
-                    for (const auto assoc: *associations) {
-                        if (assoc.getRec() == cluster) {
-                            mcID = assoc.getSimID();
-                            break;
-                        }
-                    }
-
-                    // found associated particle
-                    if (mcID != -1) {
-                        break;
-                    }
-                }
-
-                m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
-
-                if (mcID < 0) {
-                    m_log->trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
-                    continue;
-                }
-
-                const bool duplicate = matched.count(mcID);
-                if (duplicate) {
-                    m_log->trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
-
-                    if (cluster.getEnergy() < matched[mcID].getEnergy()) {
-                        continue;
-                    }
-                }
-                matched[mcID] = cluster;
-            }
-        }
-        return matched;
-    }
-
-
-    // reconstruct a neutral cluster
-    // (for now assuming the vertex is at (0,0,0))
-    edm4eic::ReconstructedParticle MatchClusters::reconstruct_neutral(const edm4eic::Cluster *cluster, const double mass, const int32_t pdg) const {
-        const float energy = cluster->getEnergy();
-        const float p = energy < mass ? 0 : std::sqrt(energy * energy - mass * mass);
-        const auto position = cluster->getPosition();
-        const auto momentum = p * (position / edm4hep::utils::magnitude(position));
-        // setup our particle
-        edm4eic::MutableReconstructedParticle part;
-        part.setMomentum(momentum);
-        part.setPDG(pdg);
-        part.setCharge(0);
-        part.setEnergy(energy);
-        part.setMass(mass);
-        part.addToClusters(*cluster);
-        return part;
-    }
-
-
+    const float energy = cluster->getEnergy();
+    const float p = energy < mass ? 0 : std::sqrt(energy * energy - mass * mass);
+    const auto position = cluster->getPosition();
+    const auto momentum = p * (position / edm4hep::utils::magnitude(position));
+    // setup our particle
+    edm4eic::MutableReconstructedParticle part;
+    part.setMomentum(momentum);
+    part.setPDG(pdg);
+    part.setCharge(0);
+    part.setEnergy(energy);
+    part.setMass(mass);
+    part.addToClusters(*cluster);
+    return part;
+}
 
 } // namespace Jug::Fast

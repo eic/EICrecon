@@ -14,39 +14,52 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/MatchClusters.h"
-#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/jana/JOmniFactory.h"
 #include "extensions/spdlog/SpdlogMixin.h"
-
-
 
 namespace eicrecon {
 
-    class MatchClusters_factory :
-            public JChainMultifactoryT<NoConfig>,
-            public SpdlogMixin {
+class MatchClusters_factory : public JOmniFactory<MatchClusters_factory> {
+private:
 
-    public:
-        explicit MatchClusters_factory(std::string tag,
-                                       const std::vector<std::string>& input_tags,
-                                       const std::vector<std::string>& output_tags):
-                JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
+    // Underlying algorithm
+    std::unique_ptr<eicrecon::MatchClusters> m_algo;
 
-            DeclarePodioOutput<edm4eic::ReconstructedParticle>(GetOutputTags()[0]);
-            DeclarePodioOutput<edm4eic::MCRecoParticleAssociation>(GetOutputTags()[1]);
-        }
+    // Declare inputs
+    PodioInput<edm4hep::MCParticle> m_mc_parts_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_rec_parts_input {this};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_input {this};
+    PodioInput<edm4eic::Cluster> m_clusters_input {this};
+    PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assocs_input {this};
 
-        /** One time initialization **/
-        void Init() override;
+    // Declare outputs
+    PodioOutput<edm4eic::ReconstructedParticle> m_rec_parts_output {this};
+    PodioOutput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_output {this};
 
-        /** On run change preparations **/
-        void BeginRun(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<MatchClusters>(GetPrefix());
+        m_algo->init(logger());
+    }
 
-        /** Event by event processing **/
-        void Process(const std::shared_ptr<const JEvent> &event) override;
-    protected:
+    void ChangeRun(int64_t run_number) { }
 
-        MatchClusters m_match_algo;
+    void Process(int64_t run_number, uint64_t event_number) {
+        m_algo->process(
+            {
+                m_mc_parts_input(),
+                m_rec_parts_input(),
+                m_rec_assocs_input(),
+                m_clusters_input(),
+                m_cluster_assocs_input(),
+            },
+            {
+                m_rec_parts_output().get(),
+                m_rec_assocs_output().get(),
+            }
+        );
+    }
 
-    };
+  };
 
 } // eicrecon

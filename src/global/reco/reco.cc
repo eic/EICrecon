@@ -21,6 +21,7 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 //
 extern "C" {
@@ -36,18 +37,34 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
-    app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster>>(
+        "EcalClusters",
+        {
+          "EcalEndcapNClusters",
+          "EcalBarrelScFiClusters",
+          "EcalEndcapPClusters",
+        },
+        {"EcalClusters"},
+        app));
+
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation>>(
+        "EcalClusterAssociations",
+        {
+          "EcalEndcapNClusterAssociations",
+          "EcalBarrelScFiClusterAssociations",
+          "EcalEndcapPClusterAssociations",
+        },
+        {"EcalClusterAssociations"},
+        app));
+
+    app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
         {
           "MCParticles",
           "ReconstructedChargedParticles",
           "ReconstructedChargedParticleAssociations",
-          "EcalEndcapNClusters",
-          "EcalEndcapNClusterAssociations",
-          "EcalBarrelScFiClusters",
-          "EcalBarrelScFiClusterAssociations",
-          "EcalEndcapPClusters",
-          "EcalEndcapPClusterAssociations"
+          "EcalClusters",
+          "EcalClusterAssociations",
         },
         { "ReconstructedParticles",           // edm4eic::ReconstructedParticle
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
