@@ -4,18 +4,17 @@
 
 #pragma once
 
-#include <JANA/JEvent.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <stdint.h>
 #include <memory>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/MatchClusters.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 

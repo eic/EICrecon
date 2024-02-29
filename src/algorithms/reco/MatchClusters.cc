@@ -16,12 +16,10 @@
 #include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <map>
-#include <vector>
 
 #include "MatchClusters.h"
-
-
 
 namespace eicrecon {
 

@@ -4,8 +4,11 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <algorithm>
-#include <string>
+#include <map>
+#include <memory>
 
 #include "ChargedReconstructedParticleSelector_factory.h"
 #include "InclusiveKinematicsDA_factory.h"
@@ -18,7 +21,6 @@
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedElectrons_factory.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "factories/meta/CollectionCollector_factory.h"
