@@ -5,6 +5,7 @@
 // 1. Match clusters to their tracks using the mcID field
 // 2. For unmatched clusters create neutrals and add to the particle list
 
+#include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -14,7 +15,6 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
-#include <spdlog/common.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <map>

@@ -13,10 +13,8 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
 #include <map>
-#include <memory>
 #include <string>
 #include <string_view>
 
