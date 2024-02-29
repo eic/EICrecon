@@ -57,6 +57,10 @@ void eicrecon::MatrixTransferStatic::process(
   double runningMomentum = 0.0;
   
   for (const auto& p: *mcparts) {
+	  if(mcparts->size() == 1 && p.getPDG() == 2212){
+	  	runningMomentum = p.getMomentum().z;
+		numBeamProtons++;
+	  }
   	if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
 		runningMomentum += p.getMomentum().z;
 		numBeamProtons++;
@@ -69,7 +73,7 @@ void eicrecon::MatrixTransferStatic::process(
    
   double nomMomentumError = 0.02;
   
-  std::cout << "average momentum is = " << nomMomentum << std::endl;
+  //std::cout << "average momentum is = " << nomMomentum << std::endl;
  
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
@@ -189,8 +193,6 @@ void eicrecon::MatrixTransferStatic::process(
 
   for (const auto &h: *rechits) {
 
-	m_log->debug( "Roman pots reconstruction starting...");
-
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
     auto gpos = m_converter->position(cellID);
@@ -204,9 +206,9 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-	std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
+	//std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
 
-	std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
+	//std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
@@ -233,7 +235,7 @@ void eicrecon::MatrixTransferStatic::process(
 
   if (goodHit1 && goodHit2) {
 
-	std::cout << "beginning roman pots reconstruction..." << std::endl;
+	//std::cout << "beginning roman pots reconstruction..." << std::endl;
 
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
