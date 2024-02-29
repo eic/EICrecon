@@ -72,9 +72,7 @@ void eicrecon::MatrixTransferStatic::process(
   nomMomentum = runningMomentum/numBeamProtons;
    
   double nomMomentumError = 0.02;
-  
-  //std::cout << "average momentum is = " << nomMomentum << std::endl;
- 
+   
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
   
@@ -207,7 +205,6 @@ void eicrecon::MatrixTransferStatic::process(
     pos0 = pos0/dd4hep::mm;
 
 	//std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
-
 	//std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
@@ -235,8 +232,6 @@ void eicrecon::MatrixTransferStatic::process(
 
   if (goodHit1 && goodHit2) {
 
-	//std::cout << "beginning roman pots reconstruction..." << std::endl;
-
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
     double XL[2] = {goodHit[0].x - local_x_offset, goodHit[1].x - local_x_offset};
@@ -244,18 +239,15 @@ void eicrecon::MatrixTransferStatic::process(
 
     double base = goodHit[1].z - goodHit[0].z;
 
-	std::cout << "base = " << base << std::endl;
-	std::cout << "dd4hep::mm = " << dd4hep::mm << " dd4hep::mrad = " << dd4hep::mrad << std::endl;
-
     if (base == 0) {
       m_log->info("Detector separation = 0! Cannot calculate slope!");
     }
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset}; //- _SX0RP_;
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset}; 
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset}; //- _SY0RP_;
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset}; 
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
