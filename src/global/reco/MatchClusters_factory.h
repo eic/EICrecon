@@ -35,10 +35,13 @@ private:
     PodioOutput<edm4eic::ReconstructedParticle> m_rec_parts_output {this};
     PodioOutput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_output {this};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<MatchClusters>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level((algorithms::LogLevel)logger()->level());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) { }

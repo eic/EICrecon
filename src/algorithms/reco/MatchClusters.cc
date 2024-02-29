@@ -23,10 +23,6 @@
 
 namespace eicrecon {
 
-void MatchClusters::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-}
-
 void MatchClusters::process(
     const MatchClusters::Input& input,
     const MatchClusters::Output& output) const {
@@ -34,19 +30,19 @@ void MatchClusters::process(
     const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
     auto [outparts, outpartsassoc] = output;
 
-    m_log->debug("Processing cluster info for new event");
+    debug("Processing cluster info for new event");
 
-    m_log->debug("Step 0/2: Getting indexed list of clusters...");
+    debug("Step 0/2: Getting indexed list of clusters...");
 
     // get an indexed map of all clusters
     auto clusterMap = indexedClusters(clusters, clustersassoc);
 
     // 1. Loop over all tracks and link matched clusters where applicable
     // (removing matched clusters from the cluster maps)
-    m_log->debug("Step 1/2: Matching clusters to charged particles...");
+    debug("Step 1/2: Matching clusters to charged particles...");
 
     for (const auto inpart: *inparts) {
-        m_log->debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart.getObjectID().index,
+        debug(" --> Processing charged particle {}, PDG {}, energy {}", inpart.getObjectID().index,
                         inpart.getPDG(), inpart.getEnergy());
 
         auto outpart = inpart.clone();
@@ -62,17 +58,17 @@ void MatchClusters::process(
             }
         }
 
-        m_log->trace("    --> Found particle with mcID {}", mcID);
+        trace("    --> Found particle with mcID {}", mcID);
 
         if (mcID < 0) {
-            m_log->debug("    --> cannot match track without associated mcID");
+            debug("    --> cannot match track without associated mcID");
             continue;
         }
 
         if (clusterMap.count(mcID)) {
             const auto &clus = clusterMap[mcID];
-            m_log->debug("    --> found matching cluster with energy: {}", clus.getEnergy());
-            m_log->debug("    --> adding cluster to reconstructed particle");
+            debug("    --> found matching cluster with energy: {}", clus.getEnergy());
+            debug("    --> adding cluster to reconstructed particle");
             outpart.addToClusters(clus);
             clusterMap.erase(mcID);
         }
@@ -88,27 +84,27 @@ void MatchClusters::process(
 
     // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
     // if a matching cluster is available
-    m_log->debug("Step 2/2: Creating neutrals for remaining clusters...");
+    debug("Step 2/2: Creating neutrals for remaining clusters...");
     for (const auto &[mcID, clus]: clusterMap) {
-        m_log->debug(" --> Processing unmatched cluster with energy: {}", clus.getEnergy());
+        debug(" --> Processing unmatched cluster with energy: {}", clus.getEnergy());
 
 
         // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
         const auto mc = (*mcparticles)[mcID];
         const double mass = (!mc.getCharge()) ? mc.getMass() : 0;
         const int32_t pdg = (!mc.getCharge()) ? mc.getPDG() : 0;
-        if (m_log->level() <= spdlog::level::debug) {
+        if (level() <= algorithms::LogLevel::kDebug) {
             if (mc.getCharge()) {
-                m_log->debug("   --> associated mcparticle is not a neutral (PDG: {}), "
+                debug("   --> associated mcparticle is not a neutral (PDG: {}), "
                                 "setting the reconstructed particle ID to 0 (unidentified)", mc.getPDG());
             }
-            m_log->debug("   --> found matching associated mcparticle with PDG: {}, energy: {}", pdg,
+            debug("   --> found matching associated mcparticle with PDG: {}, energy: {}", pdg,
                             mc.getEnergy());
         }
 
         // Reconstruct our neutrals and add them to the list
         const auto outpart = reconstruct_neutral(&clus, mass, pdg);
-        m_log->debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
+        debug(" --> Reconstructed neutral particle with PDG: {}, energy: {}", outpart.getPDG(),
                         outpart.getEnergy());
 
         outparts->push_back(outpart);
@@ -144,16 +140,16 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
             }
         }
 
-        m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
+        trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
 
         if (mcID < 0) {
-            m_log->trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
+            trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
             continue;
         }
 
         const bool duplicate = matched.count(mcID);
         if (duplicate) {
-            m_log->trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
+            trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
 
             if (cluster.getEnergy() < matched[mcID].getEnergy()) {
                 continue;

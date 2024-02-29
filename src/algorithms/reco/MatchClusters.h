@@ -43,16 +43,20 @@ namespace eicrecon {
   public:
     MatchClusters(std::string_view name)
       : MatchClustersAlgorithm{name,
-                            {"inputTrackSegments"},
-                            {"outputTrackSegments"},
-                            "Effectively 'zip' the input track segments."} {}
+            {
+                "MCParticles",
+                "CentralTracks", "CentralTrackAssociations",
+                "EcalClusters", "EcalClusterAssociations"
+            },
+            {
+                "ReconstructedParticles", "ReconstructedParticleAssociations"
+            },
+            "Match tracks with clusters, and assign associations."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final { };
     void process(const Input&, const Output&) const final;
 
     private:
-      std::shared_ptr<spdlog::logger> m_log;
-
       // get a map of mcID --> cluster
       // input: clusters --> all clusters
       std::map<int, edm4eic::Cluster> indexedClusters(
