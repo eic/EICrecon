@@ -24,13 +24,13 @@ namespace eicrecon {
     //std::vector<std::vector<double>> aY = {{0.0000159900, 3.94082098},
     //                                       {0.0000079946, -0.1402995}};
 
-		
-	//x_offset       = 0.00979216;
-	//y_offset       = -0.00778646;
-	//x_slope_offset = 0.004526961;
-	//y_slope_offset = -0.003907849;	
 
-	std::vector<std::vector<double>> aX = {{2.03459216, 22.85780784},
+        //x_offset       = 0.00979216;
+        //y_offset       = -0.00778646;
+        //x_slope_offset = 0.004526961;
+        //y_slope_offset = -0.003907849;
+
+        std::vector<std::vector<double>> aX = {{2.03459216, 22.85780784},
                                            {0.179641961, -0.306626961}};
     std::vector<std::vector<double>> aY = {{0.38879, 3.71612646},
                                            {0.022685, -0.003907849}};

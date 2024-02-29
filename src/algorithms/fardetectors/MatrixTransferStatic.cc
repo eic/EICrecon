@@ -28,7 +28,7 @@ void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
   m_detector  = det;
   m_converter = id_conv;
   //Calculate inverse of static transfer matrix
-    
+
 }
 
 void eicrecon::MatrixTransferStatic::process(
@@ -37,45 +37,45 @@ void eicrecon::MatrixTransferStatic::process(
 
   const auto [mcparts, rechits] = input;
   auto [outputParticles] = output;
-  
+
   std::vector<std::vector<double>> aX(m_cfg.aX);
   std::vector<std::vector<double>> aY(m_cfg.aY);
-  
+
   //----- Define constants here ------
   double aXinv[2][2] = {{0.0, 0.0},
                         {0.0, 0.0}};
   double aYinv[2][2] = {{0.0, 0.0},
                         {0.0, 0.0}};
-  
+
   double nomMomentum     = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
   double local_x_offset  = m_cfg.local_x_offset;
   double local_y_offset  = m_cfg.local_y_offset;
   double local_x_slope_offset  = m_cfg.local_x_slope_offset;
   double local_y_slope_offset  = m_cfg.local_y_slope_offset;
- 
+
   double numBeamProtons = 0;
   double runningMomentum = 0.0;
-  
+
   for (const auto& p: *mcparts) {
-	  if(mcparts->size() == 1 && p.getPDG() == 2212){
-	  	runningMomentum = p.getMomentum().z;
-		numBeamProtons++;
-	  }
-  	if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-		runningMomentum += p.getMomentum().z;
-		numBeamProtons++;
-	}
+          if(mcparts->size() == 1 && p.getPDG() == 2212){
+                runningMomentum = p.getMomentum().z;
+                numBeamProtons++;
+          }
+        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+                runningMomentum += p.getMomentum().z;
+                numBeamProtons++;
+        }
   }
-  
+
   if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
-      
+
   nomMomentum = runningMomentum/numBeamProtons;
-   
+
   double nomMomentumError = 0.02;
-   
+
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
-  
+
   if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
       aX[0][0] = 2.09948716; //a
@@ -131,12 +131,12 @@ void eicrecon::MatrixTransferStatic::process(
 
   }
   else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
-  	
+
       aX[0][0] = 1.6248;
-	  aX[0][1] = 12.966293;
-      aX[1][0] = 0.1832; 
-	  aX[1][1] = -2.8636535;
-      
+          aX[0][1] = 12.966293;
+      aX[1][0] = 0.1832;
+          aX[1][1] = -2.8636535;
+
       aY[0][0] = 0.0001674; //a
       aY[0][1] = -28.6003; //b
       aY[1][0] = 0.0000837; //c
@@ -146,7 +146,7 @@ void eicrecon::MatrixTransferStatic::process(
       local_y_offset       = -0.0146;
       local_x_slope_offset = -14.75315;
       local_y_slope_offset = -0.0073;
-	  
+
   }
   else {
     m_log->error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
@@ -204,8 +204,8 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-	//std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
-	//std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
+        //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
+        //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
@@ -245,9 +245,9 @@ void eicrecon::MatrixTransferStatic::process(
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset}; 
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset};
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset}; 
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset};
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP

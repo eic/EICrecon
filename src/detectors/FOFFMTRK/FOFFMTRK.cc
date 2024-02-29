@@ -19,9 +19,9 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     MatrixTransferStaticConfig recon_cfg;
-	
-	//Digitized hits, especially for thresholds
-	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+
+        //Digitized hits, especially for thresholds
+        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardOffMTrackerRawHits",
         {"ForwardOffMTrackerHits"},
         {"ForwardOffMTrackerRawHits"},
@@ -32,7 +32,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-	app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "ForwardOffMTrackerRecHits",
         {"ForwardOffMTrackerRawHits"},
         {"ForwardOffMTrackerRecHits"},
