@@ -63,14 +63,13 @@ void eicrecon::MatrixTransferStatic::process(
 	}
   }
   
-  if(numBeamProtons == 0) {std::cout << "No beam protons to choose matrix!! Skipping!!" << std::endl; return;}
+  if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
       
   nomMomentum = runningMomentum/numBeamProtons;
-  
-  std::cout << "average momentum for event sample = " << nomMomentum << std::endl;
- 
+   
   double nomMomentumError = 0.02;
   
+  std::cout << "average momentum is = " << nomMomentum << std::endl;
  
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
@@ -129,8 +128,26 @@ void eicrecon::MatrixTransferStatic::process(
       local_y_slope_offset = -0.009532243;
 
   }
+  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
+  	
+      aX[0][0] = 1.6248;
+	  aX[0][1] = 12.966293;
+      aX[1][0] = 0.1832; 
+	  aX[1][1] = -2.8636535;
+      
+      aY[0][0] = 0.0001674; //a
+      aY[0][1] = -28.6003; //b
+      aY[1][0] = 0.0000837; //c
+      aY[1][1] = -2.87985; //d
+
+      local_x_offset       = -11.9872;
+      local_y_offset       = -0.0146;
+      local_x_slope_offset = -14.75315;
+      local_y_slope_offset = -0.0073;
+	  
+  }
   else {
-    std::cout << "MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!" << std::endl;
+    m_log->error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
     return;
   }
 
@@ -170,9 +187,9 @@ void eicrecon::MatrixTransferStatic::process(
   bool goodHit1 = false;
   bool goodHit2 = false;
 
-  std::cout << "num of raw hits: " << rechits->size() << std::endl;
-
   for (const auto &h: *rechits) {
+
+	m_log->debug( "Roman pots reconstruction starting...");
 
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
@@ -182,8 +199,6 @@ void eicrecon::MatrixTransferStatic::process(
     auto local = volman.lookupDetElement(cellID);
 
     auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
-
-	//std::cout << "gpos = " << gpos.z() << " pos0 = " << pos0.z() << std::endl;
 
     // convert into mm
     gpos = gpos/dd4hep::mm;
@@ -236,9 +251,9 @@ void eicrecon::MatrixTransferStatic::process(
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], 1000*((XL[1] - XL[0]) / (base)) - local_x_slope_offset}; //- _SX0RP_;
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset}; //- _SX0RP_;
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], 1000*((YL[1] - YL[0]) / (base)) - local_y_slope_offset}; //- _SY0RP_;
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset}; //- _SY0RP_;
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP

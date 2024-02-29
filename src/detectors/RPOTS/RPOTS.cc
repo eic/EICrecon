@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardRomanPotHits"},
         {"ForwardRomanPotRawHits"},
         {
-            .threshold = 0.0 * dd4hep::keV,
+            .threshold = 10.0 * dd4hep::keV,
             .timeResolution = 8,
         },
         app
@@ -55,27 +55,13 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_y_slope_offset = -0.0451035;  // in mrad
 	recon_cfg.nomMomentum          =  275.0;      // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
-		/*
-	recon_cfg.aX = {{2.03459216, 22.85780784},
-                    {0.179641961, -0.306626961}};
-    recon_cfg.aY = {{0.38879, 3.71612646},
-                    {0.022685, -0.083092151}};
-	
-	recon_cfg.local_x_offset       =  0.00979216;        // in mm --> this is from misalignment of the detector
-    recon_cfg.local_y_offset       =  -0.00778646;        // in mm --> this is from misalignment of the detector
-    recon_cfg.local_x_slope_offset = 0.004526961; // in mrad
-    recon_cfg.local_y_slope_offset = -0.003907849;  // in mrad
-    recon_cfg.nomMomentum          =  100.0;      // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
-		*/
     recon_cfg.hit1minZ = 25099.0;
     recon_cfg.hit1maxZ = 26022.0;
     recon_cfg.hit2minZ = 27099.0;
     recon_cfg.hit2maxZ = 28022.0;
 
-    //recon_cfg.readout              = "ForwardRomanPotHits";
 	recon_cfg.readout              = "ForwardRomanPotRecHits";
 
-    //app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"ForwardRomanPotHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 	app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 
 }
