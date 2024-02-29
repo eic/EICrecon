@@ -1,4 +1,4 @@
-// Copyright 2023, Simon Gardner
+// Copyright 2024, Simon Gardner
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 #pragma once
