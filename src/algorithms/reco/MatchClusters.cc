@@ -146,11 +146,6 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
             }
         }
 
-        // found associated particle
-        if (mcID != -1) {
-            break;
-        }
-
         m_log->trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
 
         if (mcID < 0) {
