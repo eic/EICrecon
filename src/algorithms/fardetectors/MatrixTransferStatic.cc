@@ -70,9 +70,9 @@ void eicrecon::MatrixTransferStatic::process(
   if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
 
   nomMomentum = runningMomentum/numBeamProtons;
-
-  double nomMomentumError = 0.02;
-
+   
+  double nomMomentumError = 0.05;
+   
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
 
