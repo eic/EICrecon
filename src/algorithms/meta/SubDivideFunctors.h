@@ -14,7 +14,7 @@ template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
 
-    RangeSplit(std::vector<std::pair<long int,long int>> ranges) : m_ranges(ranges) {};
+    RangeSplit(std::vector<std::pair<double,double>> ranges) : m_ranges(ranges) {};
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
@@ -29,7 +29,7 @@ public:
     }
 
 private:
-    std::vector<std::pair<long int,long int>> m_ranges;
+    std::vector<std::pair<double,double>> m_ranges;
 
 };
 
@@ -53,7 +53,7 @@ public:
         }
 
         std::vector<int> ids;
-        //Check if requested value is within the ranges
+        //Check which detector division to put the hit into
         auto cellID = instance.getCellID();
         std::vector<long int> det_ids;
         for(auto d : m_div_ids){
@@ -90,7 +90,7 @@ public:
     template <typename T>
     std::vector<int> operator()(T& instance) const {
         std::vector<int> ids;
-        //Check if requested value is within the ranges
+        // Check if requested value matches any configuration combinations
         std::vector<int> values;
         (values.push_back((instance.*MemberFunctionPtrs)()), ...);
         auto index = std::find(m_ids.begin(),m_ids.end(),values);
