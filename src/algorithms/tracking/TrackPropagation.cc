@@ -11,6 +11,9 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Surfaces/CylinderSurface.hpp>
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/vector.hpp>
@@ -29,20 +32,49 @@
 #include <typeinfo>
 #include <utility>
 
-#include "ActsGeometryProvider.h"
-#include "TrackPropagation.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/TrackPropagation.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
 
+void TrackPropagation::init(const dd4hep::Detector* detector,
+                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                            std::shared_ptr<spdlog::logger> logger) {
+    m_geoSvc = geo_svc;
+    m_log = logger;
 
-    void TrackPropagation::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                std::shared_ptr<spdlog::logger> logger) {
-        m_geoSvc = geo_svc;
-        m_log = logger;
-        m_log->trace("Initialized");
+    auto identity = Acts::Transform3::Identity();
+    std::map<uint32_t,size_t> system_id_layers;
+    for (auto& surface_variant: m_cfg.surfaces) {
+      if (std::holds_alternative<CylinderSurfaceConfig>(surface_variant)) {
+        CylinderSurfaceConfig surface = std::get<CylinderSurfaceConfig>(surface_variant);
+        const double rmin = (detector->constant<double>(std::get<std::string>(surface.rmin)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const double zmin = (detector->constant<double>(std::get<std::string>(surface.zmin)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const double zmax = (detector->constant<double>(std::get<std::string>(surface.zmax)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const uint32_t system_id = detector->constant<uint32_t>(surface.id);
+        auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, (zmax-zmin)));
+        auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, rmin, (zmin+zmax)/2);
+        acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+        m_target_surface_list.push_back(acts_surface);
+      }
+      if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
+        DiscSurfaceConfig surface = std::get<DiscSurfaceConfig>(surface_variant);
+        const double zmin = (detector->constant<double>(std::get<std::string>(surface.zmin)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const double rmin = (detector->constant<double>(std::get<std::string>(surface.rmin)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const double rmax = (detector->constant<double>(std::get<std::string>(surface.rmax)) / dd4hep::mm) * Acts::UnitConstants::mm;
+        const uint32_t system_id = detector->constant<uint32_t>(surface.id);
+        auto bounds = std::make_shared<Acts::RadialBounds>(rmin, rmax);
+        auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, zmin));
+        auto acts_surface = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
+        acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+        m_target_surface_list.push_back(acts_surface);
+      }
     }
+
+    m_log->trace("Initialized");
+}
 
 
 

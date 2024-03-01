@@ -35,7 +35,7 @@ namespace eicrecon {
     public:
 
         /** Initialize algorithm */
-        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
+        void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
         /** Propagates a single trajectory to a given surface */
         std::unique_ptr<edm4eic::TrackPoint> propagate(const ActsExamples::Trajectories *, const std::shared_ptr<const Acts::Surface>& targetSurf) const;
@@ -67,5 +67,7 @@ namespace eicrecon {
         Acts::MagneticFieldContext m_fieldContext;
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
+
+        std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
     };
 } // namespace eicrecon
