@@ -3,7 +3,12 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/geo.h>
+#include <algorithms/logger.h>
+#include <algorithms/random.h>
+#include <algorithms/service.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_random.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -12,6 +17,8 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <stddef.h>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -22,12 +29,25 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
-  CalorimeterHitDigi algo("test");
-
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
   auto detector = dd4hep::Detector::make_unique("");
+
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
+  serviceSvc.setInit<algorithms::GeoSvc>([&detector](auto&& g) {
+    g.init(detector.get());
+  });
+  [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
+  auto seed = Catch::Generators::Detail::getSeed();
+  serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
+    r.setProperty("seed", static_cast<size_t>(seed));
+    r.init();
+  });
+  serviceSvc.init();
+
+  CalorimeterHitDigi algo("test");
 
   CalorimeterHitDigiConfig cfg;
   cfg.threshold = 0. /* GeV */;
@@ -43,8 +63,9 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     cfg.dyRangeADC = 5.0 /* GeV */;
     cfg.pedMeanADC = 123;
     cfg.resolutionTDC = 1.0 * dd4hep::ns;
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
     algo.applyConfig(cfg);
-    algo.init(detector.get(), logger);
+    algo.init();
 
     auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
     auto simhits = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
