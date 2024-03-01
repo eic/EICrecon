@@ -67,8 +67,7 @@ public:
     }
 
 private:
-    
-    //const dd4hep::Detector* m_detector{};
+
     mutable bool is_init{false};
     mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
     std::vector<std::vector<long int>> m_ids;
