@@ -48,7 +48,7 @@ namespace eicrecon {
 
     std::vector<std::unique_ptr<edm4eic::TrackPoint>>
     TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
-                                    const std::shared_ptr<const Acts::Surface> &targetSurf) {
+                                    const std::shared_ptr<const Acts::Surface> &targetSurf) const {
         // output collection
         std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
         m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
@@ -76,7 +76,7 @@ namespace eicrecon {
         std::shared_ptr<Acts::Surface> filterSurface,
         std::function<bool(edm4eic::TrackPoint)> trackPointCut,
         bool stopIfTrackPointCutFailed
-        )
+        ) const
     {
       // logging
       m_log->trace("Propagate trajectories: --------------------");
@@ -163,7 +163,7 @@ namespace eicrecon {
 
 
     std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const ActsExamples::Trajectories *traj,
-                                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
+                                                     const std::shared_ptr<const Acts::Surface> &targetSurf) const {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
         const auto &mj = traj->multiTrajectory();
