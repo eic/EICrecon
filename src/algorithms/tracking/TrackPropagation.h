@@ -37,6 +37,26 @@ namespace eicrecon {
         /** Initialize algorithm */
         void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
+        void process(
+                const std::tuple<const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+                const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
+
+            const auto [acts_trajectories, acts_tracks] = input;
+            auto [propagated_tracks] = output;
+
+            for (auto traj: acts_trajectories) {
+                edm4eic::MutableTrackSegment this_propagated_track;
+                for(auto& surf : m_target_surface_list) {
+                    auto prop_point = propagate(traj, surf);
+                    if(!prop_point) continue;
+                    prop_point->surface = surf->geometryId().layer();
+                    prop_point->system  = surf->geometryId().extra();
+                    this_propagated_track.addToPoints(*prop_point);
+                }
+                propagated_tracks->push_back(this_propagated_track);
+            }
+        }
+
         /** Propagates a single trajectory to a given surface */
         std::unique_ptr<edm4eic::TrackPoint> propagate(const ActsExamples::Trajectories *, const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
