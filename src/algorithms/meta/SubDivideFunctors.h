@@ -3,8 +3,6 @@
 //
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
 
 namespace eicrecon {
