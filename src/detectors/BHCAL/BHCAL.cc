@@ -30,14 +30,14 @@ extern "C" {
 
         // grab detector & segmentation descriptor
         auto detector   = app->GetService<DD4hep_service>()->detector();
-	dd4hep::IDDescriptor descriptor;
+        dd4hep::IDDescriptor descriptor;
         try {
           descriptor = detector->readout("HcalBarrelHits").idSpec();
-	} catch(const std::runtime_error &e) {
+        } catch(const std::runtime_error &e) {
           // detector not found in the geometry, result should not matter -
           // default to non-deprecated behavior
           return true;
-	}
+        }
 
         // check if sector field is present
         bool useSectorIndex = false;
