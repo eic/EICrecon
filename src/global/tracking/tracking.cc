@@ -155,8 +155,8 @@ void InitPlugin(JApplication *app) {
                     eicrecon::DiscSurfaceConfig{"HcalEndcapN_ID", "- HcalEndcapN_zmin - 150*cm", "HcalEndcapN_rmin", "1.1*HcalEndcapN_rmax"},
                     eicrecon::CylinderSurfaceConfig{"HcalBarrel_ID", "HcalBarrel_rmin", "- 1.1*HcalBarrelBackward_zmin", "1.1*HcalBarrelForward_zmax"},
                     eicrecon::CylinderSurfaceConfig{"HcalBarrel_ID", "HcalBarrel_rmin + 150*cm", "- 1.1*HcalBarrelBackward_zmin", "1.1*HcalBarrelForward_zmax"},
-                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin", "LFHCAL_rmin", "1.1*LFHCAL_rmax"},
-                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin + 150*cm", "LFHCAL_rmin", "1.1*LFHCAL_rmax"},
+                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin", 0., "1.1*LFHCAL_rmax"},
+                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin + 150*cm", 0., "1.1*LFHCAL_rmax"},
                 }
             },
             app
