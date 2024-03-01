@@ -17,9 +17,9 @@
 #include <memory>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
-
-
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
@@ -29,7 +29,7 @@ namespace eicrecon {
      *
      * \ingroup tracking
      */
-    class TrackPropagation {
+    class TrackPropagation: public eicrecon::WithPodConfig<TrackPropagationConfig> {
 
 
     public:

@@ -14,6 +14,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "extensions/jana/JChainMultifactoryT.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
