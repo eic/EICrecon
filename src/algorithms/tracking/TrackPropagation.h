@@ -6,20 +6,24 @@
 
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <DD4hep/Detector.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
 #include <functional>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
 

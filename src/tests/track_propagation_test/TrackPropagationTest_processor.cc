@@ -4,6 +4,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>

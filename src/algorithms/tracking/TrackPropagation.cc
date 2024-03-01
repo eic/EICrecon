@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
@@ -16,6 +18,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <Evaluator/DD4hepUnits.h>
 #include <boost/container/vector.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -27,15 +30,18 @@
 #include <cmath>
 #include <exception>
 #include <iterator>
+#include <map>
 #include <optional>
+#include <string>
 #include <tuple>
 #include <typeinfo>
 #include <utility>
+#include <variant>
 
-#include "extensions/spdlog/SpdlogToActs.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 

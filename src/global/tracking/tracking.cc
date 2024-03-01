@@ -3,20 +3,30 @@
 //
 //
 
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/TrackerHit.h>
 #include <algorithm>
+#include <gsl/pointers>
+#include <map>
+#include <memory>
 #include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 #include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
+#include "TrackPropagationConfig.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 //
 extern "C" {
