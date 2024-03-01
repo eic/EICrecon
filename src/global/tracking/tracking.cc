@@ -146,8 +146,8 @@ void InitPlugin(JApplication *app) {
                     // Ecal
                     eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin", "EcalEndcapN_rmin", "1.1*EcalEndcapN_rmax"},
                     eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin - 50*cm", "EcalEndcapN_rmin", "1.1*EcalEndcapN_rmax"},
-                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin", "- 1.1*EcalBarrelBackward_zmin", "1.1*EcalBarrelForward_zmax"},
-                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin + 50*cm", "- 1.1*EcalBarrelBackward_zmin", "1.1*EcalBarrelForward_zmax"},
+                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin", "- 1.1*EcalBarrelBackward_zmax", "1.1*EcalBarrelForward_zmax"},
+                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin + 50*cm", "- 1.1*EcalBarrelBackward_zmax", "1.1*EcalBarrelForward_zmax"},
                     eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin", "EcalEndcapP_rmin", "1.1*EcalEndcapP_rmax"},
                     eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin + 50*cm", "EcalEndcapP_rmin", "1.1*EcalEndcapP_rmax"},
                     // Hcal
