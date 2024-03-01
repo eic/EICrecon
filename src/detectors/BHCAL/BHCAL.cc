@@ -61,11 +61,11 @@ extern "C" {
         decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacentMatrix =
           "("
           // check for vertically adjacent tiles
-          "  ( abs(tile_1 - tile_2) == 320 ) ||"
+          "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||"
           // check for horizontally adjacent tiles
-          "  ( abs(tile_1 - tile_2) == 1 ) ||"
+          "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == 1) ) ||"
           // check for horizontally adjacent tiles at wraparound
-          "  ( abs(tile_1 - tile_2) == (320 - 1) )"
+          "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )"
           ") == 1";
 
         // If using readout structure with sector segmentation,
