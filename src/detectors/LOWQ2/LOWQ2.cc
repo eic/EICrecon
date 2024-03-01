@@ -53,7 +53,7 @@ extern "C" {
          {"TaggerTrackerRawHits"},
          geometryDivisionCollectionNames,
          {
-          .function = GeometrySplit{app,geometryDivisions,readout,geometryLabels},
+          .function = GeometrySplit{geometryDivisions,readout,geometryLabels},
          },
          app
       )

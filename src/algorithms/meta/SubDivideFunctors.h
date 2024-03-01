@@ -5,7 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include <algorithms/geo.h>
 
 namespace eicrecon {
 
@@ -41,20 +41,24 @@ private:
 class GeometrySplit {
 public:
 
-    GeometrySplit(JApplication* app,std::vector<std::vector<long int>> ids, std::string readout, std::vector<std::string> div) : m_ids(ids) {
-        m_id_dec = app->GetService<DD4hep_service>()->detector()->readout(readout).idSpec().decoder();
-        for (auto d : div){
-            m_div.push_back(m_id_dec->index(d));
-        }
-    };
+    GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout, std::vector<std::string> divisions)
+    : m_ids(ids), m_readout(readout), m_divisions(divisions){};
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
+        if(!is_init){
+            m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
+            for (auto d : m_divisions){
+                m_div_ids.push_back(m_id_dec->index(d));
+            }
+            is_init = true;
+        }
+
         std::vector<int> ids;
         //Check if requested value is within the ranges
         auto cellID = instance.getCellID();
         std::vector<long int> det_ids;
-        for(auto d : m_div){
+        for(auto d : m_div_ids){
             det_ids.push_back(m_id_dec->get(cellID, d));
         }
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
@@ -65,9 +69,14 @@ public:
     }
 
 private:
-    dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
+    
+    //const dd4hep::Detector* m_detector{};
+    mutable bool is_init{false};
+    mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
     std::vector<std::vector<long int>> m_ids;
-    std::vector<size_t> m_div;
+    mutable std::vector<size_t> m_div_ids;
+    std::vector<std::string> m_divisions;
+    std::string m_readout;
 
 };
 

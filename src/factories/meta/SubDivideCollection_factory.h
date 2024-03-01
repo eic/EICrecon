@@ -4,6 +4,7 @@
 #pragma once
 
 #include "algorithms/meta/SubDivideCollection.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -20,6 +21,8 @@ class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_fact
 
     typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template PodioInput<T> m_input {this};
     typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template VariadicPodioOutput<T> m_split_output {this};
+
+    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
