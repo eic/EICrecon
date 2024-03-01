@@ -22,5 +22,4 @@ plugin_glob_all(${PLUGIN_NAME})
 plugin_link_libraries(${PLUGIN_NAME}
             algorithms_digi_library
             algorithms_tracking_library
-            tracking_library
         )
