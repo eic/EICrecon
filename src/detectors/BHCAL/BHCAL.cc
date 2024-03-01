@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
+#include <stdexcept>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
