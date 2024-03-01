@@ -12,6 +12,7 @@ namespace eicrecon {
     // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
     double threshold  = 0 * dd4hep::keV;
     double timeResolution = 8;   /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
+    bool   sumCellHits    = true;
   };
 
 } // eicrecon
