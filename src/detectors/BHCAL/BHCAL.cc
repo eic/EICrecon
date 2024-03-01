@@ -58,7 +58,7 @@ extern "C" {
 
         // Set default adjacency matrix. Magic constants:
         //  320 - number of tiles per row
-        decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacentMatrix =
+        decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacencyMatrix =
           "("
           // check for vertically adjacent tiles
           "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||"
@@ -71,7 +71,7 @@ extern "C" {
         // If using readout structure with sector segmentation,
         // ensure adjacency matrix uses sector indices
         if ( UseSectorIndexedBHCalReadout(app) ) {
-          HcalBarrel_adjacentMatrix =
+          HcalBarrel_adjacencyMatrix =
             "("
             "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
             "  + min("
@@ -122,7 +122,7 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
-            .adjacencyMatrix = HcalBarrel_adjacentMatrix,
+            .adjacencyMatrix = HcalBarrel_adjacencyMatrix,
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
