@@ -74,7 +74,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         const double zmax = std::visit(_toDouble, surface.zmax) / dd4hep::mm * Acts::UnitConstants::mm;
         const uint32_t system_id = detector->constant<uint32_t>(surface.id);
         auto bounds = std::make_shared<Acts::CylinderBounds>(rmin, (zmax-zmin)/2);
-        auto t = Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)));
+        auto t = Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)/2));
         auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
