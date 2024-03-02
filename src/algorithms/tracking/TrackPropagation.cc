@@ -62,7 +62,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
     auto identity = Acts::Transform3::Identity();
     std::map<uint32_t,size_t> system_id_layers;
 
-    multilambda get_detector_constant_or_double = {
+    multilambda _toDouble = {
       [](const std::string& v) { return dd4hep::_toDouble(v); },
       [](const double& v)      { return v; },
     };
@@ -70,9 +70,9 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
     for (auto& surface_variant: m_cfg.surfaces) {
       if (std::holds_alternative<CylinderSurfaceConfig>(surface_variant)) {
         CylinderSurfaceConfig surface = std::get<CylinderSurfaceConfig>(surface_variant);
-        const double rmin = std::visit(get_detector_constant_or_double, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
-        const double zmin = std::visit(get_detector_constant_or_double, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
-        const double zmax = std::visit(get_detector_constant_or_double, surface.zmax) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double zmin = std::visit(_toDouble, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double zmax = std::visit(_toDouble, surface.zmax) / dd4hep::mm * Acts::UnitConstants::mm;
         const uint32_t system_id = detector->constant<uint32_t>(surface.id);
         auto bounds = std::make_shared<Acts::CylinderBounds>(rmin, (zmax-zmin)/2);
         auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)));
@@ -82,9 +82,9 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       }
       if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
         DiscSurfaceConfig surface = std::get<DiscSurfaceConfig>(surface_variant);
-        const double zmin = std::visit(get_detector_constant_or_double, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
-        const double rmin = std::visit(get_detector_constant_or_double, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
-        const double rmax = std::visit(get_detector_constant_or_double, surface.rmax) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double zmin = std::visit(_toDouble, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double rmax = std::visit(_toDouble, surface.rmax) / dd4hep::mm * Acts::UnitConstants::mm;
         const uint32_t system_id = detector->constant<uint32_t>(surface.id);
         auto bounds = std::make_shared<Acts::RadialBounds>(rmin, rmax);
         auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, zmin));
