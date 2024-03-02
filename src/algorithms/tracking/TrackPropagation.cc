@@ -59,7 +59,6 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
     m_geoSvc = geo_svc;
     m_log = logger;
 
-    auto identity = Acts::Transform3::Identity();
     std::map<uint32_t,size_t> system_id_layers;
 
     multilambda _toDouble = {
@@ -75,7 +74,8 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         const double zmax = std::visit(_toDouble, surface.zmax) / dd4hep::mm * Acts::UnitConstants::mm;
         const uint32_t system_id = detector->constant<uint32_t>(surface.id);
         auto bounds = std::make_shared<Acts::CylinderBounds>(rmin, (zmax-zmin)/2);
-        auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)));
+        auto t = Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)));
+        auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
         m_target_surface_list.push_back(acts_surface);
@@ -87,7 +87,8 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         const double rmax = std::visit(_toDouble, surface.rmax) / dd4hep::mm * Acts::UnitConstants::mm;
         const uint32_t system_id = detector->constant<uint32_t>(surface.id);
         auto bounds = std::make_shared<Acts::RadialBounds>(rmin, rmax);
-        auto tf = identity * Acts::Translation3(Acts::Vector3(0, 0, zmin));
+        auto t = Acts::Translation3(Acts::Vector3(0, 0, zmin));
+        auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
         m_target_surface_list.push_back(acts_surface);
