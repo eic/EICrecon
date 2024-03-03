@@ -100,30 +100,6 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
 
 
 
-    std::vector<std::unique_ptr<edm4eic::TrackPoint>>
-    TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
-                                    const std::shared_ptr<const Acts::Surface> &targetSurf) const {
-        // output collection
-        std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
-        m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
-
-        // Loop over the trajectories
-        for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
-            auto &traj = trajectories[traj_index];
-            m_log->trace("  Trajectory object # {}", traj_index);
-
-            auto result = propagate(traj, targetSurf);
-            if(!result) continue;
-
-            // Add to output collection
-            track_points.push_back(std::move(result));
-        }
-
-        return track_points;
-    }
-
-
-
     std::unique_ptr<edm4eic::TrackSegmentCollection> TrackPropagation::propagateToSurfaceList(
         std::vector<const ActsExamples::Trajectories*> trajectories,
         std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,

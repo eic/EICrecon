@@ -64,11 +64,6 @@ namespace eicrecon {
         /** Propagates a single trajectory to a given surface */
         std::unique_ptr<edm4eic::TrackPoint> propagate(const ActsExamples::Trajectories *, const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
-        /** Propagates a collection of trajectories to a given surface
-         * @remark: being a simple wrapper of propagate(...) this method is more suitable for factories */
-        std::vector<std::unique_ptr<edm4eic::TrackPoint>> propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
-                                                         const std::shared_ptr<const Acts::Surface> &targetSurf) const;
-
         /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
          * @param trajectories the input collection of trajectories
          * @param targetSurfaces the list of surfaces to propagate to
