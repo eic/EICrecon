@@ -27,3 +27,4 @@ repos:
   hooks:
   - id: cmake-format
   - id: cmake-lint
+    args: [--disabled-codes, C0103]
