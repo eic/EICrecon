@@ -8,7 +8,6 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>

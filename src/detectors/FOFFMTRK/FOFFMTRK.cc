@@ -3,14 +3,15 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 
 extern "C" {
