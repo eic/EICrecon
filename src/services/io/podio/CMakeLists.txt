@@ -31,6 +31,7 @@ add_custom_command(
         ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
     COMMAND ${CMAKE_COMMAND} -E
         make_directory ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
+    COMMENT Create datamodel glue directory
 )
 add_custom_command(
     OUTPUT
@@ -44,6 +45,7 @@ add_custom_command(
     DEPENDS
         ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
         ${EDM_VERSION_INCLUDES}
+    COMMENT Create datamodel glue headers
 )
 
 # Install datamodel_glue headers
