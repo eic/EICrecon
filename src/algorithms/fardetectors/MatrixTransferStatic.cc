@@ -28,41 +28,155 @@ void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
   m_detector  = det;
   m_converter = id_conv;
   //Calculate inverse of static transfer matrix
-  std::vector<std::vector<double>> aX(m_cfg.aX);
-  std::vector<std::vector<double>> aY(m_cfg.aY);
 
-  double determinate = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
-
-  if (determinate == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-    return;
-  }
-
-  aXinv[0][0] =  aX[1][1] / determinate;
-  aXinv[0][1] = -aX[0][1] / determinate;
-  aXinv[1][0] = -aX[1][0] / determinate;
-  aXinv[1][1] =  aX[0][0] / determinate;
-
-
-  determinate = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
-
-  if (determinate == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-    return;
-  }
-
-  aYinv[0][0] =  aY[1][1] / determinate;
-  aYinv[0][1] = -aY[0][1] / determinate;
-  aYinv[1][0] = -aY[1][0] / determinate;
-  aYinv[1][1] =  aY[0][0] / determinate;
 }
 
 void eicrecon::MatrixTransferStatic::process(
-    const Input& input,
-    const Output& output) const {
+    const MatrixTransferStatic::Input& input,
+    const MatrixTransferStatic::Output& output) const {
 
-  const auto [rawhits] = input;
+  const auto [mcparts, rechits] = input;
   auto [outputParticles] = output;
+
+  std::vector<std::vector<double>> aX(m_cfg.aX);
+  std::vector<std::vector<double>> aY(m_cfg.aY);
+
+  //----- Define constants here ------
+  double aXinv[2][2] = {{0.0, 0.0},
+                        {0.0, 0.0}};
+  double aYinv[2][2] = {{0.0, 0.0},
+                        {0.0, 0.0}};
+
+  double nomMomentum     = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
+  double local_x_offset  = m_cfg.local_x_offset;
+  double local_y_offset  = m_cfg.local_y_offset;
+  double local_x_slope_offset  = m_cfg.local_x_slope_offset;
+  double local_y_slope_offset  = m_cfg.local_y_slope_offset;
+
+  double numBeamProtons = 0;
+  double runningMomentum = 0.0;
+
+  for (const auto& p: *mcparts) {
+          if(mcparts->size() == 1 && p.getPDG() == 2212){
+                runningMomentum = p.getMomentum().z;
+                numBeamProtons++;
+          }
+        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+                runningMomentum += p.getMomentum().z;
+                numBeamProtons++;
+        }
+  }
+
+  if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
+
+  nomMomentum = runningMomentum/numBeamProtons;
+
+  double nomMomentumError = 0.05;
+
+  //This is a temporary solution to get the beam energy information
+  //needed to select the correct matrix
+
+  if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
+
+      aX[0][0] = 2.09948716; //a
+      aX[0][1] = 29.17331284; //b
+      aX[1][0] = 0.18560183; //c
+      aX[1][1] = 0.19764317; //d
+
+      aY[0][0] = 0.3457400000; //a
+      aY[0][1] = 3.94047233; //b
+      aY[1][0] = 0.0203150000; //c
+      aY[1][1] = -0.140321368; //d
+
+      local_x_offset       = -0.00041284;
+      local_y_offset       = -0.00281233;
+      local_x_slope_offset = 0.00050683;
+      local_y_slope_offset = -0.001418633;
+
+  }
+  else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
+
+      aX[0][0] = 2.03459216; //a
+      aX[0][1] = 22.85780784; //b
+      aX[1][0] = 0.179641961; //c
+      aX[1][1] = -0.306626961; //d
+
+      aY[0][0] = 0.3887900000; //a
+      aY[0][1] = 3.71612646; //b
+      aY[1][0] = 0.0226850000; //c
+      aY[1][1] = -0.083092151; //d
+
+      local_x_offset       = 0.00979216;
+      local_y_offset       = -0.00778646;
+      local_x_slope_offset = 0.004526961;
+      local_y_slope_offset = -0.003907849;
+
+  }
+  else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
+
+      aX[0][0] = 2.0487065; //a
+      aX[0][1] = 21.6947935; //b
+      aX[1][0] = 0.17480755; //c
+      aX[1][1] = -0.50048755; //d
+
+      aY[0][0] = 0.3654300000; //a
+      aY[0][1] = 4.5252737; //b
+      aY[1][0] = 0.0211000000; //c
+      aY[1][1] = 0.001382242; //d
+
+      local_x_offset       = 0.0413065;
+      local_y_offset       = -0.0189837;
+      local_x_slope_offset = 0.01503755;
+      local_y_slope_offset = -0.009532243;
+
+  }
+  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
+
+      aX[0][0] = 1.6248;
+          aX[0][1] = 12.966293;
+      aX[1][0] = 0.1832;
+          aX[1][1] = -2.8636535;
+
+      aY[0][0] = 0.0001674; //a
+      aY[0][1] = -28.6003; //b
+      aY[1][0] = 0.0000837; //c
+      aY[1][1] = -2.87985; //d
+
+      local_x_offset       = -11.9872;
+      local_y_offset       = -0.0146;
+      local_x_slope_offset = -14.75315;
+      local_y_slope_offset = -0.0073;
+
+  }
+  else {
+    m_log->error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+    return;
+  }
+
+  double determinant = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
+
+  if (determinant == 0) {
+    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    return;
+  }
+
+  aXinv[0][0] =  aX[1][1] / determinant;
+  aXinv[0][1] = -aX[0][1] / determinant;
+  aXinv[1][0] = -aX[1][0] / determinant;
+  aXinv[1][1] =  aX[0][0] / determinant;
+
+
+  determinant = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
+
+  if (determinant == 0) {
+    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    return;
+  }
+
+  aYinv[0][0] =  aY[1][1] / determinant;
+  aYinv[0][1] = -aY[0][1] / determinant;
+  aYinv[1][0] = -aY[1][0] / determinant;
+  aYinv[1][1] =  aY[0][0] / determinant;
 
   //---- begin Reconstruction code ----
 
@@ -75,7 +189,7 @@ void eicrecon::MatrixTransferStatic::process(
   bool goodHit1 = false;
   bool goodHit2 = false;
 
-  for (const auto &h: *rawhits) {
+  for (const auto &h: *rechits) {
 
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
@@ -89,6 +203,9 @@ void eicrecon::MatrixTransferStatic::process(
     // convert into mm
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
+
+    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
+    //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
@@ -117,8 +234,8 @@ void eicrecon::MatrixTransferStatic::process(
 
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
-    double XL[2] = {goodHit[0].x - m_cfg.local_x_offset, goodHit[1].x - m_cfg.local_x_offset};
-    double YL[2] = {goodHit[0].y - m_cfg.local_y_offset, goodHit[1].y - m_cfg.local_y_offset};
+    double XL[2] = {goodHit[0].x - local_x_offset, goodHit[1].x - local_x_offset};
+    double YL[2] = {goodHit[0].y - local_y_offset, goodHit[1].y - local_y_offset};
 
     double base = goodHit[1].z - goodHit[0].z;
 
@@ -128,9 +245,9 @@ void eicrecon::MatrixTransferStatic::process(
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - m_cfg.local_x_slope_offset}; //- _SX0RP_;
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset};
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - m_cfg.local_y_slope_offset}; //- _SY0RP_;
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset};
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
@@ -147,7 +264,7 @@ void eicrecon::MatrixTransferStatic::process(
       double rsy = Yip[1] * dd4hep::mrad;
 
       // calculate momentum magnitude from measured deltaP – using thin lens optics.
-      double p = m_cfg.nomMomentum * (1 + 0.01 * Xip[0]);
+      double p = nomMomentum * (1 + 0.01 * Xip[0]);
       double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
       edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
