@@ -25,7 +25,7 @@ public:
 private:
     std::unique_ptr<AlgoT> m_algo;
 
-        PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
+    PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
     PodioInput<edm4eic::TrackerHit> m_hits_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_tracks_output {this};
 

@@ -22,7 +22,7 @@ namespace eicrecon {
 
   using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-          edm4hep::MCParticleCollection,
+      edm4hep::MCParticleCollection,
       edm4eic::TrackerHitCollection
     >,
     algorithms::Output<
@@ -50,8 +50,6 @@ namespace eicrecon {
     std::shared_ptr<spdlog::logger>   m_log;
     const dd4hep::Detector* m_detector{nullptr};
     const dd4hep::rec::CellIDPositionConverter* m_converter{nullptr};
-
-
 
   };
 }

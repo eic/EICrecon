@@ -204,8 +204,8 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-        //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
-        //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
+    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
+    //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
