@@ -37,7 +37,6 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
-#include <utility>
 #include <variant>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
