@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithms/geo.h>
-#include <mutex>
 
 namespace eicrecon {
 
@@ -45,21 +44,10 @@ public:
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
-        // std::call_once(m_once_flag, [m_id_dec,m_readout,m_divisions,m_div_ids](){
-        //     *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
-        //     for (auto d : m_divisions){
-        //         m_div_ids.push_back(m_id_dec->index(d));
-        //     }
-        // });
-        if(!is_init){
-            m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
-            for (auto d : m_divisions){
-                m_div_ids.push_back(m_id_dec->index(d));
-            }
-            is_init = true;
-        }
 
-        std::vector<int> ids;
+        // Initialize the decoder and division ids on the first function call
+        std::call_once(*is_init, &GeometrySplit::init, this);
+
         //Check which detector division to put the hit into
         auto cellID = instance.getCellID();
         std::vector<long int> det_ids;
@@ -67,6 +55,8 @@ public:
             det_ids.push_back(m_id_dec->get(cellID, d));
         }
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
+
+        std::vector<int> ids;
         if(index != m_ids.end()){
             ids.push_back(std::distance(m_ids.begin(),index));
         }
@@ -75,12 +65,18 @@ public:
 
 private:
 
+    void init() const {
+        m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
+        for (auto d : m_divisions){
+            m_div_ids.push_back(m_id_dec->index(d));
+        }
+    }
+
     std::vector<std::vector<long int>> m_ids;
     std::vector<std::string> m_divisions;
     std::string m_readout;
 
-    //mutable std::once_flag m_once_flag;
-    mutable bool is_init{false};
+    mutable std::shared_ptr<std::once_flag> is_init = std::make_shared<std::once_flag>();
     mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
     mutable std::vector<size_t> m_div_ids;
 
@@ -104,7 +100,7 @@ public:
         (values.push_back((instance.*MemberFunctionPtrs)()), ...);
         auto index = std::find(m_ids.begin(),m_ids.end(),values);
         if(index != m_ids.end()){
-            ids.push_back(index-m_ids.begin());
+            ids.push_back(std::distance(m_ids.begin(),index));
         }
         return ids;
     }
