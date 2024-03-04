@@ -75,25 +75,25 @@ namespace eicrecon {
   };
 
   std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
-    os << fmt::format("{:=^60}"," PhotoMultiplierHitDigiConfig Settings ") << std::endl;
+    os << fmt::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
     auto print_param = [&os] (auto name, auto val) {
       os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
     };
-    print_param("seed",cfg.seed);
-    print_param("hitTimeWindow",cfg.hitTimeWindow);
-    print_param("timeResolution",cfg.timeResolution);
-    print_param("speMean",cfg.speMean);
-    print_param("speError",cfg.speError);
-    print_param("pedMean",cfg.pedMean);
-    print_param("pedError",cfg.pedError);
-    print_param("enablePixelGaps",cfg.enablePixelGaps);
-    print_param("safetyFactor",cfg.safetyFactor);
-    print_param("enableNoise",cfg.enableNoise);
-    print_param("noiseRate",cfg.noiseRate);
-    print_param("noiseTimeWindow",cfg.noiseTimeWindow);
-    os << fmt::format("{:-^60}"," Quantum Efficiency vs. Wavelength ") << std::endl;
+    print_param("seed", cfg.seed);
+    print_param("hitTimeWindow", cfg.hitTimeWindow);
+    print_param("timeResolution", cfg.timeResolution);
+    print_param("speMean", cfg.speMean);
+    print_param("speError", cfg.speError);
+    print_param("pedMean", cfg.pedMean);
+    print_param("pedError", cfg.pedError);
+    print_param("enablePixelGaps", cfg.enablePixelGaps);
+    print_param("safetyFactor", cfg.safetyFactor);
+    print_param("enableNoise", cfg.enableNoise);
+    print_param("noiseRate", cfg.noiseRate);
+    print_param("noiseTimeWindow", cfg.noiseTimeWindow);
+    os << fmt::format("{:-^60}", " Quantum Efficiency vs. Wavelength ") << std::endl;
     for(auto& [wl,qe] : cfg.quantumEfficiency)
-      os << fmt::format("  {:>10} {:<}",wl,qe) << std::endl;
+      os << fmt::format("  {:>10} {:<}", wl, qe) << std::endl;
     return os;
   }
 
