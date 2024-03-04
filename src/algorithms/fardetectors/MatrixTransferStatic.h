@@ -8,6 +8,8 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <gsl/pointers>
 #include <string>
