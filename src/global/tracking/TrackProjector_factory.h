@@ -13,13 +13,12 @@
 #include <vector>
 
 #include "algorithms/tracking/TrackProjector.h"
-#include "algorithms/tracking/TrackProjectorConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
 class TrackProjector_factory :
-        public JOmniFactory<TrackProjector_factory, TrackProjectorConfig> {
+        public JOmniFactory<TrackProjector_factory> {
 
 private:
     using AlgoT = eicrecon::TrackProjector;
@@ -33,7 +32,6 @@ private:
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>();
-        m_algo->applyConfig(config());
         m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
     }
 
