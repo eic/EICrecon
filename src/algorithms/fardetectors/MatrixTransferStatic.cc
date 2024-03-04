@@ -22,8 +22,6 @@
 
 void eicrecon::MatrixTransferStatic::init() {
 
-  //Calculate inverse of static transfer matrix
-
 }
 
 void eicrecon::MatrixTransferStatic::process(

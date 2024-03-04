@@ -43,14 +43,6 @@ namespace eicrecon {
     void process(const Input&, const Output&) const final;
 
   private:
-
-    //----- Define constants here ------
-    double aXinv[2][2] = {{0.0, 0.0},
-                          {0.0, 0.0}};
-    double aYinv[2][2] = {{0.0, 0.0},
-                          {0.0, 0.0}};
-
-  private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
