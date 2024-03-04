@@ -94,6 +94,7 @@ namespace eicrecon {
     os << fmt::format("{:-^60}"," Quantum Efficiency vs. Wavelength ") << std::endl;
     for(auto& [wl,qe] : cfg.quantumEfficiency)
       os << fmt::format("  {:>10} {:<}",wl,qe) << std::endl;
+    return os;
   }
 
 }
