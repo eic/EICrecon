@@ -5,14 +5,18 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <map>
 #include <string>
-#include <fmt/format.h>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "algorithms/meta/SubDivideFunctors.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

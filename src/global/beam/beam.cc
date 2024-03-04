@@ -4,14 +4,16 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <algorithm>
+#include <map>
 #include <string>
-#include <fmt/format.h>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "algorithms/meta/SubDivideFunctors.h"
-#include <edm4hep/MCParticleCollection.h>
 
 extern "C" {
   void InitPlugin(JApplication *app) {
