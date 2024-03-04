@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithms/geo.h>
+#include <mutex>
 
 namespace eicrecon {
 
@@ -44,6 +45,12 @@ public:
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
+        // std::call_once(m_once_flag, [m_id_dec,m_readout,m_divisions,m_div_ids](){
+        //     *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
+        //     for (auto d : m_divisions){
+        //         m_div_ids.push_back(m_id_dec->index(d));
+        //     }
+        // });
         if(!is_init){
             m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
             for (auto d : m_divisions){
@@ -61,19 +68,21 @@ public:
         }
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
         if(index != m_ids.end()){
-            ids.push_back(index-m_ids.begin());
+            ids.push_back(std::distance(m_ids.begin(),index));
         }
         return ids;
     }
 
 private:
 
-    mutable bool is_init{false};
-    mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
     std::vector<std::vector<long int>> m_ids;
-    mutable std::vector<size_t> m_div_ids;
     std::vector<std::string> m_divisions;
     std::string m_readout;
+
+    //mutable std::once_flag m_once_flag;
+    mutable bool is_init{false};
+    mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
+    mutable std::vector<size_t> m_div_ids;
 
 };
 

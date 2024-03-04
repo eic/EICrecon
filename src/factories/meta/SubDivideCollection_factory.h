@@ -31,10 +31,6 @@ public:
       m_algo->init();
     }
 
-    void setFunctions(std::function<std::vector<int>(const T&)> f) {
-      m_algo->setFunction(f);
-    }
-
     void ChangeRun(int64_t run_number) {
     }
 

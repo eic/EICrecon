@@ -10,7 +10,7 @@
 #include <string_view>
 
 #include "services/log/Log_service.h"
-#include "SubDivideCollectionConfig.h"
+#include "algorithms/meta/SubDivideCollectionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
