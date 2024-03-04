@@ -13,16 +13,17 @@ template <class T>
 class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>> {
 
   public:
-    using AlgoT = eicrecon::SubDivideCollection<T>;
+    using AlgoT    = eicrecon::SubDivideCollection<T>;
+    using FactoryT = JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>;
 
   private:
 
     std::unique_ptr<AlgoT> m_algo;
 
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template PodioInput<T> m_input {this};
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template VariadicPodioOutput<T> m_split_output {this};
+    typename FactoryT::template PodioInput<T> m_input {this};
+    typename FactoryT::template VariadicPodioOutput<T> m_split_output {this};
 
-    typename JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>::template Service<AlgorithmsInit_service> m_algorithmsInit {this};
+    typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
