@@ -17,8 +17,8 @@ namespace eicrecon {
 
    template<class T>
      using SubDivideCollectionAlgorithm =  algorithms::Algorithm<
-     typename algorithms::Input<const typename T::collection_type>,
-     typename algorithms::Output<std::vector<typename T::collection_type>>
+       typename algorithms::Input<const typename T::collection_type>,
+       typename algorithms::Output<std::vector<typename T::collection_type>>
      >;
 
 

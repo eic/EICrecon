@@ -30,7 +30,7 @@ extern "C" {
         {
           .function = ValueSplit<&edm4hep::MCParticle::getGeneratorStatus,&edm4hep::MCParticle::getPDG>{values},
         },
-         app
+        app
       )
     );
 
