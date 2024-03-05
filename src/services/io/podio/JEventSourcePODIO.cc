@@ -1,6 +1,5 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2022 David Lawrence
 //
 // This is a JANA event source that uses PODIO to read from a ROOT
 // file created using the EDM4hep Data Model.

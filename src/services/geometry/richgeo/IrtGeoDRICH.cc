@@ -1,5 +1,5 @@
-// Copyright (C) 2022, 2023, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2022 - 2023, Christopher Dilks
 
 #include "IrtGeoDRICH.h"
 
