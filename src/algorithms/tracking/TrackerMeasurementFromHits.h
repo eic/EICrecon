@@ -1,9 +1,5 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-// Original header from Gaudi algorithm
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Shujie Li
-// TODO refactor header when license is clear
 
 #pragma once
 

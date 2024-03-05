@@ -1,6 +1,6 @@
-// Copyright 2024, Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2024, Simon Gardner
+
 #pragma once
 
 #include <algorithms/geo.h>

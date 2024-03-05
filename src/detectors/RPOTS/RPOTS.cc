@@ -1,7 +1,5 @@
-// Copyright 2023, Alex Jentsch
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2023, Alex Jentsch
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>

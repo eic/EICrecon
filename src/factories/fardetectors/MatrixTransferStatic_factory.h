@@ -1,6 +1,5 @@
-// Created by Alex Jentsch
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2023, Alex Jentsch
 
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/geometry/dd4hep/DD4hep_service.h"

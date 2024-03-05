@@ -1,5 +1,5 @@
-// Copyright 2023, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2023, Christopher Dilks
 
 // merge together TrackSegments, sorting their TrackPoints by time
 /* FIXME: only VectorMember `points` is combined, which is all that is needed

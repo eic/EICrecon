@@ -1,6 +1,5 @@
-// Copyright 2023, Jefferson Science Associates, LLC.
-// Subject to the terms in the LICENSE file found in the top-level directory.
-// Created by Nathan Brei
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2023, Nathan Brei
 
 #pragma once
 
