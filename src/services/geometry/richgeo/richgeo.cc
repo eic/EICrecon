@@ -1,7 +1,5 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, Christopher Dilks
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
 
 #include <JANA/JApplication.h>
 #include <memory>

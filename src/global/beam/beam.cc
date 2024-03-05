@@ -1,7 +1,5 @@
-// Copyright 2024, Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Wouter Deconinck
 
 #include <JANA/JApplication.h>
 #include <edm4hep/MCParticleCollection.h>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright 2022, David Lawrence
-# Subject to the terms in the LICENSE file found in the top-level directory.
+# SPDX-License-Identifier: JSA
+# Copyright (C) 2022 David Lawrence
 #
 # This is a stop gap and not intended for long term.  2022-07-09  DL
 #

@@ -1,7 +1,5 @@
-// Copyright 2022, Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2022, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>

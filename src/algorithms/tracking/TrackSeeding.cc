@@ -1,6 +1,5 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: JSA
+// Copyright (C) 2022, Dmitry Romanov
 
 #include "TrackSeeding.h"
 
