@@ -241,7 +241,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     japp->SetDefaultParameter(
             "podio:output_collections",
             output_collections,
-            "Comma separated list of collection names to write out. If explicitly set to an empty list, all collections including input collections will be written."      
+            "Comma separated list of collection names to write out. If explicitly set to an empty list, all collections including input collections will be written."
     );
     std::vector<std::string> output_include_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
