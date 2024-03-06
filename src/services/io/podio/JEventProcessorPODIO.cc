@@ -41,7 +41,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     );
 
     // Get the list of output collections to include/exclude
-    std::vector<std::string> output_include_collections={
+    std::vector<std::string> output_collections={
             // Header and other metadata
             "EventHeader",
 
@@ -238,16 +238,22 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // DIRC
             "DIRCRawHits"
     };
-    std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
+    japp->SetDefaultParameter(
+            "podio:output_collections",
+            output_collections,
+            "Comma separated list of collection names to write out. If explicitly set to an empty list, all collections including input collections will be written."      
+    );
+    std::vector<std::string> output_include_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
             "podio:output_include_collections",
             output_include_collections,
-            "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection."
+            "Comma separated list of collection names to include. If empty, only default collections will be written. Use this to add to default collections."
     );
+    std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
             "podio:output_exclude_collections",
             output_exclude_collections,
-            "Comma separated list of collection names to not write out."
+            "Comma separated list of collection names to exclude. If empty, only default collections will be written. Use this to remove default collections."
     );
     japp->SetDefaultParameter(
             "podio:print_collections",
@@ -255,6 +261,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "Comma separated list of collection names to print to screen, e.g. for debugging."
     );
 
+    m_output_collections = std::set<std::string>(output_collections.begin(),
+                                                 output_collections.end());
     m_output_include_collections = std::set<std::string>(output_include_collections.begin(),
                                                          output_include_collections.end());
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(),
@@ -278,40 +286,45 @@ void JEventProcessorPODIO::Init() {
 void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event) {
 
     // Set up the set of collections_to_write.
+    m_log->debug("Persisting podio types from includes list");
+
+    // Get all possible collections
     std::vector<std::string> all_collections = event->GetAllCollectionNames();
+    std::set<std::string> all_collections_set = std::set<std::string>(all_collections.begin(),
+                                                                      all_collections.end());
 
-    if (m_output_include_collections.empty()) {
-        // User has not specified an include list, so we include _all_ PODIO collections present in the first event.
-        for (const std::string& col : all_collections) {
-            if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
-                m_collections_to_write.push_back(col);
-                m_log->info("Persisting collection '{}'", col);
-            }
-        }
-    }
-    else {
-        m_log->debug("Persisting podio types from includes list");
-        m_user_included_collections = true;
-
-        // We match up the include list with what is actually present in the event
-        std::set<std::string> all_collections_set = std::set<std::string>(all_collections.begin(), all_collections.end());
-
-        for (const auto& col : m_output_include_collections) {
-            if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
-                // Included and not excluded
-                if (all_collections_set.find(col) == all_collections_set.end()) {
-                    // Included, but not a valid PODIO type
-                    m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.", col);
-                }
-                else {
-                    // Included, not excluded, and a valid PODIO type
-                    m_collections_to_write.push_back(col);
-                    m_log->info("Persisting collection '{}'", col);
-                }
-            }
-        }
+    // User has specified an empty include list, so we include _all_ PODIO collections present in the first event.
+    if (m_output_collections.empty()) {
+        m_output_collections.merge(all_collections_set);
     }
 
+    // User has specified explicit collections to include
+    m_output_collections.merge(m_output_include_collections);
+
+    // User has specified explicit collections to exclude
+    for (const auto& col : m_output_exclude_collections) {
+      const auto& it = m_output_collections.find(col);
+      if (it != m_output_collections.end() ) {
+        m_output_collections.erase(it);
+      }
+    }
+
+    // Subtract the available collections to find those not present
+    std::vector<std::string> not_present_collections;
+    std::set_difference(m_output_collections.begin(), m_output_collections.end(),
+                        all_collections_set.begin(), all_collections_set.end(),
+                        std::back_inserter(not_present_collections));
+    for (const auto& col : not_present_collections) {
+        m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.", col);
+    }
+
+    // Intersection with available collections to limit to those that are present
+    std::set_intersection(m_output_collections.begin(), m_output_collections.end(),
+                          all_collections_set.begin(), all_collections_set.end(),
+                          std::back_inserter(m_collections_to_write));
+    for (const auto& col : m_collections_to_write) {
+        m_log->info("Persisting collection '{}'", col);
+    }
 }
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
