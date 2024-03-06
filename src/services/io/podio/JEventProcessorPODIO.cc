@@ -9,7 +9,9 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <spdlog/common.h>
+#include <algorithm>
 #include <exception>
+#include <iterator>
 
 #include "services/log/Log_service.h"
 
