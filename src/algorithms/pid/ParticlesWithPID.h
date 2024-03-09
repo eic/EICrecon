@@ -7,7 +7,7 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <spdlog/logger.h>
@@ -34,7 +34,7 @@ namespace eicrecon {
 
         ParticlesWithAssociation process(
                 const edm4hep::MCParticleCollection* mc_particles,
-                const edm4eic::TrajectoryCollection* track_params,
+                const edm4eic::TrackCollection* tracks,
                 const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
                 );
 

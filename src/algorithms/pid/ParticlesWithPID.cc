@@ -6,6 +6,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -37,7 +38,7 @@ namespace eicrecon {
 
     ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
-            const edm4eic::TrajectoryCollection* trajectories,
+            const edm4eic::TrackCollection* tracks,
             const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
             ) {
 
@@ -51,11 +52,12 @@ namespace eicrecon {
 
         std::vector<bool> mc_prt_is_consumed(mc_particles->size(), false);         // MCParticle is already consumed flag
 
-        for (const auto &trajectory: *trajectories) {
+        for (const auto &track: *tracks) {
+          auto trajectory = track.getTrajectory();
           for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
-            const auto charge_rec = trk.getCharge();
+            const auto charge_rec = std::copysign(1., trk.getQOverP());
 
 
             m_log->debug("Match:  [id]   [mom]   [theta]  [phi]    [charge]  [PID]");
@@ -138,6 +140,7 @@ namespace eicrecon {
                 }
             }
             auto rec_part = parts->create();
+            rec_part.addToTracks(track);
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
             // float time          = 0;

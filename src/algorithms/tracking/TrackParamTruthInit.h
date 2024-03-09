@@ -11,6 +11,7 @@
 #include <memory>
 #include <random>
 
+#include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -19,7 +20,7 @@ namespace eicrecon {
 
     public:
 
-        void init(const std::shared_ptr<spdlog::logger> &logger);
+        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, const std::shared_ptr<spdlog::logger> logger);
 
         std::unique_ptr<edm4eic::TrackParametersCollection>
             produce(const edm4hep::MCParticleCollection* parts);
@@ -27,6 +28,7 @@ namespace eicrecon {
     private:
         std::shared_ptr<spdlog::logger> m_log;
         std::shared_ptr<TDatabasePDG> m_pdg_db;
+        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
         std::default_random_engine generator; // TODO: need something more appropriate here
         std::uniform_int_distribution<int> m_uniformIntDist{-1, 1}; // defaults to min=-1, max=1

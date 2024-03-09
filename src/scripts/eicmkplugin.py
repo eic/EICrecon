@@ -104,7 +104,7 @@ void {0}::InitWithGlobalRootLock(){{
 //-------------------------------------------
 void {0}::ProcessSequential(const std::shared_ptr<const JEvent>& event) {{
     // Data objects we will need from JANA e.g.
-    const auto &rawhits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
+    const auto &rawhits = *(event->GetCollection<edm4hep::SimCalorimeterHit>("EcalBarrelScFiHits"));
 
     // Fill histograms here. e.g.
     // for (auto hit : rawhits) hEraw->Fill(hit.getEnergy());

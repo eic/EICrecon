@@ -35,7 +35,7 @@ extern "C" {
           "ChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "CentralCKFTrajectories",           // edm4eic::Trajectory
+            "CentralCKFTracks",                 // edm4eic::Track
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {
@@ -48,10 +48,10 @@ extern "C" {
           ));
 
     app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
-          "ChargedParticlesWithAssociations",
+          "SeededChargedParticlesWithAssociations",
           {
             "MCParticles",                      // edm4hep::MCParticle
-            "CentralCKFSeededTrajectories",     // edm4eic::Trajectory
+            "CentralCKFSeededTracks",           // edm4eic::Track
             "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
           },
           {

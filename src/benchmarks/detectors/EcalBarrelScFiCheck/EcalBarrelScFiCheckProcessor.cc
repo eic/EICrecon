@@ -53,10 +53,10 @@ void EcalBarrelScFiCheckProcessor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void EcalBarrelScFiCheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-    const auto &EcalBarrelScFiHits          = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
-    const auto &EcalBarrelScFiRawHits       = *static_cast<const edm4hep::RawCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiRawHits"));
-    const auto &EcalBarrelScFiRecHits       = *static_cast<const edm4eic::CalorimeterHitCollection*>   (event->GetCollectionBase("EcalBarrelScFiRecHits"));
-    const auto &EcalBarrelScFiProtoClusters = *static_cast<const edm4eic::ProtoClusterCollection*>     (event->GetCollectionBase("EcalBarrelScFiProtoClusters"));
+    const auto &EcalBarrelScFiHits          = *(event->GetCollection<edm4hep::SimCalorimeterHit>("EcalBarrelScFiHits"));
+    const auto &EcalBarrelScFiRawHits       = *(event->GetCollection<edm4hep::RawCalorimeterHit>("EcalBarrelScFiRawHits"));
+    const auto &EcalBarrelScFiRecHits       = *(event->GetCollection<edm4eic::CalorimeterHit>("EcalBarrelScFiRecHits"));
+    const auto &EcalBarrelScFiProtoClusters = *(event->GetCollection<edm4eic::ProtoCluster>("EcalBarrelScFiProtoClusters"));
 
     // Fill histograms here
 

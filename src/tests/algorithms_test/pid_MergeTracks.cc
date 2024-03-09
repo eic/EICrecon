@@ -17,13 +17,13 @@
 #include "algorithms/pid/MergeTracks.h"
 
 TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
-  eicrecon::MergeTracks algo;
+  eicrecon::MergeTracks algo("test");
 
   // initialize algorithm
   //----------------------------------------------------------
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("MergeTracks");
   logger->set_level(spdlog::level::debug);
-  algo.AlgorithmInit(logger);
+  algo.init(logger);
 
   // helper functions and objects
   //----------------------------------------------------------
@@ -131,8 +131,10 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
 
   SECTION("merge tracks from 1 collection") {
     // run algorithm
-    std::vector<const edm4eic::TrackSegmentCollection*> colls = { collection0.get() };
-    auto trks = algo.AlgorithmProcess(colls);
+    std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> colls = { collection0.get() };
+    // create output collection
+    auto trks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    algo.process({colls}, {trks.get()});
     // input collection(s) size == output collection size
     REQUIRE(trks->size() == colls.front()->size());
     // track length: from endpoints
@@ -147,8 +149,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
 
   SECTION("merge tracks from 2 collections") {
     // run algorithm
-    std::vector<const edm4eic::TrackSegmentCollection*> colls = { collection0.get(), collection1.get() };
-    auto trks = algo.AlgorithmProcess(colls);
+    std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> colls = { collection0.get(), collection1.get() };
+    auto trks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    algo.process({colls}, {trks.get()});
     // input collection(s) size == output collection size
     REQUIRE(trks->size() == colls.front()->size());
     // track length: from endpoints
@@ -163,8 +166,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
 
   SECTION("merge tracks from 3 collections") {
     // run algorithm
-    std::vector<const edm4eic::TrackSegmentCollection*> colls = { collection0.get(), collection1.get(), collection2.get() };
-    auto trks = algo.AlgorithmProcess(colls);
+    std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> colls = { collection0.get(), collection1.get(), collection2.get() };
+    auto trks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    algo.process({colls}, {trks.get()});
     // input collection(s) size == output collection size
     REQUIRE(trks->size() == colls.front()->size());
     // track length: from endpoints

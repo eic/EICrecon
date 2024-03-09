@@ -63,14 +63,9 @@ namespace eicrecon {
                             {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
                             "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
-
   public:
 
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-        m_log = logger;
-    }
+    void init()  { }
 
     void process(const Input& input, const Output& output) const final {
 
@@ -79,7 +74,7 @@ namespace eicrecon {
 
         for (const auto& pcl: *proto) {
             if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
-                m_log->warn("Protocluster hit relation is invalid, skipping protocluster");
+                warning("Protocluster hit relation is invalid, skipping protocluster");
                 continue;
             }
             // get cluster and associated layers
@@ -122,7 +117,7 @@ namespace eicrecon {
                 }
                 if( !mchit ){
                     // break if no matching hit found for this CellID
-                    m_log->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
+                    warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
                     break;
                 }
 
@@ -142,7 +137,7 @@ namespace eicrecon {
 
         // debug output
         for (const auto& cl: *clusters) {
-            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
+            debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
                          cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
                          cl.getIntrinsicPhi() / M_PI * 180.
             );

@@ -4,23 +4,34 @@
 
 #include "TrackParamTruthInit.h"
 
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Result.hpp>
+
 #include <Evaluator/DD4hepUnits.h>
 #include <TParticlePDG.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
-#include <stdlib.h>
+#include <Eigen/Core>
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <utility>
 
+#if EDM4EIC_VERSION_MAJOR >= 5
+#include <edm4eic/Cov6f.h>
+#endif
+
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 
-void eicrecon::TrackParamTruthInit::init(const std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, const std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
+    m_geoSvc = geo_svc;
 
     // TODO make a service?
     m_pdg_db = std::make_shared<TDatabasePDG>();
@@ -88,18 +99,54 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // modify initial momentum to avoid bleeding truth to results when fit fails
         const auto pinit = pmag * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
 
+        // define line surface for local position values
+        auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+
+        // track particle back to transverse point-of-closest approach
+        // with respect to the defined line surface
+        auto linesurface_parameter = -(v.x*p.x + v.y*p.y)/(p.x*p.x + p.y*p.y);
+
+        auto xpca = v.x + linesurface_parameter*p.x;
+        auto ypca = v.y + linesurface_parameter*p.y;
+        auto zpca = v.z + linesurface_parameter*p.z;
+
+        Acts::Vector3 global(xpca, ypca, zpca);
+        Acts::Vector3 direction(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
+
+        // convert from global to local coordinates using the defined line surface
+        auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+
+        if(!local.ok())
+        {
+            m_log->error("skipping the track because globaltoLocal function failed");
+            continue;
+        }
+
+        Acts::Vector2 localpos = local.value();
+
         // Insert into edm4eic::TrackParameters, which uses numerical values in its specified units
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
-        track_parameter.setLoc({static_cast<float>(std::hypot(v.x, v.y)), static_cast<float>(v.z)}); // 2d location on surface [mm]
-        track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
+        track_parameter.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface [mm]
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
-        track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
-        track_parameter.setTimeError(10e9); // error on time [ns]
-        track_parameter.setCharge(charge); // charge
+        #if EDM4EIC_VERSION_MAJOR >= 5
+          edm4eic::Cov6f cov;
+          cov(0,0) = 1.0; // loc0
+          cov(1,1) = 1.0; // loc1
+          cov(2,2) = 0.01; // theta
+          cov(3,3) = 0.05; // phi
+          cov(4,4) = 0.1; // qOverP
+          cov(5,5) = 10e9; // time
+          track_parameter.setCovariance(cov);
+        #else
+          track_parameter.setCharge(charge); // charge
+          track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
+          track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
+          track_parameter.setTimeError(10e9); // error on time [ns]
+        #endif
 
         // Debug output
         if (m_log->level() <= spdlog::level::debug) {

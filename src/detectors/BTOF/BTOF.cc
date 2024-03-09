@@ -20,9 +20,9 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "TOFBarrelDigiHit",
+        "TOFBarrelRawHit",
         {"TOFBarrelHits"},
-        {"TOFBarrelDigiHit"},
+        {"TOFBarrelRawHit"},
         {
             .threshold = 6.0 * dd4hep::keV,
             .timeResolution = 0.025,    // [ns]
@@ -33,7 +33,7 @@ void InitPlugin(JApplication *app) {
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "TOFBarrelRecHit",
-        {"TOFBarrelDigiHit"},    // Input data collection tags
+        {"TOFBarrelRawHit"},    // Input data collection tags
         {"TOFBarrelRecHit"},     // Output data tag
         {
             .timeResolution = 10,

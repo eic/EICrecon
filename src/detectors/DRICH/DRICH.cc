@@ -118,7 +118,7 @@ extern "C" {
           track_cfg,
           app
           ));
-    app->Add(new JChainMultifactoryGeneratorT<MergeTrack_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
           "DRICHMergedTracks",
           {"DRICHAerogelTracks", "DRICHGasTracks"},
           {"DRICHMergedTracks"},

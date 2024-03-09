@@ -1,4 +1,3 @@
-
 # Check if catch2 exists and unit tests can be built
 find_package(Catch2 3)
 if(Catch2_FOUND)
@@ -11,5 +10,4 @@ endif()
 add_subdirectory(reco_test)
 add_subdirectory(tracking_test)
 add_subdirectory(track_propagation_test)
-add_subdirectory(track_seeding_test)
 add_subdirectory(geometry_navigation_test)

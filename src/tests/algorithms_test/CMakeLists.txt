@@ -5,6 +5,7 @@ get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 add_executable(${TEST_NAME}
   calorimetry_CalorimeterIslandCluster.cc
   calorimetry_CalorimeterHitDigi.cc
+  calorimetry_HEXPLIT.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
   )

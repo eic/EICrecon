@@ -8,8 +8,6 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>
 #include <string_view>
 
@@ -36,11 +34,8 @@ namespace eicrecon {
                             "Use truth information for clustering."} {}
 
   public:
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
-
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
 
   };
 

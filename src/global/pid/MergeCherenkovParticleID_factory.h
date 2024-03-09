@@ -28,7 +28,11 @@ namespace eicrecon {
   {
 
     public:
+        using AlgoT = eicrecon::MergeParticleID;
+    private:
+        std::unique_ptr<AlgoT> m_algo;
 
+    public:
       explicit MergeCherenkovParticleID_factory(
           std::string tag,
           const std::vector<std::string>& input_tags,
@@ -43,9 +47,6 @@ namespace eicrecon {
 
       /** Event by event processing **/
       void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    private:
-      eicrecon::MergeParticleID m_algo;
 
   };
 }

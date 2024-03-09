@@ -24,7 +24,7 @@ extern "C" {
         InitJANAPlugin(app);
         // Make sure digi and reco use the same value
         decltype(CalorimeterHitDigiConfig::capADC)        HcalEndcapN_capADC = 32768; // assuming 15 bit ADC like FHCal
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapN_dyRangeADC = 100 * dd4hep::MeV; // to be verified with simulations
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    HcalEndcapN_dyRangeADC = 200 * dd4hep::MeV; // to be verified with simulations
         decltype(CalorimeterHitDigiConfig::pedMeanADC)    HcalEndcapN_pedMeanADC = 10;
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalEndcapN_pedSigmaADC = 2;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
@@ -34,6 +34,7 @@ extern "C" {
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = HcalEndcapN_capADC,
+            .capTime = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC = HcalEndcapN_dyRangeADC,
             .pedMeanADC = HcalEndcapN_pedMeanADC,
             .pedSigmaADC = HcalEndcapN_pedSigmaADC,
@@ -51,7 +52,7 @@ extern "C" {
             .pedSigmaADC = HcalEndcapN_pedSigmaADC,
             .resolutionTDC = HcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
-            .thresholdValue = 0.0,
+            .thresholdValue = 41.0, // 0.1875 MeV deposition out of 200 MeV max (per layer) --> adc = 10 + 0.1875 / 200 * 32768 == 41
             .sampFrac = 0.0095, // from latest study - implement at level of reco hits rather than clusters
             .readout = "HcalEndcapNHits",
           },
@@ -62,16 +63,16 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
-            .refs = {1, 0},
+            .refs = {4, 0}, // place merged hits at ~1 interaction length deep
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-          "HcalEndcapNTruthProtoClusters", {"HcalEndcapNRecHits", "HcalEndcapNHits"}, {"HcalEndcapNTruthProtoClusters"},
+          "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNHits"}, {"HcalEndcapNTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "HcalEndcapNIslandProtoClusters", {"HcalEndcapNRecHits"}, {"HcalEndcapNIslandProtoClusters"},
+          "HcalEndcapNIslandProtoClusters", {"HcalEndcapNMergedHits"}, {"HcalEndcapNIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {15*dd4hep::cm, 15*dd4hep::cm},

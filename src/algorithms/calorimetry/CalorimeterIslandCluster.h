@@ -11,12 +11,10 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <spdlog/logger.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <memory>
 #include <set>
 #include <string>
 #include <string_view>
@@ -49,12 +47,11 @@ namespace eicrecon {
                             {"outputClusterCollection"},
                             "Island clustering."} {}
 
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector);
     void process(const Input&, const Output&) const final;
 
   private:
     const dd4hep::Detector* m_detector;
-    std::shared_ptr<spdlog::logger> m_log;
 
   public:
 
@@ -170,7 +167,7 @@ namespace eicrecon {
   void split_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, const std::vector<std::size_t>& maxima, edm4eic::ProtoClusterCollection *protoClusters) const {
     // special cases
     if (maxima.empty()) {
-      m_log->debug("No maxima found, not building any clusters");
+      debug("No maxima found, not building any clusters");
       return;
     } else if (maxima.size() == 1) {
       edm4eic::MutableProtoCluster pcl = protoClusters->create();
@@ -179,7 +176,7 @@ namespace eicrecon {
         pcl.addToWeights(1.);
       }
 
-      m_log->debug("A single maximum found, added one ProtoCluster");
+      debug("A single maximum found, added one ProtoCluster");
 
       return;
     }
@@ -223,7 +220,7 @@ namespace eicrecon {
         pcls[k].addToWeights(weight);
       }
     }
-    m_log->debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
+    debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());
   }
 };
 

@@ -1,9 +1,8 @@
+# Notice
+
+**This section of the tutorial is outdated due to switch from `JFactory` to `JOmniFactory`. Refer to a [tutorial on reconstruction algorithms](https://eic.github.io/tutorial-reconstruction-algorithms/) for up-to-date information.**
+
 # Adding a reconstruction algorithm to EICrecon
-
-_Please note that these instructions may change at any time. There are plans
-to rearrange where some of the general algorithm files are kept, but the
-schedule for this is not yet set._
-
 
 In JANA, algorithms are kept in `JFactory` classes. These are the classes that
 interact with the JANA framework to match requests for certain objects or

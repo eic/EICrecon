@@ -1,4 +1,3 @@
-
 find_package(ROOT)
 find_package(podio)
 find_package(IRT)
@@ -9,7 +8,6 @@ endif()
 if(DEFINED ENV{BEAMLINE_PATH})
     set(BEAMLINE_PATH $ENV{BEAMLINE_PATH})
 endif()
-
 
 configure_file(eicrecon-this.sh.in  eicrecon-this.sh   @ONLY)
 
