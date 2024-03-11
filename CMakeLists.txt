@@ -1,4 +1,6 @@
-#  Variables to control this CMake build:
+# cmake-format: off
+#
+# Variables to control this CMake build:
 # ===================================================================================
 #    CMake flag       |  environment variable  |  Description
 # ===================================================================================
@@ -21,8 +23,8 @@
 # spdlog              |   Formatting library
 # IRT                 |   Indirect Ray Tracing library
 # ==============================================================
-
-
+#
+# cmake-format: on
 
 cmake_minimum_required(VERSION 3.18)
 
@@ -159,6 +161,7 @@ endif()
 find_package(DD4hep REQUIRED)
 
 # ACTS
+# cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
 set(Acts_VERSION_MIN "19.0.0")
 set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
@@ -179,7 +182,6 @@ get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
 if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
   message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
 endif()
-
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
