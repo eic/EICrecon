@@ -334,12 +334,17 @@ public:
     };
 
     void RegisterParameter(ParameterBase* parameter) {
-        m_parameters.push_back(parameter);
+        m_parameters.push_back({parameter, false});
+    }
+
+    template <typename T>
+    void RegisterParameterRef(std::string name, T& slot, std::string description = "") {
+        m_parameters.push_back({new ParameterRef(this, name, slot, description), true});
     }
 
     void ConfigureAllParameters(std::map<std::string, std::string> fields) {
-        for (auto* parameter : this->m_parameters) {
-            parameter->Configure(fields);
+        for (auto& pair : this->m_parameters) {
+            pair.first->Configure(fields);
         }
     }
 
@@ -420,7 +425,7 @@ public:
 public:
     std::vector<InputBase*> m_inputs;
     std::vector<OutputBase*> m_outputs;
-    std::vector<ParameterBase*> m_parameters;
+    std::vector<std::pair<ParameterBase*, bool>> m_parameters;  // bool indicates ownership
     std::vector<ServiceBase*> m_services;
     std::vector<ResourceBase*> m_resources;
 
@@ -442,6 +447,16 @@ private:
     ConfigT m_config;
 
 public:
+
+    ~JOmniFactory() {
+        // Delete any parameters that _don't_ have their own member variable
+        // In practice these are all created via RegisterParameterRef()
+        for (auto& pair : m_parameters) {
+            if (pair.second) {
+                delete pair.first;
+            }
+        }
+    }
 
     size_t FindVariadicCollectionCount(size_t total_input_count, size_t variadic_input_count, size_t total_collection_count, bool is_input) {
 
@@ -538,8 +553,8 @@ public:
 
     void Init() override {
         auto app = GetApplication();
-        for (auto* parameter : m_parameters) {
-            parameter->Configure(*(app->GetJParameterManager()), m_prefix);
+        for (auto& parameter : m_parameters) {
+            parameter.first->Configure(*(app->GetJParameterManager()), m_prefix);
         }
         for (auto* service : m_services) {
             service->Init(app);

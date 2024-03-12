@@ -110,6 +110,42 @@ TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
     REQUIRE(basictestalg->m_init_call_count == 0);
 }
 
+struct AnonParamRefsTestFac : public JOmniFactory<AnonParamRefsTestFac, BasicTestAlgConfig> {
+
+    PodioOutput<edm4hep::SimCalorimeterHit> output_hits_left {this, "output_hits_left"};
+    ParameterRef<double> threshold {this, "threshold", config().threshold, "The max cutoff threshold [V * A * kg^-1 * m^-2 * sec^-3]"};
+
+    AnonParamRefsTestFac() {
+        RegisterParameterRef("bucket_count", config().bucket_count, "The total number of buckets [dimensionless]");
+    }
+
+    void Configure() { }
+
+    void ChangeRun(int64_t run_number) { }
+
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    void Process(int64_t run_number, uint64_t event_number) {
+        logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
+    }
+};
+
+TEST_CASE("Anonymous parameterRefs") {
+    JApplication app;
+    app.AddPlugin("log");
+    app.Initialize();
+    JOmniFactoryGeneratorT<AnonParamRefsTestFac> facgen (&app);
+    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits"}, {{"threshold", "8.0"}, {"bucket_count", "27"}});
+
+    JFactorySet facset;
+    facgen.GenerateFactories(&facset);
+
+    auto anonfac = RetrieveMultifactory<edm4hep::SimCalorimeterHit,AnonParamRefsTestFac>(&facset, "ECalLeftHits");
+
+    REQUIRE(anonfac->threshold() == 8.0);
+    REQUIRE(anonfac->config().threshold == 8.0);
+    REQUIRE(anonfac->config().bucket_count == 27);
+}
+
 TEST_CASE("Multiple configuration objects are correctly wired from untyped wiring data") {
     JApplication app;
     app.AddPlugin("log");
