@@ -18,6 +18,7 @@
 #include "MC2SmearedParticle_factory.h"
 #include "MatchClusters_factory.h"
 #include "ReconstructedElectrons_factory.h"
+#include "TransformBreitFrame_factory.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -185,5 +186,13 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
+            "ReconstructedParticlesBreitFrame",
+            {"MCParticles","InclusiveKinematicsElectron","ReconstructedParticles"},
+            {"ReconstructedParticlesBreitFrame"},
+            {},
+            app
+    ));
+    
 }
 } // extern "C"
