@@ -22,8 +22,8 @@ namespace eicrecon {
 
       // run algorithm
       std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const edm4hep::MCParticleCollection *mcpart,
-									const edm4eic::InclusiveKinematicsCollection *kine,
-									const edm4eic::ReconstructedParticleCollection *lab_collection);
+                                                                        const edm4eic::InclusiveKinematicsCollection *kine,
+                                                                        const edm4eic::ReconstructedParticleCollection *lab_collection);
 
     private:
 

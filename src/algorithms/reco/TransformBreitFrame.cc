@@ -30,8 +30,8 @@ namespace eicrecon {
 
 
   std::unique_ptr<edm4eic::ReconstructedParticleCollection> TransformBreitFrame::process(const edm4hep::MCParticleCollection *mcpart,
-											 const edm4eic::InclusiveKinematicsCollection *kine,
-											 const edm4eic::ReconstructedParticleCollection *lab_collection) {
+                                                                                         const edm4eic::InclusiveKinematicsCollection *kine,
+                                                                                         const edm4eic::ReconstructedParticleCollection *lab_collection) {
     // Store the transformed particles
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> breit_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
 
@@ -74,56 +74,56 @@ namespace eicrecon {
       return breit_collection;
     }
 
-    const auto& evt_kin = kine->at(0); 
+    const auto& evt_kin = kine->at(0);
 
-    const auto meas_x = evt_kin.getX(); 
-    const auto meas_Q2 = evt_kin.getQ2(); 
+    const auto meas_x = evt_kin.getX();
+    const auto meas_Q2 = evt_kin.getQ2();
 
-    // Use relation to get reconstructed scattered electron 
-    const auto ef_r = evt_kin.getScat(); 
+    // Use relation to get reconstructed scattered electron
+    const auto ef_r = evt_kin.getScat();
     const PxPyPzEVector e_final(ef_r.getMomentum().x, ef_r.getMomentum().y, ef_r.getMomentum().z, ef_r.getEnergy());
 
     // Set up the transformation
-    const PxPyPzEVector virtual_photon = (e_initial - e_final); 
-    
+    const PxPyPzEVector virtual_photon = (e_initial - e_final);
+
     m_log->debug("x, Q^2 = {},{}",meas_x,meas_Q2);
 
     // Set up the transformation (boost) to the Breit frame
-    const auto P3 = p_initial.Vect(); 
-    const auto q3 = virtual_photon.Vect(); 
-    const ROOT::Math::Boost boost(-(2.0*meas_x*P3 + q3)*(1.0/(2.0*meas_x*p_initial.E() + virtual_photon.E()))); 
-    const auto breit = ROOT::Math::LorentzRotation(boost); 
+    const auto P3 = p_initial.Vect();
+    const auto q3 = virtual_photon.Vect();
+    const ROOT::Math::Boost boost(-(2.0*meas_x*P3 + q3)*(1.0/(2.0*meas_x*p_initial.E() + virtual_photon.E())));
+    const auto breit = ROOT::Math::LorentzRotation(boost);
 
-    PxPyPzEVector p_initial_breit = (breit * p_initial); 
-    PxPyPzEVector e_initial_breit = (breit * e_initial); 
-    PxPyPzEVector e_final_breit = (breit * e_final); 
-    PxPyPzEVector virtual_photon_breit = (breit * virtual_photon); 
+    PxPyPzEVector p_initial_breit = (breit * p_initial);
+    PxPyPzEVector e_initial_breit = (breit * e_initial);
+    PxPyPzEVector e_final_breit = (breit * e_final);
+    PxPyPzEVector virtual_photon_breit = (breit * virtual_photon);
 
     // Now rotate so the virtual photon momentum is all along the negative z-axis
-    const auto zhat =  -virtual_photon_breit.Vect().Unit(); 
-    const auto yhat = (e_initial_breit.Vect().Cross(e_final_breit.Vect())).Unit(); 
-    const auto xhat = yhat.Cross(zhat); 
+    const auto zhat =  -virtual_photon_breit.Vect().Unit();
+    const auto yhat = (e_initial_breit.Vect().Cross(e_final_breit.Vect())).Unit();
+    const auto xhat = yhat.Cross(zhat);
 
-    const ROOT::Math::Rotation3D breitRotInv(xhat,yhat,zhat); 
+    const ROOT::Math::Rotation3D breitRotInv(xhat,yhat,zhat);
     const ROOT::Math::Rotation3D breitRot = breitRotInv.Inverse();
 
-    // Diagnostics  
-    p_initial_breit = breitRot*p_initial_breit; 
-    e_initial_breit = breitRot*e_initial_breit; 
-    e_final_breit = breitRot*e_final_breit; 
-    virtual_photon_breit = breitRot*virtual_photon_breit; 
+    // Diagnostics
+    p_initial_breit = breitRot*p_initial_breit;
+    e_initial_breit = breitRot*e_initial_breit;
+    e_final_breit = breitRot*e_final_breit;
+    virtual_photon_breit = breitRot*virtual_photon_breit;
 
     m_log->debug("incoming hadron in Breit frame px,py,pz,E = {},{},{},{}",
-		 p_initial_breit.Px(),p_initial_breit.Py(),p_initial_breit.Pz(),p_initial_breit.E());
+                 p_initial_breit.Px(),p_initial_breit.Py(),p_initial_breit.Pz(),p_initial_breit.E());
     m_log->debug("virtual photon in Breit frame px,py,pz,E = {},{},{},{}",
-		 virtual_photon_breit.Px(),virtual_photon_breit.Py(),virtual_photon_breit.Pz(),virtual_photon_breit.E());
-    
+                 virtual_photon_breit.Px(),virtual_photon_breit.Py(),virtual_photon_breit.Pz(),virtual_photon_breit.E());
+
     // look over the input particles and transform
     for (unsigned iInput = 0; const auto& lab : *lab_collection) {
 
       // Transform to Breit frame
-      PxPyPzEVector track(lab.getMomentum().x,lab.getMomentum().y,lab.getMomentum().z,lab.getEnergy()); 
-      PxPyPzEVector breit_track = breitRot*(breit*track); 
+      PxPyPzEVector track(lab.getMomentum().x,lab.getMomentum().y,lab.getMomentum().z,lab.getEnergy());
+      PxPyPzEVector breit_track = breitRot*(breit*track);
 
       // create particle to store in output collection
       edm4eic::MutableReconstructedParticle breit = breit_collection->create();
@@ -142,13 +142,13 @@ namespace eicrecon {
       breit.setParticleIDUsed(lab.getParticleIDUsed());
 
       // set up a relation between the lab and Breit frame representations
-      breit.addToParticles( lab ); 
-      
+      breit.addToParticles( lab );
+
     }
 
     // return the transfromed particles
     return breit_collection;
-    
+
   }  // end 'process'
 
 
