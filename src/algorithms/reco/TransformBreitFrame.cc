@@ -146,7 +146,7 @@ namespace eicrecon {
 
     }
 
-    // return the transfromed particles
+    // return the transformed particles
     return breit_collection;
 
   }  // end 'process'
