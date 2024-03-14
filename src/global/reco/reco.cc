@@ -21,6 +21,7 @@
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
+#include "factories/meta/FilterByAssociations_factory.h"
 
 //
 extern "C" {
@@ -28,6 +29,14 @@ void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
     using namespace eicrecon;
+
+    // Finds associations matched to initial scattered electrons
+    app->Add(new JOmniFactoryGeneratorT<FilterByAssociations_factory<edm4hep::MCParticle, edm4eic::MCRecoParticleAssociation, &edm4eic::MCRecoParticleAssociation::getSim>>(
+          "MCScatteredElectronAssociations",
+          {"ScatteredElectrons", "ReconstructedChargedParticleAssociations"},
+          {"MCScatteredElectronAssociations"},
+          app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<MC2SmearedParticle_factory>(
             "GeneratedParticles",
