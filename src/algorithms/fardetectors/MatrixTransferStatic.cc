@@ -78,7 +78,7 @@ void eicrecon::MatrixTransferStatic::process(
 
   if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
-	 aX[0][0] = 3.251116; //a
+         aX[0][0] = 3.251116; //a
      aX[0][1] = 30.285734; //b
      aX[1][0] = 0.186036375; //c
      aX[1][1] = 0.196439472; //d
@@ -96,8 +96,8 @@ void eicrecon::MatrixTransferStatic::process(
   }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
-	 aX[0][0] = 3.152158; //a
-	 aX[0][1] = 20.852072; //b
+         aX[0][0] = 3.152158; //a
+         aX[0][1] = 20.852072; //b
      aX[1][0] = 0.181649517; //c
      aX[1][1] = -0.303998487; //d
 
@@ -114,20 +114,20 @@ void eicrecon::MatrixTransferStatic::process(
   }
   else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
 
-	 aX[0][0] = 3.135997; //a
-	 aX[0][1] = 18.482273; //b
-	 aX[1][0] = 0.176479921; //c
-	 aX[1][1] = -0.497839483; //d
+         aX[0][0] = 3.135997; //a
+         aX[0][1] = 18.482273; //b
+         aX[1][0] = 0.176479921; //c
+         aX[1][1] = -0.497839483; //d
 
-	 aY[0][0] = 0.4914400000; //a
-	 aY[0][1] = 4.53857451; //b
-	 aY[1][0] = 0.0179664765; //c
-	 aY[1][1] = 0.004160679; //d
+         aY[0][0] = 0.4914400000; //a
+         aY[0][1] = 4.53857451; //b
+         aY[1][0] = 0.0179664765; //c
+         aY[1][1] = 0.004160679; //d
 
-	 local_x_offset       = -0.283273;
-	 local_y_offset       = -0.00552451;
-	 local_x_slope_offset = -0.21174031;
-	 local_y_slope_offset = -0.003212011;
+         local_x_offset       = -0.283273;
+         local_y_offset       = -0.00552451;
+         local_x_slope_offset = -0.21174031;
+         local_y_slope_offset = -0.003212011;
 
   }
   else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
