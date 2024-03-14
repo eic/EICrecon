@@ -78,56 +78,56 @@ void eicrecon::MatrixTransferStatic::process(
 
   if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
-         aXRP[0][0] = 3.251116; //a
-     aXRP[0][1] = 30.285734; //b
-     aXRP[1][0] = 0.186036375; //c
-     aXRP[1][1] = 0.196439472; //d
+	 aX[0][0] = 3.251116; //a
+     aX[0][1] = 30.285734; //b
+     aX[1][0] = 0.186036375; //c
+     aX[1][1] = 0.196439472; //d
 
-     aYRP[0][0] = 0.4730500000; //a
-     aYRP[0][1] = 3.062999454; //b
-     aYRP[1][0] = 0.0204108951; //c
-     aYRP[1][1] = -0.139318692; //d
+     aY[0][0] = 0.4730500000; //a
+     aY[0][1] = 3.062999454; //b
+     aY[1][0] = 0.0204108951; //c
+     aY[1][1] = -0.139318692; //d
 
-     x_offset       = -0.339334;
-     y_offset       = -0.000299454;
-     x_slope_offset = -0.219603248;
-     y_slope_offset = -0.000176128;
+     local_x_offset       = -0.339334;
+     local_y_offset       = -0.000299454;
+     local_x_slope_offset = -0.219603248;
+     local_y_slope_offset = -0.000176128;
 
   }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
-         aXRP[0][0] = 3.152158; //a
-         aXRP[0][1] = 20.852072; //b
-     aXRP[1][0] = 0.181649517; //c
-     aXRP[1][1] = -0.303998487; //d
+	 aX[0][0] = 3.152158; //a
+	 aX[0][1] = 20.852072; //b
+     aX[1][0] = 0.181649517; //c
+     aX[1][1] = -0.303998487; //d
 
-     aYRP[0][0] = 0.5306100000; //a
-     aYRP[0][1] = 3.19623343; //b
-     aYRP[1][0] = 0.0226283320; //c
-     aYRP[1][1] = -0.082666019; //d
+     aY[0][0] = 0.5306100000; //a
+     aY[0][1] = 3.19623343; //b
+     aY[1][0] = 0.0226283320; //c
+     aY[1][1] = -0.082666019; //d
 
-     x_offset       = -0.329072;
-     y_offset       = -0.00028343;
-     x_slope_offset = -0.218525084;
-     y_slope_offset = -0.00015321;
+     local_x_offset       = -0.329072;
+     local_y_offset       = -0.00028343;
+     local_x_slope_offset = -0.218525084;
+     local_y_slope_offset = -0.00015321;
 
   }
   else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
 
-         aXRP[0][0] = 3.135997; //a
-         aXRP[0][1] = 18.482273; //b
-         aXRP[1][0] = 0.176479921; //c
-         aXRP[1][1] = -0.497839483; //d
+	 aX[0][0] = 3.135997; //a
+	 aX[0][1] = 18.482273; //b
+	 aX[1][0] = 0.176479921; //c
+	 aX[1][1] = -0.497839483; //d
 
-         aYRP[0][0] = 0.4914400000; //a
-         aYRP[0][1] = 4.53857451; //b
-         aYRP[1][0] = 0.0179664765; //c
-         aYRP[1][1] = 0.004160679; //d
+	 aY[0][0] = 0.4914400000; //a
+	 aY[0][1] = 4.53857451; //b
+	 aY[1][0] = 0.0179664765; //c
+	 aY[1][1] = 0.004160679; //d
 
-         x_offset       = -0.283273;
-         y_offset       = -0.00552451;
-         x_slope_offset = -0.21174031;
-         y_slope_offset = -0.003212011;
+	 local_x_offset       = -0.283273;
+	 local_y_offset       = -0.00552451;
+	 local_x_slope_offset = -0.21174031;
+	 local_y_slope_offset = -0.003212011;
 
   }
   else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
