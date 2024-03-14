@@ -9,19 +9,19 @@
 namespace eicrecon {
 
 template <class T, class TA, auto MemberFunctionPtr>
-class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_factory<T>> {
+class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_factory<T,TA,MemberFunctionPtr>> {
 
   public:
     using AlgoT    = eicrecon::FilterByAssociations<T,TA,MemberFunctionPtr>;
-    using FactoryT = JOmniFactory<FilterByAssociations_factory<T>>;
+    using FactoryT = JOmniFactory<FilterByAssociations_factory<T,TA,MemberFunctionPtr>>;
 
   private:
 
     std::unique_ptr<AlgoT> m_algo;
 
-    typename FactoryT::template PodioInput<T>  m_collection_input {this};
-    typename FactoryT::template PodioInput<TA> m_associations_input {this};
-    typename FactoryT::template PodioOutput<T> m_filtered_output {this};
+    typename FactoryT::template PodioInput<T>   m_collection_input {this};
+    typename FactoryT::template PodioInput<TA>  m_associated_input {this};
+    typename FactoryT::template PodioOutput<TA> m_filtered_output {this};
 
   public:
     void Configure() {
@@ -33,7 +33,7 @@ class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_fa
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_collection_input(),m_collection_input()},{m_filtered_output()});
+      m_algo->process({m_collection_input(),m_associated_input()},m_filtered_output().get());
     };
-}; // SplitGeometry_factory
+}; // FilterByAssociations_factory
 } // eicrecon
