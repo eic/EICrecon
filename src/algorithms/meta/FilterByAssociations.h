@@ -17,7 +17,7 @@ namespace eicrecon {
    template<class T, class TA>
      using FilterByAssociationsAlgorithm =  algorithms::Algorithm<
        typename algorithms::Input<
-        typename T::collection_type, 
+        typename T::collection_type,
         typename TA::collection_type
         >,
        typename algorithms::Output<
@@ -52,7 +52,7 @@ namespace eicrecon {
             for (const auto& associatedEntries : *associatedEntries){
               if(entry == (associatedEntries.*MemberFunctionPtr)()){
                 filtered_associations->push_back(associatedEntries);
-              } 
+              }
             }
 
           }
