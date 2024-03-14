@@ -22,8 +22,8 @@ extern "C" {
     using namespace eicrecon;
 
     // Divide MCParticle collection based on generator status and PDG
-    std::vector<std::string> outCollections{"BeamElectrons","BeamProtons"};
-    std::vector<std::vector<int>> values{{4,11},{4,2212}};
+    std::vector<std::string> outCollections{"BeamElectrons","BeamProtons","ScatteredElectrons","ScatteredProtons"};
+    std::vector<std::vector<int>> values{{4,11},{4,2212},{1,11},{1,2212}};
 
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
         "BeamParticles",
