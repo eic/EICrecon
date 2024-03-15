@@ -26,7 +26,7 @@ namespace eicrecon {
 
       // parameter bindings
       ParameterRef<float>       m_rJet {this, "rJet", config().rJet};
-      ParameterRef<float>       m_pJet {this, "pJet", config(),pJet};
+      ParameterRef<float>       m_pJet {this, "pJet", config().pJet};
       ParameterRef<double>      m_minCstPt {this, "minCstPt", config().minCstPt};
       ParameterRef<double>      m_maxCstPt {this, "maxCstPt", config().maxCstPt};
       ParameterRef<double>      m_minJetPt {this, "minJetPt", config().minJetPt};
