@@ -11,6 +11,7 @@ namespace eicrecon {
   struct JetReconstructionConfig {
 
     float       rJet           = 1.0;                 // jet resolution  parameter
+    float       pJet           = -1.0;                // exponent for generalized kt algorithms
     double      minCstPt       = 0.2  * dd4hep::GeV;  // minimum pT of objects fed to cluster sequence
     double      maxCstPt       = 100. * dd4hep::GeV;  // maximum pT of objects fed to clsuter sequence
     double      minJetPt       = 1.0 * dd4hep::GeV;   // minimum jet pT
