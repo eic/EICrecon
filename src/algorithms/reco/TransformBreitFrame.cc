@@ -83,8 +83,7 @@ namespace eicrecon {
     const auto meas_Q2 = evt_kin.getQ2();
 
     // Use relation to get reconstructed scattered electron
-    const auto ef_r = evt_kin.getScat();
-    const PxPyPzEVector e_final(ef_r.getMomentum().x, ef_r.getMomentum().y, ef_r.getMomentum().z, ef_r.getEnergy());
+    const PxPyPzEVector e_final = edm4hep::utils::detail::p4(evt_kin.getScat(),&edm4hep::utils::UseEnergy);
 
     // Set up the transformation
     const PxPyPzEVector virtual_photon = (e_initial - e_final);

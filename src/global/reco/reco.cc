@@ -187,12 +187,12 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
-            "ReconstructedParticlesBreitFrame",
+            "ReconstructedBreitFrameParticles",
             {"MCParticles","InclusiveKinematicsElectron","ReconstructedParticles"},
-            {"ReconstructedParticlesBreitFrame"},
+            {"ReconstructedBreitFrameParticles"},
             {},
             app
     ));
-
+    
 }
 } // extern "C"
