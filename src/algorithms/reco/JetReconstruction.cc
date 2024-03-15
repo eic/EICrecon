@@ -9,7 +9,6 @@
 #include <edm4hep/MCParticleCollection.h>// IWYU pragma: keep
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/GhostedAreaSpec.hh>
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
@@ -24,6 +23,8 @@ using namespace fastjet;
 namespace eicrecon {
 
   void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+
+    std::cout << "CHECK algo = " << m_cfg.jetAlgo << std::endl;
 
     m_log = logger;
     m_log->trace("Initialized");
@@ -84,15 +85,15 @@ namespace eicrecon {
     m_log->trace("  Number of particles: {}", particles.size());
 
     // Choose jet and area definitions
-    JetDefinition jet_def(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
-    AreaDefinition area_def(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
+    m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme] );
+    m_area_def = std::make_unique<AreaDefinition>( m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea) );
 
     // Run the clustering, extract the jets
-    ClusterSequenceArea clus_seq(particles, jet_def, area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
+    m_clus_seq = std::make_unique<ClusterSequenceArea>( particles, *m_jet_def, *m_area_def );
+    std::vector<PseudoJet> jets = sorted_by_pt( m_clus_seq -> inclusive_jets(m_cfg.minJetPt) );
 
     // Print out some infos
-    m_log->trace("  Clustering with : {}", jet_def.description());
+    m_log->trace("  Clustering with : {}", m_jet_def -> description());
 
     // loop over jets
     for (unsigned i = 0; i < jets.size(); i++) {
