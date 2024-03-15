@@ -31,6 +31,9 @@ namespace eicrecon {
 
     private:
 
+      // for selecting right jet definition
+      int get_num_params();
+
       std::shared_ptr<spdlog::logger> m_log;
 
       // fastjet components
