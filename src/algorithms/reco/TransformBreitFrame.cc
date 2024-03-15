@@ -10,6 +10,7 @@
 #include <Math/GenVector/Rotation3D.h>
 #include <Math/GenVector/Boost.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <edm4hep/utils/kinematics.h>
 
 // for error handling
 #include <JANA/JException.h>
@@ -29,12 +30,14 @@ namespace eicrecon {
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
 
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> TransformBreitFrame::process(const edm4hep::MCParticleCollection *mcpart,
-                                                                                         const edm4eic::InclusiveKinematicsCollection *kine,
-                                                                                         const edm4eic::ReconstructedParticleCollection *lab_collection) {
-    // Store the transformed particles
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> breit_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
-
+  void TransformBreitFrame::process(
+				    const TransformBreitFrame::Input& input,
+				    const TransformBreitFrame::Output& output
+				    ) const {
+    // Grab input collections
+    const auto [mcpart, kine, lab_collection] = input;
+    auto [breit_collection] = output;
+  
     // Beam momenta extracted from MCParticle
     // This is the only place truth information is used!
 
@@ -42,7 +45,7 @@ namespace eicrecon {
     const auto ei_coll = find_first_beam_electron(mcpart);
     if (ei_coll.size() == 0) {
       m_log->debug("No beam electron found");
-      return breit_collection;
+      return;
     }
     const PxPyPzEVector e_initial(
       round_beam_four_momentum(
@@ -56,7 +59,7 @@ namespace eicrecon {
     const auto pi_coll = find_first_beam_hadron(mcpart);
     if (pi_coll.size() == 0) {
       m_log->debug("No beam hadron found");
-      return breit_collection;
+      return;
     }
     const PxPyPzEVector p_initial(
       round_beam_four_momentum(
@@ -71,7 +74,7 @@ namespace eicrecon {
     // Get the event kinematics, set up transform
     if (kine->size() == 0) {
       m_log->debug("No kinematics found");
-      return breit_collection;
+      return;
     }
 
     const auto& evt_kin = kine->at(0);
@@ -91,8 +94,7 @@ namespace eicrecon {
     // Set up the transformation (boost) to the Breit frame
     const auto P3 = p_initial.Vect();
     const auto q3 = virtual_photon.Vect();
-    const ROOT::Math::Boost boost(-(2.0*meas_x*P3 + q3)*(1.0/(2.0*meas_x*p_initial.E() + virtual_photon.E())));
-    const auto breit = ROOT::Math::LorentzRotation(boost);
+    const ROOT::Math::Boost breit(-(2.0*meas_x*P3 + q3)*(1.0/(2.0*meas_x*p_initial.E() + virtual_photon.E())));
 
     PxPyPzEVector p_initial_breit = (breit * p_initial);
     PxPyPzEVector e_initial_breit = (breit * e_initial);
@@ -119,35 +121,34 @@ namespace eicrecon {
                  virtual_photon_breit.Px(),virtual_photon_breit.Py(),virtual_photon_breit.Pz(),virtual_photon_breit.E());
 
     // look over the input particles and transform
-    for (unsigned iInput = 0; const auto& lab : *lab_collection) {
-
+    for (const auto& lab : *lab_collection) {
+  
       // Transform to Breit frame
-      PxPyPzEVector track(lab.getMomentum().x,lab.getMomentum().y,lab.getMomentum().z,lab.getEnergy());
-      PxPyPzEVector breit_track = breitRot*(breit*track);
+      PxPyPzEVector lab_particle(lab.getMomentum().x,lab.getMomentum().y,lab.getMomentum().z,lab.getEnergy());
+      PxPyPzEVector breit_particle = breitRot*(breit*lab_particle);
 
       // create particle to store in output collection
-      edm4eic::MutableReconstructedParticle breit = breit_collection->create();
-      breit.setMomentum(edm4hep::Vector3f(breit_track.Px(), breit_track.Py(), breit_track.Pz()));
-      breit.setEnergy(breit_track.E());
+      auto breit_out = breit_collection->create();
+      breit_out.setMomentum(edm4hep::Vector3f(breit_particle.Px(), breit_particle.Py(), breit_particle.Pz()));
+      breit_out.setEnergy(breit_particle.E());
 
       // Copy the rest of the particle information
-      breit.setType(lab.getType());
-      breit.setReferencePoint(lab.getReferencePoint());
-      breit.setCharge(lab.getCharge());
-      breit.setMass(lab.getMass());
-      breit.setGoodnessOfPID(lab.getGoodnessOfPID());
-      breit.setCovMatrix(lab.getCovMatrix());
-      breit.setPDG(lab.getPDG());
-      breit.setStartVertex(lab.getStartVertex());
-      breit.setParticleIDUsed(lab.getParticleIDUsed());
+      breit_out.setType(lab.getType());
+      breit_out.setReferencePoint(lab.getReferencePoint());
+      breit_out.setCharge(lab.getCharge());
+      breit_out.setMass(lab.getMass());
+      breit_out.setGoodnessOfPID(lab.getGoodnessOfPID());
+      breit_out.setCovMatrix(lab.getCovMatrix());
+      breit_out.setPDG(lab.getPDG());
+      breit_out.setStartVertex(lab.getStartVertex());
+      breit_out.setParticleIDUsed(lab.getParticleIDUsed());
 
       // set up a relation between the lab and Breit frame representations
-      breit.addToParticles( lab );
+      breit_out.addToParticles( lab );
 
     }
 
-    // return the transformed particles
-    return breit_collection;
+    return;
 
   }  // end 'process'
 

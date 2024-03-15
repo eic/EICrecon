@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -10,21 +11,43 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
+
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class TransformBreitFrame {
+   using TransformBreitFrameAlgorithm = algorithms::Algorithm<
+     algorithms::Input<
+       edm4hep::MCParticleCollection,
+       edm4eic::InclusiveKinematicsCollection,
+       edm4eic::ReconstructedParticleCollection
+       >,
+     algorithms::Output<
+       edm4eic::ReconstructedParticleCollection
+       >
+   >;
+  
+  class TransformBreitFrame
+    : public TransformBreitFrameAlgorithm,
+      public WithPodConfig<NoConfig> {
 
     public:
 
+    TransformBreitFrame(std::string_view name) : 
+      TransformBreitFrameAlgorithm {
+	name,
+	{"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
+	{"outputReconstructedParticles"},
+	"Transfroms a set of particles from the lab frame to the Breit frame"
+      } {}
+    
       // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const edm4hep::MCParticleCollection *mcpart,
-                                                                        const edm4eic::InclusiveKinematicsCollection *kine,
-                                                                        const edm4eic::ReconstructedParticleCollection *lab_collection);
-
+      void process(const Input&, const Output&) const final;
+    
     private:
 
       std::shared_ptr<spdlog::logger> m_log;

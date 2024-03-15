@@ -5,6 +5,7 @@
 
 #include <string>
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/reco/TransformBreitFrame.h"
 
 namespace eicrecon {
@@ -25,10 +26,13 @@ namespace eicrecon {
       // output collection
       PodioOutput<edm4eic::ReconstructedParticle> m_out_part {this};
 
+      Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
     public:
 
       void Configure() {
-        m_algo = std::make_unique<Algo>();
+        m_algo = std::make_unique<Algo>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->init(logger());
       }
 
@@ -37,7 +41,10 @@ namespace eicrecon {
       }
 
       void Process(int64_t run_number, int64_t event_number) {
-        m_out_part() = m_algo->process(m_in_mcpart(),m_in_kine(),m_in_part());
+	m_algo->process(
+	  {m_in_mcpart(),m_in_kine(),m_in_part()},
+	  {m_out_part().get()}
+        );
       }
 
     };  // end TransfromBreitFrame_factory definition
