@@ -41,9 +41,9 @@ namespace eicrecon {
       }
 
       void Process(int64_t run_number, int64_t event_number) {
-	m_algo->process(
-	  {m_in_mcpart(),m_in_kine(),m_in_part()},
-	  {m_out_part().get()}
+        m_algo->process(
+          {m_in_mcpart(),m_in_kine(),m_in_part()},
+          {m_out_part().get()}
         );
       }
 

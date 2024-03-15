@@ -27,27 +27,27 @@ namespace eicrecon {
        edm4eic::ReconstructedParticleCollection
        >
    >;
-  
+
   class TransformBreitFrame
     : public TransformBreitFrameAlgorithm,
       public WithPodConfig<NoConfig> {
 
     public:
 
-    TransformBreitFrame(std::string_view name) : 
+    TransformBreitFrame(std::string_view name) :
       TransformBreitFrameAlgorithm {
-	name,
-	{"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
-	{"outputReconstructedParticles"},
-	"Transfroms a set of particles from the lab frame to the Breit frame"
+        name,
+        {"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
+        {"outputReconstructedParticles"},
+        "Transfroms a set of particles from the lab frame to the Breit frame"
       } {}
-    
+
       // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
       void process(const Input&, const Output&) const final;
-    
+
     private:
 
       std::shared_ptr<spdlog::logger> m_log;

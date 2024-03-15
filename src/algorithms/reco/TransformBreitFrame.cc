@@ -31,13 +31,13 @@ namespace eicrecon {
 
 
   void TransformBreitFrame::process(
-				    const TransformBreitFrame::Input& input,
-				    const TransformBreitFrame::Output& output
-				    ) const {
+                                    const TransformBreitFrame::Input& input,
+                                    const TransformBreitFrame::Output& output
+                                    ) const {
     // Grab input collections
     const auto [mcpart, kine, lab_collection] = input;
     auto [breit_collection] = output;
-  
+
     // Beam momenta extracted from MCParticle
     // This is the only place truth information is used!
 
@@ -122,7 +122,7 @@ namespace eicrecon {
 
     // look over the input particles and transform
     for (const auto& lab : *lab_collection) {
-  
+
       // Transform to Breit frame
       PxPyPzEVector lab_particle(lab.getMomentum().x,lab.getMomentum().y,lab.getMomentum().z,lab.getEnergy());
       PxPyPzEVector breit_particle = breitRot*(breit*lab_particle);
