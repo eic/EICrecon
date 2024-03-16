@@ -57,6 +57,10 @@ jobs:
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
     steps:
+    - name: mmap rnd_bits workaround
+      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
+      run: |
+        sudo sysctl -w vm.mmap_rnd_bits=28
     - uses: actions/checkout@v4
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
