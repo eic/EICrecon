@@ -1,4 +1,4 @@
-// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2024 Sylvester Joosten, Dmitry Romanov, Wouter Deconinck
 
 // Takes a list of particles (presumed to be from tracking), and all available clusters.
