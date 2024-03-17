@@ -181,4 +181,4 @@ edm4eic::ReconstructedParticle MatchClusters::reconstruct_neutral(
     return part;
 }
 
-} // namespace Jug::Fast
+} // namespace eicrecon
