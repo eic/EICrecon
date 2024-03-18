@@ -19,6 +19,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "algorithms_init",
         "richgeo",
         "rootfile",
+        "beam",
         "reco",
         "tracking",
         "pid",

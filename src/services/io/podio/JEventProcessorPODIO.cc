@@ -47,6 +47,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
+            "BeamElectrons",
+            "BeamProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -108,7 +110,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
             "B0TrackerRawHits",
             "B0TrackerHits",
-
+            "ForwardRomanPotRecHits",
+            "ForwardOffMTrackerRecHits",
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",

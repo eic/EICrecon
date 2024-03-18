@@ -109,7 +109,6 @@ macro(plugin_link_libraries _name)
     endif(${_name}_WITH_LIBRARY)
 endmacro()
 
-
 # target_include_directories for both a plugin and a library
 macro(plugin_include_directories _name)
     if(${_name}_WITH_PLUGIN)

@@ -1,4 +1,3 @@
-
 # Check if catch2 exists and unit tests can be built
 find_package(Catch2 3)
 if(Catch2_FOUND)
