@@ -917,7 +917,7 @@ jobs:
       max-parallel: 4
     steps:
       - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v3
+        uses: eic/action-download-artifact@expiration
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -934,7 +934,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v3
+        uses: eic/action-download-artifact@expiration
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
