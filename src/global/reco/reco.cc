@@ -15,7 +15,6 @@
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
-#include "algorithms/reco/TransformBreitFrame.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
