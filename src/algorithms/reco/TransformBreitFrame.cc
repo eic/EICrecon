@@ -4,19 +4,17 @@
 // class definition
 #include "TransformBreitFrame.h"
 
+#include <Math/GenVector/Boost.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
-#include <Math/GenVector/LorentzRotation.h>
 #include <Math/GenVector/Rotation3D.h>
-#include <Math/GenVector/Boost.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <Math/Vector4Dfwd.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/kinematics.h>
-
-// for error handling
-#include <JANA/JException.h>
 #include <fmt/core.h>
-#include <stdexcept>
-#include <vector>
+#include <gsl/pointers>
 
 #include "Beam.h"
 
