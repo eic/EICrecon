@@ -39,7 +39,7 @@ namespace eicrecon {
         name,
         {"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
         {"outputReconstructedParticles"},
-        "Transfroms a set of particles from the lab frame to the Breit frame"
+        "Transforms a set of particles from the lab frame to the Breit frame"
       } {}
 
       // algorithm initialization
