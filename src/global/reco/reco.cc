@@ -7,18 +7,23 @@
 #include <algorithm>
 #include <string>
 
-#include "ChargedReconstructedParticleSelector_factory.h"
-#include "InclusiveKinematicsDA_factory.h"
-#include "InclusiveKinematicsElectron_factory.h"
-#include "InclusiveKinematicsJB_factory.h"
-#include "InclusiveKinematicsSigma_factory.h"
-#include "InclusiveKinematicsTruth_factory.h"
-#include "InclusiveKinematicseSigma_factory.h"
-#include "JetReconstruction_factory.h"
-#include "MC2SmearedParticle_factory.h"
-#include "MatchClusters_factory.h"
-#include "ReconstructedElectrons_factory.h"
-#include "TransformBreitFrame_factory.h"
+#include "algorithms/reco/InclusiveKinematicsDA.h"
+#include "algorithms/reco/InclusiveKinematicsElectron.h"
+#include "algorithms/reco/InclusiveKinematicsJB.h"
+#include "algorithms/reco/InclusiveKinematicsSigma.h"
+#include "algorithms/reco/InclusiveKinematicsTruth.h"
+#include "algorithms/reco/InclusiveKinematicseSigma.h"
+
+#include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
+#include "factories/reco/InclusiveKinematicsTruth_factory.h"
+
+#include "global/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "global/reco/JetReconstruction_factory.h"
+#include "global/reco/MC2SmearedParticle_factory.h"
+#include "global/reco/MatchClusters_factory.h"
+#include "global/reco/ReconstructedElectrons_factory.h"
+#include "algorithms/reco/TransformBreitFrame_factory.h"
+
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -57,7 +62,7 @@ void InitPlugin(JApplication *app) {
     ));
 
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
         "InclusiveKinematicsElectron",
         {
           "MCParticles",
@@ -81,7 +86,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsJB_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
         "InclusiveKinematicsJB",
         {
           "MCParticles",
@@ -94,7 +99,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsDA_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
         "InclusiveKinematicsDA",
         {
           "MCParticles",
@@ -107,7 +112,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicseSigma>>(
         "InclusiveKinematicseSigma",
         {
           "MCParticles",
@@ -120,7 +125,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
         "InclusiveKinematicsSigma",
         {
           "MCParticles",
