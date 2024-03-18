@@ -19,7 +19,7 @@ namespace eicrecon {
 
     class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
 
-    public:   
+    public:
       // algorithm to run
       using Algo = eicrecon::TransformBreitFrame;
     private:
