@@ -3,19 +3,26 @@
 
 #pragma once
 
+#include <JANA/JEvent.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <memory>
 #include <string>
-#include "extensions/jana/JOmniFactory.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
+#include <utility>
+#include <vector>
+
 #include "algorithms/reco/TransformBreitFrame.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
     class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
 
-    private:
-
+    public:   
       // algorithm to run
       using Algo = eicrecon::TransformBreitFrame;
+    private:
       std::unique_ptr<Algo> m_algo;
 
       // input collection
@@ -25,8 +32,6 @@ namespace eicrecon {
 
       // output collection
       PodioOutput<edm4eic::ReconstructedParticle> m_out_part {this};
-
-      Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
     public:
 
