@@ -84,9 +84,13 @@ namespace eicrecon {
 
     // Use relation to get reconstructed scattered electron
     const PxPyPzEVector e_final = edm4hep::utils::detail::p4(evt_kin.getScat(),&edm4hep::utils::UseEnergy);
+    m_log->debug("scattered electron in lab frame px,py,pz,E = {},{},{},{}",
+                 e_final.Px(),e_final.Py(),e_final.Pz(),e_final.E());
 
     // Set up the transformation
     const PxPyPzEVector virtual_photon = (e_initial - e_final);
+    m_log->debug("virtual photon in lab frame px,py,pz,E = {},{},{},{}",
+                 virtual_photon.Px(),virtual_photon.Py(),virtual_photon.Pz(),virtual_photon.E());
 
     m_log->debug("x, Q^2 = {},{}",meas_x,meas_Q2);
 

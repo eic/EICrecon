@@ -15,6 +15,9 @@
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "algorithms/reco/TransformBreitFrame.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
@@ -24,10 +27,6 @@
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
-
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 //
 extern "C" {
