@@ -80,11 +80,11 @@ namespace eicrecon {
 
     //////////////////////////////////////
     ///Seed Covariance Error Matrix
-    float m_Loc_a_Error = 0.1 * Acts::UnitConstants::mm;    //Error on Loc a
-    float m_Loc_b_Error = 0.1 * Acts::UnitConstants::mm;    //Error on Loc b 
-    float m_theta_Error = 0.05;                             //Error on theta
-    float m_phi_Error = 0.05;                               //Error on phi
-    float m_qOverp_Error = 0.05 / Acts::UnitConstants::GeV; //Error on q over p
+    float m_Loc_a_Error = 1.5 * Acts::UnitConstants::mm;    //Error on Loc a
+    float m_Loc_b_Error = 1.5 * Acts::UnitConstants::mm;    //Error on Loc b 
+    float m_theta_Error = 0.002;                             //Error on theta
+    float m_phi_Error = 0.02;                               //Error on phi
+    float m_qOverp_Error = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
     float m_time_Error = 0.1;                               //Error on time
   };
 }
