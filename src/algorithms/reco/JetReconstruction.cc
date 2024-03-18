@@ -49,6 +49,28 @@ namespace eicrecon {
       m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
       throw JException(out.what());
     }
+
+    // Choose jet definition based on no. of parameters
+    const int nParams = get_num_params();
+    switch (nParams) {
+
+      case 0:
+        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme] );
+        break;
+
+      case 2:
+        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme] );
+        break;
+
+      default:
+        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme] );
+        break;
+
+    }  // end switch (jet algorithm)
+
+    // Define jet area
+    m_area_def = std::make_unique<AreaDefinition>( m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea) );
+
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
 
@@ -81,27 +103,6 @@ namespace eicrecon {
       return jet_collection;
     }
     m_log->trace("  Number of particles: {}", particles.size());
-
-    // Choose jet definition based on no. of parameters
-    const int nParams = get_num_params();
-    switch (nParams) {
-
-      case 0:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme] );
-        break;
-
-      case 2:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme] );
-        break;
-
-      default:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme] );
-        break;
-
-    }  // end switch (jet algorithm)
-
-    // Define jet area
-    m_area_def = std::make_unique<AreaDefinition>( m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea) );
 
     // Run the clustering, extract the jets
     m_clus_seq = std::make_unique<ClusterSequenceArea>( particles, *m_jet_def, *m_area_def );
