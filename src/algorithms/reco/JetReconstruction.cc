@@ -105,11 +105,11 @@ namespace eicrecon {
     m_log->trace("  Number of particles: {}", particles.size());
 
     // Run the clustering, extract the jets
-    m_clus_seq = std::make_unique<ClusterSequenceArea>( particles, *m_jet_def, *m_area_def );
-    std::vector<PseudoJet> jets = sorted_by_pt( m_clus_seq -> inclusive_jets(m_cfg.minJetPt) );
+    m_clus_seq = std::make_unique<ClusterSequenceArea>(particles, *m_jet_def, *m_area_def);
+    std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq->inclusive_jets(m_cfg.minJetPt));
 
     // Print out some infos
-    m_log->trace("  Clustering with : {}", m_jet_def -> description());
+    m_log->trace("  Clustering with : {}", m_jet_def->description());
 
     // loop over jets
     for (unsigned i = 0; i < jets.size(); i++) {
