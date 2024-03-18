@@ -11,7 +11,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <utility>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
