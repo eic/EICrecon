@@ -51,25 +51,30 @@ namespace eicrecon {
     }
 
     // Choose jet definition based on no. of parameters
-    const int nParams = get_num_params();
-    switch (nParams) {
+    switch (m_mapJetAlgo[m_cfg.jetAlgo]) {
 
-      case 0:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme] );
+      // 0 parameter algorithms
+      case JetAlgorithm::ee_kt_algorithm:
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme]);
         break;
 
-      case 2:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme] );
+      // 2 parameter algorithms
+      case JetAlgorithm::genkt_algorithm:
+        [[fallthrough]];
+
+      case JetAlgorithm::ee_genkt_algorithm:
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme]);
         break;
 
+      // all others have only 1 parameter
       default:
-        m_jet_def = std::make_unique<JetDefinition>( m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme] );
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
         break;
 
     }  // end switch (jet algorithm)
 
     // Define jet area
-    m_area_def = std::make_unique<AreaDefinition>( m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea) );
+    m_area_def = std::make_unique<AreaDefinition>(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
 
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
@@ -134,35 +139,5 @@ namespace eicrecon {
   }  // end 'process(const T&)'
 
   template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection* input_collection);
-
-
-
-  int JetReconstruction::get_num_params() {
-
-    int nParams;
-    switch (m_mapJetAlgo[m_cfg.jetAlgo]) {
-
-      // 0 parameter algorithms
-      case JetAlgorithm::ee_kt_algorithm:
-        nParams = 0;
-        break;
-
-      // 2 parameter algorithms
-      case JetAlgorithm::genkt_algorithm:
-        [[fallthrough]];
-
-      case JetAlgorithm::ee_genkt_algorithm:
-        nParams = 2;
-        break;
-
-      // all others have only 1 parameter
-      default:
-        nParams = 1;
-        break;
-
-    }  // end switch (jet algorithm)
-    return nParams;
-
-  }  // end 'get_num_params()'
 
 }  // end namespace eicrecon
