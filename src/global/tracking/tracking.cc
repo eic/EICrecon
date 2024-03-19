@@ -21,6 +21,7 @@
 #include "TrackPropagationConfig.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
+#include "AmbiguitySolver_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
@@ -117,6 +118,18 @@ void InitPlugin(JApplication *app) {
             "CentralCKFSeededActsTrajectories",
             "CentralCKFSeededActsTracks",
         },
+        app
+    ));
+
+     app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>( 
+	"AmbiguityResolutionSolver", 
+	{
+	    "CentralCKFSeededActsTracks"
+        },
+	{
+	    "CentralCKFSeededTrackParametersFiltered", 
+            "CentralCKFSeededActsTracksFiltered",
+        }, 
         app
     ));
 
