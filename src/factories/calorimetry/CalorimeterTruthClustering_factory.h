@@ -5,6 +5,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -23,7 +24,8 @@ private:
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level((algorithms::LogLevel)logger()->level());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

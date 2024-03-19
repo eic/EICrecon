@@ -14,9 +14,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
 
@@ -45,7 +43,7 @@ namespace eicrecon {
                             {"outputHitCollection"},
                             "Group readout hits from a calorimeter."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter);
     void process(const Input&, const Output&) const final;
 
   private:
@@ -54,7 +52,6 @@ namespace eicrecon {
   private:
     const dd4hep::Detector* m_detector;
     const dd4hep::rec::CellIDPositionConverter* m_converter;
-    std::shared_ptr<spdlog::logger> m_log;
 
   };
 

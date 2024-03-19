@@ -5,7 +5,7 @@
 
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -26,11 +26,14 @@ private:
 
     ParameterRef<int> m_trackStopLayer {this, "trackStopLayer", config().trackStopLayer};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

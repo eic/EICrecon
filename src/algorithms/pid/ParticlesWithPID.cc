@@ -6,6 +6,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -37,12 +38,11 @@ namespace eicrecon {
 
     ParticlesWithAssociation ParticlesWithPID::process(
             const edm4hep::MCParticleCollection* mc_particles,
-            const edm4eic::TrajectoryCollection* trajectories,
+            const edm4eic::TrackCollection* tracks,
             const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
             ) {
 
         /// Resulting reconstructed particles
-        auto tracks = std::make_unique<edm4eic::TrackCollection>();
         auto parts  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
         auto assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
         auto pids   = std::make_unique<edm4hep::ParticleIDCollection>();
@@ -52,7 +52,8 @@ namespace eicrecon {
 
         std::vector<bool> mc_prt_is_consumed(mc_particles->size(), false);         // MCParticle is already consumed flag
 
-        for (const auto &trajectory: *trajectories) {
+        for (const auto &track: *tracks) {
+          auto trajectory = track.getTrajectory();
           for (const auto &trk: trajectory.getTrackParameters()) {
             const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
                                                         trk.getPhi());
@@ -139,8 +140,6 @@ namespace eicrecon {
                 }
             }
             auto rec_part = parts->create();
-            auto track = tracks->create();
-            track.setTrajectory(trajectory);
             rec_part.addToTracks(track);
             int32_t best_pid = 0;
             auto referencePoint = rec_part.referencePoint();
@@ -215,7 +214,7 @@ namespace eicrecon {
           }
         }
 
-        return std::make_tuple(std::move(tracks), std::move(parts), std::move(assocs), std::move(pids));
+        return std::make_tuple(std::move(parts), std::move(assocs), std::move(pids));
     }
 
     void ParticlesWithPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) {

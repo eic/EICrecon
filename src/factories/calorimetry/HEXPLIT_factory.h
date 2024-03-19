@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/HEXPLIT.h>
-#include <services/geometry/dd4hep/DD4hep_service.h>
-#include <extensions/jana/JOmniFactory.h>
+#include "algorithms/calorimetry/HEXPLIT.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 
 namespace eicrecon {
@@ -22,13 +23,15 @@ class HEXPLIT_factory : public JOmniFactory<HEXPLIT_factory, HEXPLITConfig> {
     ParameterRef<double> m_Emin_in_MIPs     {this, "Emin_in_MIPs",          config().Emin_in_MIPs};
     ParameterRef<double> m_tmax     {this, "tmax",          config().tmax};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
     Service<DD4hep_service> m_geoSvc {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), logger());
+        m_algo->init(m_geoSvc().detector());
     }
 
     void ChangeRun(int64_t run_number) {

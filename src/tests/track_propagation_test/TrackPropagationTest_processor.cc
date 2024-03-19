@@ -4,6 +4,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
@@ -61,7 +62,9 @@ void TrackPropagationTest_processor::Init()
 
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-    m_propagation_algo.init(acts_service->actsGeoProvider(), logger());
+    auto detector = dd4hep::Detector::make_unique("");
+
+    m_propagation_algo.init(detector.get(), acts_service->actsGeoProvider(), logger());
 
     // Create HCal surface that will be used for propagation
     auto transform = Acts::Transform3::Identity();
