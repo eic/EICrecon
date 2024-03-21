@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
