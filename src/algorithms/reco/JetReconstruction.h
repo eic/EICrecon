@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/ClusterSequenceArea.hh>
@@ -18,7 +19,28 @@
 
 namespace eicrecon {
 
-  class JetReconstruction : public WithPodConfig<JetReconstructionConfig> {
+    using JetReconstructionAlgorithm = algorithms::Algorithm<
+      algorithms::Input<
+        edm4eic::ReconstructedParticleCollection
+        >,
+      algorithms::Output<
+        edm4eic::ReconstructedParticleCollection
+        >
+    >;
+
+    class JetReconstruction
+      : public JetReconstructionAlgorithm,
+        public WithPodConfig<JetReconstructionConfig> {
+
+    public:
+
+    JetReconstruction(std::string_view name) :
+      JetReconstructionAlgorithm {
+        name,
+        {"inputReconstructedParticles"},
+        {"outputReconstructedParticles"},
+        "Performs jet reconstruction using a configured FastJet algorithm."
+      } {}
 
     public:
 
@@ -26,7 +48,7 @@ namespace eicrecon {
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
-      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T* input_collection);
+      void process(const Input&, const Output&) const final;
 
     private:
 

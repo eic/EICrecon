@@ -12,10 +12,11 @@ namespace eicrecon {
 
     class JetReconstruction_factory : public JOmniFactory<JetReconstruction_factory, JetReconstructionConfig> {
 
-    private:
-
+    public: 
       // algorithm to run
       using Algo = eicrecon::JetReconstruction;
+
+    private:
       std::unique_ptr<Algo> m_algo;
 
       // input collection
@@ -40,7 +41,7 @@ namespace eicrecon {
     public:
 
       void Configure() {
-        m_algo = std::make_unique<Algo>();
+        m_algo = std::make_unique<Algo>(this->GetPrefix());
         m_algo->applyConfig(config());
         m_algo->init(logger());
       }
@@ -50,7 +51,10 @@ namespace eicrecon {
       }
 
       void Process(int64_t run_number, int64_t event_number) {
-        m_output() = m_algo->process(m_input());
+        m_algo->process(
+	  {m_input()},
+	  {m_output().get()}
+        );
       }
 
     };  // end JetReconstruction_factory definition
