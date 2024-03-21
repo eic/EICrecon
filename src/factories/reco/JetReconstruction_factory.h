@@ -12,7 +12,7 @@ namespace eicrecon {
 
     class JetReconstruction_factory : public JOmniFactory<JetReconstruction_factory, JetReconstructionConfig> {
 
-    public: 
+    public:
       // algorithm to run
       using Algo = eicrecon::JetReconstruction;
 
@@ -52,8 +52,8 @@ namespace eicrecon {
 
       void Process(int64_t run_number, int64_t event_number) {
         m_algo->process(
-	  {m_input()},
-	  {m_output().get()}
+          {m_input()},
+          {m_output().get()}
         );
       }
 
