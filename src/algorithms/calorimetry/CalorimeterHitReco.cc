@@ -39,6 +39,8 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
+unsigned int CalorimeterHitReco::function_id = 0;
+
 void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter) {
     m_detector = detector;
     m_converter = converter;
@@ -60,7 +62,6 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
     }
 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
-    IDDescriptor id_spec;
     try {
         id_spec = m_detector->readout(m_cfg.readout).idSpec();
     } catch(...) {
@@ -109,6 +110,40 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
 
         return;
     }
+
+    id_spec = m_detector->readout(m_cfg.readout).idSpec();
+
+    std::string func_name = fmt::format("_CalorimeterHitReco_{}", function_id++);
+    std::ostringstream sstr;
+    sstr << "double " << func_name << "(double params[]){";
+    unsigned int param_ix = 0;
+    for(const auto &p : id_spec.fields()) {
+      const std::string &name = p.first;
+      const dd4hep::IDDescriptor::Field* field = p.second;
+      sstr << "double " << name << " = params[" << (param_ix++) << "];";
+    }
+    sstr << "return " << m_cfg.sampFrac << ";";
+    sstr << "}";
+    debug("Compiling {}", sstr.str());
+
+    TInterpreter *interp = TInterpreter::Instance();
+    interp->ProcessLine(sstr.str().c_str());
+    std::unique_ptr<TInterpreterValue> func_val { gInterpreter->MakeInterpreterValue() };
+    interp->Evaluate(func_name.c_str(), *func_val);
+    typedef double (*func_t)(double params[]);
+    func_t func = ((func_t)(func_val->GetAsPointer()));
+
+    sampFrac = [this, func, param_ix](const edm4hep::RawCalorimeterHit &h) {
+      std::vector<double> params;
+      params.reserve(param_ix);
+      for(const auto &p : id_spec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.push_back(field->value(h.getCellID()));
+        trace("{} = {}", name, field->value(h.getCellID()));
+      }
+      return func(params.data());
+    };
 
 
     // local detector name has higher priority
@@ -165,19 +200,9 @@ void CalorimeterHitReco::process(
         const int sid =
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
-        // determine sampling fraction
-        float sampFrac = m_cfg.sampFrac;
-        if (! m_cfg.sampFracLayer.empty()) {
-            if (0 <= lid && lid < m_cfg.sampFracLayer.size()) {
-                sampFrac = m_cfg.sampFracLayer[lid];
-            } else {
-                throw std::runtime_error(fmt::format("CalorimeterHitReco: layer-specific sampling fraction undefined for index {}", lid));
-            }
-        }
-
         // convert ADC to energy
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                sampFrac;
+                sampFrac(rh);
 
         const float time = rh.getTimeStamp() / stepTDC;
         trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
