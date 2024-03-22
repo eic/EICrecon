@@ -48,7 +48,7 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 0.0,
             .thresholdValue = 2.0,
-            .sampFrac = 1.0,
+            .sampFrac = "1.0",
             .readout = "LumiSpecCALHits",
             .sectorField = "sector",
           },
