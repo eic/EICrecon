@@ -128,16 +128,16 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
         track_parameter.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface [mm]
-        track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
+        track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
         #if EDM4EIC_VERSION_MAJOR >= 5
           edm4eic::Cov6f cov;
           cov(0,0) = 1.0; // loc0
           cov(1,1) = 1.0; // loc1
-          cov(2,2) = 0.01; // theta
-          cov(3,3) = 0.05; // phi
+          cov(2,2) = 0.05; // phi
+          cov(3,3) = 0.01; // theta
           cov(4,4) = 0.1; // qOverP
           cov(5,5) = 10e9; // time
           track_parameter.setCovariance(cov);
