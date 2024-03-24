@@ -52,8 +52,8 @@ void MatchClusters::process(
 
         // find associated particle
         for (const auto &assoc: *inpartsassoc) {
-            if (assoc.getRecID() == inpart.getObjectID().index) {
-                mcID = assoc.getSimID();
+            if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
+                mcID = assoc.getSim().getObjectID().index;
                 break;
             }
         }
@@ -135,7 +135,7 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
         // find associated particle
         for (const auto assoc: *associations) {
             if (assoc.getRec() == cluster) {
-                mcID = assoc.getSimID();
+                mcID = assoc.getSim().getObjectID().index;
                 break;
             }
         }
