@@ -50,11 +50,11 @@ private:
     ParameterRef<float> m_impactMax {this, "impactMax", config().m_impactMax, "maximum impact parameter allowed for seeds for Acts::OrthogonalSeedFinder. rMin should be larger than impactMax."};
     ParameterRef<float> m_rMinMiddle {this, "rMinMiddle", config().m_rMinMiddle, "min radius for middle space point for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_rMaxMiddle {this, "rMaxMiddle", config().m_rMaxMiddle, "max radius for middle space point for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_Loc_a_Error {this, "Loc_a_Error", config().m_Loc_a_Error, "Error on Loc a for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_Loc_b_Error {this, "Loc_b_Error", config().m_Loc_b_Error, "Error on Loc b for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_loc_a_Error {this, "loc_a_Error", config().m_loc_a_Error, "Error on Loc a for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_loc_b_Error {this, "loc_b_Error", config().m_loc_b_Error, "Error on Loc b for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_theta_Error {this, "theta_Error", config().m_theta_Error, "Error on theta for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_phi_Error {this, "phi_Error", config().m_phi_Error, "Error on phi for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_qOverp_Error {this, "qOverp_Error", config().m_qOverp_Error, "Error on q over p for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_qOverP_Error {this, "qOverP_Error", config().m_qOverP_Error, "Error on q/p for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_time_Error {this, "time_Error", config().m_time_Error, "Error on time for Acts::OrthogonalSeedFinder"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};

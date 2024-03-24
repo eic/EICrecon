@@ -239,17 +239,17 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
         edm4eic::Cov6f cov;
-        cov(0,0) = m_cfg.m_Loc_a_Error; // loc0
-        cov(1,1) = m_cfg.m_Loc_b_Error; // loc1
+        cov(0,0) = m_cfg.m_loc_a_Error; // loc0
+        cov(1,1) = m_cfg.m_loc_b_Error; // loc1
         cov(2,2) = m_cfg.m_phi_Error; // phi
         cov(3,3) = m_cfg.m_theta_Error; // theta
-        cov(4,4) = m_cfg.m_qOverp_Error; // qOverP
+        cov(4,4) = m_cfg.m_qOverP_Error; // qOverP
         cov(5,5) = m_cfg.m_time_Error; // time
         trackparam.setCovariance(cov);
       #else
         trackparam.setCharge(static_cast<float>(charge)); // charge
-        trackparam.setLocError({m_cfg.m_Loc_a_Error, m_cfg.m_Loc_b_Error}); //covariance of location
-        trackparam.setMomentumError({m_cfg.m_theta_Error, m_cfg.m_phi_Error, m_cfg.m_qOverp_Error}); // covariance on theta/phi/q/p
+        trackparam.setLocError({m_cfg.m_loc_a_Error, m_cfg.m_loc_b_Error}); //covariance of location
+        trackparam.setMomentumError({m_cfg.m_theta_Error, m_cfg.m_phi_Error, m_cfg.m_qOverP_Error}); // covariance on theta/phi/q/p
         trackparam.setTimeError(m_cfg.m_time_Error); // error on time
       #endif
     }
