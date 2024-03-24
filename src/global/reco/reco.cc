@@ -19,6 +19,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
+#include "factories/reco/TransformBreitFrame_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/JetReconstruction_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
@@ -200,6 +201,15 @@ void InitPlugin(JApplication *app) {
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},
+            {},
+            app
+    ));
+
+
+    app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
+            "ReconstructedBreitFrameParticles",
+            {"MCParticles","InclusiveKinematicsElectron","ReconstructedParticles"},
+            {"ReconstructedBreitFrameParticles"},
             {},
             app
     ));
