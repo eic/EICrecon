@@ -82,8 +82,8 @@ namespace eicrecon {
     ///Seed Covariance Error Matrix
     float m_loc_a_Error = 1.5;     //Error on Loc a
     float m_loc_b_Error = 1.5;     //Error on Loc b
-    float m_theta_Error = 0.002;   //Error on theta
     float m_phi_Error = 0.02;      //Error on phi
+    float m_theta_Error = 0.002;   //Error on theta
     float m_qOverP_Error = 0.025;  //Error on q over p
     float m_time_Error = 0.1;      //Error on time
   };
