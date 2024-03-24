@@ -5,6 +5,8 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <podio/ObjectID.h>
+
 #include "algorithms/reco/ElectronReconstructionConfig.h"
 
 namespace eicrecon {
