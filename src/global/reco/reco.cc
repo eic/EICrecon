@@ -37,7 +37,7 @@ void InitPlugin(JApplication *app) {
     // Finds associations matched to initial scattered electrons
     app->Add(new JOmniFactoryGeneratorT<FilterByAssociations_factory<edm4hep::MCParticle, edm4eic::MCRecoParticleAssociation, &edm4eic::MCRecoParticleAssociation::getSim>>(
           "MCScatteredElectronAssociations",
-          {"ScatteredElectrons", "ReconstructedChargedParticleAssociations"},
+          {"MCScatteredElectrons", "ReconstructedChargedParticleAssociations"},
           {"MCScatteredElectronAssociations","MCNotScatteredElectronAssociations"},
           app
     ));
