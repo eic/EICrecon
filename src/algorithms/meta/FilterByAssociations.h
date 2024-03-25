@@ -4,7 +4,6 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <string>
 #include <string_view>
