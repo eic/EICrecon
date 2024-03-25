@@ -63,7 +63,7 @@ namespace eicrecon {
                 break;
               }
             }
-            
+
             if(!foundAssociation){
               is_not_associated->push_back(associatedEntry);
             }
