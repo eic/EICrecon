@@ -201,7 +201,7 @@ void CalorimeterHitReco::process(
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
         // convert ADC to energy
-	float sampFrac_value = sampFrac(rh);
+        float sampFrac_value = sampFrac(rh);
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
                 sampFrac_value;
 
