@@ -38,7 +38,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<FilterByAssociations_factory<edm4hep::MCParticle, edm4eic::MCRecoParticleAssociation, &edm4eic::MCRecoParticleAssociation::getSim>>(
           "MCScatteredElectronAssociations",
           {"ScatteredElectrons", "ReconstructedChargedParticleAssociations"},
-          {"MCScatteredElectronAssociations"},
+          {"MCScatteredElectronAssociations","MCNotScatteredElectronAssociations"},
           app
     ));
 

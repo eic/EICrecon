@@ -21,6 +21,7 @@ namespace eicrecon {
         typename TA::collection_type
         >,
        typename algorithms::Output<
+        typename TA::collection_type,
         typename TA::collection_type
         >
      >;
@@ -33,7 +34,7 @@ namespace eicrecon {
     FilterByAssociations(std::string_view name)
       : FilterByAssociationsAlgorithm<T,TA>{name,
                         {"inputCollection","associatedCollection"},
-                        {"outputCollection"},
+                        {"isAssociatedCollection","isNotAssociatedCollection"},
                         "Filter associated collection"
                       } {
         };
@@ -43,15 +44,19 @@ namespace eicrecon {
         void process(const typename FilterByAssociationsAlgorithm<T,TA>::Input& input, const typename FilterByAssociationsAlgorithm<T,TA>::Output& output) const final{
 
           const auto [entries,associatedEntries] = input;
-          auto [filtered_associations]           = output;
+          auto [is_associated,is_not_associated] = output;
 
-          filtered_associations->setSubsetCollection();
+          is_associated->setSubsetCollection();
+          is_not_associated->setSubsetCollection();
 
           for (const auto& entry : *entries) {
 
             for (const auto& associatedEntries : *associatedEntries){
               if(entry == (associatedEntries.*MemberFunctionPtr)()){
-                filtered_associations->push_back(associatedEntries);
+                is_associated->push_back(associatedEntries);
+              }
+              else{
+                is_not_associated->push_back(associatedEntries);
               }
             }
 

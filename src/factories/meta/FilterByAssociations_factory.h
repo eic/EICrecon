@@ -21,7 +21,8 @@ class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_fa
 
     typename FactoryT::template PodioInput<T>   m_collection_input {this};
     typename FactoryT::template PodioInput<TA>  m_associated_input {this};
-    typename FactoryT::template PodioOutput<TA> m_filtered_output {this};
+    typename FactoryT::template PodioOutput<TA> m_is_associated_output     {this};
+    typename FactoryT::template PodioOutput<TA> m_is_not_associated_output {this};
 
   public:
     void Configure() {
@@ -33,7 +34,7 @@ class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_fa
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_collection_input(),m_associated_input()},m_filtered_output().get());
+      m_algo->process({m_collection_input(),m_associated_input()},{m_is_associated_output().get(),m_is_not_associated_output().get()});
     };
 }; // FilterByAssociations_factory
 } // eicrecon
