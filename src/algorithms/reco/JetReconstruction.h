@@ -42,7 +42,7 @@ namespace eicrecon {
         name,
         {"inputReconstructedParticles"},
         {"outputReconstructedParticles"},
-        "Performs jet reconstruction using a configured FastJet algorithm."
+        "Performs jet reconstruction using a FastJet algorithm."
       } {}
 
     public:
