@@ -47,6 +47,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
+			"MCParticlesPostBurn",
             "BeamElectrons",
             "BeamProtons",
 
@@ -121,6 +122,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
+			"ReconstructedChargedParticlesPsuedoPostBurn",
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
