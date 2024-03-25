@@ -5,6 +5,7 @@
 
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <fastjet/AreaDefinition.hh>
+#include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/JetDefinition.hh>
 #include <spdlog/logger.h>
 #include <map>
@@ -30,6 +31,11 @@ namespace eicrecon {
     private:
 
       std::shared_ptr<spdlog::logger> m_log;
+
+      // fastjet components
+      std::unique_ptr<fastjet::JetDefinition> m_jet_def;
+      std::unique_ptr<fastjet::AreaDefinition> m_area_def;
+      std::unique_ptr<fastjet::ClusterSequenceArea> m_clus_seq;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {

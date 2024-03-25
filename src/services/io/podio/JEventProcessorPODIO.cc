@@ -128,6 +128,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
+            "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
