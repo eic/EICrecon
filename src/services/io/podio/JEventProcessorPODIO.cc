@@ -56,6 +56,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCBeamProtons",
             "MCScatteredElectrons",
             "MCScatteredProtons",
+            "BeamElectrons",
+            "BeamProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
