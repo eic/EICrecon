@@ -181,10 +181,10 @@ void CalorimeterHitReco::process(
         // convert ADC to energy
         float sampFrac_value = sampFrac(rh);
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                sampFrac(rh);
+                sampFrac_value;
 
         const float time = rh.getTimeStamp() / stepTDC;
-        trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
+        trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy, rh.getTimeStamp(), time, sampFrac_value);
 
         dd4hep::DetElement local;
         dd4hep::Position gpos;
