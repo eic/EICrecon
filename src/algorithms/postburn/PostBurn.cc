@@ -122,11 +122,14 @@ void eicrecon::PostBurn::process(
 
 				edm4hep::Vector3f prec = {static_cast<float>(mc.Px()), static_cast<float>(mc.Py()),
 					                static_cast<float>(mc.Pz())};
+				//edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
+                //                static_cast<float>(p / norm)};
 
 				edm4hep::MutableMCParticle reconTrack;
 				//auto reconTrack = mcparts->create();
     			//reconTrack.setType(0);
     			reconTrack.setMomentum(prec);
+    			reconTrack.setMomentum(p.getMomentum());
     			//reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
     			//reconTrack.setEnergy(mc.E());
 				//reconTrack.setReferencePoint(refPoint);
