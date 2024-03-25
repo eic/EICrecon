@@ -49,15 +49,23 @@ namespace eicrecon {
           is_associated->setSubsetCollection();
           is_not_associated->setSubsetCollection();
 
-          for (const auto& entry : *entries) {
+          for (const auto& associatedEntry : *associatedEntries){
 
-            for (const auto& associatedEntries : *associatedEntries){
-              if(entry == (associatedEntries.*MemberFunctionPtr)()){
-                is_associated->push_back(associatedEntries);
+            auto associationID = (associatedEntry.*MemberFunctionPtr)().getObjectID();
+
+            bool foundAssociation = false;
+
+            // Tries to find the association in the entries
+            for(const auto& entry : *entries){
+              if(entry.getObjectID() == associationID){
+                is_associated->push_back(associatedEntry);
+                foundAssociation = true;
+                break;
               }
-              else{
-                is_not_associated->push_back(associatedEntries);
-              }
+            }
+            
+            if(!foundAssociation){
+              is_not_associated->push_back(associatedEntry);
             }
 
           }
