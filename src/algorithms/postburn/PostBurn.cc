@@ -16,29 +16,35 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
+#include <TVector3.h>
+#include <TLorentzVector.h>
 
-#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/postburn/PostBurnConfig.h"
 
-void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
-                                          std::shared_ptr<spdlog::logger> &logger) {
+void eicrecon::PostBurn::init(std::shared_ptr<spdlog::logger> &logger) {
 
   m_log       = logger;
-  m_detector  = det;
-  //Calculate inverse of static transfer matrix
-
+  
 }
 
 void eicrecon::PostBurn::process(
     const PostBurn::Input& input,
     const PostBurn::Output& output) const {
 
-  	const auto [mcparts, rechits] = input;
+  	const auto [mcparts, recparticles, recParticlesAssoc] = input;
   	auto [outputParticles] = output;
 
 
   	//----- Define constants here ------
 
   	//GET CROSSING ANGLE INFORMATION HERE FROM HEADER!!!!
+
+
+	bool      pidAssumePionMass = m_cfg.pidAssumePionMass;
+    double    crossingAngle    = m_cfg.crossingAngle;
+    double    pidPurity        = m_cfg.pidPurity;
+	bool      correctBeamFX    = m_cfg.correctBeamFX;
+    bool      pidUseMCTruth    = m_cfg.pidUseMCTruth;
 
 	
   	//read MCParticles information for status == 1 particles and post-burn
@@ -47,21 +53,34 @@ void eicrecon::PostBurn::process(
   	TLorentzVector h_beam(0.,0.,0.,0.);
   
     //First, extract beams -- need to add conditional flags after
-  	for (const auto& p: *mcparts) {
+  	if(correctBeamFX == true){
+		for (const auto& p: *mcparts) {
         
-  		  if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+  		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
                 h_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-  		  }
-  		  if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
+  		  	}
+  		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
                 e_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-  		  }
-		  
-  	}
+  		  	}
+		 }
+	}
+	else{
+		for (const auto& p: *mcparts) {
+
+            if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+                
+				h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
+            }
+            if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
+                e_beam.SetPxPyPzE(0.0, 0.0, -p.getEnergy(), p.getEnergy());
+            }
+         }
+	}
 
 	//Calculate boost vectors and rotations here
 
 	TLorentzVector cm_frame_boost = e_beam + h_beam;
-	TLorentzVector tmp(-cm_frame_boost[0], -cm_frame_boost[1], -cm_frame_boost[2], cm_frame_boost[3],)
+	TLorentzVector tmp(-cm_frame_boost[0], -cm_frame_boost[1], -cm_frame_boost[2], cm_frame_boost[3]);
 	
 	TVector3 boostVector(0.,0.,0.);
 	boostVector = tmp.BoostVector();
@@ -83,11 +102,13 @@ void eicrecon::PostBurn::process(
 	//Boost back to proper head-on frame
 	
 	TLorentzVector head_on_frame_boost(0., 0., cm_frame_boost[2], cm_frame_boost[3]);
-	TVector headOnBoostVector(0.,0.,0.);
+	TVector3 headOnBoostVector(0.,0.,0.);
 	headOnBoostVector = head_on_frame_boost.BoostVector();
 	
 	e_beam.Boost(headOnBoostVector);
 	h_beam.Boost(headOnBoostVector);
+
+	int pdgCode = 0;
 
     //Now, loop through events and apply operations to final-state particles
   	for (const auto& p: *mcparts) {
@@ -98,26 +119,32 @@ void eicrecon::PostBurn::process(
 				mc.RotateY(rotationAboutY);
 				mc.RotateX(rotationAboutX);
 				mc.Boost(headOnBoostVector);
-  		  }
-  		  
-		  
+
+				//edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
+                //                static_cast<float>(p / norm)};
+
+				edm4hep::MutableMCParticle reconTrack;
+				//auto reconTrack = mcparts->create();
+    			//reconTrack.setType(0);
+    			reconTrack.setMomentum(p.getMomentum());
+    			//reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+    			//reconTrack.setEnergy(mc.E());
+				//reconTrack.setReferencePoint(refPoint);
+    			reconTrack.setCharge(p.getCharge());
+    			//reconTrack.setGoodnessOfPID(1.);
+    			if(pidUseMCTruth){ 
+					reconTrack.setPDG(p.getPDG()); 
+					reconTrack.setMass(p.getMass());
+				}
+				if(!pidUseMCTruth && pidAssumePionMass){ 
+					reconTrack.setPDG(211);
+					reconTrack.setMass(0.13957);
+				}
+    			//reconTrack.covMatrix(); // @TODO: Errors
+    			outputParticles->push_back(reconTrack);
+
+			}
   	}
 
-    edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
-                                static_cast<float>(p / norm)};
-
-    //----- end reconstruction code ------
-
-    edm4eic::MutableReconstructedParticle reconTrack;
-    reconTrack.setType(0);
-    reconTrack.setMomentum(prec);
-    reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
-    reconTrack.setReferencePoint(refPoint);
-    reconTrack.setCharge(m_cfg.partCharge);
-    reconTrack.setMass(m_cfg.partMass);
-    reconTrack.setGoodnessOfPID(1.);
-    reconTrack.setPDG(m_cfg.partPDG);
-    //reconTrack.covMatrix(); // @TODO: Errors
-    outputParticles->push_back(reconTrack);
 
 }

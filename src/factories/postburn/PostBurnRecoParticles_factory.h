@@ -2,7 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-//#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/postburn/PseudoPostBurn.h"
+#include "algorithms/postburn/PostBurnConfig.h"
 
 // Event Model related classes
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -14,10 +15,10 @@
 namespace eicrecon {
 
 class PostBurnRecoParticles_factory :
-    public JOmniFactory<PostBurnRecoParticles_factory> { //, MatrixTransferStaticConfig> {
+    public JOmniFactory<PostBurnRecoParticles_factory, PostBurnConfig> {
 
 public:
-    using AlgoT = eicrecon::PostBurn;
+    using AlgoT = eicrecon::PseudoPostBurn;
 private:
     std::unique_ptr<AlgoT> m_algo;
 
@@ -26,24 +27,17 @@ private:
 	PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparts_assoc_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_postburn_output {this};
 
-    ParameterRef<float>     partMass  {this, "partMass", config().partMass};
-    ParameterRef<float>     partCharge{this, "partCharge", config().partCharge};
-    ParameterRef<long long> partPDG   {this, "partPDG", config().partPDG};
-
-    ParameterRef<double> crossingAngle       {this, "crossingAngle", config().crossingAngle};
-    ParameterRef<double> nomMomentum         {this, "nomMomentum", config().nomMomentum};
-
-    // FIXME JANA2 does not support vector of vector
-    //ParameterRef<std::vector<std::vector<double>>> aX {this, "aX", config().aX};
-    //ParameterRef<std::vector<std::vector<double>>> aY {this, "aY", config().aY};
-
-
-    ParameterRef<std::string> readout {this, "readout", config().readout};
+	ParameterRef<bool>      pidAssumePionMass{this, "pidAssumePionMass", config().pidAssumePionMass};
+    ParameterRef<double>    crossingAngle{this, "crossingAngle", config().crossingAngle};
+    ParameterRef<double>    pidPurity{this, "pidPurity", config().pidPurity};
+    ParameterRef<bool>      correctBeamFX       {this, "correctBeamFX", config().correctBeamFX};
+    ParameterRef<bool>      pidUseMCTruth         {this, "pidUseMCTruth", config().pidUseMCTruth};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->applyConfig(config());
+		m_algo->init(logger());
     }
 
     void ChangeRun(int64_t run_number) {

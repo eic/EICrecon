@@ -7,7 +7,7 @@
 #include <JANA/JApplication.h>
 #include <vector>
 
-//#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/postburn/PostBurnConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/postburn/PostBurnMCParticles_factory.h"
 #include "factories/postburn/PostBurnRecoParticles_factory.h"
@@ -18,6 +18,25 @@ extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     using namespace eicrecon;
+
+
+	PostBurnConfig postburn_config;
+	PostBurnConfig pseudoPostBurn_config;
+
+
+	//Full correction for MCParticles --> MCParticlesPostBurn
+	postburn_config.pidAssumePionMass = false;
+	postburn_config.crossingAngle    = 0.025 * dd4hep::rad;
+	postburn_config.pidPurity        = 0.51;
+	postburn_config.correctBeamFX    = true;
+	postburn_config.pidUseMCTruth    = true;
+
+	//Pseudo post burn for ReconstructedChargedParticles --> ReconstructedChargedParticlesPsuedoPostBurn
+	pseudoPostBurn_config.pidAssumePionMass = true;
+	pseudoPostBurn_config.crossingAngle    = 0.025 * dd4hep::rad;
+	pseudoPostBurn_config.pidPurity        = 0.51;
+	pseudoPostBurn_config.correctBeamFX    = false;
+	pseudoPostBurn_config.pidUseMCTruth    = false;
 
 
 	//Need to read-in MCParticles and ReconstructedChargedParticles
@@ -32,14 +51,8 @@ void InitPlugin(JApplication *app) {
 	        {
 	          "MCParticlesPostBurn"
 	        },
-			{
-				.crossingAngle = -0.025 * dd4hep::rad;
-				.correctBeamFX = true;
-				.pidPurity = 0.51; //dummy for now
-				.pidAssumePionMass = false;
-				
-			}
-	        app
+			postburn_config,
+			app
 	    ));
 			
 	app->Add(new JOmniFactoryGeneratorT<PostBurnRecoParticles_factory>(
@@ -52,20 +65,9 @@ void InitPlugin(JApplication *app) {
 	        {
 	          "ReconstructedChargedParticlesPsuedoPostBurn"
 	        },
-			{
-				.crossingAngle = -0.025 * dd4hep::rad;
-				.correctBeamFX = false;
-				.pidPurity = 0.51; //dummy for now
-				.pidAssumePionMass = true;
-		
-			}
+			pseudoPostBurn_config,
 	        app
 	    ));
-	
-
-   
-
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
-
+			
 }
 }
