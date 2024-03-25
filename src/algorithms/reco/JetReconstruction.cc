@@ -23,7 +23,8 @@ using namespace fastjet;
 
 namespace eicrecon {
 
-  void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+  template <typename InputT>
+  void JetReconstruction<InputT>::init(std::shared_ptr<spdlog::logger> logger) {
 
     m_log = logger;
     m_log->trace("Initialized");
@@ -79,10 +80,10 @@ namespace eicrecon {
 
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
-
-  void JetReconstruction::process(
-                                  const JetReconstruction::Input& input,
-                                  const JetReconstruction::Output& output
+  template <typename InputT>
+  void JetReconstruction<InputT>::process(
+                                  const typename JetReconstructionAlgorithm<InputT>::Input& input,
+                                  const typename JetReconstructionAlgorithm<InputT>::Output& output
                                  ) const {
     // Grab input collections
     const auto [input_collection] = input;
@@ -140,5 +141,7 @@ namespace eicrecon {
     // return the jets
     return;
   }  // end 'process(const T&)'
+
+  template class JetReconstruction<edm4eic::ReconstructedParticle>;
 
 }  // end namespace eicrecon

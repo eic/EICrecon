@@ -10,40 +10,42 @@
 
 namespace eicrecon {
 
-    class JetReconstruction_factory : public JOmniFactory<JetReconstruction_factory, JetReconstructionConfig> {
+    template <typename InputT>
+    class JetReconstruction_factory : public JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig> {
 
     public:
       // algorithm to run
-      using Algo = eicrecon::JetReconstruction;
+      using Algo = eicrecon::JetReconstruction<InputT>;
+      using FactoryT = JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig>;
 
     private:
       std::unique_ptr<Algo> m_algo;
 
       // input collection
-      PodioInput<edm4eic::ReconstructedParticle> m_input {this};
+      typename FactoryT::template PodioInput<InputT> m_input {this};
 
       // output collection
-      PodioOutput<edm4eic::ReconstructedParticle> m_output {this};
+      typename FactoryT::template PodioOutput<edm4eic::ReconstructedParticle> m_output {this};
 
       // parameter bindings
-      ParameterRef<float>       m_rJet {this, "rJet", config().rJet};
-      ParameterRef<float>       m_pJet {this, "pJet", config().pJet};
-      ParameterRef<double>      m_minCstPt {this, "minCstPt", config().minCstPt};
-      ParameterRef<double>      m_maxCstPt {this, "maxCstPt", config().maxCstPt};
-      ParameterRef<double>      m_minJetPt {this, "minJetPt", config().minJetPt};
-      ParameterRef<double>      m_ghostMaxRap {this, "ghostMaxRap", config().ghostMaxRap};
-      ParameterRef<double>      m_ghostArea {this, "ghostArea", config().ghostArea};
-      ParameterRef<int>         m_numGhostRepeat {this, "numGhostRepeat", config().numGhostRepeat};
-      ParameterRef<std::string> m_jetAlgo {this, "jetAlgo", config().jetAlgo};
-      ParameterRef<std::string> m_recombScheme {this, "recombScheme", config().recombScheme};
-      ParameterRef<std::string> m_areaType {this, "areaType", config().areaType};
+      typename FactoryT::template ParameterRef<float>       m_rJet {this, "rJet", FactoryT::config().rJet};
+      typename FactoryT::template ParameterRef<float>       m_pJet {this, "pJet", FactoryT::config().pJet};
+      typename FactoryT::template ParameterRef<double>      m_minCstPt {this, "minCstPt", FactoryT::config().minCstPt};
+      typename FactoryT::template ParameterRef<double>      m_maxCstPt {this, "maxCstPt", FactoryT::config().maxCstPt};
+      typename FactoryT::template ParameterRef<double>      m_minJetPt {this, "minJetPt", FactoryT::config().minJetPt};
+      typename FactoryT::template ParameterRef<double>      m_ghostMaxRap {this, "ghostMaxRap", FactoryT::config().ghostMaxRap};
+      typename FactoryT::template ParameterRef<double>      m_ghostArea {this, "ghostArea", FactoryT::config().ghostArea};
+      typename FactoryT::template ParameterRef<int>         m_numGhostRepeat {this, "numGhostRepeat", FactoryT::config().numGhostRepeat};
+      typename FactoryT::template ParameterRef<std::string> m_jetAlgo {this, "jetAlgo", FactoryT::config().jetAlgo};
+      typename FactoryT::template ParameterRef<std::string> m_recombScheme {this, "recombScheme", FactoryT::config().recombScheme};
+      typename FactoryT::template ParameterRef<std::string> m_areaType {this, "areaType", FactoryT::config().areaType};
 
     public:
 
       void Configure() {
         m_algo = std::make_unique<Algo>(this->GetPrefix());
-        m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->applyConfig(FactoryT::config());
+        m_algo->init(FactoryT::logger());
       }
 
       void ChangeRun(int64_t run_number) {

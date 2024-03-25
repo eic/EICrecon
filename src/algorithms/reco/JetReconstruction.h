@@ -20,23 +20,25 @@
 
 namespace eicrecon {
 
+    template <typename InputT>
     using JetReconstructionAlgorithm = algorithms::Algorithm<
       algorithms::Input<
-        edm4eic::ReconstructedParticleCollection
+        typename InputT::collection_type
         >,
       algorithms::Output<
         edm4eic::ReconstructedParticleCollection
         >
     >;
 
+    template <typename InputT>
     class JetReconstruction
-      : public JetReconstructionAlgorithm,
+      : public JetReconstructionAlgorithm<InputT>,
         public WithPodConfig<JetReconstructionConfig> {
 
     public:
 
     JetReconstruction(std::string_view name) :
-      JetReconstructionAlgorithm {
+      JetReconstructionAlgorithm<InputT> {
         name,
         {"inputReconstructedParticles"},
         {"outputReconstructedParticles"},
@@ -49,7 +51,7 @@ namespace eicrecon {
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
-      void process(const Input&, const Output&) const final;
+      void process(const typename eicrecon::JetReconstructionAlgorithm<InputT>::Input&, const typename eicrecon::JetReconstructionAlgorithm<InputT>::Output&) const final;
 
     private:
 
