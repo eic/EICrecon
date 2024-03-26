@@ -233,16 +233,16 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)
       trackparam.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
-      trackparam.setTheta(theta); //theta [rad]
       trackparam.setPhi(static_cast<float>(phi)); // phi [rad]
+      trackparam.setTheta(theta); //theta [rad]
       trackparam.setQOverP(qOverP); // Q/p [e/GeV]
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
         edm4eic::Cov6f cov;
         cov(0,0) = 0.1; // loc0
         cov(1,1) = 0.1; // loc1
-        cov(2,2) = 0.05; // theta
-        cov(3,3) = 0.05; // phi
+        cov(2,2) = 0.05; // phi
+        cov(3,3) = 0.05; // theta
         cov(4,4) = 0.05; // qOverP
         cov(5,5) = 0.1; // time
         trackparam.setCovariance(cov);
