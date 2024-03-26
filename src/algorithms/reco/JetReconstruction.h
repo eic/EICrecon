@@ -60,7 +60,6 @@ namespace eicrecon {
       // fastjet components
       std::unique_ptr<fastjet::JetDefinition> m_jet_def;
       std::unique_ptr<fastjet::AreaDefinition> m_area_def;
-      std::unique_ptr<fastjet::ClusterSequenceArea> m_clus_seq;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {
