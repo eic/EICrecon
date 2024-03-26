@@ -20,8 +20,8 @@
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#include "factories/reco/JetReconstruction_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "global/reco/JetReconstruction_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
@@ -166,7 +166,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedJets",
             {"GeneratedParticles"},
             {"GeneratedJets"},
@@ -174,7 +174,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "ReconstructedJets",
             {"ReconstructedParticles"},
             {"ReconstructedJets"},
@@ -189,7 +189,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedChargedJets",
             {"GeneratedChargedParticles"},
             {"GeneratedChargedJets"},
@@ -197,7 +197,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},
