@@ -9,7 +9,7 @@ namespace eicrecon {
 
 		bool pidAssumePionMass 	   {false};
 		double pidPurity           {0.51};
-    	double crossingAngle       {0.025};
+    	double crossingAngle       {-0.025};
     	bool correctBeamFX         {true};
 		bool pidUseMCTruth         {true};
 

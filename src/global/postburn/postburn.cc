@@ -26,14 +26,14 @@ void InitPlugin(JApplication *app) {
 
 	//Full correction for MCParticles --> MCParticlesPostBurn
 	postburn_config.pidAssumePionMass = false;
-	postburn_config.crossingAngle    = 0.025 * dd4hep::rad;
+	postburn_config.crossingAngle    = -0.025 * dd4hep::rad;
 	postburn_config.pidPurity        = 0.51;
 	postburn_config.correctBeamFX    = true;
 	postburn_config.pidUseMCTruth    = true;
 
 	//Pseudo post burn for ReconstructedChargedParticles --> ReconstructedChargedParticlesPsuedoPostBurn
 	pseudoPostBurn_config.pidAssumePionMass = true;
-	pseudoPostBurn_config.crossingAngle    = 0.025 * dd4hep::rad;
+	pseudoPostBurn_config.crossingAngle    = -0.025 * dd4hep::rad;
 	pseudoPostBurn_config.pidPurity        = 0.51;
 	pseudoPostBurn_config.correctBeamFX    = false;
 	pseudoPostBurn_config.pidUseMCTruth    = false;

@@ -56,7 +56,7 @@ void eicrecon::PseudoPostBurn::process(
   	if(correctBeamFX == true){
 		for (const auto& p: *mcparts) {
         
-  		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+  		  	if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton or neutron (when using BeAGLE)
                 h_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
   		  	}
   		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
@@ -67,8 +67,7 @@ void eicrecon::PseudoPostBurn::process(
 	else{
 		for (const auto& p: *mcparts) {
 
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-                
+            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton
 				h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
             }
             if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
@@ -111,39 +110,37 @@ void eicrecon::PseudoPostBurn::process(
 	int pdgCode = 0;
 
     //Now, loop through events and apply operations to final-state particles
-  	for (const auto& p: *mcparts) {
-        
-  		  if(p.getGeneratorStatus() == 1) { //look for "beam" proton
-                TLorentzVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-				mc.Boost(boostVector);
-				mc.RotateY(rotationAboutY);
-				mc.RotateX(rotationAboutX);
-				mc.Boost(headOnBoostVector);
+  	for (const auto& p: *recparticles) {
+        			
+    	TLorentzVector recpart(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
+		recpart.Boost(boostVector);
+		recpart.RotateY(rotationAboutY);
+		recpart.RotateX(rotationAboutX);
+		recpart.Boost(headOnBoostVector);
 
-				//edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
-                //                static_cast<float>(p / norm)};
+		edm4hep::Vector3f prec = {static_cast<float>(recpart.Px()), static_cast<float>(recpart.Py()),
+					                static_cast<float>(recpart.Pz())};
 
-				edm4eic::MutableReconstructedParticle reconTrack;
-    			reconTrack.setType(0);
-    			reconTrack.setMomentum(p.getMomentum());
-    			//reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
-    			reconTrack.setEnergy(mc.E());
-				//reconTrack.setReferencePoint(refPoint);
-    			reconTrack.setCharge(p.getCharge());
-    			reconTrack.setGoodnessOfPID(1.);
-    			if(pidUseMCTruth){ 
-					reconTrack.setPDG(p.getPDG()); 
-					reconTrack.setMass(p.getMass());
-				}
-				if(!pidUseMCTruth && pidAssumePionMass){ 
-					reconTrack.setPDG(211);
-					reconTrack.setMass(0.13957);
-				}
-    			//reconTrack.covMatrix(); // @TODO: Errors
-    			outputParticles->push_back(reconTrack);
-
-			}
-  	}
+		edm4eic::MutableReconstructedParticle reconTrack;
+    	reconTrack.setType(0);
+    	reconTrack.setMomentum(prec);
+    	//reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+    	reconTrack.setEnergy(recpart.E());
+		//reconTrack.setReferencePoint(refPoint);
+    	reconTrack.setCharge(p.getCharge());
+    	reconTrack.setGoodnessOfPID(1.);
+    	if(pidUseMCTruth){ 
+			reconTrack.setPDG(p.getPDG()); 
+			reconTrack.setMass(p.getMass());
+		}
+		if(!pidUseMCTruth && pidAssumePionMass){ 
+			reconTrack.setPDG(211);
+			reconTrack.setMass(0.13957);
+		}
+    	//reconTrack.covMatrix(); // @TODO: Errors
+    	outputParticles->push_back(reconTrack);
+	}
 
 
 }
+

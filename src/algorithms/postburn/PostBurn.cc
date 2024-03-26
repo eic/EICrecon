@@ -56,7 +56,7 @@ void eicrecon::PostBurn::process(
   	if(correctBeamFX == true){
 		for (const auto& p: *mcparts) {
         
-  		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+  		  	if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton
                 h_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
   		  	}
   		  	if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
@@ -67,7 +67,7 @@ void eicrecon::PostBurn::process(
 	else{
 		for (const auto& p: *mcparts) {
 
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton
                 
 				h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
             }
@@ -120,13 +120,13 @@ void eicrecon::PostBurn::process(
 				mc.RotateX(rotationAboutX);
 				mc.Boost(headOnBoostVector);
 
-				//edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
-                //                static_cast<float>(p / norm)};
+				edm4hep::Vector3f prec = {static_cast<float>(mc.Px()), static_cast<float>(mc.Py()),
+					                static_cast<float>(mc.Pz())};
 
 				edm4hep::MutableMCParticle reconTrack;
 				//auto reconTrack = mcparts->create();
     			//reconTrack.setType(0);
-    			reconTrack.setMomentum(p.getMomentum());
+    			reconTrack.setMomentum(prec);
     			//reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
     			//reconTrack.setEnergy(mc.E());
 				//reconTrack.setReferencePoint(refPoint);
@@ -148,3 +148,4 @@ void eicrecon::PostBurn::process(
 
 
 }
+
