@@ -1,6 +1,7 @@
 leak:CherenkovPID::AddMassHypothesis
 leak:dd4hep::DetElement::DetElement
 leak:dd4hep::Header::Header
+leak:edm4eic::*::createBuffers
 leak:edm4hep::*::createBuffers
 leak:libActsCore.so
 leak:libCling.so
