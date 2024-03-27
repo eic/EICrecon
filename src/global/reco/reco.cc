@@ -4,23 +4,27 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <algorithm>
-#include <string>
+#include <map>
+#include <memory>
 
-#include "ChargedReconstructedParticleSelector_factory.h"
-#include "InclusiveKinematicsDA_factory.h"
-#include "InclusiveKinematicsElectron_factory.h"
-#include "InclusiveKinematicsJB_factory.h"
-#include "InclusiveKinematicsSigma_factory.h"
-#include "InclusiveKinematicsTruth_factory.h"
-#include "InclusiveKinematicseSigma_factory.h"
-#include "JetReconstruction_factory.h"
-#include "MC2SmearedParticle_factory.h"
-#include "MatchClusters_factory.h"
-#include "ReconstructedElectrons_factory.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
+#include "algorithms/reco/InclusiveKinematicsDA.h"
+#include "algorithms/reco/InclusiveKinematicsElectron.h"
+#include "algorithms/reco/InclusiveKinematicsJB.h"
+#include "algorithms/reco/InclusiveKinematicsSigma.h"
+#include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
+#include "factories/meta/CollectionCollector_factory.h"
+#include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
+#include "factories/reco/InclusiveKinematicsTruth_factory.h"
+#include "factories/reco/TransformBreitFrame_factory.h"
+#include "factories/reco/JetReconstruction_factory.h"
+#include "global/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "global/reco/MC2SmearedParticle_factory.h"
+#include "global/reco/MatchClusters_factory.h"
+#include "global/reco/ReconstructedElectrons_factory.h"
 
 //
 extern "C" {
@@ -36,18 +40,34 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
-    app->Add(new JChainMultifactoryGeneratorT<MatchClusters_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster>>(
+        "EcalClusters",
+        {
+          "EcalEndcapNClusters",
+          "EcalBarrelScFiClusters",
+          "EcalEndcapPClusters",
+        },
+        {"EcalClusters"},
+        app));
+
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation>>(
+        "EcalClusterAssociations",
+        {
+          "EcalEndcapNClusterAssociations",
+          "EcalBarrelScFiClusterAssociations",
+          "EcalEndcapPClusterAssociations",
+        },
+        {"EcalClusterAssociations"},
+        app));
+
+    app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
         "ReconstructedParticlesWithAssoc",
         {
           "MCParticles",
           "ReconstructedChargedParticles",
           "ReconstructedChargedParticleAssociations",
-          "EcalEndcapNClusters",
-          "EcalEndcapNClusterAssociations",
-          "EcalBarrelScFiClusters",
-          "EcalBarrelScFiClusterAssociations",
-          "EcalEndcapPClusters",
-          "EcalEndcapPClusterAssociations"
+          "EcalClusters",
+          "EcalClusterAssociations",
         },
         { "ReconstructedParticles",           // edm4eic::ReconstructedParticle
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
@@ -56,7 +76,7 @@ void InitPlugin(JApplication *app) {
     ));
 
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsElectron_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
         "InclusiveKinematicsElectron",
         {
           "MCParticles",
@@ -80,7 +100,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsJB_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
         "InclusiveKinematicsJB",
         {
           "MCParticles",
@@ -93,7 +113,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsDA_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
         "InclusiveKinematicsDA",
         {
           "MCParticles",
@@ -106,7 +126,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicseSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicseSigma>>(
         "InclusiveKinematicseSigma",
         {
           "MCParticles",
@@ -119,7 +139,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsSigma_factory>(
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
         "InclusiveKinematicsSigma",
         {
           "MCParticles",
@@ -146,7 +166,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedJets",
             {"GeneratedParticles"},
             {"GeneratedJets"},
@@ -154,7 +174,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "ReconstructedJets",
             {"ReconstructedParticles"},
             {"ReconstructedJets"},
@@ -169,7 +189,7 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedChargedJets",
             {"GeneratedChargedParticles"},
             {"GeneratedChargedJets"},
@@ -177,10 +197,19 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "ReconstructedChargedJets",
             {"ReconstructedChargedParticles"},
             {"ReconstructedChargedJets"},
+            {},
+            app
+    ));
+
+
+    app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
+            "ReconstructedBreitFrameParticles",
+            {"MCParticles","InclusiveKinematicsElectron","ReconstructedParticles"},
+            {"ReconstructedBreitFrameParticles"},
             {},
             app
     ));
