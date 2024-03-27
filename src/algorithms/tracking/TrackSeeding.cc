@@ -20,6 +20,7 @@
 #include <boost/container/vector.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <cmath>
 #include <functional>
 #include <limits>
@@ -188,15 +189,9 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto slopeZ0 = lineFit(rzHitPositions);
       const auto xypos = findPCA(RX0Y0);
 
+
       //Determine charge
-      std::vector<std::pair<float,float>> xyrelPos;
-
-      for ( const auto& spptr : seed.sp() )
-      {
-        xyrelPos.emplace_back(spptr->x()-xypos.first, spptr->y()-xypos.second);
-      }
-
-      int charge = determineCharge(xyrelPos);
+      int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
 
       float theta = atan(1./std::get<0>(slopeZ0));
       // normalize to 0<theta<pi
@@ -238,16 +233,16 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       auto trackparam = trackparams->create();
       trackparam.setType(-1); // type --> seed(-1)
       trackparam.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
-      trackparam.setTheta(theta); //theta [rad]
       trackparam.setPhi(static_cast<float>(phi)); // phi [rad]
+      trackparam.setTheta(theta); //theta [rad]
       trackparam.setQOverP(qOverP); // Q/p [e/GeV]
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
         edm4eic::Cov6f cov;
         cov(0,0) = 0.1; // loc0
         cov(1,1) = 0.1; // loc1
-        cov(2,2) = 0.05; // theta
-        cov(3,3) = 0.05; // phi
+        cov(2,2) = 0.05; // phi
+        cov(3,3) = 0.05; // theta
         cov(4,4) = 0.05; // qOverP
         cov(5,5) = 0.1; // time
         trackparam.setCovariance(cov);
@@ -276,22 +271,30 @@ std::pair<float, float> eicrecon::TrackSeeding::findPCA(std::tuple<float,float,f
   return std::make_pair(xmin,ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions) const
+int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float,float>>& positions, const std::pair<float,float>& PCA, std::tuple<float,float,float>& RX0Y0) const
 {
-  // determine the charge by the bend angle of the first two hits
-  int charge = 1;
+
   const auto& firstpos = positions.at(0);
-  const auto& secondpos = positions.at(1);
+  auto hit_x = firstpos.first;
+  auto hit_y = firstpos.second;
 
-  const auto firstphi = atan2(firstpos.second, firstpos.first);
-  const auto secondphi = atan2(secondpos.second, secondpos.first);
-  auto dphi = secondphi - firstphi;
-  if(dphi > M_PI) dphi -= 2.*M_PI;
-  if(dphi < -M_PI) dphi += 2*M_PI;
-  if(dphi < 0) charge = -1;
+  auto xpos = PCA.first;
+  auto ypos = PCA.second;
 
-  return charge;
+  float X0 = std::get<1>(RX0Y0);
+  float Y0 = std::get<2>(RX0Y0);
+
+  Acts::Vector3 B_z(0,0,1);
+  Acts::Vector3 radial(X0-xpos, Y0-ypos, 0);
+  Acts::Vector3 hit(hit_x-xpos, hit_y-ypos, 0);
+
+  auto cross = radial.cross(hit);
+
+  float dot = cross.dot(B_z);
+
+  return copysign(1., -dot);
 }
+
 
  /**
    * Circle fit to a given set of data points (in 2D)

@@ -47,6 +47,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
+            "BeamElectrons",
+            "BeamProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -58,10 +60,23 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
 
+            "SiBarrelRawHits",
+            "SiBarrelVertexRawHits",
+            "SiEndcapTrackerRawHits",
+
+            "SiBarrelHits",
+            "VertexBarrelHits",
+            "TrackerEndcapHits",
+
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
 
+            "TOFBarrelRawHit",
+            "TOFEndcapRawHits",
+
+            "TOFBarrelHits",
+            "TOFEndcapHits",
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -77,12 +92,26 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 
+            "MPGDBarrelRawHits",
+            "MPGDDIRCRawHits",
+            "OuterMPGDBarrelRawHits",
+            "BackwardMPGDEndcapRawHits",
+            "ForwardMPGDEndcapRawHits",
+
+            "MPGDBarrelHits",
+            "MPGDDIRCHits",
+            "OuterMPGDBarrelHits",
+            "BackwardMPGDEndcapHits",
+            "ForwardMPGDEndcapHits",
             // LOWQ2 hits
             "TaggerTrackerRawHits",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
-
+            "B0TrackerRawHits",
+            "B0TrackerHits",
+            "ForwardRomanPotRecHits",
+            "ForwardOffMTrackerRecHits",
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
@@ -96,6 +125,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "ReconstructedChargedParticleIDs",
+            "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
@@ -200,10 +230,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCRawHits",
             "HcalFarForwardZDCRecHits",
             "HcalFarForwardZDCSubcellHits",
-            "HcalFarForwardZDCProtoClusters",
             "HcalFarForwardZDCClusters",
             "HcalFarForwardZDCClusterAssociations",
-            "HcalFarForwardZDCProtoClustersBaseline",
             "HcalFarForwardZDCClustersBaseline",
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",

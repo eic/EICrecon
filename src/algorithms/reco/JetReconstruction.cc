@@ -9,11 +9,11 @@
 #include <edm4hep/MCParticleCollection.h>// IWYU pragma: keep
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/GhostedAreaSpec.hh>
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fmt/core.h>
+#include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
 
@@ -23,7 +23,8 @@ using namespace fastjet;
 
 namespace eicrecon {
 
-  void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+  template <typename InputT>
+  void JetReconstruction<InputT>::init(std::shared_ptr<spdlog::logger> logger) {
 
     m_log = logger;
     m_log->trace("Initialized");
@@ -50,14 +51,43 @@ namespace eicrecon {
       m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
       throw JException(out.what());
     }
+
+    // Choose jet definition based on no. of parameters
+    switch (m_mapJetAlgo[m_cfg.jetAlgo]) {
+
+      // 0 parameter algorithms
+      case JetAlgorithm::ee_kt_algorithm:
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme]);
+        break;
+
+      // 2 parameter algorithms
+      case JetAlgorithm::genkt_algorithm:
+        [[fallthrough]];
+
+      case JetAlgorithm::ee_genkt_algorithm:
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme]);
+        break;
+
+      // all others have only 1 parameter
+      default:
+        m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
+        break;
+
+    }  // end switch (jet algorithm)
+
+    // Define jet area
+    m_area_def = std::make_unique<AreaDefinition>(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
+
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
-
-
-  template <typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const T* input_collection) {
-
-    // Store the jets
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
+  template <typename InputT>
+  void JetReconstruction<InputT>::process(
+                                  const typename JetReconstructionAlgorithm<InputT>::Input& input,
+                                  const typename JetReconstructionAlgorithm<InputT>::Output& output
+                                 ) const {
+    // Grab input collections
+    const auto [input_collection] = input;
+    auto [jet_collection] = output;
 
     // extract input momenta and collect into pseudojets
     std::vector<PseudoJet> particles;
@@ -79,20 +109,16 @@ namespace eicrecon {
     // Skip empty
     if (particles.empty()) {
       m_log->trace("  Empty particle list.");
-      return jet_collection;
+      return;
     }
     m_log->trace("  Number of particles: {}", particles.size());
 
-    // Choose jet and area definitions
-    JetDefinition jet_def(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_mapRecombScheme[m_cfg.recombScheme]);
-    AreaDefinition area_def(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
-
     // Run the clustering, extract the jets
-    ClusterSequenceArea clus_seq(particles, jet_def, area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
+    fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, *m_area_def);
+    std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
 
     // Print out some infos
-    m_log->trace("  Clustering with : {}", jet_def.description());
+    m_log->trace("  Clustering with : {}", m_jet_def->description());
 
     // loop over jets
     for (unsigned i = 0; i < jets.size(); i++) {
@@ -113,9 +139,9 @@ namespace eicrecon {
     } // for jet i
 
     // return the jets
-    return jet_collection;
+    return;
   }  // end 'process(const T&)'
 
-  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection* input_collection);
+  template class JetReconstruction<edm4eic::ReconstructedParticle>;
 
 }  // end namespace eicrecon

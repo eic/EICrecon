@@ -55,7 +55,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     }
     algo.applyConfig(cfg);
-    algo.init(detector.get(), logger);
+    algo.init(detector.get());
 
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
@@ -166,7 +166,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     }
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
-    algo.init(detector.get(), logger);
+    algo.init(detector.get());
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(

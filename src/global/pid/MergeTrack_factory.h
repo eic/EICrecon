@@ -1,4 +1,4 @@
-// Copyright (C) 2022, 2023 Christopher Dilks
+// Copyright (C) 2022 - 2024 Christopher Dilks, Wouter Deconinck
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #pragma once
@@ -14,37 +14,40 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
 // JANA
-#include "extensions/jana/JChainMultifactoryT.h"
+#include "extensions/jana/JOmniFactory.h"
 // services
 #include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
 
-  class MergeTrack_factory :
-    public JChainMultifactoryT<NoConfig>,
-    public SpdlogMixin
-  {
 
-    public:
-        using AlgoT = eicrecon::MergeTracks;
-    private:
-        std::unique_ptr<AlgoT> m_algo;
+class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
+private:
 
-    public:
+    // Underlying algorithm
+    std::unique_ptr<eicrecon::MergeTracks> m_algo;
 
-      explicit MergeTrack_factory(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags)
-      : JChainMultifactoryT<NoConfig>(std::move(tag), input_tags, output_tags) {
-        DeclarePodioOutput<edm4eic::TrackSegment>(GetOutputTags()[0]);
-      }
+    // Declare inputs
+    VariadicPodioInput<edm4eic::TrackSegment> m_track_segments_input {this};
 
-      /** One time initialization **/
-      void Init() override;
+    // Declare outputs
+    PodioOutput<edm4eic::TrackSegment> m_track_segments_output {this};
 
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
+public:
+    void Configure() {
+        m_algo = std::make_unique<MergeTracks>(GetPrefix());
+        m_algo->init(logger());
+    }
+
+    void ChangeRun(int64_t run_number) { }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        auto in1 = m_track_segments_input();
+        std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> in2;
+        std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
+
+        m_algo->process({in2}, {m_track_segments_output().get()});
+    }
 
   };
 }

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks
+// Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
@@ -11,8 +13,14 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Surfaces/CylinderBounds.hpp>
+#include <Acts/Surfaces/CylinderSurface.hpp>
+#include <Acts/Surfaces/DiscSurface.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <DD4hep/Handle.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <boost/container/vector.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -24,49 +32,70 @@
 #include <cmath>
 #include <exception>
 #include <iterator>
+#include <map>
 #include <optional>
+#include <string>
 #include <tuple>
 #include <typeinfo>
-#include <utility>
+#include <variant>
 
-#include "ActsGeometryProvider.h"
-#include "TrackPropagation.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/TrackPropagation.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-
 
 namespace eicrecon {
 
+template<typename ...L>
+struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L...lambda) : L(std::move(lambda))... {}
+};
 
-    void TrackPropagation::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                std::shared_ptr<spdlog::logger> logger) {
-        m_geoSvc = geo_svc;
-        m_log = logger;
-        m_log->trace("Initialized");
+void TrackPropagation::init(const dd4hep::Detector* detector,
+                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                            std::shared_ptr<spdlog::logger> logger) {
+    m_geoSvc = geo_svc;
+    m_log = logger;
+
+    std::map<uint32_t,size_t> system_id_layers;
+
+    multilambda _toDouble = {
+      [](const std::string& v) { return dd4hep::_toDouble(v); },
+      [](const double& v)      { return v; },
+    };
+
+    for (auto& surface_variant: m_cfg.surfaces) {
+      if (std::holds_alternative<CylinderSurfaceConfig>(surface_variant)) {
+        CylinderSurfaceConfig surface = std::get<CylinderSurfaceConfig>(surface_variant);
+        const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double zmin = std::visit(_toDouble, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double zmax = std::visit(_toDouble, surface.zmax) / dd4hep::mm * Acts::UnitConstants::mm;
+        const uint32_t system_id = detector->constant<uint32_t>(surface.id);
+        auto bounds = std::make_shared<Acts::CylinderBounds>(rmin, (zmax-zmin)/2);
+        auto t = Acts::Translation3(Acts::Vector3(0, 0, (zmax+zmin)/2));
+        auto tf = Acts::Transform3(t);
+        auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
+        acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+        m_target_surface_list.push_back(acts_surface);
+      }
+      if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
+        DiscSurfaceConfig surface = std::get<DiscSurfaceConfig>(surface_variant);
+        const double zmin = std::visit(_toDouble, surface.zmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
+        const double rmax = std::visit(_toDouble, surface.rmax) / dd4hep::mm * Acts::UnitConstants::mm;
+        const uint32_t system_id = detector->constant<uint32_t>(surface.id);
+        auto bounds = std::make_shared<Acts::RadialBounds>(rmin, rmax);
+        auto t = Acts::Translation3(Acts::Vector3(0, 0, zmin));
+        auto tf = Acts::Transform3(t);
+        auto acts_surface = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
+        acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+        m_target_surface_list.push_back(acts_surface);
+      }
     }
 
-
-
-    std::vector<std::unique_ptr<edm4eic::TrackPoint>>
-    TrackPropagation::propagateMany(std::vector<const ActsExamples::Trajectories *> trajectories,
-                                    const std::shared_ptr<const Acts::Surface> &targetSurf) {
-        // output collection
-        std::vector<std::unique_ptr<edm4eic::TrackPoint>> track_points;
-        m_log->trace("Track propagation event process. Num of input trajectories: {}", std::size(trajectories));
-
-        // Loop over the trajectories
-        for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
-            auto &traj = trajectories[traj_index];
-            m_log->trace("  Trajectory object # {}", traj_index);
-
-            auto result = propagate(traj, targetSurf);
-            if(!result) continue;
-
-            // Add to output collection
-            track_points.push_back(std::move(result));
-        }
-
-        return track_points;
-    }
+    m_log->trace("Initialized");
+}
 
 
 
@@ -76,7 +105,7 @@ namespace eicrecon {
         std::shared_ptr<Acts::Surface> filterSurface,
         std::function<bool(edm4eic::TrackPoint)> trackPointCut,
         bool stopIfTrackPointCutFailed
-        )
+        ) const
     {
       // logging
       m_log->trace("Propagate trajectories: --------------------");
@@ -163,7 +192,7 @@ namespace eicrecon {
 
 
     std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const ActsExamples::Trajectories *traj,
-                                                     const std::shared_ptr<const Acts::Surface> &targetSurf) {
+                                                     const std::shared_ptr<const Acts::Surface> &targetSurf) const {
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
         const auto &mj = traj->multiTrajectory();
