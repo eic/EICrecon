@@ -169,6 +169,23 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
+        "ReconstructedElectronsForDIS",
+        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
+        "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapNClusterAssociations",
+        "EcalEndcapPClusterAssociations",
+        "EcalEndcapPInsertClusterAssociations",
+        "EcalLumiSpecClusterAssociations",
+        },
+        {"ReconstructedElectronsForDIS"},
+        {
+					.min_energy_over_momentum = 0.7, // GeV
+					.max_energy_over_momentum = 1.3  // GeV
+				},
+        app
+    ));
+
     app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedJets",
             {"GeneratedParticles"},
@@ -225,7 +242,7 @@ void InitPlugin(JApplication *app) {
         "ScatteredElectronsEMinusPz",
         {
           "ReconstructedChargedParticles",
-          "ReconstructedElectrons"
+          "ReconstructedElectronsForDIS"
         },
         {
           "ScatteredElectronsEMinusPz"
