@@ -115,7 +115,7 @@ namespace eicrecon {
     // report the computed E-Pz for the chosen electron
     double EPz = (vScatteredElectron+vHadronicFinalState).E()
               - (vScatteredElectron+vHadronicFinalState).Pz();
-    m_log->trace("We found {} scattered electrons using Truth assocaition", electrons.size());
+    m_log->trace("We found {} scattered electrons using Truth association", electrons.size());
     m_log->trace( "TRUTH scattered electron has E-Pz = {}", EPz );
     m_log->trace(
         "TRUTH scattered electron has Pxyz=( {}, {}, {} ) and E/p = {}",
