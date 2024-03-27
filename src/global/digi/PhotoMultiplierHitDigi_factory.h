@@ -17,6 +17,7 @@
 // JANA
 #include "extensions/jana/JOmniFactory.h"
 // services
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
@@ -49,7 +50,7 @@ private:
     ParameterRef<double> m_noiseTimeWindow {this, "noiseTimeWindow", config().noiseTimeWindow, ""};
     //ParameterRef<std::vector<std::pair<double, double>>> m_quantumEfficiency {this, "quantumEfficiency", config().quantumEfficiency, ""};
 
-    Service<DD4hep_service> m_DD4hepSvc {this};
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
     Service<RichGeo_service> m_RichGeoSvc {this};
 
 public:
@@ -68,7 +69,7 @@ public:
         }
 
         m_algo->applyConfig(config());
-        m_algo->init(m_DD4hepSvc().detector(), m_DD4hepSvc().converter(), logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

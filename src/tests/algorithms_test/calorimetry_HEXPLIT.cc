@@ -5,6 +5,8 @@
 #include <DD4hep/IDDescriptor.h>                   // for IDDescriptor
 #include <DD4hep/Readout.h>                        // for Readout
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
+#include <algorithms/geo.h>
+#include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <spdlog/common.h>                         // for level_enum
@@ -12,11 +14,11 @@
 #include <spdlog/spdlog.h>                         // for default_logger
 #include <stddef.h>                                // for size_t
 #include <array>                                   // for array
-#include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <cmath>                                   // for sqrt, abs
+#include <gsl/pointers>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
-#include <string>                                  // for string
 #include <utility>                                 // for pair
+
 #include "algorithms/calorimetry/HEXPLIT.h"        // for HEXPLIT
 #include "algorithms/calorimetry/HEXPLITConfig.h"  // for HEXPLITConfig
 
@@ -25,17 +27,16 @@ using eicrecon::HEXPLITConfig;
 
 TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   HEXPLIT algo("HEXPLIT");
+
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("HEXPLIT");
   logger->set_level(spdlog::level::trace);
+
   HEXPLITConfig cfg;
   cfg.MIP = 472. * dd4hep::keV;
   cfg.tmax = 1000. * dd4hep::ns;
-  auto detector = dd4hep::Detector::make_unique("");
-  dd4hep::Readout readout(std::string("MockCalorimeterHits"));
-  dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,layer:8,x:8,y:8");
-  readout.setIDDescriptor(id_desc);
-  detector->add(id_desc);
-  detector->add(readout);
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
   //create a geometry for the fake detector.
   double side_length=31.3*dd4hep::mm;
@@ -46,7 +47,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
   auto dimension = edm4hep::Vector3f(2*side_length, sqrt(3)*side_length, thickness);
 
   algo.applyConfig(cfg);
-  algo.init(detector.get());
+  algo.init();
 
   edm4eic::CalorimeterHitCollection hits_coll;
 
