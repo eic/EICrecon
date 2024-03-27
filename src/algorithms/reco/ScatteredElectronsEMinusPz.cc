@@ -66,11 +66,7 @@ namespace eicrecon {
     PxPyPzMVector  vHadron;
 
     for ( const auto& e: *rcele ) {
-      // Only consider electrons (ReconstructedElectrons includes positrons as well)
-      if (e.getCharge() != -1) {
-        m_log->trace( "skipping positron" );
-        continue;
-      }
+      // Do not cut on charge to account for charge-symmetric background
 
       // reset the HadronicFinalState
       vHadronicFinalState.SetCoordinates(0, 0, 0, 0);
@@ -93,8 +89,8 @@ namespace eicrecon {
         // (scattered) electron candidate.
         // This does work though and in general it has only
         // one match as I would hope (tested on pythia events)
-        if ( edm4hep::utils::magnitude(p.getMomentum())
-          != edm4hep::utils::magnitude(e.getMomentum()) ) {
+        if (abs( edm4hep::utils::magnitude(p.getMomentum()) - edm4hep::utils::magnitude(e.getMomentum()) ) > 0.01 )
+				{
           vHadron.SetCoordinates(
               p.getMomentum().x,
               p.getMomentum().y,
