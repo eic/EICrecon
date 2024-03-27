@@ -90,7 +90,7 @@ namespace eicrecon {
         // This does work though and in general it has only
         // one match as I would hope (tested on pythia events)
         if (abs( edm4hep::utils::magnitude(p.getMomentum()) - edm4hep::utils::magnitude(e.getMomentum()) ) > 0.01 )
-				{
+                                {
           vHadron.SetCoordinates(
               p.getMomentum().x,
               p.getMomentum().y,

@@ -180,9 +180,9 @@ void InitPlugin(JApplication *app) {
         },
         {"ReconstructedElectronsForDIS"},
         {
-					.min_energy_over_momentum = 0.7, // GeV
-					.max_energy_over_momentum = 1.3  // GeV
-				},
+                                        .min_energy_over_momentum = 0.7, // GeV
+                                        .max_energy_over_momentum = 1.3  // GeV
+                                },
         app
     ));
 
