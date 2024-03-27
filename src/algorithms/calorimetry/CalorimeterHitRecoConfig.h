@@ -23,8 +23,7 @@ namespace eicrecon {
     double                   thresholdValue{0};
 
     // sampling fraction
-    double                   sampFrac{1.0};
-    std::vector<double>      sampFracLayer{};
+    std::string              sampFrac{"1.0"};
 
     // readout fields
     std::string              readout{""};

@@ -12,9 +12,12 @@
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
+#include <TInterpreter.h>
+#include <TInterpreterValue.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
+#include <functional>
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
@@ -50,10 +53,15 @@ namespace eicrecon {
 
   private:
 
+    static unsigned int function_id;
+
     // unitless counterparts of the input parameters
     double thresholdADC{0};
     double stepTDC{0};
 
+    std::function<double(const edm4hep::RawCalorimeterHit &h)> sampFrac;
+
+    dd4hep::IDDescriptor id_spec;
     dd4hep::BitFieldCoder* id_dec = nullptr;
 
     mutable uint32_t NcellIDerrors = 0;
