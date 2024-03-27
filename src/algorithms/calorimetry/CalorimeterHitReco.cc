@@ -39,9 +39,7 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
-void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter) {
-    m_detector = detector;
-    m_converter = converter;
+void CalorimeterHitReco::init() {
 
     // threshold for firing
     // Should set either m_cfg.thresholdFactor or m_cfg.thresholdValue, not both

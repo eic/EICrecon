@@ -5,7 +5,6 @@
 
 #include "algorithms/calorimetry/HEXPLIT.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -24,14 +23,13 @@ class HEXPLIT_factory : public JOmniFactory<HEXPLIT_factory, HEXPLITConfig> {
     ParameterRef<double> m_tmax     {this, "tmax",          config().tmax};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
-    Service<DD4hep_service> m_geoSvc {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
