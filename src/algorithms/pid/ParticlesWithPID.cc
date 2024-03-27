@@ -142,7 +142,7 @@ namespace eicrecon {
             auto rec_part = parts->create();
             rec_part.addToTracks(track);
             int32_t best_pid = 0;
-            auto referencePoint = rec_part.referencePoint();
+            auto referencePoint = rec_part.getReferencePoint();
             // float time          = 0;
             float mass = 0;
             if (best_match >= 0) {
