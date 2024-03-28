@@ -12,17 +12,17 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
 
-# POSIX-rated helper function to prepend paths without duplication,
+# A helper function to prepend paths without duplication,
 # allowing for empty and undefined values (but not checking existence),
 # but not escaping colons in your paths.
 pathadd() {
-    varname="$1"
-    newpath="$2"
+    local varname="$1"
+    local newpath="$2"
 
     eval "oldvalue=\${${varname}:-}"
 
     # surround with colon so also first and last entry are individually surrounded
-    canonical=":${oldvalue}:"
+    local canonical=":${oldvalue}:"
     # check whether removing newpath changes old path
     if [ "${canonical#*:${newpath}:}" = "${canonical}" ];
     then
