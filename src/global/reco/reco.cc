@@ -154,13 +154,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
         "ReconstructedElectrons",
-        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
-        "EcalBarrelScFiClusterAssociations",
-        "EcalEndcapNClusterAssociations",
-        "EcalEndcapPClusterAssociations",
-        "EcalEndcapPInsertClusterAssociations",
-        "EcalLumiSpecClusterAssociations",
-        },
+        {"ReconstructedParticles"},
         {"ReconstructedElectrons"},
         {},
         app

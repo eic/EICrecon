@@ -25,10 +25,7 @@ namespace eicrecon {
 
         // idea will be to overload this with other version (e.g. reco mode)
         std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
-                const edm4hep::MCParticleCollection *mcparts,
-                const edm4eic::ReconstructedParticleCollection *rcparts,
-                const edm4eic::MCRecoParticleAssociationCollection *rcassoc,
-                const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
+                const edm4eic::ReconstructedParticleCollection *rcparts
         );
 
     private:
