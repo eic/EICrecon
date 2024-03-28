@@ -42,6 +42,7 @@ extern "C" {
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .corrMeanScale = 0.03,
+            .readout = "EcalEndcapPHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -128,6 +129,7 @@ extern "C" {
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .corrMeanScale = 0.03,
+            .readout = "EcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed
         ));

@@ -122,6 +122,7 @@ extern "C" {
              .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
              .resolutionTDC = EcalBarrelImaging_resolutionTDC,
              .corrMeanScale = 1.0,
+             .readout = "EcalBarrelImagingHits",
            },
            app   // TODO: Remove me once fixed
         ));

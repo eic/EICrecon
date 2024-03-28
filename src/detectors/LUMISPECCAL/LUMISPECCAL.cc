@@ -34,6 +34,7 @@ extern "C" {
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
+            .readout = "LumiSpecCALHits",
           },
           app   // TODO: Remove me once fixed
         ));
