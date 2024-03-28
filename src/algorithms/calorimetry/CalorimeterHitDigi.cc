@@ -74,31 +74,29 @@ void CalorimeterHitDigi::init() {
     tRes       = m_cfg.tRes / dd4hep::ns;
     stepTDC    = dd4hep::ns / m_cfg.resolutionTDC;
 
+    // sanity checks
+    if (m_cfg.readout.empty()) {
+        error("readoutClass is not provided, it is needed to know the fields in readout ids");
+        throw std::runtime_error("readoutClass is not provided");
+    }
+
+    // get decoders
+    dd4hep::IDDescriptor id_desc;
+    try {
+        id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
+    } catch (...) {
+        // Can not be more verbose. In JANA2, this will be attempted at each event, which
+        // pollutes output for geometries that are less than complete.
+        // We could save an exception and throw it from process.
+        debug("Failed to load ID decoder for {}", m_cfg.readout);
+        throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    }
+
     decltype(id_mask) id_inverse_mask = 0;
     // all these are for signal sum at digitization level
     if (!m_cfg.fields.empty()) {
-        // sanity checks
-        if (!m_geo.detector()) {
-            error("Unable to locate geometry.");
-            throw std::runtime_error("Unable to locate Geometry Service.");
-        }
-        if (m_cfg.readout.empty()) {
-            error("readoutClass is not provided, it is needed to know the fields in readout ids.");
-            throw std::runtime_error("readoutClass is not provided.");
-        }
-
-        // get decoders
-        try {
-            auto id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
-            for (auto & field : m_cfg.fields) {
-                id_inverse_mask |= id_desc.field(field)->mask();
-            }
-        } catch (...) {
-            // a workaround to avoid breaking the whole analysis if a field is not in some configurations
-            // TODO: it should be a fatal error to not cause unexpected analysis results
-            warning("Failed to load ID decoder for {}, hits will not be merged.", m_cfg.readout);
-            // throw::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
-            return;
+        for (auto & field : m_cfg.fields) {
+            id_inverse_mask |= id_desc.field(field)->mask();
         }
         debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
     }
