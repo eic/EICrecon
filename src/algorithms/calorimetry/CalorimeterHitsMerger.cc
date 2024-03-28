@@ -34,9 +34,7 @@
 
 namespace eicrecon {
 
-void CalorimeterHitsMerger::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter) {
-    m_detector = detector;
-    m_converter = converter;
+void CalorimeterHitsMerger::init() {
 
     if (m_cfg.readout.empty()) {
         error("readoutClass is not provided, it is needed to know the fields in readout ids");

@@ -5,6 +5,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -16,9 +17,9 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <gsl/pointers>
 #include <limits>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -38,12 +39,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   cfg.minClusterHitEdep = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
 
-  auto detector = dd4hep::Detector::make_unique("");
-  dd4hep::Readout readout(std::string("MockCalorimeterHits"));
-  dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,x:8,y:8");
-  readout.setIDDescriptor(id_desc);
-  detector->add(id_desc);
-  detector->add(readout);
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
   SECTION( "without splitting" ) {
     bool use_adjacencyMatrix = GENERATE(false, true);
@@ -55,7 +52,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     }
     algo.applyConfig(cfg);
-    algo.init(detector.get());
+    algo.init();
 
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
@@ -166,7 +163,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     }
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
-    algo.init(detector.get());
+    algo.init();
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(
