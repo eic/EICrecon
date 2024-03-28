@@ -62,7 +62,7 @@ namespace eicrecon {
     // with reconstructed electron
     auto ef_assoc = rcassoc->begin();
     for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+      if (ef_assoc->getSim().getObjectID() ==  ef_coll[0].getObjectID()) {
         break;
       }
     }
@@ -76,7 +76,7 @@ namespace eicrecon {
 
     // Get the reconstructed electron object
     const auto ef_rc{ef_assoc->getRec()};
-    const auto ef_rc_id{ef_rc.getObjectID().index};
+    const auto ef_rc_id{ef_rc.getObjectID()};
 
     // Use these to compute the E-Pz
     // This is for development of the EMinusPz
@@ -91,7 +91,7 @@ namespace eicrecon {
     // MC information
     std::vector<PxPyPzEVector> electrons;
     for (const auto& p: *rcparts) {
-      if (p.getObjectID().index == ef_rc_id) {
+      if (p.getObjectID() == ef_rc_id) {
 
         output_electrons->push_back( p.clone() );
         vScatteredElectron.SetCoordinates( p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, m_electron );
