@@ -145,6 +145,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
+            "ScatteredElectronsTruth",
+            "ScatteredElectronsEMinusPz",
 
             // Track projections
             "CalorimeterTrackProjections",
