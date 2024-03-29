@@ -8,21 +8,21 @@
 
 namespace eicrecon {
 
-template <class T, class TA, auto MemberFunctionPtr>
-class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_factory<T,TA,MemberFunctionPtr>> {
+template <typename FilterByObjectT,auto FilterByMemberFunctionPtr,typename ToFilterObjectT,auto ToFilterMemberFunctionPtr>
+class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_factory<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>> {
 
   public:
-    using AlgoT    = eicrecon::FilterByAssociations<T,TA,MemberFunctionPtr>;
-    using FactoryT = JOmniFactory<FilterByAssociations_factory<T,TA,MemberFunctionPtr>>;
+    using AlgoT    = eicrecon::FilterByAssociations<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>;
+    using FactoryT = JOmniFactory<FilterByAssociations_factory<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>>;
 
   private:
 
     std::unique_ptr<AlgoT> m_algo;
 
-    typename FactoryT::template PodioInput<T>   m_collection_input {this};
-    typename FactoryT::template PodioInput<TA>  m_associated_input {this};
-    typename FactoryT::template PodioOutput<TA> m_is_associated_output     {this};
-    typename FactoryT::template PodioOutput<TA> m_is_not_associated_output {this};
+    typename FactoryT::template PodioInput<FilterByObjectT>   m_collection_input {this};
+    typename FactoryT::template PodioInput<ToFilterObjectT>  m_associated_input {this};
+    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_associated_output     {this};
+    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_not_associated_output {this};
 
   public:
     void Configure() {
