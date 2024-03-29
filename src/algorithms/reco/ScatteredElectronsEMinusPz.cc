@@ -1,21 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Daniel Brandenburg
 
+#include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/LorentzVector.h>
-#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/GenVector/PxPyPzM4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
-#include <cmath>
-#include <gsl/pointers>
-#include <vector>
-#include <TLorentzVector.h>
+#include <math.h>
+#include <stdlib.h>
+#include <iterator>
+#include <map>
+#include <utility>
 
-#include "Beam.h"
 #include "ScatteredElectronsEMinusPz.h"
+#include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 
 using ROOT::Math::PxPyPzEVector;
 using ROOT::Math::PxPyPzMVector;

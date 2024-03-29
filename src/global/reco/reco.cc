@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -16,18 +17,17 @@
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
-#include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
+#include "factories/reco/TransformBreitFrame_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
-#include "global/reco/ScatteredElectronsTruth_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
+#include "global/reco/ScatteredElectronsTruth_factory.h"
 
 //
 extern "C" {

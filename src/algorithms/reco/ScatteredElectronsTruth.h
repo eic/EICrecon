@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>

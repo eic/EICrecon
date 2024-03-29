@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
 
 #include "ScatteredElectronsEMinusPzConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
