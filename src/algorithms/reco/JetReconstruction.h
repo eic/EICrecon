@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/ClusterSequenceArea.hh>
@@ -11,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
@@ -18,7 +20,30 @@
 
 namespace eicrecon {
 
-  class JetReconstruction : public WithPodConfig<JetReconstructionConfig> {
+    template <typename InputT>
+    using JetReconstructionAlgorithm = algorithms::Algorithm<
+      algorithms::Input<
+        typename InputT::collection_type
+        >,
+      algorithms::Output<
+        edm4eic::ReconstructedParticleCollection
+        >
+    >;
+
+    template <typename InputT>
+    class JetReconstruction
+      : public JetReconstructionAlgorithm<InputT>,
+        public WithPodConfig<JetReconstructionConfig> {
+
+    public:
+
+    JetReconstruction(std::string_view name) :
+      JetReconstructionAlgorithm<InputT> {
+        name,
+        {"inputReconstructedParticles"},
+        {"outputReconstructedParticles"},
+        "Performs jet reconstruction using a FastJet algorithm."
+      } {}
 
     public:
 
@@ -26,7 +51,7 @@ namespace eicrecon {
       void init(std::shared_ptr<spdlog::logger> logger);
 
       // run algorithm
-      template<typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const T* input_collection);
+      void process(const typename eicrecon::JetReconstructionAlgorithm<InputT>::Input&, const typename eicrecon::JetReconstructionAlgorithm<InputT>::Output&) const final;
 
     private:
 
@@ -35,7 +60,6 @@ namespace eicrecon {
       // fastjet components
       std::unique_ptr<fastjet::JetDefinition> m_jet_def;
       std::unique_ptr<fastjet::AreaDefinition> m_area_def;
-      std::unique_ptr<fastjet::ClusterSequenceArea> m_clus_seq;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {

@@ -13,6 +13,7 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fmt/core.h>
+#include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
 
@@ -22,7 +23,8 @@ using namespace fastjet;
 
 namespace eicrecon {
 
-  void JetReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+  template <typename InputT>
+  void JetReconstruction<InputT>::init(std::shared_ptr<spdlog::logger> logger) {
 
     m_log = logger;
     m_log->trace("Initialized");
@@ -78,12 +80,14 @@ namespace eicrecon {
 
   }  // end 'init(std::shared_ptr<spdlog::logger>)'
 
-
-
-  template <typename T> std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const T* input_collection) {
-
-    // Store the jets
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> jet_collection { std::make_unique<edm4eic::ReconstructedParticleCollection>() };
+  template <typename InputT>
+  void JetReconstruction<InputT>::process(
+                                  const typename JetReconstructionAlgorithm<InputT>::Input& input,
+                                  const typename JetReconstructionAlgorithm<InputT>::Output& output
+                                 ) const {
+    // Grab input collections
+    const auto [input_collection] = input;
+    auto [jet_collection] = output;
 
     // extract input momenta and collect into pseudojets
     std::vector<PseudoJet> particles;
@@ -105,13 +109,13 @@ namespace eicrecon {
     // Skip empty
     if (particles.empty()) {
       m_log->trace("  Empty particle list.");
-      return jet_collection;
+      return;
     }
     m_log->trace("  Number of particles: {}", particles.size());
 
     // Run the clustering, extract the jets
-    m_clus_seq = std::make_unique<ClusterSequenceArea>(particles, *m_jet_def, *m_area_def);
-    std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq->inclusive_jets(m_cfg.minJetPt));
+    fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, *m_area_def);
+    std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
 
     // Print out some infos
     m_log->trace("  Clustering with : {}", m_jet_def->description());
@@ -135,9 +139,9 @@ namespace eicrecon {
     } // for jet i
 
     // return the jets
-    return jet_collection;
+    return;
   }  // end 'process(const T&)'
 
-  template std::unique_ptr<edm4eic::ReconstructedParticleCollection> JetReconstruction::process(const edm4eic::ReconstructedParticleCollection* input_collection);
+  template class JetReconstruction<edm4eic::ReconstructedParticle>;
 
 }  // end namespace eicrecon
