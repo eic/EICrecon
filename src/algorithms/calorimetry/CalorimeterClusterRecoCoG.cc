@@ -76,74 +76,9 @@ namespace eicrecon {
       clusters->push_back(cl);
 
       // If mcHits are available, associate cluster with MCParticle
-      // 1. find proto-cluster hit with largest energy deposition
-      // 2. find first mchit with same CellID
-      // 3. assign mchit's MCParticle as cluster truth
       if (mchits->size() > 0) {
-
-        // 1. find pclhit with largest energy deposition
-        auto pclhits = pcl.getHits();
-        auto pclhit = std::max_element(
-          pclhits.begin(),
-          pclhits.end(),
-          [](const auto& pclhit1, const auto& pclhit2) {
-            return pclhit1.getEnergy() < pclhit2.getEnergy();
-          }
-        );
-
-        // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
-        // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
-        // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
-        // FIXME: Thus, the cellID values passed on through to here no longer match those
-        // FIXME: in the low-level truth hits. It likely works for other detectors because
-        // FIXME: their u_fields and u_refs members are left empty which effectively results
-        // FIXME: in the cellID being unchanged.
-
-        // 2. find mchit with same CellID
-        // find_if not working, https://github.com/AIDASoft/podio/pull/273
-        //auto mchit = std::find_if(
-        //  mchits->begin(),
-        //  mchits->end(),
-        //  [&pclhit](const auto& mchit1) {
-        //    return mchit1.getCellID() == pclhit->getCellID();
-        //  }
-        //);
-        auto mchit = mchits->begin();
-        for ( ; mchit != mchits->end(); ++mchit) {
-          // break loop when CellID match found
-          if ( mchit->getCellID() == pclhit->getCellID()) {
-            break;
-          }
-        }
-        if (!(mchit != mchits->end())) {
-          // break if no matching hit found for this CellID
-          warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
-          trace("Proto-cluster hits: ");
-          for (const auto& pclhit1: pclhits) {
-            trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
-          }
-          trace("MC hits: ");
-          for (const auto& mchit1: *mchits) {
-            trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
-          }
-          break;
-        }
-
-        // 3. find mchit's MCParticle
-        const auto& mcp = mchit->getContributions(0).getParticle();
-
-        debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
-        debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
-        debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
-        debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
-
-        // set association
-        auto clusterassoc = associations->create();
-        clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-        clusterassoc.setSimID(mcp.getObjectID().index);
-        clusterassoc.setWeight(1.0);
-        clusterassoc.setRec(cl);
-        clusterassoc.setSim(mcp);
+        auto assoc = associate(cl, pcl, std::move(mchits));
+        if (assoc.has_value()) associations->push_back(assoc.value());
       } else {
         debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
@@ -315,5 +250,82 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
   return std::move(cl);
 }
+
+std::optional<edm4eic::MCRecoClusterParticleAssociation> CalorimeterClusterRecoCoG::associate(
+  const edm4eic::Cluster& cl,
+  const edm4eic::ProtoCluster& pcl,
+  const edm4hep::SimCalorimeterHitCollection* mchits
+) const {
+
+  // 1. find proto-cluster hit with largest energy deposition
+  // 2. find first mchit with same CellID
+  // 3. assign mchit's MCParticle as cluster truth
+  edm4eic::MutableMCRecoClusterParticleAssociation assoc;
+
+  // 1. find pclhit with largest energy deposition
+  auto pclhits = pcl.getHits();
+  auto pclhit = std::max_element(
+    pclhits.begin(),
+    pclhits.end(),
+    [](const auto& pclhit1, const auto& pclhit2) {
+      return pclhit1.getEnergy() < pclhit2.getEnergy();
+    }
+  );
+
+  // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
+  // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
+  // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
+  // FIXME: Thus, the cellID values passed on through to here no longer match those
+  // FIXME: in the low-level truth hits. It likely works for other detectors because
+  // FIXME: their u_fields and u_refs members are left empty which effectively results
+  // FIXME: in the cellID being unchanged.
+
+  // 2. find mchit with same CellID
+  // find_if not working, https://github.com/AIDASoft/podio/pull/273
+  //auto mchit = std::find_if(
+  //  mchits->begin(),
+  //  mchits->end(),
+  //  [&pclhit](const auto& mchit1) {
+  //    return mchit1.getCellID() == pclhit->getCellID();
+  //  }
+  //);
+  auto mchit = mchits->begin();
+  for ( ; mchit != mchits->end(); ++mchit) {
+    // break loop when CellID match found
+    if ( mchit->getCellID() == pclhit->getCellID()) {
+      break;
+    }
+  }
+  if (!(mchit != mchits->end())) {
+    // break if no matching hit found for this CellID
+    warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
+    trace("Proto-cluster hits: ");
+    for (const auto& pclhit1: pclhits) {
+      trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
+    }
+    trace("MC hits: ");
+    for (const auto& mchit1: *mchits) {
+      trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
+    }
+    //break;  // CHANGE [Derek, 03.29.2024]
+    return {};
+  }
+
+  // 3. find mchit's MCParticle
+  const auto& mcp = mchit->getContributions(0).getParticle();
+
+  debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
+  debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
+  debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
+  debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
+
+  assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+  assoc.setSimID(mcp.getObjectID().index);
+  assoc.setWeight(1.0);
+  assoc.setRec(cl);
+  assoc.setSim(mcp);
+  return assoc;
+
+}  // end 'associate(edm4eic::Cluster& cl, edm4eic::ProtoCluster&)'
 
 } // eicrecon
