@@ -81,8 +81,8 @@ namespace eicrecon {
                 }
 
                 // Check if non-primary
-                if (mc_part.getGeneratorStatus() > 1) {
-                    m_log->trace("    Ignoring. GeneratorStatus > 1 => Non-primary particle");
+                if (mc_part.getGeneratorStatus() != 1) {
+                    m_log->trace("    Ignoring. GeneratorStatus != 1 => Non-primary particle");
                     continue;
                 }
 
