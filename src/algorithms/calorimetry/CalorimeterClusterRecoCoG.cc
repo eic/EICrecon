@@ -260,7 +260,6 @@ void CalorimeterClusterRecoCoG::associate(
   // 1. find proto-cluster hit with largest energy deposition
   // 2. find first mchit with same CellID
   // 3. assign mchit's MCParticle as cluster truth
-  edm4eic::MutableMCRecoClusterParticleAssociation assoc;
 
   // 1. find pclhit with largest energy deposition
   auto pclhits = pcl.getHits();
