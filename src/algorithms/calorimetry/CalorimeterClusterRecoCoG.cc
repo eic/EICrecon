@@ -257,76 +257,55 @@ void CalorimeterClusterRecoCoG::associate(
   edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
 
-  // 1. find proto-cluster hit with largest energy deposition
-  // 2. find first mchit with same CellID
-  // 3. assign mchit's MCParticle as cluster truth
+  // associate each cluster to all contributing
+  // shower initiators
+  //   1. for each protocluster hit, get list of contributing particles
+  //   2. identify each contributor whose start vertex is *outside*
+  //      the calorimeter but whose stop vertex is *inside* the
+  //      calorimeter [TODO: would it be better to just check
+  //      the start vertex? That would also catch particles that
+  //      MIP through...]
+  //   3. assign that particle
+  for (auto protoHit : pcl.getHits()) {
 
-  // 1. find pclhit with largest energy deposition
-  auto pclhits = pcl.getHits();
-  auto pclhit = std::max_element(
-    pclhits.begin(),
-    pclhits.end(),
-    [](const auto& pclhit1, const auto& pclhit2) {
-      return pclhit1.getEnergy() < pclhit2.getEnergy();
+    // identify corresponding mc hit
+    std::optional<edm4hep::SimCalorimeterHit> protoSimHit;
+    for (
+      auto mcHit = mchits->begin();
+      mcHit != mchits->end();
+      ++mcHit
+    ) {
+      if (mcHit->getCellID() == protoHit.getCellID()) {
+        //protoSimHit = mcHit;
+        protoSimHit = *mcHit;
+        break;
+      }
+    }  // end mc hit loop
+
+    // if no sim hit found, continue
+    if (!protoSimHit.has_value()) {
+      warning("No mc hit with that CellID {} found for protocluster hit!", protoHit.getCellID());
+      continue;
     }
-  );
 
-  // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
-  // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
-  // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
-  // FIXME: Thus, the cellID values passed on through to here no longer match those
-  // FIXME: in the low-level truth hits. It likely works for other detectors because
-  // FIXME: their u_fields and u_refs members are left empty which effectively results
-  // FIXME: in the cellID being unchanged.
+    // loop over contributing particles
+    for (auto contrib : protoSimHit.value().getContributions()) {
 
-  // 2. find mchit with same CellID
-  // find_if not working, https://github.com/AIDASoft/podio/pull/273
-  //auto mchit = std::find_if(
-  //  mchits->begin(),
-  //  mchits->end(),
-  //  [&pclhit](const auto& mchit1) {
-  //    return mchit1.getCellID() == pclhit->getCellID();
-  //  }
-  //);
-  auto mchit = mchits->begin();
-  for ( ; mchit != mchits->end(); ++mchit) {
-    // break loop when CellID match found
-    if ( mchit->getCellID() == pclhit->getCellID()) {
-      break;
-    }
-  }
-  if (!(mchit != mchits->end())) {
-    // break if no matching hit found for this CellID
-    warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
-    trace("Proto-cluster hits: ");
-    for (const auto& pclhit1: pclhits) {
-      trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
-    }
-    trace("MC hits: ");
-    for (const auto& mchit1: *mchits) {
-      trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
-    }
-    //break;  // CHANGE [Derek, 03.29.2024]
-    return;
-  }
+      // grab particle and calculate weight
+      auto mcPar = contrib.getParticle();
+      double weight = mcPar.getEnergy() / cl.getEnergy();
 
-  // 3. find mchit's MCParticle
-  const auto& mcp = mchit->getContributions(0).getParticle();
+      /* TODO check vertex here */
 
-  debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
-  debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
-  debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
-  debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
-
-  // set association
-  auto clusterassoc = assocs->create();
-  clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-  clusterassoc.setSimID(mcp.getObjectID().index);
-  clusterassoc.setWeight(1.0);
-  clusterassoc.setRec(cl);
-  clusterassoc.setSim(mcp);
-  return;
-
+      // fill association
+      auto clusterassoc = assocs->create();
+      clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+      clusterassoc.setSimID(mcPar.getObjectID().index);
+      clusterassoc.setWeight(weight);
+      clusterassoc.setRec(cl);
+      clusterassoc.setSim(mcPar);
+    }  // end contribution loop
+  }  // end protocluster hit loop
 }  // end 'associate(edm4eic::Cluster& cl, edm4eic::ProtoCluster&, edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociation*)'
 
 } // eicrecon
