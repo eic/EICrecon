@@ -81,7 +81,12 @@ namespace eicrecon {
 
   private:
     std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
-    std::optional<edm4eic::MCRecoClusterParticleAssociation> associate(const edm4eic::Cluster& cl, const edm4eic::ProtoCluster& pcl, const edm4hep::SimCalorimeterHitCollection* mchits) const;
+    void associate(
+      const edm4eic::Cluster& cl,
+      const edm4eic::ProtoCluster& pcl,
+      const edm4hep::SimCalorimeterHitCollection* mchits,
+      edm4eic::MCRecoClusterParticleAssociationCollection* assocs
+    ) const;
 
   };
 

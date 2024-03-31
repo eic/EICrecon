@@ -75,10 +75,9 @@ namespace eicrecon {
       debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
       clusters->push_back(cl);
 
-      // If mcHits are available, associate cluster with MCParticle
+      // If mcHits are available, do truth association
       if (mchits->size() > 0) {
-        auto assoc = associate(cl, pcl, std::move(mchits));
-        if (assoc.has_value()) associations->push_back(assoc.value());
+        associate(cl, pcl, std::move(mchits), std::move(associations));
       } else {
         debug("No mcHitCollection was provided, so no truth association will be performed.");
       }
@@ -251,10 +250,11 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   return std::move(cl);
 }
 
-std::optional<edm4eic::MCRecoClusterParticleAssociation> CalorimeterClusterRecoCoG::associate(
+void CalorimeterClusterRecoCoG::associate(
   const edm4eic::Cluster& cl,
   const edm4eic::ProtoCluster& pcl,
-  const edm4hep::SimCalorimeterHitCollection* mchits
+  const edm4hep::SimCalorimeterHitCollection* mchits,
+  edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
 
   // 1. find proto-cluster hit with largest energy deposition
@@ -308,7 +308,7 @@ std::optional<edm4eic::MCRecoClusterParticleAssociation> CalorimeterClusterRecoC
       trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
     }
     //break;  // CHANGE [Derek, 03.29.2024]
-    return {};
+    return;
   }
 
   // 3. find mchit's MCParticle
@@ -319,13 +319,15 @@ std::optional<edm4eic::MCRecoClusterParticleAssociation> CalorimeterClusterRecoC
   debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
   debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
 
-  assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-  assoc.setSimID(mcp.getObjectID().index);
-  assoc.setWeight(1.0);
-  assoc.setRec(cl);
-  assoc.setSim(mcp);
-  return assoc;
+  // set association
+  auto clusterassoc = assocs->create();
+  clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+  clusterassoc.setSimID(mcp.getObjectID().index);
+  clusterassoc.setWeight(1.0);
+  clusterassoc.setRec(cl);
+  clusterassoc.setSim(mcp);
+  return;
 
-}  // end 'associate(edm4eic::Cluster& cl, edm4eic::ProtoCluster&)'
+}  // end 'associate(edm4eic::Cluster& cl, edm4eic::ProtoCluster&, edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociation*)'
 
 } // eicrecon
