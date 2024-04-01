@@ -293,7 +293,7 @@ void CalorimeterClusterRecoCoG::associate(
 
       // grab particle and calculate weight
       auto mcPar = contrib.getParticle();
-      double weight = mcPar.getEnergy() / cl.getEnergy();
+      double weight = contrib.getEnergy() / cl.getEnergy();
 
       /* TODO check vertex here */
 
