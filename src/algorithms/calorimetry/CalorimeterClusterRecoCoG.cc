@@ -276,7 +276,6 @@ void CalorimeterClusterRecoCoG::associate(
       ++mcHit
     ) {
       if (mcHit->getCellID() == protoHit.getCellID()) {
-        //protoSimHit = mcHit;
         protoSimHit = *mcHit;
         break;
       }
