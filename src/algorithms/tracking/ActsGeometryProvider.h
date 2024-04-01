@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
-//
-//  ActsGeometryProvider.h
-//
-//
-//  Created by Julia Hrdinka on 30/03/15.
-//
-//
+// Copyright (C) 2015 - 2024 Julia Hrdinka, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+
 #pragma once
 
 // ACTS
