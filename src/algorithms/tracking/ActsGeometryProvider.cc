@@ -1,5 +1,5 @@
-// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Geometry/DetectorElementBase.hpp>
