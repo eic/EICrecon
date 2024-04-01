@@ -111,4 +111,37 @@ private:
     /// But it might be customized to solely printout geometry information
     std::shared_ptr<spdlog::logger> m_init_log;
 
+    /// Configuration for obj export
+    Acts::ViewConfig m_containerView{{220, 220, 220}};
+    Acts::ViewConfig m_volumeView{{220, 220, 0}};
+    Acts::ViewConfig m_sensitiveView{{0, 180, 240}};
+    Acts::ViewConfig m_passiveView{{240, 280, 0}};
+    Acts::ViewConfig m_gridView{{220, 0, 0}};
+    bool m_objWriteIt{false};
+    bool m_plyWriteIt{false};
+    std::string m_outputTag{""};
+    std::string m_outputDir{""};
+
+public:
+    void setObjWriteIt(bool writeit) { m_objWriteIt = writeit; }
+    bool getObjWriteIt() const { return m_objWriteIt; }
+    void setPlyWriteIt(bool writeit) { m_plyWriteIt = writeit; }
+    bool getPlyWriteIt() const { return m_plyWriteIt; }
+
+    void setOutputTag(std::string tag) { m_outputTag = tag; }
+    std::string getOutputTag() const { return m_outputTag; }
+    void setOutputDir(std::string dir) { m_outputDir = dir; }
+    std::string getOutputDir() const { return m_outputDir; }
+
+    void setContainerView(std::array<int,3> view) { m_containerView = Acts::ViewConfig{view}; }
+    const Acts::ViewConfig& getContainerView() const { return m_containerView; }
+    void setVolumeView(std::array<int,3> view) { m_volumeView = Acts::ViewConfig{view}; }
+    const Acts::ViewConfig& getVolumeView() const { return m_volumeView; }
+    void setSensitiveView(std::array<int,3> view) { m_sensitiveView = Acts::ViewConfig{view}; }
+    const Acts::ViewConfig& getSensitiveView() const { return m_sensitiveView; }
+    void setPassiveView(std::array<int,3> view) { m_passiveView = Acts::ViewConfig{view}; }
+    const Acts::ViewConfig& getPassiveView() const { return m_passiveView; }
+    void setGridView(std::array<int,3> view) { m_gridView = Acts::ViewConfig{view}; }
+    const Acts::ViewConfig& getGridView() const { return m_gridView; }
+
 };

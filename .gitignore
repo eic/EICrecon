@@ -15,7 +15,12 @@ install/*
 *.slo
 *.lo
 *.o
+
+# Auto-generated meshes
 *.obj
+*.mtl
+*.ply
+*.stl
 
 # Precompiled Headers
 *.gch
