@@ -381,7 +381,7 @@ endmacro()
 macro(plugin_add_onnxruntime _name)
 
     if(NOT onnxruntime_FOUND)
-        find_package(onnxruntime_FOUND)
+        find_package(onnxruntime)
     endif()
 
     # Add libraries
