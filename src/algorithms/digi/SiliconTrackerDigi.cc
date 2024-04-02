@@ -44,7 +44,7 @@ void SiliconTrackerDigi::process(
     for (const auto& sim_hit : *sim_hits) {
 
         // time smearing
-        // TODO: remove or revisit smearing after time is properly bucketed instead 
+        // TODO: remove or revisit smearing after time is properly bucketed instead
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
@@ -87,9 +87,9 @@ void SiliconTrackerDigi::process(
 
         if (!bucket_found) {
             // There is no hit in the same time bucket
-            m_log->debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}", 
+            m_log->debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}",
                         sim_hit.getCellID(), sim_hit.getTime());
-            cell_hit_map[sim_hit.getCellID()].push_back( 
+            cell_hit_map[sim_hit.getCellID()].push_back(
                 edm4eic::MutableRawTrackerHit{
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
@@ -97,7 +97,7 @@ void SiliconTrackerDigi::process(
             } );
         } // bucket found
     } // loop over sim hits
-    
+
     for (auto item : cell_hit_map) {
         for (auto& hit : item.second) {
             raw_hits->push_back(hit);
