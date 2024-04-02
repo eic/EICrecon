@@ -10,12 +10,14 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <spdlog/logger.h>
+#include <array>
 #include <cstdint>
 #include <map>
 #include <memory>

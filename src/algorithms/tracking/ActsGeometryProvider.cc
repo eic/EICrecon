@@ -1,20 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
-#include <Acts/Surfaces/PlanarBounds.hpp>
-#include <Acts/Surfaces/PlaneSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/SurfaceBounds.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Visualization/GeometryView3D.hpp>
@@ -27,13 +24,9 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
-#include <stddef.h>
 #include <exception>
 #include <initializer_list>
-#include <iomanip>
-#include <iostream>
 #include <type_traits>
-#include <vector>
 
 #include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
