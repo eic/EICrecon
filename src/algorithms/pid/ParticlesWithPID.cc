@@ -142,7 +142,7 @@ namespace eicrecon {
             auto rec_part = parts->create();
             rec_part.addToTracks(track);
             int32_t best_pid = 0;
-            auto referencePoint = rec_part.referencePoint();
+            auto referencePoint = rec_part.getReferencePoint();
             // float time          = 0;
             float mass = 0;
             if (best_match >= 0) {
@@ -198,7 +198,7 @@ namespace eicrecon {
                                  mcpart.getPDG());
 
                     m_log->debug(" Assoc: id={} SimId={} RecId={}",
-                                 rec_assoc.getObjectID().index, rec_assoc.getSimID(), rec_assoc.getSimID());
+                                 rec_assoc.getObjectID().index, rec_assoc.getSim().getObjectID().index, rec_assoc.getSim().getObjectID().index);
 
                     m_log->trace(" Assoc PDGs: sim.PDG | rec.PDG | rec.particleIDUsed.PDG = {:^6} | {:^6} | {:^6}",
                                  rec_assoc.getSim().getPDG(),

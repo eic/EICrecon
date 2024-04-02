@@ -35,6 +35,7 @@ extern "C" {
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
             .corrMeanScale = 1.0,
+            .readout = "B0ECalHits",
           },
           app
         ));
