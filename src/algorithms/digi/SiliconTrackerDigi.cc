@@ -39,12 +39,12 @@ void SiliconTrackerDigi::process(
     auto [raw_hits] = output;
 
     // A map of unique cellIDs with temporary structure RawHit
-    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
-
+    std::unordered_map<std::uint64_t, std::vector<edm4eic::MutableRawTrackerHit>> cell_hit_map;
 
     for (const auto& sim_hit : *sim_hits) {
 
         // time smearing
+        // TODO: remove or revisit smearing after time is properly bucketed instead 
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
@@ -66,31 +66,43 @@ void SiliconTrackerDigi::process(
             continue;
         }
 
-        if (cell_hit_map.count(sim_hit.getCellID()) == 0) {
-            // This cell doesn't have hits
-            cell_hit_map[sim_hit.getCellID()] = {
+        bool bucket_found = false;
+        if (cell_hit_map.count(sim_hit.getCellID()) == 1) {
+            // Update an existing hit?
+            for (auto& hit : cell_hit_map[sim_hit.getCellID()]) {
+                auto existing_time = hit.getTimeStamp();
+                // TODO: edge cases?
+                if ( hit_time_stamp >= existing_time && hit_time_stamp <= existing_time + m_cfg.timeResolution ) {
+                    // There is already a hit within the same time window
+                    m_log->debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
+                         sim_hit.getCellID(), hit.getTimeStamp(), existing_time, existing_time + m_cfg.timeResolution);
+                    // sum deposited energy
+                    auto charge = hit.getCharge();
+                    hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
+                    bucket_found = true;
+                    break;
+                } // time bucket found
+            } // loop over existing hits
+        } // cellID found
+
+        if (!bucket_found) {
+            // There is no hit in the same time bucket
+            m_log->debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}", 
+                        sim_hit.getCellID(), sim_hit.getTime());
+            cell_hit_map[sim_hit.getCellID()].push_back( 
+                edm4eic::MutableRawTrackerHit{
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
-                hit_time_stamp  // ns->ps
-            };
-        } else {
-            // There is previous values in the cell
-            auto& hit = cell_hit_map[sim_hit.getCellID()];
-            m_log->debug("  Hit already exists in cell ID={}, prev. hit time: {}", sim_hit.getCellID(), hit.getTimeStamp());
-
-            // keep earliest time for hit
-            auto time_stamp = hit.getTimeStamp();
-            hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
-
-            // sum deposited energy
-            auto charge = hit.getCharge();
-            hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
+                hit_time_stamp  // ns->ps <-- TODO: what does this comment mean?!
+            } );
+        } // bucket found
+    } // loop over sim hits
+    
+    for (auto item : cell_hit_map) {
+        for (auto& hit : item.second) {
+            raw_hits->push_back(hit);
         }
     }
-
-    for (auto item : cell_hit_map) {
-        raw_hits->push_back(item.second);
-    }
-}
+} // process
 
 } // namespace eicrecon
