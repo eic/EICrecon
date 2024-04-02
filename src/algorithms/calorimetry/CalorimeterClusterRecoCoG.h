@@ -10,10 +10,13 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <algorithm>
 #include <cmath>
@@ -72,7 +75,7 @@ namespace eicrecon {
                             "association provided both optional arguments are provided."} {}
 
   public:
-    void init() final;
+    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter);
 
     void process(const Input&, const Output&) const final;
 
@@ -87,6 +90,10 @@ namespace eicrecon {
       const edm4hep::SimCalorimeterHitCollection* mchits,
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs
     ) const;
+    bool isVtxInDet(const edm4hep::Vector3d& vertex, const edm4eic::CalorimeterHit& hit) const;
+
+    const dd4hep::Detector* m_detector {nullptr};
+    const dd4hep::rec::CellIDPositionConverter* m_converter {nullptr};
 
   };
 

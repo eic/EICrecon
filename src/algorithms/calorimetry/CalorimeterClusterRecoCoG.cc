@@ -9,6 +9,7 @@
  */
 
 #include <Evaluator/DD4hepUnits.h>
+#include <DD4hep/Readout.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -22,6 +23,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
+#include <TString.h>
 #include <cctype>
 #include <complex>
 #include <cstddef>
@@ -38,7 +40,11 @@ namespace eicrecon {
 
   using namespace dd4hep;
 
-  void CalorimeterClusterRecoCoG::init() {
+  void CalorimeterClusterRecoCoG::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter) {
+
+    // set services needed for associations
+    m_detector = detector;
+    m_converter = converter;
 
     // select weighting method
     std::string ew = m_cfg.energyWeight;
@@ -250,6 +256,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   return std::move(cl);
 }
 
+//------------------------------------------------------------------------
 void CalorimeterClusterRecoCoG::associate(
   const edm4eic::Cluster& cl,
   const edm4eic::ProtoCluster& pcl,
@@ -294,17 +301,86 @@ void CalorimeterClusterRecoCoG::associate(
       auto mcPar = contrib.getParticle();
       double weight = contrib.getEnergy() / cl.getEnergy();
 
-      /* TODO check vertex here */
+      // get start/stop vertices
+      edm4hep::Vector3d start = mcPar.getVertex();
+      edm4hep::Vector3d stop  = mcPar.getEndpoint();
 
-      // fill association
-      auto clusterassoc = assocs->create();
-      clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-      clusterassoc.setSimID(mcPar.getObjectID().index);
-      clusterassoc.setWeight(weight);
-      clusterassoc.setRec(cl);
-      clusterassoc.setSim(mcPar);
+      // check if either is in detector
+      const bool isStartInDet = isVtxInDet(start, protoHit);
+      const bool isStopInDet  = isVtxInDet(stop, protoHit);
+
+      // fill association iff
+      //   - particle started outside detector, and
+      //   - particle stops inside detector
+      if (!isStartInDet && isStopInDet) {
+        auto clusterassoc = assocs->create();
+        clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+        clusterassoc.setSimID(mcPar.getObjectID().index);
+        clusterassoc.setWeight(weight);
+        clusterassoc.setRec(cl);
+        clusterassoc.setSim(mcPar);
+      }
     }  // end contribution loop
   }  // end protocluster hit loop
 }  // end 'associate(edm4eic::Cluster& cl, edm4eic::ProtoCluster&, edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociation*)'
+
+//------------------------------------------------------------------------
+//  - FIXME use std::string's rather than TStrings
+//  - TODO clean up: only need to grab constants once per process
+bool CalorimeterClusterRecoCoG::isVtxInDet(const edm4hep::Vector3d& vertex, const edm4eic::CalorimeterHit& hit) const {
+
+  // get readout
+  auto readout = m_converter -> findReadout(
+    m_converter -> findDetElement(
+      m_converter -> position(hit.getCellID())
+    )
+  );
+
+  // get detector name from readout
+  TString sDetName(readout.name());
+  sDetName.ReplaceAll("Hits", "_");
+
+  // grab min/max r/z for detector
+  double rMin = std::numeric_limits<double>::min();
+  double rMax = std::numeric_limits<double>::max();
+  double zMin = -1. * std::numeric_limits<double>::max();
+  double zMax = std::numeric_limits<double>::max();
+  for (auto constant : m_detector -> constants()) {
+
+    // only consider constants from this detector
+    //   - FIXME certain detectors break this scheme
+    //     Maybe there's a better way?
+    TString sConstant(constant.first.data());
+    if (!sConstant.Contains(sDetName.Data())) continue;
+
+    // set rmin
+    if (sConstant.Contains("rmin")) {
+      rMin = m_detector -> constant<double>(constant.first);
+    }
+
+    // set rmax
+    if (sConstant.Contains("rmax")) {
+      rMax = m_detector -> constant<double>(constant.first);
+    }
+
+    // set zmin
+    if (sConstant.Contains("zmin")) {
+      zMin = m_detector -> constant<double>(constant.first);
+    }
+
+    // set zmax
+    if (sConstant.Contains("zmax")) {
+      zMax = m_detector -> constant<double>(constant.first);
+    }
+  }  // end constant loop
+
+  // check if vtx is in r/z range and return
+  const double zVtx  = vertex.z;
+  const double rVtx  = std::hypot(vertex.x, vertex.y);
+  const bool   isInZ = ((zVtx >= zMin) && (zVtx <= zMax));
+  const bool   isInR = ((rVtx >= rMin) && (rVtx <= rMax));
+  return (isInZ && isInR);
+
+}  // end 'IsVtxInDet(edm4hep::Vector3d&, edm4eic::CalorimeterHit&)'
 
 } // eicrecon
