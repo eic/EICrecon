@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <edm4eic/InclusiveKinematicsCollection.h>
-#include <fmt/core.h>
-#include <podio/ObjectID.h>
-#include <cmath>
-#include <gsl/pointers>
 #include <onnxruntime_cxx_api.h>
-#include <vector>
 
 #include "InclusiveKinematicsML.h"
 
