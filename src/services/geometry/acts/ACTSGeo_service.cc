@@ -5,9 +5,11 @@
 
 #include "ACTSGeo_service.h"
 
+#include <Acts/Visualization/ViewConfig.hpp>
 #include <JANA/JException.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <array>
 #include <exception>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -53,8 +55,41 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             auto tickerEnabled = m_app->IsTickerEnabled();
             m_app->SetTicker(false);
 
-            // Initialize m_acts_provider
+            // Create default m_acts_provider
             m_acts_provider = std::make_shared<ActsGeometryProvider>();
+
+            // Set ActsGeometryProvider parameters
+            bool objWriteIt = m_acts_provider->getObjWriteIt();
+            bool plyWriteIt = m_acts_provider->getPlyWriteIt();
+            m_app->SetDefaultParameter("acts:WriteObj", objWriteIt, "Write tracking geometry as obj files");
+            m_app->SetDefaultParameter("acts:WritePly", plyWriteIt, "Write tracking geometry as ply files");
+            m_acts_provider->setObjWriteIt(objWriteIt);
+            m_acts_provider->setPlyWriteIt(plyWriteIt);
+
+            std::string outputTag = m_acts_provider->getOutputTag();
+            std::string outputDir = m_acts_provider->getOutputDir();
+            m_app->SetDefaultParameter("acts:OutputTag", outputTag, "Obj and ply output file tag");
+            m_app->SetDefaultParameter("acts:OutputDir", outputDir, "Obj and ply output file dir");
+            m_acts_provider->setOutputTag(outputTag);
+            m_acts_provider->setOutputDir(outputDir);
+
+            std::array<int,3> containerView = m_acts_provider->getContainerView().color;
+            std::array<int,3> volumeView = m_acts_provider->getVolumeView().color;
+            std::array<int,3> sensitiveView = m_acts_provider->getSensitiveView().color;
+            std::array<int,3> passiveView = m_acts_provider->getPassiveView().color;
+            std::array<int,3> gridView = m_acts_provider->getGridView().color;
+            m_app->SetDefaultParameter("acts:ContainerView", containerView, "RGB for container views");
+            m_app->SetDefaultParameter("acts:VolumeView", volumeView, "RGB for volume views");
+            m_app->SetDefaultParameter("acts:SensitiveView", sensitiveView, "RGB for sensitive views");
+            m_app->SetDefaultParameter("acts:PassiveView", passiveView, "RGB for passive views");
+            m_app->SetDefaultParameter("acts:GridView", gridView, "RGB for grid views");
+            m_acts_provider->setContainerView(containerView);
+            m_acts_provider->setVolumeView(volumeView);
+            m_acts_provider->setSensitiveView(sensitiveView);
+            m_acts_provider->setPassiveView(passiveView);
+            m_acts_provider->setGridView(gridView);
+
+            // Initialize m_acts_provider
             m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
 
             // Enable ticker back
