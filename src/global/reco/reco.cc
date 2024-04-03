@@ -6,6 +6,7 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -19,12 +20,14 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
-#include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
+#include "factories/reco/TransformBreitFrame_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
+#include "global/reco/ScatteredElectronsEMinusPz_factory.h"
+#include "global/reco/ScatteredElectronsTruth_factory.h"
 
 //
 extern "C" {
@@ -166,6 +169,23 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
+        "ReconstructedElectronsForDIS",
+        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
+        "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapNClusterAssociations",
+        "EcalEndcapPClusterAssociations",
+        "EcalEndcapPInsertClusterAssociations",
+        "EcalLumiSpecClusterAssociations",
+        },
+        {"ReconstructedElectronsForDIS"},
+        {
+                                        .min_energy_over_momentum = 0.7, // GeV
+                                        .max_energy_over_momentum = 1.3  // GeV
+                                },
+        app
+    ));
+
     app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedJets",
             {"GeneratedParticles"},
@@ -205,6 +225,34 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
+        "ScatteredElectronsTruth",
+        {
+          "MCParticles",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
+        },
+        {
+          "ScatteredElectronsTruth"
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
+        "ScatteredElectronsEMinusPz",
+        {
+          "ReconstructedChargedParticles",
+          "ReconstructedElectronsForDIS"
+        },
+        {
+          "ScatteredElectronsEMinusPz"
+        },
+        {
+          .minEMinusPz = 0, // GeV
+          .maxEMinusPz = 10000000.0 // GeV
+        },
+        app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
             "ReconstructedBreitFrameParticles",
