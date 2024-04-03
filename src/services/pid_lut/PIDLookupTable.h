@@ -12,15 +12,15 @@ class PIDLookupTable {
 
 public:
     struct Entry {
-        double prob_electron, prob_pion, prob_kaon, prob_proton;
         int pdg, charge;
         double momentum, theta, phi;
+        double prob_electron, prob_pion, prob_kaon, prob_proton;
     };
 
     struct Binning {
         double lower_bound;
         double upper_bound; 
-        double step;
+        double bin_count;
     };
 
 
