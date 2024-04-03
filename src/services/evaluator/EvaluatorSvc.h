@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
+#include <algorithms/logger.h>
 #include <functional>
-#include <string>
 #include <mutex>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include <algorithms/logger.h>
-#include <algorithms/service.h>
 
 namespace eicrecon {
 
