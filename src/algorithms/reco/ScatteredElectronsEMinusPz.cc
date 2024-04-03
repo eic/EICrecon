@@ -83,15 +83,10 @@ namespace eicrecon {
       // Loop over reconstructed particles to
       // sum hadronic final state
       for (const auto& p: *rcparts) {
-        // this is a hack - getObjectID() only works within
-        // a collections, not unique across all collections.
         // What we want is to add all reconstructed particles
         // except the one we are currently considering as the
         // (scattered) electron candidate.
-        // This does work though and in general it has only
-        // one match as I would hope (tested on pythia events)
-        if (abs( edm4hep::utils::magnitude(p.getMomentum()) - edm4hep::utils::magnitude(e.getMomentum()) ) > 0.01 * dd4hep::GeV )
-                                {
+		if (p.getObjectID() != e.getObjectID()) {
           vHadron.SetCoordinates(
               p.getMomentum().x,
               p.getMomentum().y,
