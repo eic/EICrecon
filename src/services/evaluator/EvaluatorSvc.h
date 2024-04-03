@@ -11,10 +11,31 @@
 
 namespace eicrecon {
 
+/**
+ * @brief Provides an interface to a compiler that converts string expressions
+ * to native `std::function`.
+ *
+ * The underlying implementation relies on ROOT's TInterpreter, but this may
+ * change in the future. User can inspect the full C++ code by setting
+ * `-PEvaluatorSvc:LogLevel=debug`, the list of provided variables is apparent
+ * from the same output.
+ *
+ * Currently, return type is fixed to `double`, and all input parameters have
+ * to be convertible to double.
+ */
 class EvaluatorSvc : public algorithms::LoggedService<EvaluatorSvc> {
 public:
   void init();
 
+  /**
+   * @brief Compile expression `expr` to std::function
+   * @param expr String expression to compile (e.g. `"a + b"`)
+   * @param Args Types of arguments for the resulting function
+   * @param transform Function providing mapping from Args
+   *
+   * The `Args` must be default-constructible types, since transform need to be
+   * called at compilation time to determine the list of available parameters.
+   */
   template <class... Args>
   std::function<double(Args...)>
   compile(const std::string& expr,
@@ -29,6 +50,15 @@ public:
       return compiled_expr(transform(std::forward<Args>(args)...));
     };
   };
+
+  /**
+   * @brief Compile expression `expr` to std::function
+   * @param expr String expression to compile (e.g. `"a + b"`)
+   * @param params List of parameter names used in the expression (e.g. `{"a", "b"}`)
+   *
+   * The resulting function accepts a dictionary (`std::unordered_map`) of
+   * parameter values.
+   */
   std::function<double(const std::unordered_map<std::string, double>&)>
   _compile(const std::string& expr, std::vector<std::string> params);
 
