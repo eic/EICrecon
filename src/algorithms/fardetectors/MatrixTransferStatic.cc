@@ -96,8 +96,8 @@ void eicrecon::MatrixTransferStatic::process(
   }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
-         aX[0][0] = 3.152158; //a
-         aX[0][1] = 20.852072; //b
+      aX[0][0] = 3.152158; //a
+      aX[0][1] = 20.852072; //b
      aX[1][0] = 0.181649517; //c
      aX[1][1] = -0.303998487; //d
 
