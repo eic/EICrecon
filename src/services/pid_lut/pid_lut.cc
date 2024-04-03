@@ -9,6 +9,6 @@
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<PIDLookupTable_service>);
+    app->ProvideService(std::make_shared<PIDLookupTable_service>());
 }
 }

@@ -21,7 +21,6 @@ target_include_directories(${TEST_NAME}
 )
 target_link_libraries(${TEST_NAME} PRIVATE
   log_plugin
-  pid
   pid_lut_plugin
   EDM4EIC::edm4eic
   EDM4HEP::edm4hep

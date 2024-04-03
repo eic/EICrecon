@@ -16,18 +16,20 @@ class PIDLookupTable_service : public JService {
 
 public:
 
-    const PIDLookupTable& FetchTable(std::string filename) {
+    const PIDLookupTable* FetchTable(std::string filename) {
 
         std::lock_guard<std::mutex> lock(m_mutex);
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
             auto lut = new PIDLookupTable;
-            lut->LoadFile(filename);
+            lut->LoadFile(filename); // LoadFile can except
             m_cache.insert({filename, lut});
-            return *lut;
+            return lut;
         }
         else {
-            return *(pair.second);
+            return pair->second;
         }
     }
 };
+
+
