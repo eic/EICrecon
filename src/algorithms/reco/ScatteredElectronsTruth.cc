@@ -24,12 +24,8 @@ namespace eicrecon {
 
   /**
    * @brief Initialize ScatteredElectronsTruth algorithm
-   *
-   * @param logger
    */
-  void ScatteredElectronsTruth::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-  }
+  void ScatteredElectronsTruth::init() { }
 
   /**
    * @brief Selects the scattered electron based
@@ -53,7 +49,7 @@ namespace eicrecon {
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      m_log->trace("No truth scattered electron found");
+      trace("No truth scattered electron found");
       return;
     }
 
@@ -69,7 +65,7 @@ namespace eicrecon {
     // Check to see if the associated reconstructed
     // particle is available
     if (!(ef_assoc != rcassoc->end())) {
-      m_log->trace("Truth scattered electron not in reconstructed particles");
+      trace("Truth scattered electron not in reconstructed particles");
       return;
     }
 
@@ -106,7 +102,7 @@ namespace eicrecon {
 
     // If no scattered electron was found, too bad
     if (electrons.size() == 0) {
-      m_log->trace("No Truth scattered electron found");
+      trace("No Truth scattered electron found");
       return;
     }
 
@@ -114,9 +110,9 @@ namespace eicrecon {
     // report the computed E-Pz for the chosen electron
     double EPz = (vScatteredElectron+vHadronicFinalState).E()
               - (vScatteredElectron+vHadronicFinalState).Pz();
-    m_log->trace("We found {} scattered electrons using Truth association", electrons.size());
-    m_log->trace( "TRUTH scattered electron has E-Pz = {}", EPz );
-    m_log->trace(
+    trace("We found {} scattered electrons using Truth association", electrons.size());
+    trace( "TRUTH scattered electron has E-Pz = {}", EPz );
+    trace(
         "TRUTH scattered electron has Pxyz=( {}, {}, {} ) and E/p = {}",
         electrons[0].Px(),
         electrons[0].Py(),

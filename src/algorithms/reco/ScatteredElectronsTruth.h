@@ -7,7 +7,6 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -36,11 +35,10 @@ namespace eicrecon {
                             {"ReconstructedParticles"},
                             "Output a list of possible scattered electrons using truth MC Particle associations."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
-    std::shared_ptr<spdlog::logger> m_log;
     double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_pion{0.13957};
   };
 
