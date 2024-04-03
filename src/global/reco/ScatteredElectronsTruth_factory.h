@@ -43,7 +43,6 @@ public:
         m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_rc_particles_assoc_input()},
                         {m_out_reco_particles().get()});
 
-        // m_out_reco_particles() = std::move( output );
     }
 };
 
