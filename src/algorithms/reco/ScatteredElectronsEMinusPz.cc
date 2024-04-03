@@ -86,7 +86,7 @@ namespace eicrecon {
         // What we want is to add all reconstructed particles
         // except the one we are currently considering as the
         // (scattered) electron candidate.
-		if (p.getObjectID() != e.getObjectID()) {
+                if (p.getObjectID() != e.getObjectID()) {
           vHadron.SetCoordinates(
               p.getMomentum().x,
               p.getMomentum().y,
