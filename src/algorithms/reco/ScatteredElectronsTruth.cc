@@ -14,8 +14,8 @@
 #include <gsl/pointers>
 #include <vector>
 
-#include "Beam.h"
-#include "ScatteredElectronsTruth.h"
+#include "algorithms/reco/Beam.h"
+#include "algorithms/reco/ScatteredElectronsTruth.h"
 
 using ROOT::Math::PxPyPzEVector;
 using ROOT::Math::PxPyPzMVector;

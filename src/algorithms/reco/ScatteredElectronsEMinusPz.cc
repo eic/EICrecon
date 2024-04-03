@@ -15,7 +15,7 @@
 #include <map>
 #include <utility>
 
-#include "ScatteredElectronsEMinusPz.h"
+#include "algorithms/reco/ScatteredElectronsEMinusPz.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 
 using ROOT::Math::PxPyPzEVector;

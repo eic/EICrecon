@@ -7,7 +7,7 @@
 #include <spdlog/logger.h>
 #include <memory>
 
-#include "ScatteredElectronsEMinusPzConfig.h"
+#include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 
