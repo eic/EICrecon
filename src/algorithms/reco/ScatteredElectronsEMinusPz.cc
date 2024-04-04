@@ -44,13 +44,14 @@ namespace eicrecon {
     // this map will store intermediate results
     // so that we can sort them before filling output
     // collection
-    std::map<double, edm4eic::MutableReconstructedParticle> scatteredElectronsMap;
+    std::map<double, edm4eic::ReconstructedParticle> scatteredElectronsMap;
 
     // our output collection of scattered electrons
     // ordered by E-Pz
     auto out_electrons =  std::make_unique<
         edm4eic::ReconstructedParticleCollection
       >();
+    out_electrons->setSubsetCollection();
 
     m_log->trace( "We have {} candidate electrons",
         rcele->size()
@@ -108,7 +109,7 @@ namespace eicrecon {
       m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z );
 
       // Store the result of this calculation
-      scatteredElectronsMap[ EPz ] = e.clone();
+      scatteredElectronsMap[ EPz ] = e;
     } // electron loop
 
     m_log->trace( "Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz );
