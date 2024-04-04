@@ -45,6 +45,8 @@ namespace eicrecon {
     // get our input and outputs
     const auto [mcparts, rcparts, rcassoc] = input;
     auto [output_electrons] = output;
+    output_electrons->setSubsetCollection();
+
 
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
@@ -88,7 +90,7 @@ namespace eicrecon {
     for (const auto& p: *rcparts) {
       if (p.getObjectID() == ef_rc_id) {
 
-        output_electrons->push_back( p.clone() );
+        output_electrons->push_back( p );
         vScatteredElectron.SetCoordinates( p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, m_electron );
         electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         // break; NOTE: if we are not computing E-Pz
