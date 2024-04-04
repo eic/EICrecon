@@ -104,8 +104,8 @@ namespace eicrecon {
 
     for (const auto& p: *rcparts) {
 
-      bool isHadron = true;
-      // Check if it's the scattered electron
+      bool isHadron = true;	    
+      // Check if it's the scattered electron	    
       if (p.getObjectID().index == ef_rc_id) isHadron = false;
       // Check for non-hadron PDG codes
       if (p.getPDG() == 11) isHadron = false;
