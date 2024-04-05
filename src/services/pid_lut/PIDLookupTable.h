@@ -15,7 +15,7 @@ class PIDLookupTable {
 public:
     struct Entry {
         int pdg, charge;
-        double momentum, theta, phi;
+        double momentum, eta, phi;
         double prob_electron, prob_pion, prob_kaon, prob_proton;
     };
 
@@ -32,18 +32,18 @@ private:
     std::vector<int> m_pdg_binning;
     std::vector<int> m_charge_binning;
     Binning m_momentum_binning;
-    Binning m_theta_binning;
+    Binning m_eta_binning;
     Binning m_phi_binning;
 
 public:
 
     const Entry* Lookup(int pdg, int charge, TVector3 momentum);
-    const Entry* Lookup(int pdg, int charge, double momentum, double polar_theta_deg, double azimuthal_phi_deg);
+    const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg);
 
     std::vector<int>& GetPDGBinning() { return m_pdg_binning; }
     std::vector<int>& GetChargeBinning() { return m_charge_binning; }
     Binning& GetMomentumBinning() { return m_momentum_binning; }
-    Binning& GetThetaBinning() { return m_theta_binning; }
+    Binning& GetEtaBinning() { return m_eta_binning; }
     Binning& GetPhiBinning() { return m_phi_binning; }
 
     void LoadFile(const std::string& filename);

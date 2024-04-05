@@ -39,9 +39,9 @@ TEST_CASE("PIDLookupTable_Lookup") {
     lut.GetMomentumBinning().bin_count = 2;
     // Bins are 20, 30
 
-    lut.GetThetaBinning().lower_bound = 5;
-    lut.GetThetaBinning().upper_bound = 7;
-    lut.GetThetaBinning().bin_count = 2;
+    lut.GetEtaBinning().lower_bound = 5;
+    lut.GetEtaBinning().upper_bound = 7;
+    lut.GetEtaBinning().bin_count = 2;
     // Bins are 5, 6
 
     lut.GetPhiBinning().lower_bound = 0;
@@ -49,7 +49,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
     lut.GetPhiBinning().bin_count = 1; 
     // Bins are 0
 
-    // pdg, charge, momentum, theta, phi, prob_electron, prob_pion, prob_kaon, prob_proton;
+    // pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton;
     lut.AppendEntry({ 1, -1, 20, 5, 0, 1.0, 0.0, 0.0, 0.0 });
     lut.AppendEntry({ 1, -1, 20, 6, 0, 2.0, 0.0, 0.0, 0.0 });
     lut.AppendEntry({ 1, -1, 30, 5, 0, 3.0, 0.0, 0.0, 0.0 });
@@ -65,7 +65,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
     REQUIRE(result->pdg == 1);
     REQUIRE(result->charge == 1);
     REQUIRE(result->momentum == 20);
-    REQUIRE(result->theta == 5);
+    REQUIRE(result->eta == 5);
     REQUIRE(result->phi == 0);
     REQUIRE(result->prob_electron == 5.0);
 
@@ -74,7 +74,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
     REQUIRE(result->pdg == 1);
     REQUIRE(result->charge == 1);
     REQUIRE(result->momentum == 30);
-    REQUIRE(result->theta == 5);
+    REQUIRE(result->eta == 5);
     REQUIRE(result->phi == 0);
     REQUIRE(result->prob_electron == 7.0);
 
@@ -83,7 +83,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
     REQUIRE(result->pdg == 1);
     REQUIRE(result->charge == -1);
     REQUIRE(result->momentum == 30);
-    REQUIRE(result->theta == 6);
+    REQUIRE(result->eta == 6);
     REQUIRE(result->phi == 0);
     REQUIRE(result->prob_electron == 4.0);
 
@@ -96,9 +96,9 @@ TEST_CASE("PIDLookupTable_LoadFile") {
     REQUIRE(lut.GetMomentumBinning().upper_bound == 10.2);
     REQUIRE(lut.GetMomentumBinning().bin_count == 50);
 
-    REQUIRE(lut.GetThetaBinning().lower_bound == 25.0);
-    REQUIRE(lut.GetThetaBinning().upper_bound == 161.0);
-    REQUIRE(lut.GetThetaBinning().bin_count == 136);
+    REQUIRE(lut.GetEtaBinning().lower_bound == 25.0);
+    REQUIRE(lut.GetEtaBinning().upper_bound == 161.0);
+    REQUIRE(lut.GetEtaBinning().bin_count == 136);
 
     REQUIRE(lut.GetPhiBinning().lower_bound == 0.0);
     REQUIRE(lut.GetPhiBinning().upper_bound == 30.5);

@@ -11,7 +11,7 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, TVector
     return nullptr;
 }
 
-const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double polar_theta_deg, double azimuthal_phi_deg) {
+const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) {
 
     auto pdg_bin = FindBin(m_pdg_binning, pdg);
     if (!pdg_bin.has_value()) return nullptr;
@@ -22,19 +22,19 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
     auto momentum_bin = FindBin(m_momentum_binning, momentum);
     if (!momentum_bin.has_value()) return nullptr;
 
-    auto theta_bin = FindBin(m_theta_binning, polar_theta_deg);
-    if (!theta_bin.has_value()) return nullptr;
+    auto eta_bin = FindBin(m_eta_binning, eta_deg);
+    if (!eta_bin.has_value()) return nullptr;
 
-    auto phi_bin = FindBin(m_phi_binning, azimuthal_phi_deg);
+    auto phi_bin = FindBin(m_phi_binning, phi_deg);
     if (!phi_bin.has_value()) return nullptr;
 
     size_t offset = 1;
     size_t index = *phi_bin * offset;
 
     offset *= m_phi_binning.bin_count;
-    index += *theta_bin * offset;
+    index += *eta_bin * offset;
 
-    offset *= m_theta_binning.bin_count;
+    offset *= m_eta_binning.bin_count;
     index += *momentum_bin * offset;
 
     offset *= m_momentum_binning.bin_count;
@@ -83,16 +83,16 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
     m_momentum_binning.bin_count = (m_momentum_binning.upper_bound - m_momentum_binning.lower_bound) / step;
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing theta binning: " << line << std::endl;
+    std::cout << "Parsing eta binning: " << line << std::endl;
     iss.str(line);
     iss.clear();
-    if (!(iss >> m_theta_binning.lower_bound
-              >> m_theta_binning.upper_bound
+    if (!(iss >> m_eta_binning.lower_bound
+              >> m_eta_binning.upper_bound
               >> step)) {
         std::cout << "Unable to parse line: " << line << std::endl;
-        throw std::runtime_error("Unable to parse theta binning");
+        throw std::runtime_error("Unable to parse eta binning");
     }
-    m_theta_binning.bin_count = (m_theta_binning.upper_bound - m_theta_binning.lower_bound) / step;
+    m_eta_binning.bin_count = (m_eta_binning.upper_bound - m_eta_binning.lower_bound) / step;
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     std::cout << "Parsing phi binning: " << line << std::endl;
@@ -117,7 +117,7 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
         if (iss >> entry.pdg
                 >> entry.charge
                 >> entry.momentum
-                >> entry.theta
+                >> entry.eta
                 >> entry.phi
                 >> entry.prob_electron
                 >> entry.prob_pion
@@ -130,7 +130,7 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
             throw std::runtime_error("Unable to parse LUT file!");
         }
     }
-    size_t expected_table_size = m_momentum_binning.bin_count * m_theta_binning.bin_count * 
+    size_t expected_table_size = m_momentum_binning.bin_count * m_eta_binning.bin_count * 
                                  m_phi_binning.bin_count * m_charge_binning.size() * m_pdg_binning.size();
     if (expected_table_size != m_table.size()) {
         std::cout << "Wrong number of entries in table for given bin counts. Expected " << expected_table_size << ", got " << m_table.size() << std::endl;
