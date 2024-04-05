@@ -22,6 +22,7 @@ public:
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
             auto lut = new PIDLookupTable;
+            LOG << "Loading PID lookup table: " << filename << LOG_END;
             lut->LoadFile(filename); // LoadFile can except
             m_cache.insert({filename, lut});
             return lut;
