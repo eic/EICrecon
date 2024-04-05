@@ -22,13 +22,15 @@ public:
     struct Binning {
         double lower_bound;
         double upper_bound; 
-        double bin_count;
+        size_t bin_count;
     };
 
 
 private:
     std::vector<Entry> m_table;
 
+    std::vector<int> m_pdg_binning;
+    std::vector<int> m_charge_binning;
     Binning m_momentum_binning;
     Binning m_theta_binning;
     Binning m_phi_binning;
@@ -38,6 +40,8 @@ public:
     const Entry* Lookup(int pdg, int charge, TVector3 momentum);
     const Entry* Lookup(int pdg, int charge, double momentum, double polar_theta_deg, double azimuthal_phi_deg);
 
+    std::vector<int>& GetPDGBinning() { return m_pdg_binning; }
+    std::vector<int>& GetChargeBinning() { return m_charge_binning; }
     Binning& GetMomentumBinning() { return m_momentum_binning; }
     Binning& GetThetaBinning() { return m_theta_binning; }
     Binning& GetPhiBinning() { return m_phi_binning; }
@@ -46,6 +50,7 @@ public:
     void AppendEntry(Entry&& entry);
 
     static std::optional<size_t> FindBin(const Binning& binning, double value);
+    static std::optional<size_t> FindBin(const std::vector<int>& binning, int value);
 
 };
 
