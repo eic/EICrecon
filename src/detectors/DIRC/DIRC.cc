@@ -14,6 +14,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/pid/PIDLookupTable_factory.h"
 
 
 extern "C" {
@@ -73,5 +74,13 @@ extern "C" {
           app
           ));
 
+    app->Add(new JOmniFactoryGeneratorT<PIDLookupTable_factory>(
+          "DIRCPID",
+          {"MCParticles"},  // TODO: This is obviously not right. But at least this lets me test end-to-end
+          {"DIRCPID"},      // TODO: I don't like this collection name either, so please change it
+          {.filename="hpdirc_positive.lut",
+           .url="https://raw.githubusercontent.com/nathanwbrei/fastpid/master/hpdirc_positive.lut"},
+          app
+          ));
   }
 }

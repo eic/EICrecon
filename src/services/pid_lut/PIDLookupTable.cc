@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) {
+const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
 
     auto pdg_bin = FindBin(m_pdg_binning, pdg);
     if (!pdg_bin.has_value()) return nullptr;

@@ -3,15 +3,21 @@
 
 #pragma once
 
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/utils/vector_utils.h>
+
 #include "services/pid_lut/PIDLookupTable_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include <random>
 
 namespace eicrecon {
 
 struct PIDLookupTableConfig {
-    std::string filename = "hpdirc_positive.lut";
-}
+    std::string filename;
+    std::string url;
+};
 
 class PIDLookupTable_factory : public JOmniFactory<PIDLookupTable_factory, PIDLookupTableConfig> {
 
@@ -19,16 +25,17 @@ private:
     PodioInput<edm4hep::MCParticle> m_particles_in {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_out {this};
 
-    ParameterRef<std::string> m_filename {this, "filename", config().filename, "Filename for LUT (relative to CWD)"};
+    ParameterRef<std::string> m_filename {this, "filename", config().filename, "Relative to current working directory"};
+    ParameterRef<std::string> m_url {this, "url", config().url, "Only used if not found via filename"};
     Service<PIDLookupTable_service> m_lut_svc {this};
 
-    std::mt19937 m_rng;
-    std::uniform_real_distribution m_dist(0,1);
-    PIDLookupTable* m_lut;
+    std::mt19937 m_gen;
+    std::uniform_real_distribution<double> m_dist {0, 1};
+    const PIDLookupTable* m_lut;
 
 public:
     void Configure() {
-        m_lut = m_lut_svc()->FetchTable(m_filename());
+        m_lut = m_lut_svc().FetchTable(m_filename(), m_url());
     }
 
     void ChangeRun(int64_t run_number) {
@@ -39,15 +46,18 @@ public:
         // TODO: This is all very handwavy because I haven't been attending the PID datamodel discussions.
         // Please look over this carefully and correct as needed!
         
-        for (const auto& mcparticle : m_particles_in()) {
+        for (const auto& mcparticle : *m_particles_in()) {
 
             // Unpack lookup values from input
             
             int pdg = mcparticle.getPDG();
             int charge = mcparticle.getCharge();
             double momentum = edm4hep::utils::magnitude(mcparticle.getMomentum());
+            
+            // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
             double eta = edm4hep::utils::eta(mcparticle.getVertex());
-            double phi = edm4hep::utils::phi(mcparticle.getVertex());
+            double theta = edm4hep::utils::anglePolar(mcparticle.getVertex());
+            double phi = edm4hep::utils::angleAzimuthal(mcparticle.getVertex());
             
             auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
 

@@ -37,7 +37,7 @@ private:
 
 public:
 
-    const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg);
+    const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const;
 
     std::vector<int>& GetPDGBinning() { return m_pdg_binning; }
     std::vector<int>& GetChargeBinning() { return m_charge_binning; }

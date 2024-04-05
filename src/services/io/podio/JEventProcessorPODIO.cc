@@ -239,7 +239,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
 
             // DIRC
-            "DIRCRawHits"
+            "DIRCRawHits",
+            "DIRCPID"
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
