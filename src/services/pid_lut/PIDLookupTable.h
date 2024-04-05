@@ -42,7 +42,7 @@ public:
     Binning& GetThetaBinning() { return m_theta_binning; }
     Binning& GetPhiBinning() { return m_phi_binning; }
 
-    void LoadFile(std::string& filename);
+    void LoadFile(const std::string& filename);
     void AppendEntry(Entry&& entry);
 
     static std::optional<size_t> FindBin(const Binning& binning, double value);

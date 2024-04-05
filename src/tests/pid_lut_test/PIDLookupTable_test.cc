@@ -5,6 +5,7 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <services/pid_lut/PIDLookupTable.h>
 #include <spdlog/logger.h>
+#include <cerrno>
 
 
 TEST_CASE("PIDLookupTable_FindBin") {
@@ -85,6 +86,19 @@ TEST_CASE("PIDLookupTable_Lookup") {
 }
 
 TEST_CASE("PIDLookupTable_LoadFile") {
+    PIDLookupTable lut;
+    lut.LoadFile("hpdirc_positive.lut");
+    REQUIRE(lut.GetMomentumBinning().lower_bound == 0.20);
+    REQUIRE(lut.GetMomentumBinning().upper_bound == 10.0);
+    REQUIRE(lut.GetMomentumBinning().bin_count == 49);
+
+    REQUIRE(lut.GetThetaBinning().lower_bound == 25.0);
+    REQUIRE(lut.GetThetaBinning().upper_bound == 160.0);
+    REQUIRE(lut.GetThetaBinning().bin_count == 135);
+
+    REQUIRE(lut.GetPhiBinning().lower_bound == 0.0);
+    REQUIRE(lut.GetPhiBinning().upper_bound == 30.0);
+    REQUIRE(lut.GetPhiBinning().bin_count == 60);
 }
 
 TEST_CASE("PIDLookupTable_EndToEnd") {
