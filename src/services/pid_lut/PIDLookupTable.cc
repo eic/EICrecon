@@ -51,6 +51,33 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
 
 void PIDLookupTable::LoadFile(std::string& filename) {
 
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Unable to open LUT file!");
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        Entry entry;
+        std::istringstream iss(line);
+        // Read each field from the line and assign to Entry struct members
+        if (iss >> entry.pdg
+                >> entry.charge
+                >> entry.momentum
+                >> entry.theta
+                >> entry.phi
+                >> entry.prob_electron
+                >> entry.prob_pion
+                >> entry.prob_kaon
+                >> entry.prob_proton) {
+
+            AppendEntry(std::move(entry));
+        }
+        else {
+            throw std::runtime_error("Unable to parse LUT file!");
+        }
+    }
+    file.close();
 }
 
 void PIDLookupTable::AppendEntry(Entry&& entry) {

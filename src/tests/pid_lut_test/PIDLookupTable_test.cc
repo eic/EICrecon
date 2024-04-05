@@ -7,7 +7,7 @@
 #include <spdlog/logger.h>
 
 
-TEST_CASE("PIDLookupTableFindBin") {
+TEST_CASE("PIDLookupTable_FindBin") {
 
     PIDLookupTable::Binning binning {.lower_bound=0, .upper_bound=5, .bin_count=5};
 
@@ -26,7 +26,7 @@ TEST_CASE("PIDLookupTableFindBin") {
     REQUIRE(PIDLookupTable::FindBin(binning, 19.55) == 2);
 }
 
-TEST_CASE("PIDLookupTableLookup") {
+TEST_CASE("PIDLookupTable_Lookup") {
 
     PIDLookupTable lut;
     lut.GetMomentumBinning().lower_bound = 20;
@@ -84,6 +84,12 @@ TEST_CASE("PIDLookupTableLookup") {
 
 }
 
+TEST_CASE("PIDLookupTable_LoadFile") {
+}
+
+TEST_CASE("PIDLookupTable_EndToEnd") {
+
+}
 
 
 /*
