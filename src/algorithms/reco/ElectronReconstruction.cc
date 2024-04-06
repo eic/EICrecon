@@ -5,6 +5,8 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <podio/ObjectID.h>
+
 #include "algorithms/reco/ElectronReconstructionConfig.h"
 
 namespace eicrecon {
@@ -37,7 +39,7 @@ namespace eicrecon {
             auto sim = clu_assoc.getSim(); // McParticle
             auto clu = clu_assoc.getRec(); // RecoCluster
 
-            m_log->trace( "SimId={}, CluId={}", clu_assoc.getSimID(), clu_assoc.getRecID() );
+            m_log->trace( "SimId={}, CluId={}", clu_assoc.getSim().getObjectID().index, clu_assoc.getRec().getObjectID().index );
             m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4hep::utils::magnitude(sim.getMomentum()), clu.getEnergy() / edm4hep::utils::magnitude(sim.getMomentum()), sim.getPDG() );
 
 
@@ -45,7 +47,7 @@ namespace eicrecon {
             // i.e. take (MC Particle <-> RC Cluster) + ( MC Particle <-> RC Particle ) = ( RC Particle <-> RC Cluster )
             auto reco_part_assoc = rcassoc->begin();
             for (; reco_part_assoc != rcassoc->end(); ++reco_part_assoc) {
-              if (reco_part_assoc->getSimID() == (unsigned) clu_assoc.getSimID()) {
+              if (reco_part_assoc->getSim().getObjectID() == clu_assoc.getSim().getObjectID()) {
                 break;
               }
             }
@@ -66,7 +68,7 @@ namespace eicrecon {
               }
 
             } else {
-              m_log->debug( "Could not find reconstructed particle for SimId={}", clu_assoc.getSimID() );
+              m_log->debug( "Could not find reconstructed particle for SimId={}", clu_assoc.getSim().getObjectID().index );
             }
 
           } // loop on MC particle to cluster associations in collection
