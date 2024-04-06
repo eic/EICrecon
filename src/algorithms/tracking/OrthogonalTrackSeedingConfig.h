@@ -86,5 +86,6 @@ namespace eicrecon {
     float m_theta_Error = 0.002 * Acts::UnitConstants::rad;  //Error on theta
     float m_qOverP_Error = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
     float m_time_Error = 0.1 * Acts::UnitConstants::mm;      //Error on time
+    // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
   };
 }
