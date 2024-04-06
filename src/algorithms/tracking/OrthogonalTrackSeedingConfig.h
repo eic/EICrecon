@@ -78,5 +78,14 @@ namespace eicrecon {
     float  m_seedConfMaxZOrigin_forw = 150.0 * Acts::UnitConstants::mm;
     float  m_minImpactSeedConf_forw = 1.0 * Acts::UnitConstants::mm;
 
+    //////////////////////////////////////
+    ///Seed Covariance Error Matrix
+    float m_loc_a_Error = 1.5 * Acts::UnitConstants::mm;     //Error on Loc a
+    float m_loc_b_Error = 1.5 * Acts::UnitConstants::mm;     //Error on Loc b
+    float m_phi_Error = 0.02 * Acts::UnitConstants::rad;     //Error on phi
+    float m_theta_Error = 0.002 * Acts::UnitConstants::rad;  //Error on theta
+    float m_qOverP_Error = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
+    float m_time_Error = 0.1 * Acts::UnitConstants::mm;      //Error on time
+    // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
   };
 }

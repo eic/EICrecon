@@ -5,6 +5,7 @@
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/Seeding/Seed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
@@ -239,18 +240,18 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
         edm4eic::Cov6f cov;
-        cov(0,0) = 0.1; // loc0
-        cov(1,1) = 0.1; // loc1
-        cov(2,2) = 0.05; // phi
-        cov(3,3) = 0.05; // theta
-        cov(4,4) = 0.05; // qOverP
-        cov(5,5) = 0.1; // time
+        cov(0,0) = m_cfg.m_loc_a_Error / Acts::UnitConstants::mm; // loc0
+        cov(1,1) = m_cfg.m_loc_b_Error / Acts::UnitConstants::mm; // loc1
+        cov(2,2) = m_cfg.m_phi_Error / Acts::UnitConstants::rad; // phi
+        cov(3,3) = m_cfg.m_theta_Error / Acts::UnitConstants::rad; // theta
+        cov(4,4) = m_cfg.m_qOverP_Error * Acts::UnitConstants::GeV; // qOverP
+        cov(5,5) = m_cfg.m_time_Error / Acts::UnitConstants::ns; // time
         trackparam.setCovariance(cov);
       #else
         trackparam.setCharge(static_cast<float>(charge)); // charge
-        trackparam.setLocError({0.1,0.1}); //covariance of location
-        trackparam.setMomentumError({0.05,0.05,0.05}); // covariance on theta/phi/q/p
-        trackparam.setTimeError(0.1); // error on time
+        trackparam.setLocError({m_cfg.m_loc_a_Error, m_cfg.m_loc_b_Error}); //covariance of location
+        trackparam.setMomentumError({m_cfg.m_theta_Error, m_cfg.m_phi_Error, m_cfg.m_qOverP_Error}); // covariance on theta/phi/q/p
+        trackparam.setTimeError(m_cfg.m_time_Error); // error on time
       #endif
     }
 
