@@ -27,7 +27,6 @@ namespace eicrecon {
 
         // output container
         auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-        out_electrons->setSubsetCollection(); // out_electrons is a subset of the ReconstructedParticles collection
 
         for (const auto particle : *rcparts) {
             // if we found a reco particle then test for electron compatibility
@@ -44,7 +43,7 @@ namespace eicrecon {
             m_log->trace("ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", E, p, EOverP, particle.getPDG());
             // Apply the E/p cut here to select electons
             if (EOverP >= m_cfg.min_energy_over_momentum && EOverP <= m_cfg.max_energy_over_momentum) {
-                out_electrons->push_back(particle);
+                out_electrons->push_back(particle.clone());
             }
 
         }

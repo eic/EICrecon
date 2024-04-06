@@ -51,7 +51,6 @@ namespace eicrecon {
     auto out_electrons =  std::make_unique<
         edm4eic::ReconstructedParticleCollection
       >();
-    out_electrons->setSubsetCollection();
 
     m_log->trace( "We have {} candidate electrons",
         rcele->size()
@@ -109,7 +108,7 @@ namespace eicrecon {
       m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z );
 
       // Store the result of this calculation
-      scatteredElectronsMap[ EPz ] = e;
+      scatteredElectronsMap[ EPz ] = e.clone();
     } // electron loop
 
     m_log->trace( "Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz );
