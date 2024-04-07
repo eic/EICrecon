@@ -45,25 +45,25 @@ public:
 
         // TODO: This is all very handwavy because I haven't been attending the PID datamodel discussions.
         // Please look over this carefully and correct as needed!
-        
+
         for (const auto& mcparticle : *m_particles_in()) {
 
             // Unpack lookup values from input
-            
+
             int pdg = mcparticle.getPDG();
             int charge = mcparticle.getCharge();
             double momentum = edm4hep::utils::magnitude(mcparticle.getMomentum());
-            
+
             // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
             double eta = edm4hep::utils::eta(mcparticle.getVertex());
             double theta = edm4hep::utils::anglePolar(mcparticle.getVertex());
             double phi = edm4hep::utils::angleAzimuthal(mcparticle.getVertex());
-            
+
             auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
 
             int identified_pdg = -1; // unknown
                                      // TODO: What is the PDG for 'unknown', actually?
-            
+
             if (entry != nullptr) {
 
                 m_gen.seed(event_number);

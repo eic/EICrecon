@@ -126,7 +126,7 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
             throw std::runtime_error("Unable to parse LUT file!");
         }
     }
-    size_t expected_table_size = m_momentum_binning.bin_count * m_eta_binning.bin_count * 
+    size_t expected_table_size = m_momentum_binning.bin_count * m_eta_binning.bin_count *
                                  m_phi_binning.bin_count * m_charge_binning.size() * m_pdg_binning.size();
     if (expected_table_size != m_table.size()) {
         std::cout << "Wrong number of entries in table for given bin counts. Expected " << expected_table_size << ", got " << m_table.size() << std::endl;

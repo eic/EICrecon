@@ -47,7 +47,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
 
     lut.GetPhiBinning().lower_bound = 0;
     lut.GetPhiBinning().upper_bound = 1;
-    lut.GetPhiBinning().bin_count = 1; 
+    lut.GetPhiBinning().bin_count = 1;
     // Bins are 0
 
     // pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton;
@@ -160,5 +160,3 @@ TEST_CASE("Lookup table factory test") {
     app.Initialize();
 }
 */
-
-

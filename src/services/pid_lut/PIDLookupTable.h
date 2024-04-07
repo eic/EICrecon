@@ -21,7 +21,7 @@ public:
 
     struct Binning {
         double lower_bound;
-        double upper_bound; 
+        double upper_bound;
         size_t bin_count;
     };
 
@@ -58,5 +58,3 @@ public:
     static std::optional<size_t> FindBin(const std::vector<int>& binning, int value);
 
 };
-
-
