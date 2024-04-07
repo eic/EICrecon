@@ -132,7 +132,7 @@ TEST_CASE("PIDLookupTable_LoadFile") {
 
     // Retrieve line: 11 1 0.20 25.00 15.00 0.0000 0.0000 0.0000 0.0000
     // Step sizes are: 0.2, 1.0, 0.5
-    result = lut.Lookup(11.1, 1, 0.3, 25.5, 15.2);
+    result = lut.Lookup(11, 1, 0.3, 25.5, 15.2);
     REQUIRE(result != nullptr);
     REQUIRE(result->prob_electron == 0.0);
     REQUIRE(result->prob_pion == 0.0);
