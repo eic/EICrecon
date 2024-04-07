@@ -6,6 +6,7 @@
 
 #include "PIDLookupTable.h"
 #include <JANA/Services/JServiceLocator.h>
+#include <JANA/JLogger.h>
 #include <mutex>
 #include <filesystem>
 #include <cstdlib>
