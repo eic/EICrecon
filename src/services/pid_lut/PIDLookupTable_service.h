@@ -14,7 +14,7 @@
 class PIDLookupTable_service : public JService {
 
     std::mutex m_mutex;
-    std::map<std::string, PIDLookupTable*> m_cache;
+    std::map<std::string, std::unique_ptr<PIDLookupTable>> m_cache;
 
 public:
 
@@ -23,7 +23,7 @@ public:
         std::lock_guard<std::mutex> lock(m_mutex);
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
-            auto lut = new PIDLookupTable;
+            auto lut = std::make_unique<PIDLookupTable>();
             LOG << "Loading PID lookup table: " << filename << LOG_END;
 
             if (!std::filesystem::exists(filename)) {
@@ -34,11 +34,12 @@ public:
             }
 
             lut->LoadFile(filename); // LoadFile can except
-            m_cache.insert({filename, lut});
-            return lut;
+            auto result_ptr = lut.get();
+            m_cache.insert({filename, std::move(lut)});
+            return result_ptr;
         }
         else {
-            return pair->second;
+            return pair->second.get();
         }
     }
 };
