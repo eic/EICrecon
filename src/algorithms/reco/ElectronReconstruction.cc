@@ -3,28 +3,22 @@
 #include "ElectronReconstruction.h"
 
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 
 #include "algorithms/reco/ElectronReconstructionConfig.h"
 
 namespace eicrecon {
 
-  void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
-    m_log = logger;
-  }
+    void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) {
+        m_log = logger;
+    }
 
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> ElectronReconstruction::execute(
-    const edm4hep::MCParticleCollection *mcparts,
-    const edm4eic::ReconstructedParticleCollection *rcparts,
-    const edm4eic::MCRecoParticleAssociationCollection *rcassoc,
-    const std::vector<const edm4eic::MCRecoClusterParticleAssociationCollection*> &in_clu_assoc
-    ) {
-
-        // Step 1. Loop through MCParticle - cluster associations
-        // Step 2. Get Reco particle for the Mc Particle matched to cluster
-        // Step 3. Apply E/p cut using Reco cluster Energy and Reco Particle momentum
+    std::unique_ptr<edm4eic::ReconstructedParticleCollection> ElectronReconstruction::execute(
+            const edm4eic::ReconstructedParticleCollection *rcparts
+            ) {
 
         // Some obvious improvements:
         // - E/p cut from real study optimized for electron finding and hadron rejection
@@ -33,49 +27,28 @@ namespace eicrecon {
 
         // output container
         auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+        out_electrons->setSubsetCollection(); // out_electrons is a subset of the ReconstructedParticles collection
 
-        for ( const auto *col : in_clu_assoc ){ // loop on cluster association collections
-          for ( auto clu_assoc : (*col) ){ // loop on MCRecoClusterParticleAssociation in this particular collection
-            auto sim = clu_assoc.getSim(); // McParticle
-            auto clu = clu_assoc.getRec(); // RecoCluster
-
-            m_log->trace( "SimId={}, CluId={}", clu_assoc.getSim().getObjectID().index, clu_assoc.getRec().getObjectID().index );
-            m_log->trace( "MCParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG: {}", clu.getEnergy(), edm4hep::utils::magnitude(sim.getMomentum()), clu.getEnergy() / edm4hep::utils::magnitude(sim.getMomentum()), sim.getPDG() );
-
-
-            // Find the Reconstructed particle associated to the MC Particle that is matched with this reco cluster
-            // i.e. take (MC Particle <-> RC Cluster) + ( MC Particle <-> RC Particle ) = ( RC Particle <-> RC Cluster )
-            auto reco_part_assoc = rcassoc->begin();
-            for (; reco_part_assoc != rcassoc->end(); ++reco_part_assoc) {
-              if (reco_part_assoc->getSim().getObjectID() == clu_assoc.getSim().getObjectID()) {
-                break;
-              }
-            }
-
+        for (const auto particle : *rcparts) {
             // if we found a reco particle then test for electron compatibility
-            if ( reco_part_assoc != rcassoc->end() ){
-              auto reco_part = reco_part_assoc->getRec();
-              double EoverP = clu.getEnergy() / edm4hep::utils::magnitude(reco_part.getMomentum());
-              m_log->trace( "ReconstructedParticle: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", clu.getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), EoverP, sim.getPDG() );
-              auto reco_electron = reco_part.clone();
-              reco_electron.addToClusters( clu );
+            if (particle.getClusters().size() == 0) {
+                continue;
+            }
+            if (particle.getCharge() == 0) { // Skip over photons/other particles without a track
+                continue;
+            }
+            double E = particle.getClusters()[0].getEnergy();
+            double p = edm4hep::utils::magnitude(particle.getMomentum());
+            double EOverP = E / p;
 
-              m_log->trace( "ReconstructedElectron: nClusters={}", reco_electron.clusters_size() );
-              m_log->trace( "ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", reco_electron.getClusters(0).getEnergy(), edm4hep::utils::magnitude(reco_part.getMomentum()), (reco_electron.getClusters(0).getEnergy() / edm4hep::utils::magnitude(reco_part.getMomentum())), sim.getPDG() );
-              // Apply the E/p cut here to select electons
-              if ( EoverP >= m_cfg.min_energy_over_momentum && EoverP <= m_cfg.max_energy_over_momentum ) {
-                out_electrons->push_back(reco_electron);
-              }
-
-            } else {
-              m_log->debug( "Could not find reconstructed particle for SimId={}", clu_assoc.getSim().getObjectID().index );
+            m_log->trace("ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", E, p, EOverP, particle.getPDG());
+            // Apply the E/p cut here to select electons
+            if (EOverP >= m_cfg.min_energy_over_momentum && EOverP <= m_cfg.max_energy_over_momentum) {
+                out_electrons->push_back(particle);
             }
 
-          } // loop on MC particle to cluster associations in collection
-        } // loop on collections
-
-        m_log->debug( "Found {} electron candidates", out_electrons->size() );
-        return out_electrons;
+        }
+    m_log->debug("Found {} electron candidates", out_electrons->size());
+    return out_electrons;
     }
-
 }
