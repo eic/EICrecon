@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Daniel Brandenburg
 
-#include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <stdlib.h>
+#include <podio/ObjectID.h>
 #include <iterator>
 #include <map>
 #include <utility>
@@ -47,13 +44,14 @@ namespace eicrecon {
     // this map will store intermediate results
     // so that we can sort them before filling output
     // collection
-    std::map<double, edm4eic::MutableReconstructedParticle> scatteredElectronsMap;
+    std::map<double, edm4eic::ReconstructedParticle> scatteredElectronsMap;
 
     // our output collection of scattered electrons
     // ordered by E-Pz
     auto out_electrons =  std::make_unique<
         edm4eic::ReconstructedParticleCollection
       >();
+    out_electrons->setSubsetCollection();
 
     m_log->trace( "We have {} candidate electrons",
         rcele->size()
@@ -83,15 +81,10 @@ namespace eicrecon {
       // Loop over reconstructed particles to
       // sum hadronic final state
       for (const auto& p: *rcparts) {
-        // this is a hack - getObjectID() only works within
-        // a collections, not unique across all collections.
         // What we want is to add all reconstructed particles
         // except the one we are currently considering as the
         // (scattered) electron candidate.
-        // This does work though and in general it has only
-        // one match as I would hope (tested on pythia events)
-        if (abs( edm4hep::utils::magnitude(p.getMomentum()) - edm4hep::utils::magnitude(e.getMomentum()) ) > 0.01 * dd4hep::GeV )
-                                {
+        if (p.getObjectID() != e.getObjectID()) {
           vHadron.SetCoordinates(
               p.getMomentum().x,
               p.getMomentum().y,
@@ -116,7 +109,7 @@ namespace eicrecon {
       m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z );
 
       // Store the result of this calculation
-      scatteredElectronsMap[ EPz ] = e.clone();
+      scatteredElectronsMap[ EPz ] = e;
     } // electron loop
 
     m_log->trace( "Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz );
