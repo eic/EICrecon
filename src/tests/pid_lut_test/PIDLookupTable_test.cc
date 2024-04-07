@@ -3,6 +3,7 @@
 
 #include <JANA/JApplication.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <services/pid_lut/PIDLookupTable_service.h>
 #include <services/pid_lut/PIDLookupTable.h>
 #include <spdlog/logger.h>
 #include <cerrno>
@@ -90,8 +91,14 @@ TEST_CASE("PIDLookupTable_Lookup") {
 }
 
 TEST_CASE("PIDLookupTable_LoadFile") {
-    PIDLookupTable lut;
-    lut.LoadFile("hpdirc_positive.lut");
+    //PIDLookupTable lut;
+    //lut.LoadFile("hpdirc_positive.lut_hidden");
+
+    PIDLookupTable_service svc;
+    const PIDLookupTable& lut = *(svc.FetchTable(
+         "hpdirc_positive.lut",
+         "https://raw.githubusercontent.com/nathanwbrei/fastpid/master/hpdirc_positive.lut"));
+
     REQUIRE(lut.GetMomentumBinning().lower_bound == 0.20);
     REQUIRE(lut.GetMomentumBinning().upper_bound == 10.2);
     REQUIRE(lut.GetMomentumBinning().bin_count == 50);

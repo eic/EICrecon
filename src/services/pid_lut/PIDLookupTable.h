@@ -45,6 +45,12 @@ public:
     Binning& GetEtaBinning() { return m_eta_binning; }
     Binning& GetPhiBinning() { return m_phi_binning; }
 
+    const std::vector<int>& GetPDGBinning() const { return m_pdg_binning; }
+    const std::vector<int>& GetChargeBinning() const { return m_charge_binning; }
+    const Binning& GetMomentumBinning() const { return m_momentum_binning; }
+    const Binning& GetEtaBinning() const { return m_eta_binning; }
+    const Binning& GetPhiBinning() const { return m_phi_binning; }
+
     void LoadFile(const std::string& filename);
     void AppendEntry(Entry&& entry);
 
