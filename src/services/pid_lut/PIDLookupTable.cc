@@ -4,8 +4,8 @@
 #include "PIDLookupTable.h"
 #include <algorithm>
 #include <iostream>
-#include <fstream>
-#include <sstream>
+#include <fstream> // IWYU pragma: keep
+#include <sstream> // IWYU pragma: keep
 #include <iterator>
 #include <stdexcept>
 #include <utility>
