@@ -3,7 +3,7 @@ BasedOnStyle:  LLVM
 BreakConstructorInitializersBeforeComma: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 Cpp11BracedListStyle: true
-Standard: Cpp11
+Standard: Cpp20
 #SpaceBeforeParens: ControlStatements
 SpaceAfterControlStatementKeyword: true
 PointerBindsToType: true
@@ -12,4 +12,5 @@ UseTab:          Never
 ColumnLimit:     100
 NamespaceIndentation: Inner
 AlignConsecutiveAssignments: true
+SortIncludes: Never
 ...
