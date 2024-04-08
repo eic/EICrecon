@@ -30,3 +30,6 @@ changelog:
     - title: 🐛 Bugs fixed
       labels:
         - 'bug'
+    - title: Other Changes
+      labels:
+        - "*"
