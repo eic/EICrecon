@@ -57,7 +57,6 @@ namespace jana {
     }
 
     void PrintUsageExample() {
-
         std::cout << "Example:" << std::endl;
         std::cout << "    eicrecon -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root" << std::endl;
         std::cout << "    eicrecon -Ppodio:print_type_table=1 infile.root" << std::endl << std::endl;
