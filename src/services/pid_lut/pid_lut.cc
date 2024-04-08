@@ -4,6 +4,7 @@
 
 #include <JANA/JApplication.h>
 #include "PIDLookupTable_service.h"
+#include <memory>
 
 
 extern "C" {

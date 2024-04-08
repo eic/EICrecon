@@ -5,8 +5,11 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <iosfwd>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
+#include <utility>
 
 
 const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
