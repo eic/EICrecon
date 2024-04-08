@@ -1,11 +1,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <JANA/JApplication.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
+//#include <JANA/JApplication.h>
 #include <services/pid_lut/PIDLookupTable_service.h>
 #include <services/pid_lut/PIDLookupTable.h>
-#include <spdlog/logger.h>
+//#include <spdlog/logger.h>
 #include <vector>
 #include <optional>
 

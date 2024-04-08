@@ -2,12 +2,9 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #include "PIDLookupTable.h"
+#include <algorithm>
 #include <iostream>
 #include <iterator>
-#include <algorithm>
-#include <iosfwd>
-#include <sstream>
-#include <fstream>
 #include <stdexcept>
 #include <utility>
 
