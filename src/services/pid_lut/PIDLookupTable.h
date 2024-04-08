@@ -2,13 +2,10 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 #pragma once
-#include <TVector3.h>
 
 #include <optional>
 #include <vector>
 #include <string>
-#include <fstream>
-#include <sstream>
 
 class PIDLookupTable {
 

@@ -6,7 +6,6 @@
 #include <services/pid_lut/PIDLookupTable_service.h>
 #include <services/pid_lut/PIDLookupTable.h>
 #include <spdlog/logger.h>
-#include <cerrno>
 
 
 TEST_CASE("PIDLookupTable_FindBin") {

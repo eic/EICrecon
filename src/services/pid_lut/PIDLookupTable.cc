@@ -5,6 +5,8 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <sstream>
+#include <fstream>
 
 
 const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
