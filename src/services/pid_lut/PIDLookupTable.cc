@@ -4,6 +4,8 @@
 #include "PIDLookupTable.h"
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <iterator>
 #include <stdexcept>
 #include <utility>
