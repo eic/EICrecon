@@ -41,7 +41,7 @@ extern "C" {
         // check if sector field is present
         bool useSectorIndex = false;
         try {
-          auto sector = descriptor.field("sector");
+          auto sector =  descriptor.field("sector");
           return true;
         } catch(const std::runtime_error &e) {
           return false;
