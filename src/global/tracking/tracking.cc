@@ -120,6 +120,18 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+     app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>( 
+	"AmbiguityResolutionSolver", 
+	{
+	    "CentralCKFSeededActsTracks"
+        },
+	{
+	    "CentralCKFSeededTrackParametersFiltered", 
+            "CentralCKFSeededActsTracksFiltered",
+        }, 
+        app
+    ));
+
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
             "CentralTrackSegments",
             {"CentralCKFActsTrajectories"},
