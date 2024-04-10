@@ -93,7 +93,7 @@ void SiliconTrackerDigi::process(
                 edm4eic::MutableRawTrackerHit{
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
-                hit_time_stamp  // ns->ps <-- TODO: what does this comment mean?!
+                hit_time_stamp
             } );
         } // bucket found
     } // loop over sim hits
