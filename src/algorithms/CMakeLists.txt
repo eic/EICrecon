@@ -9,5 +9,5 @@ add_subdirectory(reco)
 add_subdirectory(fardetectors)
 
 if(USE_ONNX)
-    add_subdirectory(onnx)
+  add_subdirectory(onnx)
 endif()
