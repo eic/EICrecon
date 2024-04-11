@@ -263,10 +263,10 @@ void InitPlugin(JApplication *app) {
             {"GeneratedBreitParticles"},
             {"GeneratedCentauroJets"},
             {
-	     .rJet = 0.8,
-	     .jetAlgo = "plugin_algorithm",
-	     .jetContribAlgo = "Centauro"
-	    },
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
             app
     ));
 
@@ -275,10 +275,10 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedBreitFrameParticles"},
             {"ReconstructedCentauroJets"},
             {
-	     .rJet = 0.8,
-	     .jetAlgo = "plugin_algorithm",
-	     .jetContribAlgo = "Centauro"
-	    },
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
             app
     ));
 

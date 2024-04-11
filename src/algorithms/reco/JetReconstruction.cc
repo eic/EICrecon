@@ -58,9 +58,9 @@ namespace eicrecon {
 
       // contributed algorithms
       case JetAlgorithm::plugin_algorithm:
-	m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));	
-	break;
-     
+        m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));
+        break;
+
       // 0 parameter algorithms
       case JetAlgorithm::ee_kt_algorithm:
         m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme]);
