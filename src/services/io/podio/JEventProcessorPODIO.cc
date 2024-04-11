@@ -118,6 +118,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Reconstructed data
             "GeneratedParticles",
+            "GeneratedBreitFrameParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
@@ -142,8 +143,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsTruth",
             "GeneratedJets",
             "GeneratedChargedJets",
+            "GeneratedCentauroJets",
             "ReconstructedJets",
             "ReconstructedChargedJets",
+            "ReconstructedCentauroJets",
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",

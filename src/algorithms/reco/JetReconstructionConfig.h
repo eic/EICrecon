@@ -21,6 +21,7 @@ namespace eicrecon {
     std::string jetAlgo        = "antikt_algorithm";  // jet finding algorithm
     std::string recombScheme   = "E_scheme";          // particle recombination scheme
     std::string areaType       = "active_area";       // type of area calculated
+    std::string jetContribAlgo = "Centauro";          // contributed algorithm name
 
   };
 

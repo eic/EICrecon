@@ -12,6 +12,7 @@
 #include <fastjet/GhostedAreaSpec.hh>
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
+#include <fastjet/contrib/Centauro.hh>
 #include <fmt/core.h>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -55,6 +56,11 @@ namespace eicrecon {
     // Choose jet definition based on no. of parameters
     switch (m_mapJetAlgo[m_cfg.jetAlgo]) {
 
+      // contributed algorithms
+      case JetAlgorithm::plugin_algorithm:
+	m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));	
+	break;
+     
       // 0 parameter algorithms
       case JetAlgorithm::ee_kt_algorithm:
         m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_mapRecombScheme[m_cfg.recombScheme]);
