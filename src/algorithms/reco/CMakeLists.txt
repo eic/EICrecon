@@ -6,9 +6,9 @@ set(PLUGIN_NAME "algorithms_reco")
 # Setting default includes, libraries and installation paths
 plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY WITHOUT_PLUGIN)
 
-# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
-# Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
-# Adds headers to the correct installation directory
+# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
+# correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
+# headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
@@ -18,14 +18,15 @@ plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_fastjet(${PLUGIN_NAME})
 plugin_add_fjcontrib(${PLUGIN_NAME})
 
-# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp
-# Then correctly sets sources for ${_name}_plugin and ${_name}_library targets
-# Adds headers to the correct installation directory
+# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
+# correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
+# headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
 # plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
-# Add libraries
-# (same as target_include_directories but for both plugin and library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library)
+# Add libraries (same as target_include_directories but for both plugin and
+# library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library
+                      algorithms_tracking_library)
