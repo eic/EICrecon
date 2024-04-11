@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 
+#include "algorithms/onnx/InclusiveKinematicsML.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
@@ -18,6 +19,7 @@
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
@@ -151,6 +153,18 @@ void InitPlugin(JApplication *app) {
         },
         {
           "InclusiveKinematicsSigma"
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
+        "InclusiveKinematicsML",
+        {
+          "InclusiveKinematicsElectron",
+          "InclusiveKinematicsDA"
+        },
+        {
+          "InclusiveKinematicsML"
         },
         app
     ));

@@ -7,8 +7,12 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <onnxruntime_cxx_api.h>
 #include <string>
 #include <string_view>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/onnx/InclusiveKinematicsMLConfig.h"
 
 namespace eicrecon {
 
@@ -23,7 +27,8 @@ namespace eicrecon {
   >;
 
   class InclusiveKinematicsML
-  : public InclusiveKinematicsMLAlgorithm {
+  : public InclusiveKinematicsMLAlgorithm,
+    public WithPodConfig<InclusiveKinematicsMLConfig> {
 
   public:
     InclusiveKinematicsML(std::string_view name)
