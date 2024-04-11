@@ -88,8 +88,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   // Set up the actual vertex finder
   VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
                                  std::move(seeder), std::move(ipEst));
-  finderCfg.maxVertices                 = m_cfg.m_maxVertices;
-  finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
+  finderCfg.maxVertices                 = m_cfg.maxVertices;
+  finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
   #if Acts_VERSION_MAJOR >= 31
   VertexFinder finder(std::move(finderCfg));
   #else

@@ -54,62 +54,62 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
 void eicrecon::TrackSeeding::configure() {
 
     // Filter parameters
-    m_seedFilterConfig.maxSeedsPerSpM = m_cfg.m_maxSeedsPerSpM_filter;
-    m_seedFilterConfig.deltaRMin = m_cfg.m_deltaRMin;
-    m_seedFilterConfig.seedConfirmation = m_cfg.m_seedConfirmation;
-    m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.m_deltaInvHelixDiameter;
-    m_seedFilterConfig.impactWeightFactor = m_cfg.m_impactWeightFactor;
-    m_seedFilterConfig.zOriginWeightFactor = m_cfg.m_zOriginWeightFactor;
-    m_seedFilterConfig.compatSeedWeight = m_cfg.m_compatSeedWeight;
-    m_seedFilterConfig.compatSeedLimit = m_cfg.m_compatSeedLimit;
-    m_seedFilterConfig.seedWeightIncrement = m_cfg.m_seedWeightIncrement;
+    m_seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM_filter;
+    m_seedFilterConfig.deltaRMin = m_cfg.deltaRMin;
+    m_seedFilterConfig.seedConfirmation = m_cfg.seedConfirmation;
+    m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
+    m_seedFilterConfig.impactWeightFactor = m_cfg.impactWeightFactor;
+    m_seedFilterConfig.zOriginWeightFactor = m_cfg.zOriginWeightFactor;
+    m_seedFilterConfig.compatSeedWeight = m_cfg.compatSeedWeight;
+    m_seedFilterConfig.compatSeedLimit = m_cfg.compatSeedLimit;
+    m_seedFilterConfig.seedWeightIncrement = m_cfg.seedWeightIncrement;
 
     m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-      m_cfg.m_zMinSeedConf_cent,
-      m_cfg.m_zMaxSeedConf_cent,
-      m_cfg.m_rMaxSeedConf_cent,
-      m_cfg.m_nTopForLargeR_cent,
-      m_cfg.m_nTopForSmallR_cent,
-      m_cfg.m_seedConfMinBottomRadius_cent,
-      m_cfg.m_seedConfMaxZOrigin_cent,
-      m_cfg.m_minImpactSeedConf_cent
+      m_cfg.zMinSeedConf_cent,
+      m_cfg.zMaxSeedConf_cent,
+      m_cfg.rMaxSeedConf_cent,
+      m_cfg.nTopForLargeR_cent,
+      m_cfg.nTopForSmallR_cent,
+      m_cfg.seedConfMinBottomRadius_cent,
+      m_cfg.seedConfMaxZOrigin_cent,
+      m_cfg.minImpactSeedConf_cent
     };
 
     m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-      m_cfg.m_zMinSeedConf_forw,
-      m_cfg.m_zMaxSeedConf_forw,
-      m_cfg.m_rMaxSeedConf_forw,
-      m_cfg.m_nTopForLargeR_forw,
-      m_cfg.m_nTopForSmallR_forw,
-      m_cfg.m_seedConfMinBottomRadius_forw,
-      m_cfg.m_seedConfMaxZOrigin_forw,
-      m_cfg.m_minImpactSeedConf_forw
+      m_cfg.zMinSeedConf_forw,
+      m_cfg.zMaxSeedConf_forw,
+      m_cfg.rMaxSeedConf_forw,
+      m_cfg.nTopForLargeR_forw,
+      m_cfg.nTopForSmallR_forw,
+      m_cfg.seedConfMinBottomRadius_forw,
+      m_cfg.seedConfMaxZOrigin_forw,
+      m_cfg.minImpactSeedConf_forw
     };
 
     m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
 
     // Finder parameters
     m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
-    m_seedFinderConfig.rMax = m_cfg.m_rMax;
-    m_seedFinderConfig.deltaRMinTopSP = m_cfg.m_deltaRMinTopSP;
-    m_seedFinderConfig.deltaRMaxTopSP = m_cfg.m_deltaRMaxTopSP;
-    m_seedFinderConfig.deltaRMinBottomSP = m_cfg.m_deltaRMinBottomSP;
-    m_seedFinderConfig.deltaRMaxBottomSP = m_cfg.m_deltaRMaxBottomSP;
-    m_seedFinderConfig.collisionRegionMin = m_cfg.m_collisionRegionMin;
-    m_seedFinderConfig.collisionRegionMax = m_cfg.m_collisionRegionMax;
-    m_seedFinderConfig.zMin = m_cfg.m_zMin;
-    m_seedFinderConfig.zMax = m_cfg.m_zMax;
-    m_seedFinderConfig.maxSeedsPerSpM = m_cfg.m_maxSeedsPerSpM;
-    m_seedFinderConfig.cotThetaMax = m_cfg.m_cotThetaMax;
-    m_seedFinderConfig.sigmaScattering = m_cfg.m_sigmaScattering;
-    m_seedFinderConfig.radLengthPerSeed = m_cfg.m_radLengthPerSeed;
-    m_seedFinderConfig.minPt = m_cfg.m_minPt;
-    m_seedFinderConfig.impactMax = m_cfg.m_impactMax;
-    m_seedFinderConfig.rMinMiddle = m_cfg.m_rMinMiddle;
-    m_seedFinderConfig.rMaxMiddle = m_cfg.m_rMaxMiddle;
+    m_seedFinderConfig.rMax = m_cfg.rMax;
+    m_seedFinderConfig.deltaRMinTopSP = m_cfg.deltaRMinTopSP;
+    m_seedFinderConfig.deltaRMaxTopSP = m_cfg.deltaRMaxTopSP;
+    m_seedFinderConfig.deltaRMinBottomSP = m_cfg.deltaRMinBottomSP;
+    m_seedFinderConfig.deltaRMaxBottomSP = m_cfg.deltaRMaxBottomSP;
+    m_seedFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
+    m_seedFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
+    m_seedFinderConfig.zMin = m_cfg.zMin;
+    m_seedFinderConfig.zMax = m_cfg.zMax;
+    m_seedFinderConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
+    m_seedFinderConfig.cotThetaMax = m_cfg.cotThetaMax;
+    m_seedFinderConfig.sigmaScattering = m_cfg.sigmaScattering;
+    m_seedFinderConfig.radLengthPerSeed = m_cfg.radLengthPerSeed;
+    m_seedFinderConfig.minPt = m_cfg.minPt;
+    m_seedFinderConfig.impactMax = m_cfg.impactMax;
+    m_seedFinderConfig.rMinMiddle = m_cfg.rMinMiddle;
+    m_seedFinderConfig.rMaxMiddle = m_cfg.rMaxMiddle;
 
-    m_seedFinderOptions.beamPos = Acts::Vector2(m_cfg.m_beamPosX, m_cfg.m_beamPosY);
-    m_seedFinderOptions.bFieldInZ = m_cfg.m_bFieldInZ;
+    m_seedFinderOptions.beamPos = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
+    m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
     m_seedFinderConfig =
       m_seedFinderConfig.toInternalUnits().calculateDerivedQuantities();
@@ -199,7 +199,7 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       if(theta < 0)
         { theta += M_PI; }
       float eta = -log(tan(theta/2.));
-      float pt = R * m_cfg.m_bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
+      float pt = R * m_cfg.bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
       float p = pt * cosh(eta);
       float qOverP = charge / p;
 
@@ -240,18 +240,18 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::make
       trackparam.setTime(10); // time in ns
       #if EDM4EIC_VERSION_MAJOR >= 5
         edm4eic::Cov6f cov;
-        cov(0,0) = m_cfg.m_loc_a_Error / Acts::UnitConstants::mm; // loc0
-        cov(1,1) = m_cfg.m_loc_b_Error / Acts::UnitConstants::mm; // loc1
-        cov(2,2) = m_cfg.m_phi_Error / Acts::UnitConstants::rad; // phi
-        cov(3,3) = m_cfg.m_theta_Error / Acts::UnitConstants::rad; // theta
-        cov(4,4) = m_cfg.m_qOverP_Error * Acts::UnitConstants::GeV; // qOverP
-        cov(5,5) = m_cfg.m_time_Error / Acts::UnitConstants::ns; // time
+        cov(0,0) = m_cfg.loc_a_Error / Acts::UnitConstants::mm; // loc0
+        cov(1,1) = m_cfg.loc_b_Error / Acts::UnitConstants::mm; // loc1
+        cov(2,2) = m_cfg.phi_Error / Acts::UnitConstants::rad; // phi
+        cov(3,3) = m_cfg.theta_Error / Acts::UnitConstants::rad; // theta
+        cov(4,4) = m_cfg.qOverP_Error * Acts::UnitConstants::GeV; // qOverP
+        cov(5,5) = m_cfg.time_Error / Acts::UnitConstants::ns; // time
         trackparam.setCovariance(cov);
       #else
         trackparam.setCharge(static_cast<float>(charge)); // charge
-        trackparam.setLocError({m_cfg.m_loc_a_Error, m_cfg.m_loc_b_Error}); //covariance of location
-        trackparam.setMomentumError({m_cfg.m_theta_Error, m_cfg.m_phi_Error, m_cfg.m_qOverP_Error}); // covariance on theta/phi/q/p
-        trackparam.setTimeError(m_cfg.m_time_Error); // error on time
+        trackparam.setLocError({m_cfg.loc_a_Error, m_cfg.loc_b_Error}); //covariance of location
+        trackparam.setMomentumError({m_cfg.theta_Error, m_cfg.phi_Error, m_cfg.qOverP_Error}); // covariance on theta/phi/q/p
+        trackparam.setTimeError(m_cfg.time_Error); // error on time
       #endif
     }
 

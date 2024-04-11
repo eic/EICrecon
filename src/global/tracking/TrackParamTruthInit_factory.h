@@ -29,13 +29,13 @@ private:
     PodioInput<edm4hep::MCParticle> m_particles_input {this};
     PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
 
-    ParameterRef<double> m_maxVertexX {this, "MaxVertexX", config().m_maxVertexX , "Maximum abs(vertex x) for truth tracks turned into seed"};
-    ParameterRef<double> m_maxVertexY {this, "MaxVertexY", config().m_maxVertexY , "Maximum abs(vertex y) for truth tracks turned into seed"};
-    ParameterRef<double> m_maxVertexZ {this, "MaxVertexZ", config().m_maxVertexZ , "Maximum abs(vertex z) for truth tracks turned into seed"};
-    ParameterRef<double> m_minMomentum {this, "MinMomentum", config().m_minMomentum , "Minimum momentum for truth tracks turned into seed"};
-    ParameterRef<double> m_maxEtaForward {this, "MaxEtaForward", config().m_maxEtaForward , "Maximum forward abs(eta) for truth tracks turned into seed"};
-    ParameterRef<double> m_maxEtaBackward {this, "MaxEtaBackward", config().m_maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed"};
-    ParameterRef<double> m_momentumSmear {this, "MomentumSmear", config().m_momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing"};
+    ParameterRef<double> m_maxVertexX {this, "MaxVertexX", config().maxVertexX , "Maximum abs(vertex x) for truth tracks turned into seed"};
+    ParameterRef<double> m_maxVertexY {this, "MaxVertexY", config().maxVertexY , "Maximum abs(vertex y) for truth tracks turned into seed"};
+    ParameterRef<double> m_maxVertexZ {this, "MaxVertexZ", config().maxVertexZ , "Maximum abs(vertex z) for truth tracks turned into seed"};
+    ParameterRef<double> m_minMomentum {this, "MinMomentum", config().minMomentum , "Minimum momentum for truth tracks turned into seed"};
+    ParameterRef<double> m_maxEtaForward {this, "MaxEtaForward", config().maxEtaForward , "Maximum forward abs(eta) for truth tracks turned into seed"};
+    ParameterRef<double> m_maxEtaBackward {this, "MaxEtaBackward", config().maxEtaBackward , "Maximum backward abs(eta) for truth tracks turned into seed"};
+    ParameterRef<double> m_momentumSmear {this, "MomentumSmear", config().momentumSmear, "Momentum magnitude fraction to use as width of gaussian smearing"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
