@@ -35,7 +35,7 @@ namespace eicrecon {
     m_log = logger;
 
     // onnxruntime setup
-    Ort::Env env(ORT_LOGGING_LEVEL_VERBOSE, "inclusive-kinematics-ml");
+    Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
     Ort::SessionOptions session_options;
     try {
       m_session = Ort::Session(env, m_cfg.modelPath.c_str(), session_options);
