@@ -9,7 +9,7 @@ find_path(FASTJET_INCLUDE_DIR fastjet/version.hh
 
 find_library(
   FASTJET_LIBRARY
-  NAMES fastjet 
+  NAMES fastjet
   HINTS $ENV{FASTJET_ROOT}/lib ${FASTJET_ROOT_DIR}/lib)
 
 # handle the QUIETLY and REQUIRED arguments and set FASTJET_FOUND to TRUE if all

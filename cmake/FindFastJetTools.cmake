@@ -9,11 +9,11 @@ find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
 
 find_library(
   FJTOOLS_LIBRARY
-  NAMES fastjettools 
+  NAMES fastjettools
   HINTS $ENV{FASTJET_ROOT}/lib ${FASTJET_ROOT_DIR}/lib)
 
-# handle the QUIETLY and REQUIRED arguments and set FJTOOLS_FOUND to TRUE if
-# all listed variables are TRUE
+# handle the QUIETLY and REQUIRED arguments and set FJTOOLS_FOUND to TRUE if all
+# listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FastJetTools DEFAULT_MSG FJTOOLS_INCLUDE_DIR
                                   FJTOOLS_LIBRARY)
