@@ -32,14 +32,12 @@ public:
     detector->add(readout);
     m_detector = std::move(detector);
 
-    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    auto& serviceSvc              = algorithms::ServiceSvc::instance();
     [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
-    serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
-      g.init(this->m_detector.get());
-    });
+    serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-    auto seed = Catch::Generators::Detail::getSeed();
+    auto seed                        = Catch::Generators::Detail::getSeed();
     serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
       r.setProperty("seed", static_cast<size_t>(seed));
       r.init();

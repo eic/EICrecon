@@ -10,7 +10,6 @@
 // Author: Chao Peng
 // Date: 06/02/2021
 
-
 #include "CalorimeterHitDigi.h"
 
 #include <DD4hep/Detector.h>
@@ -45,137 +44,134 @@ namespace eicrecon {
 //   being set in the config. If that is the case, they should be moved into the default
 //   values here. This needs to be confirmed.
 
-
 void CalorimeterHitDigi::init() {
 
-    // Gaudi implements a random number generator service. It is not clear to me how this
-    // can work. There are multiple race conditions that occur in parallel event processing:
-    // 1. The exact same events processed by a given thread in one invocation will not
-    //    necessarily be the combination of events any thread sees in a subsequent
-    //    invocation. Thus, you can't rely on thread_local storage.
-    // 2. Its possible for the factory execution order to be modified by the presence of
-    //    a processor (e.g. monitoring plugin). This is not as serious since changing the
-    //    command line should cause one not to expect reproducibility. Still, one may
-    //    expect the inclusion of an "observer" plugin not to have such side affects.
-    //
-    // More information will be needed. In the meantime, we implement a local random number
-    // generator. Ideally, this would be seeded with the run number+event number, but for
-    // now, just use default values defined in header file.
+  // Gaudi implements a random number generator service. It is not clear to me how this
+  // can work. There are multiple race conditions that occur in parallel event processing:
+  // 1. The exact same events processed by a given thread in one invocation will not
+  //    necessarily be the combination of events any thread sees in a subsequent
+  //    invocation. Thus, you can't rely on thread_local storage.
+  // 2. Its possible for the factory execution order to be modified by the presence of
+  //    a processor (e.g. monitoring plugin). This is not as serious since changing the
+  //    command line should cause one not to expect reproducibility. Still, one may
+  //    expect the inclusion of an "observer" plugin not to have such side affects.
+  //
+  // More information will be needed. In the meantime, we implement a local random number
+  // generator. Ideally, this would be seeded with the run number+event number, but for
+  // now, just use default values defined in header file.
 
-    // set energy resolution numbers
-    if (m_cfg.eRes.empty()) {
-      m_cfg.eRes.resize(3);
-    } else if (m_cfg.eRes.size() != 3) {
-      error("Invalid m_cfg.eRes.size()");
-      throw std::runtime_error("Invalid m_cfg.eRes.size()");
+  // set energy resolution numbers
+  if (m_cfg.eRes.empty()) {
+    m_cfg.eRes.resize(3);
+  } else if (m_cfg.eRes.size() != 3) {
+    error("Invalid m_cfg.eRes.size()");
+    throw std::runtime_error("Invalid m_cfg.eRes.size()");
+  }
+
+  // using juggler internal units (GeV, mm, radian, ns)
+  tRes    = m_cfg.tRes / dd4hep::ns;
+  stepTDC = dd4hep::ns / m_cfg.resolutionTDC;
+
+  // sanity checks
+  if (m_cfg.readout.empty()) {
+    error("readoutClass is not provided, it is needed to know the fields in readout ids");
+    throw std::runtime_error("readoutClass is not provided");
+  }
+
+  // get decoders
+  dd4hep::IDDescriptor id_desc;
+  try {
+    id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
+  } catch (...) {
+    // Can not be more verbose. In JANA2, this will be attempted at each event, which
+    // pollutes output for geometries that are less than complete.
+    // We could save an exception and throw it from process.
+    debug("Failed to load ID decoder for {}", m_cfg.readout);
+    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+  }
+
+  decltype(id_mask) id_inverse_mask = 0;
+  // all these are for signal sum at digitization level
+  if (!m_cfg.fields.empty()) {
+    for (auto& field : m_cfg.fields) {
+      id_inverse_mask |= id_desc.field(field)->mask();
     }
-
-    // using juggler internal units (GeV, mm, radian, ns)
-    tRes       = m_cfg.tRes / dd4hep::ns;
-    stepTDC    = dd4hep::ns / m_cfg.resolutionTDC;
-
-    // sanity checks
-    if (m_cfg.readout.empty()) {
-        error("readoutClass is not provided, it is needed to know the fields in readout ids");
-        throw std::runtime_error("readoutClass is not provided");
-    }
-
-    // get decoders
-    dd4hep::IDDescriptor id_desc;
-    try {
-        id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
-    } catch (...) {
-        // Can not be more verbose. In JANA2, this will be attempted at each event, which
-        // pollutes output for geometries that are less than complete.
-        // We could save an exception and throw it from process.
-        debug("Failed to load ID decoder for {}", m_cfg.readout);
-        throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
-    }
-
-    decltype(id_mask) id_inverse_mask = 0;
-    // all these are for signal sum at digitization level
-    if (!m_cfg.fields.empty()) {
-        for (auto & field : m_cfg.fields) {
-            id_inverse_mask |= id_desc.field(field)->mask();
-        }
-        debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
-    }
-    id_mask = ~id_inverse_mask;
+    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
+  }
+  id_mask = ~id_inverse_mask;
 }
 
+void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
+                                 const CalorimeterHitDigi::Output& output) const {
 
-void CalorimeterHitDigi::process(
-      const CalorimeterHitDigi::Input& input,
-      const CalorimeterHitDigi::Output& output) const {
+  const auto [simhits] = input;
+  auto [rawhits]       = output;
 
-    const auto [simhits] = input;
-    auto [rawhits] = output;
+  // find the hits that belong to the same group (for merging)
+  std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
+  std::size_t ix = 0;
+  for (const auto& ahit : *simhits) {
+    uint64_t hid = ahit.getCellID() & id_mask;
 
-    // find the hits that belong to the same group (for merging)
-    std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
-    std::size_t ix = 0;
-    for (const auto &ahit : *simhits) {
-        uint64_t hid = ahit.getCellID() & id_mask;
+    trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
+    trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
 
-        trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
-        trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
+    merge_map[hid].push_back(ix);
 
-        merge_map[hid].push_back(ix);
+    ix++;
+  }
 
-        ix++;
-    }
+  // signal sum
+  // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
+  for (const auto& [id, ixs] : merge_map) {
+    double edep     = 0;
+    double time     = std::numeric_limits<double>::max();
+    double max_edep = 0;
+    auto mid        = (*simhits)[ixs[0]].getCellID();
+    // sum energy, take time from the most energetic hit
+    for (size_t i = 0; i < ixs.size(); ++i) {
+      auto hit = (*simhits)[ixs[i]];
 
-    // signal sum
-    // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
-    for (const auto &[id, ixs] : merge_map) {
-        double edep     = 0;
-        double time     = std::numeric_limits<double>::max();
-        double max_edep = 0;
-        auto   mid      = (*simhits)[ixs[0]].getCellID();
-        // sum energy, take time from the most energetic hit
-        for (size_t i = 0; i < ixs.size(); ++i) {
-            auto hit = (*simhits)[ixs[i]];
-
-            double timeC = std::numeric_limits<double>::max();
-            for (const auto& c : hit.getContributions()) {
-                if (c.getTime() <= timeC) {
-                    timeC = c.getTime();
-                }
-            }
-            if (timeC > m_cfg.capTime) continue;
-            edep += hit.getEnergy();
-            trace("adding {} \t total: {}", hit.getEnergy(), edep);
-
-            // change maximum hit energy & time if necessary
-            if (hit.getEnergy() > max_edep) {
-                max_edep = hit.getEnergy();
-                mid = hit.getCellID();
-                if (timeC <= time) {
-                    time = timeC;
-                }
-            }
+      double timeC = std::numeric_limits<double>::max();
+      for (const auto& c : hit.getContributions()) {
+        if (c.getTime() <= timeC) {
+          timeC = c.getTime();
         }
-        if (time > m_cfg.capTime) continue;
+      }
+      if (timeC > m_cfg.capTime)
+        continue;
+      edep += hit.getEnergy();
+      trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
-        // safety check
-        const double eResRel = (edep > m_cfg.threshold)
-                ? m_rng.gaussian<double>(0., 1.) * std::sqrt(
-                     std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
-                     std::pow(m_cfg.eRes[1], 2) +
-                     std::pow(m_cfg.eRes[2] / (edep), 2)
-                  )
-                : 0;
-        double    ped     = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
-
-        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
-        rawhits->create(
-                mid,
-                (adc > m_cfg.capADC ? m_cfg.capADC : adc),
-                tdc
-        );
+      // change maximum hit energy & time if necessary
+      if (hit.getEnergy() > max_edep) {
+        max_edep = hit.getEnergy();
+        mid      = hit.getCellID();
+        if (timeC <= time) {
+          time = timeC;
+        }
+      }
     }
+    if (time > m_cfg.capTime)
+      continue;
+
+    // safety check
+    const double eResRel =
+        (edep > m_cfg.threshold)
+            ? m_rng.gaussian<double>(0., 1.) *
+                  std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
+                            std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (edep), 2))
+            : 0;
+    double ped             = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
+    unsigned long long adc = std::llround(ped + edep * m_cfg.corrMeanScale * (1.0 + eResRel) /
+                                                    m_cfg.dyRangeADC * m_cfg.capADC);
+    unsigned long long tdc = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
+
+    if (edep > 1.e-3)
+      trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time,
+            m_cfg.capTime, tdc);
+    rawhits->create(mid, (adc > m_cfg.capADC ? m_cfg.capADC : adc), tdc);
+  }
 }
 
 } // namespace eicrecon

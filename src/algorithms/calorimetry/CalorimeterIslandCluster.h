@@ -27,89 +27,84 @@
 
 namespace eicrecon {
 
-  using CaloHit = edm4eic::CalorimeterHit;
+using CaloHit = edm4eic::CalorimeterHit;
 
-  using CalorimeterIslandClusterAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::CalorimeterHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::ProtoClusterCollection
-    >
-  >;
+using CalorimeterIslandClusterAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection>,
+                          algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
-  class CalorimeterIslandCluster
-  : public CalorimeterIslandClusterAlgorithm,
-    public WithPodConfig<CalorimeterIslandClusterConfig> {
+class CalorimeterIslandCluster : public CalorimeterIslandClusterAlgorithm,
+                                 public WithPodConfig<CalorimeterIslandClusterConfig> {
 
-  public:
-    CalorimeterIslandCluster(std::string_view name)
+public:
+  CalorimeterIslandCluster(std::string_view name)
       : CalorimeterIslandClusterAlgorithm{name,
-                            {"inputProtoClusterCollection"},
-                            {"outputClusterCollection"},
-                            "Island clustering."} {}
+                                          {"inputProtoClusterCollection"},
+                                          {"outputClusterCollection"},
+                                          "Island clustering."} {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
-  public:
+public:
+  // neighbor checking function
+  std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)> hitsDist;
 
-    // neighbor checking function
-    std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)> hitsDist;
+  std::function<edm4hep::Vector2f(const CaloHit& h1, const CaloHit& h2)>
+      transverseEnergyProfileMetric;
+  double u_transverseEnergyProfileScale;
+  double transverseEnergyProfileScaleUnits;
 
-    std::function<edm4hep::Vector2f(const CaloHit &h1, const CaloHit &h2)> transverseEnergyProfileMetric;
-    double u_transverseEnergyProfileScale;
-    double transverseEnergyProfileScaleUnits;
+  // helper function to group hits
+  std::function<bool(const CaloHit& h1, const CaloHit& h2)> is_neighbour;
 
-    // helper function to group hits
-    std::function<bool(const CaloHit &h1, const CaloHit &h2)> is_neighbour;
+  // unitless counterparts of the input parameters
+  std::array<double, 2> neighbourDist;
 
-    // unitless counterparts of the input parameters
-    std::array<double, 2> neighbourDist;
+  // Pointer to the geometry service
+  dd4hep::IDDescriptor m_idSpec;
 
-    // Pointer to the geometry service
-    dd4hep::IDDescriptor m_idSpec;
+private:
+  static unsigned int function_id;
 
-  private:
+  // grouping function with Breadth-First Search
+  void bfs_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
+                 std::size_t idx, std::vector<bool>& visits) const {
+    visits[idx] = true;
 
-    static unsigned int function_id;
+    // not a qualified hit to particpate clustering, stop here
+    if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
+      return;
+    }
 
-    // grouping function with Breadth-First Search
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
-      visits[idx] = true;
+    group.insert(idx);
+    size_t prev_size = 0;
 
-      // not a qualified hit to particpate clustering, stop here
-      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
-        return;
-      }
-
-      group.insert(idx);
-      size_t prev_size = 0;
-
-      while (prev_size != group.size()) {
-        prev_size = group.size();
-        for (std::size_t idx1 : group) {
-          // check neighbours
-          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
-            // not a qualified hit to particpate clustering, skip
-            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-              continue;
-            }
-            if ((!visits[idx2])
-                && is_neighbour(hits[idx1], hits[idx2])) {
-              group.insert(idx2);
-              visits[idx2] = true;
-            }
+    while (prev_size != group.size()) {
+      prev_size = group.size();
+      for (std::size_t idx1 : group) {
+        // check neighbours
+        for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
+          // not a qualified hit to particpate clustering, skip
+          if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+            continue;
+          }
+          if ((!visits[idx2]) && is_neighbour(hits[idx1], hits[idx2])) {
+            group.insert(idx2);
+            visits[idx2] = true;
           }
         }
       }
     }
+  }
 
-    // find local maxima that above a certain threshold
-  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t> &group, bool global = false) const {
+  // find local maxima that above a certain threshold
+  std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection& hits,
+                                       const std::set<std::size_t>& group,
+                                       bool global = false) const {
     std::vector<std::size_t> maxima;
     if (group.empty()) {
       return maxima;
@@ -140,7 +135,8 @@ namespace eicrecon {
           continue;
         }
 
-        if (is_neighbour(hits[idx1], hits[idx2]) && (hits[idx2].getEnergy() > hits[idx1].getEnergy())) {
+        if (is_neighbour(hits[idx1], hits[idx2]) &&
+            (hits[idx2].getEnergy() > hits[idx1].getEnergy())) {
           maximum = false;
           break;
         }
@@ -153,20 +149,22 @@ namespace eicrecon {
 
     return maxima;
   }
-    // helper function
-    inline static void vec_normalize(std::vector<double>& vals) {
-        double total = 0.;
-        for (auto& val : vals) {
-            total += val;
-        }
-        for (auto& val : vals) {
-        val /= total;
-        }
+  // helper function
+  inline static void vec_normalize(std::vector<double>& vals) {
+    double total = 0.;
+    for (auto& val : vals) {
+      total += val;
     }
+    for (auto& val : vals) {
+      val /= total;
+    }
+  }
 
-    // split a group of hits according to the local maxima
-    //TODO: confirm protoclustering without protoclustercollection
-  void split_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t>& group, const std::vector<std::size_t>& maxima, edm4eic::ProtoClusterCollection *protoClusters) const {
+  // split a group of hits according to the local maxima
+  //TODO: confirm protoclustering without protoclustercollection
+  void split_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
+                   const std::vector<std::size_t>& maxima,
+                   edm4eic::ProtoClusterCollection* protoClusters) const {
     // special cases
     if (maxima.empty()) {
       debug("No maxima found, not building any clusters");
@@ -195,9 +193,12 @@ namespace eicrecon {
       size_t j = 0;
       // calculate weights for local maxima
       for (std::size_t cidx : maxima) {
-        double energy   = hits[cidx].getEnergy();
-        double dist     = edm4hep::utils::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
-        weights[j]      = std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) * energy;
+        double energy = hits[cidx].getEnergy();
+        double dist =
+            edm4hep::utils::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
+        weights[j] = std::exp(-dist * transverseEnergyProfileScaleUnits /
+                              m_cfg.transverseEnergyProfileScale) *
+                     energy;
         j += 1;
       }
 

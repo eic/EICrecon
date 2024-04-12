@@ -10,7 +10,6 @@
 // Author: Chao Peng
 // Date: 06/02/2021
 
-
 #pragma once
 
 #include <algorithms/algorithm.h>
@@ -27,41 +26,34 @@
 
 namespace eicrecon {
 
-  using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::SimCalorimeterHitCollection
-    >,
-    algorithms::Output<
-      edm4hep::RawCalorimeterHitCollection
-    >
-  >;
+using CalorimeterHitDigiAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
+                          algorithms::Output<edm4hep::RawCalorimeterHitCollection>>;
 
-  class CalorimeterHitDigi
-  : public CalorimeterHitDigiAlgorithm,
-    public WithPodConfig<CalorimeterHitDigiConfig> {
+class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
+                           public WithPodConfig<CalorimeterHitDigiConfig> {
 
-  public:
-    CalorimeterHitDigi(std::string_view name)
-      : CalorimeterHitDigiAlgorithm{name,
-                            {"inputHitCollection"},
-                            {"outputRawHitCollection"},
-                            "Smear energy deposit, digitize within ADC range, add pedestal, "
-                            "convert time with smearing resolution, and sum signals."} {}
+public:
+  CalorimeterHitDigi(std::string_view name)
+      : CalorimeterHitDigiAlgorithm{
+            name,
+            {"inputHitCollection"},
+            {"outputRawHitCollection"},
+            "Smear energy deposit, digitize within ADC range, add pedestal, "
+            "convert time with smearing resolution, and sum signals."} {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
+private:
+  // unitless counterparts of inputs
+  double dyRangeADC{0}, stepTDC{0}, tRes{0};
 
-    // unitless counterparts of inputs
-    double           dyRangeADC{0}, stepTDC{0}, tRes{0};
+  uint64_t id_mask{0};
 
-    uint64_t         id_mask{0};
-
-  private:
-    const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
-
-  };
+private:
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  algorithms::Generator m_rng     = algorithms::RandomSvc::instance().generator();
+};
 
 } // namespace eicrecon

@@ -18,44 +18,37 @@
 
 namespace eicrecon {
 
-  using SiliconTrackerDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::SimTrackerHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::RawTrackerHitCollection
-    >
-  >;
+using SiliconTrackerDigiAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                          algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
-  class SiliconTrackerDigi
-  : public SiliconTrackerDigiAlgorithm,
-    public WithPodConfig<SiliconTrackerDigiConfig> {
+class SiliconTrackerDigi : public SiliconTrackerDigiAlgorithm,
+                           public WithPodConfig<SiliconTrackerDigiConfig> {
 
-  public:
-    SiliconTrackerDigi(std::string_view name)
+public:
+  SiliconTrackerDigi(std::string_view name)
       : SiliconTrackerDigiAlgorithm{name,
-                            {"inputHitCollection"},
-                            {"outputRawHitCollection"},
-                            "Apply threshold, digitize within ADC range, "
-                            "convert time with smearing resolution."} {}
+                                    {"inputHitCollection"},
+                                    {"outputRawHitCollection"},
+                                    "Apply threshold, digitize within ADC range, "
+                                    "convert time with smearing resolution."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init(std::shared_ptr<spdlog::logger>& logger);
+  void process(const Input&, const Output&) const final;
 
-  private:
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger> m_log;
+private:
+  /** algorithm logger */
+  std::shared_ptr<spdlog::logger> m_log;
 
-    /** Random number generation*/
-    TRandomMixMax m_random;
-    std::function<double()> m_gauss;
+  /** Random number generation*/
+  TRandomMixMax m_random;
+  std::function<double()> m_gauss;
 
-    // FIXME replace with standard random engine
-    //std::default_random_engine generator; // TODO: need something more appropriate here
-    //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+  // FIXME replace with standard random engine
+  //std::default_random_engine generator; // TODO: need something more appropriate here
+  //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
 
-    //algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+  //algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon

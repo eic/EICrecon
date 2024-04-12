@@ -7,22 +7,22 @@
 
 namespace eicrecon {
 
-  struct CylinderSurfaceConfig {
-    std::string id;
-    std::variant<std::string, double> rmin;
-    std::variant<std::string, double> zmin;
-    std::variant<std::string, double> zmax;
-  };
+struct CylinderSurfaceConfig {
+  std::string id;
+  std::variant<std::string, double> rmin;
+  std::variant<std::string, double> zmin;
+  std::variant<std::string, double> zmax;
+};
 
-  struct DiscSurfaceConfig {
-    std::string id;
-    std::variant<std::string, double> zmin;
-    std::variant<std::string, double> rmin;
-    std::variant<std::string, double> rmax;
-  };
+struct DiscSurfaceConfig {
+  std::string id;
+  std::variant<std::string, double> zmin;
+  std::variant<std::string, double> rmin;
+  std::variant<std::string, double> rmax;
+};
 
-  struct TrackPropagationConfig {
-    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> surfaces;
-  };
+struct TrackPropagationConfig {
+  std::vector<std::variant<CylinderSurfaceConfig, DiscSurfaceConfig>> surfaces;
+};
 
-} // eicrecon
+} // namespace eicrecon

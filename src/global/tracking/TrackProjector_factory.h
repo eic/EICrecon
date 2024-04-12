@@ -17,30 +17,28 @@
 
 namespace eicrecon {
 
-class TrackProjector_factory :
-        public JOmniFactory<TrackProjector_factory> {
+class TrackProjector_factory : public JOmniFactory<TrackProjector_factory> {
 
 private:
-    using AlgoT = eicrecon::TrackProjector;
-    std::unique_ptr<AlgoT> m_algo;
+  using AlgoT = eicrecon::TrackProjector;
+  std::unique_ptr<AlgoT> m_algo;
 
-    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    PodioOutput<edm4eic::TrackSegment> m_segments_output {this};
+  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
-    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<AlgoT>();
-        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
-    }
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>();
+    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+  }
 
-    void ChangeRun(int64_t run_number) {
-    }
+  void ChangeRun(int64_t run_number) {}
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        m_segments_output() = m_algo->execute(m_acts_trajectories_input());
-    }
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_segments_output() = m_algo->execute(m_acts_trajectories_input());
+  }
 };
 
-} // eicrecon
+} // namespace eicrecon

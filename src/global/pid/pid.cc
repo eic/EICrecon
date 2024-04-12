@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
-
 #include <JANA/JApplication.h>
 #include <string>
 
@@ -13,22 +12,21 @@
 #include "global/pid/ParticlesWithPID_factory.h"
 
 extern "C" {
-  void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // configuration parameters ///////////////////////////////////////////////
+  // configuration parameters ///////////////////////////////////////////////
 
-    // linking of reconstructed particles to PID objects
-    ParticlesWithPIDConfig link_cfg;
-    link_cfg.momentumRelativeTolerance = 100.0; /// Matching momentum effectively disabled
-    link_cfg.phiTolerance              = 0.1; /// Matching phi tolerance [rad]
-    link_cfg.etaTolerance              = 0.2; /// Matching eta tolerance
+  // linking of reconstructed particles to PID objects
+  ParticlesWithPIDConfig link_cfg;
+  link_cfg.momentumRelativeTolerance = 100.0; /// Matching momentum effectively disabled
+  link_cfg.phiTolerance              = 0.1;   /// Matching phi tolerance [rad]
+  link_cfg.etaTolerance              = 0.2;   /// Matching eta tolerance
 
-
-    // wiring between factories and data ///////////////////////////////////////
-    // clang-format off
+  // wiring between factories and data ///////////////////////////////////////
+  // clang-format off
 
     // link charged particles to PID and to MC truth
     app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(

@@ -25,188 +25,164 @@
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #if FMT_VERSION >= 90000
-template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
+template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
 #endif // FMT_VERSION >= 90000
 
 namespace eicrecon {
 
-    void
-    TrackProjector::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger) {
-        m_log = logger;
-        m_geo_provider = geo_svc;
+void TrackProjector::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                          std::shared_ptr<spdlog::logger> logger) {
+  m_log          = logger;
+  m_geo_provider = geo_svc;
+}
+
+std::unique_ptr<edm4eic::TrackSegmentCollection>
+TrackProjector::execute(std::vector<const ActsExamples::Trajectories*> trajectories) {
+
+  // create output collections
+  auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
+  m_log->debug("Track projector event process. Num of input trajectories: {}",
+               std::size(trajectories));
+
+  // Loop over the trajectories
+  for (const auto& traj : trajectories) {
+    // Get the entry index for the single trajectory
+    // The trajectory entry indices and the multiTrajectory
+    const auto& mj        = traj->multiTrajectory();
+    const auto& trackTips = traj->tips();
+    m_log->debug("------ Trajectory ------");
+    m_log->debug("  Num of elements in trackTips {}", trackTips.size());
+
+    // Skip empty
+    if (trackTips.empty()) {
+      m_log->debug("  Empty multiTrajectory.");
+      continue;
     }
+    const auto& trackTip = trackTips.front();
 
+    // Collect the trajectory summary info
+    auto trajState      = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+    int m_nMeasurements = trajState.nMeasurements;
+    int m_nStates       = trajState.nStates;
+    int m_nCalibrated   = 0;
+    m_log->debug("  Num measurement in trajectory {}", m_nMeasurements);
+    m_log->debug("  Num state in trajectory {}", m_nStates);
 
-    std::unique_ptr<edm4eic::TrackSegmentCollection> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
+    auto track_segment = track_segments->create();
 
-        // create output collections
-        auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
-        m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
+    // visit the track points
+    mj.visitBackwards(trackTip, [&](auto&& trackstate) {
+      // get volume info
+      auto geoID  = trackstate.referenceSurface().geometryId();
+      auto volume = geoID.volume();
+      auto layer  = geoID.layer();
 
-        // Loop over the trajectories
-        for (const auto &traj: trajectories) {
-            // Get the entry index for the single trajectory
-            // The trajectory entry indices and the multiTrajectory
-            const auto &mj = traj->multiTrajectory();
-            const auto &trackTips = traj->tips();
-            m_log->debug("------ Trajectory ------");
-            m_log->debug("  Num of elements in trackTips {}", trackTips.size());
+      if (trackstate.hasCalibrated()) {
+        m_nCalibrated++;
+      }
 
-            // Skip empty
-            if (trackTips.empty()) {
-                m_log->debug("  Empty multiTrajectory.");
-                continue;
-            }
-            const auto &trackTip = trackTips.front();
+      // get track state parameters and their covariances
+      const auto& parameter  = trackstate.predicted();
+      const auto& covariance = trackstate.predictedCovariance();
 
-            // Collect the trajectory summary info
-            auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-            int m_nMeasurements = trajState.nMeasurements;
-            int m_nStates = trajState.nStates;
-            int m_nCalibrated = 0;
-            m_log->debug("  Num measurement in trajectory {}", m_nMeasurements);
-            m_log->debug("  Num state in trajectory {}", m_nStates);
+      // convert local to global
+      auto global = trackstate.referenceSurface().localToGlobal(
+          m_geo_provider->getActsGeometryContext(),
+          {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]},
+          Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi],
+                                          parameter[Acts::eBoundTheta]));
+      auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
+          m_geo_provider->getActsGeometryContext(), parameter);
+      auto free_covariance = jacobian * covariance * jacobian.transpose();
 
-            auto track_segment = track_segments->create();
+      // global position
+      const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(global.x()),
+                                                             static_cast<float>(global.y()),
+                                                             static_cast<float>(global.z())};
 
-            // visit the track points
-            mj.visitBackwards(trackTip, [&](auto &&trackstate) {
-                // get volume info
-                auto geoID = trackstate.referenceSurface().geometryId();
-                auto volume = geoID.volume();
-                auto layer = geoID.layer();
+      // local position
+      const decltype(edm4eic::TrackParametersData::loc) loc{
+          static_cast<float>(parameter[Acts::eBoundLoc0]),
+          static_cast<float>(parameter[Acts::eBoundLoc1])};
+      const edm4eic::Cov2f locError{
+          static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
+          static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
+          static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))};
+      const decltype(edm4eic::TrackPoint::positionError) positionError{
+          static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos0)),
+          static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos1)),
+          static_cast<float>(free_covariance(Acts::eFreePos2, Acts::eFreePos2)),
+          static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos1)),
+          static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos2)),
+          static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos2)),
+      };
 
-                if (trackstate.hasCalibrated()) {
-                    m_nCalibrated++;
-                }
+      // momentum
+      const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
+          static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
+          static_cast<float>(parameter[Acts::eBoundTheta]),
+          static_cast<float>(parameter[Acts::eBoundPhi]));
+      const decltype(edm4eic::TrackPoint::momentumError) momentumError{
+          static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
+          static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
+          static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
+          static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
+          static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
+          static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))};
+      const float time{static_cast<float>(parameter(Acts::eBoundTime))};
+      const float timeError{
+          sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
+      const float theta(parameter[Acts::eBoundTheta]);
+      const float phi(parameter[Acts::eBoundPhi]);
+      const decltype(edm4eic::TrackPoint::directionError) directionError{
+          static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
+          static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
+          static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi))};
+      const float pathLength      = static_cast<float>(trackstate.pathLength());
+      const float pathLengthError = 0;
 
-                // get track state parameters and their covariances
-                const auto &parameter = trackstate.predicted();
-                const auto &covariance = trackstate.predictedCovariance();
+      uint64_t surface = trackstate.referenceSurface().geometryId().value();
+      uint32_t system  = 0;
 
-                // convert local to global
-                auto global = trackstate.referenceSurface().localToGlobal(
-                        m_geo_provider->getActsGeometryContext(),
-                        {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]},
-                        Acts::makeDirectionFromPhiTheta(
-                            parameter[Acts::eBoundPhi],
-                            parameter[Acts::eBoundTheta]
-                        )
-                );
-                auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
-                        m_geo_provider->getActsGeometryContext(),
-                        parameter
-                );
-                auto free_covariance = jacobian * covariance * jacobian.transpose();
+      // Store track point
+      track_segment.addToPoints({surface, system, position, positionError, momentum, momentumError,
+                                 time, timeError, theta, phi, directionError, pathLength,
+                                 pathLengthError});
 
-                // global position
-                const decltype(edm4eic::TrackPoint::position) position{
-                        static_cast<float>(global.x()),
-                        static_cast<float>(global.y()),
-                        static_cast<float>(global.z())
-                };
+      m_log->debug("  ******************************");
+      m_log->debug("    position: {}", position);
+      m_log->debug("    positionError: {}", positionError);
+      m_log->debug("    momentum: {}", momentum);
+      m_log->debug("    momentumError: {}", momentumError);
+      m_log->debug("    time: {}", time);
+      m_log->debug("    timeError: {}", timeError);
+      m_log->debug("    theta: {}", theta);
+      m_log->debug("    phi: {}", phi);
+      m_log->debug("    directionError: {}", directionError);
+      m_log->debug("    pathLength: {}", pathLength);
+      m_log->debug("    pathLengthError: {}", pathLengthError);
+      m_log->debug("    geoID = {}", geoID);
+      m_log->debug("    volume = {}, layer = {}", volume, layer);
+      m_log->debug("    pathlength = {}", pathLength);
+      m_log->debug("    hasCalibrated = {}", trackstate.hasCalibrated());
+      m_log->debug("  ******************************");
 
-                // local position
-                const decltype(edm4eic::TrackParametersData::loc) loc{
-                        static_cast<float>(parameter[Acts::eBoundLoc0]),
-                        static_cast<float>(parameter[Acts::eBoundLoc1])
-                };
-                const edm4eic::Cov2f locError{
-                        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                        static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
-                };
-                const decltype(edm4eic::TrackPoint::positionError) positionError{
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos0)),
-                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos1)),
-                        static_cast<float>(free_covariance(Acts::eFreePos2, Acts::eFreePos2)),
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos1)),
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos2)),
-                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos2)),
-                };
+      // Local position on the reference surface.
+      //m_log->debug("parameter[eBoundLoc0] = {}", parameter[Acts::eBoundLoc0]);
+      //m_log->debug("parameter[eBoundLoc1] = {}", parameter[Acts::eBoundLoc1]);
+      //m_log->debug("parameter[eBoundPhi] = {}", parameter[Acts::eBoundPhi]);
+      //m_log->debug("parameter[eBoundTheta] = {}", parameter[Acts::eBoundTheta]);
+      //m_log->debug("parameter[eBoundQOverP] = {}", parameter[Acts::eBoundQOverP]);
+      //m_log->debug("parameter[eBoundTime] = {}", parameter[Acts::eBoundTime]);
+      //m_log->debug("predicted variables: {}", trackstate.predicted());
+    });
 
-                // momentum
-                const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
-                        static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
-                        static_cast<float>(parameter[Acts::eBoundTheta]),
-                        static_cast<float>(parameter[Acts::eBoundPhi])
-                );
-                const decltype(edm4eic::TrackPoint::momentumError) momentumError{
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
-                };
-                const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-                const float timeError{sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
-                const float theta(parameter[Acts::eBoundTheta]);
-                const float phi(parameter[Acts::eBoundPhi]);
-                const decltype(edm4eic::TrackPoint::directionError) directionError{
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi))
-                };
-                const float pathLength = static_cast<float>(trackstate.pathLength());
-                const float pathLengthError = 0;
+    m_log->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
+    m_log->debug("------ end of trajectory process ------");
+  }
 
-                uint64_t surface = trackstate.referenceSurface().geometryId().value();
-                uint32_t system = 0;
+  m_log->debug("END OF Track projector event process");
+  return std::move(track_segments);
+}
 
-                // Store track point
-                track_segment.addToPoints({
-                                                  surface,
-                                                  system,
-                                                  position,
-                                                  positionError,
-                                                  momentum,
-                                                  momentumError,
-                                                  time,
-                                                  timeError,
-                                                  theta,
-                                                  phi,
-                                                  directionError,
-                                                  pathLength,
-                                                  pathLengthError
-                                          });
-
-
-                m_log->debug("  ******************************");
-                m_log->debug("    position: {}", position);
-                m_log->debug("    positionError: {}", positionError);
-                m_log->debug("    momentum: {}", momentum);
-                m_log->debug("    momentumError: {}", momentumError);
-                m_log->debug("    time: {}", time);
-                m_log->debug("    timeError: {}", timeError);
-                m_log->debug("    theta: {}", theta);
-                m_log->debug("    phi: {}", phi);
-                m_log->debug("    directionError: {}", directionError);
-                m_log->debug("    pathLength: {}", pathLength);
-                m_log->debug("    pathLengthError: {}", pathLengthError);
-                m_log->debug("    geoID = {}", geoID);
-                m_log->debug("    volume = {}, layer = {}", volume, layer);
-                m_log->debug("    pathlength = {}", pathLength);
-                m_log->debug("    hasCalibrated = {}", trackstate.hasCalibrated());
-                m_log->debug("  ******************************");
-
-                // Local position on the reference surface.
-                //m_log->debug("parameter[eBoundLoc0] = {}", parameter[Acts::eBoundLoc0]);
-                //m_log->debug("parameter[eBoundLoc1] = {}", parameter[Acts::eBoundLoc1]);
-                //m_log->debug("parameter[eBoundPhi] = {}", parameter[Acts::eBoundPhi]);
-                //m_log->debug("parameter[eBoundTheta] = {}", parameter[Acts::eBoundTheta]);
-                //m_log->debug("parameter[eBoundQOverP] = {}", parameter[Acts::eBoundQOverP]);
-                //m_log->debug("parameter[eBoundTime] = {}", parameter[Acts::eBoundTime]);
-                //m_log->debug("predicted variables: {}", trackstate.predicted());
-            });
-
-            m_log->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
-            m_log->debug("------ end of trajectory process ------");
-        }
-
-        m_log->debug("END OF Track projector event process");
-        return std::move(track_segments);
-    }
-
-
-} // namespace eicrecon::Reco
+} // namespace eicrecon

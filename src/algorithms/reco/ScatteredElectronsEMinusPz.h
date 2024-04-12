@@ -10,22 +10,18 @@
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-
 namespace eicrecon {
 
-    class ScatteredElectronsEMinusPz : public WithPodConfig<ScatteredElectronsEMinusPzConfig>{
+class ScatteredElectronsEMinusPz : public WithPodConfig<ScatteredElectronsEMinusPzConfig> {
 
-    public:
+public:
+  void init(std::shared_ptr<spdlog::logger>& logger);
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection>
+  execute(const edm4eic::ReconstructedParticleCollection* rcparts,
+          const edm4eic::ReconstructedParticleCollection* rcele);
 
-        void init(std::shared_ptr<spdlog::logger>& logger);
-        std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
-                const edm4eic::ReconstructedParticleCollection *rcparts,
-                const edm4eic::ReconstructedParticleCollection *rcele
-        );
-
-    private:
-        std::shared_ptr<spdlog::logger> m_log;
-        double m_electron{0.000510998928}, m_pion{0.13957};
-
-    };
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+  double m_electron{0.000510998928}, m_pion{0.13957};
+};
 } // namespace eicrecon

@@ -24,8 +24,8 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
   m_log->debug("MergeCherenkovParticleID_factory: plugin='{}' prefix='{}'", plugin, prefix);
 
   // config
-  auto cfg = GetDefaultConfig();
-  auto set_param = [&prefix, &app] (std::string name, auto &val, std::string description) {
+  auto cfg       = GetDefaultConfig();
+  auto set_param = [&prefix, &app](std::string name, auto& val, std::string description) {
     name = prefix + ":" + name;
     app->SetDefaultParameter(name, val, description);
   };
@@ -38,14 +38,13 @@ void eicrecon::MergeCherenkovParticleID_factory::Init() {
 }
 
 //-----------------------------------------------------------------------------
-void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<const JEvent> &event) {
+void eicrecon::MergeCherenkovParticleID_factory::Process(
+    const std::shared_ptr<const JEvent>& event) {
 
   // get input collections
   std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> cherenkov_pids;
-  for(auto& input_tag : GetInputTags()) {
-    cherenkov_pids.push_back(
-        (event->GetCollection<edm4eic::CherenkovParticleID>(input_tag))
-    );
+  for (auto& input_tag : GetInputTags()) {
+    cherenkov_pids.push_back((event->GetCollection<edm4eic::CherenkovParticleID>(input_tag)));
   }
 
   // call the MergeParticleID algorithm
@@ -53,8 +52,7 @@ void eicrecon::MergeCherenkovParticleID_factory::Process(const std::shared_ptr<c
     auto merged_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     m_algo->process({cherenkov_pids}, {merged_pids.get()});
     SetCollection<edm4eic::CherenkovParticleID>(GetOutputTags()[0], std::move(merged_pids));
-  }
-  catch(std::exception &e) {
+  } catch (std::exception& e) {
     throw JException(e.what());
   }
 }

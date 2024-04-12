@@ -11,34 +11,28 @@
 #include <string>
 #include <string_view>
 
-
 namespace eicrecon {
 
-  using InclusiveKinematicsTruthAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::MCParticleCollection
-    >,
-    algorithms::Output<
-      edm4eic::InclusiveKinematicsCollection
-    >
-  >;
+using InclusiveKinematicsTruthAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
+                          algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-  class InclusiveKinematicsTruth
-  : public InclusiveKinematicsTruthAlgorithm {
+class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm {
 
-  public:
-    InclusiveKinematicsTruth(std::string_view name)
-      : InclusiveKinematicsTruthAlgorithm{name,
-                            {"MCParticles"},
-                            {"inclusiveKinematics"},
-                            "Determine inclusive kinematics from truth information."} {}
+public:
+  InclusiveKinematicsTruth(std::string_view name)
+      : InclusiveKinematicsTruthAlgorithm{
+            name,
+            {"MCParticles"},
+            {"inclusiveKinematics"},
+            "Determine inclusive kinematics from truth information."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init(std::shared_ptr<spdlog::logger>& logger);
+  void process(const Input&, const Output&) const final;
 
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
-    double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-  };
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+  double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
+};
 
 } // namespace eicrecon
