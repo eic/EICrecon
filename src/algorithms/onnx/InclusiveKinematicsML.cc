@@ -68,6 +68,9 @@ namespace eicrecon {
     const auto [electron, da] = input;
     auto [ml] = output;
 
+    // Require valid inputs
+    if (electron->size() == 0 || da->size() == 0) return;
+
     // Assume model has 1 input nodes and 1 output node.
     assert(m_input_names.size() == 1 && m_output_names.size() == 1);
 
