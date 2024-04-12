@@ -9,7 +9,7 @@ namespace eicrecon {
 
   struct InclusiveKinematicsMLConfig {
 
-    std::string modelPath{""};
+    std::string modelPath{"calibrations/identity_gemm_w1x1_b1.onnx"};
 
   };
 
