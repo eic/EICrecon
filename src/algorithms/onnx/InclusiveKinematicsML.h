@@ -5,11 +5,13 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <onnxruntime_cxx_api.h>
+#include <spdlog/logger.h>
+#include <cstdint>
+#include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/onnx/InclusiveKinematicsMLConfig.h"

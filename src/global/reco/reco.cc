@@ -11,7 +11,7 @@
 #include <map>
 #include <memory>
 
-#include "algorithms/onnx/InclusiveKinematicsML.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
