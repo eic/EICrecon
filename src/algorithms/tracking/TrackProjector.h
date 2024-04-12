@@ -13,27 +13,24 @@
 #include "ActsGeometryProvider.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-
 namespace eicrecon {
 
-        /** Extract the particles form fit trajectories.
+/** Extract the particles form fit trajectories.
          *
          * \ingroup tracking
          */
-        class TrackProjector {
+class TrackProjector {
 
-        public:
+public:
+  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+            std::shared_ptr<spdlog::logger> logger);
 
-            void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
+  std::unique_ptr<edm4eic::TrackSegmentCollection>
+  execute(std::vector<const ActsExamples::Trajectories*> trajectories);
 
-            std::unique_ptr<edm4eic::TrackSegmentCollection> execute(std::vector<const ActsExamples::Trajectories*> trajectories);
+private:
+  std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
+  std::shared_ptr<spdlog::logger> m_log;
+};
 
-        private:
-            std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
-            std::shared_ptr<spdlog::logger> m_log;
-
-        };
-
-
-
-} // eicrecon
+} // namespace eicrecon

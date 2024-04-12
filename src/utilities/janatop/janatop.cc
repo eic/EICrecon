@@ -10,9 +10,9 @@
 #include "JEventProcessorJANATOP.h"
 
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new JEventProcessorJANATOP());
-        app->GetJParameterManager()->SetParameter("RECORD_CALL_STACK", true);
-    }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new JEventProcessorJANATOP());
+  app->GetJParameterManager()->SetParameter("RECORD_CALL_STACK", true);
+}
 }

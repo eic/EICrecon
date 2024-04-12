@@ -22,7 +22,7 @@
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-ACTSGeo_service::~ACTSGeo_service() {};
+ACTSGeo_service::~ACTSGeo_service(){};
 
 //----------------------------------------------------------------
 // detector
@@ -32,98 +32,103 @@ ACTSGeo_service::~ACTSGeo_service() {};
 //----------------------------------------------------------------
 std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
 
-    try{
-        std::call_once(m_init_flag, [this](){
-            // Assemble everything on the first call
+  try {
+    std::call_once(m_init_flag, [this]() {
+      // Assemble everything on the first call
 
-            if(!m_dd4hepGeo) {
-                throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
-            }
+      if (!m_dd4hepGeo) {
+        throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
+      }
 
-            // Get material map from user parameter
-            std::string material_map_file;
-            try {
-              material_map_file = m_dd4hepGeo->constant<std::string>("material-map");
-            } catch (const std::runtime_error& e) {
-              material_map_file = "calibrations/materials-map.cbor";
-            }
-            m_app->SetDefaultParameter("acts:MaterialMap", material_map_file, "JSON/CBOR material map file path");
+      // Get material map from user parameter
+      std::string material_map_file;
+      try {
+        material_map_file = m_dd4hepGeo->constant<std::string>("material-map");
+      } catch (const std::runtime_error& e) {
+        material_map_file = "calibrations/materials-map.cbor";
+      }
+      m_app->SetDefaultParameter("acts:MaterialMap", material_map_file,
+                                 "JSON/CBOR material map file path");
 
-            // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
-            // while no other output is coming which makes it look like something is wrong. Disable the ticker
-            // while parsing and loading the geometry
-            auto tickerEnabled = m_app->IsTickerEnabled();
-            m_app->SetTicker(false);
+      // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
+      // while no other output is coming which makes it look like something is wrong. Disable the ticker
+      // while parsing and loading the geometry
+      auto tickerEnabled = m_app->IsTickerEnabled();
+      m_app->SetTicker(false);
 
-            // Create default m_acts_provider
-            m_acts_provider = std::make_shared<ActsGeometryProvider>();
+      // Create default m_acts_provider
+      m_acts_provider = std::make_shared<ActsGeometryProvider>();
 
-            // Set ActsGeometryProvider parameters
-            bool objWriteIt = m_acts_provider->getObjWriteIt();
-            bool plyWriteIt = m_acts_provider->getPlyWriteIt();
-            m_app->SetDefaultParameter("acts:WriteObj", objWriteIt, "Write tracking geometry as obj files");
-            m_app->SetDefaultParameter("acts:WritePly", plyWriteIt, "Write tracking geometry as ply files");
-            m_acts_provider->setObjWriteIt(objWriteIt);
-            m_acts_provider->setPlyWriteIt(plyWriteIt);
+      // Set ActsGeometryProvider parameters
+      bool objWriteIt = m_acts_provider->getObjWriteIt();
+      bool plyWriteIt = m_acts_provider->getPlyWriteIt();
+      m_app->SetDefaultParameter("acts:WriteObj", objWriteIt,
+                                 "Write tracking geometry as obj files");
+      m_app->SetDefaultParameter("acts:WritePly", plyWriteIt,
+                                 "Write tracking geometry as ply files");
+      m_acts_provider->setObjWriteIt(objWriteIt);
+      m_acts_provider->setPlyWriteIt(plyWriteIt);
 
-            std::string outputTag = m_acts_provider->getOutputTag();
-            std::string outputDir = m_acts_provider->getOutputDir();
-            m_app->SetDefaultParameter("acts:OutputTag", outputTag, "Obj and ply output file tag");
-            m_app->SetDefaultParameter("acts:OutputDir", outputDir, "Obj and ply output file dir");
-            m_acts_provider->setOutputTag(outputTag);
-            m_acts_provider->setOutputDir(outputDir);
+      std::string outputTag = m_acts_provider->getOutputTag();
+      std::string outputDir = m_acts_provider->getOutputDir();
+      m_app->SetDefaultParameter("acts:OutputTag", outputTag, "Obj and ply output file tag");
+      m_app->SetDefaultParameter("acts:OutputDir", outputDir, "Obj and ply output file dir");
+      m_acts_provider->setOutputTag(outputTag);
+      m_acts_provider->setOutputDir(outputDir);
 
-            std::array<int,3> containerView = m_acts_provider->getContainerView().color;
-            std::array<int,3> volumeView = m_acts_provider->getVolumeView().color;
-            std::array<int,3> sensitiveView = m_acts_provider->getSensitiveView().color;
-            std::array<int,3> passiveView = m_acts_provider->getPassiveView().color;
-            std::array<int,3> gridView = m_acts_provider->getGridView().color;
-            m_app->SetDefaultParameter("acts:ContainerView", containerView, "RGB for container views");
-            m_app->SetDefaultParameter("acts:VolumeView", volumeView, "RGB for volume views");
-            m_app->SetDefaultParameter("acts:SensitiveView", sensitiveView, "RGB for sensitive views");
-            m_app->SetDefaultParameter("acts:PassiveView", passiveView, "RGB for passive views");
-            m_app->SetDefaultParameter("acts:GridView", gridView, "RGB for grid views");
-            m_acts_provider->setContainerView(containerView);
-            m_acts_provider->setVolumeView(volumeView);
-            m_acts_provider->setSensitiveView(sensitiveView);
-            m_acts_provider->setPassiveView(passiveView);
-            m_acts_provider->setGridView(gridView);
+      std::array<int, 3> containerView = m_acts_provider->getContainerView().color;
+      std::array<int, 3> volumeView    = m_acts_provider->getVolumeView().color;
+      std::array<int, 3> sensitiveView = m_acts_provider->getSensitiveView().color;
+      std::array<int, 3> passiveView   = m_acts_provider->getPassiveView().color;
+      std::array<int, 3> gridView      = m_acts_provider->getGridView().color;
+      m_app->SetDefaultParameter("acts:ContainerView", containerView, "RGB for container views");
+      m_app->SetDefaultParameter("acts:VolumeView", volumeView, "RGB for volume views");
+      m_app->SetDefaultParameter("acts:SensitiveView", sensitiveView, "RGB for sensitive views");
+      m_app->SetDefaultParameter("acts:PassiveView", passiveView, "RGB for passive views");
+      m_app->SetDefaultParameter("acts:GridView", gridView, "RGB for grid views");
+      m_acts_provider->setContainerView(containerView);
+      m_acts_provider->setVolumeView(volumeView);
+      m_acts_provider->setSensitiveView(sensitiveView);
+      m_acts_provider->setPassiveView(passiveView);
+      m_acts_provider->setGridView(gridView);
 
-            // Initialize m_acts_provider
-            m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
+      // Initialize m_acts_provider
+      m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
 
-            // Enable ticker back
-            m_app->SetTicker(tickerEnabled);
-        });
-    }
-    catch (std::exception &ex) {
-        throw JException(ex.what());
-    }
+      // Enable ticker back
+      m_app->SetTicker(tickerEnabled);
+    });
+  } catch (std::exception& ex) {
+    throw JException(ex.what());
+  }
 
-    return m_acts_provider;
+  return m_acts_provider;
 }
 
+void ACTSGeo_service::acquire_services(JServiceLocator* srv_locator) {
 
+  auto log_service = srv_locator->get<Log_service>();
 
-void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
+  // ACTS general log level:
+  m_log                     = log_service->logger("acts");
+  std::string log_level_str = log_service->getDefaultLevelStr();
+  m_app->SetDefaultParameter("acts:LogLevel", log_level_str,
+                             "log_level: trace, debug, info, warn, error, critical, off");
+  m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+  m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str,
+              fmt::underlying(m_log->level()));
 
-    auto log_service = srv_locator->get<Log_service>();
+  // ACTS init log level (geometry conversion):
+  m_init_log                     = log_service->logger("acts_init");
+  std::string init_log_level_str = eicrecon::LogLevelToString(
+      m_log->level()); // set general acts log level, if not given by user
+  m_app->SetDefaultParameter("acts:InitLogLevel", init_log_level_str,
+                             "log_level: trace, debug, info, warn, error, critical, off");
+  m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
+  m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str,
+                   fmt::underlying(m_init_log->level()));
 
-    // ACTS general log level:
-    m_log = log_service->logger("acts");
-    std::string log_level_str = log_service->getDefaultLevelStr();
-    m_app->SetDefaultParameter("acts:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-    m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str, fmt::underlying(m_log->level()));
-
-    // ACTS init log level (geometry conversion):
-    m_init_log = log_service->logger("acts_init");
-    std::string init_log_level_str = eicrecon::LogLevelToString(m_log->level());  // set general acts log level, if not given by user
-    m_app->SetDefaultParameter("acts:InitLogLevel", init_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
-    m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
-    m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, fmt::underlying(m_init_log->level()));
-
-    // DD4Hep geometry
-    auto dd4hep_service = srv_locator->get<DD4hep_service>();
-    m_dd4hepGeo = dd4hep_service->detector();
+  // DD4Hep geometry
+  auto dd4hep_service = srv_locator->get<DD4hep_service>();
+  m_dd4hepGeo         = dd4hep_service->detector();
 }

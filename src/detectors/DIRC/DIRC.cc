@@ -15,30 +15,29 @@
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
 
-
 extern "C" {
-  void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // configuration parameters ///////////////////////////////////////////////
+  // configuration parameters ///////////////////////////////////////////////
 
-    // digitization
-    PhotoMultiplierHitDigiConfig digi_cfg;
-    digi_cfg.seed            = 5; // FIXME: set to 0 for a 'unique' seed, but
-                                  // that seems to delay the RNG from actually randomizing
-    digi_cfg.hitTimeWindow   = 20.0; // [ns]
-    digi_cfg.timeResolution  = 1/16.0; // [ns]
-    digi_cfg.speMean         = 80.0;
-    digi_cfg.speError        = 16.0;
-    digi_cfg.pedMean         = 200.0;
-    digi_cfg.pedError        = 3.0;
-    digi_cfg.enablePixelGaps = false;
-    digi_cfg.safetyFactor    = 1.0;
-    digi_cfg.quantumEfficiency.clear();
+  // digitization
+  PhotoMultiplierHitDigiConfig digi_cfg;
+  digi_cfg.seed = 5;                   // FIXME: set to 0 for a 'unique' seed, but
+                                       // that seems to delay the RNG from actually randomizing
+  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
+  digi_cfg.timeResolution  = 1 / 16.0; // [ns]
+  digi_cfg.speMean         = 80.0;
+  digi_cfg.speError        = 16.0;
+  digi_cfg.pedMean         = 200.0;
+  digi_cfg.pedError        = 3.0;
+  digi_cfg.enablePixelGaps = false;
+  digi_cfg.safetyFactor    = 1.0;
+  digi_cfg.quantumEfficiency.clear();
 
-    std::vector<double> sensor_qe{
+  std::vector<double> sensor_qe{
       0,    0,    14.0, 14.8, 14.5, 14.9, 14.4, 14.2, 13.9, 14.6, 15.2, 15.7, 16.4, 16.9, 17.5,
       17.7, 18.1, 18.8, 19.3, 19.8, 20.6, 21.4, 22.4, 23.1, 23.6, 24.1, 24.2, 24.6, 24.8, 25.2,
       25.7, 26.5, 27.1, 28.2, 29.0, 29.9, 30.8, 31.1, 31.7, 31.8, 31.6, 31.5, 31.5, 31.3, 31.0,
@@ -57,21 +56,13 @@ extern "C" {
       1.8,  1.6,  1.5,  1.5,  1.6,  1.8,  1.9,  1.4,  0.8,  0.9,  0.8,  0.7,  0.6,  0.3,  0.3,
       0.5,  0.3,  0.4,  0.3,  0.1,  0.2,  0.1,  0.2,  0.3,  0.0};
 
-    for(size_t i=0; i < sensor_qe.size(); i++)
-      {
-        double wavelength = 180 + i * 2; // wavelength units are [nm]
-        digi_cfg.quantumEfficiency.push_back({wavelength, sensor_qe[i]*0.01});
-      }
-
-
-    // digitization
-    app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-          "DIRCRawHits",
-          {"DIRCBarHits"},
-          {"DIRCRawHits", "DIRCRawHitsAssociations"},
-          digi_cfg,
-          app
-          ));
-
+  for (size_t i = 0; i < sensor_qe.size(); i++) {
+    double wavelength = 180 + i * 2; // wavelength units are [nm]
+    digi_cfg.quantumEfficiency.push_back({wavelength, sensor_qe[i] * 0.01});
   }
+
+  // digitization
+  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+      "DIRCRawHits", {"DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"}, digi_cfg, app));
+}
 }

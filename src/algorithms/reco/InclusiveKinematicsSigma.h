@@ -13,36 +13,28 @@
 #include <string>
 #include <string_view>
 
-
 namespace eicrecon {
 
-  using InclusiveKinematicsSigmaAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::MCParticleCollection,
-      edm4eic::ReconstructedParticleCollection,
-      edm4eic::MCRecoParticleAssociationCollection
-    >,
-    algorithms::Output<
-      edm4eic::InclusiveKinematicsCollection
-    >
-  >;
+using InclusiveKinematicsSigmaAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-  class InclusiveKinematicsSigma
-  : public InclusiveKinematicsSigmaAlgorithm {
+class InclusiveKinematicsSigma : public InclusiveKinematicsSigmaAlgorithm {
 
-  public:
-    InclusiveKinematicsSigma(std::string_view name)
+public:
+  InclusiveKinematicsSigma(std::string_view name)
       : InclusiveKinematicsSigmaAlgorithm{name,
-                            {"MCParticles", "inputParticles", "inputAssociations"},
-                            {"inclusiveKinematics"},
-                            "Determine inclusive kinematics using Sigma method."} {}
+                                          {"MCParticles", "inputParticles", "inputAssociations"},
+                                          {"inclusiveKinematics"},
+                                          "Determine inclusive kinematics using Sigma method."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init(std::shared_ptr<spdlog::logger>& logger);
+  void process(const Input&, const Output&) const final;
 
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
-    double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-  };
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+  double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
+};
 
 } // namespace eicrecon

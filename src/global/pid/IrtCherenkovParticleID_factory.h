@@ -23,38 +23,32 @@
 
 namespace eicrecon {
 
-  class IrtCherenkovParticleID_factory :
-    public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,
-    public SpdlogMixin
-  {
+class IrtCherenkovParticleID_factory : public JChainMultifactoryT<IrtCherenkovParticleIDConfig>,
+                                       public SpdlogMixin {
 
-    public:
+public:
+  explicit IrtCherenkovParticleID_factory(std::string tag,
+                                          const std::vector<std::string>& input_tags,
+                                          const std::vector<std::string>& output_tags,
+                                          IrtCherenkovParticleIDConfig cfg)
+      : JChainMultifactoryT<IrtCherenkovParticleIDConfig>(std::move(tag), input_tags, output_tags,
+                                                          cfg) {
+    for (auto& output_tag : GetOutputTags())
+      DeclarePodioOutput<edm4eic::CherenkovParticleID>(output_tag);
+  }
 
-      explicit IrtCherenkovParticleID_factory(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags,
-          IrtCherenkovParticleIDConfig cfg
-          ):
-        JChainMultifactoryT<IrtCherenkovParticleIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
-          for(auto& output_tag : GetOutputTags())
-            DeclarePodioOutput<edm4eic::CherenkovParticleID>(output_tag);
-        }
+  /** One time initialization **/
+  void Init() override;
 
-      /** One time initialization **/
-      void Init() override;
+  /** On run change preparations **/
+  void BeginRun(const std::shared_ptr<const JEvent>& event) override;
 
-      /** On run change preparations **/
-      void BeginRun(const std::shared_ptr<const JEvent> &event) override;
+  /** Event by event processing **/
+  void Process(const std::shared_ptr<const JEvent>& event) override;
 
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
-
-    private:
-
-      eicrecon::IrtCherenkovParticleID m_irt_algo;
-      std::shared_ptr<RichGeo_service> m_richGeoSvc;
-      CherenkovDetectorCollection      *m_irt_det_coll;
-
-  };
-}
+private:
+  eicrecon::IrtCherenkovParticleID m_irt_algo;
+  std::shared_ptr<RichGeo_service> m_richGeoSvc;
+  CherenkovDetectorCollection* m_irt_det_coll;
+};
+} // namespace eicrecon

@@ -22,31 +22,28 @@
 
 namespace eicrecon {
 
-  class MergeCherenkovParticleID_factory :
-    public JChainMultifactoryT<MergeParticleIDConfig>,
-    public SpdlogMixin
-  {
+class MergeCherenkovParticleID_factory : public JChainMultifactoryT<MergeParticleIDConfig>,
+                                         public SpdlogMixin {
 
-    public:
-        using AlgoT = eicrecon::MergeParticleID;
-    private:
-        std::unique_ptr<AlgoT> m_algo;
+public:
+  using AlgoT = eicrecon::MergeParticleID;
 
-    public:
-      explicit MergeCherenkovParticleID_factory(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags,
-          MergeParticleIDConfig cfg)
+private:
+  std::unique_ptr<AlgoT> m_algo;
+
+public:
+  explicit MergeCherenkovParticleID_factory(std::string tag,
+                                            const std::vector<std::string>& input_tags,
+                                            const std::vector<std::string>& output_tags,
+                                            MergeParticleIDConfig cfg)
       : JChainMultifactoryT<MergeParticleIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
-        DeclarePodioOutput<edm4eic::CherenkovParticleID>(GetOutputTags()[0]);
-      }
+    DeclarePodioOutput<edm4eic::CherenkovParticleID>(GetOutputTags()[0]);
+  }
 
-      /** One time initialization **/
-      void Init() override;
+  /** One time initialization **/
+  void Init() override;
 
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
-
-  };
-}
+  /** Event by event processing **/
+  void Process(const std::shared_ptr<const JEvent>& event) override;
+};
+} // namespace eicrecon

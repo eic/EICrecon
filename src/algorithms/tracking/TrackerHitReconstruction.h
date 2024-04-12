@@ -14,26 +14,32 @@
 
 namespace eicrecon {
 
-    /**
+/**
      * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
      */
-    class TrackerHitReconstruction : public WithPodConfig<TrackerHitReconstructionConfig> {
+class TrackerHitReconstruction : public WithPodConfig<TrackerHitReconstructionConfig> {
 
-    public:
-        /// Once in a lifetime initialization
-        void init(const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+public:
+  /// Once in a lifetime initialization
+  void init(const dd4hep::rec::CellIDPositionConverter* converter,
+            std::shared_ptr<spdlog::logger>& logger);
 
-        /// Processes RawTrackerHit and produces a TrackerHit
-        std::unique_ptr<edm4eic::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection& raw_hits);
+  /// Processes RawTrackerHit and produces a TrackerHit
+  std::unique_ptr<edm4eic::TrackerHitCollection>
+  process(const edm4eic::RawTrackerHitCollection& raw_hits);
 
-        /// Set a configuration
-        eicrecon::TrackerHitReconstructionConfig& applyConfig(eicrecon::TrackerHitReconstructionConfig& cfg) {m_cfg = cfg; return m_cfg;}
+  /// Set a configuration
+  eicrecon::TrackerHitReconstructionConfig&
+  applyConfig(eicrecon::TrackerHitReconstructionConfig& cfg) {
+    m_cfg = cfg;
+    return m_cfg;
+  }
 
-    private:
-        /** algorithm logger */
-        std::shared_ptr<spdlog::logger> m_log;
+private:
+  /** algorithm logger */
+  std::shared_ptr<spdlog::logger> m_log;
 
-        /// Cell ID position converter
-        const dd4hep::rec::CellIDPositionConverter* m_converter;
-    };
-}
+  /// Cell ID position converter
+  const dd4hep::rec::CellIDPositionConverter* m_converter;
+};
+} // namespace eicrecon

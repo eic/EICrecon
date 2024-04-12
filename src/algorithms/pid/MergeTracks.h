@@ -18,30 +18,23 @@
 
 namespace eicrecon {
 
-  using MergeTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      std::vector<const edm4eic::TrackSegmentCollection>
-    >,
-    algorithms::Output<
-      edm4eic::TrackSegmentCollection
-    >
-  >;
+using MergeTracksAlgorithm =
+    algorithms::Algorithm<algorithms::Input<std::vector<const edm4eic::TrackSegmentCollection>>,
+                          algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
-  class MergeTracks
-  : public MergeTracksAlgorithm {
+class MergeTracks : public MergeTracksAlgorithm {
 
-  public:
-    MergeTracks(std::string_view name)
+public:
+  MergeTracks(std::string_view name)
       : MergeTracksAlgorithm{name,
-                            {"inputTrackSegments"},
-                            {"outputTrackSegments"},
-                            "Effectively 'zip' the input track segments."} {}
+                             {"inputTrackSegments"},
+                             {"outputTrackSegments"},
+                             "Effectively 'zip' the input track segments."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init(std::shared_ptr<spdlog::logger>& logger);
+  void process(const Input&, const Output&) const final;
 
-    private:
-      std::shared_ptr<spdlog::logger> m_log;
-
-  };
-}
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+};
+} // namespace eicrecon
