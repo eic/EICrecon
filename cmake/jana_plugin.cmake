@@ -377,11 +377,27 @@ macro(plugin_add_fastjet _name)
 
 endmacro()
 
-# Adds FastJet Contrib for a plugin
-macro(plugin_add_fjcontrib _name)
+# Adds FastJetTools for a plugin
+macro(plugin_add_fastjettools _name)
+
+  if(NOT FJTOOLS_FOUND)
+    find_package(FastJetTools REQUIRED)
+  endif()
+
+  # Add include directories
+  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
+                             ${FJTOOLS_INCLUDE_DIRS})
+
+  # Add libraries
+  plugin_link_libraries(${PLUGIN_NAME} ${FJTOOLS_LIBRARIES})
+
+endmacro()
+
+# Adds FastJetContrib for a plugin
+macro(plugin_add_fastjetcontrib _name)
 
   if(NOT FJCONTRIB_FOUND)
-    find_package(FJContrib REQUIRED)
+    find_package(FastJetContrib REQUIRED)
   endif()
 
   # Add include directories
