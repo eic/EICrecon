@@ -78,10 +78,16 @@ namespace eicrecon {
     auto [ml] = output;
 
     // Require valid inputs
-    if (electron->size() == 0 || da->size() == 0) return;
+    if (electron->size() == 0 || da->size() == 0) {
+      m_log->debug("skipping because input collections have no entries");
+      return;
+    }
 
     // Assume model has 1 input nodes and 1 output node.
-    assert(m_input_names.size() == 1 && m_output_names.size() == 1);
+    if (m_input_names.size() != 1 || m_output_names.size() != 1) {
+      m_log->debug("skipping because model has incorrect input and output size");
+      return;
+    }
 
     // Prepare input tensor
     std::vector<float> input_tensor_values;
@@ -92,7 +98,10 @@ namespace eicrecon {
     input_tensors.emplace_back(vec_to_tensor<float>(input_tensor_values, m_input_shapes.front()));
 
     // Double-check the dimensions of the input tensor
-    assert(input_tensors[0].IsTensor() && input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == m_input_shapes.front());
+    if (! input_tensors[0].IsTensor() || input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() != m_input_shapes.front()) {
+      m_log->debug("skipping because input tensor shape incorrect");
+      return;
+    }
 
     // Attempt inference
     try {
@@ -100,7 +109,10 @@ namespace eicrecon {
                                           m_input_names_char.size(), m_output_names_char.data(), m_output_names_char.size());
 
       // Double-check the dimensions of the output tensors
-      assert(output_tensors.size() == m_output_names.size() && output_tensors[0].IsTensor());
+      if (!output_tensors[0].IsTensor() || output_tensors.size() != m_output_names.size()) {
+        m_log->debug("skipping because output tensor shape incorrect");
+        return;
+      }
 
       // Convert output tensor
       float* output_tensor_data = output_tensors[0].GetTensorMutableData<float>();
