@@ -334,7 +334,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         }
         catch(std::exception &e) {
             m_log->critical("Exception caught when obtaining PODIO collection '{}': {}.", coll, e.what());
-	    throw;
+            throw;
         }
     }
 
