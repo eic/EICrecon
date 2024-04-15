@@ -21,10 +21,12 @@
 #include "TrackPropagationConfig.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
+#include "AmbiguitySolver_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+
 
 //
 extern "C" {

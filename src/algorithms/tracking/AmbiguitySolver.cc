@@ -54,8 +54,13 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
   m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
 }
 
-std::tuple<std::unique_ptr<edm4eic::TrackParametersCollection>,
-           std::vector<ActsExamples::ConstTrackContainer*>>
+  std::tuple<
+        std::unique_ptr<edm4eic::TrajectoryCollection>,
+        std::unique_ptr<edm4eic::TrackParametersCollection>,
+        std::unique_ptr<edm4eic::TrackCollection>,
+        std::vector<ActsExamples::Trajectories*>,
+        std::vector<ActsExamples::ConstTrackContainer*>
+    >
 AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container) {
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer
   // Create track container
@@ -82,11 +87,14 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
       destProxy.copyFrom(srcProxy, false);
       destProxy.tipIndex() = srcProxy.tipIndex();
     }
-    output_tracks.push_back(new ActsExamples::ConstTrackContainer(std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
+    output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+        std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
         input_trks->trackStateContainerHolder()));
   }
 
-  
+  auto trajectories     = std::make_unique<edm4eic::TrajectoryCollection>();
+  auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
+  auto tracks           = std::make_unique<edm4eic::TrackCollection>();
   return std::make_tuple(std::move(track_parameters), std::move(output_tracks));
 }
 
