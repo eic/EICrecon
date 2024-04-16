@@ -62,6 +62,21 @@ extern "C" {
           link_cfg,
           app
           ));
+              app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
+          "SeededFilteredChargedParticlesWithAssociations",
+          {
+            "MCParticles",                      // edm4hep::MCParticle
+            "CentralCKFSeededTracksFiltered",           // edm4eic::Track
+            "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
+          },
+          {
+            "ReconstructedSeededChargedParticlesFiltered",            // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedParticleFilteredAssociations", // edm4eic::MCRecoParticleAssociation
+            "ReconstructedSeededChargedParticleFilteredIDs"           // edm4hep::ParticleID
+          },
+          link_cfg,
+          app
+          ));
 
   }
 }

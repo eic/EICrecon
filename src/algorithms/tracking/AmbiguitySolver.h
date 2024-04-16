@@ -37,11 +37,19 @@ public:
               std::vector<ActsExamples::Trajectories*>,
               std::vector<ActsExamples::ConstTrackContainer*>>
    */
-  std::tuple<std::unique_ptr<edm4eic::TrajectoryCollection>,
+  /*std::tuple<std::unique_ptr<edm4eic::TrajectoryCollection>,
              std::unique_ptr<edm4eic::TrackParametersCollection>,
              std::unique_ptr<edm4eic::TrackCollection>, std::vector<ActsExamples::Trajectories*>,
              std::vector<ActsExamples::ConstTrackContainer*>>
-  process(std::vector<const ActsExamples::ConstTrackContainer*> acts_params);
+ */
+std::tuple<
+      std::unique_ptr<edm4eic::TrajectoryCollection>,
+      std::unique_ptr<edm4eic::TrackParametersCollection>,
+      std::unique_ptr<edm4eic::TrackCollection>,
+      std::vector<ActsExamples::ConstTrackContainer *>,
+      std::vector<ActsExamples::Trajectories *>
+      >
+  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,std::vector<const ActsExamples::Trajectories*> input_traj,const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
