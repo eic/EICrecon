@@ -14,12 +14,12 @@ namespace eicrecon {
 
     //////////////////////////////////////////////////////////////////////////
     /// SEED FINDER GENERAL PARAMETERS
-    float rMax = 440. * Acts::UnitConstants::mm; // max r to look for hits to compose seeds
+    float rMax = 600. * Acts::UnitConstants::mm; // max r to look for hits to compose seeds
     float rMin = 33. * Acts::UnitConstants::mm; // min r to look for hits to compose seeds
     float zMax = 1700. * Acts::UnitConstants::mm; // max z to look for hits to compose seeds
     float zMin = -1500. * Acts::UnitConstants::mm; // min z to look for hits to compose seeds
     float deltaRMinTopSP     = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and top SP in one seed
-    float deltaRMaxTopSP     = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
+    float deltaRMaxTopSP     = 450. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
     float deltaRMinBottomSP  = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and bottom SP in one seed
     float deltaRMaxBottomSP  = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and bottom SP in one seed
     float collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
