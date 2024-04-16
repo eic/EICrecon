@@ -414,7 +414,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - name: Upload digitization output
       uses: actions/upload-artifact@v4
@@ -431,7 +430,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Ppodio:output_include_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - name: Upload reconstruction output
       uses: actions/upload-artifact@v4
@@ -478,7 +476,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicmkplugin.py MyCustomPlugin
           cmake -S MyCustomPlugin -B MyCustomPlugin/build -DEICrecon_ROOT=$PWD/install -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/install/lib/EICrecon/plugins
           cmake --build MyCustomPlugin/build -j $(getconf _NPROCESSORS_ONLN) --target install
@@ -530,7 +527,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Pplugins=${{ matrix.benchmark_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - uses: actions/upload-artifact@v4
       with:
@@ -584,7 +580,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
           dot -Tsvg jana.dot > jana.svg
           mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
@@ -691,7 +686,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
     - uses: actions/upload-artifact@v4
       with:
@@ -751,7 +745,6 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          wget --directory-prefix=calibrations https://github.com/eic/epic-data/raw/812daafabbe7ed7e269f1b20f090de0517b06b9c/onnx/identity_gemm_w1x1_b1.onnx
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop -Pjana:warmup_timeout=0 -Pjana:timeout=0
           dot -Tsvg jana.dot > jana.svg
           mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
