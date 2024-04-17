@@ -55,9 +55,9 @@ public:
             double momentum = edm4hep::utils::magnitude(mcparticle.getMomentum());
 
             // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
-            double eta = edm4hep::utils::eta(mcparticle.getVertex());
-            double theta = edm4hep::utils::anglePolar(mcparticle.getVertex());
-            double phi = edm4hep::utils::angleAzimuthal(mcparticle.getVertex());
+            double eta = edm4hep::utils::eta(mcparticle.getMomentum());
+            double theta = edm4hep::utils::anglePolar(mcparticle.getMomentum());
+            double phi = edm4hep::utils::angleAzimuthal(mcparticle.getMomentum());
 
             auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
 
