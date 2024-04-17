@@ -82,8 +82,11 @@ public:
                 }
                 else {
                     identified_pdg = 0; // unknown
-                    // TODO: Note that the lookup tables contains entries where all values are zero.
-                    // These end up here
+                    // If the lookup table contains rows where all probabilities are zero, the control flow ends up here
+                }
+                if (charge < 0) {
+                    identified_pdg *= -1;
+                    // We want the identified PDG to have the same sign as the charge
                 }
             }
 
