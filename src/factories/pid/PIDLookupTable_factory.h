@@ -82,7 +82,7 @@ public:
                     identified_pdg = 2212; // proton
                 }
                 else {
-                    identified_pdg = -1; // unknown
+                    identified_pdg = 0; // unknown
                     // TODO: Note that the lookup tables contains entries where all values are zero.
                     // These end up here
                 }
