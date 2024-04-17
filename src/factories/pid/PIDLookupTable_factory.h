@@ -61,8 +61,7 @@ public:
 
             auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
 
-            int identified_pdg = -1; // unknown
-                                     // TODO: What is the PDG for 'unknown', actually?
+            int identified_pdg = 0; // unknown
 
             if (entry != nullptr) {
 
