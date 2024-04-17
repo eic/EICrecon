@@ -1,5 +1,5 @@
-// Copyright 2024, Nathan Brei
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Nathan Brei
 
 #include "PIDLookupTable.h"
 #include <algorithm>
