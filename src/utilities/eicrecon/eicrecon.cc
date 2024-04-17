@@ -23,6 +23,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "reco",
         "tracking",
         "pid",
+        "pid_lut",
         "EEMC",
         "BEMC",
         "FEMC",
