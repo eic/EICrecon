@@ -7,3 +7,7 @@ add_subdirectory(pid)
 add_subdirectory(digi)
 add_subdirectory(reco)
 add_subdirectory(fardetectors)
+
+if(USE_ONNX)
+  add_subdirectory(onnx)
+endif()
