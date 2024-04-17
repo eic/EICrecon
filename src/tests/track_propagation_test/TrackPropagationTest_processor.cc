@@ -88,7 +88,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     m_log->trace("TrackPropagationTest_processor event");
 
     // Get trajectories from tracking
-    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
+    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
 
     // Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());
