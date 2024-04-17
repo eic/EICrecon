@@ -111,6 +111,7 @@ jobs:
         platform-release: "${{ env.platform-release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           ctest --test-dir build -V
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
