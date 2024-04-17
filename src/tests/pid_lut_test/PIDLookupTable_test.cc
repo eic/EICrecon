@@ -3,10 +3,17 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-//#include <JANA/JApplication.h>
 #include <services/pid_lut/PIDLookupTable_service.h>
 #include <services/pid_lut/PIDLookupTable.h>
 //#include <spdlog/logger.h>
+
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <JANA/Services/JComponentManager.h>
+
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+
 #include <vector>
 #include <optional>
 
@@ -141,24 +148,34 @@ TEST_CASE("PIDLookupTable_LoadFile") {
     REQUIRE(result->prob_kaon == 0.0);
     REQUIRE(result->prob_proton == 0.0);
 
-
-    // TODO: There exist blocks inside our LUT file where the probabilities are all zero
-    // AND are not on the boundaries. I'd expect smoothness at least?
-    // Example:
-    // 11 1 0.20 64.00 30.00 0.0000 0.0000 0.0000 0.0000
-
 }
 
 TEST_CASE("PIDLookupTable_EndToEnd") {
-
-}
-
-
-/*
-TEST_CASE("Lookup table factory test") {
+    // Set up a mini JANA instance
     JApplication app;
     app.AddPlugin("log");
     app.AddPlugin("pid_lut");
+    app.AddPlugin("dd4hep");
+    app.AddPlugin("richgeo");
+    app.AddPlugin("DIRC");
     app.Initialize();
+
+    // Obtain a fully initialized event
+    auto jcm = app.GetService<JComponentManager>();
+    auto event = std::make_shared<JEvent>();
+    jcm->configure_event(*event);
+
+    // Insert some canned input data into the event
+    edm4hep::MCParticleCollection parts;
+    // TODO: Add some particles here!
+    event->InsertCollection<edm4hep::MCParticle>(std::move(parts), "MCParticles");
+
+    // Run our factory
+    auto results = event->GetCollection<edm4eic::ReconstructedParticle>("DIRCPID");
+
+    // Validate results
+    auto parts2 = event->GetCollection<edm4hep::MCParticle>("MCParticles");
+    REQUIRE(results->size() == parts2->size());
+    // TODO: More meaningful checks here!
 }
-*/
+
