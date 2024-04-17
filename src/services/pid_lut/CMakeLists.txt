@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.16)
 # its name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-# Function creates ${PLUGIN_NAME}_plugin
-# Setting default includes, libraries and installation paths
+# Function creates ${PLUGIN_NAME}_plugin Setting default includes, libraries and
+# installation paths
 plugin_add(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
