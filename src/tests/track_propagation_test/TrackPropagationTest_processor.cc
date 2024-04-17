@@ -22,6 +22,7 @@
 
 #include "TrackPropagationTest_processor.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 
@@ -60,11 +61,10 @@ void TrackPropagationTest_processor::Init()
     // Get log level from user parameter or default
     InitLogger(app, plugin_name);
 
+    auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-    auto detector = dd4hep::Detector::make_unique("");
-
-    m_propagation_algo.init(detector.get(), acts_service->actsGeoProvider(), logger());
+    m_propagation_algo.init(dd4hep_service->detector(), acts_service->actsGeoProvider(), logger());
 
     // Create HCal surface that will be used for propagation
     auto transform = Acts::Transform3::Identity();
