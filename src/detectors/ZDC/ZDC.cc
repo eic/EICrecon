@@ -166,7 +166,7 @@ extern "C" {
             app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+        /*app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCIslandProtoClusters"},
           {
             .sectorDist = 1.5 * dd4hep::cm,
@@ -178,11 +178,11 @@ extern "C" {
             // .transverseEnergyProfileScale = 1.,
           },
           app
-        ));
+        ));*/
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
            "HcalFarForwardZDCClusters",
-          {"HcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+          {"HcalFarForwardZDCImagingProtoClusters",  // edm4eic::ProtoClusterCollection
            "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
           {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
            "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
