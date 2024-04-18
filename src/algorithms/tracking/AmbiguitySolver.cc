@@ -2,9 +2,9 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler,, Wouter Deconinck, Dmitry Romanov, Shujie Li
 /*
  * Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS
- * 
  *
- *  Author: Minjung Kim (LBL, minjung.kim@lbl.gov) 
+ *
+ *  Author: Minjung Kim (LBL, minjung.kim@lbl.gov)
 */
 #include "AmbiguitySolver.h"
 
