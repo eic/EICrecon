@@ -85,6 +85,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
 
+            // PFRICH
+            "RICHEndcapNRawHits",
+            "RICHEndcapNRawHitsAssociations",
+
             // MPGD
             "MPGDBarrelRecHits",
             "OuterMPGDBarrelRecHits",
@@ -139,6 +143,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrackParametersFiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
+            "InclusiveKinematicsML",
             "InclusiveKinematicsSigma",
             "InclusiveKinematicseSigma",
             "InclusiveKinematicsElectron",

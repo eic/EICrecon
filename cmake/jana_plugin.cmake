@@ -376,3 +376,15 @@ macro(plugin_add_fastjet _name)
   plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
 
 endmacro()
+
+# Adds ONNX Runtime for a plugin
+macro(plugin_add_onnxruntime _name)
+
+  if(NOT onnxruntime_FOUND)
+    find_package(onnxruntime)
+  endif()
+
+  # Add libraries
+  plugin_link_libraries(${PLUGIN_NAME} onnxruntime::onnxruntime)
+
+endmacro()
