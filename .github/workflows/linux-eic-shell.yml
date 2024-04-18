@@ -15,7 +15,7 @@ on:
     inputs:
       platform:
         description: 'eic-shell platform'
-        default: 'jug_xl'
+        default: 'eic_xl'
         required: false
         type: string
       release:
@@ -35,7 +35,7 @@ concurrency:
 
 env:
   # inputs doesn't always exist, so we make sure env does
-  platform: ${{ inputs.platform || 'jug_xl' }}
+  platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
   clang-tidy-iwyu-CC: clang
