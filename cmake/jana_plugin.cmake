@@ -406,7 +406,7 @@ macro(plugin_add_fastjetcontrib _name)
 
   # Add libraries
   plugin_link_libraries(${PLUGIN_NAME} ${FJCONTRIB_LIBRARIES})
-  
+
 endmacro()
 
 # Adds ONNX Runtime for a plugin
