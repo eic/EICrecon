@@ -538,7 +538,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ matrix.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
