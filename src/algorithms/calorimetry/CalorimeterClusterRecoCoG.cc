@@ -247,6 +247,7 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
 
+  double axis_x, axis_y, axis_z;
   if (cl.getNhits() > 1) {
 
     for (const auto& hit : pcl.getHits()) {
@@ -294,6 +295,11 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
       // eigenvalues of symmetric real matrix are always real
       eigenValues_2D = es_2D.eigenvalues();
       eigenValues_3D = es_3D.eigenvalues();
+      int indexOfMaxEigenvalue=std::distance(eigenValues_3D.begin(), std::max_element(eigenValues_3D.begin(), eigenValues_3D.end()));
+      auto axis = es_3D.eigenvectors().col(indexOfMaxEigenvalue);
+      axis_x=axis(0,0);
+      axis_y=axis(1,0);
+      axis_z=axis(2,0);
     }
   }
 
@@ -304,7 +310,9 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-
+  cl.addToShapeParameters( axis_x );
+  cl.addToShapeParameters( axis_y );
+  cl.addToShapeParameters( axis_z );
   return std::move(cl);
 }
 
