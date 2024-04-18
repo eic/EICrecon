@@ -7,44 +7,35 @@
  *  Author: Minjung Kim (LBL, minjung.kim@lbl.gov) 
 */
 #include "AmbiguitySolver.h"
+#include "AmbiguitySolverConfig.h"
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
-#include "AmbiguitySolverConfig.h"
 #if EDM4EIC_VERSION_MAJOR >= 5
 #include <edm4eic/Cov6f.h>
 #endif
-#include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/ParticleHypothesis.hpp>
+#include "Acts/Utilities/Logger.hpp"
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
+#include "extensions/spdlog/SpdlogToActs.h"
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
-#include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
-#include <boost/container/flat_set.hpp>
-#include <boost/container/vector.hpp>
-#include <edm4eic/Cov6f.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <edm4eic/Cov3f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <Eigen/Core>
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstddef>
+#include <functional>
+#include <list>
 #include <optional>
 #include <utility>
-
-#include "Acts/Utilities/Logger.hpp"
-#include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
-#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 using namespace Acts::UnitLiterals;

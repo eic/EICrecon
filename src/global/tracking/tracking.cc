@@ -3,8 +3,8 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
 #include <edm4eic/TrackerHit.h>
+#include <algorithm>
 #include <gsl/pointers>
 #include <map>
 #include <memory>
@@ -13,8 +13,8 @@
 #include <variant>
 #include <vector>
 
+#include "AmbiguitySolverConfig.h"
 #include "AmbiguitySolver_factory.h"
-#include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
 #include "TrackParamTruthInit_factory.h"

@@ -34,12 +34,12 @@ private:
   Output<ActsExamples::Trajectories> m_acts_trajectories_filted_output {this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_filtered_output {this};
 
-  ParameterRef<std::uint32_t> maximumSharedHits{this, "maxsharedcut", config().maximumSharedHits,
+  ParameterRef<std::uint32_t> m_maximumSharedHits{this, "m_maximumSharedHits", config()m_.maximumSharedHits,
                                                 "Maximum number of shared hits allowed"};
-  ParameterRef<std::uint32_t> maximumIterations{this, "maxiterf", config().maximumIterations,
+  ParameterRef<std::uint32_t> m_maximumIterations{this, "m_maximumIterations", config().m_maximumIterations,
                                                 "Maximum number of iterations"};
-  ParameterRef<std::size_t> nMeasurementsMin{
-      this, "minNumMeasurements", config().nMeasurementsMin,
+  ParameterRef<std::size_t> m_nMeasurementsMin{
+      this, "m_nMeasurementsMin", config().m_nMeasurementsMin,
       "Number of measurements required for further reconstruction"};
 
 public:

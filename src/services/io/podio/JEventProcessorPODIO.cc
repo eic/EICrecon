@@ -126,6 +126,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "RconstructedChargedParticleIDs",
+            "RconstructedSeededChargedParticleIDs",
             "ReconstructedSeededChargedParticlesFiltered",
             "ReconstructedSeededChargedParticleFilteredAssociations",
             "ReconstructedChargedParticleFilteredIDs",
