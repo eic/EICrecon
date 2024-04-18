@@ -34,7 +34,7 @@ private:
   Output<ActsExamples::Trajectories> m_acts_trajectories_filted_output {this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_filtered_output {this};
 
-  ParameterRef<std::uint32_t> m_maximumSharedHits{this, "m_maximumSharedHits", config()m_maximumSharedHits,
+  ParameterRef<std::uint32_t> m_maximumSharedHits{this, "m_maximumSharedHits", config().m_maximumSharedHits,
                                                 "Maximum number of shared hits allowed"};
   ParameterRef<std::uint32_t> m_maximumIterations{this, "m_maximumIterations", config().m_maximumIterations,
                                                 "Maximum number of iterations"};
