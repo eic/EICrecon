@@ -86,6 +86,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
 
+            // PFRICH
+            "RICHEndcapNRawHits",
+            "RICHEndcapNRawHitsAssociations",
+
             // MPGD
             "MPGDBarrelRecHits",
             "OuterMPGDBarrelRecHits",
