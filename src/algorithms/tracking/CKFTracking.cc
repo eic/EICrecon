@@ -91,8 +91,8 @@ namespace eicrecon {
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
                 {Acts::GeometryIdentifier(),
-                 {m_cfg.m_etaBins, m_cfg.m_chi2CutOff,
-                  {m_cfg.m_numMeasurementsCutOff.begin(), m_cfg.m_numMeasurementsCutOff.end()}
+                 {m_cfg.etaBins, m_cfg.chi2CutOff,
+                  {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}
                  }
                 },
         };

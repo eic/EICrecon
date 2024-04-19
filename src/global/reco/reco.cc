@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
@@ -19,6 +20,7 @@
 #include "algorithms/reco/HadronicFinalState.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
@@ -157,15 +159,21 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
+        "InclusiveKinematicsML",
+        {
+          "InclusiveKinematicsElectron",
+          "InclusiveKinematicsDA"
+        },
+        {
+          "InclusiveKinematicsML"
+        },
+        app
+    ));
+
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
         "ReconstructedElectrons",
-        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
-        "EcalBarrelScFiClusterAssociations",
-        "EcalEndcapNClusterAssociations",
-        "EcalEndcapPClusterAssociations",
-        "EcalEndcapPInsertClusterAssociations",
-        "EcalLumiSpecClusterAssociations",
-        },
+        {"ReconstructedParticles"},
         {"ReconstructedElectrons"},
         {},
         app
@@ -173,18 +181,12 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
         "ReconstructedElectronsForDIS",
-        {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations",
-        "EcalBarrelScFiClusterAssociations",
-        "EcalEndcapNClusterAssociations",
-        "EcalEndcapPClusterAssociations",
-        "EcalEndcapPInsertClusterAssociations",
-        "EcalLumiSpecClusterAssociations",
-        },
+        {"ReconstructedParticles"},
         {"ReconstructedElectronsForDIS"},
         {
-                                        .min_energy_over_momentum = 0.7, // GeV
-                                        .max_energy_over_momentum = 1.3  // GeV
-                                },
+          .min_energy_over_momentum = 0.7, // GeV
+          .max_energy_over_momentum = 1.3  // GeV
+        },
         app
     ));
 

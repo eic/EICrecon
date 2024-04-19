@@ -28,10 +28,10 @@ private:
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
     PodioOutput<edm4eic::Vertex> m_vertices_output {this};
 
-    ParameterRef<int> m_maxVertices {this, "maxVertices", config().m_maxVertices,
+    ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
                            "Maximum num vertices that can be found"};
     ParameterRef<bool> m_reassignTracksAfterFirstFit {this, "reassignTracksAfterFirstFit",
-                           config().m_reassignTracksAfterFirstFit,
+                           config().reassignTracksAfterFirstFit,
                            "Whether or not to reassign tracks after first fit"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
