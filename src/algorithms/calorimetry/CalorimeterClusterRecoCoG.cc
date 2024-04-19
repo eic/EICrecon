@@ -300,11 +300,11 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
       double maxEigenvalue=0;
       int indexOfMaxEigenvalue=0;
       for (int i_eigen=0;  i_eigen<3; i_eigen++){
-	auto eigenvalue=eigenValues_3D(i_eigen,0);
-	if(eigenvalue.real()>maxEigenvalue){
-	  maxEigenvalue=eigenvalue.real();
-	  indexOfMaxEigenvalue=i_eigen;
-	}
+        auto eigenvalue=eigenValues_3D(i_eigen,0);
+        if(eigenvalue.real()>maxEigenvalue){
+          maxEigenvalue=eigenvalue.real();
+          indexOfMaxEigenvalue=i_eigen;
+        }
       }
       auto axis = eigenvectors.col(indexOfMaxEigenvalue);
       axis_x=axis(0,0).real();
@@ -312,9 +312,9 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
       axis_z=axis(2,0).real();
       double norm=sqrt(axis_x*axis_x+axis_y*axis_y+axis_z*axis_z);
       if (norm!=0){
-	axis_x/=norm;
-	axis_y/=norm;
-	axis_z/=norm;
+        axis_x/=norm;
+        axis_y/=norm;
+        axis_z/=norm;
       }
     }
   }
