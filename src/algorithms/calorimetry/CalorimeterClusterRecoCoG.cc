@@ -247,12 +247,12 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
 
-  double axis_x, axis_y, axis_z;
+  double axis_x=0, axis_y=0, axis_z=0;
   if (cl.getNhits() > 1) {
 
     for (const auto& hit : pcl.getHits()) {
 
-      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_cfg.logWeightBase, 0);
+      float w = weightFunc(hit.getEnergy(), totalE, logWeightBase, 0);
 
       // theta, phi
       Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
@@ -290,16 +290,34 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
       // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
       Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
-      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, false); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, true); // set to true for eigenvector calculation
 
       // eigenvalues of symmetric real matrix are always real
       eigenValues_2D = es_2D.eigenvalues();
       eigenValues_3D = es_3D.eigenvalues();
-      int indexOfMaxEigenvalue=std::distance(eigenValues_3D.begin(), std::max_element(eigenValues_3D.begin(), eigenValues_3D.end()));
-      auto axis = es_3D.eigenvectors().col(indexOfMaxEigenvalue);
-      axis_x=axis(0,0);
-      axis_y=axis(1,0);
-      axis_z=axis(2,0);
+      //find the eigenvector corresponding to the largest eigenvalue
+      auto eigenvectors= es_3D.eigenvectors();
+      double maxEigenvalue=0;
+      int indexOfMaxEigenvalue=0;
+      for (int i_eigen=0;  i_eigen<3; i_eigen++){
+	auto eigenvalue=eigenValues_3D(i_eigen,0);
+	if(eigenvalue.real()>maxEigenvalue){
+	  maxEigenvalue=eigenvalue.real();
+	  indexOfMaxEigenvalue=i_eigen;
+	}
+      }
+      std::cout << "index of max="<< indexOfMaxEigenvalue << ", maxEigenvalue=" << maxEigenvalue<<std::endl;
+      auto axis = eigenvectors.col(indexOfMaxEigenvalue);
+      axis_x=axis(0,0).real();
+      axis_y=axis(1,0).real();
+      axis_z=axis(2,0).real();
+      double norm=sqrt(axis_x*axis_x+axis_y*axis_y+axis_z*axis_z);
+      if (norm!=0){
+	axis_x/=norm;
+	axis_y/=norm;
+	axis_z/=norm;
+      }
+      //std::cout << "axis:  " << axis_x << ", "<< axis_y << ", " << axis_z << std::endl;
     }
   }
 
