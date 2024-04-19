@@ -22,12 +22,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits",
         {
-	  "MPGDBarrelHits"
-	},
+          "MPGDBarrelHits"
+        },
         {
-	  "MPGDBarrelRawHits",
-	  "MPGDBarrelHitAssociations"
-	},
+          "MPGDBarrelRawHits",
+          "MPGDBarrelHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 10,
@@ -50,12 +50,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits",
         {
-	  "OuterMPGDBarrelHits"
-	},
+          "OuterMPGDBarrelHits"
+        },
         {
-	  "OuterMPGDBarrelRawHits",
-	  "OuterMPGDBarrelHitAssociations"
-	},
+          "OuterMPGDBarrelRawHits",
+          "OuterMPGDBarrelHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 10,
@@ -78,12 +78,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "BackwardMPGDEndcapRawHits",
         {
-	  "BackwardMPGDEndcapHits"
-	},
+          "BackwardMPGDEndcapHits"
+        },
         {
-	  "BackwardMPGDEndcapRawHits",
-	  "BackwardMPGDEndcapAssociations"
-	},
+          "BackwardMPGDEndcapRawHits",
+          "BackwardMPGDEndcapAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 10,
@@ -106,12 +106,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardMPGDEndcapRawHits",
         {
-	  "ForwardMPGDEndcapHits"
-	},
+          "ForwardMPGDEndcapHits"
+        },
         {
-	  "ForwardMPGDEndcapRawHits",
-	  "ForwardMPGDHitAssociations"
-	},
+          "ForwardMPGDEndcapRawHits",
+          "ForwardMPGDHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 10,

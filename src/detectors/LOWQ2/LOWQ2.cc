@@ -28,12 +28,12 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-	   "TaggerTrackerHits"
-	 },
+           "TaggerTrackerHits"
+         },
          {
-	   "TaggerTrackerRawHits",
-	   "TaggerTrackerHitAssociations"
-	 },
+           "TaggerTrackerRawHits",
+           "TaggerTrackerHitAssociations"
+         },
          {
            .threshold = 1.5 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,

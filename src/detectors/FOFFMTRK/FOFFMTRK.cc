@@ -25,12 +25,12 @@ void InitPlugin(JApplication *app) {
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardOffMTrackerRawHits",
         {
-	  "ForwardOffMTrackerHits"
-	},
+          "ForwardOffMTrackerHits"
+        },
         {
-	  "ForwardOffMTrackerRawHits",
-	  "ForwardOffMTrackerHitAssociations"
-	},
+          "ForwardOffMTrackerRawHits",
+          "ForwardOffMTrackerHitAssociations"
+        },
         {
             .threshold = 10.0 * dd4hep::keV,
             .timeResolution = 8,

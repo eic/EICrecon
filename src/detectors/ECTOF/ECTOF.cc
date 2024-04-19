@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
         "TOFEndcapHits"},
       {
         "TOFEndcapRawHits",
-	"TOFEndcapHitAssociations"
+        "TOFEndcapHitAssociations"
       },
       {
         .threshold = 6.0 * dd4hep::keV,

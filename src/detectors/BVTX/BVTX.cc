@@ -27,7 +27,7 @@ void InitPlugin(JApplication *app) {
         {
           "SiBarrelVertexRawHits",
           "SiBarrelVertexHitAssociations"
-	},
+        },
         {
             .threshold = 0.54 * dd4hep::keV,
         },

@@ -25,12 +25,12 @@ void InitPlugin(JApplication *app) {
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardRomanPotRawHits",
         {
-	  "ForwardRomanPotHits"
-	},
+          "ForwardRomanPotHits"
+        },
         {
-	  "ForwardRomanPotRawHits",
-	  "ForwardRomanPotHitAssociations"
-	},
+          "ForwardRomanPotRawHits",
+          "ForwardRomanPotHitAssociations"
+        },
         {
             .threshold = 10.0 * dd4hep::keV,
             .timeResolution = 8,

@@ -91,14 +91,14 @@ void SiliconTrackerDigi::process(
     for (auto item : cell_hit_map) {
         raw_hits->push_back(item.second);
 
-	// set association
-	auto hitassoc = associations->create();
-	hitassoc.setWeight(1.0);
-	hitassoc.setRawHit(item.second);
+        // set association
+        auto hitassoc = associations->create();
+        hitassoc.setWeight(1.0);
+        hitassoc.setRawHit(item.second);
 
-	for (const auto& sim_hit : *sim_hits) {
-		if(item.first == sim_hit.getCellID()) hitassoc.addToSimHits(sim_hit);	
-	}
+        for (const auto& sim_hit : *sim_hits) {
+                if(item.first == sim_hit.getCellID()) hitassoc.addToSimHits(sim_hit);
+        }
 
     }
 }

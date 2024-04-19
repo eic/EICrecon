@@ -22,12 +22,12 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "TOFBarrelRawHit",
         {
-	  "TOFBarrelHits"
-	},
+          "TOFBarrelHits"
+        },
         {
-	  "TOFBarrelRawHit",
-	  "TOFBarrelHitAssociations"
-	},
+          "TOFBarrelRawHit",
+          "TOFBarrelHitAssociations"
+        },
         {
             .threshold = 6.0 * dd4hep::keV,
             .timeResolution = 0.025,    // [ns]
