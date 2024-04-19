@@ -68,6 +68,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "VertexBarrelHits",
             "TrackerEndcapHits",
 
+	    "SiBarrelHitAssociations",
+	    "SiBarrelVertexHitAssociations",
+	    "SiEndcapHitAssociations",
+
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
@@ -77,6 +81,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             "TOFBarrelHits",
             "TOFEndcapHits",
+
+	    "TOFBarrelHitAssociations",
+	    "TOFEndcapHitAssociations",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -104,18 +112,30 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "OuterMPGDBarrelHits",
             "BackwardMPGDEndcapHits",
             "ForwardMPGDEndcapHits",
+
+	    "MPGDBarrelHitAssociations",
+	    "OuterMPGDBarrelHitAssociations",
+	    "BackwardMPGDEndcapAssociations",
+	    "ForwardMPGDHitAssociations",
+
             // LOWQ2 hits
             "TaggerTrackerRawHits",
+	    "TaggerTrackerHitAssociations",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
             "B0TrackerRawHits",
             "B0TrackerHits",
+	    "B0TrackerHitAssociations",
+
             "ForwardRomanPotRecHits",
             "ForwardOffMTrackerRecHits",
-            //
+            
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
+	    
+	    "ForwardRomanPotHitAssociations",
+	    "ForwardOffMTrackerHitAssociations",	
 
             // Reconstructed data
             "GeneratedParticles",

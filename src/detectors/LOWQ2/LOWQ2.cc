@@ -27,8 +27,13 @@ extern "C" {
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
-         {"TaggerTrackerHits"},
-         {"TaggerTrackerRawHits"},
+         {
+	   "TaggerTrackerHits"
+	 },
+         {
+	   "TaggerTrackerRawHits",
+	   "TaggerTrackerHitAssociations"
+	 },
          {
            .threshold = 1.5 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,
