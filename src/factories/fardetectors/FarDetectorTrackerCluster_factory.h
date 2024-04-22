@@ -23,7 +23,7 @@ private:
   Service<DD4hep_service> m_geoSvc {this};
 
   ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
-  
+
 public:
 
   /** One time initialization **/
