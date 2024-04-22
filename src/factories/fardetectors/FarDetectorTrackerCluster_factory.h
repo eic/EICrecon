@@ -17,8 +17,8 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
-  PodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
+  VariadicPodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
   Service<DD4hep_service> m_geoSvc {this};
 
@@ -41,7 +41,17 @@ public:
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_raw_hits_input()}, {m_clustered_hits_output().get()});
+    std::vector<gsl::not_null<edm4hep::TrackerHitCollection*>> clustered_collections;
+    for (const auto& clustered : m_clustered_hits_output()) {
+      clustered_collections.push_back(gsl::not_null<edm4hep::TrackerHitCollection*>(clustered.get()));
+    }
+    
+    auto in1 = m_raw_hits_input();
+    std::vector<gsl::not_null<const edm4eic::RawTrackerHitCollection*>> in2;
+    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
+
+
+    m_algo->process(in2, clustered_collections);
   }
 
 };

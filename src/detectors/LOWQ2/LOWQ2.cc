@@ -47,11 +47,13 @@ extern "C" {
     std::vector<int> layerIDs {0,1,2,3};
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
+    std::vector<std::string> outputClusterCollectionNames;
 
     for(int mod_id : moduleIDs){
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
       }
     }
 
@@ -66,37 +68,19 @@ extern "C" {
       )
     );
 
-    std::vector<std::string> layerClusters;
 
-    // Clustering of hits in each layer
-    for(int mod_id : moduleIDs){
-      for(int lay_id : layerIDs){
-        std::string inputHitTag      = fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id);
-        std::string outputClusterTag = fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id);
-        layerClusters.push_back(outputClusterTag);
-
-        app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-            outputClusterTag,
-            {inputHitTag},
-            {outputClusterTag},
-            {
-              .readout = "TaggerTrackerHits",
-              .xField  = "x",
-              .yField  = "y",
-              .time_limit = 10 * dd4hep::ns,
-            },
-            app
-        ));
-      }
-    }
-
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::TrackerHit>>(
-         "TaggerTrackerClusterPositions",
-         layerClusters,
-         {"TaggerTrackerClusterPositions"},
-         app
-      )
-    );
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
+        "TaggerTrackerClustering",
+        geometryDivisionCollectionNames,
+        outputClusterCollectionNames,
+        {
+          .readout = "TaggerTrackerHits",
+          .xField  = "x",
+          .yField  = "y",
+          .time_limit = 10 * edm4eic::unit::ns,
+        },
+        app
+    ));
 
   }
 }
