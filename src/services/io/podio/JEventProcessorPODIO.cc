@@ -47,6 +47,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
+            "BeamElectrons",
+            "BeamProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -83,21 +85,22 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
 
+            // PFRICH
+            "RICHEndcapNRawHits",
+            "RICHEndcapNRawHitsAssociations",
+
             // MPGD
             "MPGDBarrelRecHits",
-            "MPGDDIRCRecHits",
             "OuterMPGDBarrelRecHits",
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 
             "MPGDBarrelRawHits",
-            "MPGDDIRCRawHits",
             "OuterMPGDBarrelRawHits",
             "BackwardMPGDEndcapRawHits",
             "ForwardMPGDEndcapRawHits",
 
             "MPGDBarrelHits",
-            "MPGDDIRCHits",
             "OuterMPGDBarrelHits",
             "BackwardMPGDEndcapHits",
             "ForwardMPGDEndcapHits",
@@ -109,7 +112,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
             "B0TrackerRawHits",
             "B0TrackerHits",
-
+            "ForwardRomanPotRecHits",
+            "ForwardOffMTrackerRecHits",
             //
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
@@ -123,6 +127,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "ReconstructedChargedParticleIDs",
+            "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
@@ -142,6 +147,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
+            "ScatteredElectronsTruth",
+            "ScatteredElectronsEMinusPz",
 
             // Track projections
             "CalorimeterTrackProjections",

@@ -69,8 +69,8 @@ namespace eicrecon {
       static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{{
         {Acts::eBoundLoc0, Acts::UnitConstants::mm},
         {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-        {Acts::eBoundTheta, 1.},
         {Acts::eBoundPhi, 1.},
+        {Acts::eBoundTheta, 1.},
         {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
         {Acts::eBoundTime, Acts::UnitConstants::ns}
       }};
@@ -91,8 +91,8 @@ namespace eicrecon {
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
                 {Acts::GeometryIdentifier(),
-                 {m_cfg.m_etaBins, m_cfg.m_chi2CutOff,
-                  {m_cfg.m_numMeasurementsCutOff.begin(), m_cfg.m_numMeasurementsCutOff.end()}
+                 {m_cfg.etaBins, m_cfg.chi2CutOff,
+                  {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}
                  }
                 },
         };
@@ -155,8 +155,8 @@ namespace eicrecon {
             Acts::BoundVector params;
             params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
             params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
-            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundPhi)    = track_parameter.getPhi();
+            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
             params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 

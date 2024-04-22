@@ -1,19 +1,24 @@
-// Copyright 2023, Simon Gardner
+// Copyright 2023-2024, Simon Gardner
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <map>
 #include <string>
-#include <fmt/format.h>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
-#include "factories/digi/SplitGeometry_factory.h"
-#include "factories/digi/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 
 extern "C" {
@@ -34,27 +39,28 @@ extern "C" {
          app
     ));
 
-    // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
+    // Divide collection based on geometry segmentation labels
+    // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
+    std::string readout = "TaggerTrackerHits";
+    std::vector<std::string> geometryLabels {"module","layer"};
     std::vector<int> moduleIDs{1,2};
     std::vector<int> layerIDs {0,1,2,3};
-    std::vector<std::vector<int>> segmentIDs{};
-    std::vector<std::string> segmentDiv;
+    std::vector<std::vector<long int>> geometryDivisions{};
+    std::vector<std::string> geometryDivisionCollectionNames;
 
     for(int mod_id : moduleIDs){
       for(int lay_id : layerIDs){
-        segmentIDs.push_back({mod_id,lay_id});
-        segmentDiv.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        geometryDivisions.push_back({mod_id,lay_id});
+        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
       }
     }
 
-    app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory<edm4eic::RawTrackerHit>>(
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
          "TaggerTrackerSplitHits",
          {"TaggerTrackerRawHits"},
-         segmentDiv,
+         geometryDivisionCollectionNames,
          {
-           .divisions = segmentIDs,
-           .readout   = "TaggerTrackerHits",
-           .division  = {"module","layer"},
+          .function = GeometrySplit{geometryDivisions,readout,geometryLabels},
          },
          app
       )

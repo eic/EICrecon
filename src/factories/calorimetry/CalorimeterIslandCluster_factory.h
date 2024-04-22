@@ -5,7 +5,6 @@
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -35,7 +34,7 @@ private:
     ParameterRef<std::string> m_tepm {this, "transverseEnergyProfileMetric", config().transverseEnergyProfileMetric};
     ParameterRef<double> m_teps {this, "transverseEnergyProfileScale", config().transverseEnergyProfileScale};
 
-    Service<DD4hep_service> m_geoSvc {this};
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
 
@@ -46,7 +45,7 @@ public:
         // cfg.adjacencyMatrix.erase(
         //  std::remove_if(cfg.adjacencyMatrix.begin(), cfg.adjacencyMatrix.end(), ::isspace), cfg.adjacencyMatrix.end());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

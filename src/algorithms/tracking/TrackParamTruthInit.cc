@@ -56,9 +56,9 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
 
         // require close to interaction vertex
         auto v = mcparticle.getVertex();
-        if (abs(v.x) * dd4hep::mm > m_cfg.m_maxVertexX ||
-            abs(v.y) * dd4hep::mm > m_cfg.m_maxVertexY ||
-            abs(v.z) * dd4hep::mm > m_cfg.m_maxVertexZ) {
+        if (abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
+            abs(v.y) * dd4hep::mm > m_cfg.maxVertexY ||
+            abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
             m_log->trace("ignoring particle with vs = {} [mm]", v);
             continue;
         }
@@ -66,7 +66,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // require minimum momentum
         const auto& p = mcparticle.getMomentum();
         const auto pmag = std::hypot(p.x, p.y, p.z);
-        if (pmag * dd4hep::GeV < m_cfg.m_minMomentum) {
+        if (pmag * dd4hep::GeV < m_cfg.minMomentum) {
             m_log->trace("ignoring particle with p = {} GeV ", pmag);
             continue;
         }
@@ -75,7 +75,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         const auto phi   = std::atan2(p.y, p.x);
         const auto theta = std::atan2(std::hypot(p.x, p.y), p.z);
         const auto eta   = -std::log(std::tan(theta/2));
-        if (eta > m_cfg.m_maxEtaForward || eta < -std::abs(m_cfg.m_maxEtaBackward)) {
+        if (eta > m_cfg.maxEtaForward || eta < -std::abs(m_cfg.maxEtaBackward)) {
             m_log->trace("ignoring particle with Eta = {}", eta);
             continue;
         }
@@ -97,7 +97,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         }
 
         // modify initial momentum to avoid bleeding truth to results when fit fails
-        const auto pinit = pmag * (1.0 + m_cfg.m_momentumSmear * m_normDist(generator));
+        const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * m_normDist(generator));
 
         // define line surface for local position values
         auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
@@ -128,16 +128,16 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         auto track_parameter = track_parameters->create();
         track_parameter.setType(-1); // type --> seed(-1)
         track_parameter.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface [mm]
-        track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setPhi(phi); // phi [rad]
+        track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
         #if EDM4EIC_VERSION_MAJOR >= 5
           edm4eic::Cov6f cov;
           cov(0,0) = 1.0; // loc0
           cov(1,1) = 1.0; // loc1
-          cov(2,2) = 0.01; // theta
-          cov(3,3) = 0.05; // phi
+          cov(2,2) = 0.05; // phi
+          cov(3,3) = 0.01; // theta
           cov(4,4) = 0.1; // qOverP
           cov(5,5) = 10e9; // time
           track_parameter.setCovariance(cov);

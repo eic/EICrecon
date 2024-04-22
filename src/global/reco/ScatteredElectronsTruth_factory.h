@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Wouter Deconinck
+// Copyright (C) 2024 Daniel Brandenburg
 
 #pragma once
 
@@ -10,28 +10,33 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/InclusiveKinematicsElectron.h"
+#include "algorithms/reco/ScatteredElectronsTruth.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class InclusiveKinematicsElectron_factory :
-        public JOmniFactory<InclusiveKinematicsElectron_factory> {
+class ScatteredElectronsTruth_factory :
+        public JOmniFactory<ScatteredElectronsTruth_factory> {
 
 public:
-    using AlgoT = eicrecon::InclusiveKinematicsElectron;
+    using AlgoT = eicrecon::ScatteredElectronsTruth;
 private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
     PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
     PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
-    PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
+
+    // Declare outputs
+    PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
@@ -39,7 +44,8 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
         m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_rc_particles_assoc_input()},
-                        {m_inclusive_kinematics_output().get()});
+                        {m_out_reco_particles().get()});
+
     }
 };
 

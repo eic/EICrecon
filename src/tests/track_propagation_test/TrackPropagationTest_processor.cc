@@ -11,6 +11,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <gsl/pointers>
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Geometry>
@@ -21,6 +22,7 @@
 
 #include "TrackPropagationTest_processor.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 
@@ -59,9 +61,10 @@ void TrackPropagationTest_processor::Init()
     // Get log level from user parameter or default
     InitLogger(app, plugin_name);
 
+    auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
     auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 
-    m_propagation_algo.init(acts_service->actsGeoProvider(), logger());
+    m_propagation_algo.init(dd4hep_service->detector(), acts_service->actsGeoProvider(), logger());
 
     // Create HCal surface that will be used for propagation
     auto transform = Acts::Transform3::Identity();
@@ -85,7 +88,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     m_log->trace("TrackPropagationTest_processor event");
 
     // Get trajectories from tracking
-    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFTrajectories");
+    auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
 
     // Iterate over trajectories
     m_log->debug("Propagating through {} trajectories", trajectories.size());
