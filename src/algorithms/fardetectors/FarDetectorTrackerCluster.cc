@@ -117,7 +117,7 @@ namespace eicrecon {
           // Energy
           auto hitE = e[index];
           esum += hitE;
-          // TODO - See if now a single detector element is expected a better function is avaliable.
+          // TODO - See if now a single detector element is expected a better function is available.
           auto pos = m_cellid_converter->position(id[index]);
 
           //Weighted position
