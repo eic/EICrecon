@@ -45,7 +45,7 @@ public:
     for (const auto& clustered : m_clustered_hits_output()) {
       clustered_collections.push_back(gsl::not_null<edm4hep::TrackerHitCollection*>(clustered.get()));
     }
-    
+
     auto in1 = m_raw_hits_input();
     std::vector<gsl::not_null<const edm4eic::RawTrackerHitCollection*>> in2;
     std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
