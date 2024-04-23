@@ -10,11 +10,21 @@
 #include <algorithm>
 #include <map>
 #include <string>
+<<<<<<< HEAD
+=======
+#include <vector>
+>>>>>>> add_simple_tracker_hit_clustering
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+<<<<<<< HEAD
+=======
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
+>>>>>>> add_simple_tracker_hit_clustering
 
 
 extern "C" {
@@ -43,12 +53,16 @@ extern "C" {
     std::vector<int> layerIDs {0,1,2,3};
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
+    std::vector<std::string> outputClusterCollectionNames;
+    std::vector<std::string> outputTrackTags;
 
     for(int mod_id : moduleIDs){
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
       }
+      outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks",mod_id));
     }
 
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
@@ -61,75 +75,28 @@ extern "C" {
          app
       )
     );
-    // This should really be done before digitization as summing hits in the same cell couldn't evet be mixed between layers. At the moment just prep for clustering.
-    std::vector<int> moduleIDs{1,2};
-    std::vector<int> layerIDs {0,1,2,3};
-    std::vector<std::vector<int>> segmentIDs{};
-    std::vector<std::string> segmentDiv;
-
-    for(int mod_id : moduleIDs){
-      for(int lay_id : layerIDs){
-        segmentIDs.push_back({mod_id,lay_id});
-        segmentDiv.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
-      }
-    }
-
-    app->Add(new JOmniFactoryGeneratorT<SplitGeometry_factory<edm4eic::RawTrackerHit>>(
-         "TaggerTrackerSplitHits",
-         {"TaggerTrackerRawHits"},
-         segmentDiv,
-         {
-           .divisions = segmentIDs,
-           .readout   = "TaggerTrackerHits",
-           .division  = {"module","layer"},
-         },
-         app
-      )
-    );
-
-    std::vector<std::string> layerClusters;
 
     // Clustering of hits in each layer
-    for(int mod_id : moduleIDs){
-      for(int lay_id : layerIDs){
-        std::string inputHitTag      = fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id);
-        std::string outputClusterTag = fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id);
-        layerClusters.push_back(outputClusterTag);
-
-        app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-            outputClusterTag,
-            {inputHitTag},
-            {outputClusterTag},
-            {
-              .readout = "TaggerTrackerHits",
-              .xField  = "x",
-              .yField  = "y",
-              .time_limit = 10 * dd4hep::ns,
-            },
-            app
-        ));
-      }
-    }
-
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::TrackerHit>>(
-         "TaggerTrackerClusterPositions",
-         layerClusters,
-         {"TaggerTrackerClusterPositions"},
-         app
-      )
-    );
-
-    std::vector<std::string> outputTrackTags;
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
+        "TaggerTrackerClustering",
+        geometryDivisionCollectionNames,
+        outputClusterCollectionNames,
+        {
+          .readout = "TaggerTrackerHits",
+          .xField  = "x",
+          .yField  = "y",
+          .time_limit = 10 * edm4eic::unit::ns,
+        },
+        app
+    ));
 
     // Linear tracking for each module
-    for(int mod_id : moduleIDs){
+    for(int outputTrackTag : outputTrackTags){
       std::vector<std::string> inputClusterTags;
       for(int lay_id : layerIDs){
         inputClusterTags.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
       }
 
-      std::string outputTrackTag   = fmt::format("TaggerTrackerM{}Tracks",mod_id);
-      outputTrackTags.push_back(outputTrackTag);
 
       app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
           outputTrackTag,

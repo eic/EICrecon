@@ -45,105 +45,110 @@ namespace eicrecon {
       const FarDetectorTrackerCluster::Input& input,
       const FarDetectorTrackerCluster::Output& output) const {
 
-    const auto [inputhits] = input;
-    auto [outputClusters]  = output;
+    const auto [inputHitsCollections] = input;
+    auto [outputClustersCollection]  = output;
 
-    ROOT::VecOps::RVec<long>  id;
-    ROOT::VecOps::RVec<int>   x;
-    ROOT::VecOps::RVec<int>   y;
-    ROOT::VecOps::RVec<float> e;
-    ROOT::VecOps::RVec<float> t;
+    //Loop over input and output collections
+    for(size_t i=0; i<inputHitsCollections.size(); i++){
+      auto inputHits = inputHitsCollections[i];
+      auto outputClusters = outputClustersCollection[i];
 
-    // Gather detector id positions
-    for(const auto& hit: *inputhits){
-      auto cellID = hit.getCellID();
-      id.push_back    (cellID);
-      x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
-      y.push_back     (m_id_dec->get( cellID, m_y_idx      ));
-      e.push_back     (hit.getCharge());
-      t.push_back     (hit.getTimeStamp());
-    }
+      ROOT::VecOps::RVec<long>  id;
+      ROOT::VecOps::RVec<int>   x;
+      ROOT::VecOps::RVec<int>   y;
+      ROOT::VecOps::RVec<float> e;
+      ROOT::VecOps::RVec<float> t;
 
-    // Set up clustering variables
-    ROOT::VecOps::RVec<bool> available(id.size(), 1);
-    auto indices = Enumerate(id);
-
-    // Loop while there are unclustered hits
-    while(ROOT::VecOps::Any(available)){
-
-      auto cluster = outputClusters->create();
-
-      double xPos      = 0;
-      double yPos      = 0;
-      double zPos      = 0;
-      float  weightSum = 0;
-
-      float esum   = 0;
-      float t0     = 0;
-      float tError = 0;
-      auto maxIndex = ROOT::VecOps::ArgMax(e*available);
-
-      available[maxIndex] = 0;
-
-      ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
-      ROOT::VecOps::RVec<float> clusterT;
-
-      // Loop over hits, adding neighbouring hits as relevant
-      while(clusterList.size()){
-
-        // Takes first remaining hit in cluster list
-        auto index  = clusterList[0];
-
-        // Finds neighbours of cluster within time limit
-        auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
-
-        // Adds the found hits to the cluster
-        clusterList = Concatenate(clusterList,indices[filter]);
-
-        // Removes the found hits from the list of still available hits
-        available = available*(!filter);
-
-        // Removes current hit from remaining found cluster hits
-        clusterList.erase(clusterList.begin());
-
-        // Adds raw hit to TrackerHit contribution
-        cluster.addToRawHits((*inputhits)[index].getObjectID());
-
-        // Energy
-        auto hitE = e[index];
-        esum += hitE;
-        // TODO - See if now a single detector element is expected a better function is avaliable.
-        auto pos = m_cellid_converter->position(id[index]);
-
-        //Weighted position
-        float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
-        weightSum += weight;
-        xPos += pos.x()*weight;
-        yPos += pos.y()*weight;
-        zPos += pos.z()*weight;
-
-        //Time
-        clusterT.push_back(t[index]);
-
+      // Gather detector id positions
+      for(const auto& hit: *inputHits){
+        auto cellID = hit.getCellID();
+        id.push_back    (cellID);
+        x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
+        y.push_back     (m_id_dec->get( cellID, m_y_idx      ));
+        e.push_back     (hit.getCharge());
+        t.push_back     (hit.getTimeStamp());
       }
 
-      // Finalise position
-      xPos/=weightSum;
-      yPos/=weightSum;
-      zPos/=weightSum;
+      // Set up clustering variables
+      ROOT::VecOps::RVec<bool> available(id.size(), 1);
+      auto indices = Enumerate(id);
 
-      // Finalise time
-      t0      = Mean(clusterT);
-      tError  = StdDev(clusterT); // TODO fold detector timing resolution into error
+      // Loop while there are unclustered hits
+      while(ROOT::VecOps::Any(available)){
 
-      // Set cluster members
-      cluster.setCellID  (id[maxIndex]);
-      cluster.setPosition(edm4hep::Vector3d(xPos,yPos,zPos));
-      cluster.setEDep    (esum);
-      cluster.setTime    (t0);
+        auto cluster = outputClusters->create();
 
+        double xPos      = 0;
+        double yPos      = 0;
+        double zPos      = 0;
+        float  weightSum = 0;
+
+        float esum   = 0;
+        float t0     = 0;
+        float tError = 0;
+        auto maxIndex = ROOT::VecOps::ArgMax(e*available);
+
+        available[maxIndex] = 0;
+
+        ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
+        ROOT::VecOps::RVec<float> clusterT;
+
+        // Loop over hits, adding neighbouring hits as relevant
+        while(clusterList.size()){
+
+          // Takes first remaining hit in cluster list
+          auto index  = clusterList[0];
+
+          // Finds neighbours of cluster within time limit
+          auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
+
+          // Adds the found hits to the cluster
+          clusterList = Concatenate(clusterList,indices[filter]);
+
+          // Removes the found hits from the list of still available hits
+          available = available*(!filter);
+
+          // Removes current hit from remaining found cluster hits
+          clusterList.erase(clusterList.begin());
+
+          // Adds raw hit to TrackerHit contribution
+          cluster.addToRawHits((*inputHits)[index].getObjectID());
+
+          // Energy
+          auto hitE = e[index];
+          esum += hitE;
+          // TODO - See if now a single detector element is expected a better function is avaliable.
+          auto pos = m_cellid_converter->position(id[index]);
+
+          //Weighted position
+          float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
+          weightSum += weight;
+          xPos += pos.x()*weight;
+          yPos += pos.y()*weight;
+          zPos += pos.z()*weight;
+
+          //Time
+          clusterT.push_back(t[index]);
+
+        }
+
+        // Finalise position
+        xPos/=weightSum;
+        yPos/=weightSum;
+        zPos/=weightSum;
+
+        // Finalise time
+        t0      = Mean(clusterT);
+        tError  = StdDev(clusterT); // TODO fold detector timing resolution into error
+
+        // Set cluster members
+        cluster.setCellID  (id[maxIndex]);
+        cluster.setPosition(edm4hep::Vector3d(xPos,yPos,zPos));
+        cluster.setEDep    (esum);
+        cluster.setTime    (t0);
+
+      }
     }
-
   }
 
 }

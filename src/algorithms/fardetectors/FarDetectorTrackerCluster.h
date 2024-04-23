@@ -18,10 +18,10 @@ namespace eicrecon {
 
   using FarDetectorTrackerClusterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4eic::RawTrackerHitCollection
+      std::vector<edm4eic::RawTrackerHitCollection>
     >,
     algorithms::Output<
-      edm4hep::TrackerHitCollection
+      std::vector<edm4hep::TrackerHitCollection>
     >
   >;
 
