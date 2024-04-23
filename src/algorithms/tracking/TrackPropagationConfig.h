@@ -4,6 +4,8 @@
 #pragma once
 
 #include <string>
+#include <variant>
+#include <vector>
 #include <edm4eic/TrackPoint.h>
 
 namespace eicrecon {
