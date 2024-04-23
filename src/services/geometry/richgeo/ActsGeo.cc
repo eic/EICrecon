@@ -6,7 +6,6 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-// ACTS
 #include <Acts/Surfaces/Surface.hpp>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -90,8 +89,8 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
      * EXAMPLE: numPlanes=4
      *
      *    trackZmin         trackZmax
-     *       :                 :
-     *       :                 :
+     *       :                   :
+     *       :                   :
      *       +===================+....trackRmax
      *       [   |   |   |   |   ]
      *       [   |   |   |   |   ]
