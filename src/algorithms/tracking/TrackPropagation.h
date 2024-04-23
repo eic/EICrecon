@@ -65,19 +65,11 @@ namespace eicrecon {
 
         /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
          * @param trajectories the input collection of trajectories
-         * @param targetSurfaces the list of surfaces to propagate to
-         * @param filterSurface if defined, do not propagate to any surfaces unless successful propagation to this filterSurface
-         * @param trackPointCut an optional cut to omit specific track points
-         * @param stopIfTrackPointCutFailed if true, stop propagating a trajectory when trackPointCut returns false
          * @return the resulting collection of propagated tracks
          */
-        std::unique_ptr<edm4eic::TrackSegmentCollection> propagateToSurfaceList(
-            std::vector<const ActsExamples::Trajectories*> trajectories,
-            std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
-            std::shared_ptr<Acts::Surface> filterSurface = nullptr,
-            std::function<bool(edm4eic::TrackPoint)> trackPointCut = [] (edm4eic::TrackPoint p) { return true; },
-            bool stopIfTrackPointCutFailed = false
-            ) const;
+        void propagateToSurfaceList(
+            const std::tuple<const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+            const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
 
     private:
 

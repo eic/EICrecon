@@ -106,12 +106,7 @@ void eicrecon::RichTrack_factory::Process(const std::shared_ptr<const JEvent> &e
     try {
       auto track_point_cut = m_track_point_cuts.at(output_tag);
       auto result = m_propagation_algo.propagateToSurfaceList(
-          trajectories,
-          radiator_tracking_planes,
-          filter_surface,
-          track_point_cut,
-          true
-          );
+          trajectories, tracks);
       SetCollection<edm4eic::TrackSegment>(output_tag, std::move(result));
     }
     catch(std::exception &e) {
