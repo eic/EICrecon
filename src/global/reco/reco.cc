@@ -25,7 +25,7 @@
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
-#include "factories/meta/FilterByAssociations_factory.h"
+#include "factories/meta/FilterMatching_factory.h"
 
 //
 extern "C" {
@@ -35,12 +35,12 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Finds associations matched to initial scattered electrons
-    app->Add(new JOmniFactoryGeneratorT<FilterByAssociations_factory<edm4hep::MCParticle,
-                                                                    [](auto* obj) { return obj->getObjectID(); },
-                                                                    edm4eic::MCRecoParticleAssociation,
-                                                                    [](auto* obj) { return obj->getSim().getObjectID(); }>>(
+    app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory< edm4eic::MCRecoParticleAssociation,
+                                                                [](auto* obj) { return obj->getSim().getObjectID();},
+                                                                edm4hep::MCParticle,
+                                                                [](auto* obj) { return obj->getObjectID(); }>>(
           "MCScatteredElectronAssociations",
-          {"MCScatteredElectrons", "ReconstructedChargedParticleAssociations"},
+          {"ReconstructedChargedParticleAssociations","MCScatteredElectrons"},
           {"MCScatteredElectronAssociations","MCNonScatteredElectronAssociations"},
           app
     ));

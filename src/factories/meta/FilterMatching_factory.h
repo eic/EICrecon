@@ -3,24 +3,24 @@
 
 #pragma once
 
-#include "algorithms/meta/FilterByAssociations.h"
+#include "algorithms/meta/FilterMatching.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-template <typename FilterByObjectT,auto FilterByMemberFunctionPtr,typename ToFilterObjectT,auto ToFilterMemberFunctionPtr>
-class FilterByAssociations_factory : public JOmniFactory<FilterByAssociations_factory<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>> {
+template <typename ToFilterObjectT,auto ToFilterMemberFunctionPtr,typename FilterByObjectT,auto FilterByMemberFunctionPtr>
+class FilterMatching_factory : public JOmniFactory<FilterMatching_factory<ToFilterObjectT,ToFilterMemberFunctionPtr,FilterByObjectT,FilterByMemberFunctionPtr>> {
 
   public:
-    using AlgoT    = eicrecon::FilterByAssociations<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>;
-    using FactoryT = JOmniFactory<FilterByAssociations_factory<FilterByObjectT,FilterByMemberFunctionPtr,ToFilterObjectT,ToFilterMemberFunctionPtr>>;
+    using AlgoT    = eicrecon::FilterMatching<ToFilterObjectT,ToFilterMemberFunctionPtr,FilterByObjectT,FilterByMemberFunctionPtr>;
+    using FactoryT = JOmniFactory<FilterMatching_factory<ToFilterObjectT,ToFilterMemberFunctionPtr,FilterByObjectT,FilterByMemberFunctionPtr>>;
 
   private:
 
     std::unique_ptr<AlgoT> m_algo;
 
-    typename FactoryT::template PodioInput<FilterByObjectT>   m_collection_input {this};
-    typename FactoryT::template PodioInput<ToFilterObjectT>  m_associated_input {this};
+    typename FactoryT::template PodioInput<ToFilterObjectT>  m_collection_input {this};
+    typename FactoryT::template PodioInput<FilterByObjectT>  m_associated_input {this};
     typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_associated_output     {this};
     typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_not_associated_output {this};
 
