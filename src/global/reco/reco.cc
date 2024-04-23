@@ -21,7 +21,6 @@
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/FilterByAssociations_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
