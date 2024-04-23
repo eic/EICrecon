@@ -57,19 +57,19 @@ namespace eicrecon {
 
             auto ref_value = ToFilterFunction(&matchedEntry);
 
-            bool foundAssociation = false;
+            bool found_match = false;
 
             // Tries to find the association in the entries
             for(const auto& entry : *filterByEntries){
               auto other_value = FilterByFunction(&entry);
               if(other_value == ref_value){
                 is_matched->push_back(matchedEntry);
-                foundAssociation = true;
+                found_match = true;
                 break;
               }
             }
 
-            if(!foundAssociation){
+            if(!found_match){
               is_not_matched->push_back(matchedEntry);
             }
 
