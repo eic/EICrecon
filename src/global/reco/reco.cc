@@ -6,7 +6,9 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4hep/MCParticle.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -19,6 +21,7 @@
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/FilterByAssociations_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
@@ -30,9 +33,7 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
-#include "factories/meta/FilterByAssociations_factory.h"
 
-//
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
