@@ -36,7 +36,7 @@ namespace eicrecon {
     public:
     FilterMatching(std::string_view name)
       : FilterMatchingAlgorithm<ToFilterObjectT,FilterByObjectT>{name,
-                        {"inputCollection","inputAssociatedCollection"},
+                        {"inputCollection","inputMatchedCollection"},
                         {"outputMatchedAssociations","outputUnmatchedAssociations"},
                         "Filter associated collection"
                       } {
@@ -48,14 +48,14 @@ namespace eicrecon {
                     const typename FilterMatchingAlgorithm<ToFilterObjectT,ToFilterObjectT>::Output& output) const final{
 
           const auto [toFilterEntries,filterByEntries] = input;
-          auto [is_associated,is_not_associated] = output;
+          auto [is_matched,is_not_matched] = output;
 
-          is_associated->setSubsetCollection();
-          is_not_associated->setSubsetCollection();
+          is_matched->setSubsetCollection();
+          is_not_matched->setSubsetCollection();
 
-          for (const auto& associatedEntry : *toFilterEntries){
+          for (const auto& matchedEntry : *toFilterEntries){
 
-            auto associationID = ToFilterFunction(&associatedEntry);
+            auto associationID = ToFilterFunction(&matchedEntry);
 
             bool foundAssociation = false;
 
@@ -63,14 +63,14 @@ namespace eicrecon {
             for(const auto& entry : *filterByEntries){
               auto objectID = FilterByFunction(&entry);
               if(objectID == associationID){
-                is_associated->push_back(associatedEntry);
+                is_matched->push_back(matchedEntry);
                 foundAssociation = true;
                 break;
               }
             }
 
             if(!foundAssociation){
-              is_not_associated->push_back(associatedEntry);
+              is_not_matched->push_back(matchedEntry);
             }
 
           }

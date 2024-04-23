@@ -20,9 +20,9 @@ class FilterMatching_factory : public JOmniFactory<FilterMatching_factory<ToFilt
     std::unique_ptr<AlgoT> m_algo;
 
     typename FactoryT::template PodioInput<ToFilterObjectT>  m_collection_input {this};
-    typename FactoryT::template PodioInput<FilterByObjectT>  m_associated_input {this};
-    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_associated_output     {this};
-    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_not_associated_output {this};
+    typename FactoryT::template PodioInput<FilterByObjectT>  m_matched_input {this};
+    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_matched_output     {this};
+    typename FactoryT::template PodioOutput<ToFilterObjectT> m_is_not_matched_output {this};
 
   public:
     void Configure() {
@@ -34,7 +34,7 @@ class FilterMatching_factory : public JOmniFactory<FilterMatching_factory<ToFilt
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_collection_input(),m_associated_input()},{m_is_associated_output().get(),m_is_not_associated_output().get()});
+      m_algo->process({m_collection_input(),m_matched_input()},{m_is_matched_output().get(),m_is_not_matched_output().get()});
     };
 }; // FilterByAssociations_factory
 } // eicrecon
