@@ -10,27 +10,29 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/InclusiveKinematicsJB.h"
+#include "algorithms/onnx/InclusiveKinematicsML.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class InclusiveKinematicsJB_factory :
-        public JOmniFactory<InclusiveKinematicsJB_factory> {
+class InclusiveKinematicsML_factory :
+        public JOmniFactory<InclusiveKinematicsML_factory, InclusiveKinematicsMLConfig> {
 
 public:
-    using AlgoT = eicrecon::InclusiveKinematicsJB;
+    using AlgoT = eicrecon::InclusiveKinematicsML;
 private:
     std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
-    PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
-    PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
+    PodioInput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_electron_input {this};
+    PodioInput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_da_input {this};
     PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
+
+    ParameterRef<std::string> m_modelPath {this, "modelPath", config().modelPath};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->applyConfig(config());
         m_algo->init(logger());
     }
 
@@ -38,8 +40,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_rc_particles_assoc_input()},
-                        {m_inclusive_kinematics_output().get()});
+        m_algo->process({m_inclusive_kinematics_electron_input(), m_inclusive_kinematics_da_input()}, {m_inclusive_kinematics_output().get()});
     }
 };
 

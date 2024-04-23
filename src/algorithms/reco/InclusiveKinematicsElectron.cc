@@ -124,10 +124,10 @@ namespace eicrecon {
     //const auto ef_assoc = std::find_if(
     //  rcassoc->begin(),
     //  rcassoc->end(),
-    //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
+    //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
     auto ef_assoc = rcassoc->begin();
     for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+      if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
         break;
       }
     }
@@ -162,7 +162,7 @@ namespace eicrecon {
     const auto y = q_dot_pi / ei.Dot(pi);
     const auto nu = q_dot_pi / m_proton;
     const auto x = Q2 / (2. * q_dot_pi);
-    const auto W = sqrt( + 2.*q_dot_pi - Q2);
+    const auto W = sqrt(m_proton*m_proton + 2.*q_dot_pi - Q2);
     auto kin = kinematics->create(x, Q2, W, y, nu);
     kin.setScat(ef_rc);
 

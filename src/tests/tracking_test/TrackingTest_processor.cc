@@ -136,7 +136,7 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
         auto sim = assoc.getSim();
         auto rec = assoc.getRec();
 
-        m_log->debug("  {:<6} {:<6} {:>8d} {:>8d}", assoc.getSimID(), assoc.getRecID(), sim.getPDG(), rec.getPDG());
+        m_log->debug("  {:<6} {:<6} {:>8d} {:>8d}", assoc.getSim().getObjectID().index, assoc.getRec().getObjectID().index, sim.getPDG(), rec.getPDG());
     }
 
 //    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");

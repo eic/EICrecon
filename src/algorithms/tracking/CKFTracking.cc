@@ -28,16 +28,17 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -68,8 +69,8 @@ namespace eicrecon {
       static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{{
         {Acts::eBoundLoc0, Acts::UnitConstants::mm},
         {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-        {Acts::eBoundTheta, 1.},
         {Acts::eBoundPhi, 1.},
+        {Acts::eBoundTheta, 1.},
         {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
         {Acts::eBoundTime, Acts::UnitConstants::ns}
       }};
@@ -90,8 +91,8 @@ namespace eicrecon {
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
                 {Acts::GeometryIdentifier(),
-                 {m_cfg.m_etaBins, m_cfg.m_chi2CutOff,
-                  {m_cfg.m_numMeasurementsCutOff.begin(), m_cfg.m_numMeasurementsCutOff.end()}
+                 {m_cfg.etaBins, m_cfg.chi2CutOff,
+                  {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}
                  }
                 },
         };
@@ -101,6 +102,7 @@ namespace eicrecon {
     std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
         std::unique_ptr<edm4eic::TrackParametersCollection>,
+        std::unique_ptr<edm4eic::TrackCollection>,
         std::vector<ActsExamples::Trajectories*>,
         std::vector<ActsExamples::ConstTrackContainer*>
     >
@@ -153,8 +155,8 @@ namespace eicrecon {
             Acts::BoundVector params;
             params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
             params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
-            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundPhi)    = track_parameter.getPhi();
+            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
             params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
@@ -187,6 +189,7 @@ namespace eicrecon {
 
         auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
         auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
+        auto tracks = std::make_unique<edm4eic::TrackCollection>();
 
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
@@ -230,16 +233,16 @@ namespace eicrecon {
         // Create track container
         auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();
         auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-        ActsExamples::TrackContainer tracks(trackContainer, trackStateContainer);
+        ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
         // Add seed number column
-        tracks.addColumn<unsigned int>("seed");
+        acts_tracks.addColumn<unsigned int>("seed");
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
             auto result =
-                (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, tracks);
+                (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
 
             if (!result.ok()) {
                 m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
@@ -416,6 +419,38 @@ namespace eicrecon {
 
             trajectory.addToTrackParameters(pars);
 
+            // Fill tracks
+            #if EDM4EIC_VERSION_MAJOR >= 5
+              auto track = tracks->create();
+              track.setType(                             // Flag that defines the type of track
+                pars.getType()
+              );
+              track.setPosition(                         // Track 3-position at the vertex
+                edm4hep::Vector3f()
+              );
+              track.setMomentum(                         // Track 3-momentum at the vertex [GeV]
+                edm4hep::Vector3f()
+              );
+              track.setPositionMomentumCovariance(       // Covariance matrix in basis [x,y,z,px,py,pz]
+                edm4eic::Cov6f()
+              );
+              track.setTime(                             // Track time at the vertex [ns]
+                static_cast<float>(parameter[Acts::eBoundTime])
+              );
+              track.setTimeError(                        // Error on the track vertex time
+                sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))
+              );
+              track.setCharge(                           // Particle charge
+                std::copysign(1., parameter[Acts::eBoundQOverP])
+              );
+              track.setChi2(trajectoryState.chi2Sum);    // Total chi2
+              track.setNdf(trajectoryState.NDF);         // Number of degrees of freedom
+              track.setPdg(                              // PDG particle ID hypothesis
+                boundParam.particleHypothesis().absolutePdg()
+              );
+              track.setTrajectory(trajectory);           // Trajectory of this track
+            #endif
+
             // save measurement2d to good measurements or outliers according to srclink index
             // fix me: ideally, this should be integrated into multitrajectoryhelper
             // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
@@ -438,7 +473,8 @@ namespace eicrecon {
                         auto meas2D = meas2Ds[srclink_index];
                         if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
                           #if EDM4EIC_VERSION_MAJOR >= 5
-                            //track.addToMeasurementHits(meas2D);
+                            track.addToMeasurements(meas2D);
+                            trajectory.addToMeasurements_deprecated(meas2D);
                           #else
                             trajectory.addToMeasurementHits(meas2D);
                           #endif
@@ -448,7 +484,7 @@ namespace eicrecon {
                         }
                         else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
                           #if EDM4EIC_VERSION_MAJOR >= 5
-                            //track.addToOutlierHits(meas2D);
+                            trajectory.addToOutliers_deprecated(meas2D);
                           #else
                             trajectory.addToOutlierHits(meas2D);
                           #endif
@@ -464,7 +500,7 @@ namespace eicrecon {
           }
         }
 
-        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories), std::move(constTracks_v));
+        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(tracks), std::move(acts_trajectories), std::move(constTracks_v));
     }
 
 } // namespace eicrecon

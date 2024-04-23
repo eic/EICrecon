@@ -4,9 +4,6 @@
 //
 // This is a JANA event source that uses PODIO to read from a ROOT
 // file created using the EDM4hep Data Model.
-//
-// This uses the podio supplied RootReader and EventStore classes. Thus,
-// it is limited to processing only a single event at a time.
 
 #include "JEventSourcePODIO.h"
 
