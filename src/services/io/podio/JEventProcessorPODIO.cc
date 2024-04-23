@@ -47,10 +47,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
-            "MCBeamElectrons", // Remove if/when used internally
-            "MCBeamProtons", // Remove if/when used internally
-            "MCScatteredElectrons", // Remove if/when used internally
-            "MCScatteredProtons", // Remove if/when used internally
+            "MCBeamElectrons",
+            "MCBeamProtons",
+            "MCScatteredElectrons",
+            "MCScatteredProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -127,7 +127,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
-            "MCNotScatteredElectronAssociations", // Remove if/when used internally
+            "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",

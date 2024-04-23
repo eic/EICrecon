@@ -38,8 +38,8 @@ namespace eicrecon {
     public:
     FilterByAssociations(std::string_view name)
       : FilterByAssociationsAlgorithm<FilterByObjectT,ToFilterObjectT>{name,
-                        {"inputCollection","associatedCollection"},
-                        {"isAssociatedCollection","isNotAssociatedCollection"},
+                        {"inputCollection","inputAssociatedCollection"},
+                        {"outputMatchedAssociations","outputUnmatchedAssociations"},
                         "Filter associated collection"
                       } {
         };

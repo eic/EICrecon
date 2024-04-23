@@ -41,7 +41,7 @@ void InitPlugin(JApplication *app) {
                                                                     [](auto* obj) { return obj->getSim().getObjectID(); }>>(
           "MCScatteredElectronAssociations",
           {"MCScatteredElectrons", "ReconstructedChargedParticleAssociations"},
-          {"MCScatteredElectronAssociations","MCNotScatteredElectronAssociations"},
+          {"MCScatteredElectronAssociations","MCNonScatteredElectronAssociations"},
           app
     ));
 
