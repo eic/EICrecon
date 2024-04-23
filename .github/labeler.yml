@@ -30,6 +30,15 @@
     - "src/factories/calorimetry/**"
     - "src/tests/algorithms_test/calorimetry_*"
 
+"topic: digitization":
+- changed-files:
+  - any-glob-to-any-file:
+    - "src/algorithms/digi/**"
+    - "src/algorithms/calorimetry/CalorimeterHitDigi*"
+    - "src/factories/digi/**"
+    - "src/factories/calorimetry/CalorimeterHitDigi*"
+    - "src/global/digi/**"
+
 "topic: documentation":
 - changed-files:
   - any-glob-to-any-file:
@@ -56,6 +65,12 @@
     - "src/detectors/ECTOF/**"
     - "src/detectors/FEMC/**"
     - "src/detectors/FHCAL/**"
+
+"topic: jets":
+- changed-files:
+  - any-glob-to-any-file:
+    - "src/algorithms/reco/Jet*"
+    - "src/global/reco/Jet*"
 
 "topic: infrastructure":
 - changed-files:

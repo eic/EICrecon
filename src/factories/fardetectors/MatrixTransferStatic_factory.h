@@ -3,7 +3,7 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/MatrixTransferStatic.h"
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
@@ -53,11 +53,13 @@ private:
 
     ParameterRef<std::string> readout {this, "readout", config().readout};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

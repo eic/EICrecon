@@ -1,5 +1,4 @@
-# Determine version from git describe
-# cmake-lint: disable=C0103
+# Determine version from git describe cmake-lint: disable=C0103
 macro(set_git_version VERSION)
   if(NOT Git_Found)
     find_package(Git)
@@ -18,10 +17,13 @@ macro(set_git_version VERSION)
     endif()
   endif()
 
-  # Final fallback: Just use a bogus version string that is semantically older than anything else and spit out a warning
-  # to the developer.
+  # Final fallback: Just use a bogus version string that is semantically older
+  # than anything else and spit out a warning to the developer.
   if(NOT DEFINED ${VERSION})
     set(${VERSION} v0.0.0-unknown)
-    message(WARNING "Failed to determine VERSION from Git tags. Using default version \"${${VERSION}}\".")
+    message(
+      WARNING
+        "Failed to determine VERSION from Git tags. Using default version \"${${VERSION}}\"."
+    )
   endif()
 endmacro()

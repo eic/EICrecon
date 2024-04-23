@@ -87,21 +87,22 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
 
+            // PFRICH
+            "RICHEndcapNRawHits",
+            "RICHEndcapNRawHitsAssociations",
+
             // MPGD
             "MPGDBarrelRecHits",
-            "MPGDDIRCRecHits",
             "OuterMPGDBarrelRecHits",
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 
             "MPGDBarrelRawHits",
-            "MPGDDIRCRawHits",
             "OuterMPGDBarrelRawHits",
             "BackwardMPGDEndcapRawHits",
             "ForwardMPGDEndcapRawHits",
 
             "MPGDBarrelHits",
-            "MPGDDIRCHits",
             "OuterMPGDBarrelHits",
             "BackwardMPGDEndcapHits",
             "ForwardMPGDEndcapHits",
@@ -149,6 +150,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
+            "ScatteredElectronsTruth",
+            "ScatteredElectronsEMinusPz",
 
             // Track projections
             "CalorimeterTrackProjections",
