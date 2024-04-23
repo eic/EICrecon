@@ -49,9 +49,9 @@ namespace eicrecon {
 
             for (auto traj: acts_trajectories) {
                 edm4eic::MutableTrackSegment this_propagated_track;
-                for(auto& surf : m_target_surface_list) {
+                for(auto& surf : m_target_surfaces) {
                     auto prop_point = propagate(traj, surf);
-                    if(!prop_point) continue;
+                    if (!prop_point) continue;
                     prop_point->surface = surf->geometryId().layer();
                     prop_point->system  = surf->geometryId().extra();
                     this_propagated_track.addToPoints(*prop_point);
@@ -86,6 +86,7 @@ namespace eicrecon {
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
 
-        std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
+        std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;
+        std::vector<std::shared_ptr<Acts::Surface>> m_target_surfaces;
     };
 } // namespace eicrecon

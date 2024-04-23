@@ -140,7 +140,7 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
             {"CalorimeterTrackProjections"},
             {
-                {
+                .target_surfaces{
                     // Ecal
                     eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin", 0., "1.1*EcalEndcapN_rmax"},
                     eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin - 50*mm", 0., "1.1*EcalEndcapN_rmax"},

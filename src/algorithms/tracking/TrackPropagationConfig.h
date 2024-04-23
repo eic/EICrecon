@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <edm4eic/TrackPoint.h>
 
 namespace eicrecon {
 
@@ -22,7 +23,13 @@ namespace eicrecon {
   };
 
   struct TrackPropagationConfig {
-    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> surfaces;
+    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> filter_surfaces{};
+    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> target_surfaces{};
+
+    std::function<bool(edm4eic::TrackPoint)> track_point_cut{
+      [](const edm4eic::TrackPoint&) { return true; }
+    };
+    bool skip_track_on_track_point_cut_failure{false};
   };
 
 } // eicrecon

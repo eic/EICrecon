@@ -65,7 +65,8 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       [](const double& v)      { return v; },
     };
 
-    for (auto& surface_variant: m_cfg.surfaces) {
+    auto _toActsSurface = [&_toDouble, &detector, &system_id_layers](
+      const std::variant<CylinderSurfaceConfig,DiscSurfaceConfig> surface_variant) -> std::shared_ptr<Acts::Surface> {
       if (std::holds_alternative<CylinderSurfaceConfig>(surface_variant)) {
         CylinderSurfaceConfig surface = std::get<CylinderSurfaceConfig>(surface_variant);
         const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
@@ -77,7 +78,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-        m_target_surface_list.push_back(acts_surface);
+        return acts_surface;
       }
       if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
         DiscSurfaceConfig surface = std::get<DiscSurfaceConfig>(surface_variant);
@@ -90,9 +91,12 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-        m_target_surface_list.push_back(acts_surface);
+        return acts_surface;
       }
-    }
+      throw std::domain_error("Unknown surface type");
+    };
+    std::transform(m_cfg.target_surfaces.cbegin(), m_cfg.target_surfaces.cend(), m_target_surfaces.begin(), _toActsSurface);
+    std::transform(m_cfg.filter_surfaces.cbegin(), m_cfg.filter_surfaces.cend(), m_filter_surfaces.begin(), _toActsSurface);
 
     m_log->trace("Initialized");
 }
