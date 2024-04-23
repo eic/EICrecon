@@ -38,7 +38,7 @@ namespace eicrecon {
       : FilterMatchingAlgorithm<ToFilterObjectT,FilterByObjectT>{name,
                         {"inputCollection","inputMatchedCollection"},
                         {"outputMatchedAssociations","outputUnmatchedAssociations"},
-                        "Filter associated collection"
+                        "Filter by matching to a collection"
                       } {
         };
 
@@ -55,14 +55,14 @@ namespace eicrecon {
 
           for (const auto& matchedEntry : *toFilterEntries){
 
-            auto associationID = ToFilterFunction(&matchedEntry);
+            auto ref_value = ToFilterFunction(&matchedEntry);
 
             bool foundAssociation = false;
 
             // Tries to find the association in the entries
             for(const auto& entry : *filterByEntries){
-              auto objectID = FilterByFunction(&entry);
-              if(objectID == associationID){
+              auto other_value = FilterByFunction(&entry);
+              if(other_value == ref_value){
                 is_matched->push_back(matchedEntry);
                 foundAssociation = true;
                 break;
