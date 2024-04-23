@@ -22,9 +22,11 @@ namespace eicrecon {
     std::variant<std::string, double> rmax;
   };
 
+  using SurfaceConfig = std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>;
+
   struct TrackPropagationConfig {
-    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> filter_surfaces{};
-    std::vector<std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>> target_surfaces{};
+    std::vector<SurfaceConfig> filter_surfaces{};
+    std::vector<SurfaceConfig> target_surfaces{};
 
     std::function<bool(edm4eic::TrackPoint)> track_point_cut{
       [](const edm4eic::TrackPoint&) { return true; }
