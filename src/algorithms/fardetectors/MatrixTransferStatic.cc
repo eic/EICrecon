@@ -20,14 +20,7 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
-void eicrecon::MatrixTransferStatic::init(const dd4hep::Detector* det,
-                                          const dd4hep::rec::CellIDPositionConverter* id_conv,
-                                          std::shared_ptr<spdlog::logger> &logger) {
-
-  m_log       = logger;
-  m_detector  = det;
-  m_converter = id_conv;
-  //Calculate inverse of static transfer matrix
+void eicrecon::MatrixTransferStatic::init() {
 
 }
 
@@ -67,7 +60,7 @@ void eicrecon::MatrixTransferStatic::process(
         }
   }
 
-  if(numBeamProtons == 0) {m_log->error("No beam protons to choose matrix!! Skipping!!"); return;}
+  if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
 
   nomMomentum = runningMomentum/numBeamProtons;
 
@@ -78,64 +71,64 @@ void eicrecon::MatrixTransferStatic::process(
 
   if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
-      aX[0][0] = 2.09948716; //a
-      aX[0][1] = 29.17331284; //b
-      aX[1][0] = 0.18560183; //c
-      aX[1][1] = 0.19764317; //d
+     aX[0][0] = 3.251116; //a
+     aX[0][1] = 30.285734; //b
+     aX[1][0] = 0.186036375; //c
+     aX[1][1] = 0.196439472; //d
 
-      aY[0][0] = 0.3457400000; //a
-      aY[0][1] = 3.94047233; //b
-      aY[1][0] = 0.0203150000; //c
-      aY[1][1] = -0.140321368; //d
+     aY[0][0] = 0.4730500000; //a
+     aY[0][1] = 3.062999454; //b
+     aY[1][0] = 0.0204108951; //c
+     aY[1][1] = -0.139318692; //d
 
-      local_x_offset       = -0.00041284;
-      local_y_offset       = -0.00281233;
-      local_x_slope_offset = 0.00050683;
-      local_y_slope_offset = -0.001418633;
+     local_x_offset       = -0.339334;
+     local_y_offset       = -0.000299454;
+     local_x_slope_offset = -0.219603248;
+     local_y_slope_offset = -0.000176128;
 
   }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
-      aX[0][0] = 2.03459216; //a
-      aX[0][1] = 22.85780784; //b
-      aX[1][0] = 0.179641961; //c
-      aX[1][1] = -0.306626961; //d
+     aX[0][0] = 3.152158; //a
+     aX[0][1] = 20.852072; //b
+     aX[1][0] = 0.181649517; //c
+     aX[1][1] = -0.303998487; //d
 
-      aY[0][0] = 0.3887900000; //a
-      aY[0][1] = 3.71612646; //b
-      aY[1][0] = 0.0226850000; //c
-      aY[1][1] = -0.083092151; //d
+     aY[0][0] = 0.5306100000; //a
+     aY[0][1] = 3.19623343; //b
+     aY[1][0] = 0.0226283320; //c
+     aY[1][1] = -0.082666019; //d
 
-      local_x_offset       = 0.00979216;
-      local_y_offset       = -0.00778646;
-      local_x_slope_offset = 0.004526961;
-      local_y_slope_offset = -0.003907849;
+     local_x_offset       = -0.329072;
+     local_y_offset       = -0.00028343;
+     local_x_slope_offset = -0.218525084;
+     local_y_slope_offset = -0.00015321;
 
   }
   else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
 
-      aX[0][0] = 2.0487065; //a
-      aX[0][1] = 21.6947935; //b
-      aX[1][0] = 0.17480755; //c
-      aX[1][1] = -0.50048755; //d
+         aX[0][0] = 3.135997; //a
+         aX[0][1] = 18.482273; //b
+         aX[1][0] = 0.176479921; //c
+         aX[1][1] = -0.497839483; //d
 
-      aY[0][0] = 0.3654300000; //a
-      aY[0][1] = 4.5252737; //b
-      aY[1][0] = 0.0211000000; //c
-      aY[1][1] = 0.001382242; //d
+         aY[0][0] = 0.4914400000; //a
+         aY[0][1] = 4.53857451; //b
+         aY[1][0] = 0.0179664765; //c
+         aY[1][1] = 0.004160679; //d
 
-      local_x_offset       = 0.0413065;
-      local_y_offset       = -0.0189837;
-      local_x_slope_offset = 0.01503755;
-      local_y_slope_offset = -0.009532243;
+         local_x_offset       = -0.283273;
+         local_y_offset       = -0.00552451;
+         local_x_slope_offset = -0.21174031;
+         local_y_slope_offset = -0.003212011;
 
   }
   else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
 
       aX[0][0] = 1.6248;
-          aX[0][1] = 12.966293;
+      aX[0][1] = 12.966293;
       aX[1][0] = 0.1832;
-          aX[1][1] = -2.8636535;
+      aX[1][1] = -2.8636535;
 
       aY[0][0] = 0.0001674; //a
       aY[0][1] = -28.6003; //b
@@ -149,14 +142,14 @@ void eicrecon::MatrixTransferStatic::process(
 
   }
   else {
-    m_log->error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+    error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
     return;
   }
 
   double determinant = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
 
   if (determinant == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
@@ -169,7 +162,7 @@ void eicrecon::MatrixTransferStatic::process(
   determinant = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
 
   if (determinant == 0) {
-    m_log->error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     return;
   }
 
@@ -240,7 +233,7 @@ void eicrecon::MatrixTransferStatic::process(
     double base = goodHit[1].z - goodHit[0].z;
 
     if (base == 0) {
-      m_log->info("Detector separation = 0! Cannot calculate slope!");
+      info("Detector separation = 0! Cannot calculate slope!");
     }
     else{
 

@@ -13,10 +13,12 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 
@@ -45,7 +47,7 @@ namespace eicrecon {
                             {"outputRecHitCollection"},
                             "Reconstruct hit from digitized input."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -67,8 +69,8 @@ namespace eicrecon {
     size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
 
   private:
-    const dd4hep::Detector* m_detector;
-    const dd4hep::rec::CellIDPositionConverter* m_converter;
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
   };
 

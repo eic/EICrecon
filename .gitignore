@@ -6,6 +6,9 @@ plugins/*
 build/*
 install/*
 
+# macOS metadata
+.DS_Store
+
 ##### C++ basic gitignore #####
 
 # Prerequisites
@@ -15,7 +18,12 @@ install/*
 *.slo
 *.lo
 *.o
+
+# Auto-generated meshes
 *.obj
+*.mtl
+*.ply
+*.stl
 
 # Precompiled Headers
 *.gch
@@ -45,14 +53,13 @@ install/*
 ##### i g n o r i n g   I D E s #####
 
 # Remove IntelliJ idea and CLion in particular from the project scope (it is a personal stuff of each developer)
-.idea/
+**/.idea/
 
 # The same to vscode
-.vscode/*
+**/.vscode/*
 
 # CMake CLion style
-cmake-build-*/
-src/cmake-build-*/
+**/cmake-build-*/
 
 # File-based project format
 *.iws

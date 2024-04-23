@@ -17,11 +17,8 @@ private:
     std::unique_ptr<eicrecon::ElectronReconstruction> m_algo;
 
     // Declare inputs
-    PodioInput<edm4hep::MCParticle> m_in_mc_particles {this, "MCParticles"};
-    PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles {this, "ReconstructedChargedParticles"};
-    PodioInput<edm4eic::MCRecoParticleAssociation> m_in_rc_particles_assoc {this, "ReconstructedChargedParticleAssociations"};
+    PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles {this, "ReconstructedParticles"};
 
-    VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_in_clu_assoc {this};
 
     // Declare outputs
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
@@ -61,10 +58,7 @@ public:
         // Use this callback to call your Algorithm using all inputs and outputs
         // The inputs will have already been fetched for you at this point.
         auto output = m_algo->execute(
-          m_in_mc_particles(),
-          m_in_rc_particles(),
-          m_in_rc_particles_assoc(),
-          m_in_clu_assoc()
+          m_in_rc_particles()
         );
 
         logger()->debug( "Event {}: Found {} reconstructed electron candidates", event_number, output->size() );

@@ -6,11 +6,11 @@
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 
@@ -40,15 +40,12 @@ namespace eicrecon {
                             {"outputParticleCollection"},
                             "Apply matrix method reconstruction to hits."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
-
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger>   m_log;
-    const dd4hep::Detector* m_detector{nullptr};
-    const dd4hep::rec::CellIDPositionConverter* m_converter{nullptr};
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
   };
 }

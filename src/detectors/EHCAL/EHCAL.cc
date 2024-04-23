@@ -40,6 +40,7 @@ extern "C" {
             .pedSigmaADC = HcalEndcapN_pedSigmaADC,
             .resolutionTDC = HcalEndcapN_resolutionTDC,
             .corrMeanScale = 1.0,
+            .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
         ));
