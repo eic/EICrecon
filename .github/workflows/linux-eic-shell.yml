@@ -548,7 +548,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "${{ env.platform-release }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
