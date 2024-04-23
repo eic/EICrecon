@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Simon Gardner
 
-// Filters a collection by the members of another collection
-// The first colection is divided up into two collections where its elements either passed the filter or not
-// The second collection provides a filter
-// Functions need to be provided along with the collections to form the link between the data types
-// These functions are envisioned to link the objectIDs of the collection/associations but could be anything
-
 #pragma once
 
 #include <spdlog/spdlog.h>
@@ -31,7 +25,11 @@ namespace eicrecon {
         >
      >;
 
-
+  /// Filters a collection by the members of another collection
+  /// The first collection is divided up into two collections where its elements either passed the filter or not
+  /// The second collection provides a filter
+  /// Functions need to be provided along with the collections to form the link between the data types
+  /// These functions are envisioned to link the objectIDs of the collection/associations but could be anything
   template<typename ToFilterObjectT,auto ToFilterFunction, typename FilterByObjectT,auto FilterByFunction>
   class FilterMatching : public FilterMatchingAlgorithm<ToFilterObjectT,FilterByObjectT> {
 
