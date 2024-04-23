@@ -122,15 +122,18 @@ namespace eicrecon {
         }
 
         // 3. find mchit's highest energy MCParticle
-        double eMCP = 0.;
-        uint32_t iMCP = 0;
+        double eMcPar = 0.;
+        double eMcMax = 0.;
+        uint32_t iMcMax = 0;
         for (uint32_t iContrib = 0; const auto& contrib : mchit->getContributions()) {
-          if (contrib.getEnergy() > eMCP) {
-            iMCP = iContrib;
+          eMcPar = contrib.getParticle().getEnergy();
+          if (eMcPar > eMcMax) {
+            eMcMax = eMcPar;
+            iMcMax = iContrib;
           }
           ++iContrib;
         }
-        const auto& mcp = mchit->getContributions(iMCP).getParticle();
+        const auto& mcp = mchit->getContributions(iMcMax).getParticle();
 
         debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
         debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
