@@ -13,6 +13,7 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
@@ -20,7 +21,6 @@
 #include "global/pid/IrtCherenkovParticleID_factory.h"
 #include "global/pid/MergeCherenkovParticleID_factory.h"
 #include "global/pid/MergeTrack_factory.h"
-#include "global/pid/RichTrackConfig.h"
 #include "global/pid/RichTrack_factory.h"
 
 extern "C" {
@@ -67,10 +67,25 @@ extern "C" {
       {1000, 0.00}
     };
 
+    // get RICH geo service
+    auto richGeoSvc = app->GetService<RichGeo_service>();
+    auto actsGeo = richGeoSvc->GetActsGeo("DRICH");
+    auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
+    auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
+    auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 10);
+    auto gas_track_point_cut = actsGeo->TrackPointCut(richgeo::kGas);
+    auto filter_surface = gas_tracking_planes.back();
     // track propagation to each radiator
-    RichTrackConfig track_cfg;
-    track_cfg.numPlanes.insert({ "Aerogel", 5  });
-    track_cfg.numPlanes.insert({ "Gas",     10 });
+    TrackPropagationConfig aerogel_track_cfg{
+      .filter_surfaces{filter_surface},
+      .target_surfaces = aerogel_tracking_planes,
+      .track_point_cut = aerogel_track_point_cut
+    };
+    TrackPropagationConfig gas_track_cfg{
+      .filter_surfaces{filter_surface},
+      .target_surfaces = gas_tracking_planes,
+      .track_point_cut = gas_track_point_cut
+    };
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
@@ -111,13 +126,21 @@ extern "C" {
           ));
 
     // charged particle tracks
-    app->Add(new JChainMultifactoryGeneratorT<RichTrack_factory>(
+    app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
           "DRICHTracks",
           {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-          {"DRICHAerogelTracks", "DRICHGasTracks"},
-          track_cfg,
+          {"DRICHAerogelTracks"},
+          aerogel_track_cfg,
           app
           ));
+    app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
+          "DRICHTracks",
+          {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+          {"DRICHGasTracks"},
+          gas_track_cfg,
+          app
+          ));
+
     app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
           "DRICHMergedTracks",
           {"DRICHAerogelTracks", "DRICHGasTracks"},

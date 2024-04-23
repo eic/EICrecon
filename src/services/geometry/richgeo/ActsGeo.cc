@@ -3,10 +3,6 @@
 
 #include "ActsGeo.h"
 
-#include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <Acts/Surfaces/RadialBounds.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
@@ -17,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "services/geometry/richgeo/RichGeo.h"
 
 // constructor
@@ -28,10 +25,10 @@ richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Dete
 }
 
 // generate list ACTS disc surfaces, for a given radiator
-std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
+std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
 
   // output list of surfaces
-  std::vector<std::shared_ptr<Acts::Surface>> discs;
+  std::vector<eicrecon::SurfaceConfig> discs;
 
   // dRICH DD4hep-ACTS bindings --------------------------------------------------------------------
   if(m_detName=="DRICH") {
@@ -112,9 +109,7 @@ std::vector<std::shared_ptr<Acts::Surface>> richgeo::ActsGeo::TrackingPlanes(int
       auto z         = trackZmin + (i+1)*trackZstep;
       auto rmin      = trackRmin(z);
       auto rmax      = trackRmax(z);
-      auto rbounds   = std::make_shared<Acts::RadialBounds>(rmin, rmax);
-      auto transform = Acts::Transform3(Acts::Translation3(Acts::Vector3(0, 0, z)));
-      discs.push_back(Acts::Surface::makeShared<Acts::DiscSurface>(transform, rbounds));
+      discs.push_back(eicrecon::DiscSurfaceConfig{m_detName, z, rmin, rmax});
       m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }
