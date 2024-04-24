@@ -918,7 +918,7 @@ jobs:
     needs:
     - eicrecon-gun
     steps:
-    - uses: eic/trigger-gitlab-ci@main
+    - uses: eic/trigger-gitlab-ci@v2
       id: trigger
       with:
         url: https://eicweb.phy.anl.gov
