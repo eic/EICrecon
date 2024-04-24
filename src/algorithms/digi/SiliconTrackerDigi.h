@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/random.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
-#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -49,14 +48,7 @@ namespace eicrecon {
     std::shared_ptr<spdlog::logger> m_log;
 
     /** Random number generation*/
-    TRandomMixMax m_random;
-    std::function<double()> m_gauss;
-
-    // FIXME replace with standard random engine
-    //std::default_random_engine generator; // TODO: need something more appropriate here
-    //std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
-
-    //algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
 
   };
 

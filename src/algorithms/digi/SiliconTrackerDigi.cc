@@ -23,14 +23,7 @@ namespace eicrecon {
 void SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger) {
     // set logger
     m_log = logger;
-
-    // Create random gauss function
-    m_gauss = [&](){
-        return m_random.Gaus(0, m_cfg.timeResolution);
-        //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
-    };
 }
-
 
 void SiliconTrackerDigi::process(
         const SiliconTrackerDigi::Input& input,
@@ -46,7 +39,7 @@ void SiliconTrackerDigi::process(
     for (const auto& sim_hit : *sim_hits) {
 
         // time smearing
-        double time_smearing = m_gauss();
+        double time_smearing = m_rng.gaussian<double>(0, m_cfg.timeResolution);
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
 
