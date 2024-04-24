@@ -28,7 +28,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardRomanPotRawHits"},
         {
             .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 8,
+            .timeResolution = 0.015 * dd4hep::ns,
         },
         app
     ));
@@ -38,7 +38,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardRomanPotRawHits"},
         {"ForwardRomanPotRecHits"},
         {
-            .timeResolution = 8,
+            .timeResolution = 0.015 * dd4hep::ns,
         },
         app
     ));

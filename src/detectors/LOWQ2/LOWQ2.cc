@@ -31,7 +31,7 @@ extern "C" {
          {"TaggerTrackerRawHits"},
          {
            .threshold = 1.5 * dd4hep::keV,
-           .timeResolution = 2 * dd4hep::ns,
+           .timeResolution = 0.195 * dd4hep::ns,
          },
          app
     ));

@@ -44,7 +44,6 @@ void SiliconTrackerDigi::process(
     for (const auto& sim_hit : *sim_hits) {
 
         // time smearing
-        // TODO: remove or revisit smearing after time is properly bucketed instead
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);

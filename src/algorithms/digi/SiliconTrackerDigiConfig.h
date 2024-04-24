@@ -13,7 +13,7 @@ namespace eicrecon {
     // sub-systems should overwrite their own
     // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
     double threshold  = 0 * dd4hep::keV;
-    double timeResolution = 8 * edm4eic::unit::ns;
+    double timeResolution = 8 * edm4eic::unit::ns; // Source? This is arbitrary --> however, it should be >0, maybe large, to not distort the fitter by default
   };
 
 } // eicrecon

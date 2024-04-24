@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
         {"TOFBarrelRawHit"},
         {
             .threshold = 6.0 * dd4hep::keV,
-            .timeResolution = 0.025,    // [ns]
+            .timeResolution = 0.02 * dd4hep::ns,
         },
         app
     ));
@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
         {"TOFBarrelRawHit"},    // Input data collection tags
         {"TOFBarrelRecHit"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 0.02 * dd4hep::ns,
         },
         app
     ));         // Hit reco default config for factories

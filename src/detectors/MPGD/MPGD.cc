@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
         {"MPGDBarrelRawHits"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz) 
         },
         app
     ));
@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
         {"MPGDBarrelRawHits"},     // Input data collection tags
         {"MPGDBarrelRecHits"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -48,7 +48,7 @@ void InitPlugin(JApplication *app) {
         {"MPGDDIRCRawHits"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
+            .timeResolution = 10, // no information in the digitization spreadsheet!
         },
         app
     ));
@@ -59,7 +59,7 @@ void InitPlugin(JApplication *app) {
         {"MPGDDIRCRawHits"},    // Input data collection tags
         {"MPGDDIRCRecHits"},    // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 10, // no information in the digitization spreadsheet!
         },
         app
     ));
@@ -72,7 +72,7 @@ void InitPlugin(JApplication *app) {
         {"OuterMPGDBarrelRawHits"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -83,7 +83,7 @@ void InitPlugin(JApplication *app) {
         {"OuterMPGDBarrelRawHits"},     // Input data collection tags
         {"OuterMPGDBarrelRecHits"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -95,7 +95,7 @@ void InitPlugin(JApplication *app) {
         {"BackwardMPGDEndcapRawHits"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -106,7 +106,7 @@ void InitPlugin(JApplication *app) {
         {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
         {"BackwardMPGDEndcapRecHits"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -118,7 +118,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardMPGDEndcapRawHits"},
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
@@ -129,7 +129,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
         {"ForwardMPGDEndcapRecHits"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));

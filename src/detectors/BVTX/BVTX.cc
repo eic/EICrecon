@@ -25,6 +25,7 @@ void InitPlugin(JApplication *app) {
         {"SiBarrelVertexRawHits"},
         {
             .threshold = 0.54 * dd4hep::keV,
+            .timeResolution = 2000 * dd4hep::ns,
         },
         app
     ));
@@ -34,7 +35,9 @@ void InitPlugin(JApplication *app) {
         "SiBarrelVertexRecHits",
         {"SiBarrelVertexRawHits"},
         {"SiBarrelVertexRecHits"},
-        {}, // default config
+        {
+            .timeResolution = 2000 * dd4hep::ns,
+        }, 
         app
     ));
 

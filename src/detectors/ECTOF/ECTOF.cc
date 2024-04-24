@@ -25,7 +25,8 @@ void InitPlugin(JApplication *app) {
       {"TOFEndcapRawHits"},
       {
         .threshold = 6.0 * dd4hep::keV,
-        .timeResolution = 0.025,
+        .timeResolution = 0.02 * dd4hep::ns,
+
       },
       app
     ));
@@ -36,7 +37,7 @@ void InitPlugin(JApplication *app) {
       {"TOFEndcapRawHits"},     // Input data collection tags
       {"TOFEndcapRecHits"},     // Output data tag
       {
-        .timeResolution = 0.025,
+        .timeResolution = 0.02 * dd4hep::ns,
       },
       app
     ));

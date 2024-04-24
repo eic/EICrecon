@@ -25,7 +25,7 @@ void InitPlugin(JApplication *app) {
         {"B0TrackerRawHits"},
         {
             .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 8,
+            .timeResolution = 0.015 * dd4hep::ns,
         },
         app
     ));
@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
         {"B0TrackerRawHits"},
         {"B0TrackerRecHits"},
         {
-            .timeResolution = 8,
+            .timeResolution = 0.015 * dd4hep::ns,
         },
         app
     ));

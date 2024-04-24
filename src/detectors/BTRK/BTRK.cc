@@ -25,6 +25,7 @@ void InitPlugin(JApplication *app) {
         {"SiBarrelRawHits"},
         {
             .threshold = 0.54 * dd4hep::keV,
+            .timeResolution = 2000 * dd4hep::ns,
         },
         app
     ));
@@ -35,7 +36,9 @@ void InitPlugin(JApplication *app) {
         "SiBarrelTrackerRecHits",
         {"SiBarrelRawHits"},
         {"SiBarrelTrackerRecHits"},
-        {}, // default config
+        {
+            .timeResolution = 2000 * dd4hep::ns,
+        },
         app
     ));
 
