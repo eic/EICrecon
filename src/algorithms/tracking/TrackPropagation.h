@@ -15,7 +15,6 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
-#include <functional>
 #include <memory>
 #include <tuple>
 #include <vector>

@@ -29,11 +29,13 @@
 #include <stdint.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <algorithm>
 #include <cmath>
-#include <exception>
+#include <functional>
 #include <iterator>
 #include <map>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <typeinfo>

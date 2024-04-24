@@ -5,6 +5,7 @@
 #include <JANA/JApplication.h>
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -22,6 +23,9 @@
 #include "global/pid/MergeCherenkovParticleID_factory.h"
 #include "global/pid/MergeTrack_factory.h"
 #include "global/pid/RichTrack_factory.h"
+#include "services/geometry/richgeo/ActsGeo.h"
+#include "services/geometry/richgeo/RichGeo.h"
+#include "services/geometry/richgeo/RichGeo_service.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

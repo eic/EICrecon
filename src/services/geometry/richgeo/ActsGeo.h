@@ -15,11 +15,6 @@
 
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
-// Forward declarations
-namespace Acts {
-  class Surface;
-}
-
 namespace richgeo {
   class ActsGeo {
     public:

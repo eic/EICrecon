@@ -4,7 +4,6 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
@@ -12,11 +11,11 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Geometry>
 #include <exception>
+#include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>
