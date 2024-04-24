@@ -131,14 +131,14 @@ extern "C" {
 
     // charged particle tracks
     app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-          "DRICHTracks",
+          "DRICHAerogelTracks",
           {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
           {"DRICHAerogelTracks"},
           aerogel_track_cfg,
           app
           ));
     app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-          "DRICHTracks",
+          "DRICHGasTracks",
           {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
           {"DRICHGasTracks"},
           gas_track_cfg,
