@@ -6,6 +6,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <map>
@@ -18,7 +19,6 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "factories/meta/CollectionCollector_factory.h"
 
 
 extern "C" {

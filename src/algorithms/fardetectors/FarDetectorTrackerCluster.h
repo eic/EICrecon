@@ -3,13 +3,18 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
+#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
+#include <algorithms/algorithm.h>
 // Event Model related classes
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
-
+#include <spdlog/logger.h>
+#include <memory>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

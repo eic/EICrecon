@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Simon Gardner
 
-#include <edm4hep/TrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <JANA/JException.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
+#include <edm4hep/Vector3d.h>
+#include <fmt/core.h>
+#include <sys/types.h>
+#include <gsl/pointers>
 
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "FarDetectorTrackerCluster.h"
+#include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
 
 namespace eicrecon {
 
