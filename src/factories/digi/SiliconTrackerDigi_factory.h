@@ -25,8 +25,6 @@ private:
     ParameterRef<double> m_threshold {this, "threshold", config().threshold};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution};
 
-    Service<AlgorithmsInit_service> m_algorithmsInit {this};
-
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
