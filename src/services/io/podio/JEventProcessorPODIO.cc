@@ -50,6 +50,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 			"MCParticlesPostBurn",
             "BeamElectrons",
             "BeamProtons",
+            "MCBeamElectrons",
+            "MCBeamProtons",
+            "MCScatteredElectrons",
+            "MCScatteredProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -127,6 +131,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
+            "MCScatteredElectronAssociations", // Remove if/when used internally
+            "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
