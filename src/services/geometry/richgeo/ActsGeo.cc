@@ -109,7 +109,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       auto z         = trackZmin + (i+1)*trackZstep;
       auto rmin      = trackRmin(z);
       auto rmax      = trackRmax(z);
-      discs.push_back(eicrecon::DiscSurfaceConfig{m_detName, z, rmin, rmax});
+      discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
       m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }
