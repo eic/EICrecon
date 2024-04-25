@@ -21,13 +21,14 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/random.h>
 #include <algorithms/geo.h>
+#include <algorithms/random.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
+#include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <string>
