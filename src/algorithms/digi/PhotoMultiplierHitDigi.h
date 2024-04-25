@@ -20,15 +20,14 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/random.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
-#include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <string>
@@ -79,12 +78,6 @@ namespace eicrecon {
       std::vector<std::size_t> sim_hit_indices;
     };
 
-    // random number generators
-    TRandomMixMax m_random;
-    std::function<double()> m_rngNorm;
-    std::function<double()> m_rngUni;
-    //Rndm::Numbers m_rngUni, m_rngNorm;
-
     // set `m_VisitAllRngPixels`, a visitor to run an action (type
     // `function<void(cellID)>`) on a selection of random CellIDs; must be
     // defined externally, since this would be detector-specific
@@ -114,6 +107,14 @@ protected:
         return false;
       };
 
+    // random number generator
+    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+    /*     TRandomMixMax m_random;
+    std::function<double()> m_rngNorm;
+    std::function<double()> m_rngUni;
+ */    //Rndm::Numbers m_rngUni, m_rngNorm;
+
+
 private:
 
     // add a hit to local `hit_groups` data structure
@@ -129,9 +130,7 @@ private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
-    // std::default_random_engine generator; // TODO: need something more appropriate here
-    // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
-
+    // quantum efficiency
     std::vector<std::pair<double, double>> qeff;
     void qe_init();
     template<class RndmIter, typename T, class Compare> RndmIter interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const;
