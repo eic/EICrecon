@@ -43,13 +43,13 @@ void PhotoMultiplierHitDigi::init()
      */
     if(m_cfg.seed==0) warning("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
 
-    // random number generators
+/*     // random number generators
     m_random.SetSeed(m_cfg.seed);
     m_rngNorm = [&](){
         return m_random.Gaus(0., 1.0);
     };
     m_rngUni = [&](){
-        return m_random.Uniform(0., 1.0);
+        return m_random.flat(0., 1.0);
     };
     //auto randSvc = svc<IRndmGenSvc>("RndmGenSvc", true);
     auto sc1 = m_rngUni;//m_rngUni.initialize(randSvc, Rndm::Flat(0., 1.));
@@ -58,6 +58,7 @@ void PhotoMultiplierHitDigi::init()
     if (!sc1 || !sc2) {
         throw std::runtime_error("Cannot initialize random generator!");
     }
+ */
 
     // initialize quantum efficiency table
     qe_init();
@@ -86,10 +87,10 @@ void PhotoMultiplierHitDigi::process(
             trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
             // overall safety factor
-            if (m_rngUni() > m_cfg.safetyFactor) continue;
+            if (m_rng.uniform_double<double>(0, 1.0) > m_cfg.safetyFactor) continue;
 
             // quantum efficiency
-            if (!qe_pass(edep_eV, m_rngUni())) continue;
+            if (!qe_pass(edep_eV, m_rng.uniform_double<double>(0, 1.0))) continue;
 
             // pixel gap cuts
             if(m_cfg.enablePixelGaps) {
@@ -102,7 +103,7 @@ void PhotoMultiplierHitDigi::process(
             trace(" -> hit accepted");
             trace(" -> MC hit id={}", sim_hit.getObjectID().index);
             auto   time = sim_hit.getTime();
-            double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
+            double amp  = m_cfg.speMean + m_rng.gaussian<double>(0, 1.0) * m_cfg.speError;
 
             // insert hit to `hit_groups`
             InsertHit(
@@ -132,8 +133,8 @@ void PhotoMultiplierHitDigi::process(
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
-            double   amp  = m_cfg.speMean + m_rngNorm()*m_cfg.speError;
-            TimeType time = m_cfg.noiseTimeWindow*m_rngUni() / dd4hep::ns;
+            double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, 1.0)*m_cfg.speError;
+            TimeType time = m_cfg.noiseTimeWindow*m_rng.uniform_double<double>(0, 1.0) / dd4hep::ns;
             dd4hep::Position pos_hit_global = m_converter->position(id);
 
             // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
@@ -288,7 +289,7 @@ void PhotoMultiplierHitDigi::InsertHit(
     }
     // no hits group found
     if (i >= it->second.size()) {
-      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1.0);
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
       hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
@@ -296,7 +297,7 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
-    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
+    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1.0);
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
     hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
