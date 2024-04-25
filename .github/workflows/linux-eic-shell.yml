@@ -884,7 +884,9 @@ jobs:
 
   trigger-container:
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    env: 
+      secret: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
+    if: ${{ github.actor != 'dependabot[bot]' && secret != '' }}
     needs:
     - eicrecon-gun
     steps:
