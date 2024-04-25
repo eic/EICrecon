@@ -884,7 +884,7 @@ jobs:
 
   trigger-container:
     runs-on: ubuntu-latest
-    env: 
+    env:
       secret: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
     if: ${{ github.actor != 'dependabot[bot]' && secret != '' }}
     needs:
