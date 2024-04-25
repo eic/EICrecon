@@ -44,23 +44,6 @@ void PhotoMultiplierHitDigi::init()
      */
     if(m_cfg.seed==0) warning("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
 
-/*     // random number generators
-    m_random.SetSeed(m_cfg.seed);
-    m_rngNorm = [&](){
-        return m_random.Gaus(0., 1.0);
-    };
-    m_rngUni = [&](){
-        return m_random.flat(0., 1.0);
-    };
-    //auto randSvc = svc<IRndmGenSvc>("RndmGenSvc", true);
-    auto sc1 = m_rngUni;//m_rngUni.initialize(randSvc, Rndm::Flat(0., 1.));
-    auto sc2 = m_rngNorm;//m_rngNorm.initialize(randSvc, Rndm::Gauss(0., 1.));
-    //if (!sc1.isSuccess() || !sc2.isSuccess()) {
-    if (!sc1 || !sc2) {
-        throw std::runtime_error("Cannot initialize random generator!");
-    }
- */
-
     // initialize quantum efficiency table
     qe_init();
 }

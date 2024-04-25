@@ -109,11 +109,6 @@ protected:
 
     // random number generator
     algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
-    /*     TRandomMixMax m_random;
-    std::function<double()> m_rngNorm;
-    std::function<double()> m_rngUni;
- */    //Rndm::Numbers m_rngUni, m_rngNorm;
-
 
 private:
 
