@@ -886,11 +886,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       secret: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
-    if: ${{ github.actor != 'dependabot[bot]' && secret != '' }}
+    if: ${{ github.actor != 'dependabot[bot]' }}
     needs:
     - eicrecon-gun
     steps:
     - uses: eic/trigger-gitlab-ci@v2
+      if: ${{ secret != '' }}
       id: trigger
       with:
         url: https://eicweb.phy.anl.gov
@@ -902,7 +903,8 @@ jobs:
           GITHUB_SHA=${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_PR=${{ github.event.pull_request.number }}
           EICRECON_VERSION="${{ github.event.pull_request.head.ref || github.ref_name }}"
-    - run: |
+    - if: ${{ secret != '' }}
+      run: |
         gh api \
            --method POST \
           -H "Accept: application/vnd.github+json" \
