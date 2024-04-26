@@ -6,6 +6,7 @@
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <functional>
@@ -23,7 +24,8 @@ namespace eicrecon {
       edm4hep::SimTrackerHitCollection
     >,
     algorithms::Output<
-      edm4eic::RawTrackerHitCollection
+      edm4eic::RawTrackerHitCollection,
+      edm4eic::MCRecoTrackerHitAssociationCollection
     >
   >;
 
@@ -35,7 +37,7 @@ namespace eicrecon {
     SiliconTrackerDigi(std::string_view name)
       : SiliconTrackerDigiAlgorithm{name,
                             {"inputHitCollection"},
-                            {"outputRawHitCollection"},
+                            {"outputRawHitCollection","outputHitAssociations"},
                             "Apply threshold, digitize within ADC range, "
                             "convert time with smearing resolution."} {}
 

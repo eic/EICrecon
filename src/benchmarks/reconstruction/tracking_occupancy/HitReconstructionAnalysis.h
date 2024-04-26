@@ -28,7 +28,6 @@ private:
             "SiEndcapTrackerRecHits",      // End Cap tracker
           // MPGD
             "MPGDBarrelRecHits",
-            "MPGDDIRCRecHits",
             "OuterMPGDBarrelRecHits",
             "ForwardMPGDEndcapRecHits",
             "BackwardMPGDEndcapRecHits",
