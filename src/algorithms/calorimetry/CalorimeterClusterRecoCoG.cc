@@ -124,8 +124,17 @@ namespace eicrecon {
         // 3. find mchit's highest energy MCParticle
         double eMcPar = 0.;
         double eMcMax = 0.;
+        double eContribSum = 0.;
+        double eContribMax = 0.;
         uint32_t iMcMax = 0;
         for (uint32_t iContrib = 0; const auto& contrib : mchit->getContributions()) {
+
+          // increment sum, exit if current max > remaining energy
+          eContribSum += contrib.getEnergy() / m_cfg.sampFrac;
+          eContribMax = mchit->getContributions(iMcMax).getEnergy() / m_cfg.sampFrac;
+          if (eContribMax >= (mchit->getEnergy() - eContribSum)) break;
+
+          // check if contributor's energy is greater than current max
           eMcPar = contrib.getParticle().getEnergy();
           if (eMcPar > eMcMax) {
             eMcMax = eMcPar;
