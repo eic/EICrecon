@@ -23,7 +23,7 @@
 
 // Cluster struct
 struct FDTrackerCluster {
-  int cellID{0};
+  long cellID{0};
   double x{0.0};
   double y{0.0};
   double energy{0.0};
