@@ -20,7 +20,7 @@ private:
   VariadicPodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
   VariadicPodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
-  Service<DD4hep_service> m_geoSvc {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
   ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
 
@@ -32,7 +32,7 @@ public:
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     // Setup algorithm
     m_algo->applyConfig(config());
-    m_algo->init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
+    m_algo->init(logger());
 
   }
 
