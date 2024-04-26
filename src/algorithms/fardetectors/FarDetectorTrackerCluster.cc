@@ -90,7 +90,7 @@ namespace eicrecon {
 
     // Set up clustering variables
     ROOT::VecOps::RVec<bool> available(id.size(), 1);
-    auto indices = Enumerate(id);    
+    auto indices = Enumerate(id);
 
     // Loop while there are unclustered hits
     while(ROOT::VecOps::Any(available)){
@@ -140,7 +140,7 @@ namespace eicrecon {
         float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
         weightSum += weight;
         localPos  += pos*weight;
-        
+
         //Time
         clusterT.push_back(t[index]);
 
@@ -176,7 +176,7 @@ namespace eicrecon {
 
     // Get context of first hit
     const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].cellID);
-       
+
     for(auto cluster: clusters){
       auto hitPos = outputClusters.create();
 
