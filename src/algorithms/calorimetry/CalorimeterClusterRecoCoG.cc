@@ -127,6 +127,9 @@ namespace eicrecon {
         uint32_t iMaxPar = 0;
         for (uint32_t iContrib = 0; const auto& contrib : mchit->getContributions()) {
 
+          // skip if same contributor
+          if (mchit->getContributions(iMaxPar).getParticle().getObjectID() == contrib.getParticle().getObjectID()) continue;
+
           // increment sum, exit if current max > remaining energy
           eConSum += contrib.getEnergy() / m_cfg.sampFrac;
           eConMax = mchit->getContributions(iMaxPar).getEnergy() / m_cfg.sampFrac;
