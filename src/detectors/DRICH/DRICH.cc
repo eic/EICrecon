@@ -78,7 +78,7 @@ extern "C" {
     // get RICH geo service
     auto richGeoSvc = app->GetService<RichGeo_service>();
     auto dd4hepGeo = richGeoSvc->GetDD4hepGeo();
-    try {
+    if (dd4hepGeo->world().children().contains("DRICH")) {
       auto actsGeo = richGeoSvc->GetActsGeo("DRICH");
       auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
       auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
@@ -92,8 +92,6 @@ extern "C" {
       gas_track_cfg.filter_surfaces.push_back(filter_surface);
       gas_track_cfg.target_surfaces = gas_tracking_planes;
       gas_track_cfg.track_point_cut = gas_track_point_cut;
-    } catch(const std::runtime_error &e) {
-      // detector not found in the geometry
     }
 
     // IRT PID
