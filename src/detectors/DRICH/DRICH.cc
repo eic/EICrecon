@@ -1,9 +1,11 @@
 // Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
