@@ -71,25 +71,30 @@ extern "C" {
       {1000, 0.00}
     };
 
+    // Track propagation
+    TrackPropagationConfig aerogel_track_cfg;
+    TrackPropagationConfig gas_track_cfg;
+
     // get RICH geo service
     auto richGeoSvc = app->GetService<RichGeo_service>();
-    auto actsGeo = richGeoSvc->GetActsGeo("DRICH");
-    auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
-    auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
-    auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 10);
-    auto gas_track_point_cut = actsGeo->TrackPointCut(richgeo::kGas);
-    auto filter_surface = gas_tracking_planes.back();
-    // track propagation to each radiator
-    TrackPropagationConfig aerogel_track_cfg{
-      .filter_surfaces{filter_surface},
-      .target_surfaces = aerogel_tracking_planes,
-      .track_point_cut = aerogel_track_point_cut
-    };
-    TrackPropagationConfig gas_track_cfg{
-      .filter_surfaces{filter_surface},
-      .target_surfaces = gas_tracking_planes,
-      .track_point_cut = gas_track_point_cut
-    };
+    auto dd4hepGeo = richGeoSvc->GetDD4hepGeo();
+    try {
+      auto actsGeo = richGeoSvc->GetActsGeo("DRICH");
+      auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
+      auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
+      auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 10);
+      auto gas_track_point_cut = actsGeo->TrackPointCut(richgeo::kGas);
+      auto filter_surface = gas_tracking_planes.back();
+      // track propagation to each radiator
+      aerogel_track_cfg.filter_surfaces.push_back(filter_surface);
+      aerogel_track_cfg.target_surfaces = aerogel_tracking_planes;
+      aerogel_track_cfg.track_point_cut = aerogel_track_point_cut;
+      gas_track_cfg.filter_surfaces.push_back(filter_surface);
+      gas_track_cfg.target_surfaces = gas_tracking_planes;
+      gas_track_cfg.track_point_cut = gas_track_point_cut;
+    } catch(const std::runtime_error &e) {
+      // detector not found in the geometry
+    }
 
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
