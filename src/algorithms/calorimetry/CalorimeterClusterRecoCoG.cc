@@ -122,27 +122,24 @@ namespace eicrecon {
         }
 
         // 3. find mchit's highest energy MCParticle
-        double eMcPar = 0.;
-        double eMcMax = 0.;
-        double eContribSum = 0.;
-        double eContribMax = 0.;
-        uint32_t iMcMax = 0;
+        double eConSum = 0.;
+        double eConMax = 0.;
+        uint32_t iMaxPar = 0;
         for (uint32_t iContrib = 0; const auto& contrib : mchit->getContributions()) {
 
           // increment sum, exit if current max > remaining energy
-          eContribSum += contrib.getEnergy() / m_cfg.sampFrac;
-          eContribMax = mchit->getContributions(iMcMax).getEnergy() / m_cfg.sampFrac;
-          if (eContribMax >= (mchit->getEnergy() - eContribSum)) break;
+          eConSum += contrib.getEnergy() / m_cfg.sampFrac;
+          eConMax = mchit->getContributions(iMaxPar).getEnergy() / m_cfg.sampFrac;
+          if (eConMax >= (mchit->getEnergy() - eConSum)) break;
 
-          // check if contributor's energy is greater than current max
-          eMcPar = contrib.getParticle().getEnergy();
-          if (eMcPar > eMcMax) {
-            eMcMax = eMcPar;
-            iMcMax = iContrib;
+          // if contribution is bigger than max, update
+          if (contrib.getEnergy() > eConMax) {
+            eConMax = contrib.getEnergy();
+            iMaxPar = iContrib;
           }
           ++iContrib;
         }
-        const auto& mcp = mchit->getContributions(iMcMax).getParticle();
+        const auto& mcp = mchit->getContributions(iMaxPar).getParticle();
 
         debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
         debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
