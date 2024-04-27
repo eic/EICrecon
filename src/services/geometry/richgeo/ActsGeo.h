@@ -13,10 +13,7 @@
 #include <string>
 #include <vector>
 
-// Forward declarations
-namespace Acts {
-  class Surface;
-}
+#include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace richgeo {
   class ActsGeo {
@@ -27,7 +24,7 @@ namespace richgeo {
       ~ActsGeo() {}
 
       // generate list ACTS disc surfaces, for a given radiator
-      std::vector<std::shared_ptr<Acts::Surface>> TrackingPlanes(int radiator, int numPlanes);
+      std::vector<eicrecon::SurfaceConfig> TrackingPlanes(int radiator, int numPlanes);
 
       // generate a cut to remove any track points that should not be used
       std::function<bool(edm4eic::TrackPoint)> TrackPointCut(int radiator);
