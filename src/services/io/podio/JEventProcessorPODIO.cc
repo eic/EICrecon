@@ -149,7 +149,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
-	    "HadronicFinalState",
+            "HadronicFinalState",
 
             // Track projections
             "CalorimeterTrackProjections",
