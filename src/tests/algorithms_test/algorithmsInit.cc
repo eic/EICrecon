@@ -4,7 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DDSegmentation/Segmentation.h>
+#include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>

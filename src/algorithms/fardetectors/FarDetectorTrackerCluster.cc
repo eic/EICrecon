@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Simon Gardner
 
+#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
+#include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <sys/types.h>

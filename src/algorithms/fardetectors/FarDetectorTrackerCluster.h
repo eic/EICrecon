@@ -4,14 +4,14 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/Segmentations.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/Segmentation.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/geo.h>
 // Event Model related classes
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
+#include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <string>

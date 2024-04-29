@@ -4,26 +4,22 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/TrackerHitCollection.h>
-#include <edm4hep/Vector3f.h>
-#include <podio/RelationRange.h>
+#include <edm4eic/unit_system.h>
+#include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <gsl/pointers>
-#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
+#include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
 
 TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
   eicrecon::FarDetectorTrackerCluster algo("FarDetectorTrackerCluster");
