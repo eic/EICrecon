@@ -80,7 +80,7 @@ namespace eicrecon {
     std::function<double(double, double, double, int)> weightFunc;
 
   private:
-    std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
+    std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
   };
 
 } // eicrecon
