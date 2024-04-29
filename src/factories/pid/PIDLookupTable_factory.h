@@ -16,7 +16,6 @@ namespace eicrecon {
 
 struct PIDLookupTableConfig {
     std::string filename;
-    std::string url;
 };
 
 class PIDLookupTable_factory : public JOmniFactory<PIDLookupTable_factory, PIDLookupTableConfig> {
@@ -26,7 +25,6 @@ private:
     PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_out {this};
 
     ParameterRef<std::string> m_filename {this, "filename", config().filename, "Relative to current working directory"};
-    ParameterRef<std::string> m_url {this, "url", config().url, "Only used if not found via filename"};
     Service<PIDLookupTable_service> m_lut_svc {this};
 
     std::mt19937 m_gen;
@@ -35,7 +33,10 @@ private:
 
 public:
     void Configure() {
-        m_lut = m_lut_svc().FetchTable(m_filename(), m_url());
+        m_lut = m_lut_svc().load(m_filename());
+	if (!m_lut) {
+            throw std::runtime_error("LUT table not available");
+	}
     }
 
     void ChangeRun(int64_t run_number) {

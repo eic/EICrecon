@@ -19,8 +19,7 @@ class PIDLookupTable_service : public JService {
 
 public:
 
-    const PIDLookupTable* FetchTable(std::string filename, std::string url) {
-
+    const PIDLookupTable* load(std::string filename) {
         std::lock_guard<std::mutex> lock(m_mutex);
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
@@ -28,10 +27,8 @@ public:
             LOG << "Loading PID lookup table: " << filename << LOG_END;
 
             if (!std::filesystem::exists(filename)) {
-                LOG << "PID lookup table '" << filename << "' not found. Attempting to download..." << LOG_END;
-                std::ostringstream oss;
-                oss << "curl -k -o " << filename << " " << url;
-                system(oss.str().c_str());
+                LOG << "PID lookup table '" << filename << "' not found." << LOG_END;
+		return nullptr;
             }
 
             lut->LoadFile(filename); // LoadFile can except

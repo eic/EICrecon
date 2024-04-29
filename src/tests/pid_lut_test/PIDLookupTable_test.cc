@@ -104,9 +104,7 @@ TEST_CASE("PIDLookupTable_LoadFile") {
     //lut.LoadFile("hpdirc_positive.lut_hidden");
 
     PIDLookupTable_service svc;
-    const PIDLookupTable& lut = *(svc.FetchTable(
-         "hpdirc_positive.lut",
-         "https://raw.githubusercontent.com/nathanwbrei/fastpid/master/hpdirc_positive.lut"));
+    const PIDLookupTable& lut = *(svc.load("calibrations/hpdirc_positive.lut"));
 
     REQUIRE(lut.GetMomentumBinning().lower_bound == 0.20);
     REQUIRE(lut.GetMomentumBinning().upper_bound == 10.2);
