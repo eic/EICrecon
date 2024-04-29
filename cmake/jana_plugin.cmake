@@ -392,15 +392,16 @@ endmacro()
 # Adds Torch for a plugin
 macro(plugin_add_torch _name)
 
-    if(NOT TORCH_FOUND)
-        find_package(Torch REQUIRED PATHS "/usr/local/lib/python3.10/site-packages/torch/share/cmake/Torch")
-    endif()
+  if(NOT TORCH_FOUND)
+    find_package(
+      Torch REQUIRED PATHS
+      "/usr/local/lib/python3.10/site-packages/torch/share/cmake/Torch")
+  endif()
 
-    # Add include directories
-    plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${TORCH_INCLUDE_DIR})
+  # Add include directories
+  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${TORCH_INCLUDE_DIR})
 
-    # Add libraries
-    plugin_link_libraries(${PLUGIN_NAME} ${TORCH_LIBRARIES})
-
+  # Add libraries
+  plugin_link_libraries(${PLUGIN_NAME} ${TORCH_LIBRARIES})
 
 endmacro()
