@@ -47,6 +47,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
+            "MCBeamElectrons",
+            "MCBeamProtons",
+            "MCScatteredElectrons",
+            "MCScatteredProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -58,9 +62,30 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "SiBarrelVertexRecHits",
             "SiEndcapTrackerRecHits",
 
+            "SiBarrelRawHits",
+            "SiBarrelVertexRawHits",
+            "SiEndcapTrackerRawHits",
+
+            "SiBarrelHits",
+            "VertexBarrelHits",
+            "TrackerEndcapHits",
+
+            "SiBarrelHitAssociations",
+            "SiBarrelVertexHitAssociations",
+            "SiEndcapHitAssociations",
+
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
+
+            "TOFBarrelRawHit",
+            "TOFEndcapRawHits",
+
+            "TOFBarrelHits",
+            "TOFEndcapHits",
+
+            "TOFBarrelHitAssociations",
+            "TOFEndcapHitAssociations",
 
             // DRICH
             "DRICHRawHits",
@@ -70,22 +95,49 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
 
+            // PFRICH
+            "RICHEndcapNRawHits",
+            "RICHEndcapNRawHitsAssociations",
+
             // MPGD
             "MPGDBarrelRecHits",
-            "MPGDDIRCRecHits",
             "OuterMPGDBarrelRecHits",
             "BackwardMPGDEndcapRecHits",
             "ForwardMPGDEndcapRecHits",
 
+            "MPGDBarrelRawHits",
+            "OuterMPGDBarrelRawHits",
+            "BackwardMPGDEndcapRawHits",
+            "ForwardMPGDEndcapRawHits",
+
+            "MPGDBarrelHits",
+            "OuterMPGDBarrelHits",
+            "BackwardMPGDEndcapHits",
+            "ForwardMPGDEndcapHits",
+
+            "MPGDBarrelHitAssociations",
+            "OuterMPGDBarrelHitAssociations",
+            "BackwardMPGDEndcapAssociations",
+            "ForwardMPGDHitAssociations",
+
             // LOWQ2 hits
             "TaggerTrackerRawHits",
+            "TaggerTrackerHitAssociations",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
+            "B0TrackerRawHits",
+            "B0TrackerHits",
+            "B0TrackerHitAssociations",
 
-            //
+            "ForwardRomanPotRecHits",
+            "ForwardOffMTrackerRecHits",
+
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
+
+            "ForwardRomanPotHitAssociations",
+            "ForwardOffMTrackerHitAssociations",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -95,7 +147,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
+            "MCScatteredElectronAssociations", // Remove if/when used internally
+            "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
+            "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
             "CentralCKFTrajectories",
@@ -115,6 +170,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedJets",
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
+            "ScatteredElectronsTruth",
+            "ScatteredElectronsEMinusPz",
 
             // Track projections
             "CalorimeterTrackProjections",
@@ -198,10 +255,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCRawHits",
             "HcalFarForwardZDCRecHits",
             "HcalFarForwardZDCSubcellHits",
-            "HcalFarForwardZDCProtoClusters",
             "HcalFarForwardZDCClusters",
             "HcalFarForwardZDCClusterAssociations",
-            "HcalFarForwardZDCProtoClustersBaseline",
             "HcalFarForwardZDCClustersBaseline",
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",

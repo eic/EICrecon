@@ -24,7 +24,7 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalLumiSpecRawHits", {"LumiSpecCALHits"}, {"EcalLumiSpecRawHits"},
+          "EcalLumiSpecRawHits", {"EcalLumiSpecHits"}, {"EcalLumiSpecRawHits"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
             .tRes = 0.0 * dd4hep::ns,
@@ -34,6 +34,7 @@ extern "C" {
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
+            .readout = "EcalLumiSpecHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -48,20 +49,19 @@ extern "C" {
             .thresholdFactor = 0.0,
             .thresholdValue = 2.0,
             .sampFrac = 1.0,
-            .readout = "LumiSpecCALHits",
-            .sectorField = "sector",
+            .readout = "EcalLumiSpecHits",
           },
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-          "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "LumiSpecCALHits"}, {"EcalLumiSpecTruthProtoClusters"},
+          "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecHits"}, {"EcalLumiSpecTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "EcalLumiSpecIslandProtoClusters", {"EcalLumiSpecRecHits"}, {"EcalLumiSpecIslandProtoClusters"},
           {
             .adjacencyMatrix = "(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)",
-            .readout = "LumiSpecCALHits",
+            .readout = "EcalLumiSpecHits",
             .sectorDist = 0.0 * dd4hep::cm,
             .splitCluster=true,
             .minClusterHitEdep = 1.0 * dd4hep::MeV,
@@ -76,7 +76,7 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalLumiSpecClusters",
             {"EcalLumiSpecIslandProtoClusters",  // edm4eic::ProtoClusterCollection
-             "LumiSpecCALHits"},                 // edm4hep::SimCalorimeterHitCollection
+             "EcalLumiSpecHits"},                // edm4hep::SimCalorimeterHitCollection
             {"EcalLumiSpecClusters",             // edm4eic::Cluster
              "EcalLumiSpecClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -93,7 +93,7 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalLumiSpecTruthClusters",
             {"EcalLumiSpecTruthProtoClusters",        // edm4eic::ProtoClusterCollection
-             "LumiSpecCALHits"},                      // edm4hep::SimCalorimeterHitCollection
+             "EcalLumiSpecHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"EcalLumiSpecTruthClusters",             // edm4eic::Cluster
              "EcalLumiSpecTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

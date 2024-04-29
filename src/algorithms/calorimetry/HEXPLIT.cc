@@ -17,6 +17,7 @@
 #include <cmath>
 #include <gsl/pointers>                            // for not_null
 #include <vector>
+
 #include "HEXPLIT.h"
 #include "algorithms/calorimetry/HEXPLITConfig.h"
 
@@ -72,11 +73,7 @@ const std::vector<double> HEXPLIT::subcell_offsets_y =[]() {
   return y;
 }();
 
-void HEXPLIT::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-    m_detector = detector;
-
-}
+void HEXPLIT::init() { }
 
 void HEXPLIT::process(const HEXPLIT::Input& input,
                       const HEXPLIT::Output& output) const {
@@ -157,7 +154,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
       }
       catch (...){
         // do this to prevent errors when running the test on the mock detector
-        m_log->warn("Cannot find transformation from local to global coordinates.");
+        warning("Cannot find transformation from local to global coordinates.");
         global_position = local_position;
       }
 
