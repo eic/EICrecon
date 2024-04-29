@@ -31,7 +31,7 @@ public:
     readout.setIDDescriptor(id_desc);
     detector->add(id_desc);
     detector->add(readout);
-    
+
     dd4hep::Readout readoutTracker(std::string("MockTrackerHits"));
     dd4hep::IDDescriptor id_desc_tracker("MockTrackerHits", "system:8,layer:8,x:8,y:8");
     //Create segmentation with 1x1 mm pixels
