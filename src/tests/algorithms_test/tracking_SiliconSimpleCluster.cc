@@ -48,7 +48,7 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      0.0  // int32 timeStamp        
+      0.0  // int32 timeStamp
     );
 
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
@@ -66,14 +66,14 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 10}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      5.0  // int32 timeStamp        
+      5.0  // int32 timeStamp
     );
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 10}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      5.0  // int32 timeStamp        
+      5.0  // int32 timeStamp
     );
-    
+
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
 
     REQUIRE( clusterPositions.size() == 2 );
@@ -86,14 +86,14 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      5.0 // int32 timeStamp        
+      5.0 // int32 timeStamp
     );
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      5.0 // int32 timeStamp        
+      5.0 // int32 timeStamp
     );
-    
+
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
 
     REQUIRE( clusterPositions.size() == 1 );
@@ -107,14 +107,14 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      0.0 // int32 timeStamp        
+      0.0 // int32 timeStamp
     );
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      1.1*cfg.time_limit // int32 timeStamp        
+      1.1*cfg.time_limit // int32 timeStamp
     );
-    
+
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
 
     REQUIRE( clusterPositions.size() == 2 );
@@ -134,19 +134,19 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
       pixelCharges[0], // int32 charge,
-      0.0 // int32 timeStamp        
+      0.0 // int32 timeStamp
     );
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
       pixelCharges[1], // int32 charge,
-      pixel2Time // int32 timeStamp        
+      pixel2Time // int32 timeStamp
     );
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", pixel3[0]}, {"y", pixel3[1]}}), // std::uint64_t cellID,
       pixelCharges[2], // int32 charge,
-      0.0 // int32 timeStamp        
+      0.0 // int32 timeStamp
     );
-    
+
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
 
     if(pixel2Time < cfg.time_limit) {
