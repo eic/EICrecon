@@ -80,9 +80,9 @@ extern "C" {
         outputClusterCollectionNames,
         {
           .readout = "TaggerTrackerHits",
-          .xField  = "x",
-          .yField  = "y",
-          .time_limit = 10 * edm4eic::unit::ns,
+          .x_field  = "x",
+          .y_field  = "y",
+          .hit_time_limit = 10 * edm4eic::unit::ns,
         },
         app
     ));

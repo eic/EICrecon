@@ -35,13 +35,13 @@ namespace eicrecon {
     try {
       m_seg    = m_detector->readout(m_cfg.readout).segmentation();
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-      if (!m_cfg.xField.empty()) {
-        m_x_idx = m_id_dec->index(m_cfg.xField);
-        m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
+      if (!m_cfg.x_field.empty()) {
+        m_x_idx = m_id_dec->index(m_cfg.x_field);
+        m_log->debug("Find layer field {}, index = {}",  m_cfg.x_field, m_x_idx);
       }
-      if (!m_cfg.yField.empty()) {
-        m_y_idx = m_id_dec->index(m_cfg.yField);
-        m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
+      if (!m_cfg.y_field.empty()) {
+        m_y_idx = m_id_dec->index(m_cfg.y_field);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
       }
     } catch (...) {
       m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
@@ -121,7 +121,7 @@ namespace eicrecon {
         auto index  = clusterList[0];
 
         // Finds neighbours of cluster within time limit
-        auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
+        auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.hit_time_limit);
 
         // Adds the found hits to the cluster
         clusterList = Concatenate(clusterList,indices[filter]);
