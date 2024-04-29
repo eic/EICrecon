@@ -171,7 +171,7 @@ void PhotoMultiplierHitDigi::process(
                 if(!data.sim_hit_indices.empty()) {
                   for(auto i : data.sim_hit_indices) {
                     auto hit_assoc = hit_assocs->create();
-                    hit_assoc.setWeight(1.0); // not used
+                    hit_assoc.setWeight(1.0 / data.size()); // not used
                     hit_assoc.setRawHit(raw_hit);
 #if EDM4EIC_VERSION_MAJOR >= 6
                     hit_assoc.setSimHit(sim_hits->at(i));
