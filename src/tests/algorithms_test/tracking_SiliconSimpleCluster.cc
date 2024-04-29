@@ -28,10 +28,10 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
   logger->set_level(spdlog::level::trace);
 
   eicrecon::FarDetectorTrackerClusterConfig cfg;
-  cfg.time_limit = 10.0 *edm4eic::unit::ns;
+  cfg.hit_time_limit = 10.0 * edm4eic::unit::ns;
   cfg.readout    = "MockTrackerHits";
-  cfg.xField     = "x";
-  cfg.yField     = "y";
+  cfg.x_field    = "x";
+  cfg.y_field    = "y";
 
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc = detector->readout(cfg.readout).idSpec();
@@ -108,7 +108,7 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
       5.0, // int32 charge,
-      1.1*cfg.time_limit // int32 timeStamp
+      1.1 * cfg.hit_time_limit // int32 timeStamp
     );
 
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
@@ -124,7 +124,7 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
     // Check I and L shape clusters
     auto pixel3       = GENERATE(std::vector<int>{2,0}, std::vector<int>{1,1});
     auto pixelCharges = GENERATE(std::vector<int>{5,10,5}, std::vector<int>{10,5,5});
-    float pixel2Time    = GENERATE_COPY(0, 1.1*cfg.time_limit);
+    float pixel2Time    = GENERATE_COPY(0, 1.1 * cfg.hit_time_limit);
 
     edm4eic::RawTrackerHitCollection hits_coll;
     hits_coll.create(
@@ -145,7 +145,7 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
 
     std::vector<FDTrackerCluster> clusterPositions = algo.ClusterHits(hits_coll);
 
-    if(pixel2Time < cfg.time_limit) {
+    if(pixel2Time < cfg.hit_time_limit) {
       REQUIRE( clusterPositions.size() == 1 );
       REQUIRE( clusterPositions[0].rawHits.size() == 3 );
     }
