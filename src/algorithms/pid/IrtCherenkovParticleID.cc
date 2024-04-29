@@ -220,7 +220,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
             if(hit_assoc.getRawHit().isAvailable()) {
               if(hit_assoc.getRawHit().id() == raw_hit.id()) {
 #if EDM4EIC_VERSION_MAJOR >= 6
-                  mc_photon = hit_assoc.getSimHit().getMCParticle();
+                mc_photon = hit_assoc.getSimHit().getMCParticle();
 #else
                 // hit association found, get the MC photon and break the loop
                 if(hit_assoc.simHits_size() > 0) {
