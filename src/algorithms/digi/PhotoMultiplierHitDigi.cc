@@ -178,7 +178,7 @@ void PhotoMultiplierHitDigi::process(
 #else
                     hit_assoc.addToSimHits(sim_hits->at(i));
 #endif
-		  }
+                  }
                 }
             }
         }
