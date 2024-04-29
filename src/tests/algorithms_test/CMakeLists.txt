@@ -5,6 +5,7 @@ get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 add_executable(
   ${TEST_NAME}
   algorithmsInit.cc calorimetry_CalorimeterIslandCluster.cc
+  tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc calorimetry_HEXPLIT.cc pid_MergeTracks.cc
   pid_MergeParticleID.cc)
 
@@ -12,6 +13,7 @@ add_executable(
 # https://github.com/JeffersonLab/JANA2/issues/151
 target_link_libraries(
   ${TEST_NAME} PRIVATE Catch2::Catch2WithMain algorithms_calorimetry_library
+                       algorithms_fardetectors_library
                        algorithms_pid_library podio::podio podio::podioRootIO)
 
 # As-needed fails due to absent podio symbols in libJANA.so

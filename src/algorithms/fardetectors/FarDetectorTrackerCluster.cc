@@ -18,7 +18,7 @@
 
 namespace eicrecon {
 
-  void FarDetectorTrackerCluster::init(std::shared_ptr<spdlog::logger> log) {
+  void FarDetectorTrackerCluster::init(std::shared_ptr<spdlog::logger>& log) {
 
     m_log = log;
     m_detector = algorithms::GeoSvc::instance().detector();

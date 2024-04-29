@@ -54,7 +54,7 @@ namespace eicrecon {
                             "Simple weighted clustering of hits by x-y component of single detector element segmentation"} {}
 
     /** One time initialization **/
-    void init(std::shared_ptr<spdlog::logger>);
+    void init(std::shared_ptr<spdlog::logger>& logger);
 
     /** Event by event processing **/
     void process(const Input&, const Output&) const final;
