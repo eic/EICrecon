@@ -4,6 +4,7 @@
 #pragma once
 
 #include "algorithms/digi/SiliconTrackerDigi.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -17,7 +18,9 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input {this};
+
     PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output {this};
+    PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assoc_output {this};
 
     ParameterRef<double> m_threshold {this, "threshold", config().threshold};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution};
@@ -33,7 +36,8 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_sim_hits_input()}, {m_raw_hits_output().get()});
+        m_algo->process({m_sim_hits_input()},
+                        {m_raw_hits_output().get(),m_assoc_output().get()});
     }
 };
 

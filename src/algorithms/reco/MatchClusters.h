@@ -63,7 +63,7 @@ namespace eicrecon {
 
       // reconstruct a neutral cluster
       // (for now assuming the vertex is at (0,0,0))
-      edm4eic::ReconstructedParticle reconstruct_neutral(
+      edm4eic::MutableReconstructedParticle reconstruct_neutral(
         const edm4eic::Cluster *cluster,
         const double mass, const int32_t pdg) const;
 
