@@ -101,7 +101,7 @@ TEST_CASE("PIDLookupTable_Lookup") {
 
 TEST_CASE("PIDLookupTable_LoadFile") {
     PIDLookupTable_service svc;
-    const PIDLookupTable *lut = svc.load("calibrations/hpdirc_positive.lut")
+    const PIDLookupTable *lut = svc.load("calibrations/hpdirc_positive.lut");
     if (!_lut) {
       SKIP("Missing calibrations/hpdirc_positive.lut");
     }
