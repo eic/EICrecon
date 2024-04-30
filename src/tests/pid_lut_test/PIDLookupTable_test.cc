@@ -100,28 +100,28 @@ TEST_CASE("PIDLookupTable_Lookup") {
 }
 
 TEST_CASE("PIDLookupTable_LoadFile") {
-    //PIDLookupTable lut;
-    //lut.LoadFile("hpdirc_positive.lut_hidden");
-
     PIDLookupTable_service svc;
-    const PIDLookupTable& lut = *(svc.load("calibrations/hpdirc_positive.lut"));
+    const PIDLookupTable *lut = svc.load("calibrations/hpdirc_positive.lut")
+    if (!_lut) {
+      SKIP("Missing calibrations/hpdirc_positive.lut");
+    }
 
-    REQUIRE(lut.GetMomentumBinning().lower_bound == 0.20);
-    REQUIRE(lut.GetMomentumBinning().upper_bound == 10.2);
-    REQUIRE(lut.GetMomentumBinning().bin_count == 50);
+    REQUIRE(lut->GetMomentumBinning().lower_bound == 0.20);
+    REQUIRE(lut->GetMomentumBinning().upper_bound == 10.2);
+    REQUIRE(lut->GetMomentumBinning().bin_count == 50);
 
-    REQUIRE(lut.GetEtaBinning().lower_bound == 25.0);
-    REQUIRE(lut.GetEtaBinning().upper_bound == 161.0);
-    REQUIRE(lut.GetEtaBinning().bin_count == 136);
+    REQUIRE(lut->GetEtaBinning().lower_bound == 25.0);
+    REQUIRE(lut->GetEtaBinning().upper_bound == 161.0);
+    REQUIRE(lut->GetEtaBinning().bin_count == 136);
 
-    REQUIRE(lut.GetPhiBinning().lower_bound == 0.0);
-    REQUIRE(lut.GetPhiBinning().upper_bound == 30.5);
-    REQUIRE(lut.GetPhiBinning().bin_count == 61);
+    REQUIRE(lut->GetPhiBinning().lower_bound == 0.0);
+    REQUIRE(lut->GetPhiBinning().upper_bound == 30.5);
+    REQUIRE(lut->GetPhiBinning().bin_count == 61);
 
     const PIDLookupTable::Entry* result;
     // Retrieve line: 211 1 4.00 81.00 10.00 0.4346 0.5645 0.0009 0.0000
     // Step sizes are: 0.2, 1.0, 0.5
-    result = lut.Lookup(211, 1, 4.1, 81.5, 10.25);
+    result = lut->Lookup(211, 1, 4.1, 81.5, 10.25);
     REQUIRE(result != nullptr);
     REQUIRE(result->prob_electron == 0.4346);
     REQUIRE(result->prob_pion == 0.5645);
@@ -130,7 +130,7 @@ TEST_CASE("PIDLookupTable_LoadFile") {
 
     // Retrieve line: 321 1 5.40 136.00 14.00 0.0308 0.0463 0.9229 0.0000
     // Step sizes are: 0.2, 1.0, 0.5
-    result = lut.Lookup(321, 1, 5.5, 136.001, 14.4999);
+    result = lut->Lookup(321, 1, 5.5, 136.001, 14.4999);
     REQUIRE(result != nullptr);
     REQUIRE(result->prob_electron == 0.0308);
     REQUIRE(result->prob_pion == 0.0463);
@@ -139,7 +139,7 @@ TEST_CASE("PIDLookupTable_LoadFile") {
 
     // Retrieve line: 11 1 0.20 25.00 15.00 0.0000 0.0000 0.0000 0.0000
     // Step sizes are: 0.2, 1.0, 0.5
-    result = lut.Lookup(11, 1, 0.3, 25.5, 15.2);
+    result = lut->Lookup(11, 1, 0.3, 25.5, 15.2);
     REQUIRE(result != nullptr);
     REQUIRE(result->prob_electron == 0.0);
     REQUIRE(result->prob_pion == 0.0);
