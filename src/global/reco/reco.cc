@@ -6,11 +6,14 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4hep/MCParticle.h>
 #include <algorithm>
 #include <map>
 #include <memory>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
@@ -18,6 +21,8 @@
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/FilterMatching_factory.h"
+#include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
@@ -29,12 +34,22 @@
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
 
-//
 extern "C" {
 void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
     using namespace eicrecon;
+
+    // Finds associations matched to initial scattered electrons
+    app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory< edm4eic::MCRecoParticleAssociation,
+                                                                [](auto* obj) { return obj->getSim().getObjectID();},
+                                                                edm4hep::MCParticle,
+                                                                [](auto* obj) { return obj->getObjectID(); }>>(
+          "MCScatteredElectronAssociations",
+          {"ReconstructedChargedParticleAssociations","MCScatteredElectrons"},
+          {"MCScatteredElectronAssociations","MCNonScatteredElectronAssociations"},
+          app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<MC2SmearedParticle_factory>(
             "GeneratedParticles",
@@ -151,6 +166,18 @@ void InitPlugin(JApplication *app) {
         },
         {
           "InclusiveKinematicsSigma"
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
+        "InclusiveKinematicsML",
+        {
+          "InclusiveKinematicsElectron",
+          "InclusiveKinematicsDA"
+        },
+        {
+          "InclusiveKinematicsML"
         },
         app
     ));
