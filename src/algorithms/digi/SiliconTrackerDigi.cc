@@ -4,6 +4,7 @@
 #include "SiliconTrackerDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -36,7 +37,7 @@ void SiliconTrackerDigi::process(
         const SiliconTrackerDigi::Output& output) const {
 
     const auto [sim_hits] = input;
-    auto [raw_hits] = output;
+    auto [raw_hits,associations] = output;
 
     // A map of unique cellIDs with temporary structure RawHit
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
@@ -90,6 +91,21 @@ void SiliconTrackerDigi::process(
 
     for (auto item : cell_hit_map) {
         raw_hits->push_back(item.second);
+
+        for (const auto& sim_hit : *sim_hits) {
+          if (item.first == sim_hit.getCellID()) {
+            // set association
+            auto hitassoc = associations->create();
+            hitassoc.setWeight(1.0);
+            hitassoc.setRawHit(item.second);
+#if EDM4EIC_VERSION_MAJOR >= 6
+            hitassoc.setSimHit(sim_hit);
+#else
+            hitassoc.addToSimHits(sim_hit);
+#endif
+          }
+        }
+
     }
 }
 

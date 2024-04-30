@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Simon Gardner
+// Copyright (C) 2023 - 2024, Simon Gardner
 
 #pragma once
 
@@ -20,9 +20,12 @@ private:
   VariadicPodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
   VariadicPodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
-  Service<DD4hep_service> m_geoSvc {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
-  ParameterRef<double> hit_time_limit {this, "time_limit", config().time_limit};
+  ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_x_field {this, "xField", config().x_field};
+  ParameterRef<std::string> m_y_field {this, "yField", config().y_field};
+  ParameterRef<double> m_hit_time_limit {this, "hitTimeLimit", config().hit_time_limit};
 
 public:
 
@@ -32,7 +35,7 @@ public:
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     // Setup algorithm
     m_algo->applyConfig(config());
-    m_algo->init(m_geoSvc().converter(),m_geoSvc().detector(),logger());
+    m_algo->init(logger());
 
   }
 

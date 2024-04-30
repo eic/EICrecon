@@ -146,7 +146,7 @@ namespace eicrecon {
 
   private:
 
-    static std::vector<edm4eic::Cluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
+    static std::vector<edm4eic::MutableCluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
         const auto& hits = pcl.getHits();
         const auto& weights = pcl.getWeights();
         // using map to have hits sorted by layer
@@ -162,7 +162,7 @@ namespace eicrecon {
         }
 
         // create layers
-        std::vector<edm4eic::Cluster> cl_layers;
+        std::vector<edm4eic::MutableCluster> cl_layers;
         for (const auto &[lid, layer_hits]: layer_map) {
             auto layer = reconstruct_layer(layer_hits);
             cl_layers.push_back(layer);
@@ -170,7 +170,7 @@ namespace eicrecon {
         return cl_layers;
     }
 
-    static edm4eic::Cluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
+    static edm4eic::MutableCluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
         edm4eic::MutableCluster layer;
         layer.setType(Jug::Reco::ClusterType::kClusterSlice);
         // Calculate averages
@@ -268,7 +268,7 @@ namespace eicrecon {
         return cluster;
     }
 
-    std::pair<double /* polar */, double /* azimuthal */> fit_track(const std::vector<edm4eic::Cluster> &layers) const {
+    std::pair<double /* polar */, double /* azimuthal */> fit_track(const std::vector<edm4eic::MutableCluster> &layers) const {
         int nrows = 0;
         decltype(edm4eic::ClusterData::position) mean_pos{0, 0, 0};
         for (const auto &layer: layers) {

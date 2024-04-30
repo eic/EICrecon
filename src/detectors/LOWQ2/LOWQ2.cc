@@ -6,6 +6,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <map>
@@ -17,10 +18,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
-#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "factories/meta/CollectionCollector_factory.h"
-
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -31,8 +29,13 @@ extern "C" {
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
-         {"TaggerTrackerHits"},
-         {"TaggerTrackerRawHits"},
+         {
+           "TaggerTrackerHits"
+         },
+         {
+           "TaggerTrackerRawHits",
+           "TaggerTrackerHitAssociations"
+         },
          {
            .threshold = 1.5 * dd4hep::keV,
            .timeResolution = 2 * dd4hep::ns,
@@ -49,8 +52,6 @@ extern "C" {
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
     std::vector<std::string> outputClusterCollectionNames;
-    std::vector<std::string> outputTrackTags;
-    std::vector<std::vector<std::string>> moduleClusterTags;
 
     for(int mod_id : moduleIDs){
       outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks",mod_id));
@@ -59,7 +60,6 @@ extern "C" {
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
         outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
-        moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
       }
     }
 
@@ -74,16 +74,16 @@ extern "C" {
       )
     );
 
-    // Clustering of hits in each layer
+
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
         "TaggerTrackerClustering",
         geometryDivisionCollectionNames,
         outputClusterCollectionNames,
         {
           .readout = "TaggerTrackerHits",
-          .xField  = "x",
-          .yField  = "y",
-          .time_limit = 10 * edm4eic::unit::ns,
+          .x_field  = "x",
+          .y_field  = "y",
+          .hit_time_limit = 10 * edm4eic::unit::ns,
         },
         app
     ));
