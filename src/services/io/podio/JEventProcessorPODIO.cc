@@ -121,27 +121,43 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "GeneratedParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
+            "ReconstructedBreitFrameParticles",
+            //charged particles - truth seeding
+            "ReconstructedChargedParticlesUnfiltered",
+            "ReconstructedChargedParticleAssociationsUnfiltered",
+            "ReconstructedChargedParticleIDsUnfiltered",
+            //charged particles - realistic seeding
+            "ReconstructedSeededChargedParticlesUnfiltered",
+            "ReconstructedSeededChargedParticleAssociationsUnfiltered",
+            "ReconstructedSeededChargedParticleIDsUnfiltered",
+            //charged particles - trurh seeding + ambiguous resolution solver
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedChargedParticleIDs",
+            //charged particles - realistic seeding + ambiguous resolution solver
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
-            "RconstructedChargedParticleIDs",
-            "RconstructedSeededChargedParticleIDs",
-            "ReconstructedSeededChargedParticlesFiltered",
-            "ReconstructedSeededChargedParticleFilteredAssociations",
-            "ReconstructedChargedParticleFilteredIDs",
-            "ReconstructedBreitFrameParticles",
+            "ReconstructedSeededChargedParticleIDs",
+
             "CentralTrackSegments",
             "CentralTrackVertices",
+            //tracking properties - true seeding
+            "CentralCKFTrajectoriesUnfiltered",
+            "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackParametersUnfiltered",
+             //tracking properties - realistic seeding 
+            "CentralCKFSeededTrajectoriesUnfiltered",
+            "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackParametersUnfiltered",
+             //tracking properties - true seeding + ambiguous resolution solver
             "CentralCKFTrajectories",
             "CentralCKFTracks",
             "CentralCKFTrackParameters",
+            //charged particles - trurh seeding + ambiguous resolution solver
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
-            "CentralCKFSeededTrajectoriesFiltered",
-            "CentralCKFSeededTracksFiltered",
-            "CentralCKFSeededTrackParametersFiltered",
+            
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
@@ -156,6 +172,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
+            
 
             // Track projections
             "CalorimeterTrackProjections",

@@ -1,6 +1,5 @@
-// Created by Minjung Kim (minjung.kim@lbl.gov)
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Minjung Kim
 #pragma once
 
 #include <Acts/Utilities/Logger.hpp>
@@ -21,11 +20,7 @@
 
 namespace eicrecon {
 
-/** Fitting algorithm implementation .
- *
- * \ingroup tracking
- */
-
+/** Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
 class AmbiguitySolver : public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
 public:
   AmbiguitySolver();

@@ -1,11 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Minjung Kim, Barak Schmookler,, Wouter Deconinck, Dmitry Romanov, Shujie Li
-/*
- * Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS
- *
- *
- *  Author: Minjung Kim (LBL, minjung.kim@lbl.gov)
-*/
+// Copyright (C) 2024 Minjung Kim
 #include "AmbiguitySolver.h"
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
@@ -129,7 +123,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
       for (auto* traj : input_traj) {
         const auto& trackTips = traj->tips();
         if (trackTips.empty()) {
-          m_log->warn("Empty multiTrajectory.");
+          m_log->warn("Empty multiTrajectory here in L126.");
           continue;
         }
         if (std::find(trackTips.begin(), trackTips.end(), destProxy.tipIndex()) !=
@@ -142,7 +136,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
         input_trks->trackStateContainerHolder()));
   }
-
+  int itrval = 0;
   // Loop over trajectories
   for (const auto* traj : output_trajectories) {
     // The trajectory entry indices and the multiTrajectory
@@ -156,8 +150,8 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
     // Loop over all trajectories in a multiTrajectory
     // FIXME: we only retain the first trackTips entry
     for (auto trackTip : trackTips) {
-      if (std::find(idxlist.begin(), idxlist.end(), trackTip) == idxlist.end())
-        continue;
+       if (trackTip != idxlist[itrval])
+	    continue;
       // Collect the trajectory summary info
       auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
 
@@ -293,6 +287,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         }
       });
     }
+   itrval = itrval + 1;
   }
 
   return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(tracks),

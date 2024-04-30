@@ -74,13 +74,26 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTrajectories", {"InitTrackParams", "CentralTrackerMeasurements"},
       {
+          "CentralCKFTrajectoriesUnfiltered",
+          "CentralCKFTrackParametersUnfiltered",
+          "CentralCKFTracksUnfiltered",
+          "CentralCKFActsTrajectoriesUnfiltered",
+          "CentralCKFActsTracksUnfiltered",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+      "AmbiguityResolutionSolver",
+      {"CentralCKFActsTrajectoriesUnfiltered", "CentralCKFActsTracksUnfiltered","CentralTrackerMeasurements"},
+      {
           "CentralCKFTrajectories",
           "CentralCKFTrackParameters",
           "CentralCKFTracks",
-          "CentralCKFActsTrajectories",
           "CentralCKFActsTracks",
+          "CentralCKFActsTrajectories",
       },
       app));
+
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
       "CentralTrackSeedingResults", {"CentralTrackingRecHits"}, {"CentralTrackSeedingResults"}, {},
@@ -89,23 +102,23 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFSeededTrajectories", {"CentralTrackSeedingResults", "CentralTrackerMeasurements"},
       {
-          "CentralCKFSeededTrajectories",
-          "CentralCKFSeededTrackParameters",
-          "CentralCKFSeededTracks",
-          "CentralCKFSeededActsTrajectories",
-          "CentralCKFSeededActsTracks",
+          "CentralCKFSeededTrajectoriesUnfiltered",
+          "CentralCKFSeededTrackParametersUnfiltered",
+          "CentralCKFSeededTracksUnfiltered",
+          "CentralCKFSeededActsTrajectoriesUnfiltered",
+          "CentralCKFSeededActsTracksUnfiltered",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
-      "AmbiguityResolutionSolver",
-      {"CentralCKFSeededActsTracks", "CentralCKFSeededActsTrajectories,CentralTrackerMeasurements"},
+      "SeededAmbiguityResolutionSolver",
+      {"CentralCKFSeededActsTrajectoriesUnfiltered", "CentralCKFSeededActsTracksUnfiltered","CentralTrackerMeasurements"},
       {
-          "CentralCKFSeededTrajectoriesFiltered",
-          "CentralCKFSeededTrackParametersFiltered",
-          "CentralCKFSeededTracksFiltered",
-          "CentralCKFSeededActsTracksFiltered",
-          "CentralCKFSeededActsTrajectoriesFiltered",
+          "CentralCKFSeededTrajectories",
+          "CentralCKFSeededTrackParameters",
+          "CentralCKFSeededTracks",
+          "CentralCKFSeededActsTracks",
+          "CentralCKFSeededActsTrajectories",
       },
       app));
 
