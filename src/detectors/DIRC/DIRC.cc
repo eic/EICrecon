@@ -79,7 +79,7 @@ extern "C" {
           {"MCParticles"},  // TODO: This is obviously not right. But at least this lets me test end-to-end
           {"DIRCPID"},      // TODO: I don't like this collection name either, so please change it
           {
-	    .filename="calibrations/hpdirc_positive.lut",
+            .filename="calibrations/hpdirc_positive.lut",
           },
           app
           ));

@@ -34,9 +34,9 @@ private:
 public:
     void Configure() {
         m_lut = m_lut_svc().load(m_filename());
-	if (!m_lut) {
+        if (!m_lut) {
             throw std::runtime_error("LUT table not available");
-	}
+        }
     }
 
     void ChangeRun(int64_t run_number) {
