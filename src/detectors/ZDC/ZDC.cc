@@ -15,6 +15,7 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/NeutronReconstruction_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 
 extern "C" {
@@ -159,7 +160,7 @@ extern "C" {
                 .layerDistEtaPhi = {17e-3, 18.1e-3},
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
-                .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+                .minClusterCenterEdep = 1.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
                 .minClusterNhits = 10,
             },
@@ -182,7 +183,7 @@ extern "C" {
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
            "HcalFarForwardZDCClusters",
-          {"HcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+          {"HcalFarForwardZDCImagingProtoClusters",  // edm4eic::ProtoClusterCollection
            "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
           {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
            "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -192,6 +193,13 @@ extern "C" {
             .logWeightBaseCoeffs={5.0,0.65,0.31},
             .logWeightBase_Eref=50*dd4hep::GeV,
           },
+          app   // TODO: Remove me once fixed
+        ));
+      
+        app->Add(new JOmniFactoryGeneratorT<NeutronReconstruction_factory>(
+           "HcalFarForwardZDCNeutronCandidates",
+          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+          {"HcalFarForwardZDCNeutronCandidates"}, // edm4eic::ReconstrutedParticleCollection,
           app   // TODO: Remove me once fixed
         ));
 
