@@ -17,9 +17,10 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
-plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4EIC_INCLUDE_DIR})
+plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${podio_INCLUDE_DIR}
+                           ${EDM4EIC_INCLUDE_DIR})
 
-# Add libraries (works same as target_include_directories)
-#file(COPY trainedTaggerRegressionModel.dat DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Add libraries (works same as target_include_directories) file(COPY
+# trainedTaggerRegressionModel.dat DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 plugin_link_libraries(${PLUGIN_NAME} algorithms_fardetectors_library)
 install(FILES LowQ2_DNN_CPU.weights.xml DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
