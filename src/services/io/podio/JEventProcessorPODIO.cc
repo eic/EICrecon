@@ -174,9 +174,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
-            "ScatteredElectronsEMinusPz",            
+            "ScatteredElectronsEMinusPz",
 #if EDM4EIC_VERSION_MAJOR >= 6
-	    "HadronicFinalState",
+            "HadronicFinalState",
 #endif
 
             // Track projections
