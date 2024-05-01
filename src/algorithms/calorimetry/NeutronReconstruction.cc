@@ -19,7 +19,7 @@ namespace eicrecon {
 
       const auto [clusters] = input;
       auto [out_neutrons] = output;
-        
+
       double Etot=0;
       double Emax=0;
       double x=0;
@@ -52,6 +52,6 @@ namespace eicrecon {
           }
       }
         //m_log->debug("Found {} neutron candidates", out_neutrons->size());
-        
+
     }
 }
