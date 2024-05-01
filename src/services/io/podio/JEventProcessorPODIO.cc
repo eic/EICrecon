@@ -1,6 +1,8 @@
 
 #include "JEventProcessorPODIO.h"
 
+#include <edm4eic/EDM4eicVersion.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
@@ -172,7 +174,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedJets",
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
-            "ScatteredElectronsEMinusPz",
+            "ScatteredElectronsEMinusPz",            
+#if EDM4EIC_VERSION_MAJOR >= 6
+	    "HadronicFinalState",
+#endif
 
             // Track projections
             "CalorimeterTrackProjections",
