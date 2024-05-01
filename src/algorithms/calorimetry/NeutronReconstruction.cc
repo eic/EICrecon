@@ -44,7 +44,7 @@ namespace eicrecon {
           double px=p*x/r;
           double py=p*y/r;
           double pz=p*z/r;
-          rec_part.setMomentum({px, py, pz});
+          rec_part.setMomentum({(float)px, (float)py, (float)pz});
           rec_part.setCharge(0);
           rec_part.setMass(m_neutron);
           for (const auto& cluster : *clusters){

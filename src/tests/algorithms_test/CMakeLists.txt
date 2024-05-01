@@ -6,7 +6,7 @@ add_executable(
   ${TEST_NAME}
   algorithmsInit.cc calorimetry_CalorimeterIslandCluster.cc
   calorimetry_CalorimeterHitDigi.cc calorimetry_HEXPLIT.cc pid_MergeTracks.cc
-  pid_MergeParticleID.cc)
+  pid_MergeParticleID.cc calorimetry_NeutronReconstruction.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
