@@ -20,6 +20,7 @@
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
+#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 
@@ -140,6 +141,16 @@ extern "C" {
          },
          app
     ));
+
+    // Vector reconstruction at origin
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+        "TaggerTrackerTrajectories",
+        {"TaggerTrackerProjectedTracks"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters"},
+        {},
+        app
+    ));
+
 
   }
 }

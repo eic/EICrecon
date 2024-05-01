@@ -99,22 +99,29 @@ namespace eicrecon {
       auto values = m_method->GetRegressionValues();
 
       edm4hep::Vector3f momentum = {values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]};
+
+      // log out the momentum magnitude
+      m_log->error("Momentum: {}",edm4eic::magnitude(momentum));
       momentum = momentum*m_cfg.electron_beamE;
+
+      // log out the momentum magnitude
+      m_log->error("Momentum: {}",edm4eic::magnitude(momentum));
 
       // Track parameter variables
       // TODO: Add time and momentum errors
       // Plane Point
       edm4hep::Vector2f loc(0,0); // Vertex estimate
-      // Point Error
-      edm4eic::Cov2f locError;
+      uint64_t surface = 0; //Not used in this context
       float theta   = edm4eic::anglePolar(momentum);
       float phi     = edm4eic::angleAzimuthal(momentum);
       float qOverP  = charge/edm4eic::magnitude(momentum);
-      edm4eic::Cov3f momentumError;
       float time  = 0;
-      float timeError = 0;
+      // PDG
+      int pdg = 11;
+      // Point Error
+      edm4eic::Cov6f error;
 
-      edm4eic::TrackParameters params =  outputFarDetectorMLTrackParameters->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+      edm4eic::TrackParameters params =  outputFarDetectorMLTrackParameters->create(type,surface,loc,theta,phi,qOverP,time,pdg,error);
 
       auto trajectory = outputFarDetectorMLTrajectories->create();
       trajectory.addToTrackParameters(params);

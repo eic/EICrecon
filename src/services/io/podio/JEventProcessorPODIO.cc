@@ -127,6 +127,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerM1Tracks",
             "TaggerTrackerM2Tracks",
             "TaggerTrackerProjectedTracks",
+            "TaggerTrackerTrajectories",
+            "TaggerTrackerTrackParameters",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",

@@ -135,28 +135,28 @@ void InitPlugin(JApplication *app) {
             ));
 
     // Tracker trajectory collector from ACTS and other factories
-    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Trajectory>>(
          "CombinedTrajectories",
          {
             "CentralCKFTrajectories",  // ACTS output
-            "LowQ2Trajectories"        // Low Q2 output
+            "TaggerTrackerTrajectories"        // Low Q2 output
          },
          {"CombinedTrajectories"},
          app
     ));    // Output collection name
 
     // Tracker trajectory collector from ACTS and other factories
-    app->Add(new JChainMultifactoryGeneratorT<TrackerTrajectoryCollector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Trajectory>>(
          "CombinedSeededTrajectories",
          {
             "CentralCKFSeededTrajectories",  // ACTS output
-            "LowQ2Trajectories"              // Low Q2 output
+            "TaggerTrackerTrajectories"              // Low Q2 output
          },
          {"CombinedSeededTrajectories"},
          app
     ));  // Output collection name
 
-    app->Add(new JChainMultifactoryGeneratorT<TrackPropagation_factory>(
+    app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
             "CalorimeterTrackPropagator",
             {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
             {"CalorimeterTrackProjections"},

@@ -11,7 +11,7 @@
 #include <algorithms/fardetectors/FarDetectorMLReconstruction.h>
 #include <algorithms/fardetectors/FarDetectorMLReconstructionConfig.h>
 
-#include <extensions/jana/JChainMultifactoryT.h>
+#include "extensions/jana/JOmniFactory.h"
 #include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
 #include <Evaluator/DD4hepUnits.h>
