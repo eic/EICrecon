@@ -19,6 +19,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
@@ -171,6 +172,21 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
               .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "HcalBarrelSplitMergeClusters",
+            {"HcalBarrelClusters",
+              "CalorimeterTrackProjections"},
+            {"HcalBarrelSplitMergeClusters"},
+            {
+              .minSigCut = -1,
+              .avgEP = 1.0,
+              .sigEP = 1.0
             },
             app   // TODO: Remove me once fixed
           )
