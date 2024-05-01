@@ -7,7 +7,6 @@
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
-#include <edm4eic/CalorimeterHitCollection.h> // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <spdlog/common.h>                         // for level_enum
@@ -34,18 +33,10 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
 
   NeutronReconstructionConfig cfg;
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
-
-  //create a geometry for the fake detector.
-
-
   algo.applyConfig(cfg);
   algo.init();
 
   edm4eic::ClusterCollection clust_coll;
-
-  //create two clusters with 5 hits each, add some hits to them, and then merge them to create a neutron candidate
   
   std::array<float,3> x={30*dd4hep::mm,90*dd4hep::mm,0};
   std::array<float,3> y={-30*dd4hep::mm,0*dd4hep::mm, -90*dd4hep::mm};
@@ -61,9 +52,6 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
   auto neutroncand_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   algo.process({&clust_coll}, {neutroncand_coll.get()});
 
-
-  //the number of subcell hits should be equal to the
-  //number of subcells per cell (12) times the number of cells (5)
   REQUIRE( (*neutroncand_coll).size() == 1);
   double tol=0.001;
   double E_expected=90*dd4hep::GeV;
@@ -77,6 +65,4 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().y-Py_expected)/Py_expected<tol);
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().z-Pz_expected)/Pz_expected<tol);
   
-
-
 }

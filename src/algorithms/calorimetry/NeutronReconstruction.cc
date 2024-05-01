@@ -10,6 +10,12 @@
 
 #include "algorithms/calorimetry/NeutronReconstructionConfig.h"
 
+/**
+ Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in a given ClusterCollection.
+ Its energy is the sum of the energies of the consistuent clusters, and its direction is the direction from the
+origin to the position of the most energetic cluster
+ */
+
 namespace eicrecon {
 
     void NeutronReconstruction::init() {  }
