@@ -4,7 +4,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "extensions/spdlog/SpdlogMixin.h"
 
@@ -25,13 +25,14 @@ private:
     ParameterRef<std::vector<std::string>> m_fields {this, "fields", config().fields};
     ParameterRef<std::vector<int>> m_refs {this, "refs", config().refs};
 
-    Service<DD4hep_service> m_geoSvc {this};
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

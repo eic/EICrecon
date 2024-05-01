@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023 - 2024, Simon Gardner
 
 #pragma once
 
-#include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
   struct FarDetectorTrackerClusterConfig {
 
     // Readout identifiers for dividing detector
     std::string readout{""};
-    std::string xField{"x"};
-    std::string yField{"y"};
+    std::string x_field{"x"};
+    std::string y_field{"y"};
 
     // Timing limit to add a hit to a cluster
-    double time_limit{10*dd4hep::ns};
+    double hit_time_limit{10*edm4eic::unit::ns};
 
   };
 }

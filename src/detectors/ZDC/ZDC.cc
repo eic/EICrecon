@@ -35,6 +35,7 @@ extern "C" {
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
+            .readout = "EcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -116,6 +117,7 @@ extern "C" {
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = 1.0,
+            .readout = "HcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
         ));

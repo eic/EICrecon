@@ -3,12 +3,15 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 
 extern "C" {
@@ -17,6 +20,34 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     MatrixTransferStaticConfig recon_cfg;
+
+        //Digitized hits, especially for thresholds
+        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+        "ForwardRomanPotRawHits",
+        {
+          "ForwardRomanPotHits"
+        },
+        {
+          "ForwardRomanPotRawHits",
+          "ForwardRomanPotHitAssociations"
+        },
+        {
+            .threshold = 10.0 * dd4hep::keV,
+            .timeResolution = 8,
+        },
+        app
+    ));
+
+        app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "ForwardRomanPotRecHits",
+        {"ForwardRomanPotRawHits"},
+        {"ForwardRomanPotRecHits"},
+        {
+            .timeResolution = 8,
+        },
+        app
+    ));
+
 
     //Static transport matrix for Roman Pots detectors
     recon_cfg.aX = {{2.102403743, 29.11067626},
@@ -35,9 +66,9 @@ void InitPlugin(JApplication *app) {
     recon_cfg.hit2minZ = 27099.0;
     recon_cfg.hit2maxZ = 28022.0;
 
-    recon_cfg.readout              = "ForwardRomanPotHits";
+    recon_cfg.readout              = "ForwardRomanPotRecHits";
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"ForwardRomanPotHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 
 }
 }

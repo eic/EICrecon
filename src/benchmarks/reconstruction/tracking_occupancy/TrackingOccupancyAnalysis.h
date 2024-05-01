@@ -29,7 +29,6 @@ private:
             "TrackerEndcapHits",    // End Cap tracker
           // MPGD
             "MPGDBarrelHits",
-            "MPGDDIRCHits",
             "OuterMPGDBarrelHits",
             "ForwardMPGDEndcapHits",
             "BackwardMPGDEndcapHits",

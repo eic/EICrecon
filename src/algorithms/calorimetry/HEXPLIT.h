@@ -9,13 +9,15 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <gsl/pointers>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
+#include <vector>
+
 #include "HEXPLITConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -41,7 +43,7 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
                                    {"outputSubcellHits"},
                                    "Split hits into subcell hits"} {}
 
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -61,8 +63,7 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
       static const std::vector<double>  subcell_offsets_y;
 
   private:
-    const dd4hep::Detector* m_detector;
-    std::shared_ptr<spdlog::logger> m_log;
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   };
 
