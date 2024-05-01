@@ -21,6 +21,7 @@
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

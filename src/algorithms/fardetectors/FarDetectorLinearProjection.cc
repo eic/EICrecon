@@ -49,19 +49,20 @@ namespace eicrecon {
         // Create track parameters edm4eic structure
         // TODO - populate more of the fields correctly
         std::int32_t type = 0;
+        // Surface ID not used in this context
+        std::uint64_t surface = 0;
         // Plane Point
         edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
-        // Point Error
-        edm4eic::Cov2f locError;
         float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
         float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
         float qOverP;
-        edm4eic::Cov3f momentumError;
         float time      = 0;
-        float timeError = 0;
-        float charge    = -1;
+        int32_t pdgCode = 11;
+        // Point Error
+        edm4eic::Cov6f error;
 
-        outputTracks->create(type,loc,locError,theta,phi,qOverP,momentumError,time,timeError,charge);
+        outputTracks->create(type,surface,loc,theta,phi,qOverP,time,pdgCode,error);
+
       }
 
     }
