@@ -1,46 +1,47 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023 - 2024, Simon Gardner
 
-#include <edm4hep/TrackerHit.h>
-#include <edm4eic/RawTrackerHit.h>
-
+#include <DD4hep/Handle.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <JANA/JException.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
+#include <algorithms/geo.h>
+#include <edm4hep/Vector3d.h>
+#include <fmt/core.h>
+#include <sys/types.h>
+#include <gsl/pointers>
 
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "FarDetectorTrackerCluster.h"
+#include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
+#include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
 
 namespace eicrecon {
 
+  void FarDetectorTrackerCluster::init(std::shared_ptr<spdlog::logger>& log) {
 
-  void FarDetectorTrackerCluster::init(const dd4hep::Detector* det,
-                                       const dd4hep::rec::CellIDPositionConverter* cellid,
-                                       std::shared_ptr<spdlog::logger> &logger) {
-
-    m_log = logger;
-    m_detector = det;
-    m_cellid_converter = cellid;
+    m_log = log;
+    m_detector = algorithms::GeoSvc::instance().detector();
+    m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
     if (m_cfg.readout.empty()) {
       throw JException("Readout is empty");
     }
     try {
+      m_seg    = m_detector->readout(m_cfg.readout).segmentation();
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-      if (!m_cfg.moduleField.empty()) {
-        m_module_idx = m_id_dec->index(m_cfg.moduleField);
-        m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
+      if (!m_cfg.x_field.empty()) {
+        m_x_idx = m_id_dec->index(m_cfg.x_field);
+        m_log->debug("Find layer field {}, index = {}",  m_cfg.x_field, m_x_idx);
       }
-      if (!m_cfg.layerField.empty()) {
-        m_layer_idx = m_id_dec->index(m_cfg.layerField);
-        m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
-      }
-      if (!m_cfg.xField.empty()) {
-        m_x_idx = m_id_dec->index(m_cfg.xField);
-        m_log->debug("Find layer field {}, index = {}",  m_cfg.xField, m_x_idx);
-      }
-      if (!m_cfg.yField.empty()) {
-        m_y_idx = m_id_dec->index(m_cfg.yField);
-        m_log->debug("Find layer field {}, index = {}", m_cfg.yField, m_y_idx);
+      if (!m_cfg.y_field.empty()) {
+        m_y_idx = m_id_dec->index(m_cfg.y_field);
+        m_log->debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
       }
     } catch (...) {
       m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
@@ -49,43 +50,57 @@ namespace eicrecon {
 
   }
 
-  std::unique_ptr<edm4hep::TrackerHitCollection> FarDetectorTrackerCluster::process(const edm4eic::RawTrackerHitCollection &inputhits) {
-    // TODO check if this whole method is unnecessarily complicated/inefficient
+  void FarDetectorTrackerCluster::process(
+      const FarDetectorTrackerCluster::Input& input,
+      const FarDetectorTrackerCluster::Output& output) const {
+
+    const auto [inputHitsCollections] = input;
+    auto [outputClustersCollection]  = output;
+
+    //Loop over input and output collections - Any collection should only contain hits from a single surface
+    for(size_t i=0; i<inputHitsCollections.size(); i++){
+      auto inputHits = inputHitsCollections[i];
+      if(inputHits->size() == 0) continue;
+      auto outputClusters = outputClustersCollection[i];
+
+      // Make clusters
+      auto clusters = ClusterHits(*inputHits);
+
+      // Create TrackerHits from 2D cluster positions
+      ConvertClusters(clusters, *outputClusters);
+
+    }
+  }
+
+  // Create vector of FDTrackerCluster from list of hits
+  std::vector<FDTrackerCluster> FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& inputHits) const {
+
+    std::vector<FDTrackerCluster> clusters;
 
     ROOT::VecOps::RVec<long>  id;
-    ROOT::VecOps::RVec<int>   module;
-    ROOT::VecOps::RVec<int>   layer;
     ROOT::VecOps::RVec<int>   x;
     ROOT::VecOps::RVec<int>   y;
     ROOT::VecOps::RVec<float> e;
     ROOT::VecOps::RVec<float> t;
 
     // Gather detector id positions
-    for(auto hit: inputhits){
+    for(const auto& hit: inputHits){
       auto cellID = hit.getCellID();
-      id.push_back    (cellID);
-      module.push_back(m_id_dec->get( cellID, m_module_idx ));
-      layer.push_back (m_id_dec->get( cellID, m_layer_idx  ));
-      x.push_back     (m_id_dec->get( cellID, m_x_idx      ));
-      y.push_back     (m_id_dec->get( cellID, m_y_idx      ));
-      e.push_back     (hit.getCharge());
-      t.push_back     (hit.getTimeStamp());
+      id.push_back(cellID);
+      x.push_back (m_id_dec->get( cellID, m_x_idx      ));
+      y.push_back (m_id_dec->get( cellID, m_y_idx      ));
+      e.push_back (hit.getCharge());
+      t.push_back (hit.getTimeStamp());
     }
 
     // Set up clustering variables
-    ROOT::VecOps::RVec<bool> available(module.size(), 1);
-    auto indices = Enumerate(module);
-
-    auto outputClusters = std::make_unique<edm4hep::TrackerHitCollection>();
+    ROOT::VecOps::RVec<bool> available(id.size(), 1);
+    auto indices = Enumerate(id);
 
     // Loop while there are unclustered hits
     while(ROOT::VecOps::Any(available)){
 
-      auto cluster = outputClusters->create();
-
-      double xPos      = 0;
-      double yPos      = 0;
-      double zPos      = 0;
+      dd4hep::Position localPos = {0,0,0};
       float  weightSum = 0;
 
       float esum   = 0;
@@ -97,9 +112,7 @@ namespace eicrecon {
 
       ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
-
-      // Filter to make sure everything is on the same detector layer
-      auto layerFilter = (module==module[maxIndex])*(layer==layer[maxIndex]);
+      std::vector<podio::ObjectID> clusterHits;
 
       // Loop over hits, adding neighbouring hits as relevant
       while(clusterList.size()){
@@ -108,7 +121,7 @@ namespace eicrecon {
         auto index  = clusterList[0];
 
         // Finds neighbours of cluster within time limit
-        auto filter = available*layerFilter*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.time_limit);
+        auto filter = available*(abs(x-x[index])<=1)*(abs(y-y[index])<=1)*(abs(t-t[index])<m_cfg.hit_time_limit);
 
         // Adds the found hits to the cluster
         clusterList = Concatenate(clusterList,indices[filter]);
@@ -120,19 +133,18 @@ namespace eicrecon {
         clusterList.erase(clusterList.begin());
 
         // Adds raw hit to TrackerHit contribution
-        cluster.addToRawHits(inputhits[index].getObjectID());
+        clusterHits.push_back((inputHits)[index].getObjectID());
 
-        //Energy
+        // Energy
         auto hitE = e[index];
         esum += hitE;
-        auto pos = m_cellid_converter->position(id[index]);
+        // TODO - See if now a single detector element is expected a better function is available.
+        auto pos = m_seg->position(id[index]);
 
         //Weighted position
         float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
         weightSum += weight;
-        xPos += pos.x()*weight;
-        yPos += pos.y()*weight;
-        zPos += pos.z()*weight;
+        localPos  += pos*weight;
 
         //Time
         clusterT.push_back(t[index]);
@@ -140,24 +152,55 @@ namespace eicrecon {
       }
 
       // Finalise position
-      xPos/=weightSum;
-      yPos/=weightSum;
-      zPos/=weightSum;
+      localPos/=weightSum;
 
       // Finalise time
       t0      = Mean(clusterT);
-      tError  = StdDev(clusterT);
+      tError  = StdDev(clusterT); // TODO fold detector timing resolution into error
 
-      // Set cluster members
-      cluster.setCellID  (id[maxIndex]);
-      cluster.setPosition(edm4hep::Vector3d(xPos,yPos,zPos));
-      cluster.setEDep    (esum);
-      cluster.setTime    (t0);
+      // Create cluster
+      clusters.push_back(FDTrackerCluster{
+        .cellID    = id[maxIndex],
+        .x         = localPos.x(),
+        .y         = localPos.y(),
+        .energy    = esum,
+        .time      = t0,
+        .timeError = tError,
+        .rawHits   = clusterHits
+      });
+
 
     }
 
-    return outputClusters;
+    return clusters;
 
   }
+
+  // Convert to global coordinates and create TrackerHits
+  void FarDetectorTrackerCluster::ConvertClusters(const std::vector<FDTrackerCluster>& clusters, edm4hep::TrackerHitCollection& outputClusters) const {
+
+    // Get context of first hit
+    const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].cellID);
+
+    for(auto cluster: clusters){
+      auto hitPos = outputClusters.create();
+
+      auto globalPos = context->localToWorld({cluster.x,cluster.y,0});
+
+      // Set cluster members
+      hitPos.setCellID  (cluster.cellID);
+      hitPos.setPosition(edm4hep::Vector3d(globalPos.x(),globalPos.y(),globalPos.z()));
+      hitPos.setEDep    (cluster.energy);
+      hitPos.setTime    (cluster.time);
+
+      // Add raw hits to cluster
+      for(auto hit: cluster.rawHits){
+        hitPos.addToRawHits(hit);
+      }
+
+    }
+
+  }
+
 
 }

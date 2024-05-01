@@ -2,12 +2,10 @@
 // Copyright (C) 2023, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithms/geo.h>
-#include <algorithms/random.h>
-#include <algorithms/service.h>
+#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <catch2/generators/catch_generators_random.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -16,9 +14,8 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <stddef.h>
-#include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
@@ -31,20 +28,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
-  auto detector = dd4hep::Detector::make_unique("");
-
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
-  serviceSvc.setInit<algorithms::GeoSvc>([&detector](auto&& g) {
-    g.init(detector.get());
-  });
-  [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-  auto seed = Catch::Generators::Detail::getSeed();
-  serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
-    r.setProperty("seed", static_cast<size_t>(seed));
-    r.init();
-  });
-  serviceSvc.init();
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
   CalorimeterHitDigi algo("test");
 
@@ -56,19 +41,21 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
   cfg.pedSigmaADC = 0;
   cfg.tRes = 0. * dd4hep::ns;
   cfg.eRes = {0. * sqrt(dd4hep::GeV), 0., 0. * dd4hep::GeV};
+  cfg.readout = "MockCalorimeterHits";
 
   SECTION( "single hit with couple contributions" ) {
     cfg.capADC = 555;
     cfg.dyRangeADC = 5.0 /* GeV */;
     cfg.pedMeanADC = 123;
     cfg.resolutionTDC = 1.0 * dd4hep::ns;
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
     algo.applyConfig(cfg);
-    algo.init(logger);
+    algo.init();
 
     auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
     auto simhits = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
     auto mhit = simhits->create(
-      0xABABABAB, // std::uint64_t cellID
+      id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
       1.0 /* GeV */, // float energy
       edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f position
     );
@@ -89,7 +76,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     algo.process({simhits.get()}, {rawhits.get()});
 
     REQUIRE( (*rawhits).size() == 1 );
-    REQUIRE( (*rawhits)[0].getCellID() == 0xABABABAB);
+    REQUIRE( (*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
     REQUIRE( (*rawhits)[0].getAmplitude() == 123 + 111 );
     REQUIRE( (*rawhits)[0].getTimeStamp() == 7 ); // currently, earliest contribution is returned
   }

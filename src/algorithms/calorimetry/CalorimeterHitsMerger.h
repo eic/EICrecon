@@ -13,10 +13,10 @@
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
-#include <memory>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 
@@ -45,16 +45,15 @@ namespace eicrecon {
                             {"outputHitCollection"},
                             "Group readout hits from a calorimeter."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
     uint64_t id_mask{0}, ref_mask{0};
 
   private:
-    const dd4hep::Detector* m_detector;
-    const dd4hep::rec::CellIDPositionConverter* m_converter;
-    std::shared_ptr<spdlog::logger> m_log;
+    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
   };
 

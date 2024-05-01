@@ -6,14 +6,8 @@
 namespace eicrecon {
   struct FarDetectorLinearTrackingConfig {
 
-    std::string readout{""};
-    std::string moduleField{"module"};
-    std::string layerField{"layer"};
-
-    int   layer_hits_max{4};
-
+    int   layer_hits_max{10};
     float chi2_max{0.001};
-
     int   n_layer{4};
 
   };

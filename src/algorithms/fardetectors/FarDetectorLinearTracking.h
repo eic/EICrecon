@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <Eigen/Dense>
 // Event Model related classes
@@ -12,42 +13,47 @@
 #include "FarDetectorLinearTrackingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-typedef std::map<int,std::vector<edm4hep::TrackerHit>> LayerMap;
-
 namespace eicrecon {
 
-    class FarDetectorLinearTracking : public WithPodConfig<FarDetectorLinearTrackingConfig>  {
+    using FarDetectorLinearTrackingAlgorithm = algorithms::Algorithm<
+        algorithms::Input<
+            std::vector<edm4hep::TrackerHitCollection>
+        >,
+        algorithms::Output<
+            edm4eic::TrackSegmentCollection
+        >
+    >;
+
+    class FarDetectorLinearTracking
+    : public FarDetectorLinearTrackingAlgorithm,
+      public WithPodConfig<FarDetectorLinearTrackingConfig>  {
 
     public:
+        FarDetectorLinearTracking(std::string_view name)
+            : FarDetectorLinearTrackingAlgorithm{name,
+                {"inputHitCollections"},
+                {"outputTrackSegments"},
+                "Fit track segments from hits in the tracker layers"} {}
 
         /** One time initialization **/
-        void init(const dd4hep::Detector* det,
-                  std::shared_ptr<spdlog::logger>& logger);
+        void init(std::shared_ptr<spdlog::logger>& logger);
 
         /** Event by event processing **/
-        std::unique_ptr<edm4eic::TrackSegmentCollection> process(const edm4hep::TrackerHitCollection &inputhits);
-
+        void process(const Input&, const Output&) const final;
 
     private:
-        const dd4hep::Detector*         m_detector{nullptr};
-        const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
         std::shared_ptr<spdlog::logger> m_log;
 
-        int m_module_idx{0};
-        int m_layer_idx{0};
         Eigen::VectorXd m_layerWeights;
-
-
-        bool checkLayerHitLimits(LayerMap hits);
 
         void makeHitCombination(int level,
                                 Eigen::MatrixXd* hitMatrix,
-                                std::vector<int> layerKeys,
-                                LayerMap hits,
-                                std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
+                                const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
 
         void checkHitCombination(Eigen::MatrixXd* hitMatrix,
-                                 std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks);
+                                gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+
     };
 
 } // eicrecon

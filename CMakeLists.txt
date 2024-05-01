@@ -1,4 +1,6 @@
-#  Variables to control this CMake build:
+# cmake-format: off
+#
+# Variables to control this CMake build:
 # ===================================================================================
 #    CMake flag       |  environment variable  |  Description
 # ===================================================================================
@@ -21,8 +23,8 @@
 # spdlog              |   Formatting library
 # IRT                 |   Indirect Ray Tracing library
 # ==============================================================
-
-
+#
+# cmake-format: on
 
 cmake_minimum_required(VERSION 3.18)
 
@@ -38,19 +40,27 @@ set_git_version(CMAKE_PROJECT_VERSION)
 # Set a default build type if none was specified
 set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
-  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
-      STRING "Choose the type of build." FORCE)
+  message(
+    STATUS
+      "Setting build type to '${default_build_type}' as none was specified.")
+  set(CMAKE_BUILD_TYPE
+      "${default_build_type}"
+      CACHE STRING "Choose the type of build." FORCE)
   # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+                                               "MinSizeRel" "RelWithDebInfo")
 endif()
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
-set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD_MIN} CACHE STRING "C++ standard to be used")
+set(CMAKE_CXX_STANDARD
+    ${CMAKE_CXX_STANDARD_MIN}
+    CACHE STRING "C++ standard to be used")
 if(CMAKE_CXX_STANDARD LESS CMAKE_CXX_STANDARD_MIN)
-  message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD} (at least ${CMAKE_CXX_STANDARD_MIN} required)")
+  message(
+    FATAL_ERROR
+      "Unsupported C++ standard: ${CMAKE_CXX_STANDARD} (at least ${CMAKE_CXX_STANDARD_MIN} required)"
+  )
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -58,20 +68,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# This PROJECT_SOURCE_DIR at this point corresponds to repository root.
-# Saving it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake
-# to correctly set plugin includes (and in other places as needed)
+# This PROJECT_SOURCE_DIR at this point corresponds to repository root. Saving
+# it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake to correctly
+# set plugin includes (and in other places as needed)
 set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 
 # Also use clang-tidy integration in CMake
 option(ENABLE_CLANG_TIDY "Enable clang-tidy integration in cmake" OFF)
 if(ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-  if (CLANG_TIDY_EXE)
+  if(CLANG_TIDY_EXE)
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_CLANG_TIDY
+        "${CLANG_TIDY_EXE}"
+        CACHE STRING "" FORCE)
   else()
-    set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_CLANG_TIDY
+        ""
+        CACHE STRING "" FORCE)
   endif()
 endif()
 
@@ -79,8 +93,10 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Install to the top directory by default
-if( ${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT} )
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Install in top directory by default" FORCE)
+if(${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT})
+  set(CMAKE_INSTALL_PREFIX
+      ${CMAKE_SOURCE_DIR}
+      CACHE PATH "Install in top directory by default" FORCE)
 endif()
 
 # Install to standard location
@@ -88,36 +104,40 @@ include(GNUInstallDirs)
 
 # Default plugins installation directory is 'plugins'
 if(NOT DEFINED PLUGIN_OUTPUT_DIRECTORY)
-    set(PLUGIN_OUTPUT_DIRECTORY "lib/${PROJECT_NAME}/plugins")
-    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+  set(PLUGIN_OUTPUT_DIRECTORY "lib/${PROJECT_NAME}/plugins")
+  message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
-message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}")
+message(
+  STATUS
+    "${CMAKE_PROJECT_NAME}: PLUGIN_OUTPUT_DIRECTORY: ${PLUGIN_OUTPUT_DIRECTORY}"
+)
 
 # Default plugins static libraries installation directory is 'lib'
 if(NOT DEFINED PLUGIN_LIBRARY_OUTPUT_DIRECTORY)
-    set(PLUGIN_LIBRARY_OUTPUT_DIRECTORY "lib")
-    message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
+  set(PLUGIN_LIBRARY_OUTPUT_DIRECTORY "lib")
+  message(STATUS "${CMAKE_PROJECT_NAME}: Set default PLUGIN_OUTPUT_DIRECTORY")
 endif()
-message(STATUS "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
+message(
+  STATUS
+    "${CMAKE_PROJECT_NAME}: PLUGIN_LIBRARY_OUTPUT_DIRECTORY: ${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}"
+)
 
-
-# Use, i.e. don't skip the full RPATH for the build tree,
-# and use relative paths for relocatable build products
+# Use, i.e. don't skip the full RPATH for the build tree, and use relative paths
+# for relocatable build products
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 
-# When building, don't use the install RPATH already
-# (but later on when installing)
+# When building, don't use the install RPATH already (but later on when
+# installing)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_SKIP_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH
     "${CMAKE_INSTALL_PREFIX}/${PLUGIN_LIBRARY_OUTPUT_DIRECTORY};${CMAKE_INSTALL_PREFIX}/${PLUGIN_OUTPUT_DIRECTORY}"
 )
 
-# Add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
+# Add the automatically determined parts of the RPATH which point to directories
+# outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 
 # Check and print what JANA2 is used
 find_package(JANA 2.0.8 REQUIRED)
@@ -144,102 +164,148 @@ find_package(spdlog REQUIRED)
 find_package(Microsoft.GSL CONFIG)
 
 # Remove PODIO_JSON_OUTPUT (ref: https://github.com/AIDASoft/podio/issues/475)
-get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep INTERFACE_COMPILE_DEFINITIONS)
+get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep
+                    INTERFACE_COMPILE_DEFINITIONS)
 if(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS)
-  list(FILTER EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX [[^PODIO_JSON_OUTPUT$]])
-  set_property(TARGET EDM4HEP::edm4hep PROPERTY INTERFACE_COMPILE_DEFINITIONS ${EDM4HEP_INTERFACE_COMPILE_DEFINITIONS})
+  list(FILTER EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX
+       [[^PODIO_JSON_OUTPUT$]])
+  set_property(
+    TARGET EDM4HEP::edm4hep PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                                     ${EDM4HEP_INTERFACE_COMPILE_DEFINITIONS})
 endif()
-get_target_property(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EDM4EIC::edm4eic INTERFACE_COMPILE_DEFINITIONS)
+get_target_property(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EDM4EIC::edm4eic
+                    INTERFACE_COMPILE_DEFINITIONS)
 if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
-  list(FILTER EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX [[^PODIO_JSON_OUTPUT$]])
-  set_property(TARGET EDM4EIC::edm4eic PROPERTY INTERFACE_COMPILE_DEFINITIONS ${EDM4EIC_INTERFACE_COMPILE_DEFINITIONS})
+  list(FILTER EDM4EIC_INTERFACE_COMPILE_DEFINITIONS EXCLUDE REGEX
+       [[^PODIO_JSON_OUTPUT$]])
+  set_property(
+    TARGET EDM4EIC::edm4eic PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                                     ${EDM4EIC_INTERFACE_COMPILE_DEFINITIONS})
 endif()
 
 # DD4Hep is required for the most of the part
 find_package(DD4hep REQUIRED)
 
-# ACTS
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo PluginDD4hep)
+# ACTS cmake-lint: disable=C0103
+find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo
+                                      PluginDD4hep)
 set(Acts_VERSION_MIN "19.0.0")
-set(Acts_VERSION "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
-        AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
-    message(FATAL_ERROR "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found")
+set(Acts_VERSION
+    "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN} AND NOT "${Acts_VERSION}"
+                                                        STREQUAL "9.9.9")
+  message(
+    FATAL_ERROR
+      "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
+  )
 endif()
 # ActsCore
 get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
-if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
-  message(WARNING "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
+  message(
+    WARNING
+      "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}."
+  )
 endif()
 
 # ROOT
 find_package(ROOT REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard
 get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
-if (NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
-  message(WARNING "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}.")
+if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
+  message(
+    WARNING
+      "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}."
+  )
 endif()
 
+# ONNX Runtime
+option(USE_ONNX "Compile with ONNX support" ON)
+if(${USE_ONNX})
+  find_package(onnxruntime)
+endif()
 
 # Add CMake additional functionality:
-include(cmake/jana_plugin.cmake)                            # Add common settings for plugins
-list (APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake)   # Find Find<Modules>.cmake
+include(cmake/jana_plugin.cmake) # Add common settings for plugins
+list(APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake
+)# Find Find<Modules>.cmake
 
 enable_testing()
 
 # Address sanitizer
 option(USE_ASAN "Compile with address sanitizer" OFF)
-if (${USE_ASAN})
-    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
-    add_link_options(-fsanitize=address)
-    install(FILES .github/asan.supp .github/lsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
+if(${USE_ASAN})
+  add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O1)
+  add_link_options(-fsanitize=address)
+  install(FILES .github/asan.supp .github/lsan.supp
+          DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Thread sanitizer
 option(USE_TSAN "Compile with thread sanitizer" OFF)
-if (${USE_TSAN})
-    add_compile_options(-fsanitize=thread -g -O1)
-    add_link_options(-fsanitize=thread)
-    install(FILES .github/tsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
+if(${USE_TSAN})
+  add_compile_options(-fsanitize=thread -g -O1)
+  add_link_options(-fsanitize=thread)
+  install(FILES .github/tsan.supp
+          DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Undefined behavior sanitizer
 option(USE_UBSAN "Compile with undefined behavior sanitizer" OFF)
-if (${USE_UBSAN})
-    foreach (sanitizer undefined float-divide-by-zero unsigned-integer-overflow implicit-conversion local-bounds nullability)
-        check_cxx_compiler_flag("-fsanitize=${sanitizer}" CXX_COMPILER_HAS_sanitize_${sanitizer})
-        if (CXX_COMPILER_HAS_sanitize_${sanitizer})
-            add_compile_options(-fsanitize=${sanitizer})
-            add_link_options(-fsanitize=${sanitizer})
-        endif()
-    endforeach()
-    add_compile_options(-g -O1)
-    install(FILES .github/ubsan.supp DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
+if(${USE_UBSAN})
+  foreach(sanitizer undefined float-divide-by-zero unsigned-integer-overflow
+                    implicit-conversion local-bounds nullability)
+    check_cxx_compiler_flag("-fsanitize=${sanitizer}"
+                            CXX_COMPILER_HAS_sanitize_${sanitizer})
+    if(CXX_COMPILER_HAS_sanitize_${sanitizer})
+      add_compile_options(-fsanitize=${sanitizer})
+      add_link_options(-fsanitize=${sanitizer})
+    endif()
+  endforeach()
+  add_compile_options(-g -O1)
+  install(FILES .github/ubsan.supp
+          DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
 # Compress debug symbols if supported
 check_cxx_compiler_flag("-gz" CXX_COMPILER_HAS_gz)
-if (CXX_COMPILER_HAS_gz)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gz")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
+if(CXX_COMPILER_HAS_gz)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gz")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
-add_subdirectory( src/services )
-add_subdirectory( src/algorithms )
-add_subdirectory( src/benchmarks )
-add_subdirectory( src/detectors )
-add_subdirectory( src/examples )
-add_subdirectory( src/extensions )
-add_subdirectory( src/factories )
-add_subdirectory( src/global )
-add_subdirectory( src/scripts )
-add_subdirectory( src/tests )
-add_subdirectory( src/utilities )
+add_subdirectory(src/services)
+add_subdirectory(src/algorithms)
+add_subdirectory(src/benchmarks)
+add_subdirectory(src/detectors)
+add_subdirectory(src/examples)
+add_subdirectory(src/extensions)
+add_subdirectory(src/factories)
+add_subdirectory(src/global)
+add_subdirectory(src/scripts)
+add_subdirectory(src/tests)
+add_subdirectory(src/utilities)
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake VERSION ${CMAKE_PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-install(EXPORT ${PROJECT_NAME}Targets NAMESPACE ${PROJECT_NAME}:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-install(DIRECTORY cmake/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} FILES_MATCHING PATTERN *.cmake)
+configure_package_config_file(
+  cmake/${PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${CMAKE_PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(
+  EXPORT ${PROJECT_NAME}Targets
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(
+  DIRECTORY cmake/
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  FILES_MATCHING
+  PATTERN *.cmake)

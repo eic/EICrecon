@@ -21,100 +21,60 @@
 
 namespace eicrecon {
 
+    void FarDetectorLinearTracking::init(std::shared_ptr<spdlog::logger>& logger) {
 
-    void FarDetectorLinearTracking::init(const dd4hep::Detector* det, std::shared_ptr<spdlog::logger>& logger) {
-
-      m_detector = det;
       m_log      = logger;
-
-      if (m_cfg.readout.empty()) {
-        throw JException("Readout is empty");
-      }
-
-      try {
-        m_id_dec = det->readout(m_cfg.readout).idSpec().decoder();
-        if (!m_cfg.moduleField.empty()) {
-          m_module_idx = m_id_dec->index(m_cfg.moduleField);
-          m_log->debug("Find module field {}, index = {}", m_cfg.moduleField, m_module_idx);
-        }
-        if (!m_cfg.layerField.empty()) {
-          m_layer_idx = m_id_dec->index(m_cfg.layerField);
-          m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, m_layer_idx);
-        }
-      } catch (...) {
-        m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
-        throw JException("Failed to load ID decoder");
-      }
 
       // For changing how strongly each layer hit is in contributing to the fit
       m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer,1);
 
     }
 
-    std::unique_ptr<edm4eic::TrackSegmentCollection> FarDetectorLinearTracking::process(const edm4hep::TrackerHitCollection &inputhits) {
+    void FarDetectorLinearTracking::process(
+        const FarDetectorLinearTracking::Input& input,
+        const FarDetectorLinearTracking::Output& output) const {
 
-        auto outputTracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+        const auto [inputhits] = input;
+        auto [outputTracks] = output;
 
-        std::map<int,LayerMap> sortedHits;
-
-        // Sort the hits by module and layer
-        for(auto hit: inputhits){
-          auto module = m_id_dec->get(hit.getCellID(),m_module_idx);
-          auto layer  = m_id_dec->get(hit.getCellID(),m_layer_idx);
-          sortedHits[module][layer].push_back(hit);
+        // Check the number of input collections is correct
+        int nCollections = inputhits.size();
+        if(nCollections!=m_cfg.n_layer){
+          m_log->error("Wrong number of input collections passed to algorithm");
+          return;
         }
 
-        // Loop over module
-        for ( auto &[key,moduleHits] : sortedHits ) {
-
-          // Check the number of hits in the module/layer is appropriate for the algortihm
-          if(!checkLayerHitLimits(moduleHits)) continue;
-
-          std::vector<int> layerKeys;
-          for( auto &[key2,layerHits] : moduleHits){
-            layerKeys.push_back(key2);
+        // Check there aren't too many hits in any layer to handle
+        // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
+        // TODO - Implement more sensible solution
+        for(const auto& layerHits: inputhits){
+          if((*layerHits).size()>m_cfg.layer_hits_max){
+            m_log->info("Too many hits in layer");
+            return;
           }
-
-          //double meanWeight = 1;
-
-          Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
-          makeHitCombination(m_cfg.n_layer-1,&hitMatrix,layerKeys,moduleHits,&outputTracks);
-
         }
 
-        return outputTracks;
+        // Create a matrix to store the hit positions
+        Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
+        // Loop over all combinations of hits fitting a track to all layers
+        makeHitCombination(m_cfg.n_layer-1,&hitMatrix,inputhits,outputTracks);
 
     }
 
-    // Check there is
-    bool FarDetectorLinearTracking::checkLayerHitLimits(LayerMap hits){
-      // Check there is a hit in each layer of the module
-      if(hits.size()<m_cfg.n_layer) return 0;
-
-      // Check there aren't too many hits in any layer to handle
-      // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
-      // TODO - Implement more sensible solution
-      for(auto &[key,layerHits]: hits){
-        if(layerHits.size()>m_cfg.layer_hits_max) return 0;
-      }
-      return 1;
-    }
 
     void FarDetectorLinearTracking::makeHitCombination(int level,
                                                        Eigen::MatrixXd* hitMatrix,
-                                                       std::vector<int> layerKeys,
-                                                       LayerMap hits,
-                                                       std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
+                                                       const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                                       gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
 
       // Iterate over hits in this layer
-      for(auto hit : hits[layerKeys[level]]){
+      for(auto hit : (*hits[level])){
         auto pos = hit.getPosition();
         hitMatrix->col(level) << pos.x, pos.y, pos.z;
 
         if(level>0){
           makeHitCombination(level-1,
                              hitMatrix,
-                             layerKeys,
                              hits,
                              outputTracks);
         }
@@ -127,7 +87,7 @@ namespace eicrecon {
 
 
     void FarDetectorLinearTracking::checkHitCombination(Eigen::MatrixXd* hitMatrix,
-                                                        std::unique_ptr<edm4eic::TrackSegmentCollection>* outputTracks ){
+                                                        gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
 
       Eigen::Vector3d weightedAnchor = (*hitMatrix)*m_layerWeights/(m_layerWeights.sum());
 

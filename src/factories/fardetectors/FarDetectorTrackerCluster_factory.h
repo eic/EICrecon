@@ -1,56 +1,62 @@
-// Created by Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 - 2024, Simon Gardner
 
-#include "services/geometry/dd4hep/DD4hep_service.h"
-
-// Event Model related classes
-#include <edm4hep/TrackerHitCollection.h>
-#include <edm4eic/RawTrackerHit.h>
+#pragma once
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
-
-#include "extensions/jana/JChainMultifactoryT.h"
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
 class FarDetectorTrackerCluster_factory :
-public JOmniFactory<FarDetectorTrackerCluster_factory,FarDetectorTrackerClusterConfig> {
+public JOmniFactory<FarDetectorTrackerCluster_factory, FarDetectorTrackerClusterConfig> {
 
+public:
+  using AlgoT = eicrecon::FarDetectorTrackerCluster;
 private:
-    eicrecon::FarDetectorTrackerCluster m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4eic::RawTrackerHit> m_hits_input    {this};
-    PodioOutput<edm4hep::TrackerHit>   m_tracks_output {this};
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
+  VariadicPodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
 
-    Service<DD4hep_service> m_geoSvc {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
+  ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_x_field {this, "xField", config().x_field};
+  ParameterRef<std::string> m_y_field {this, "yField", config().y_field};
+  ParameterRef<double> m_hit_time_limit {this, "hitTimeLimit", config().hit_time_limit};
+
+public:
+
+  /** One time initialization **/
+  void Configure() {
+
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    // Setup algorithm
+    m_algo->applyConfig(config());
+    m_algo->init(logger());
+
+  }
 
 
-    ParameterRef<std::string> readout     {this, "readout",     config().readout     };
-    ParameterRef<std::string> moduleField {this, "moduleField", config().moduleField };
-    ParameterRef<std::string> layerField  {this, "layerField",  config().layerField  };
-    ParameterRef<std::string> xField      {this, "xField",      config().xField      };
-    ParameterRef<std::string> yField      {this, "yField",      config().yField      };
+  void ChangeRun(int64_t run_number) {
+  }
 
-    ParameterRef<int> n_module {this, "n_module", config().n_module };
-    ParameterRef<int> n_layer  {this, "n_layer",  config().n_layer  };
-
-    ParameterRef<double> time_limit  {this, "time_limit",  config().time_limit };
-
-
-  public:
-    void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+  void Process(int64_t run_number, uint64_t event_number) {
+    std::vector<gsl::not_null<edm4hep::TrackerHitCollection*>> clustered_collections;
+    for (const auto& clustered : m_clustered_hits_output()) {
+      clustered_collections.push_back(gsl::not_null<edm4hep::TrackerHitCollection*>(clustered.get()));
     }
 
-    void ChangeRun(int64_t run_number) {
-    }
+    auto in1 = m_raw_hits_input();
+    std::vector<gsl::not_null<const edm4eic::RawTrackerHitCollection*>> in2;
+    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        m_tracks_output() = m_algo.process(*m_hits_input());
-    }
-  };
+
+    m_algo->process(in2, clustered_collections);
+  }
+
+};
 
 } // eicrecon

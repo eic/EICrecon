@@ -2,7 +2,7 @@ ci:
     skip: [clang-format]
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
+  rev: v4.6.0
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
@@ -22,3 +22,9 @@ repos:
   rev: v1.3.5
   hooks:
   - id: clang-format
+- repo: https://github.com/cheshirekow/cmake-format-precommit
+  rev: v0.6.13
+  hooks:
+  - id: cmake-format
+  - id: cmake-lint
+    args: [--config-files=.github/cmake-lint.py]
