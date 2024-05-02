@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/Dense>
 #include <spdlog/logger.h>
 #include "FarDetectorLinearTrackingConfig.h"
 
