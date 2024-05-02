@@ -137,9 +137,9 @@ namespace eicrecon {
       float             pathlengthError{0}; // Error on the pathlength
 
       edm4eic::TrackPoint point({surface,system,position,positionError,momentum,momentumError,time,timeError,theta,phi,directionError,pathlength,pathlengthError});
-      
+
       float length      = 0;
-      float lengthError = 0;     
+      float lengthError = 0;
       auto segment = (*outputTracks)->create(length,lengthError);
 
       segment.addToPoints(point);
