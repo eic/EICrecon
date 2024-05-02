@@ -126,7 +126,7 @@ namespace eicrecon {
       uint32_t          system{0};          // Detector system track was propagated to
       edm4hep::Vector3f position(outPos.x,outPos.y,outPos.z);        // Position of the trajectory point [mm]
       edm4eic::Cov3f    positionError;      // Error on the position
-      edm4hep::Vector3f momentum = {(float)outVec.x,(float)outVec.y,(float)outVec.z};       // 3-momentum at the point [GeV]
+      edm4hep::Vector3f momentum;       // 3-momentum at the point [GeV]
       edm4eic::Cov3f    momentumError;      // Error on the 3-momentum
       float             time{0};            // Time at this point [ns]
       float             timeError{0};       // Error on the time at this point
