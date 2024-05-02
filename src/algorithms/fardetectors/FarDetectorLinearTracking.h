@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2024, Simon Gardner
 
 #pragma once
 
 #include <algorithms/algorithm.h>
-// Event Model related classes
+#include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/TrackSegmentCollection.h>
-
+#include <edm4hep/TrackerHitCollection.h>
+#include <gsl/pointers>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <Eigen/src/Core/Matrix.h>
 #include <spdlog/logger.h>
 #include "FarDetectorLinearTrackingConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
