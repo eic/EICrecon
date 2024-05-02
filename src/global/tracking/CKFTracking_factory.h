@@ -48,7 +48,6 @@ public:
         m_algo = std::make_unique<AlgoT>();
         m_algo->applyConfig(config());
         m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
-
     }
 
     void ChangeRun(int64_t run_number) {
