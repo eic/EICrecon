@@ -1,12 +1,15 @@
 #pragma once
 
+#include <string>
+
+using string = std::string;
+
 namespace eicrecon {
 
   struct TorchScriptInterfaceConfig {
-
-    std::string ml_model_registry{"./"};
-    std::vector<std::string> default_ml_models{"RP_model_x_1.0.pt", "RP_model_y_1.0.pt", "RP_model_z_1.0.pt"};
-
+    string model_x_file_path = "RP_model_x_1.0.pt";
+    string model_y_file_path = "RP_model_y_1.0.pt";
+    string model_z_file_path = "RP_model_y_1.0.pt";
   };
 
 }
