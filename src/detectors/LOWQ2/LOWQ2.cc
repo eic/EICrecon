@@ -105,6 +105,10 @@ extern "C" {
             .layer_hits_max = 10,
             .chi2_max = 0.001,
             .n_layer = 4,
+            .restrict_direction = true,
+            .optimum_theta = -M_PI+0.026,
+            .optimum_phi = 0,
+            .step_angle_tolerance = 0.05,
           },
           app
       ));

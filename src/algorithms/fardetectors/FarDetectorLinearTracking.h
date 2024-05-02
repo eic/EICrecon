@@ -46,6 +46,8 @@ namespace eicrecon {
 
         Eigen::VectorXd m_layerWeights;
 
+        Eigen::Vector3d m_optimumDirection;
+
         void makeHitCombination(int level,
                                 Eigen::MatrixXd* hitMatrix,
                                 const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
@@ -53,6 +55,9 @@ namespace eicrecon {
 
         void checkHitCombination(Eigen::MatrixXd* hitMatrix,
                                 gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+
+        bool checkHitPair(const Eigen::Vector3d& hit1,
+                          const Eigen::Vector3d& hit2) const;
 
     };
 

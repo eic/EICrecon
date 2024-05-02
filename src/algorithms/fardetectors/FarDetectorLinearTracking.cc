@@ -28,6 +28,11 @@ namespace eicrecon {
       // For changing how strongly each layer hit is in contributing to the fit
       m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer,1);
 
+      // For checking the direction of the track from theta and phi angles
+      m_optimumDirection = Eigen::Vector3d::UnitZ();
+      m_optimumDirection = Eigen::AngleAxisd(m_cfg.optimum_theta,Eigen::Vector3d::UnitY())*m_optimumDirection;
+      m_optimumDirection = Eigen::AngleAxisd(m_cfg.optimum_phi,Eigen::Vector3d::UnitZ())*m_optimumDirection;
+
     }
 
     void FarDetectorLinearTracking::process(
@@ -72,6 +77,13 @@ namespace eicrecon {
         auto pos = hit.getPosition();
         hitMatrix->col(level) << pos.x, pos.y, pos.z;
 
+        // Check the last two hits are within a certain angle of the optimum direction
+        if(m_cfg.restrict_direction && level<m_cfg.n_layer-1){
+          if(!checkHitPair(hitMatrix->col(level),hitMatrix->col(level+1))){
+            continue;
+          }
+        }
+
         if(level>0){
           makeHitCombination(level-1,
                              hitMatrix,
@@ -110,25 +122,47 @@ namespace eicrecon {
       // Make sure fit was pointing in the right direction
       if(outVec.z>0) outVec = outVec*-1;
 
-      uint64_t          surface{0};     // Surface track was propagated to (possibly multiple per detector)
-      uint32_t          system{0};      // Detector system track was propagated to
+      uint64_t          surface{0};         // Surface track was propagated to (possibly multiple per detector)
+      uint32_t          system{0};          // Detector system track was propagated to
       edm4hep::Vector3f position(outPos.x,outPos.y,outPos.z);        // Position of the trajectory point [mm]
-      edm4eic::Cov3f    positionError;  // Error on the position
+      edm4eic::Cov3f    positionError;      // Error on the position
       edm4hep::Vector3f momentum = {(float)outVec.x,(float)outVec.y,(float)outVec.z};       // 3-momentum at the point [GeV]
-      edm4eic::Cov3f    momentumError;  // Error on the 3-momentum
-      float             time{0};        // Time at this point [ns]
-      float             timeError{0};   // Error on the time at this point
-      float             theta = edm4eic::anglePolar(outVec);          // polar direction of the track at the surface [rad]
-      float             phi   = edm4eic::angleAzimuthal(outVec);         // azimuthal direction of the track at the surface [rad]
-      edm4eic::Cov2f    directionError;  // Error on the polar and azimuthal angles
+      edm4eic::Cov3f    momentumError;      // Error on the 3-momentum
+      float             time{0};            // Time at this point [ns]
+      float             timeError{0};       // Error on the time at this point
+      float             theta = edm4eic::anglePolar(outVec);     // global polar direction of the fitted vector [rad]
+      float             phi   = edm4eic::angleAzimuthal(outVec); // global azimuthal direction of the fitted vector [rad]
+      edm4eic::Cov2f    directionError;     // Error on the polar and azimuthal angles
       float             pathlength{0};      // Pathlength from the origin to this point
       float             pathlengthError{0}; // Error on the pathlength
 
       edm4eic::TrackPoint point({surface,system,position,positionError,momentum,momentumError,time,timeError,theta,phi,directionError,pathlength,pathlengthError});
-      auto segment = (*outputTracks)->create(0,0);
+      
+      float length      = 0;
+      float lengthError = 0;     
+      auto segment = (*outputTracks)->create(length,lengthError);
 
       segment.addToPoints(point);
 
+
+    }
+
+    // Check if a pair of hits lies close to the optimum direction
+    bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
+                                                const Eigen::Vector3d& hit2) const {
+
+      Eigen::Vector3d hitDiff = hit2-hit1;
+      hitDiff.normalize();
+
+      double angle = std::acos(hitDiff.dot(m_optimumDirection));
+
+      m_log->debug("Vector: x={}, y={}, z={}",hitDiff.x(),hitDiff.y(),hitDiff.z());
+      m_log->debug("Optimum: x={}, y={}, z={}",m_optimumDirection.x(),m_optimumDirection.y(),m_optimumDirection.z());
+      m_log->debug("Angle: {}, Tolerance {}",angle,m_cfg.step_angle_tolerance);
+
+      if(angle>m_cfg.step_angle_tolerance) return false;
+
+      return true;
 
     }
 
