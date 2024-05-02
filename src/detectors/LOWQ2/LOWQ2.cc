@@ -107,7 +107,7 @@ extern "C" {
             .n_layer = 4,
             .restrict_direction = true,
             .optimum_theta = -M_PI+0.026,
-            .optimum_phi = 0,
+            .optimum_phi = M_PI,
             .step_angle_tolerance = 0.05,
           },
           app
