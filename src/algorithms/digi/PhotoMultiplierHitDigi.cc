@@ -38,12 +38,6 @@ void PhotoMultiplierHitDigi::init()
     // print the configuration parameters
     debug() << m_cfg << endmsg;
 
-    /* warn if using potentially thread-unsafe seed
-     * FIXME: remove this warning when this issue is resolved:
-     *        https://github.com/eic/EICrecon/issues/539
-     */
-    if(m_cfg.seed==0) warning("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
-
     // initialize quantum efficiency table
     qe_init();
 }
