@@ -4,8 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <Eigen/Dense>
 // Event Model related classes
 #include <edm4eic/TrackSegmentCollection.h>
 
