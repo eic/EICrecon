@@ -112,7 +112,7 @@ namespace eicrecon {
 
       uint64_t          surface{0};     // Surface track was propagated to (possibly multiple per detector)
       uint32_t          system{0};      // Detector system track was propagated to
-      edm4hep::Vector3f position(outPos.x/dd4hep::mm,outPos.y/dd4hep::mm,outPos.z/dd4hep::mm);        // Position of the trajectory point [mm]
+      edm4hep::Vector3f position(outPos.x,outPos.y,outPos.z);        // Position of the trajectory point [mm]
       edm4eic::Cov3f    positionError;  // Error on the position
       edm4hep::Vector3f momentum = {(float)outVec.x,(float)outVec.y,(float)outVec.z};       // 3-momentum at the point [GeV]
       edm4eic::Cov3f    momentumError;  // Error on the 3-momentum
