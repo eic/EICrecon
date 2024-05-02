@@ -20,7 +20,6 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
-#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
