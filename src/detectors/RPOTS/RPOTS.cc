@@ -8,10 +8,12 @@
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/fardetectors/TorchScriptInterfaceConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/fardetectors/TorchScriptInterface_factory.h"
 
 
 extern "C" {
@@ -20,6 +22,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     MatrixTransferStaticConfig recon_cfg;
+    TorchScriptInterfaceConfig ml_recon_cfg;
 
         //Digitized hits, especially for thresholds
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -69,6 +72,12 @@ void InitPlugin(JApplication *app) {
     recon_cfg.readout              = "ForwardRomanPotRecHits";
 
     app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
-
+   
+    app->Add(new JOmniFactoryGeneratorT<TorchScriptInterface_factory>(
+			    "ForwardRomanPotNNRecParticles",
+			    {"ForwardRomanPotRecHits"},
+			    {"ForwardRomanPotNNRecParticles"},
+			    ml_recon_cfg,
+			    app));
 }
 }
