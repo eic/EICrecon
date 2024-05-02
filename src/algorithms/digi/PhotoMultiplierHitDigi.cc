@@ -17,6 +17,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <math.h>
@@ -111,9 +112,13 @@ void PhotoMultiplierHitDigi::process(
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
+<<<<<<< HEAD
             // double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
             double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0,1)*m_cfg.speError;
 
+=======
+            double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
+>>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
             TimeType time = m_cfg.noiseTimeWindow*m_rng.uniform_double<double>(0, 1.0) / dd4hep::ns;
             dd4hep::Position pos_hit_global = m_converter->position(id);
 
@@ -149,11 +154,16 @@ void PhotoMultiplierHitDigi::process(
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
                 if(!data.sim_hit_indices.empty()) {
-                  auto hit_assoc = hit_assocs->create();
-                  hit_assoc.setWeight(1.0); // not used
-                  hit_assoc.setRawHit(raw_hit);
-                  for(auto i : data.sim_hit_indices)
+                  for(auto i : data.sim_hit_indices) {
+                    auto hit_assoc = hit_assocs->create();
+                    hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
+                    hit_assoc.setRawHit(raw_hit);
+#if EDM4EIC_VERSION_MAJOR >= 6
+                    hit_assoc.setSimHit(sim_hits->at(i));
+#else
                     hit_assoc.addToSimHits(sim_hits->at(i));
+#endif
+                  }
                 }
             }
         }
@@ -269,8 +279,12 @@ void PhotoMultiplierHitDigi::InsertHit(
     }
     // no hits group found
     if (i >= it->second.size()) {
+<<<<<<< HEAD
       // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
       auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
+=======
+      auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+>>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
       hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
@@ -278,8 +292,12 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
+<<<<<<< HEAD
     // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
+=======
+    auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+>>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
     hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
