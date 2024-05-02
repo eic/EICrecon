@@ -8,6 +8,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <math.h>
 #include <algorithm>
 #include <map>
 #include <string>
@@ -17,8 +18,8 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {

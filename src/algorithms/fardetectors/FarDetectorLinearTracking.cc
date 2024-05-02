@@ -1,23 +1,27 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Simon Gardner
 
-#include <edm4hep/Vector2f.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4hep/utils/vector_utils.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/TrackerHitCollection.h>
-#include <Eigen/Dense>
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include <iterator>
-#include <algorithm>
-#include <map>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <stdint.h>
+#include <Eigen/Geometry>
+#include <Eigen/Householder>
+#include <Eigen/Jacobi>
+#include <Eigen/QR>
+#include <Eigen/SVD>
+#include <cmath>
+#include <utility>
+
 #include "FarDetectorLinearTracking.h"
-
-
+#include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
 
 namespace eicrecon {
 
