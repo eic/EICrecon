@@ -112,13 +112,9 @@ void PhotoMultiplierHitDigi::process(
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
-<<<<<<< HEAD
             // double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
             double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0,1)*m_cfg.speError;
 
-=======
-            double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
->>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
             TimeType time = m_cfg.noiseTimeWindow*m_rng.uniform_double<double>(0, 1.0) / dd4hep::ns;
             dd4hep::Position pos_hit_global = m_converter->position(id);
 
@@ -279,12 +275,8 @@ void PhotoMultiplierHitDigi::InsertHit(
     }
     // no hits group found
     if (i >= it->second.size()) {
-<<<<<<< HEAD
       // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
       auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
-=======
-      auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
->>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
       hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
@@ -292,12 +284,8 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
-<<<<<<< HEAD
     // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
-=======
-    auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
->>>>>>> 20224d9589fce464d8895ff6bcdc85ccd11cce8c
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
     hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
