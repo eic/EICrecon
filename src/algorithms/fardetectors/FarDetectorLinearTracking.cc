@@ -9,13 +9,13 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/TrackerHitCollection.h>
-
-#include "FarDetectorLinearTracking.h"
+#include <Eigen/Dense>
 #include "services/log/Log_service.h"
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include <iterator>
 #include <algorithm>
 #include <map>
+#include "FarDetectorLinearTracking.h"
 
 
 
