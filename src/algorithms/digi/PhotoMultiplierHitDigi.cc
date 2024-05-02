@@ -80,7 +80,8 @@ void PhotoMultiplierHitDigi::process(
             trace(" -> hit accepted");
             trace(" -> MC hit id={}", sim_hit.getObjectID().index);
             auto   time = sim_hit.getTime();
-            double amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
+            //double amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
+            double amp  = m_cfg.speMean + m_rng.gaussian<double>(0, 1) * m_cfg.speError;
 
             // insert hit to `hit_groups`
             InsertHit(
@@ -110,7 +111,9 @@ void PhotoMultiplierHitDigi::process(
           auto cellID_action = [this,&hit_groups] (auto id) {
 
             // cell time, signal amplitude
-            double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
+            // double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0, m_cfg.speError);
+            double   amp  = m_cfg.speMean + m_rng.gaussian<double>(0,1)*m_cfg.speError;
+
             TimeType time = m_cfg.noiseTimeWindow*m_rng.uniform_double<double>(0, 1.0) / dd4hep::ns;
             dd4hep::Position pos_hit_global = m_converter->position(id);
 
@@ -266,7 +269,8 @@ void PhotoMultiplierHitDigi::InsertHit(
     }
     // no hits group found
     if (i >= it->second.size()) {
-      auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+      // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
       hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
@@ -274,7 +278,8 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
-    auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+    // auto sig = amp + m_cfg.pedMean + m_rng.gaussian<double>(0, m_cfg.pedError);
+    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rng.gaussian<double>(0, 1);
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
     hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
