@@ -29,11 +29,13 @@
 #include <stdint.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <algorithm>
 #include <cmath>
-#include <exception>
+#include <functional>
 #include <iterator>
 #include <map>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <typeinfo>
@@ -65,7 +67,8 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       [](const double& v)      { return v; },
     };
 
-    for (auto& surface_variant: m_cfg.surfaces) {
+    auto _toActsSurface = [&_toDouble, &detector, &system_id_layers](
+      const std::variant<CylinderSurfaceConfig,DiscSurfaceConfig> surface_variant) -> std::shared_ptr<Acts::Surface> {
       if (std::holds_alternative<CylinderSurfaceConfig>(surface_variant)) {
         CylinderSurfaceConfig surface = std::get<CylinderSurfaceConfig>(surface_variant);
         const double rmin = std::visit(_toDouble, surface.rmin) / dd4hep::mm * Acts::UnitConstants::mm;
@@ -77,7 +80,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-        m_target_surface_list.push_back(acts_surface);
+        return acts_surface;
       }
       if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
         DiscSurfaceConfig surface = std::get<DiscSurfaceConfig>(surface_variant);
@@ -90,109 +93,101 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
         auto tf = Acts::Transform3(t);
         auto acts_surface = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
         acts_surface->assignGeometryId(Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-        m_target_surface_list.push_back(acts_surface);
+        return acts_surface;
       }
-    }
+      throw std::domain_error("Unknown surface type");
+    };
+    m_target_surfaces.resize(m_cfg.target_surfaces.size());
+    std::transform(m_cfg.target_surfaces.cbegin(), m_cfg.target_surfaces.cend(), m_target_surfaces.begin(), _toActsSurface);
+    m_filter_surfaces.resize(m_cfg.filter_surfaces.size());
+    std::transform(m_cfg.filter_surfaces.cbegin(), m_cfg.filter_surfaces.cend(), m_filter_surfaces.begin(), _toActsSurface);
 
     m_log->trace("Initialized");
 }
 
 
+void TrackPropagation::propagateToSurfaceList(
+          const std::tuple<const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+          const std::tuple<edm4eic::TrackSegmentCollection*> output) const
+{
+    const auto [acts_trajectories, acts_tracks] = input;
+    auto [track_segments] = output;
 
-    std::unique_ptr<edm4eic::TrackSegmentCollection> TrackPropagation::propagateToSurfaceList(
-        std::vector<const ActsExamples::Trajectories*> trajectories,
-        std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
-        std::shared_ptr<Acts::Surface> filterSurface,
-        std::function<bool(edm4eic::TrackPoint)> trackPointCut,
-        bool stopIfTrackPointCutFailed
-        ) const
-    {
-      // logging
-      m_log->trace("Propagate trajectories: --------------------");
-      m_log->trace("number of trajectories: {}",trajectories.size());
+    // logging
+    m_log->trace("Propagate trajectories: --------------------");
+    m_log->trace("number of trajectories: {}", acts_trajectories.size());
 
-      // start output collection
-      auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
+    // loop over input trajectories
+    for (const auto& traj : acts_trajectories) {
 
-      // loop over input trajectories
-      for(const auto& traj : trajectories) {
+      // check if this trajectory can be propagated to any filter surface
+      bool trajectory_reaches_filter_surface{false};
+      for (const auto& filter_surface: m_filter_surfaces) {
+        auto point = propagate(traj, filter_surface);
+        if (point) {
+          trajectory_reaches_filter_surface = true;
+          break;
+        }
+      }
+      if (trajectory_reaches_filter_surface == false) continue;
 
-        // check if this trajectory can be propagated to `filterSurface`
-        if(filterSurface) {
-          try {
-            if(!propagate(traj, filterSurface)) {
-              m_log->trace("<> Skip this trajectory, since it cannot be propagated to filterSurface");
-              continue;
-            }
-          } catch(std::exception &e) {
-            m_log->warn("<> Exception in TrackPropagation::propagateToSurfaceList: {}; skip this TrackPoint and surface", e.what());
-            continue;
-          }
+      // start a mutable TrackSegment
+      auto track_segment = track_segments->create();
+      decltype(edm4eic::TrackSegmentData::length)      length       = 0;
+      decltype(edm4eic::TrackSegmentData::lengthError) length_error = 0;
+
+      // loop over projection-target surfaces
+      for (const auto& target_surface : m_target_surfaces) {
+
+        // project the trajectory `traj` to this surface
+        auto point = propagate(traj, target_surface);
+        if (!point) {
+          m_log->trace("<> Failed to propagate trajectory to this plane");
+          continue;
         }
 
-        // start a mutable TrackSegment
-        auto track_segment = track_segments->create();
-        decltype(edm4eic::TrackSegmentData::length)      length       = 0;
-        decltype(edm4eic::TrackSegmentData::lengthError) length_error = 0;
+        // logging
+        m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+            point->position.x, point->position.y, point->position.z);
+        m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
+            point->momentum.x, point->momentum.y, point->momentum.z);
 
-        // loop over projection-target surfaces
-        for(const auto& targetSurf : targetSurfaces) {
+        // track point cut
+        if (!m_cfg.track_point_cut(*point)) {
+          m_log->trace("                 => REJECTED by trackPointCut");
+          if (m_cfg.skip_track_on_track_point_cut_failure)
+            break;
+          continue;
+        }
 
-          // project the trajectory `traj` to this surface
-          std::unique_ptr<edm4eic::TrackPoint> point;
-          try {
-            point = propagate(traj, targetSurf);
-          } catch(std::exception &e) {
-            m_log->warn("<> Exception in TrackPropagation::propagateToSurfaceList: {}; skip this TrackPoint and surface", e.what());
-            continue;
-          }
-          if(!point) {
-            m_log->trace("<> Failed to propagate trajectory to this plane");
-            continue;
-          }
+        // update the `TrackSegment` length
+        // FIXME: `length` and `length_error` are currently not used by any callers, and may not be correctly calculated here
+        if (track_segment.points_size()>0) {
+          auto pos0 = point->position;
+          auto pos1 = std::prev(track_segment.points_end())->position;
+          auto dist = edm4hep::utils::magnitude(pos0-pos1);
+          length += dist;
+          m_log->trace("               dist to previous point: {}", dist);
+        }
 
-          // logging
-          m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )",
-              point->position.x, point->position.y, point->position.z);
-          m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )",
-              point->momentum.x, point->momentum.y, point->momentum.z);
+        // add the `TrackPoint` to the `TrackSegment`
+        track_segment.addToPoints(*point);
 
-          // track point cut
-          if(!trackPointCut(*point)) {
-            m_log->trace("                 => REJECTED by trackPointCut");
-            if(stopIfTrackPointCutFailed)
-              break;
-            continue;
-          }
+      } // end `targetSurfaces` loop
 
-          // update the `TrackSegment` length
-          // FIXME: `length` and `length_error` are currently not used by any callers, and may not be correctly calculated here
-          if(track_segment.points_size()>0) {
-            auto pos0 = point->position;
-            auto pos1 = std::prev(track_segment.points_end())->position;
-            auto dist = edm4hep::utils::magnitude(pos0-pos1);
-            length += dist;
-            m_log->trace("               dist to previous point: {}", dist);
-          }
+      // set final length and length error
+      track_segment.setLength(length);
+      track_segment.setLengthError(length_error);
 
-          // add the `TrackPoint` to the `TrackSegment`
-          track_segment.addToPoints(*point);
-
-        } // end `targetSurfaces` loop
-
-        // set final length and length error
-        track_segment.setLength(length);
-        track_segment.setLengthError(length_error);
-
-      } // end loop over input trajectories
-
-      return track_segments;
-    }
+    } // end loop over input trajectories
+  }
 
 
 
-    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(const ActsExamples::Trajectories *traj,
-                                                     const std::shared_ptr<const Acts::Surface> &targetSurf) const {
+    std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(
+      const ActsExamples::Trajectories *traj,
+      const std::shared_ptr<const Acts::Surface> &targetSurf) const {
+
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
         const auto &mj = traj->multiTrajectory();

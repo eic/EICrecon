@@ -21,8 +21,13 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits",
-        {"MPGDBarrelHits"},
-        {"MPGDBarrelRawHits"},
+        {
+          "MPGDBarrelHits"
+        },
+        {
+          "MPGDBarrelRawHits",
+          "MPGDBarrelHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz) 
@@ -43,33 +48,14 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "MPGDDIRCRawHits",
-        {"MPGDDIRCHits"},
-        {"MPGDDIRCRawHits"},
-        {
-            .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 10, // no information in the digitization spreadsheet!
-        },
-        app
-    ));
-
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "MPGDDIRCRecHits",
-        {"MPGDDIRCRawHits"},    // Input data collection tags
-        {"MPGDDIRCRecHits"},    // Output data tag
-        {
-            .timeResolution = 10, // no information in the digitization spreadsheet!
-        },
-        app
-    ));
-
-
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits",
-        {"OuterMPGDBarrelHits"},
-        {"OuterMPGDBarrelRawHits"},
+        {
+          "OuterMPGDBarrelHits"
+        },
+        {
+          "OuterMPGDBarrelRawHits",
+          "OuterMPGDBarrelHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
@@ -91,8 +77,13 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "BackwardMPGDEndcapRawHits",
-        {"BackwardMPGDEndcapHits"},
-        {"BackwardMPGDEndcapRawHits"},
+        {
+          "BackwardMPGDEndcapHits"
+        },
+        {
+          "BackwardMPGDEndcapRawHits",
+          "BackwardMPGDEndcapAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
@@ -114,8 +105,13 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardMPGDEndcapRawHits",
-        {"ForwardMPGDEndcapHits"},
-        {"ForwardMPGDEndcapRawHits"},
+        {
+          "ForwardMPGDEndcapHits"
+        },
+        {
+          "ForwardMPGDEndcapRawHits",
+          "ForwardMPGDHitAssociations"
+        },
         {
             .threshold = 0.25 * dd4hep::keV,
             .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)

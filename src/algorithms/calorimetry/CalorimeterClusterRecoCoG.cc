@@ -91,14 +91,6 @@ namespace eicrecon {
           }
         );
 
-        // FIXME: The code below fails for HcalEndcapPClusters. This does not happen for
-        // FIXME: all calorimeters. A brief scan of the code suggests this could be caused
-        // FIXME: by the CalorimeterHitDigi algorithm modifying the cellID for the raw hits.
-        // FIXME: Thus, the cellID values passed on through to here no longer match those
-        // FIXME: in the low-level truth hits. It likely works for other detectors because
-        // FIXME: their u_fields and u_refs members are left empty which effectively results
-        // FIXME: in the cellID being unchanged.
-
         // 2. find mchit with same CellID
         // find_if not working, https://github.com/AIDASoft/podio/pull/273
         //auto mchit = std::find_if(
@@ -151,7 +143,7 @@ namespace eicrecon {
 }
 
 //------------------------------------------------------------------------
-std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
+std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 

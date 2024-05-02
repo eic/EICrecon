@@ -21,8 +21,12 @@ void InitPlugin(JApplication *app) {
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapRawHits",
-      {"TOFEndcapHits"},
-      {"TOFEndcapRawHits"},
+      {
+        "TOFEndcapHits"},
+      {
+        "TOFEndcapRawHits",
+        "TOFEndcapHitAssociations"
+      },
       {
         .threshold = 6.0 * dd4hep::keV,
         .timeResolution = 0.02 * dd4hep::ns,

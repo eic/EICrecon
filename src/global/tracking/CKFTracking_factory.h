@@ -37,9 +37,9 @@ private:
     Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
     Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
 
-    ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().m_etaBins, "Eta Bins for ACTS CKF tracking reco"};
-    ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().m_chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
-    ParameterRef<std::vector<size_t>> m_numMeasurementsCutOff {this, "NumMeasurementsCutOff", config().m_numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking"};
+    ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().etaBins, "Eta Bins for ACTS CKF tracking reco"};
+    ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
+    ParameterRef<std::vector<size_t>> m_numMeasurementsCutOff {this, "NumMeasurementsCutOff", config().numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
