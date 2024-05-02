@@ -5,6 +5,7 @@
 
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 
 #include "services/pid_lut/PIDLookupTable_service.h"
@@ -22,6 +23,7 @@ class PIDLookupTable_factory : public JOmniFactory<PIDLookupTable_factory, PIDLo
 
 private:
     PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_in {this};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_in {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_out {this};
 
     ParameterRef<std::string> m_filename {this, "filename", config().filename, "Relative to current working directory"};
@@ -49,9 +51,23 @@ public:
 
         for (const auto& recopart_without_pid : *m_recoparticles_in()) {
 
+            edm4hep::MCParticle mcpart;
             auto recopart = recopart_without_pid.clone();
 
-            int pdg = recopart.getPDG();
+            bool assoc_found = false;
+            for (auto assoc : *m_recoparticle_assocs_in()) {
+                if (assoc.getRec() == recopart_without_pid) {
+                    assoc_found = true;
+                    mcpart = assoc.getSim();
+                    break;
+                }
+            }
+            if (not assoc_found) {
+                m_recoparticles_out()->push_back(recopart);
+                continue;
+            }
+
+            int true_pdg = mcpart.getPDG();
             int charge = recopart.getCharge();
             double momentum = edm4hep::utils::magnitude(recopart.getMomentum());
 
@@ -60,7 +76,7 @@ public:
             double theta = edm4hep::utils::anglePolar(recopart.getMomentum());
             double phi = edm4hep::utils::angleAzimuthal(recopart.getMomentum());
 
-            auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
+            auto entry = m_lut->Lookup(true_pdg, charge, momentum, eta, phi);
 
             int identified_pdg = 0; // unknown
 
