@@ -1,6 +1,5 @@
-// Created by Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Simon Gardner
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -26,9 +25,9 @@ private:
     VariadicPodioInput<edm4hep::TrackerHit> m_hits_input    {this};
     PodioOutput<edm4eic::TrackSegment>      m_tracks_output {this};
 
-    ParameterRef<int>   n_layer        {this, "n_layer",         config().n_layer         };
-    ParameterRef<int>   layer_hits_max {this, "layer_hits_max",  config().layer_hits_max  };
-    ParameterRef<float> chi2_max       {this, "chi2_max",        config().chi2_max        };
+    ParameterRef<int>   n_layer        {this, "numLayers",       config().n_layer         };
+    ParameterRef<int>   layer_hits_max {this, "layerHitsMax",    config().layer_hits_max  };
+    ParameterRef<float> chi2_max       {this, "chi2Max",         config().chi2_max        };
 
   public:
     void Configure() {

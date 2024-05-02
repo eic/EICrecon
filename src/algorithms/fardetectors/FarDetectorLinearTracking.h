@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2024, Simon Gardner
 
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <Eigen/Dense>
-// Event Model related classes
+#include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/TrackSegmentCollection.h>
-
+#include <edm4hep/TrackerHitCollection.h>
+#include <gsl/pointers>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <Eigen/Core>
 #include <spdlog/logger.h>
 #include "FarDetectorLinearTrackingConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -46,13 +49,18 @@ namespace eicrecon {
 
         Eigen::VectorXd m_layerWeights;
 
-        void makeHitCombination(int level,
-                                Eigen::MatrixXd* hitMatrix,
-                                const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
-                                gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+        Eigen::Vector3d m_optimumDirection;
+
+        void buildMatrixRecursive(int level,
+                                 Eigen::MatrixXd* hitMatrix,
+                                 const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                 gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
 
         void checkHitCombination(Eigen::MatrixXd* hitMatrix,
                                 gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+
+        bool checkHitPair(const Eigen::Vector3d& hit1,
+                          const Eigen::Vector3d& hit2) const;
 
     };
 

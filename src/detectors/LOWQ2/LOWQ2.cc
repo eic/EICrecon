@@ -8,6 +8,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <math.h>
 #include <algorithm>
 #include <map>
 #include <string>
@@ -17,6 +18,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
@@ -104,9 +106,13 @@ extern "C" {
           inputClusterTags,
           {outputTrackTag},
           {
-            .layer_hits_max = 10,
+            .layer_hits_max = 100,
             .chi2_max = 0.001,
             .n_layer = 4,
+            .restrict_direction = true,
+            .optimum_theta = -M_PI+0.026,
+            .optimum_phi = M_PI,
+            .step_angle_tolerance = 0.05,
           },
           app
       ));

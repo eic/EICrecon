@@ -10,5 +10,11 @@ namespace eicrecon {
     float chi2_max{0.001};
     int   n_layer{4};
 
+    // Restrict hit direction
+    bool  restrict_direction{true};
+    float optimum_theta{0.026};
+    float optimum_phi{0};
+    float step_angle_tolerance{0.05};
+
   };
 }
