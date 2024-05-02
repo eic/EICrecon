@@ -48,10 +48,10 @@ namespace eicrecon {
 
         Eigen::Vector3d m_optimumDirection;
 
-        void makeHitCombination(int level,
-                                Eigen::MatrixXd* hitMatrix,
-                                const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
-                                gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+        void buildMatrixRecursive(int level,
+                                 Eigen::MatrixXd* hitMatrix,
+                                 const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                 gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
 
         void checkHitCombination(Eigen::MatrixXd* hitMatrix,
                                 gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;

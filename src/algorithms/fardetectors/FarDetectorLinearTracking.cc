@@ -62,15 +62,15 @@ namespace eicrecon {
         // Create a matrix to store the hit positions
         Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
         // Loop over all combinations of hits fitting a track to all layers
-        makeHitCombination(m_cfg.n_layer-1,&hitMatrix,inputhits,outputTracks);
+        buildMatrixRecursive(m_cfg.n_layer-1,&hitMatrix,inputhits,outputTracks);
 
     }
 
 
-    void FarDetectorLinearTracking::makeHitCombination(int level,
-                                                       Eigen::MatrixXd* hitMatrix,
-                                                       const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
-                                                       gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
+    void FarDetectorLinearTracking::buildMatrixRecursive(int level,
+                                                        Eigen::MatrixXd* hitMatrix,
+                                                        const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                                        gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
 
       // Iterate over hits in this layer
       for(auto hit : (*hits[level])){
@@ -85,10 +85,10 @@ namespace eicrecon {
         }
 
         if(level>0){
-          makeHitCombination(level-1,
-                             hitMatrix,
-                             hits,
-                             outputTracks);
+          buildMatrixRecursive(level-1,
+                               hitMatrix,
+                               hits,
+                               outputTracks);
         }
         else{
           checkHitCombination(hitMatrix,outputTracks);
