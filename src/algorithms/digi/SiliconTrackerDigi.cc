@@ -44,9 +44,29 @@ void SiliconTrackerDigi::process(
 
     auto hit_time_stamp_err = (std::int32_t) (m_cfg.timeResolution * 1e3);
 
+    // Some detectors have a steady pulse of hits - generate empty time buckets for those
+    // Conundrum: We can't know the number of buckets without knowing the timeSlice length
+    // Assuming this is only used for MAPS, and that the time slice length is <= 1ms,
+    // we need at most 1ms / 2000ns = 500 buckets
+    // Let's use 1000, and pad with over and underflow to allow smearing out of range
+    if ( m_cfg.prepopulate ) {
+        for (auto cell : cell_hit_map) {
+            auto& hits = cell.second;
+            for (int i = -1; i <= 1001; i++) {
+                hits.push_back(
+                    edm4eic::MutableRawTrackerHit{
+                    cell.first,
+                    0,
+                    0
+                } );
+            }
+        }
+    }
     for (const auto& sim_hit : *sim_hits) {
 
         // time smearing
+        // Note: In the current setup, we can have hits outside the time slice
+        // Up to the analyzer to decide what to do with them
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
@@ -91,7 +111,6 @@ void SiliconTrackerDigi::process(
             m_log->debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}",
                         sim_hit.getCellID(), sim_hit.getTime());
 
-
             // Create a new hit
             cell_hit_map[sim_hit.getCellID()].push_back(
                 edm4eic::MutableRawTrackerHit{
@@ -102,12 +121,12 @@ void SiliconTrackerDigi::process(
         } // bucket found
     } // loop over sim hits
 
-    for (auto item : cell_hit_map) {
-        for (auto& hit : item.second) {
+    for (auto cell : cell_hit_map) {
+        for (auto& hit : cell.second) {
             raw_hits->push_back(hit);
 
             for (const auto& sim_hit : *sim_hits) {
-                if (item.first == sim_hit.getCellID()) {
+                if (cell.first == sim_hit.getCellID()) {
                     // set association
                     auto hitassoc = associations->create();
                     hitassoc.setWeight(1.0);

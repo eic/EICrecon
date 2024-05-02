@@ -31,6 +31,7 @@ void InitPlugin(JApplication *app) {
         {
             .threshold = 0.54 * dd4hep::keV,
             .timeResolution = 2000 * dd4hep::ns,
+            .prepopulate = true, // for MAPS, initialize digitization with a "pulse" of empty hits
         },
         app
     ));
