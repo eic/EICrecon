@@ -315,7 +315,7 @@ namespace eicrecon {
         }
 
         if (tips.empty()) {
-          m_log->info("Last trajectory is empty........");
+          m_log->info("Last trajectory is empty");
         }
 
         // last entry: move vectors
@@ -330,7 +330,7 @@ namespace eicrecon {
           const auto& trackTips = traj->tips();
           const auto& mj = traj->multiTrajectory();
           if (trackTips.empty()) {
-            m_log->warn("Empty multiTrajectory.........");
+            m_log->warn("Empty multiTrajectory.");
             continue;
           }
 
