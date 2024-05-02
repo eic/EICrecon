@@ -76,8 +76,8 @@ extern "C" {
 
     app->Add(new JOmniFactoryGeneratorT<PIDLookupTable_factory>(
           "DIRCPID",
-          {"MCParticles"},  // TODO: This is obviously not right. But at least this lets me test end-to-end
-          {"DIRCPID"},      // TODO: I don't like this collection name either, so please change it
+          {"ReconstructedParticles"},
+          {"DIRCPID"},
           {
             .filename="calibrations/hpdirc_positive.lut",
           },

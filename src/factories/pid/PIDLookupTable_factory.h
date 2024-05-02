@@ -21,7 +21,7 @@ struct PIDLookupTableConfig {
 class PIDLookupTable_factory : public JOmniFactory<PIDLookupTable_factory, PIDLookupTableConfig> {
 
 private:
-    PodioInput<edm4hep::MCParticle> m_particles_in {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_in {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_out {this};
 
     ParameterRef<std::string> m_filename {this, "filename", config().filename, "Relative to current working directory"};
@@ -47,18 +47,18 @@ public:
         // TODO: This is all very handwavy because I haven't been attending the PID datamodel discussions.
         // Please look over this carefully and correct as needed!
 
-        for (const auto& mcparticle : *m_particles_in()) {
+        for (const auto& recopart_without_pid : *m_recoparticles_in()) {
 
-            // Unpack lookup values from input
+            auto recopart = recopart_without_pid.clone();
 
-            int pdg = mcparticle.getPDG();
-            int charge = mcparticle.getCharge();
-            double momentum = edm4hep::utils::magnitude(mcparticle.getMomentum());
+            int pdg = recopart.getPDG();
+            int charge = recopart.getCharge();
+            double momentum = edm4hep::utils::magnitude(recopart.getMomentum());
 
             // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
-            double eta = edm4hep::utils::eta(mcparticle.getMomentum());
-            double theta = edm4hep::utils::anglePolar(mcparticle.getMomentum());
-            double phi = edm4hep::utils::angleAzimuthal(mcparticle.getMomentum());
+            double eta = edm4hep::utils::eta(recopart.getMomentum());
+            double theta = edm4hep::utils::anglePolar(recopart.getMomentum());
+            double phi = edm4hep::utils::angleAzimuthal(recopart.getMomentum());
 
             auto entry = m_lut->Lookup(pdg, charge, momentum, eta, phi);
 
@@ -91,12 +91,9 @@ public:
                 }
             }
 
-            m_recoparticles_out() = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-            auto recopart = m_recoparticles_out()->create();
-
             recopart.setPDG(identified_pdg);
-            // TODO: Set other fields?
-            // TODO: Association with MCParticle?
+
+            m_recoparticles_out()->push_back(recopart);
         }
     }
 };
