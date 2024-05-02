@@ -42,7 +42,7 @@ void InitPlugin(JApplication *app) {
         {"SiBarrelVertexRecHits"},
         {
             .timeResolution = 2000 * dd4hep::ns,
-        }, 
+        },
         app
     ));
 

@@ -122,7 +122,7 @@ void SiliconTrackerDigi::process(
         } //hits
     } // cell_hit_map
 
-    
+
 } // process
 
 } // namespace eicrecon

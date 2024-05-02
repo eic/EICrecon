@@ -30,7 +30,7 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz) 
+            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
         },
         app
     ));
