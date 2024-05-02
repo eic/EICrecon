@@ -5,7 +5,6 @@
 
 #include <services/pid_lut/PIDLookupTable_service.h>
 #include <services/pid_lut/PIDLookupTable.h>
-//#include <spdlog/logger.h>
 
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
