@@ -102,7 +102,7 @@ extern "C" {
           inputClusterTags,
           {outputTrackTag},
           {
-            .layer_hits_max = 10,
+            .layer_hits_max = 100,
             .chi2_max = 0.001,
             .n_layer = 4,
             .restrict_direction = true,
