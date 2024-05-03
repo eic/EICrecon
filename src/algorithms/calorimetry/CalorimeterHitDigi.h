@@ -15,9 +15,9 @@
 
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <algorithms/random.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <random>
 #include <stdint.h>
 #include <string>
 #include <string_view>
@@ -60,7 +60,9 @@ namespace eicrecon {
 
   private:
     const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+
+    mutable std::default_random_engine m_generator;
+    mutable std::normal_distribution<double> m_gaussian;
 
   };
 
