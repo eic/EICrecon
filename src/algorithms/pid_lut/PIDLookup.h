@@ -11,7 +11,7 @@
 
 #include "PIDLookupConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "services/pid_lut/PIDLookupTable_service.h"
+#include "services/pid_lut/PIDLookupTableSvc.h"
 
 class PIDLookupTable_service;
 
@@ -31,7 +31,7 @@ public:
                            {"outputParticlesCollection"},
                            ""} {}
 
-  void init(PIDLookupTable_service&);
+  void init() final;
   void process(const Input&, const Output&) const final;
 
 private:

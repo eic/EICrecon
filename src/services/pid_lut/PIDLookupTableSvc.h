@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei
+// Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #pragma once
 
-
+#include <algorithms/logger.h>
 #include "PIDLookupTable.h"
 #include <JANA/Services/JServiceLocator.h>
 #include <JANA/JLogger.h>
@@ -13,12 +13,9 @@
 
 namespace eicrecon {
 
-class PIDLookupTable_service : public JService {
-
-    std::mutex m_mutex;
-    std::map<std::string, std::unique_ptr<PIDLookupTable>> m_cache;
-
+class PIDLookupTableSvc : public algorithms::LoggedService<PIDLookupTableSvc> {
 public:
+    void init() {};
 
     const PIDLookupTable* load(std::string filename) {
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -41,6 +38,12 @@ public:
             return pair->second.get();
         }
     }
+
+private:
+    std::mutex m_mutex;
+    std::map<std::string, std::unique_ptr<PIDLookupTable>> m_cache;
+
+    ALGORITHMS_DEFINE_LOGGED_SERVICE(PIDLookupTableSvc);
 };
 
 }

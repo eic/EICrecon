@@ -3,7 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <services/pid_lut/PIDLookupTable_service.h>
+#include <services/pid_lut/PIDLookupTableSvc.h>
 #include <services/pid_lut/PIDLookupTable.h>
 
 #include <JANA/JApplication.h>
@@ -16,6 +16,7 @@
 #include <vector>
 #include <optional>
 
+using namespace eicrecon;
 
 TEST_CASE("PIDLookupTable_FindBin") {
 
@@ -99,8 +100,10 @@ TEST_CASE("PIDLookupTable_Lookup") {
 }
 
 TEST_CASE("PIDLookupTable_LoadFile") {
-    PIDLookupTable_service svc;
-    const PIDLookupTable *lut = svc.load("calibrations/hpdirc_positive.lut");
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    auto lut_svc = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
+
+    const PIDLookupTable *lut = lut_svc->load("calibrations/hpdirc_positive.lut");
     if (!lut) {
       SKIP("Missing calibrations/hpdirc_positive.lut");
     }

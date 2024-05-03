@@ -10,7 +10,6 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/pid_lut/PIDLookupTable_service.h"
 
 namespace eicrecon {
 
@@ -30,14 +29,12 @@ private:
                                        "Relative to current working directory"};
   ParameterRef<int> m_system{this, "system", config().system, "For the ParticleID record"};
 
-  Service<PIDLookupTable_service> m_lut_svc{this};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level((algorithms::LogLevel)logger()->level());
     m_algo->applyConfig(config());
-    m_algo->init(this->m_lut_svc());
+    m_algo->init();
   }
 
   void ChangeRun(int64_t run_number) {}

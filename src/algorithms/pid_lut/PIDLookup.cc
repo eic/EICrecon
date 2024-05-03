@@ -11,8 +11,11 @@
 
 namespace eicrecon {
 
-void PIDLookup::init(PIDLookupTable_service& lut_svc) {
-  m_lut = lut_svc.load(m_cfg.filename);
+void PIDLookup::init() {
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  auto lut_svc = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
+
+  m_lut = lut_svc->load(m_cfg.filename);
   if (!m_lut) {
     throw std::runtime_error("LUT not available");
   }
