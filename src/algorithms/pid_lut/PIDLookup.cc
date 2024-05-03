@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei
+// Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
+
+#include <cmath>
 
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -44,10 +46,10 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
     double eta   = edm4hep::utils::eta(recopart.getMomentum());
-    double theta = edm4hep::utils::anglePolar(recopart.getMomentum());
-    double phi   = edm4hep::utils::angleAzimuthal(recopart.getMomentum());
+    double theta = edm4hep::utils::anglePolar(recopart.getMomentum()) / M_PI * 180.;
+    double phi   = edm4hep::utils::angleAzimuthal(recopart.getMomentum()) / M_PI * 180.;
 
-    auto entry = m_lut->Lookup(true_pdg, charge, momentum, eta, phi);
+    auto entry = m_lut->Lookup(true_pdg, charge, momentum, theta, phi);
 
     int identified_pdg = 0; // unknown
 
