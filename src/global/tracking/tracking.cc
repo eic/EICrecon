@@ -88,8 +88,8 @@ void InitPlugin(JApplication* app) {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
-            "CentralCKFActsTracks",
             "CentralCKFActsTrajectories",
+            "CentralCKFActsTracks",
         },
         app));
 
@@ -116,8 +116,8 @@ void InitPlugin(JApplication* app) {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
-            "CentralCKFSeededActsTracks",
             "CentralCKFSeededActsTrajectories",
+            "CentralCKFSeededActsTracks",
         },
         app));
 
