@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/logger.h>
 #include <optional>
 #include <vector>
 #include <string>
@@ -10,7 +11,7 @@
 
 namespace eicrecon {
 
-class PIDLookupTable {
+class PIDLookupTable : public algorithms::LoggerMixin {
 
 public:
     struct Entry {
@@ -36,6 +37,8 @@ private:
     Binning m_phi_binning;
 
 public:
+
+    PIDLookupTable() : algorithms::LoggerMixin("PIDLookupTable") {};
 
     const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const;
 

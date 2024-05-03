@@ -65,50 +65,50 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
     double step;
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing pdg binning: " << line << std::endl;
+    debug("Parsing pdg binning: {}", line);
     iss.str(line);
     iss.clear();
     std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(m_pdg_binning));
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing charge binning: " << line << std::endl;
+    debug("Parsing charge binning: {}", line);
     iss.str(line);
     iss.clear();
     std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(m_charge_binning));
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing momentum binning: " << line << std::endl;
+    debug("Parsing momentum binning: {}", line);
     iss.str(line);
     iss.clear();
     if (!(iss >> m_momentum_binning.lower_bound
               >> m_momentum_binning.upper_bound
               >> step)) {
-        std::cout << "Unable to parse line: " << line << std::endl;
+        error("Unable to parse line: {}", line);
         throw std::runtime_error("Unable to parse momentum binning");
     }
     m_momentum_binning.bin_count = (m_momentum_binning.upper_bound - m_momentum_binning.lower_bound) / step;
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing eta binning: " << line << std::endl;
+    debug("Parsing eta binning: {}", line);
     iss.str(line);
     iss.clear();
     if (!(iss >> m_eta_binning.lower_bound
               >> m_eta_binning.upper_bound
               >> step)) {
-        std::cout << "Unable to parse line: " << line << std::endl;
+        error("Unable to parse line: {}", line);
         throw std::runtime_error("Unable to parse eta binning");
     }
     m_eta_binning.bin_count = (m_eta_binning.upper_bound - m_eta_binning.lower_bound) / step;
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    std::cout << "Parsing phi binning: " << line << std::endl;
+    debug("Parsing phi binning: ", line);
     iss.str(line);
     iss.clear();
     if (!(iss >> m_phi_binning.lower_bound
               >> m_phi_binning.upper_bound
               >> step)) {
-        std::cout << "Unable to parse line: " << line << std::endl;
-        throw std::runtime_error("Unable to parse header line 3");
+        error("Unable to parse line: ", line);
+        throw std::runtime_error("Unable to parse phi binning");
     }
     m_phi_binning.bin_count = (m_phi_binning.upper_bound - m_phi_binning.lower_bound) / step;
 
@@ -133,13 +133,14 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
             m_table.push_back(std::move(entry));
         }
         else {
+            error("Unable to parse LUT file!");
             throw std::runtime_error("Unable to parse LUT file!");
         }
     }
     size_t expected_table_size = m_momentum_binning.bin_count * m_eta_binning.bin_count *
                                  m_phi_binning.bin_count * m_charge_binning.size() * m_pdg_binning.size();
     if (expected_table_size != m_table.size()) {
-        std::cout << "Wrong number of entries in table for given bin counts. Expected " << expected_table_size << ", got " << m_table.size() << std::endl;
+        error("Wrong number of entries in table for given bin counts. Expected {} got {}", expected_table_size, m_table.size());
         throw std::runtime_error("Wrong number of entries in table for given bin counts");
     }
     file.close();
