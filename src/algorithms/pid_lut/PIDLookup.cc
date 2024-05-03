@@ -22,6 +22,8 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [recoparts_in, partassocs_in] = input;
   auto [recoparts_out]                     = output;
 
+  const double phi_upper_bound = m_lut->GetPhiBinning().upper_bound;
+
   for (const auto& recopart_without_pid : *recoparts_in) {
 
     edm4hep::MCParticle mcpart;
@@ -48,6 +50,14 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     double eta   = edm4hep::utils::eta(recopart.getMomentum());
     double theta = edm4hep::utils::anglePolar(recopart.getMomentum()) / M_PI * 180.;
     double phi   = edm4hep::utils::angleAzimuthal(recopart.getMomentum()) / M_PI * 180.;
+
+    // Table doesn't discriminate between the charges
+    if (m_lut->GetChargeBinning().size() == 1) {
+      true_charge = m_lut->GetChargeBinning()[0];
+    }
+
+    // Azimuthal symmetry
+    phi = std::fmod(phi, phi_upper_bound);
 
     auto entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
 
