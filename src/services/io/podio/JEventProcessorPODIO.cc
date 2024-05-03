@@ -306,7 +306,7 @@ void JEventProcessorPODIO::Init() {
     auto *app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
-    m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_file);
+    m_writer = std::make_unique<podio::ROOTWriter>(m_output_file);
     // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
     //       I definitely don't trust PODIO to do this for me.
 
