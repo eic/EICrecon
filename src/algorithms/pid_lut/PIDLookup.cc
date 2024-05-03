@@ -61,12 +61,15 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     phi = std::fmod(phi, phi_upper_bound);
 
     auto entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
+    trace("lookup for true_pdg={}, true_charge={}, momentum={:.1f} GeV, polar={:.1f}, aziumthal={:.1f}",
+      true_pdg, true_charge, momentum, theta, phi);
 
     int identified_pdg = 0; // unknown
 
     if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) || (entry->prob_kaon != 0.) || (entry->prob_electron != 0.))) {
-
       double random_unit_interval = m_dist(m_gen);
+
+      trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion, entry->prob_kaon, entry->prob_proton);
 
       recopart.addToParticleIDs(partids_out->create(
         0,    // std::int32_t type
