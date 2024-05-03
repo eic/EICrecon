@@ -72,27 +72,27 @@ void PIDLookup::process(const Input& input, const Output& output) const {
       trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion, entry->prob_kaon, entry->prob_proton);
 
       recopart.addToParticleIDs(partids_out->create(
-        0,    // std::int32_t type
-        11,   // std::int32_t PDG
-        0,    // std::int32_t algorithmType
+        0,                           // std::int32_t type
+        std::copysign(11, charge),   // std::int32_t PDG
+        0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_electron) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
-        0,    // std::int32_t type
-        211,  // std::int32_t PDG
-        0,    // std::int32_t algorithmType
+        0,                           // std::int32_t type
+        std::copysign(211, charge),  // std::int32_t PDG
+        0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_pion) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
-        0,    // std::int32_t type
-        321,  // std::int32_t PDG
-        0,    // std::int32_t algorithmType
+        0,                           // std::int32_t type
+        std::copysign(321, charge),  // std::int32_t PDG
+        0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_kaon) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
-        0,    // std::int32_t type
-        2212, // std::int32_t PDG
-        0,    // std::int32_t algorithmType
+        0,                           // std::int32_t type
+        std::copysign(2212, charge), // std::int32_t PDG
+        0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_proton) // float likelihood
       ));
 
@@ -111,13 +111,9 @@ void PIDLookup::process(const Input& input, const Output& output) const {
         identified_pdg = 2212; // proton
         recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
       }
-      if (charge < 0) {
-        identified_pdg *= -1;
-        // We want the identified PDG to have the same sign as the charge
-      }
     }
 
-    recopart.setPDG(identified_pdg);
+    recopart.setPDG(std::copysign(identified_pdg, charge));
 
     recoparts_out->push_back(recopart);
   }
