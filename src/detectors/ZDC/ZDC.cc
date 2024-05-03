@@ -49,7 +49,7 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
             .thresholdValue = 0.0,
-            .sampFrac = 1.0,
+            .sampFrac = "1.0",
             .readout = "EcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
@@ -132,7 +132,7 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 0.0,
             .thresholdValue = -100.0,
-            .sampFrac = 1.0,
+            .sampFrac = "1.0",
             .readout = "HcalFarForwardZDCHits",
             .layerField = "layer",
             .sectorField = "system",

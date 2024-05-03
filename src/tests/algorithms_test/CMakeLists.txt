@@ -16,8 +16,12 @@ add_executable(
 # https://github.com/JeffersonLab/JANA2/issues/151
 target_link_libraries(
   ${TEST_NAME}
-  PRIVATE Catch2::Catch2WithMain algorithms_calorimetry_library
-          algorithms_fardetectors_library algorithms_pid_library podio::podio
+  PRIVATE Catch2::Catch2WithMain
+          algorithms_calorimetry_library
+          algorithms_fardetectors_library
+          algorithms_pid_library
+          evaluator_library
+          podio::podio
           podio::podioRootIO)
 
 # As-needed fails due to absent podio symbols in libJANA.so
