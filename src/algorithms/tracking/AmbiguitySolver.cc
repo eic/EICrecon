@@ -151,7 +151,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
     // FIXME: we only retain the first trackTips entry
     for (auto trackTip : trackTips) {
        if (trackTip != idxlist[itrval])
-	    continue;
+            continue;
       // Collect the trajectory summary info
       auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
 

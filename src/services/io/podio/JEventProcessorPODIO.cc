@@ -181,7 +181,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTracksUnfiltered",
             "CentralCKFTrackParametersUnfiltered",
-             //tracking properties - realistic seeding 
+             //tracking properties - realistic seeding
             "CentralCKFSeededTrajectoriesUnfiltered",
             "CentralCKFSeededTracksUnfiltered",
             "CentralCKFSeededTrackParametersUnfiltered",
@@ -193,7 +193,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
-            
+
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
@@ -207,7 +207,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
-            
+
 
             // Track projections
             "CalorimeterTrackProjections",
