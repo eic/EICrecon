@@ -4,7 +4,6 @@
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include "algorithms/calorimetry/NeutronReconstructionConfig.h"
 #include <edm4hep/Vector3f.h>
 #include <math.h>
 #include <gsl/pointers>
