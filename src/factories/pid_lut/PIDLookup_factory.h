@@ -28,6 +28,7 @@ private:
 
   ParameterRef<std::string> m_filename{this, "filename", config().filename,
                                        "Relative to current working directory"};
+  ParameterRef<int> m_system{this, "system", config().system, "For the ParticleID record"};
 
   Service<PIDLookupTable_service> m_lut_svc{this};
 

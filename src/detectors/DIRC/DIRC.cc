@@ -74,12 +74,20 @@ extern "C" {
           app
           ));
 
+    int BarrelDIRC_ID = 0;
+    try {
+        auto detector = app->GetService<DD4hep_service>()->detector();
+        BarrelDIRC_ID = detector->constant<int>("BarrelDIRC_ID");
+    } catch(const std::runtime_error&) {
+        // Nothing
+    }
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "DIRCPID",
           {"ReconstructedParticles", "ReconstructedParticleAssociations"},
           {"DIRCPID", "DIRCParticleIDs"},
           {
             .filename="calibrations/hpdirc_positive.lut",
+            .system=BarrelDIRC_ID,
           },
           app
           ));
