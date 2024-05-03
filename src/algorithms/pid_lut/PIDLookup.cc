@@ -41,7 +41,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     }
 
     int true_pdg    = mcpart.getPDG();
-    int charge      = recopart.getCharge();
+    int true_charge = mcpart.getCharge();
     double momentum = edm4hep::utils::magnitude(recopart.getMomentum());
 
     // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
@@ -49,7 +49,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     double theta = edm4hep::utils::anglePolar(recopart.getMomentum()) / M_PI * 180.;
     double phi   = edm4hep::utils::angleAzimuthal(recopart.getMomentum()) / M_PI * 180.;
 
-    auto entry = m_lut->Lookup(true_pdg, charge, momentum, theta, phi);
+    auto entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
 
     int identified_pdg = 0; // unknown
 
