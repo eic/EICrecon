@@ -1,61 +1,32 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Nathan Brei
 
-#pragma once
-
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4hep/utils/vector_utils.h>
 
-#include "services/pid_lut/PIDLookupTable_service.h"
-#include "extensions/jana/JOmniFactory.h"
-
-#include <random>
+#include "PIDLookup.h"
 
 namespace eicrecon {
 
-struct PIDLookupTableConfig {
-    std::string filename;
-};
-
-class PIDLookupTable_factory : public JOmniFactory<PIDLookupTable_factory, PIDLookupTableConfig> {
-
-private:
-    PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_in {this};
-    PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_in {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_out {this};
-
-    ParameterRef<std::string> m_filename {this, "filename", config().filename, "Relative to current working directory"};
-    Service<PIDLookupTable_service> m_lut_svc {this};
-
-    std::mt19937 m_gen;
-    std::uniform_real_distribution<double> m_dist {0, 1};
-    const PIDLookupTable* m_lut;
-
-public:
-    void Configure() {
-        m_lut = m_lut_svc().load(m_filename());
+void PIDLookup::init(PIDLookupTable_service& lut_svc) {
+        m_lut = lut_svc.load(m_cfg.filename);
         if (!m_lut) {
-            throw std::runtime_error("LUT table not available");
+            throw std::runtime_error("LUT not available");
         }
-    }
+}
 
-    void ChangeRun(int64_t run_number) {
-    }
+void PIDLookup::process(const Input& input, const Output& output) const {
+    const auto [recoparts_in, partassocs_in] = input;
+    auto [recoparts_out] = output;
 
-    void Process(int64_t run_number, uint64_t event_number) {
-
-        // TODO: This is all very handwavy because I haven't been attending the PID datamodel discussions.
-        // Please look over this carefully and correct as needed!
-
-        for (const auto& recopart_without_pid : *m_recoparticles_in()) {
+        for (const auto& recopart_without_pid : *recoparts_in) {
 
             edm4hep::MCParticle mcpart;
             auto recopart = recopart_without_pid.clone();
 
             bool assoc_found = false;
-            for (auto assoc : *m_recoparticle_assocs_in()) {
+            for (auto assoc : *partassocs_in) {
                 if (assoc.getRec() == recopart_without_pid) {
                     assoc_found = true;
                     mcpart = assoc.getSim();
@@ -63,7 +34,7 @@ public:
                 }
             }
             if (not assoc_found) {
-                m_recoparticles_out()->push_back(recopart);
+                recoparts_out->push_back(recopart);
                 continue;
             }
 
@@ -82,7 +53,6 @@ public:
 
             if (entry != nullptr) {
 
-                m_gen.seed(event_number);
                 double random_unit_interval = m_dist(m_gen);
 
                 if (random_unit_interval < entry->prob_electron) {
@@ -109,9 +79,7 @@ public:
 
             recopart.setPDG(identified_pdg);
 
-            m_recoparticles_out()->push_back(recopart);
+            recoparts_out->push_back(recopart);
         }
-    }
-};
-
-} // eicrecon
+}
+}

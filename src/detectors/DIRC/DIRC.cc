@@ -14,7 +14,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "factories/pid/PIDLookupTable_factory.h"
+#include "factories/pid/PIDLookup_factory.h"
 
 
 extern "C" {
@@ -74,7 +74,7 @@ extern "C" {
           app
           ));
 
-    app->Add(new JOmniFactoryGeneratorT<PIDLookupTable_factory>(
+    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "DIRCPID",
           {"ReconstructedParticles", "ReconstructedParticleAssociations"},
           {"DIRCPID"},
