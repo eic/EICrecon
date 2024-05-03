@@ -58,7 +58,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     }
 
     // Azimuthal symmetry
-    phi = std::fmod(phi, phi_upper_bound);
+    phi = phi - (std::floor(phi / phi_upper_bound) * phi_upper_bound);
 
     auto entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
     trace("lookup for true_pdg={}, true_charge={}, momentum={:.1f} GeV, polar={:.1f}, aziumthal={:.1f}",
