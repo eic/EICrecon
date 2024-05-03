@@ -131,7 +131,7 @@ void CalorimeterHitDigi::process(
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
-        auto   mid      = (*simhits)[ixs[0]].getCellID();
+        auto   leading_hit = (*simhits)[ixs[0]];
         // sum energy, take time from the most energetic hit
         for (size_t i = 0; i < ixs.size(); ++i) {
             auto hit = (*simhits)[ixs[i]];
@@ -149,7 +149,7 @@ void CalorimeterHitDigi::process(
             // change maximum hit energy & time if necessary
             if (hit.getEnergy() > max_edep) {
                 max_edep = hit.getEnergy();
-                mid = hit.getCellID();
+                leading_hit = hit;
                 if (timeC <= time) {
                     time = timeC;
                 }
@@ -171,7 +171,7 @@ void CalorimeterHitDigi::process(
 
         if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
         rawhits->create(
-                mid,
+                leading_hit.getCellID(),
                 (adc > m_cfg.capADC ? m_cfg.capADC : adc),
                 tdc
         );
