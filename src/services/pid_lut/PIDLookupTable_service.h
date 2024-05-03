@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <cstdlib>
 
+namespace eicrecon {
 
 class PIDLookupTable_service : public JService {
 
@@ -41,3 +42,5 @@ public:
         }
     }
 };
+
+}

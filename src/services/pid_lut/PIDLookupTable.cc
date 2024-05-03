@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <utility>
 
+namespace eicrecon {
 
 const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
 
@@ -164,4 +165,6 @@ std::optional<size_t> PIDLookupTable::FindBin(const std::vector<int>& binning, i
         if (binning[i] == value) return i;
     }
     return std::nullopt;
+}
+
 }

@@ -8,6 +8,8 @@
 #include <string>
 #include <stddef.h>
 
+namespace eicrecon {
+
 class PIDLookupTable {
 
 public:
@@ -56,3 +58,5 @@ public:
     static std::optional<size_t> FindBin(const std::vector<int>& binning, int value);
 
 };
+
+}
