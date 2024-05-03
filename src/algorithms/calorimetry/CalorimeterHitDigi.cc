@@ -13,6 +13,7 @@
 
 #include "CalorimeterHitDigi.h"
 
+#include <algorithms/service.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
@@ -32,6 +33,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
@@ -81,9 +83,8 @@ void CalorimeterHitDigi::init() {
     }
 
     // get decoders
-    dd4hep::IDDescriptor id_desc;
     try {
-        id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
+        id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
     } catch (...) {
         // Can not be more verbose. In JANA2, this will be attempted at each event, which
         // pollutes output for geometries that are less than complete.
@@ -96,11 +97,25 @@ void CalorimeterHitDigi::init() {
     // all these are for signal sum at digitization level
     if (!m_cfg.fields.empty()) {
         for (auto & field : m_cfg.fields) {
-            id_inverse_mask |= id_desc.field(field)->mask();
+            id_inverse_mask |= id_spec.field(field)->mask();
         }
         debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
     }
     id_mask = ~id_inverse_mask;
+
+    std::function hit_to_map = [this](const edm4hep::SimCalorimeterHit &h) {
+      std::unordered_map<std::string, double> params;
+      for(const auto &p : id_spec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.emplace(name, field->value(h.getCellID()));
+        trace("{} = {}", name, field->value(h.getCellID()));
+      }
+      return params;
+    };
+
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    corrMeanScale = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.corrMeanScale, hit_to_map);
 }
 
 
@@ -165,11 +180,12 @@ void CalorimeterHitDigi::process(
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
+        double    corrMeanScale_value = corrMeanScale(leading_hit);
         double    ped     = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
+        unsigned long long adc     = std::llround(ped + edep * corrMeanScale_value * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
         unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
 
-        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
+        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
         rawhits->create(
                 leading_hit.getCellID(),
                 (adc > m_cfg.capADC ? m_cfg.capADC : adc),

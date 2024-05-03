@@ -47,7 +47,7 @@ extern "C" {
              .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
              .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
              .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "EcalBarrelScFiHits",
              .fields = {"fiber", "z"},
            },
@@ -121,7 +121,7 @@ extern "C" {
              .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
              .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
              .resolutionTDC = EcalBarrelImaging_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "EcalBarrelImagingHits",
            },
            app   // TODO: Remove me once fixed
