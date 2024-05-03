@@ -20,7 +20,7 @@ void PIDLookup::init(PIDLookupTable_service& lut_svc) {
 
 void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [recoparts_in, partassocs_in] = input;
-  auto [recoparts_out]                     = output;
+  auto [recoparts_out, partids_out]        = output;
 
   const double phi_upper_bound = m_lut->GetPhiBinning().upper_bound;
 
@@ -64,24 +64,49 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     int identified_pdg = 0; // unknown
 
-    if (entry != nullptr) {
+    if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) || (entry->prob_kaon != 0.) || (entry->prob_electron != 0.))) {
 
       double random_unit_interval = m_dist(m_gen);
 
+      recopart.addToParticleIDs(partids_out->create(
+        0,    // std::int32_t type
+	11,   // std::int32_t PDG
+	0,    // std::int32_t algorithmType
+	static_cast<float>(entry->prob_electron) // float likelihood
+      ));
+      recopart.addToParticleIDs(partids_out->create(
+        0,    // std::int32_t type
+	211,  // std::int32_t PDG
+	0,    // std::int32_t algorithmType
+	static_cast<float>(entry->prob_pion) // float likelihood
+      ));
+      recopart.addToParticleIDs(partids_out->create(
+        0,    // std::int32_t type
+	321,  // std::int32_t PDG
+	0,    // std::int32_t algorithmType
+	static_cast<float>(entry->prob_kaon) // float likelihood
+      ));
+      recopart.addToParticleIDs(partids_out->create(
+        0,    // std::int32_t type
+	2212, // std::int32_t PDG
+	0,    // std::int32_t algorithmType
+	static_cast<float>(entry->prob_proton) // float likelihood
+      ));
+
       if (random_unit_interval < entry->prob_electron) {
         identified_pdg = 11; // electron
+        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 4]);
       } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion)) {
         identified_pdg = 211; // pion
+        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 3]);
       } else if (random_unit_interval <
                  (entry->prob_electron + entry->prob_pion + entry->prob_kaon)) {
         identified_pdg = 321; // kaon
+        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 2]);
       } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion +
                                          entry->prob_kaon + entry->prob_electron)) {
         identified_pdg = 2212; // proton
-      } else {
-        identified_pdg = 0; // unknown
-        // If the lookup table contains rows where all probabilities are zero, the control flow ends
-        // up here
+        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
       }
       if (charge < 0) {
         identified_pdg *= -1;

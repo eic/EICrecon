@@ -77,7 +77,7 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "DIRCPID",
           {"ReconstructedParticles", "ReconstructedParticleAssociations"},
-          {"DIRCPID"},
+          {"DIRCPID", "DIRCParticleIDs"},
           {
             .filename="calibrations/hpdirc_positive.lut",
           },

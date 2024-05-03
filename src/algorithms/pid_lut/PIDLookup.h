@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 
 #include "PIDLookupConfig.h"
@@ -19,7 +20,7 @@ namespace eicrecon {
 using PIDLookupAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
                                             edm4eic::MCRecoParticleAssociationCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection, edm4hep::ParticleIDCollection>>;
 
 class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfig> {
 
