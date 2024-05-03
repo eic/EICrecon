@@ -47,8 +47,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Truth record
             "MCParticles",
-            "BeamElectrons",
-            "BeamProtons",
+            "MCBeamElectrons",
+            "MCBeamProtons",
+            "MCScatteredElectrons",
+            "MCScatteredProtons",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -68,6 +70,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "VertexBarrelHits",
             "TrackerEndcapHits",
 
+            "SiBarrelHitAssociations",
+            "SiBarrelVertexHitAssociations",
+            "SiEndcapHitAssociations",
+
             // TOF
             "TOFBarrelRecHit",
             "TOFEndcapRecHits",
@@ -77,6 +83,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             "TOFBarrelHits",
             "TOFEndcapHits",
+
+            "TOFBarrelHitAssociations",
+            "TOFEndcapHitAssociations",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -104,18 +114,40 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "OuterMPGDBarrelHits",
             "BackwardMPGDEndcapHits",
             "ForwardMPGDEndcapHits",
+
+            "MPGDBarrelHitAssociations",
+            "OuterMPGDBarrelHitAssociations",
+            "BackwardMPGDEndcapAssociations",
+            "ForwardMPGDHitAssociations",
+
             // LOWQ2 hits
             "TaggerTrackerRawHits",
+            "TaggerTrackerHitAssociations",
+            "TaggerTrackerM1L0ClusterPositions",
+            "TaggerTrackerM1L1ClusterPositions",
+            "TaggerTrackerM1L2ClusterPositions",
+            "TaggerTrackerM1L3ClusterPositions",
+            "TaggerTrackerM2L0ClusterPositions",
+            "TaggerTrackerM2L1ClusterPositions",
+            "TaggerTrackerM2L2ClusterPositions",
+            "TaggerTrackerM2L3ClusterPositions",
+            "TaggerTrackerM1Tracks",
+            "TaggerTrackerM2Tracks",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
             "B0TrackerRawHits",
             "B0TrackerHits",
+            "B0TrackerHitAssociations",
+
             "ForwardRomanPotRecHits",
             "ForwardOffMTrackerRecHits",
-            //
+
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
+
+            "ForwardRomanPotHitAssociations",
+            "ForwardOffMTrackerHitAssociations",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -125,6 +157,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticleAssociations",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
+            "MCScatteredElectronAssociations", // Remove if/when used internally
+            "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",

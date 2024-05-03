@@ -11,11 +11,11 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Geometry>
 #include <exception>
+#include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>

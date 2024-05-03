@@ -15,7 +15,6 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <spdlog/logger.h>
-#include <functional>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -49,9 +48,9 @@ namespace eicrecon {
 
             for (auto traj: acts_trajectories) {
                 edm4eic::MutableTrackSegment this_propagated_track;
-                for(auto& surf : m_target_surface_list) {
+                for(auto& surf : m_target_surfaces) {
                     auto prop_point = propagate(traj, surf);
-                    if(!prop_point) continue;
+                    if (!prop_point) continue;
                     prop_point->surface = surf->geometryId().layer();
                     prop_point->system  = surf->geometryId().extra();
                     this_propagated_track.addToPoints(*prop_point);
@@ -65,19 +64,11 @@ namespace eicrecon {
 
         /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
          * @param trajectories the input collection of trajectories
-         * @param targetSurfaces the list of surfaces to propagate to
-         * @param filterSurface if defined, do not propagate to any surfaces unless successful propagation to this filterSurface
-         * @param trackPointCut an optional cut to omit specific track points
-         * @param stopIfTrackPointCutFailed if true, stop propagating a trajectory when trackPointCut returns false
          * @return the resulting collection of propagated tracks
          */
-        std::unique_ptr<edm4eic::TrackSegmentCollection> propagateToSurfaceList(
-            std::vector<const ActsExamples::Trajectories*> trajectories,
-            std::vector<std::shared_ptr<Acts::Surface>> targetSurfaces,
-            std::shared_ptr<Acts::Surface> filterSurface = nullptr,
-            std::function<bool(edm4eic::TrackPoint)> trackPointCut = [] (edm4eic::TrackPoint p) { return true; },
-            bool stopIfTrackPointCutFailed = false
-            ) const;
+        void propagateToSurfaceList(
+            const std::tuple<const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+            const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
 
     private:
 
@@ -86,6 +77,7 @@ namespace eicrecon {
         std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
         std::shared_ptr<spdlog::logger> m_log;
 
-        std::vector<std::shared_ptr<Acts::Surface>> m_target_surface_list;
+        std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;
+        std::vector<std::shared_ptr<Acts::Surface>> m_target_surfaces;
     };
 } // namespace eicrecon
