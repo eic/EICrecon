@@ -22,10 +22,10 @@ public:
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
             auto lut = std::make_unique<PIDLookupTable>();
-            LOG << "Loading PID lookup table: " << filename << LOG_END;
+            info("Loading PID lookup table \"{}\"", filename);
 
             if (!std::filesystem::exists(filename)) {
-                LOG << "PID lookup table '" << filename << "' not found." << LOG_END;
+                error("PID lookup table \"{}\" not found", filename);
                 return nullptr;
             }
 

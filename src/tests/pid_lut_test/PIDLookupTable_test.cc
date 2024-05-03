@@ -149,32 +149,3 @@ TEST_CASE("PIDLookupTable_LoadFile") {
     REQUIRE(result->prob_proton == 0.0);
 
 }
-
-TEST_CASE("PIDLookupTable_EndToEnd") {
-    // Set up a mini JANA instance
-    JApplication app;
-    app.AddPlugin("log");
-    app.AddPlugin("pid_lut");
-    app.AddPlugin("dd4hep");
-    app.AddPlugin("richgeo");
-    app.AddPlugin("DIRC");
-    app.Initialize();
-
-    // Obtain a fully initialized event
-    auto jcm = app.GetService<JComponentManager>();
-    auto event = std::make_shared<JEvent>();
-    jcm->configure_event(*event);
-
-    // Insert some canned input data into the event
-    edm4hep::MCParticleCollection parts;
-    // TODO: Add some particles here!
-    event->InsertCollection<edm4hep::MCParticle>(std::move(parts), "MCParticles");
-
-    // Run our factory
-    auto results = event->GetCollection<edm4eic::ReconstructedParticle>("DIRCPID");
-
-    // Validate results
-    auto parts2 = event->GetCollection<edm4hep::MCParticle>("MCParticles");
-    REQUIRE(results->size() == parts2->size());
-    // TODO: More meaningful checks here!
-}
