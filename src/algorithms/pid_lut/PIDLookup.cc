@@ -70,27 +70,27 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
       recopart.addToParticleIDs(partids_out->create(
         0,    // std::int32_t type
-	11,   // std::int32_t PDG
-	0,    // std::int32_t algorithmType
-	static_cast<float>(entry->prob_electron) // float likelihood
+        11,   // std::int32_t PDG
+        0,    // std::int32_t algorithmType
+        static_cast<float>(entry->prob_electron) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
         0,    // std::int32_t type
-	211,  // std::int32_t PDG
-	0,    // std::int32_t algorithmType
-	static_cast<float>(entry->prob_pion) // float likelihood
+        211,  // std::int32_t PDG
+        0,    // std::int32_t algorithmType
+        static_cast<float>(entry->prob_pion) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
         0,    // std::int32_t type
-	321,  // std::int32_t PDG
-	0,    // std::int32_t algorithmType
-	static_cast<float>(entry->prob_kaon) // float likelihood
+        321,  // std::int32_t PDG
+        0,    // std::int32_t algorithmType
+        static_cast<float>(entry->prob_kaon) // float likelihood
       ));
       recopart.addToParticleIDs(partids_out->create(
         0,    // std::int32_t type
-	2212, // std::int32_t PDG
-	0,    // std::int32_t algorithmType
-	static_cast<float>(entry->prob_proton) // float likelihood
+        2212, // std::int32_t PDG
+        0,    // std::int32_t algorithmType
+        static_cast<float>(entry->prob_proton) // float likelihood
       ));
 
       if (random_unit_interval < entry->prob_electron) {
