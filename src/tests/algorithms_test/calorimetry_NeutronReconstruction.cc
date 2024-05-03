@@ -37,7 +37,7 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
   algo.init();
 
   edm4eic::ClusterCollection clust_coll;
-  
+
   std::array<float,3> x={30*dd4hep::mm,90*dd4hep::mm,0};
   std::array<float,3> y={-30*dd4hep::mm,0*dd4hep::mm, -90*dd4hep::mm};
   std::array<float,3> z={30*dd4hep::m,30*dd4hep::m, 30*dd4hep::m};
@@ -47,7 +47,7 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
     auto cluster=clust_coll.create();
     cluster.setEnergy(E[i]);
     cluster.setPosition({x[i], y[i], z[i]});
-    
+
   }
   auto neutroncand_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   algo.process({&clust_coll}, {neutroncand_coll.get()});
@@ -64,5 +64,5 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().x-Px_expected)/Px_expected<tol);
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().y-Py_expected)/Py_expected<tol);
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().z-Pz_expected)/Pz_expected<tol);
-  
+
 }
