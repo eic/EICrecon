@@ -8,43 +8,35 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 
+#include "PIDLookupConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/pid_lut/PIDLookupTable_service.h"
-#include "PIDLookupConfig.h"
 
 class PIDLookupTable_service;
 
 namespace eicrecon {
 
-  using PIDLookupAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::ReconstructedParticleCollection,
-      edm4eic::MCRecoParticleAssociationCollection
-    >,
-    algorithms::Output<
-      edm4eic::ReconstructedParticleCollection
-    >
-  >;
+using PIDLookupAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                                            edm4eic::MCRecoParticleAssociationCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-  class PIDLookup
-  : public PIDLookupAlgorithm,
-    public WithPodConfig<PIDLookupConfig> {
+class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfig> {
 
-  public:
-    PIDLookup(std::string_view name)
+public:
+  PIDLookup(std::string_view name)
       : PIDLookupAlgorithm{name,
-                            {"inputParticlesCollection", "inputParticleAssociationsCollection"},
-                            {"outputParticlesCollection"},
-                            ""} {}
+                           {"inputParticlesCollection", "inputParticleAssociationsCollection"},
+                           {"outputParticlesCollection"},
+                           ""} {}
 
-    void init(PIDLookupTable_service&);
-    void process(const Input&, const Output&) const final;
+  void init(PIDLookupTable_service&);
+  void process(const Input&, const Output&) const final;
 
-  private:
-    mutable std::mt19937 m_gen {};
-    mutable std::uniform_real_distribution<double> m_dist {0, 1};
-    const PIDLookupTable* m_lut;
+private:
+  mutable std::mt19937 m_gen{};
+  mutable std::uniform_real_distribution<double> m_dist{0, 1};
+  const PIDLookupTable* m_lut;
+};
 
-  };
-
-}
+} // namespace eicrecon

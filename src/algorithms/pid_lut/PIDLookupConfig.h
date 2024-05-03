@@ -4,7 +4,7 @@
 namespace eicrecon {
 
 struct PIDLookupConfig {
-    std::string filename;
+  std::string filename;
 };
 
-}
+} // namespace eicrecon
