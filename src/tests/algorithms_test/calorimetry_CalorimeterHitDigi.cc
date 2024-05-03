@@ -35,7 +35,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
 
   CalorimeterHitDigiConfig cfg;
   cfg.threshold = 0. /* GeV */;
-  cfg.corrMeanScale = 1.;
+  cfg.corrMeanScale = "1.";
 
   // Keep smearing parameters at zero
   cfg.pedSigmaADC = 0;
