@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
-
+#include <algorithms/algorithm.h>
 #include "NeutronReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
