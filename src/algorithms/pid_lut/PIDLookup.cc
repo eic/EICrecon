@@ -44,6 +44,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     int true_pdg    = mcpart.getPDG();
     int true_charge = mcpart.getCharge();
+    int charge      = recopart.getCharge();
     double momentum = edm4hep::utils::magnitude(recopart.getMomentum());
 
     // TODO: I'm still confused as to whether our lookup table actually contains eta vs theta.
