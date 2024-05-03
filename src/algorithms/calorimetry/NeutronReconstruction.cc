@@ -4,11 +4,10 @@
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <podio/RelationRange.h>
-
 #include "algorithms/calorimetry/NeutronReconstructionConfig.h"
+#include <edm4hep/Vector3f.h>
+#include <math.h>
+#include <gsl/pointers>
 
 /**
  Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in a given ClusterCollection.

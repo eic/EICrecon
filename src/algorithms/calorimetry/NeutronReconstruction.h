@@ -3,17 +3,13 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <gsl/pointers>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
 
-#include <stdlib.h>
-#include <algorithms/algorithm.h>
-#include <algorithms/geo.h>
 #include "NeutronReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

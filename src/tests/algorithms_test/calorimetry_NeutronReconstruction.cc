@@ -1,23 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Sebouh Paul
 
-#include <DD4hep/Detector.h>                       // for Detector
-#include <DD4hep/IDDescriptor.h>                   // for IDDescriptor
-#include <DD4hep/Readout.h>                        // for Readout
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
-#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <spdlog/common.h>                         // for level_enum
 #include <spdlog/logger.h>                         // for logger
 #include <spdlog/spdlog.h>                         // for default_logger
 #include <stddef.h>                                // for size_t
+#include <stdlib.h>
 #include <array>                                   // for array
 #include <cmath>                                   // for sqrt, abs
-#include <gsl/pointers>
+#include <iostream>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
-#include <utility>                                 // for pair
 
 #include "algorithms/calorimetry/NeutronReconstruction.h"        // for Neutronreconstruction
 #include "algorithms/calorimetry/NeutronReconstructionConfig.h"  // for NeutronreconstructionConfig
@@ -59,7 +56,7 @@ TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
   double Py_expected=-0.08999;
   double Pz_expected=89.99;
   //check that the correct energy and momenta are being obtained
-  std::cout << (*neutroncand_coll)[0].getEnergy() <<"  " << (*neutroncand_coll)[0].getMomentum().x << "  " << (*neutroncand_coll)[0].getMomentum().y << "  " << (*neutroncand_coll)[0].getMomentum().z << std::endl;
+  std::cout << "E, px, py, pz = " << (*neutroncand_coll)[0].getEnergy() <<"  " << (*neutroncand_coll)[0].getMomentum().x << "  " << (*neutroncand_coll)[0].getMomentum().y << "  " << (*neutroncand_coll)[0].getMomentum().z << std::endl;
   REQUIRE( abs((*neutroncand_coll)[0].getEnergy()-E_expected)/E_expected<tol);
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().x-Px_expected)/Px_expected<tol);
   REQUIRE( abs((*neutroncand_coll)[0].getMomentum().y-Py_expected)/Py_expected<tol);
