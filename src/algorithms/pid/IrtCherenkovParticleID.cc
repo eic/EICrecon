@@ -11,6 +11,7 @@
 #include <TString.h>
 #include <TVector3.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -218,17 +219,22 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
           for(const auto& hit_assoc : *in_hit_assocs) {
             if(hit_assoc.getRawHit().isAvailable()) {
               if(hit_assoc.getRawHit().id() == raw_hit.id()) {
+#if EDM4EIC_VERSION_MAJOR >= 6
+                mc_photon = hit_assoc.getSimHit().getMCParticle();
+#else
                 // hit association found, get the MC photon and break the loop
-                // FIXME: occasionally there will be more than one photon associated with a hit;
-                // for now let's just take the first one...
                 if(hit_assoc.simHits_size() > 0) {
                   mc_photon = hit_assoc.getSimHits(0).getMCParticle();
+#endif
                   mc_photon_found = true;
                   if(mc_photon.getPDG() != -22)
                     m_log->warn("non-opticalphoton hit: PDG = {}",mc_photon.getPDG());
+#if EDM4EIC_VERSION_MAJOR >= 6
+#else
                 }
                 else if(m_cfg.CheatModeEnabled())
                   m_log->error("cheat mode enabled, but no MC photons provided");
+#endif
                 break;
               }
             }
