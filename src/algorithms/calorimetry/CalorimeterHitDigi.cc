@@ -13,13 +13,13 @@
 
 #include "CalorimeterHitDigi.h"
 
-#include <algorithms/service.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/service.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"

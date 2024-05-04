@@ -3,7 +3,9 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -14,8 +16,9 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <gsl/pointers>
 #include <memory>
-#include <string>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
