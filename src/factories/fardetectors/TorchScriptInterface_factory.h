@@ -13,7 +13,7 @@ class TorchScriptInterface_factory :
     public JOmniFactory<TorchScriptInterface_factory, TorchScriptInterfaceConfig> {
 
 public:
-    using AlgoT = eicrecon::TorchScriptInterface; 
+    using AlgoT = eicrecon::TorchScriptInterface;
 private:
     std::unique_ptr<AlgoT> m_algo;
 
@@ -25,7 +25,7 @@ private:
     ParameterRef<string> model_x_file_path{this, "model_x_file_path", config().model_x_file_path};
     ParameterRef<string> model_y_file_path{this, "model_y_file_path", config().model_y_file_path};
     ParameterRef<string> model_z_file_path{this, "model_z_file_path", config().model_z_file_path};
-   
+
 
 public:
     void Configure() {
@@ -39,9 +39,9 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
         auto output = m_algo->execute(
-	  m_in_reco_particles()
-	);
-	m_out_reco_particles() = std::move(output);
+          m_in_reco_particles()
+        );
+        m_out_reco_particles() = std::move(output);
     }
 
 };
