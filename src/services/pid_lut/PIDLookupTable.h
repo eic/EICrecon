@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei
+// Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #pragma once
 
 #include <algorithms/logger.h>
+#include <boost/histogram.hpp>
 #include <optional>
 #include <vector>
 #include <string>
@@ -14,7 +15,8 @@ namespace eicrecon {
 class PIDLookupTable : public algorithms::LoggerMixin {
 
 public:
-    struct Entry {
+    /// The histogram entry with access counter, where the probabilities are stored in metadata
+    struct Entry : public boost::histogram::accumulators::count<unsigned char, false> {
         int pdg, charge;
         double momentum, eta, phi;
         double prob_electron, prob_pion, prob_kaon, prob_proton;
@@ -29,6 +31,16 @@ public:
 
 private:
     std::vector<Entry> m_table;
+    boost::histogram::histogram<
+      std::tuple<
+        boost::histogram::axis::category<int>,
+        boost::histogram::axis::category<int>,
+        boost::histogram::axis::regular<>,
+        boost::histogram::axis::regular<>,
+        boost::histogram::axis::circular<>
+      >
+      , boost::histogram::dense_storage<Entry>
+    > m_hist;
 
     std::vector<int> m_pdg_binning;
     std::vector<int> m_charge_binning;

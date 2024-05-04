@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei
+// Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include "PIDLookupTable.h"
 #include <algorithm>
@@ -9,6 +9,8 @@
 #include <iterator>
 #include <stdexcept>
 #include <utility>
+
+namespace bh = boost::histogram;
 
 namespace eicrecon {
 
@@ -49,6 +51,28 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
     offset *= m_charge_binning.size();
     index += *pdg_bin * offset;
 
+    auto entry_table = m_table.at(index);
+    auto entry_hist = m_hist[
+      decltype(m_hist)::multi_index_type {
+        m_hist.axis(0).index(pdg),
+        m_hist.axis(1).index(charge),
+        m_hist.axis(2).index(momentum),
+        m_hist.axis(3).index(eta_deg),
+        m_hist.axis(4).index(phi_deg)
+      }
+    ];
+    if ((entry_table.prob_electron != entry_hist.prob_electron)
+        || (entry_table.prob_pion != entry_hist.prob_pion)
+        || (entry_table.prob_kaon != entry_hist.prob_kaon)
+        || (entry_table.prob_proton != entry_hist.prob_proton)) {
+      error("Consistency error between table and hist");
+      error("electron: {} vs {}", entry_table.prob_electron, entry_hist.prob_electron);
+      error("pion: {} vs {}", entry_table.prob_pion, entry_hist.prob_pion);
+      error("kaon: {} vs {}", entry_table.prob_kaon, entry_hist.prob_kaon);
+      error("proton: {} vs {}", entry_table.prob_proton, entry_hist.prob_proton);
+      std::terminate();
+    }
+
     return &m_table.at(index);
 
 }
@@ -69,49 +93,62 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
     iss.str(line);
     iss.clear();
     std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(m_pdg_binning));
+    bh::axis::category<int> pdg_bins(m_pdg_binning);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     debug("Parsing charge binning: {}", line);
     iss.str(line);
     iss.clear();
     std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(m_charge_binning));
+    bh::axis::category<int> charge_bins(m_charge_binning);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     debug("Parsing momentum binning: {}", line);
     iss.str(line);
     iss.clear();
-    if (!(iss >> m_momentum_binning.lower_bound
-              >> m_momentum_binning.upper_bound
+    double lower_bound, upper_bound;
+    if (!(iss >> lower_bound
+              >> upper_bound
               >> step)) {
         error("Unable to parse line: {}", line);
         throw std::runtime_error("Unable to parse momentum binning");
     }
-    m_momentum_binning.bin_count = (m_momentum_binning.upper_bound - m_momentum_binning.lower_bound) / step;
+    m_momentum_binning.lower_bound = lower_bound;
+    m_momentum_binning.upper_bound = upper_bound;
+    m_momentum_binning.bin_count = static_cast<int>((upper_bound - lower_bound) / step);
+    bh::axis::regular<> momentum_bins(bh::axis::step(step), lower_bound, upper_bound);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     debug("Parsing eta binning: {}", line);
     iss.str(line);
     iss.clear();
-    if (!(iss >> m_eta_binning.lower_bound
-              >> m_eta_binning.upper_bound
+    if (!(iss >> lower_bound
+              >> upper_bound
               >> step)) {
         error("Unable to parse line: {}", line);
         throw std::runtime_error("Unable to parse eta binning");
     }
-    m_eta_binning.bin_count = (m_eta_binning.upper_bound - m_eta_binning.lower_bound) / step;
+    m_eta_binning.lower_bound = lower_bound;
+    m_eta_binning.upper_bound = upper_bound;
+    m_eta_binning.bin_count = static_cast<int>((upper_bound - lower_bound) / step);
+    bh::axis::regular<> polar_bins(bh::axis::step(step), lower_bound, upper_bound);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     debug("Parsing phi binning: ", line);
     iss.str(line);
     iss.clear();
-    if (!(iss >> m_phi_binning.lower_bound
-              >> m_phi_binning.upper_bound
+    if (!(iss >> lower_bound
+              >> upper_bound
               >> step)) {
         error("Unable to parse line: ", line);
         throw std::runtime_error("Unable to parse phi binning");
     }
-    m_phi_binning.bin_count = (m_phi_binning.upper_bound - m_phi_binning.lower_bound) / step;
+    m_phi_binning.lower_bound = lower_bound;
+    m_phi_binning.upper_bound = upper_bound;
+    m_phi_binning.bin_count = static_cast<int>((upper_bound - lower_bound) / step);
+    bh::axis::circular<> azimuthal_bins(bh::axis::step(step), lower_bound, upper_bound);
 
+    m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins, charge_bins, momentum_bins, polar_bins, azimuthal_bins);
 
     while (std::getline(file, line)) {
         Entry entry;
@@ -131,6 +168,19 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
                 >> entry.prob_proton) {
 
             m_table.push_back(std::move(entry));
+
+	    // operator() here allows to lookup mutable entry and increases the access counter
+	    auto &entry_hist = *m_hist(
+              entry.pdg,
+              entry.charge,
+              entry.momentum + momentum_bins.bin(0).width() / 2,
+              entry.eta + polar_bins.bin(0).width() / 2,
+              entry.phi + azimuthal_bins.bin(0).width() / 2
+            );
+            entry_hist.prob_electron = entry.prob_electron;
+            entry_hist.prob_pion = entry.prob_pion;
+            entry_hist.prob_kaon = entry.prob_kaon;
+            entry_hist.prob_proton = entry.prob_proton;
         }
         else {
             error("Unable to parse LUT file!");
@@ -142,6 +192,22 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
     if (expected_table_size != m_table.size()) {
         error("Wrong number of entries in table for given bin counts. Expected {} got {}", expected_table_size, m_table.size());
         throw std::runtime_error("Wrong number of entries in table for given bin counts");
+    }
+    for (auto&& b : bh::indexed(m_hist)) {
+      if (b->value() != 1) {
+        error(
+          "Bin {} {} {}:{} {}:{} {}:{} is defined {} times in the PID table",
+          b.bin(0).lower(),
+          b.bin(1).lower(),
+          b.bin(2).lower(),
+          b.bin(2).upper(),
+          b.bin(3).lower(),
+          b.bin(3).upper(),
+          b.bin(4).lower(),
+          b.bin(4).upper(),
+          b->value()
+        );
+      }
     }
     file.close();
 }
