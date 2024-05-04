@@ -25,8 +25,6 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [recoparts_in, partassocs_in] = input;
   auto [recoparts_out, partids_out]        = output;
 
-  const double phi_upper_bound = m_lut->GetPhiBinning().upper_bound;
-
   for (const auto& recopart_without_pid : *recoparts_in) {
 
     edm4hep::MCParticle mcpart;
@@ -56,12 +54,9 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     double phi   = edm4hep::utils::angleAzimuthal(recopart.getMomentum()) / M_PI * 180.;
 
     // Table doesn't discriminate between the charges
-    if (m_lut->GetChargeBinning().size() == 1) {
-      true_charge = m_lut->GetChargeBinning()[0];
+    if (true) {
+      true_charge = 1;
     }
-
-    // Azimuthal symmetry
-    phi = phi - (std::floor(phi / phi_upper_bound) * phi_upper_bound);
 
     trace("lookup for true_pdg={}, true_charge={}, momentum={:.2f} GeV, polar={:.2f}, aziumthal={:.2f}",
       true_pdg, true_charge, momentum, theta, phi);
