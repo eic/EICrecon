@@ -116,8 +116,8 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
                 >> prob_kaon
                 >> prob_proton) {
 
-	    // operator() here allows to lookup mutable entry and increases the access counter
-	    auto &entry = *m_hist(
+            // operator() here allows to lookup mutable entry and increases the access counter
+            auto &entry = *m_hist(
               pdg,
               charge,
               momentum + momentum_bins.bin(0).width() / 2,
