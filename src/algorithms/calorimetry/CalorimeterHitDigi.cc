@@ -174,16 +174,16 @@ void CalorimeterHitDigi::process(
 
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
-                ? m_rng.gaussian<double>(0., 1.) * std::sqrt(
+                ? m_gaussian(m_generator) * std::sqrt(
                      std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                      std::pow(m_cfg.eRes[1], 2) +
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
         double    corrMeanScale_value = corrMeanScale(leading_hit);
-        double    ped     = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
+        double    ped     = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
         unsigned long long adc     = std::llround(ped + edep * corrMeanScale_value * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
+        unsigned long long tdc     = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
         rawhits->create(
