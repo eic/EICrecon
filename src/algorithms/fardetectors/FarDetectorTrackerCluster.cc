@@ -110,7 +110,7 @@ namespace eicrecon {
 
       available[maxIndex] = 0;
 
-      ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
+      ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
       std::vector<podio::ObjectID> clusterHits;
 
