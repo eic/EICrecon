@@ -26,7 +26,9 @@ public:
       std::vector<double> momentum_edges;
       std::vector<double> polar_edges;
       std::vector<double> azimuthal_binning;
+      bool polar_bin_centers_in_lut;
       bool skip_legacy_header;
+      bool use_radians;
     };
 
 private:

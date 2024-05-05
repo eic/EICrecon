@@ -64,11 +64,17 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
       debug("Ignoring phi binning: ", line);
     }
 
+    const double angle_fudge = binning.use_radians ? 180. / M_PI : 1.;
+
     bh::axis::category<int> pdg_bins(binning.pdg_values);
     bh::axis::category<int> charge_bins(binning.charge_values);
     bh::axis::variable<> momentum_bins(binning.momentum_edges);
-    bh::axis::variable<> polar_bins(binning.polar_edges);
-    bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2)), binning.azimuthal_binning.at(0), binning.azimuthal_binning.at(1));
+    std::vector<double> polar_edges = binning.polar_edges;
+    for (double &edge : polar_edges) {
+      edge *= angle_fudge;
+    }
+    bh::axis::variable<> polar_bins(polar_edges);
+    bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2) * angle_fudge), binning.azimuthal_binning.at(0) * angle_fudge, binning.azimuthal_binning.at(1) * angle_fudge);
 
     m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins, charge_bins, momentum_bins, polar_bins, azimuthal_bins);
 
@@ -101,9 +107,9 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
               pdg,
               charge,
               momentum + momentum_bins.bin(0).width() / 2,
-              eta + polar_bins.bin(0).width() / 2,
-              phi + azimuthal_bins.bin(0).width() / 2
-            );
+              eta * angle_fudge + (binning.polar_bin_centers_in_lut ? 0. : (polar_bins.bin(0).width() / 2)),
+              phi * angle_fudge + azimuthal_bins.bin(0).width() / 2
+            ); // N.B. bin(0) may not be of a correct width
             entry.prob_electron = prob_electron;
             entry.prob_pion = prob_pion;
             entry.prob_kaon = prob_kaon;
