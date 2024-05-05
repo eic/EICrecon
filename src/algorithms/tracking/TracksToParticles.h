@@ -9,7 +9,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
+#include <string>
+#include <string_view>
 
 #include "TracksToParticlesConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

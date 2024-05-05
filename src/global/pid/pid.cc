@@ -6,8 +6,6 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-// algorithm configurations
-#include "algorithms/pid/MatchToRICHPIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/pid/MatchToRICHPID_factory.h"
