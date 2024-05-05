@@ -24,6 +24,7 @@ void PIDLookup::init() {
     .polar_bin_centers_in_lut=m_cfg.polar_bin_centers_in_lut,
     .skip_legacy_header=m_cfg.skip_legacy_header,
     .use_radians=m_cfg.use_radians,
+    .missing_electron_prob=m_cfg.missing_electron_prob,
   });
   if (!m_lut) {
     throw std::runtime_error("LUT not available");

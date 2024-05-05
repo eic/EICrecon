@@ -88,15 +88,15 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
         iss.clear();
         double pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton;
         // Read each field from the line and assign to Entry struct members
-        if (iss >> pdg
+        if ((bool)(iss >> pdg
                 >> charge
                 >> momentum
                 >> eta
-                >> phi
-                >> prob_electron
+                >> phi) && (binning.missing_electron_prob || (bool)(iss
+                >> prob_electron)) && (bool)(iss
                 >> prob_pion
                 >> prob_kaon
-                >> prob_proton) {
+                >> prob_proton)) {
 
             if (m_symmetrizing_charges) {
               charge = std::abs(charge);
