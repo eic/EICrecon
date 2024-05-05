@@ -186,7 +186,7 @@ void InitPlugin(JApplication *app) {
              "CentralCKFTracks",                                // edm4eic::Track
              },
              {"ReconstructedChargedWithoutPIDParticles",                  //
-              "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
+              "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
              },
              link_cfg,
              app
@@ -198,7 +198,7 @@ void InitPlugin(JApplication *app) {
              "CentralCKFSeededTracks",                          // edm4eic::Track
              },
              {"ReconstructedSeededChargedWithoutPIDParticles",            //
-              "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
+              "ReconstructedSeededChargedWithoutPIDParticleAssociations"  // edm4eic::MCRecoParticleAssociation
              },
              link_cfg,
              app
