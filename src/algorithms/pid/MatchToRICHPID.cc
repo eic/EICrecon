@@ -54,8 +54,8 @@ namespace eicrecon {
             for (auto assoc_in : *assocs_in) {
               if (assoc_in.getRec() == part_in) {
                 auto assoc_out = assoc_in.clone();
-		assoc_out.setRec(part_out);
-		assocs_out->push_back(assoc_out);
+                assoc_out.setRec(part_out);
+                assocs_out->push_back(assoc_out);
               }
             }
 
