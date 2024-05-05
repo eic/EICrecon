@@ -4,15 +4,10 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
-#include <tuple>
 
 #include "ParticlesWithPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -20,34 +15,27 @@
 
 namespace eicrecon {
 
-    using ParticlesWithAssociation = std::tuple<
-        std::unique_ptr<edm4eic::ReconstructedParticleCollection>,
-        std::unique_ptr<edm4eic::MCRecoParticleAssociationCollection>,
-        std::unique_ptr<edm4hep::ParticleIDCollection>
+using ParticlesWithPIDAlgorithm =
+    algorithms::Algorithm<
+      algorithms::Input<edm4eic::ReconstructedParticleCollection, edm4eic::CherenkovParticleIDCollection>,
+      algorithms::Output<edm4eic::ReconstructedParticleCollection, edm4hep::ParticleIDCollection>
     >;
 
-    class ParticlesWithPID : public WithPodConfig<ParticlesWithPIDConfig> {
+class ParticlesWithPID : public ParticlesWithPIDAlgorithm, public WithPodConfig<ParticlesWithPIDConfig> {
+public:
 
-    public:
+    ParticlesWithPID(std::string_view name) : ParticlesWithPIDAlgorithm{name, {"inputReconstructedParticlesCollection", "inputCherenkovParticleIDCollection"}, {"outputReconstructedParticlesCollection"}, "Matches tracks to Cherenkov PIDs"} {};
 
-        void init(std::shared_ptr<spdlog::logger> logger);
+    void init() final;
+    void process(const Input&, const Output&) const final;
 
-        ParticlesWithAssociation process(
-                const edm4hep::MCParticleCollection* mc_particles,
-                const edm4eic::TrackCollection* tracks,
-                const edm4eic::CherenkovParticleIDCollection* drich_cherenkov_pid_collections
-                );
+private:
 
-    private:
+    bool linkCherenkovPID(
+            edm4eic::MutableReconstructedParticle& in_part,
+            const edm4eic::CherenkovParticleIDCollection& in_pids,
+            edm4hep::ParticleIDCollection& out_pids
+            ) const;
+};
 
-        std::shared_ptr<spdlog::logger> m_log;
-
-        void tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance);
-
-        bool linkCherenkovPID(
-                edm4eic::MutableReconstructedParticle& in_part,
-                const edm4eic::CherenkovParticleIDCollection& in_pids,
-                edm4hep::ParticleIDCollection& out_pids
-                );
-    };
 }

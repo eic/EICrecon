@@ -18,15 +18,6 @@ extern "C" {
 
     using namespace eicrecon;
 
-    // configuration parameters ///////////////////////////////////////////////
-
-    // linking of reconstructed particles to PID objects
-    ParticlesWithPIDConfig link_cfg;
-    link_cfg.momentumRelativeTolerance = 100.0; /// Matching momentum effectively disabled
-    link_cfg.phiTolerance              = 0.1; /// Matching phi tolerance [rad]
-    link_cfg.etaTolerance              = 0.2; /// Matching eta tolerance
-
-
     // wiring between factories and data ///////////////////////////////////////
     // clang-format off
 
@@ -34,32 +25,26 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
           "ChargedParticlesWithAssociations",
           {
-            "MCParticles",                      // edm4hep::MCParticle
-            "CentralCKFTracks",                 // edm4eic::Track
-            "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
+            "ReconstructedChargedWithoutPIDParticles",       // edm4eic::ReconstructedParticle
+            "DRICHMergedIrtCherenkovParticleID",             // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
-            "ReconstructedChargedParticleIDs"           // edm4hep::ParticleID
+            "ReconstructedChargedParticles",          // edm4eic::ReconstructedParticle
+            "ReconstructedChargedParticleIDs",        // edm4hep::ParticleID
           },
-          link_cfg,
           app
           ));
 
     app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
           "SeededChargedParticlesWithAssociations",
           {
-            "MCParticles",                      // edm4hep::MCParticle
-            "CentralCKFSeededTracks",           // edm4eic::Track
-            "DRICHMergedIrtCherenkovParticleID" // edm4eic::CherenkovParticleID
+            "ReconstructedSeededChargedWithoutPIDParticles", // edm4eic::ReconstructedParticle
+            "DRICHMergedIrtCherenkovParticleID",             // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociation
-            "ReconstructedSeededChargedParticleIDs"           // edm4hep::ParticleID
+            "ReconstructedSeededChargedParticles",    // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedParticleIDs",  // edm4hep::ParticleID
           },
-          link_cfg,
           app
           ));
 

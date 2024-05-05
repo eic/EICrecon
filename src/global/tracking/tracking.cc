@@ -15,6 +15,8 @@
 #include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
+#include "ParticlesWithTruthPIDConfig.h"
+#include "ParticlesWithTruthPID_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagationConfig.h"
@@ -171,5 +173,35 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
+     // linking of reconstructed particles to PID objects
+     ParticlesWithTruthPIDConfig link_cfg {
+       .momentumRelativeTolerance = 100.0, /// Matching momentum effectively disabled
+       .phiTolerance              = 0.1, /// Matching phi tolerance [rad]
+       .etaTolerance              = 0.2, /// Matching eta tolerance
+     };
+
+     app->Add(new JOmniFactoryGeneratorT<ParticlesWithTruthPID_factory>(
+             "ChargedParticlesWithAssociations",
+             {"MCParticles",                                    // edm4hep::MCParticle
+             "CentralCKFTracks",                                // edm4eic::Track
+             },
+             {"ReconstructedChargedWithoutPIDParticles",                  //
+              "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
+             },
+	     link_cfg,
+             app
+             ));
+
+     app->Add(new JOmniFactoryGeneratorT<ParticlesWithTruthPID_factory>(
+             "ChargedSeededParticlesWithAssociations",
+             {"MCParticles",                                    // edm4hep::MCParticle
+             "CentralCKFSeededTracks",                          // edm4eic::Track
+             },
+             {"ReconstructedSeededChargedWithoutPIDParticles",            //
+              "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
+             },
+	     link_cfg,
+             app
+             ));
 }
 } // extern "C"
