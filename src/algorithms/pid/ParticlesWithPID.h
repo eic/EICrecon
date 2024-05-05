@@ -1,4 +1,4 @@
-// Original licence header: SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks
 
 
@@ -9,8 +9,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-#include "ParticlesWithPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "ParticlesWithPIDConfig.h"
 
 
 namespace eicrecon {
