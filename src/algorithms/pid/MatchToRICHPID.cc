@@ -37,21 +37,29 @@ namespace eicrecon {
     void MatchToRICHPID::process(
       const MatchToRICHPID::Input& input, const MatchToRICHPID::Output& output
     ) const {
-        const auto [parts_in, drich_cherenkov_pid] = input;
-        auto [parts_out, pids]                     = output;
+        const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
+        auto [parts_out, assocs_out, pids]                     = output;
 
-        for (auto part : *parts_in) {
-            auto rec_part = part.clone();
+        for (auto part_in : *parts_in) {
+            auto part_out = part_in.clone();
 
             // link Cherenkov PID objects
-            auto success = linkCherenkovPID(rec_part, *drich_cherenkov_pid, *pids);
+            auto success = linkCherenkovPID(part_out, *drich_cherenkov_pid, *pids);
             if (success)
-                trace("      previous PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
-                        rec_part.getPDG(),
-                        rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
+                trace("Previous PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}",
+                        part_in.getPDG(),
+                        part_out.getParticleIDUsed().isAvailable() ? part_out.getParticleIDUsed().getPDG() : 0
                         );
 
-            parts_out->push_back(rec_part);
+            for (auto assoc_in : *assocs_in) {
+              if (assoc_in.getRec() == part_in) {
+                auto assoc_out = assoc_in.clone();
+		assoc_out.setRec(part_out);
+		assocs_out->push_back(assoc_out);
+              }
+            }
+
+            parts_out->push_back(part_out);
         }
     }
 

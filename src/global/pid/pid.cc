@@ -25,12 +25,14 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
           "ChargedParticlesWithAssociations",
           {
-            "ReconstructedChargedWithoutPIDParticles",       // edm4eic::ReconstructedParticle
-            "DRICHMergedIrtCherenkovParticleID",             // edm4eic::CherenkovParticleID
+            "ReconstructedChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedChargedParticles",          // edm4eic::ReconstructedParticle
-            "ReconstructedChargedParticleIDs",        // edm4hep::ParticleID
+            "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "ReconstructedChargedParticleIDs",          // edm4hep::ParticleID
           },
           app
           ));
@@ -38,12 +40,14 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
           "SeededChargedParticlesWithAssociations",
           {
-            "ReconstructedSeededChargedWithoutPIDParticles", // edm4eic::ReconstructedParticle
-            "DRICHMergedIrtCherenkovParticleID",             // edm4eic::CherenkovParticleID
+            "ReconstructedSeededChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "DRICHMergedIrtCherenkovParticleID",                        // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedSeededChargedParticles",    // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedParticleIDs",  // edm4hep::ParticleID
+            "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "ReconstructedSeededChargedParticleIDs",          // edm4hep::ParticleID
           },
           app
           ));
