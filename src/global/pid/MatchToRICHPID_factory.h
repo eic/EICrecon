@@ -7,14 +7,14 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/CherenkovParticleID.h>
 #include <edm4hep/ParticleID.h>
-#include "algorithms/pid/ParticlesWithPID.h"
+#include "algorithms/pid/MatchToRICHPID.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class ParticlesWithPID_factory : public JOmniFactory<ParticlesWithPID_factory, ParticlesWithPIDConfig> {
+class MatchToRICHPID_factory : public JOmniFactory<MatchToRICHPID_factory, MatchToRICHPIDConfig> {
 public:
-using AlgoT = eicrecon::ParticlesWithPID;
+using AlgoT = eicrecon::MatchToRICHPID;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

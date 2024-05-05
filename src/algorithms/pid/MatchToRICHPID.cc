@@ -1,7 +1,7 @@
 // Original licence: SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks
 
-#include "ParticlesWithPID.h"
+#include "MatchToRICHPID.h"
 
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
@@ -25,17 +25,17 @@
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
-#include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "algorithms/pid/MatchToRICHPIDConfig.h"
 #include "algorithms/pid/Tools.h"
 
 
 
 namespace eicrecon {
 
-    void ParticlesWithPID::init() {}
+    void MatchToRICHPID::init() {}
 
-    void ParticlesWithPID::process(
-      const ParticlesWithPID::Input& input, const ParticlesWithPID::Output& output
+    void MatchToRICHPID::process(
+      const MatchToRICHPID::Input& input, const MatchToRICHPID::Output& output
     ) const {
         const auto [parts_in, drich_cherenkov_pid] = input;
         auto [parts_out, pids]                     = output;
@@ -63,7 +63,7 @@ namespace eicrecon {
      *   relates them to `in_part`, and adds them to the collection `out_pids` for persistency
      * - returns `true` iff PID objects were found and linked
      */
-    bool ParticlesWithPID::linkCherenkovPID(
+    bool MatchToRICHPID::linkCherenkovPID(
             edm4eic::MutableReconstructedParticle& in_part,
             const edm4eic::CherenkovParticleIDCollection& in_pids,
             edm4hep::ParticleIDCollection& out_pids

@@ -5,7 +5,7 @@
 
 namespace eicrecon {
 
-struct ParticlesWithPIDConfig {
+struct MatchToRICHPIDConfig {
   double etaTolerance{0.2};
   double phiTolerance{0.1};
 };

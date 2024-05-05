@@ -10,21 +10,21 @@
 #include <edm4hep/ParticleIDCollection.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "ParticlesWithPIDConfig.h"
+#include "MatchToRICHPIDConfig.h"
 
 
 namespace eicrecon {
 
-using ParticlesWithPIDAlgorithm =
+using MatchToRICHPIDAlgorithm =
     algorithms::Algorithm<
       algorithms::Input<edm4eic::ReconstructedParticleCollection, edm4eic::CherenkovParticleIDCollection>,
       algorithms::Output<edm4eic::ReconstructedParticleCollection, edm4hep::ParticleIDCollection>
     >;
 
-class ParticlesWithPID : public ParticlesWithPIDAlgorithm, public WithPodConfig<ParticlesWithPIDConfig> {
+class MatchToRICHPID : public MatchToRICHPIDAlgorithm, public WithPodConfig<MatchToRICHPIDConfig> {
 public:
 
-    ParticlesWithPID(std::string_view name) : ParticlesWithPIDAlgorithm{name, {"inputReconstructedParticlesCollection", "inputCherenkovParticleIDCollection"}, {"outputReconstructedParticlesCollection"}, "Matches tracks to Cherenkov PIDs"} {};
+    MatchToRICHPID(std::string_view name) : MatchToRICHPIDAlgorithm{name, {"inputReconstructedParticlesCollection", "inputCherenkovParticleIDCollection"}, {"outputReconstructedParticlesCollection"}, "Matches tracks to Cherenkov PIDs"} {};
 
     void init() final;
     void process(const Input&, const Output&) const final;
