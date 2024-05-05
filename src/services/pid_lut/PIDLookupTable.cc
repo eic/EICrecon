@@ -68,7 +68,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
 
     while (std::getline(file, line)) {
         Entry entry;
-        if (line.empty() || line[0] == '#') continue;
+        if (line.empty() || line[0] == '#' || std::all_of(std::begin(line), std::end(line), [](unsigned char c) { return std::isspace(c); })) continue;
 
         iss.str(line);
         iss.clear();
