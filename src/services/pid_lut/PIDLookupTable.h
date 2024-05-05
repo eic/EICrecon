@@ -20,6 +20,14 @@ public:
         double prob_electron, prob_pion, prob_kaon, prob_proton;
     };
 
+    struct Binning {
+      std::vector<int> pdg_values;
+      std::vector<int> charge_values;
+      std::vector<double> momentum_binning;
+      std::vector<double> polar_binning;
+      std::vector<double> azimuthal_binning;
+    };
+
 private:
     boost::histogram::histogram<
       std::tuple<
@@ -38,7 +46,7 @@ public:
 
     const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const;
 
-    void LoadFile(const std::string& filename);
+    void load_file(const std::string& filename, const Binning &binning);
 };
 
 }

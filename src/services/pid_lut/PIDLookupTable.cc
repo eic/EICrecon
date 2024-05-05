@@ -32,7 +32,7 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
     ];
 }
 
-void PIDLookupTable::LoadFile(const std::string& filename) {
+void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable::Binning &binning) {
     level(algorithms::LogLevel::kTrace);
     std::ifstream file(filename);
     if (!file) {
@@ -45,56 +45,24 @@ void PIDLookupTable::LoadFile(const std::string& filename) {
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
     debug("Parsing pdg binning: {}", line);
-    iss.str(line);
-    iss.clear();
-    std::vector<int> pdg_bins_vec;
-    std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(pdg_bins_vec));
-    bh::axis::category<int> pdg_bins(pdg_bins_vec);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Parsing charge binning: {}", line);
-    iss.str(line);
-    iss.clear();
-    std::vector<int> charge_bins_vec;
-    std::copy(std::istream_iterator<int>(iss), std::istream_iterator<int>(), std::back_inserter(charge_bins_vec));
-    bh::axis::category<int> charge_bins(charge_bins_vec);
+    debug("Ignoring charge binning: {}", line);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Parsing momentum binning: {}", line);
-    iss.str(line);
-    iss.clear();
-    double lower_bound, upper_bound;
-    if (!(iss >> lower_bound
-              >> upper_bound
-              >> step)) {
-        error("Unable to parse line: {}", line);
-        throw std::runtime_error("Unable to parse momentum binning");
-    }
-    bh::axis::regular<> momentum_bins(bh::axis::step(step), lower_bound, upper_bound);
+    debug("Ignoring momentum binning: {}", line);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Parsing eta binning: {}", line);
-    iss.str(line);
-    iss.clear();
-    if (!(iss >> lower_bound
-              >> upper_bound
-              >> step)) {
-        error("Unable to parse line: {}", line);
-        throw std::runtime_error("Unable to parse eta binning");
-    }
-    bh::axis::regular<> polar_bins(bh::axis::step(step), lower_bound, upper_bound);
+    debug("Ignoring eta binning: {}", line);
 
     do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Parsing phi binning: ", line);
-    iss.str(line);
-    iss.clear();
-    if (!(iss >> lower_bound
-              >> upper_bound
-              >> step)) {
-        error("Unable to parse line: ", line);
-        throw std::runtime_error("Unable to parse phi binning");
-    }
-    bh::axis::circular<> azimuthal_bins(bh::axis::step(step), lower_bound, upper_bound);
+    debug("Ignoring phi binning: ", line);
+
+    bh::axis::category<int> pdg_bins(binning.pdg_values);
+    bh::axis::category<int> charge_bins(binning.charge_values);
+    bh::axis::regular<> momentum_bins(bh::axis::step(binning.momentum_binning.at(2)), binning.momentum_binning.at(0), binning.momentum_binning.at(1));
+    bh::axis::regular<> polar_bins(bh::axis::step(binning.polar_binning.at(2)), binning.polar_binning.at(0), binning.polar_binning.at(1));
+    bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2)), binning.azimuthal_binning.at(0), binning.azimuthal_binning.at(1));
 
     m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins, charge_bins, momentum_bins, polar_bins, azimuthal_bins);
 

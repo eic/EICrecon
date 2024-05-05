@@ -88,6 +88,11 @@ extern "C" {
           {
             .filename="calibrations/hpdirc_positive.lut",
             .system=BarrelDIRC_ID,
+            .pdg_values={11, 211, 321, 2212},
+            .charge_values={1},
+            .momentum_binning={0.20, 10.2, 0.2}, // lower, upper, step
+            .polar_binning={25.0, 161.0, 1.0},   // lower, upper, step
+            .azimuthal_binning={0.0, 30.5, 0.5}, // lower, upper, step
           },
           app
           ));

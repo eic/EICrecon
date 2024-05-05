@@ -15,7 +15,13 @@ void PIDLookup::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   auto lut_svc = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
 
-  m_lut = lut_svc->load(m_cfg.filename);
+  m_lut = lut_svc->load(m_cfg.filename, {
+    .pdg_values=m_cfg.pdg_values,
+    .charge_values=m_cfg.charge_values,
+    .momentum_binning=m_cfg.momentum_binning,
+    .polar_binning=m_cfg.polar_binning,
+    .azimuthal_binning=m_cfg.azimuthal_binning,
+  });
   if (!m_lut) {
     throw std::runtime_error("LUT not available");
   }

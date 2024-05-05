@@ -17,7 +17,7 @@ class PIDLookupTableSvc : public algorithms::LoggedService<PIDLookupTableSvc> {
 public:
     void init() {};
 
-    const PIDLookupTable* load(std::string filename) {
+    const PIDLookupTable* load(std::string filename, const PIDLookupTable::Binning &binning) {
         std::lock_guard<std::mutex> lock(m_mutex);
         auto pair = m_cache.find(filename);
         if (pair == m_cache.end()) {
@@ -29,7 +29,7 @@ public:
                 return nullptr;
             }
 
-            lut->LoadFile(filename); // LoadFile can except
+            lut->load_file(filename, binning); // load_file can except
             auto result_ptr = lut.get();
             m_cache.insert({filename, std::move(lut)});
             return result_ptr;
