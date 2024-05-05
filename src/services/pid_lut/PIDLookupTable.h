@@ -39,6 +39,7 @@ private:
       >
       , boost::histogram::dense_storage<Entry>
     > m_hist;
+    bool m_symmetrizing_charges;
 
 public:
 

@@ -21,6 +21,10 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
         // Our lookup table expects _unsigned_ PDGs. The charge information is passed separately.
     }
 
+    if (m_symmetrizing_charges) {
+      charge = std::abs(charge);
+    }
+
     return &m_hist[
       decltype(m_hist)::multi_index_type {
         m_hist.axis(0).index(pdg),
@@ -66,6 +70,8 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
 
     m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins, charge_bins, momentum_bins, polar_bins, azimuthal_bins);
 
+    m_symmetrizing_charges = binning.charge_values.size() == 1;
+
     while (std::getline(file, line)) {
         Entry entry;
         if (line.empty() || line[0] == '#' || std::all_of(std::begin(line), std::end(line), [](unsigned char c) { return std::isspace(c); })) continue;
@@ -83,6 +89,10 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
                 >> prob_pion
                 >> prob_kaon
                 >> prob_proton) {
+
+            if (m_symmetrizing_charges) {
+              charge = std::abs(charge);
+	    }
 
 	    // operator() here allows to lookup mutable entry and increases the access counter
 	    auto &entry = *m_hist(
