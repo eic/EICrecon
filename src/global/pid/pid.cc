@@ -7,10 +7,10 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 // algorithm configurations
-#include "algorithms/pid/ParticlesWithPIDConfig.h"
+#include "algorithms/pid/MatchToRICHPIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/pid/ParticlesWithPID_factory.h"
+#include "global/pid/MatchToRICHPID_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -22,7 +22,7 @@ extern "C" {
     // clang-format off
 
     // link charged particles to PID and to MC truth
-    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
           "ChargedParticlesWithAssociations",
           {
             "ReconstructedChargedWithoutPIDParticles",       // edm4eic::ReconstructedParticle
@@ -35,7 +35,7 @@ extern "C" {
           app
           ));
 
-    app->Add(new JOmniFactoryGeneratorT<ParticlesWithPID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
           "SeededChargedParticlesWithAssociations",
           {
             "ReconstructedSeededChargedWithoutPIDParticles", // edm4eic::ReconstructedParticle
