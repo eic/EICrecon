@@ -188,7 +188,7 @@ void InitPlugin(JApplication *app) {
              {"ReconstructedChargedWithoutPIDParticles",                  //
               "ReconstructedChargedParticleAssociations"        // edm4eic::MCRecoParticleAssociation
              },
-	     link_cfg,
+             link_cfg,
              app
              ));
 
@@ -200,7 +200,7 @@ void InitPlugin(JApplication *app) {
              {"ReconstructedSeededChargedWithoutPIDParticles",            //
               "ReconstructedSeededChargedParticleAssociations"  // edm4eic::MCRecoParticleAssociation
              },
-	     link_cfg,
+             link_cfg,
              app
              ));
 }
