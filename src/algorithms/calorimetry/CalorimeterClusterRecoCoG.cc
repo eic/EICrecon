@@ -75,91 +75,20 @@ namespace eicrecon {
       debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
       clusters->push_back(cl);
 
-      // If mcHits are available, associate cluster with MCParticle
-      // 1. find proto-cluster hit with largest energy deposition
-      // 2. find first mchit with same CellID
-      // 3. assign mchit's highest energy contributing MCParticle as cluster truth
-      if (mchits->size() > 0) {
-
-        // 1. find pclhit with largest energy deposition
-        auto pclhits = pcl.getHits();
-        auto pclhit = std::max_element(
-          pclhits.begin(),
-          pclhits.end(),
-          [](const auto& pclhit1, const auto& pclhit2) {
-            return pclhit1.getEnergy() < pclhit2.getEnergy();
-          }
-        );
-
-        // 2. find mchit with same CellID
-        // find_if not working, https://github.com/AIDASoft/podio/pull/273
-        //auto mchit = std::find_if(
-        //  mchits->begin(),
-        //  mchits->end(),
-        //  [&pclhit](const auto& mchit1) {
-        //    return mchit1.getCellID() == pclhit->getCellID();
-        //  }
-        //);
-        auto mchit = mchits->begin();
-        for ( ; mchit != mchits->end(); ++mchit) {
-          // break loop when CellID match found
-          if ( mchit->getCellID() == pclhit->getCellID()) {
-            break;
-          }
-        }
-        if (!(mchit != mchits->end())) {
-          // break if no matching hit found for this CellID
-          warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
-          trace("Proto-cluster hits: ");
-          for (const auto& pclhit1: pclhits) {
-            trace("{}: {}", pclhit1.getCellID(), pclhit1.getEnergy());
-          }
-          trace("MC hits: ");
-          for (const auto& mchit1: *mchits) {
-            trace("{}: {}", mchit1.getCellID(), mchit1.getEnergy());
-          }
-          break;
-        }
-
-        // 3. find mchit's highest energy MCParticle
-        double eConSum = 0.;
-        double eConMax = 0.;
-        uint32_t iMaxPar = 0;
-        for (uint32_t iContrib = 0; const auto& contrib : mchit->getContributions()) {
-
-          // skip if same contributor
-          if (mchit->getContributions(iMaxPar).getParticle().getObjectID() == contrib.getParticle().getObjectID()) continue;
-
-          // increment sum, exit if current max > remaining energy
-          eConSum += contrib.getEnergy() / m_cfg.sampFrac;
-          eConMax = mchit->getContributions(iMaxPar).getEnergy() / m_cfg.sampFrac;
-          if (eConMax >= (mchit->getEnergy() - eConSum)) break;
-
-          // if contribution is bigger than max, update
-          if (contrib.getEnergy() > eConMax) {
-            eConMax = contrib.getEnergy();
-            iMaxPar = iContrib;
-          }
-          ++iContrib;
-        }
-        const auto& mcp = mchit->getContributions(iMaxPar).getParticle();
-
-        debug("cluster has largest energy in cellID: {}", pclhit->getCellID());
-        debug("pcl hit with highest energy {} at index {}", pclhit->getEnergy(), pclhit->getObjectID().index);
-        debug("corresponding mc hit energy {} at index {}", mchit->getEnergy(), mchit->getObjectID().index);
-        debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
-
-        // set association
-        auto clusterassoc = associations->create();
-        clusterassoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-        clusterassoc.setSimID(mcp.getObjectID().index);
-        clusterassoc.setWeight(1.0);
-        clusterassoc.setRec(cl);
-        clusterassoc.setSim(mcp);
-      } else {
+      // If sim hits are available, associate cluster with MCParticle
+      if (mchits->size() == 0) {
         debug("No mcHitCollection was provided, so no truth association will be performed.");
+        continue;
       }
-    }
+
+      auto assoc_opt = associate(cl, mchits);
+      if (!assoc_opt.has_value()) {
+        continue;
+      }
+      auto assoc = *std::move(assoc_opt);
+      associations->push_back(assoc);
+
+    }  // end protocluster loop
 }
 
 //------------------------------------------------------------------------
@@ -327,5 +256,122 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
   return std::move(cl);
 }
+
+//------------------------------------------------------------------------
+std::optional<edm4eic::MutableMCRecoClusterParticleAssociation> CalorimeterClusterRecoCoG::associate(
+  const edm4eic::Cluster& cl,
+  const edm4hep::SimCalorimeterHitCollection* mchits
+) const {
+
+  // 1. idenitfy sim hits associated w/ protocluster and sum their energy
+  // 2. sort list of associated mcHits in decreasing energy
+  // 3. walk through contributions to find MCParticle which contributed
+  //    the most energy
+  // 4. associate cluster to that MCParticle
+  edm4eic::MutableMCRecoClusterParticleAssociation assoc;
+
+  // make sure book-keeping containers are empty
+  m_vecSimHitIndexVsEne.clear();
+  m_mapMCIndexToContrib.clear();
+
+  // 1. get associated sim hits and sum energy
+  double eSimHitSum = 0.;
+  for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
+
+    // grab corresponding sim hit and increment sum
+    //   - FIXME use RecHit-RawHit associations when ready
+    std::size_t iSimMatch = mchits->size();
+    for (std::size_t iSim = 0; iSim < mchits->size(); ++iSim) {
+      if ((*mchits)[iSim].getCellID() == clhit.getCellID()) {
+        iSimMatch = iSim;
+        break;
+      }
+    }  // end sim hit loop
+
+    if (iSimMatch == mchits->size()) {
+      debug("No matching SimHit for hit {}", clhit.getCellID());
+      continue;
+    }
+    eSimHitSum += (*mchits)[iSimMatch].getEnergy();
+
+    // add index to list
+    m_vecSimHitIndexVsEne.emplace_back(
+      std::make_pair(iSimMatch, (*mchits)[iSimMatch].getEnergy())
+    );
+    ++iHit;
+  }
+  debug("Sum of energy in sim hits = {}", eSimHitSum);
+
+  // 2. sort sim hits in decreasing energy
+  std::sort(
+    m_vecSimHitIndexVsEne.begin(),
+    m_vecSimHitIndexVsEne.end(),
+    [](const auto& lhs, const auto& rhs) {
+      return (lhs.second > rhs.second);
+    }
+  );
+  trace("Sorted sim hit energies.");
+
+  // 3. find biggest contributing MCParticle
+  bool   foundAssoc = false;
+  double eConChecked = 0.;
+  for (std::size_t iSimVsEne = 0; iSimVsEne < m_vecSimHitIndexVsEne.size(); ++iSimVsEne) {
+
+    const std::size_t iSim = m_vecSimHitIndexVsEne[iSimVsEne].first;
+    const auto mchit = (*mchits)[iSim];
+    for (std::size_t iContrib = 0; const auto& contrib : mchit.getContributions()) {
+
+      // get particle
+      const auto par = contrib.getParticle();
+
+      // get index in MCParticles & contribution
+      const int index = par.getObjectID().index;
+      const double eContrib = contrib.getEnergy();
+
+      // increment sums accordingly
+      if (m_mapMCIndexToContrib.find(index) == m_mapMCIndexToContrib.end()) {
+        m_mapMCIndexToContrib.insert({
+          index,
+          std::make_pair(iContrib, eContrib)
+        });
+      } else {
+        m_mapMCIndexToContrib[index].second += eContrib;
+      }
+      eConChecked += eContrib;
+    }  // end contrib loop
+
+    // grab current max
+    const auto maxContrib = std::max_element(
+      m_mapMCIndexToContrib.begin(),
+      m_mapMCIndexToContrib.end(),
+      [](const auto& lhs, const auto& rhs) {
+        return lhs.second.second < rhs.second.second;
+      }
+    );
+
+    // 4. if max is more than remaining energy to check or
+    //    at last sim hit, set association and break
+    if (
+      (maxContrib->second.second > (eSimHitSum - eConChecked)) ||
+      (iSimVsEne == (m_vecSimHitIndexVsEne.size() - 1))
+    ) {
+
+      // grab corresponding particle and print debugging messages
+      auto mcp = (*mchits)[iSim].getContributions(maxContrib->second.first).getParticle();
+      debug("corresponding mc hit energy {} at index {}", (*mchits)[iSim].getEnergy(), (*mchits)[iSim].getObjectID().index);
+      debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
+
+      // set association
+      assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+      assoc.setSimID(mcp.getObjectID().index);
+      assoc.setWeight(1.0);
+      assoc.setRec(cl);
+      assoc.setSim(mcp);
+      break;
+    }
+  }  // end hit loop
+  return std::move(assoc);
+
+}  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHit*)'
 
 } // eicrecon
