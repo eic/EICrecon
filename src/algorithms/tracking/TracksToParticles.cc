@@ -22,16 +22,16 @@
 #include <utility>
 #include <vector>
 
-#include "ParticlesWithTruthPIDConfig.h"
-#include "ParticlesWithTruthPID.h"
+#include "TracksToParticlesConfig.h"
+#include "TracksToParticles.h"
 
 
 namespace eicrecon {
 
-    void ParticlesWithTruthPID::init() {}
+    void TracksToParticles::init() {}
 
-    void ParticlesWithTruthPID::process(
-      const ParticlesWithTruthPID::Input& input, const ParticlesWithTruthPID::Output& output
+    void TracksToParticles::process(
+      const TracksToParticles::Input& input, const TracksToParticles::Output& output
     ) const {
         const auto [mc_particles, tracks] = input;
         auto [parts, assocs]              = output;
@@ -196,7 +196,7 @@ namespace eicrecon {
         }
     }
 
-    void ParticlesWithTruthPID::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) const {
+    void TracksToParticles::tracePhiToleranceOnce(const double sinPhiOver2Tolerance, double phiTolerance) const {
         // This function is called once to print tolerances useful for tracing
         static std::once_flag do_it_once;
         std::call_once(do_it_once, [this, sinPhiOver2Tolerance, phiTolerance]() {

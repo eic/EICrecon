@@ -11,22 +11,22 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-#include "ParticlesWithTruthPIDConfig.h"
+#include "TracksToParticlesConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {
 
-using ParticlesWithTruthPIDAlgorithm =
+using TracksToParticlesAlgorithm =
     algorithms::Algorithm<
       algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackCollection>,
       algorithms::Output<edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleAssociationCollection>
     >;
 
-class ParticlesWithTruthPID : public ParticlesWithTruthPIDAlgorithm, public WithPodConfig<ParticlesWithTruthPIDConfig> {
+class TracksToParticles : public TracksToParticlesAlgorithm, public WithPodConfig<TracksToParticlesConfig> {
 public:
 
-    ParticlesWithTruthPID(std::string_view name) : ParticlesWithTruthPIDAlgorithm{name, {"inputMCParticlesCollection", "inputTracksCollection"}, {"outputReconstructedParticlesCollection", "outputAssociationsCollection"}, "Converts track to particles with associations"} {};
+    TracksToParticles(std::string_view name) : TracksToParticlesAlgorithm{name, {"inputMCParticlesCollection", "inputTracksCollection"}, {"outputReconstructedParticlesCollection", "outputAssociationsCollection"}, "Converts track to particles with associations"} {};
 
     void init() final;
     void process(const Input&, const Output&) const final;
