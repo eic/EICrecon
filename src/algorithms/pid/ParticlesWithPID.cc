@@ -51,7 +51,7 @@ namespace eicrecon {
                         rec_part.getParticleIDUsed().isAvailable() ? rec_part.getParticleIDUsed().getPDG() : 0
                         );
 
-	    parts_out->push_back(rec_part);
+            parts_out->push_back(rec_part);
         }
     }
 
