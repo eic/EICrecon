@@ -60,8 +60,8 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
 
     bh::axis::category<int> pdg_bins(binning.pdg_values);
     bh::axis::category<int> charge_bins(binning.charge_values);
-    bh::axis::regular<> momentum_bins(bh::axis::step(binning.momentum_binning.at(2)), binning.momentum_binning.at(0), binning.momentum_binning.at(1));
-    bh::axis::regular<> polar_bins(bh::axis::step(binning.polar_binning.at(2)), binning.polar_binning.at(0), binning.polar_binning.at(1));
+    bh::axis::variable<> momentum_bins(binning.momentum_edges);
+    bh::axis::variable<> polar_bins(binning.polar_edges);
     bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2)), binning.azimuthal_binning.at(0), binning.azimuthal_binning.at(1));
 
     m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins, charge_bins, momentum_bins, polar_bins, azimuthal_bins);

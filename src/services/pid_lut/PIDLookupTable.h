@@ -23,8 +23,8 @@ public:
     struct Binning {
       std::vector<int> pdg_values;
       std::vector<int> charge_values;
-      std::vector<double> momentum_binning;
-      std::vector<double> polar_binning;
+      std::vector<double> momentum_edges;
+      std::vector<double> polar_edges;
       std::vector<double> azimuthal_binning;
     };
 
@@ -33,8 +33,8 @@ private:
       std::tuple<
         boost::histogram::axis::category<int>,
         boost::histogram::axis::category<int>,
-        boost::histogram::axis::regular<>,
-        boost::histogram::axis::regular<>,
+        boost::histogram::axis::variable<>,
+        boost::histogram::axis::variable<>,
         boost::histogram::axis::circular<>
       >
       , boost::histogram::dense_storage<Entry>

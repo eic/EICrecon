@@ -18,8 +18,8 @@ void PIDLookup::init() {
   m_lut = lut_svc->load(m_cfg.filename, {
     .pdg_values=m_cfg.pdg_values,
     .charge_values=m_cfg.charge_values,
-    .momentum_binning=m_cfg.momentum_binning,
-    .polar_binning=m_cfg.polar_binning,
+    .momentum_edges=m_cfg.momentum_edges,
+    .polar_edges=m_cfg.polar_edges,
     .azimuthal_binning=m_cfg.azimuthal_binning,
   });
   if (!m_lut) {
