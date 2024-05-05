@@ -8,6 +8,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <math.h>
 #include <algorithm>
 #include <map>
 #include <string>
@@ -17,9 +18,9 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -53,12 +54,17 @@ extern "C" {
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
     std::vector<std::string> outputClusterCollectionNames;
+    std::vector<std::string> outputTrackTags;
+    std::vector<std::vector<std::string>> moduleClusterTags;
 
     for(int mod_id : moduleIDs){
+      outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks",mod_id));
+      moduleClusterTags.push_back({});
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
         outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
+        moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
       }
     }
 
@@ -86,6 +92,28 @@ extern "C" {
         },
         app
     ));
+
+    // Linear tracking for each module, loop over modules
+    for(int i=0; i<moduleIDs.size(); i++){
+      std::string outputTrackTag = outputTrackTags[i];
+      std::vector<std::string> inputClusterTags = moduleClusterTags[i];
+
+      app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
+          outputTrackTag,
+          inputClusterTags,
+          {outputTrackTag},
+          {
+            .layer_hits_max = 100,
+            .chi2_max = 0.001,
+            .n_layer = 4,
+            .restrict_direction = true,
+            .optimum_theta = -M_PI+0.026,
+            .optimum_phi = M_PI,
+            .step_angle_tolerance = 0.05,
+          },
+          app
+      ));
+    }
 
   }
 }

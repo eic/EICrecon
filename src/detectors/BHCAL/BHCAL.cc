@@ -114,7 +114,7 @@ extern "C" {
             .resolutionTDC = HcalBarrel_resolutionTDC,
             .thresholdFactor = 0.0, // not used; relying on flat ADC cut
             .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
-            .sampFrac = 0.033, // average, from sPHENIX simulations
+            .sampFrac = "0.033", // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
             .layerField = "",
             .sectorField = "",
