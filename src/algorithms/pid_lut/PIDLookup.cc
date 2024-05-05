@@ -21,6 +21,7 @@ void PIDLookup::init() {
     .momentum_edges=m_cfg.momentum_edges,
     .polar_edges=m_cfg.polar_edges,
     .azimuthal_binning=m_cfg.azimuthal_binning,
+    .skip_legacy_header=m_cfg.skip_legacy_header,
   });
   if (!m_lut) {
     throw std::runtime_error("LUT not available");

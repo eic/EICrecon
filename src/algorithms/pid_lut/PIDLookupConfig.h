@@ -13,6 +13,7 @@ struct PIDLookupConfig {
   std::vector<double> momentum_edges;
   std::vector<double> polar_edges;
   std::vector<double> azimuthal_binning;
+  bool skip_legacy_header {false};
 };
 
 } // namespace eicrecon

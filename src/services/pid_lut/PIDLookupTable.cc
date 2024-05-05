@@ -47,20 +47,22 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
     std::istringstream iss;
     double step;
 
-    do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Parsing pdg binning: {}", line);
+    if (binning.skip_legacy_header) {
+      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
+      debug("Parsing pdg binning: {}", line);
 
-    do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Ignoring charge binning: {}", line);
+      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
+      debug("Ignoring charge binning: {}", line);
 
-    do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Ignoring momentum binning: {}", line);
+      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
+      debug("Ignoring momentum binning: {}", line);
 
-    do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Ignoring eta binning: {}", line);
+      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
+      debug("Ignoring eta binning: {}", line);
 
-    do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-    debug("Ignoring phi binning: ", line);
+      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
+      debug("Ignoring phi binning: ", line);
+    }
 
     bh::axis::category<int> pdg_bins(binning.pdg_values);
     bh::axis::category<int> charge_bins(binning.charge_values);
