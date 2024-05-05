@@ -40,6 +40,8 @@ public:
     m_algo->init();
   };
 
+  void ChangeRun(int64_t run_number) {};
+
   void Process(int64_t run_number, uint64_t event_number) {
     m_algo->process({m_particles_input(), m_tracks_input()},
                     {m_recoparticles_output().get(), m_recoassocs_output().get()});
