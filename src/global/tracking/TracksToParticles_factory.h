@@ -9,14 +9,14 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleID.h>
-#include "algorithms/tracking/ParticlesWithTruthPID.h"
-#include "algorithms/tracking/ParticlesWithTruthPIDConfig.h"
+#include "algorithms/tracking/TracksToParticles.h"
+#include "algorithms/tracking/TracksToParticlesConfig.h"
 
 namespace eicrecon {
 
-class ParticlesWithTruthPID_factory : public JOmniFactory<ParticlesWithTruthPID_factory, ParticlesWithTruthPIDConfig> {
+class TracksToParticles_factory : public JOmniFactory<TracksToParticles_factory, TracksToParticlesConfig> {
 public:
-using AlgoT = eicrecon::ParticlesWithTruthPID;
+using AlgoT = eicrecon::TracksToParticles;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
