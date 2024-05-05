@@ -6,7 +6,7 @@
 
 namespace eicrecon {
 
-    struct ParticlesWithPIDConfig {
+    struct ParticlesWithTruthPIDConfig {
         double momentumRelativeTolerance = 100.0; /// Matching momentum effectively disabled
 
         double phiTolerance = 0.1; /// Matching phi tolerance [rad]

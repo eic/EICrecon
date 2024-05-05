@@ -1,55 +1,42 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright 2024, Dmitry Kalinkin
 
 #pragma once
 
-#include <JANA/JEvent.h>
-#include <JANA/JException.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
 #include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
+#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/CherenkovParticleID.h>
+#include <edm4hep/ParticleID.h>
 #include "algorithms/pid/ParticlesWithPID.h"
-#include "algorithms/pid/ParticlesWithPIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 
 namespace eicrecon {
 
-class ParticlesWithPID_factory : public JOmniFactory<ParticlesWithPID_factory, ParticlesWithPIDConfig> {
+class ParticlesWithPID_factory : public JOmniFactory<ParticlesWithPID_factory, NoConfig> {
+public:
+using AlgoT = eicrecon::ParticlesWithPID;
 
 private:
-    ParticlesWithPID m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
-    PodioInput<edm4eic::Track> m_tracks_input {this};
-    PodioInput<edm4eic::CherenkovParticleID> m_drich_particle_id_input {this};
-
-    PodioOutput<edm4eic::ReconstructedParticle> m_particles_output {this};
-    PodioOutput<edm4eic::MCRecoParticleAssociation> m_particles_assoc_output {this};
-    PodioOutput<edm4hep::ParticleID> m_particle_id_output {this};
-
-    ParameterRef<double> m_momentumRelativeTolerance {this, "momentumRelativeTolerance", config().momentumRelativeTolerance};
-    ParameterRef<double> m_phiTolerance {this, "phiTolerance", config().phiTolerance};
-    ParameterRef<double> m_etaTolerance {this, "etaTolerance", config().etaTolerance};
+  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input {this};
+  PodioInput<edm4eic::CherenkovParticleID> m_cherenkov_particle_ids_input {this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output {this};
+  PodioOutput<edm4hep::ParticleID> m_pids_output {this};
 
 public:
-    void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(logger());
-    }
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level((algorithms::LogLevel)logger()->level());
+    m_algo->init();
+  };
 
-    void ChangeRun(int64_t run_number) {
-    }
-
-    void Process(int64_t run_number, uint64_t event_number) {
-        std::tie(m_particles_output(), m_particles_assoc_output(), m_particle_id_output()) = m_algo.process(m_mc_particles_input(), m_tracks_input(), m_drich_particle_id_input());
-    }
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_algo->process(
+      {m_recoparticles_input(), m_cherenkov_particle_ids_input()},
+      {m_recoparticles_output().get(), m_pids_output().get()}
+    );
+  }
 };
 
-} // eicrecon
+}
