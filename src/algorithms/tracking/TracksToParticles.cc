@@ -1,29 +1,26 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks, Dmitry Kalinkin
 
+#include <algorithms/logger.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <spdlog/common.h>
 #include <stdint.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <limits>
-#include <map>
 #include <mutex>
-#include <utility>
 #include <vector>
 
-#include "TracksToParticlesConfig.h"
 #include "TracksToParticles.h"
+#include "TracksToParticlesConfig.h"
 
 
 namespace eicrecon {
