@@ -1,6 +1,9 @@
 // Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Dmitry Kalinkin
+
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <algorithm>
@@ -74,10 +77,18 @@ extern "C" {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+    for (auto qualifier : std::vector<std::string>({"", "Seeded"}))
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "PFRICHPID",
-          {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"PFRICHPIDParticles", "PFRICHPIDParticleAssociations", "PFRICHParticleIDs"},
+          fmt::format("RICHEndcapN{}LUTPID", qualifier),
+          {
+	  fmt::format("Reconstructed{}ChargedWithoutPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithoutPIDParticleAssociations", qualifier),
+	  },
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
+	  fmt::format("RICHEndcapN{}ParticleIDs", qualifier),
+	  },
           {
             .filename="calibrations/pfrich.lut",
             .system=BackwardRICH_ID,

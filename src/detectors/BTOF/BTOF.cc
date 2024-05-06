@@ -1,7 +1,9 @@
 // Copyright 2022, Dmitry Romanov
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
-//
+
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
@@ -54,10 +56,18 @@ void InitPlugin(JApplication *app) {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+    for (auto qualifier : std::vector<std::string>({"", "Seeded"}))
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "TOFPID",
-          {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"TOFPIDParticles", "TOFPIDParticleAssociations", "TOFParticleIDs"},
+          fmt::format("CombinedTOF{}LUTPID", qualifier),
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
+	  },
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
+	  fmt::format("CombinedTOF{}ParticleIDs", qualifier),
+	  },
           {
             .filename="calibrations/tof.lut",
             .system=BarrelTOF_ID,

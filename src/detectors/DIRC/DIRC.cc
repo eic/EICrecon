@@ -3,6 +3,9 @@
 //
 //
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Dmitry Kalinkin
+
 #include <JANA/JApplication.h>
 #include <stddef.h>
 #include <algorithm>
@@ -81,10 +84,18 @@ extern "C" {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+    for (auto qualifier : std::vector<std::string>({"", "Seeded"}))
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "DIRCPID",
-          {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"DIRCPIDParticles", "DIRCPIDParticleAssociations", "DIRCParticleIDs"},
+          fmt::format("DIRC{}LUTPID", qualifier),
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
+	  },
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
+	  fmt::format("DIRC{}ParticleIDs", qualifier),
+	  },
           {
             .filename="calibrations/hpdirc_positive.lut",
             .system=BarrelDIRC_ID,

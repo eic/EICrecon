@@ -28,9 +28,9 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedChargedParticleIDs",          // edm4hep::ParticleID
+            "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
           },
           app
           ));
@@ -43,9 +43,9 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID",                        // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedSeededChargedParticleIDs",          // edm4hep::ParticleID
+            "ReconstructedSeededChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedSeededChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "ReconstructedSeededChargedRealPIDParticleIDs",          // edm4hep::ParticleID
           },
           app
           ));

@@ -1,6 +1,9 @@
 // Copyright (C) 2022, 2023, Christopher Dilks, Luigi Dello Stritto
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, Dmitry Kalinkin
+
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -188,10 +191,18 @@ extern "C" {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+    for (auto qualifier : std::vector<std::string>({"", "Seeded"}))
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "DRICHPID",
-          {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"DRICHPIDParticles", "DRICHPIDParticleAssociations", "DRICHParticleIDs"},
+          fmt::format("DRICH{}LUTPID", qualifier),
+          {
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
+	  },
+          {
+	  fmt::format("Reconstructed{}ChargedParticles", qualifier),
+	  fmt::format("Reconstructed{}ChargedParticleAssociations", qualifier),
+	  fmt::format("DRICH{}ParticleIDs", qualifier),
+	  },
           {
             .filename="calibrations/drich.lut",
             .system=ForwardRICH_ID,
