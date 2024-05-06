@@ -28,7 +28,7 @@ private:
     ParameterRef<unsigned int> m_pedMeanADC {this, "pedestalMean", config().pedMeanADC};
     ParameterRef<double> m_pedSigmaADC {this, "pedestalSigma", config().pedSigmaADC};
     ParameterRef<double> m_resolutionTDC {this, "resolutionTDC", config().resolutionTDC};
-    ParameterRef<double> m_corrMeanScale {this, "scaleResponse", config().corrMeanScale};
+    ParameterRef<std::string> m_corrMeanScale {this, "scaleResponse", config().corrMeanScale};
     ParameterRef<std::vector<std::string>> m_fields {this, "signalSumFields", config().fields};
     ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
 
