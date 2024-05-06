@@ -63,7 +63,7 @@ extern "C" {
             .resolutionTDC = EcalBarrelScFi_resolutionTDC,
             .thresholdFactor = 0.0, // use only thresholdValue
             .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-            .sampFrac = 0.10200085,
+            .sampFrac = "0.10200085",
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
             .sectorField = "sector",
@@ -136,7 +136,7 @@ extern "C" {
             .resolutionTDC = EcalBarrelImaging_resolutionTDC,
             .thresholdFactor = 0.0, // use only thresholdValue
             .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
-            .sampFrac = 0.00619766,
+            .sampFrac = "0.00619766",
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
             .sectorField = "sector",
