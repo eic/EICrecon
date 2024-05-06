@@ -134,9 +134,9 @@ void IrtCherenkovParticleID::process(
   m_log->trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
-    {"aerogel", in_aerogel_tracks},
-    {"gas", in_gas_tracks},
-    {"merged", in_merged_tracks},
+    {"Aerogel", in_aerogel_tracks},
+    {"Gas", in_gas_tracks},
+    {"Merged", in_merged_tracks},
   };
 
   // start output collections
