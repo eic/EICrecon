@@ -81,14 +81,14 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           fmt::format("RICHEndcapN{}LUTPID", qualifier),
           {
-	  fmt::format("Reconstructed{}ChargedWithoutPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithoutPIDParticleAssociations", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithoutPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithoutPIDParticleAssociations", qualifier),
+          },
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
-	  fmt::format("RICHEndcapN{}ParticleIDs", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
+          fmt::format("RICHEndcapN{}ParticleIDs", qualifier),
+          },
           {
             .filename="calibrations/pfrich.lut",
             .system=BackwardRICH_ID,

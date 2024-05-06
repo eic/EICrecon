@@ -88,14 +88,14 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           fmt::format("DIRC{}LUTPID", qualifier),
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
+          },
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
-	  fmt::format("DIRC{}ParticleIDs", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
+          fmt::format("DIRC{}ParticleIDs", qualifier),
+          },
           {
             .filename="calibrations/hpdirc_positive.lut",
             .system=BarrelDIRC_ID,

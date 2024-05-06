@@ -195,14 +195,14 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           fmt::format("DRICH{}LUTPID", qualifier),
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFDIRCPIDParticleAssociations", qualifier),
+          },
           {
-	  fmt::format("Reconstructed{}ChargedParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedParticleAssociations", qualifier),
-	  fmt::format("DRICH{}ParticleIDs", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedParticleAssociations", qualifier),
+          fmt::format("DRICH{}ParticleIDs", qualifier),
+          },
           {
             .filename="calibrations/drich.lut",
             .system=ForwardRICH_ID,

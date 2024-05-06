@@ -60,14 +60,14 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           fmt::format("CombinedTOF{}LUTPID", qualifier),
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
+          },
           {
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
-	  fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
-	  fmt::format("CombinedTOF{}ParticleIDs", qualifier),
-	  },
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticles", qualifier),
+          fmt::format("Reconstructed{}ChargedWithPFRICHTOFPIDParticleAssociations", qualifier),
+          fmt::format("CombinedTOF{}ParticleIDs", qualifier),
+          },
           {
             .filename="calibrations/tof.lut",
             .system=BarrelTOF_ID,
