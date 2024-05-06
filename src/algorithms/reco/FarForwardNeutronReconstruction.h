@@ -10,13 +10,12 @@
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
 #include <algorithms/algorithm.h>
-#include "NeutronReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {
 
-using NeutronReconstructionAlgorithm = algorithms::Algorithm<
+using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
    algorithms::Input<
        const edm4eic::ClusterCollection
     >,
@@ -24,12 +23,12 @@ using NeutronReconstructionAlgorithm = algorithms::Algorithm<
        edm4eic::ReconstructedParticleCollection
     >
     >;
-    class NeutronReconstruction :
-       public NeutronReconstructionAlgorithm,
-       public WithPodConfig<NeutronReconstructionConfig> {
+    class FarForwardNeutronReconstruction :
+       public FarForwardNeutronReconstructionAlgorithm,
+       public WithPodConfig<NoConfig> {
        public:
-         NeutronReconstruction(std::string_view name)
-                  : NeutronReconstructionAlgorithm{name,
+         FarForwardNeutronReconstruction(std::string_view name)
+                  : FarForwardNeutronReconstructionAlgorithm{name,
                                         {"inputClusters"},
                                         {"outputNeutrons"},
                                         "Merges all HCAL clusters in a collection into a neutron candidate"} {}

@@ -15,9 +15,8 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/NeutronReconstruction_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
-
+#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -196,7 +195,7 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JOmniFactoryGeneratorT<NeutronReconstruction_factory>(
+        app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
            "HcalFarForwardZDCNeutronCandidates",
           {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
           {"HcalFarForwardZDCNeutronCandidates"}, // edm4eic::ReconstrutedParticleCollection,

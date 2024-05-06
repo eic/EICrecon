@@ -16,21 +16,16 @@
 #include <iostream>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 
-#include "algorithms/calorimetry/NeutronReconstruction.h"        // for Neutronreconstruction
-#include "algorithms/calorimetry/NeutronReconstructionConfig.h"  // for NeutronreconstructionConfig
+#include "algorithms/reco/FarForwardNeutronReconstruction.h"        // for Neutronreconstruction
 
-using eicrecon::NeutronReconstruction;
-using eicrecon::NeutronReconstructionConfig;
+using eicrecon::FarForwardNeutronReconstruction;
 
-TEST_CASE( "the cluster merging algorithm runs", "[NeutronReconstruction]" ) {
-  NeutronReconstruction algo("NeutronReconstruction");
+TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstruction]" ) {
+  FarForwardNeutronReconstruction algo("FarForwardNeutronReconstruction");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("NeutronReconstruction");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("FarForwardNeutronReconstruction");
   logger->set_level(spdlog::level::trace);
 
-  NeutronReconstructionConfig cfg;
-
-  algo.applyConfig(cfg);
   algo.init();
 
   edm4eic::ClusterCollection clust_coll;

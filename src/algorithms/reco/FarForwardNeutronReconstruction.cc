@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Sebouh Pual
-#include "NeutronReconstruction.h"
+#include "FarForwardNeutronReconstruction.h"
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -16,10 +16,10 @@ origin to the position of the most energetic cluster
 
 namespace eicrecon {
 
-    void NeutronReconstruction::init() {  }
+    void FarForwardNeutronReconstruction::init() {  }
 
-    void NeutronReconstruction::process(const NeutronReconstruction::Input& input,
-                      const NeutronReconstruction::Output& output) const {
+    void FarForwardNeutronReconstruction::process(const FarForwardNeutronReconstruction::Input& input,
+                      const FarForwardNeutronReconstruction::Output& output) const {
 
       const auto [clusters] = input;
       auto [out_neutrons] = output;

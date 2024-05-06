@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/NeutronReconstruction.h"
+#include "algorithms/reco/FarForwardNeutronReconstruction.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
 namespace eicrecon {
 
-class NeutronReconstruction_factory : public JOmniFactory<NeutronReconstruction_factory, NeutronReconstructionConfig> {
+class FarForwardNeutronReconstruction_factory : public JOmniFactory<FarForwardNeutronReconstruction_factory,NoConfig> {
 
-   using AlgoT = eicrecon::NeutronReconstruction;
+   using AlgoT = eicrecon::FarForwardNeutronReconstruction;
      private:
          std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::Cluster> m_clusters_input {this};
