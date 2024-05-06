@@ -21,6 +21,7 @@ void PIDLookup::init() {
     .momentum_edges=m_cfg.momentum_edges,
     .polar_edges=m_cfg.polar_edges,
     .azimuthal_binning=m_cfg.azimuthal_binning,
+    .momentum_bin_centers_in_lut=m_cfg.momentum_bin_centers_in_lut,
     .polar_bin_centers_in_lut=m_cfg.polar_bin_centers_in_lut,
     .skip_legacy_header=m_cfg.skip_legacy_header,
     .use_radians=m_cfg.use_radians,
