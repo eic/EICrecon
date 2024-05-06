@@ -40,7 +40,7 @@ extern "C" {
             .pedMeanADC = EcalEndcapN_pedMeanADC,
             .pedSigmaADC = EcalEndcapN_pedSigmaADC,
             .resolutionTDC = EcalEndcapN_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "EcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed

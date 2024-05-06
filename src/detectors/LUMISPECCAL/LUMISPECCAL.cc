@@ -33,7 +33,7 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "EcalLumiSpecHits",
           },
           app   // TODO: Remove me once fixed
