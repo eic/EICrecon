@@ -10,7 +10,8 @@ add_executable(
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_HEXPLIT.cc
   pid_MergeTracks.cc
-  pid_MergeParticleID.cc)
+  pid_MergeParticleID.cc
+  pid_lut_PIDLookup.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
@@ -20,7 +21,9 @@ target_link_libraries(
           algorithms_calorimetry_library
           algorithms_fardetectors_library
           algorithms_pid_library
+          algorithms_pid_lut_library
           evaluator_library
+          pid_lut_library
           podio::podio
           podio::podioRootIO)
 

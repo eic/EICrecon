@@ -13,6 +13,7 @@
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
 #include <services/evaluator/EvaluatorSvc.h>
+#include <services/pid_lut/PIDLookupTableSvc.h>
 #include <stddef.h>
 #include <cstdint>
 #include <memory>
@@ -59,6 +60,9 @@ public:
 
     auto& evaluatorSvc = eicrecon::EvaluatorSvc::instance();
     serviceSvc.add<eicrecon::EvaluatorSvc>(&evaluatorSvc);
+
+    auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
+    serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
 
     serviceSvc.init();
   }
