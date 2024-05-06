@@ -280,9 +280,9 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
-           "HcalFarForwardZDCNeutronCandidates",
+           "ReconstructedFarForwardZDCNeutrons",
           {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
-          {"ReconstructedFarForwardNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
+          {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
           app   // TODO: Remove me once fixed
     ));
 
