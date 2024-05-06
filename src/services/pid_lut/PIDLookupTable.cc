@@ -15,11 +15,8 @@ namespace bh = boost::histogram;
 namespace eicrecon {
 
 const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
-
-    if (pdg < 0) {
-        pdg *= -1;
-        // Our lookup table expects _unsigned_ PDGs. The charge information is passed separately.
-    }
+    // Our lookup table expects _unsigned_ PDGs. The charge information is passed separately.
+    pdg = std::abs(pdg);
 
     if (m_symmetrizing_charges) {
       charge = std::abs(charge);
