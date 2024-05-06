@@ -17,9 +17,7 @@
 namespace eicrecon {
 
 
-    void FarDetectorLinearProjection::init(std::shared_ptr<spdlog::logger>& logger) {
-
-      m_log      = logger;
+    void FarDetectorLinearProjection::init() {
 
       // plane position
       m_plane_position << m_cfg.plane_position[0], m_cfg.plane_position[1], m_cfg.plane_position[2];
@@ -55,7 +53,7 @@ namespace eicrecon {
         edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
         float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
         float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
-        float qOverP;
+        float qOverP = 0.;
         float time      = 0;
         int32_t pdgCode = 11;
         // Point Error
