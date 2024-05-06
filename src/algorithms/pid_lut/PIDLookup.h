@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
-#include <random>
-
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <random>
+#include <string>
+#include <string_view>
 
 #include "PIDLookupConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "services/pid_lut/PIDLookupTableSvc.h"
-
-class PIDLookupTable_service;
+#include "services/pid_lut/PIDLookupTable.h"
 
 namespace eicrecon {
 

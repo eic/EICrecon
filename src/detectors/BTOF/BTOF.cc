@@ -5,15 +5,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "global/pid_lut/PIDLookup_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "global/pid_lut/PIDLookup_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {

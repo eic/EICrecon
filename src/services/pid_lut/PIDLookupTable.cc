@@ -2,13 +2,23 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include "PIDLookupTable.h"
+
+#include <boost/histogram/axis/interval_view.hpp>
+#include <boost/histogram/axis/option.hpp>
+#include <boost/histogram/axis/polymorphic_bin.hpp>
+#include <boost/histogram/detail/priority.hpp>
+#include <boost/histogram/indexed.hpp>
+#include <boost/histogram/make_histogram.hpp>
+#include <boost/mp11/detail/mp_defer.hpp>
+#include <fmt/core.h>
+#include <math.h>
+#include <stdlib.h>
 #include <algorithm>
-#include <iostream>
+#include <cctype>
 #include <fstream> // IWYU pragma: keep
-#include <sstream> // IWYU pragma: keep
 #include <iterator>
+#include <sstream> // IWYU pragma: keep
 #include <stdexcept>
-#include <utility>
 
 namespace bh = boost::histogram;
 

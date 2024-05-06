@@ -4,11 +4,15 @@
 #pragma once
 
 #include <algorithms/logger.h>
-#include <boost/histogram.hpp>
-#include <optional>
-#include <vector>
+#include <boost/histogram/accumulators/count.hpp>
+#include <boost/histogram/axis/category.hpp>
+#include <boost/histogram/axis/regular.hpp>
+#include <boost/histogram/axis/variable.hpp>
+#include <boost/histogram/fwd.hpp>
+#include <boost/histogram/histogram.hpp>
 #include <string>
-#include <stddef.h>
+#include <tuple>
+#include <vector>
 
 namespace eicrecon {
 

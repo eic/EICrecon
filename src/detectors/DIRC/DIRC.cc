@@ -6,9 +6,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
+#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <fmt/core.h>
 #include <stddef.h>
 #include <algorithm>
+#include <gsl/pointers>
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -18,6 +24,7 @@
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 
 extern "C" {
