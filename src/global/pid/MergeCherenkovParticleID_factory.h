@@ -15,10 +15,7 @@
 // algorithms
 #include "algorithms/pid/MergeParticleID.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
-// services
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
