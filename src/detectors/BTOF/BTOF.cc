@@ -56,7 +56,7 @@ void InitPlugin(JApplication *app) {
     }
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "TOFPID",
-          {"ReconstructedParticles", "ReconstructedParticleAssociations"},
+          {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
           {"TOFPID", "TOFParticleIDs"},
           {
             .filename="calibrations/tof.lut",
