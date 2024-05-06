@@ -10,5 +10,4 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY WITHOUT_PLUGIN)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-plugin_add_algorithms(${PLUGIN_NAME} algopid_lut)
 plugin_add_event_model(${PLUGIN_NAME})
