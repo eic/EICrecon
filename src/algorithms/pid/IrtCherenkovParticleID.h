@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovRadiator.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -16,6 +16,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 // EICrecon

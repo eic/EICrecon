@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <gsl/pointers>
 #include <iterator>
 #include <set>
 #include <stdexcept>
