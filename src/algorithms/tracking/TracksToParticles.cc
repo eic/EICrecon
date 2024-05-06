@@ -127,7 +127,6 @@ namespace eicrecon {
             }
             auto rec_part = parts->create();
             rec_part.addToTracks(track);
-            int32_t best_pid = 0;
             auto referencePoint = rec_part.getReferencePoint();
             // float time          = 0;
             float mass = 0;
@@ -135,7 +134,6 @@ namespace eicrecon {
                 trace("Best match is found and is: {}", best_match);
                 mc_prt_is_consumed[best_match] = true;
                 const auto &best_mc_part = (*mc_particles)[best_match];
-                best_pid = best_mc_part.getPDG();
                 referencePoint = {
                         static_cast<float>(best_mc_part.getVertex().x),
                         static_cast<float>(best_mc_part.getVertex().y),
@@ -151,7 +149,6 @@ namespace eicrecon {
             rec_part.setCharge(charge_rec);
             rec_part.setMass(mass);
             rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
-            rec_part.setPDG(best_pid);
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
             // Also write MC <--> truth particle association if match was found
