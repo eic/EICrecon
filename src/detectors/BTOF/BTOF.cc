@@ -11,9 +11,9 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "global/pid_lut/PIDLookup_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/pid_lut/PIDLookup_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {

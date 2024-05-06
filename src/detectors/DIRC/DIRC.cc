@@ -17,7 +17,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "factories/pid_lut/PIDLookup_factory.h"
+#include "global/pid_lut/PIDLookup_factory.h"
 
 
 extern "C" {

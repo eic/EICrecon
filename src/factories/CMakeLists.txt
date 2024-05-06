@@ -1,6 +1,5 @@
 add_subdirectory(calorimetry)
 add_subdirectory(digi)
 add_subdirectory(fardetectors)
-add_subdirectory(pid_lut)
 add_subdirectory(tracking)
 add_subdirectory(meta)
