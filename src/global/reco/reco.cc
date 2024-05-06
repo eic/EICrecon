@@ -19,6 +19,7 @@
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
+#include "algorithms/reco/FarForwardNeutronReconstruction.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
@@ -27,6 +28,7 @@
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
@@ -275,6 +277,13 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedBreitFrameParticles"},
             {},
             app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
+           "HcalFarForwardZDCNeutronCandidates",
+          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+          {"ReconstructedFarForwardNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
+          app   // TODO: Remove me once fixed
     ));
 
 }

@@ -195,13 +195,6 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-        app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
-           "HcalFarForwardZDCNeutronCandidates",
-          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
-          {"HcalFarForwardZDCNeutronCandidates"}, // edm4eic::ReconstrutedParticleCollection,
-          app   // TODO: Remove me once fixed
-        ));
-
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
           app   // TODO: Remove me once fixed
