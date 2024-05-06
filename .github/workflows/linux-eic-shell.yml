@@ -543,7 +543,6 @@ jobs:
           # remove once https://github.com/eic/epic/pull/719 is on CVMFS
           mkdir calibrations
           curl -L -o calibrations/drich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/drich.lut
-          curl -L -o calibrations/hpdirc_positive.lut https://raw.githubusercontent.com/nathanwbrei/fastpid/66acf386f368d8fe95cbf157407492e92344ee7f/hpdirc_positive.lut
           curl -L -o calibrations/pfrich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/pfrich.lut
           curl -L -o calibrations/tof.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/tof.lut
           $PWD/install/bin/eicmkplugin.py MyCustomPlugin
@@ -597,7 +596,6 @@ jobs:
           # remove once https://github.com/eic/epic/pull/719 is on CVMFS
           mkdir calibrations
           curl -L -o calibrations/drich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/drich.lut
-          curl -L -o calibrations/hpdirc_positive.lut https://raw.githubusercontent.com/nathanwbrei/fastpid/66acf386f368d8fe95cbf157407492e92344ee7f/hpdirc_positive.lut
           curl -L -o calibrations/pfrich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/pfrich.lut
           curl -L -o calibrations/tof.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/tof.lut
           $PWD/install/bin/eicrecon -Pplugins=${{ matrix.test_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
@@ -656,7 +654,6 @@ jobs:
           # remove once https://github.com/eic/epic/pull/719 is on CVMFS
           mkdir calibrations
           curl -L -o calibrations/drich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/drich.lut
-          curl -L -o calibrations/hpdirc_positive.lut https://raw.githubusercontent.com/nathanwbrei/fastpid/66acf386f368d8fe95cbf157407492e92344ee7f/hpdirc_positive.lut
           curl -L -o calibrations/pfrich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/pfrich.lut
           curl -L -o calibrations/tof.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/tof.lut
           $PWD/install/bin/eicrecon -Pplugins=${{ matrix.benchmark_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
@@ -715,7 +712,6 @@ jobs:
           # remove once https://github.com/eic/epic/pull/719 is on CVMFS
           mkdir calibrations
           curl -L -o calibrations/drich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/drich.lut
-          curl -L -o calibrations/hpdirc_positive.lut https://raw.githubusercontent.com/nathanwbrei/fastpid/66acf386f368d8fe95cbf157407492e92344ee7f/hpdirc_positive.lut
           curl -L -o calibrations/pfrich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/pfrich.lut
           curl -L -o calibrations/tof.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/tof.lut
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
@@ -871,7 +867,6 @@ jobs:
           # remove once https://github.com/eic/epic/pull/719 is on CVMFS
           mkdir calibrations
           curl -L -o calibrations/drich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/drich.lut
-          curl -L -o calibrations/hpdirc_positive.lut https://raw.githubusercontent.com/nathanwbrei/fastpid/66acf386f368d8fe95cbf157407492e92344ee7f/hpdirc_positive.lut
           curl -L -o calibrations/pfrich.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/pfrich.lut
           curl -L -o calibrations/tof.lut https://github.com/eic/epic-data/raw/b863589baf6998acdc22f5e445a5e462bbf72b0a/tof.lut
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop -Pjana:warmup_timeout=0 -Pjana:timeout=0
