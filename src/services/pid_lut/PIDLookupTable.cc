@@ -34,7 +34,6 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
 }
 
 void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable::Binning &binning) {
-    level(algorithms::LogLevel::kTrace);
     std::ifstream file(filename);
     if (!file) {
         throw std::runtime_error("Unable to open LUT file!");
