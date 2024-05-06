@@ -27,7 +27,7 @@ void PIDLookup::init() {
     .use_radians=m_cfg.use_radians,
     .missing_electron_prob=m_cfg.missing_electron_prob,
   });
-  if (!m_lut) {
+  if (m_lut == nullptr) {
     throw std::runtime_error("LUT not available");
   }
 }

@@ -97,7 +97,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
 
             if (m_symmetrizing_charges) {
               charge = std::abs(charge);
-	    }
+            }
 
             // operator() here allows to lookup mutable entry and increases the access counter
             auto &entry = *m_hist(

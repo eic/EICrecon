@@ -200,9 +200,9 @@ extern "C" {
             .momentum_edges={0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25, 10.75, 11.25, 11.75, 12.25, 12.75, 13.25, 13.75, 14.25, 14.75, 15.25, 15.75, 16.25, 16.75, 17.25, 17.75, 18.25, 18.75, 19.25, 19.75, 20.50, 21.50, 22.50, 23.50, 24.50, 25.50, 26.50, 27.50, 28.50, 29.50, 30.50},
             .polar_edges={0.060, 0.164, 0.269, 0.439},
             .azimuthal_binning={0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
-	    .polar_bin_centers_in_lut=true,
-	    .use_radians=true,
-	    .missing_electron_prob=true,
+            .polar_bin_centers_in_lut=true,
+            .use_radians=true,
+            .missing_electron_prob=true,
           },
           app
           ));

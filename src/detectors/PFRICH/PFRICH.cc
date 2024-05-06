@@ -86,8 +86,8 @@ extern "C" {
             .momentum_edges={0.08,  0.15,  0.25,  0.35,  0.45,  0.55,  0.65,  0.75,  0.85,  0.95,  1.50,  2.50,  3.50,  4.50,  5.50,  6.50,  7.50,  8.50,  9.50, 10.50, 11.50, 12.50, 13.50, 14.50},
             .polar_edges={2.703, 2.873, 3.020, 3.042, 3.081/* missing: , 3.097*/},
             .azimuthal_binning={0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
-	    .polar_bin_centers_in_lut=true,
-	    .use_radians=true,
+            .polar_bin_centers_in_lut=true,
+            .use_radians=true,
           },
           app
           ));
