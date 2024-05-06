@@ -14,7 +14,7 @@ namespace bh = boost::histogram;
 
 namespace eicrecon {
 
-const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const {
+const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double momentum, double theta_deg, double phi_deg) const {
     // Our lookup table expects _unsigned_ PDGs. The charge information is passed separately.
     pdg = std::abs(pdg);
 
@@ -27,7 +27,7 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
         m_hist.axis(0).index(pdg),
         m_hist.axis(1).index(charge),
         m_hist.axis(2).index(momentum),
-        m_hist.axis(3).index(eta_deg),
+        m_hist.axis(3).index(theta_deg),
         m_hist.axis(4).index(phi_deg)
       }
     ];
@@ -55,7 +55,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
       debug("Ignoring momentum binning: {}", line);
 
       do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Ignoring eta binning: {}", line);
+      debug("Ignoring theta binning: {}", line);
 
       do { std::getline(file, line); } while (line.empty() || line[0] == '#');
       debug("Ignoring phi binning: ", line);

@@ -50,7 +50,7 @@ public:
 
     PIDLookupTable() : algorithms::LoggerMixin("PIDLookupTable") {};
 
-    const Entry* Lookup(int pdg, int charge, double momentum, double eta_deg, double phi_deg) const;
+    const Entry* Lookup(int pdg, int charge, double momentum, double theta_deg, double phi_deg) const;
 
     void load_file(const std::string& filename, const Binning &binning);
 };
