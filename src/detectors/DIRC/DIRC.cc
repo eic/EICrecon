@@ -84,7 +84,7 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "DIRCPID",
           {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"DIRCPID", "DIRCParticleIDs"},
+          {"DIRCPIDParticles", "DIRCPIDParticleAssociations", "DIRCParticleIDs"},
           {
             .filename="calibrations/hpdirc_positive.lut",
             .system=BarrelDIRC_ID,

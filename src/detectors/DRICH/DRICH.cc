@@ -191,7 +191,7 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "DRICHPID",
           {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"DRICHPID", "DRICHParticleIDs"},
+          {"DRICHPIDParticles", "DRICHPIDParticleAssociations", "DRICHParticleIDs"},
           {
             .filename="calibrations/drich.lut",
             .system=ForwardRICH_ID,

@@ -77,7 +77,7 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "PFRICHPID",
           {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"PFRICHPID", "PFRICHParticleIDs"},
+          {"PFRICHPIDParticles", "PFRICHPIDParticleAssociations", "PFRICHParticleIDs"},
           {
             .filename="calibrations/pfrich.lut",
             .system=BackwardRICH_ID,

@@ -57,7 +57,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "TOFPID",
           {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleAssociations"},
-          {"TOFPID", "TOFParticleIDs"},
+          {"TOFPIDParticles", "TOFPIDParticleAssociations", "TOFParticleIDs"},
           {
             .filename="calibrations/tof.lut",
             .system=BarrelTOF_ID,
