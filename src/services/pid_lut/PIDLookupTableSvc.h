@@ -9,7 +9,6 @@
 #include <JANA/JLogger.h>
 #include <mutex>
 #include <filesystem>
-#include <cstdlib>
 
 namespace eicrecon {
 
