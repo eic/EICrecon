@@ -56,6 +56,7 @@ private:
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
 
         // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
         if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
