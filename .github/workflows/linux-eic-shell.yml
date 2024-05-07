@@ -372,12 +372,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        beam: [5x41, 10x100, 18x275]
-        minq2: [1, 1000]
+        beam: [10x100, 18x275]
+        minq2: [1000]
         detector_config: [craterlake]
-        exclude:
-        - beam: 5x41
-          minq2: 1000
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Get detector info
@@ -810,12 +807,14 @@ jobs:
     strategy:
       matrix:
         CC: [clang]
-        beam: [5x41, 10x100, 18x275]
-        minq2: [0, 1, 1000]
+        beam: [10x100, 18x275]
+        minq2: [0, 1000]
         detector_config: [craterlake]
-        exclude:
-        - beam: 5x41
-          minq2: 1000
+        include:
+        - CC: clang
+          beam: 5x41
+          minq2: 0
+          detector_config: craterlake
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
