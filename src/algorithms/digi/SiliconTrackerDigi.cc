@@ -93,7 +93,7 @@ void SiliconTrackerDigi::process(
             for (auto& hit : cell_hit_map[sim_hit.getCellID()]) {
                 auto existing_time = hit.getTimeStamp();
                 // TODO: edge cases?
-                if ( hit_time_stamp >= existing_time - hit_time_stamp_err && hit_time_stamp <= existing_time + hit_time_stamp_err ) {
+                if ( hit_time_stamp >= existing_time - 0.5*hit_time_stamp_err && hit_time_stamp <= existing_time + 0.5*hit_time_stamp_err ) {
                     // There is already a hit within the same time window
                     m_log->debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
                          sim_hit.getCellID(), hit.getTimeStamp(), existing_time - hit_time_stamp_err, existing_time + hit_time_stamp_err);
@@ -112,6 +112,13 @@ void SiliconTrackerDigi::process(
                         sim_hit.getCellID(), sim_hit.getTime());
 
             // Create a new hit
+            // Note: time uncertainty in the TrackerHitReconstruction is set independently
+            // It would probably be better to move it into the RawTrackerHit class
+            // (same for spatial uncertainty, actually)
+            // Note 2: It's possible to not fall into a bucket but still be close enough to one or 
+            // more that uncertainties overlap. Cannot be avoided in the current setup.
+            // It could lead to ambiguity which bucket is chosen for a third hit in this area.
+            // In reality, this is probably more like dead time; revisit later.
             cell_hit_map[sim_hit.getCellID()].push_back(
                 edm4eic::MutableRawTrackerHit{
                 sim_hit.getCellID(),
