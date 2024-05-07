@@ -8,8 +8,7 @@
 #include <edm4eic/TrackSegment.h>
 #include <algorithms/fardetectors/FarDetectorLinearTracking.h>
 
-#include <extensions/jana/JChainMultifactoryT.h>
-#include <extensions/spdlog/SpdlogMixin.h>
+#include <extensions/jana/JOmniFactory.h>
 #include <spdlog/logger.h>
 
 namespace eicrecon {

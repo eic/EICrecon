@@ -17,7 +17,6 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
-#include "extensions/jana/JChainMultifactoryGeneratorT.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
