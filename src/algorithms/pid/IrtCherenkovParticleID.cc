@@ -141,9 +141,10 @@ void IrtCherenkovParticleID::process(
   };
 
   // start output collections
-  std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> result;
-  for(auto [rad_name,irt_rad] : m_pid_radiators)
-    result.insert({rad_name, std::make_unique<edm4eic::CherenkovParticleIDCollection>()});
+  std::map<std::string, edm4eic::CherenkovParticleIDCollection*> out_cherenkov_pids{
+    {"Aerogel", out_aerogel_particleIDs},
+    {"Gas", out_gas_particleIDs}
+  };
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   std::unordered_map<std::size_t, std::size_t> in_charged_particle_size_distribution;
@@ -383,7 +384,7 @@ void IrtCherenkovParticleID::process(
       }
 
       // fill photon info
-      auto out_cherenkov_pid = result.at(rad_name)->create();
+      auto out_cherenkov_pid = out_cherenkov_pids.at(rad_name)->create();
       out_cherenkov_pid.setNpe(static_cast<decltype(edm4eic::CherenkovParticleIDData::npe)>(npe));
       out_cherenkov_pid.setRefractiveIndex(static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)>(rindex_ave));
       out_cherenkov_pid.setPhotonEnergy(static_cast<decltype(edm4eic::CherenkovParticleIDData::photonEnergy)>(energy_ave));
