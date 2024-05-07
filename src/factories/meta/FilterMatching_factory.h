@@ -27,6 +27,7 @@ class FilterMatching_factory : public JOmniFactory<FilterMatching_factory<ToFilt
   public:
     void Configure() {
       m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+      m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
       m_algo->init();
     }
 
