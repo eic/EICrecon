@@ -130,10 +130,10 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
           b.bin(1).lower(),
           b.bin(2).lower(),
           b.bin(2).upper(),
-          b.bin(3).lower(),
-          b.bin(3).upper(),
-          b.bin(4).lower(),
-          b.bin(4).upper(),
+          b.bin(3).lower() / angle_fudge,
+          b.bin(3).upper() / angle_fudge,
+          b.bin(4).lower() / angle_fudge,
+          b.bin(4).upper() / angle_fudge,
           b->value()
         );
       }
