@@ -5,10 +5,10 @@
 
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <algorithm>
 #include <map>
@@ -20,20 +20,18 @@
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
-
-#include "algorithms/reco/FarForwardNeutronReconstruction.h"
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "algorithms/reco/HadronicFinalState.h"
 #endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
-#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
