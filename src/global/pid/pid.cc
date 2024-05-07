@@ -34,21 +34,5 @@ extern "C" {
           },
           app
           ));
-
-    app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
-          "SeededChargedParticlesWithAssociations",
-          {
-            "ReconstructedSeededChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "DRICHMergedIrtCherenkovParticleID",                        // edm4eic::CherenkovParticleID
-          },
-          {
-            "ReconstructedSeededChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedSeededChargedRealPIDParticleIDs",          // edm4hep::ParticleID
-          },
-          app
-          ));
-
   }
 }
