@@ -89,8 +89,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
-            "CombinedTOFParticleIDs"
-            "CombinedTOFSeededParticleIDs"
+            "CombinedTOFParticleIDs",
+            "CombinedTOFSeededParticleIDs",
 
             // DRICH
             "DRICHRawHits",
@@ -99,14 +99,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
-            "DRICHParticleIDs"
-            "DRICHSeededParticleIDs"
+            "DRICHParticleIDs",
+            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
-            "RICHEndcapNParticleIDs"
-            "RICHEndcapNSeededParticleIDs"
+            "RICHEndcapNParticleIDs",
+            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -286,9 +286,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // DIRC
             "DIRCRawHits",
-            "DIRCPID"
-            "DIRCParticleIDs"
-            "DIRCSeededParticleIDs"
+            "DIRCPID",
+            "DIRCParticleIDs",
+            "DIRCSeededParticleIDs",
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
