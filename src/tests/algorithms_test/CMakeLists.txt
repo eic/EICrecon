@@ -21,6 +21,7 @@ target_link_libraries(
           algorithms_calorimetry_library
           algorithms_fardetectors_library
           algorithms_pid_library
+          algorithms_reco_library
           evaluator_library
           podio::podio
           podio::podioRootIO)
