@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <gsl/pointers>
 #include <iterator>
 #include <set>
 #include <stdexcept>
@@ -33,9 +34,9 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/Tools.h"
 
-// AlgorithmInit
-//---------------------------------------------------------------------------
-void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
+namespace eicrecon {
+
+void IrtCherenkovParticleID::init(
     CherenkovDetectorCollection*     irt_det_coll,
     std::shared_ptr<spdlog::logger>& logger
     )
@@ -121,30 +122,29 @@ void eicrecon::IrtCherenkovParticleID::AlgorithmInit(
 
 }
 
-
-// AlgorithmChangeRun
-//---------------------------------------------------------------------------
-void eicrecon::IrtCherenkovParticleID::AlgorithmChangeRun() {
-}
-
-
-// AlgorithmProcess
-//---------------------------------------------------------------------------
-std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> eicrecon::IrtCherenkovParticleID::AlgorithmProcess(
-    std::map<std::string, const edm4eic::TrackSegmentCollection*>& in_charged_particles,
-    const edm4eic::RawTrackerHitCollection*                        in_raw_hits,
-    const edm4eic::MCRecoTrackerHitAssociationCollection*          in_hit_assocs
-    )
+void IrtCherenkovParticleID::process(
+    const IrtCherenkovParticleID::Input& input,
+    const IrtCherenkovParticleID::Output& output) const
 {
+  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs] = input;
+  auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
+
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
   m_log->trace("number of raw sensor hits: {}", in_raw_hits->size());
   m_log->trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
 
+  std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
+    {"Aerogel", in_aerogel_tracks},
+    {"Gas", in_gas_tracks},
+    {"Merged", in_merged_tracks},
+  };
+
   // start output collections
-  std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> result;
-  for(auto [rad_name,irt_rad] : m_pid_radiators)
-    result.insert({rad_name, std::make_unique<edm4eic::CherenkovParticleIDCollection>()});
+  std::map<std::string, edm4eic::CherenkovParticleIDCollection*> out_cherenkov_pids{
+    {"Aerogel", out_aerogel_particleIDs},
+    {"Gas", out_gas_particleIDs}
+  };
 
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   std::unordered_map<std::size_t, std::size_t> in_charged_particle_size_distribution;
@@ -157,7 +157,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       std::back_inserter(in_charged_particle_sizes),
       [](const auto& in_charged_particle) { return in_charged_particle.second->size(); });
     m_log->error("radiators have differing numbers of TrackSegments {}", fmt::join(in_charged_particle_sizes, ", "));
-    return result;
+    return;
   }
 
   // loop over charged particles ********************************************
@@ -384,7 +384,7 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
       }
 
       // fill photon info
-      auto out_cherenkov_pid = result.at(rad_name)->create();
+      auto out_cherenkov_pid = out_cherenkov_pids.at(rad_name)->create();
       out_cherenkov_pid.setNpe(static_cast<decltype(edm4eic::CherenkovParticleIDData::npe)>(npe));
       out_cherenkov_pid.setRefractiveIndex(static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)>(rindex_ave));
       out_cherenkov_pid.setPhotonEnergy(static_cast<decltype(edm4eic::CherenkovParticleIDData::photonEnergy)>(energy_ave));
@@ -438,6 +438,6 @@ std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> e
      */
 
   } // end `in_charged_particles` loop
-
-  return result;
 }
+
+} // namespace eicrecon
