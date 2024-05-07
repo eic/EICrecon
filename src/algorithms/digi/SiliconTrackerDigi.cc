@@ -115,7 +115,7 @@ void SiliconTrackerDigi::process(
             // Note: time uncertainty in the TrackerHitReconstruction is set independently
             // It would probably be better to move it into the RawTrackerHit class
             // (same for spatial uncertainty, actually)
-            // Note 2: It's possible to not fall into a bucket but still be close enough to one or 
+            // Note 2: It's possible to not fall into a bucket but still be close enough to one or
             // more that uncertainties overlap. Cannot be avoided in the current setup.
             // It could lead to ambiguity which bucket is chosen for a third hit in this area.
             // In reality, this is probably more like dead time; revisit later.
