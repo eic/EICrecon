@@ -98,7 +98,7 @@ extern "C" {
               fmt::format("RICHEndcapN{}ParticleIDs", qualifier),
               },
               {
-                .filename="pfrich.lut",
+                .filename="calibrations/pfrich.lut",
                 .system=BackwardRICH_ID,
                 .pdg_values={11, 211, 321, 2212},
                 .charge_values={1},
