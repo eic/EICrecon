@@ -3,6 +3,7 @@
 
   # Boost
   { ref: '/usr/local/share/include-what-you-use/boost-all.imp' },
+  { include: ['@<boost/histogram/.*\.hpp>', private, '<boost/histogram.hpp>', public] },
 
   # libc++
   { ref: '/usr/local/share/include-what-you-use/libcxx.imp' },

@@ -3,6 +3,7 @@
 
 #include "PIDLookupTable.h"
 
+#include <boost/histogram.hpp>
 #include <fmt/core.h>
 #include <math.h>
 #include <stdlib.h>
@@ -12,6 +13,7 @@
 #include <iterator>
 #include <sstream> // IWYU pragma: keep
 #include <stdexcept>
+// IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
 
 namespace bh = boost::histogram;
 

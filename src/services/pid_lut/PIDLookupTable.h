@@ -4,10 +4,11 @@
 #pragma once
 
 #include <algorithms/logger.h>
-#include <boost/histogram.hpp> // IWYU pragma: keep
+#include <boost/histogram.hpp>
 #include <string>
 #include <tuple>
 #include <vector>
+// IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
 
 namespace eicrecon {
 
