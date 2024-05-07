@@ -159,7 +159,7 @@ extern "C" {
           ));
 
     // PID algorithm
-    app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
           "DRICHIrtCherenkovParticleID",
           {
             "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
