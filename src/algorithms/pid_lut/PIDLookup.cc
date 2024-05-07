@@ -12,7 +12,7 @@
 #include <gsl/pointers>
 #include <stdexcept>
 
-#include "PIDLookup.h"
+#include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
 

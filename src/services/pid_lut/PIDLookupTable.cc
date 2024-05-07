@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
-#include "PIDLookupTable.h"
+#include "src/services/pid_lut/PIDLookupTable.h"
 
 #include <boost/histogram.hpp>
 #include <fmt/core.h>
