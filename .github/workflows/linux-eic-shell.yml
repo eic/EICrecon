@@ -268,8 +268,9 @@ jobs:
         llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
         LIB_PATHS=()
-        for LIB_NAME in algorithms_calorimetry algorithms_digi algorithms_pid algorithms_pid_lut algorithms_reco algorithms_tracking; do
-          LIB_PATH="$(find src/ -type f -name "*$LIB_NAME.so")"
+        for LIB_PATH in $(find src/ -type f -name "libalgorithms_*.so"); do
+          LIB_NAME="$(basename ${LIB_PATH%%.so})"
+          LIB_NAME="${LIB_NAME##lib}"
           LIB_PATHS+=("$LIB_PATH")
           llvm-cov-15 report $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
