@@ -159,7 +159,7 @@ extern "C" {
           ));
 
     // PID algorithm
-    app->Add(new JChainMultifactoryGeneratorT<IrtCherenkovParticleID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
           "DRICHIrtCherenkovParticleID",
           {
             "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
@@ -172,7 +172,7 @@ extern "C" {
           ));
 
     // merge aerogel and gas PID results
-    app->Add(new JChainMultifactoryGeneratorT<MergeCherenkovParticleID_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
           "DRICHMergedIrtCherenkovParticleID",
           {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
           {"DRICHMergedIrtCherenkovParticleID"},

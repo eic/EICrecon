@@ -37,14 +37,13 @@ namespace eicrecon {
                 "Project track segments to a plane"} {}
 
         /** One time initialization **/
-        void init(std::shared_ptr<spdlog::logger>& logger);
+        void init() final;
 
         /** Event by event processing **/
         void process(const Input&, const Output&) const final;
 
 
     private:
-        std::shared_ptr<spdlog::logger> m_log;
         Eigen::Vector3d  m_plane_position;
         Eigen::Vector3d  m_plane_a;
         Eigen::Vector3d  m_plane_b;

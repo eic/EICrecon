@@ -1,6 +1,5 @@
-// Created by Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023, Simon Gardner
 
 #pragma once
 
@@ -24,15 +23,16 @@ private:
     PodioInput<edm4eic::TrackSegment>     m_hits_input    {this};
     PodioOutput<edm4eic::TrackParameters> m_tracks_output {this};
 
-    ParameterRef<std::vector<float>>     plane_position  {this, "plane_position", config().plane_position };
-    ParameterRef<std::vector<float>>     plane_a         {this, "plane_a",        config().plane_a        };
-    ParameterRef<std::vector<float>>     plane_b         {this, "plane_b",        config().plane_b        };
+    ParameterRef<std::vector<float>>     plane_position  {this, "planePosition", config().plane_position };
+    ParameterRef<std::vector<float>>     plane_a         {this, "planeA",        config().plane_a        };
+    ParameterRef<std::vector<float>>     plane_b         {this, "planeB",        config().plane_b        };
 
   public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
         m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

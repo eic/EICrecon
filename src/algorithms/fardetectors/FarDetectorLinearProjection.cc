@@ -17,9 +17,7 @@
 namespace eicrecon {
 
 
-    void FarDetectorLinearProjection::init(std::shared_ptr<spdlog::logger>& logger) {
-
-      m_log      = logger;
+    void FarDetectorLinearProjection::init() {
 
       // plane position
       m_plane_position << m_cfg.plane_position[0], m_cfg.plane_position[1], m_cfg.plane_position[2];
@@ -42,7 +40,12 @@ namespace eicrecon {
 
         Eigen::Vector3d point_position(inputPoint.position.x,inputPoint.position.y,inputPoint.position.z);
         Eigen::Vector3d positionDiff = point_position - m_plane_position;
-        directions.block<3,1>(0,2) << inputPoint.momentum.x,inputPoint.momentum.y,inputPoint.momentum.z;
+
+        // Convert spherical coordinates to Cartesian
+        double x = std::sin(inputPoint.theta) * std::cos(inputPoint.phi);
+        double y = std::sin(inputPoint.theta) * std::sin(inputPoint.phi);
+        double z = std::cos(inputPoint.theta);
+        directions.block<3,1>(0,2) << x,y,z;
 
         auto projectedPoint = directions.inverse()*positionDiff;
 
@@ -55,11 +58,14 @@ namespace eicrecon {
         edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
         float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
         float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
-        float qOverP;
+        float qOverP = 0.;
         float time      = 0;
         int32_t pdgCode = 11;
         // Point Error
         edm4eic::Cov6f error;
+
+        debug("Position:      a={},   b={}",loc.a,loc.b);
+        debug("Direction: theta={}, phi={}",theta,phi);
 
         outputTracks->create(type,surface,loc,theta,phi,qOverP,time,pdgCode,error);
 
