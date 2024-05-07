@@ -20,7 +20,9 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
+#include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -108,12 +110,34 @@ extern "C" {
             .n_layer = 4,
             .restrict_direction = true,
             .optimum_theta = -M_PI+0.026,
-            .optimum_phi = M_PI,
+            .optimum_phi = 0,
             .step_angle_tolerance = 0.05,
           },
           app
       ));
     }
+
+    // Combine the tracks from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
+         "TaggerTrackerTracks",
+         outputTrackTags,
+         {"TaggerTrackerTracks"},
+         app
+      )
+    );
+
+    // Project tracks onto a plane
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+         "TaggerTrackerProjectedTracks",
+         {"TaggerTrackerTracks"},
+         {"TaggerTrackerProjectedTracks"},
+         {
+           .plane_position = {0.0,0.0,0.0},
+           .plane_a = {0.0,1.0,0.0},
+           .plane_b = {0.0,0.0,1.0},
+         },
+         app
+    ));
 
   }
 }
