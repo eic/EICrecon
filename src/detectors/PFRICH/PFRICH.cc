@@ -102,9 +102,10 @@ extern "C" {
             .system=BackwardRICH_ID,
             .pdg_values={11, 211, 321, 2212},
             .charge_values={1},
-            .momentum_edges={0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00},
-            .polar_edges={2.703, 2.873, 3.020, 3.042, 3.081/* missing: , 3.097*/},
-            .azimuthal_binning={0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
+            .momentum_edges={0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 3.2, 3.6, 4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.6, 8, 8.4, 8.8, 9.2, 9.6, 10, 10.4, 10.8, 11.2, 11.6, 12, 12.4, 12.8, 13.2, 13.6, 14, 14.4, 14.8, 15.2},
+            .polar_edges={2.65, 2.6725, 2.695, 2.7175, 2.74, 2.7625, 2.785, 2.8075, 2.83, 2.8525, 2.875, 2.8975, 2.92, 2.9425, 2.965, 2.9875, 3.01, 3.0325, 3.055, 3.0775},
+            .azimuthal_binning={0., 2 * M_PI, 2 * M_PI / 120.}, // lower, upper, step
+            .azimuthal_bin_centers_in_lut=true,
             .momentum_bin_centers_in_lut=true,
             .polar_bin_centers_in_lut=true,
             .use_radians=true,

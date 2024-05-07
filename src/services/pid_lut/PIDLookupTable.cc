@@ -109,7 +109,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
               charge,
               momentum + (binning.momentum_bin_centers_in_lut ? 0. : (momentum_bins.bin(0).width() / 2)),
               eta * angle_fudge + (binning.polar_bin_centers_in_lut ? 0. : (polar_bins.bin(0).width() / 2)),
-              phi * angle_fudge + azimuthal_bins.bin(0).width() / 2
+              phi * angle_fudge + (binning.azimuthal_bin_centers_in_lut ? 0. : (azimuthal_bins.bin(0).width() / 2))
             ); // N.B. bin(0) may not be of a correct width
             entry.prob_electron = prob_electron;
             entry.prob_pion = prob_pion;
