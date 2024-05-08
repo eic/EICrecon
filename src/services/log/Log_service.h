@@ -18,7 +18,7 @@ public:
     explicit Log_service(JApplication *app);
     ~Log_service();
 
-    virtual std::shared_ptr<spdlog::logger> logger(const std::string &name);
+    virtual std::shared_ptr<spdlog::logger> logger(const std::string &name, const std::string &default_level = "");
 
     /** Gets the default level for all loggers
      * The log level is set from user parameters or is 'info'**/

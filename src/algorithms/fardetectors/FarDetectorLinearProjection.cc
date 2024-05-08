@@ -7,7 +7,6 @@
 
 #include "FarDetectorLinearProjection.h"
 #include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include <iterator>
 #include <algorithm>
 #include <map>
