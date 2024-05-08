@@ -43,8 +43,8 @@ extern "C" {
     digi_cfg.enablePixelGaps = true;
     digi_cfg.safetyFactor    = 0.7;
     digi_cfg.enableNoise     = false;
-    digi_cfg.noiseRate       = 20000; // [Hz]
-    digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
+    digi_cfg.noiseRate       = 500000; // [Hz]
+    digi_cfg.noiseTimeWindow = 1.0 * dd4hep::ns; // [ns]
     digi_cfg.quantumEfficiency.clear();
     digi_cfg.quantumEfficiency = { // wavelength units are [nm]
       {315,  0.00},
@@ -68,7 +68,7 @@ extern "C" {
 
     // track propagation to each radiator
     RichTrackConfig track_cfg;
-    track_cfg.numPlanes.insert({ "Aerogel", 5  });
+    track_cfg.numPlanes.insert({ "Aerogel", 4  });
     track_cfg.numPlanes.insert({ "Gas",     10 });
 
     // IRT PID
@@ -77,8 +77,8 @@ extern "C" {
     irt_cfg.numRIndexBins = 100;
     // - aerogel
     irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
-    irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
-    irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
+    irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0295;
+    irt_cfg.radiators.at("Aerogel").attenuation     = 0; // [48 mm]
     irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
     irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
     // - gas
@@ -88,7 +88,7 @@ extern "C" {
     irt_cfg.radiators.at("Gas").smearingMode    = "gaussian";
     irt_cfg.radiators.at("Gas").smearing        = 5e-3; // [radians]
     // - PDG list
-    irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { 11, 211, 321, 2212 });
+    irt_cfg.pdgList.insert(irt_cfg.pdgList.end(), { 11, 211, 321, 2212});
     // - cheat modes
     irt_cfg.cheatPhotonVertex  = false;
     irt_cfg.cheatTrueRadiator  = false;
