@@ -6,6 +6,7 @@
 // Event Model related classes
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackCollection.h>
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TMVA/MethodBase.h>
@@ -31,7 +32,8 @@ namespace eicrecon {
       /** Event by event processing **/
       std::tuple<
         std::unique_ptr<edm4eic::TrajectoryCollection>,
-        std::unique_ptr<edm4eic::TrackParametersCollection>
+        std::unique_ptr<edm4eic::TrackParametersCollection>,
+        std::unique_ptr<edm4eic::TrackCollection>
       >
       process(const edm4eic::TrackParametersCollection &inputtracks);
 

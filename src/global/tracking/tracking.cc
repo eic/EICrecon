@@ -137,24 +137,24 @@ void InitPlugin(JApplication *app) {
             ));
 
     // Tracker trajectory collector from ACTS and other factories
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Trajectory>>(
-         "CombinedTrajectories",
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+         "CombinedTracks",
          {
-            "CentralCKFTrajectories",  // ACTS output
-            "TaggerTrackerTrajectories"        // Low Q2 output
+            "CentralCKFTracks",    // ACTS output
+            "TaggerTrackerTracks"  // Low-Q2 output
          },
-         {"CombinedTrajectories"},
+         {"CombinedTracks"},
          app
     ));    // Output collection name
 
     // Tracker trajectory collector from ACTS and other factories
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Trajectory>>(
-         "CombinedSeededTrajectories",
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+         "CombinedSeededTracks",
          {
-            "CentralCKFSeededTrajectories",  // ACTS output
-            "TaggerTrackerTrajectories"              // Low Q2 output
+            "CentralCKFSeededTracks", // ACTS output
+            "TaggerTrackerTracks"     // Low-Q2 output
          },
-         {"CombinedSeededTrajectories"},
+         {"CombinedSeededTracks"},
          app
     ));  // Output collection name
 
@@ -204,8 +204,8 @@ void InitPlugin(JApplication *app) {
 
      app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
              "ChargedParticlesWithAssociations",
-             {"MCParticles",                                    // edm4hep::MCParticle
-             "CentralCKFTracks",                                // edm4eic::Track
+             {"MCParticles",                                     // edm4hep::MCParticle
+             "CombinedCKFTracks",                                // edm4eic::Track
              },
              {"ReconstructedChargedWithoutPIDParticles",                  //
               "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
@@ -217,7 +217,7 @@ void InitPlugin(JApplication *app) {
      app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
              "ChargedSeededParticlesWithAssociations",
              {"MCParticles",                                    // edm4hep::MCParticle
-             "CentralCKFSeededTracks",                          // edm4eic::Track
+             "CombinedSeededTracks",                            // edm4eic::Track
              },
              {"ReconstructedSeededChargedWithoutPIDParticles",            //
               "ReconstructedSeededChargedWithoutPIDParticleAssociations"  // edm4eic::MCRecoParticleAssociation

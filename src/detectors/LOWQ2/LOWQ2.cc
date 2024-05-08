@@ -127,9 +127,9 @@ extern "C" {
 
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
-         "TaggerTrackerTracks",
+         "TaggerTrackerTrackSegments",
          outputTrackTags,
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          app
       )
     );
@@ -137,7 +137,7 @@ extern "C" {
     // Project tracks onto a plane
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
          "TaggerTrackerProjectedTracks",
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          {"TaggerTrackerProjectedTracks"},
          {
            .plane_position = {0.0,0.0,0.0},
@@ -151,7 +151,7 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "TaggerTrackerTrajectories",
         {"TaggerTrackerProjectedTracks"},
-        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
         {},
         app
     ));

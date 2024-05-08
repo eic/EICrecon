@@ -73,11 +73,13 @@ namespace eicrecon {
 
   std::tuple<
     std::unique_ptr<edm4eic::TrajectoryCollection>,
-    std::unique_ptr<edm4eic::TrackParametersCollection>
+    std::unique_ptr<edm4eic::TrackParametersCollection>,
+    std::unique_ptr<edm4eic::TrackCollection>
   >
   FarDetectorMLReconstruction::process(const edm4eic::TrackParametersCollection &inputtracks) {
 
     //TODO - Output would be the same size as input so memory handling could be better...
+    auto outputFarDetectorMLTracks          = std::make_unique<edm4eic::TrackCollection>();
     auto outputFarDetectorMLTrajectories    = std::make_unique<edm4eic::TrajectoryCollection>();
     auto outputFarDetectorMLTrackParameters = std::make_unique<edm4eic::TrackParametersCollection>();
 
@@ -100,12 +102,13 @@ namespace eicrecon {
 
       edm4hep::Vector3f momentum = {values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]};
 
-      // log out the momentum magnitude
-      m_log->error("Momentum: {}",edm4eic::magnitude(momentum));
-      momentum = momentum*m_cfg.electron_beamE;
+      // log out the momentum components and magnitude
+      m_log->debug("Prescaled Output Momentum: x {}, y {}, z {}",values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]);
+      m_log->debug("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
 
-      // log out the momentum magnitude
-      m_log->error("Momentum: {}",edm4eic::magnitude(momentum));
+      // Scale momentum magnitude
+      momentum = momentum*m_cfg.electron_beamE;
+      m_log->debug("Scaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Track parameter variables
       // TODO: Add time and momentum errors
@@ -115,9 +118,9 @@ namespace eicrecon {
       float theta   = edm4eic::anglePolar(momentum);
       float phi     = edm4eic::angleAzimuthal(momentum);
       float qOverP  = charge/edm4eic::magnitude(momentum);
-      float time  = 0;
+      float time;
       // PDG
-      int pdg = 11;
+      int32_t pdg = 11;
       // Point Error
       edm4eic::Cov6f error;
 
@@ -126,9 +129,19 @@ namespace eicrecon {
       auto trajectory = outputFarDetectorMLTrajectories->create();
       trajectory.addToTrackParameters(params);
 
+      int32_t trackType = 0;
+      edm4hep::Vector3f position = {0,0,0};
+      float timeError;
+      float charge    = -1;
+      float chi2      = 0;
+      uint32_t ndf    = 0;
+
+      auto outTrack      = outputFarDetectorMLTracks->create(trackType,position,momentum,error,time,timeError,charge,chi2,ndf);
+      outTrack.setTrajectory(trajectory);
+
     }
 
-    return std::make_tuple( std::move(outputFarDetectorMLTrajectories), std::move(outputFarDetectorMLTrackParameters));
+    return std::make_tuple( std::move(outputFarDetectorMLTrajectories), std::move(outputFarDetectorMLTrackParameters), std::move(outputFarDetectorMLTracks));
 
   }
 
