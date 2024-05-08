@@ -4,6 +4,8 @@
 #include "services/pid_lut/PIDLookupTable.h"
 
 #include <boost/histogram.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include <fmt/core.h>
 #include <math.h>
 #include <stdlib.h>
@@ -39,31 +41,26 @@ const PIDLookupTable::Entry* PIDLookupTable::Lookup(int pdg, int charge, double 
 }
 
 void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable::Binning &binning) {
-    std::ifstream file(filename);
-    if (!file) {
-        throw std::runtime_error("Unable to open LUT file!");
+    bool is_compressed = filename.substr(filename.length() - 3) == ".gz";
+
+    std::ios_base::openmode mode = std::ios_base::in;
+    if (is_compressed) {
+      mode |= std::ios_base::binary;
     }
+
+    std::ifstream file(filename, mode);
+    if (!file) {
+      throw std::runtime_error("Unable to open LUT file!");
+    }
+    boost::iostreams::filtering_istream in;
+    if (is_compressed) {
+      in.push(boost::iostreams::gzip_decompressor());
+    }
+    in.push(file);
 
     std::string line;
     std::istringstream iss;
     double step;
-
-    if (binning.skip_legacy_header) {
-      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Parsing pdg binning: {}", line);
-
-      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Ignoring charge binning: {}", line);
-
-      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Ignoring momentum binning: {}", line);
-
-      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Ignoring theta binning: {}", line);
-
-      do { std::getline(file, line); } while (line.empty() || line[0] == '#');
-      debug("Ignoring phi binning: ", line);
-    }
 
     const double angle_fudge = binning.use_radians ? 180. / M_PI : 1.;
 
@@ -81,7 +78,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
 
     m_symmetrizing_charges = binning.charge_values.size() == 1;
 
-    while (std::getline(file, line)) {
+    while (std::getline(in, line)) {
         Entry entry;
         if (line.empty() || line[0] == '#' || std::all_of(std::begin(line), std::end(line), [](unsigned char c) { return std::isspace(c); })) continue;
 
@@ -139,6 +136,7 @@ void PIDLookupTable::load_file(const std::string& filename, const PIDLookupTable
       }
     }
 
+    boost::iostreams::close(in);
     file.close();
 }
 

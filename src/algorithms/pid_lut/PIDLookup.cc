@@ -31,7 +31,6 @@ void PIDLookup::init() {
     .azimuthal_bin_centers_in_lut=m_cfg.azimuthal_bin_centers_in_lut,
     .momentum_bin_centers_in_lut=m_cfg.momentum_bin_centers_in_lut,
     .polar_bin_centers_in_lut=m_cfg.polar_bin_centers_in_lut,
-    .skip_legacy_header=m_cfg.skip_legacy_header,
     .use_radians=m_cfg.use_radians,
     .missing_electron_prob=m_cfg.missing_electron_prob,
   });
