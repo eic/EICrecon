@@ -28,27 +28,11 @@ extern "C" {
             "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
           },
           {
-            "ReconstructedChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedChargedParticleIDs",          // edm4hep::ParticleID
+            "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+            "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+            "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
           },
           app
           ));
-
-    app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
-          "SeededChargedParticlesWithAssociations",
-          {
-            "ReconstructedSeededChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "DRICHMergedIrtCherenkovParticleID",                        // edm4eic::CherenkovParticleID
-          },
-          {
-            "ReconstructedSeededChargedParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedSeededChargedParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedSeededChargedParticleIDs",          // edm4hep::ParticleID
-          },
-          app
-          ));
-
   }
 }
