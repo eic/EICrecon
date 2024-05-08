@@ -14,6 +14,8 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/HEXPLIT_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -88,6 +90,32 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
+      app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
+        {
+          .MIP = 800. * dd4hep::keV,
+          .Emin_in_MIPs=0.1,
+          .tmax=50 * dd4hep::ns,
+        },
+        app   // TODO: Remove me once fixed
+      ));
+
+      double side_length=18.89 * dd4hep::mm;
+      app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+          "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
+          {
+              .neighbourLayersRange = 1,
+              .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerDistEtaPhi = {17e-3, 18.1e-3},
+              .sectorDist = 10.0 * dd4hep::cm,
+              .minClusterHitEdep = 100.0 * dd4hep::keV,
+              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+              .minClusterEdep = 11.0 * dd4hep::MeV,
+              .minClusterNhits = 10,
+          },
+          app   // TODO: Remove me once fixed
+      ));
+      
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
@@ -108,7 +136,7 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
-            {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+            {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
