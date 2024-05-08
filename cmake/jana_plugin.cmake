@@ -89,8 +89,14 @@ macro(plugin_add _name)
              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
     target_include_directories(${_name}_library SYSTEM
                                PUBLIC ${JANA_INCLUDE_DIR})
-    target_link_libraries(${_name}_library ${JANA_LIB} podio::podio
-                          podio::podioRootIO spdlog::spdlog fmt::fmt Microsoft.GSL::GSL)
+    target_link_libraries(
+      ${_name}_library
+      ${JANA_LIB}
+      podio::podio
+      podio::podioRootIO
+      spdlog::spdlog
+      fmt::fmt
+      Microsoft.GSL::GSL)
 
     # Install library
     install(
