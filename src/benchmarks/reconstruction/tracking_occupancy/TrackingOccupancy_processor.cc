@@ -9,7 +9,6 @@
 
 #include "benchmarks/reconstruction/tracking_occupancy/HitReconstructionAnalysis.h"
 #include "benchmarks/reconstruction/tracking_occupancy/TrackingOccupancyAnalysis.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -47,11 +46,8 @@ void TrackingOccupancy_processor::Init()
     m_occupancy_analysis.init(app, m_dir_main);
     m_hit_reco_analysis.init(app, m_dir_main);
 
-    // Get log level from user parameter or default
-    std::string log_level_str = "info";
+    // Get logger
     m_log = app->GetService<Log_service>()->logger(plugin_name);
-    app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 }
 
 
