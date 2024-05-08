@@ -111,7 +111,7 @@ macro(plugin_add _name)
       target_link_libraries(${_name}_plugin
                             $<LINK_LIBRARY:NO_AS_NEEDED,${_name}_library>)
     else()
-      target_link_libraries(${_name}_plugin ${_name}_library>)
+      target_link_libraries(${_name}_plugin ${_name}_library)
     endif()
   endif()
 endmacro()
