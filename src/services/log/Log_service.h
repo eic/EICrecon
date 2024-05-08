@@ -7,6 +7,7 @@
 #include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 
 /**
@@ -15,18 +16,24 @@
 class Log_service : public JService
 {
 public:
+    using level = spdlog::level::level_enum;
+
+public:
     explicit Log_service(JApplication *app);
     ~Log_service();
 
-    virtual std::shared_ptr<spdlog::logger> logger(const std::string &name, const std::string &default_level = "");
+    /** Get a named logger with optional level
+     * When no level is specified, the service default is used **/
+    virtual std::shared_ptr<spdlog::logger> logger(
+        const std::string &name,
+        const std::optional<level> default_level = std::nullopt);
 
     /** Gets the default level for all loggers
      * The log level is set from user parameters or is 'info'**/
-    virtual spdlog::level::level_enum getDefaultLevel();
+    virtual level getDefaultLevel();
 
     /** Gets std::string version of the default log level **/
     virtual std::string getDefaultLevelStr();
-
 
 private:
 
