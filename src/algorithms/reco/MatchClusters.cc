@@ -163,7 +163,7 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
 
 // reconstruct a neutral cluster
 // (for now assuming the vertex is at (0,0,0))
-edm4eic::ReconstructedParticle MatchClusters::reconstruct_neutral(
+edm4eic::MutableReconstructedParticle MatchClusters::reconstruct_neutral(
         const edm4eic::Cluster *cluster, const double mass, const int32_t pdg) const {
 
     const float energy = cluster->getEnergy();
