@@ -13,13 +13,9 @@
 // algorithms
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
-// JANA
 #include "extensions/jana/JOmniFactory.h"
-// services
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
-
 
 class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
 private:

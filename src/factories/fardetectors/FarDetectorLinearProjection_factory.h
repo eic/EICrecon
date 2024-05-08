@@ -7,7 +7,6 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <algorithms/fardetectors/FarDetectorLinearProjection.h>
 #include <extensions/jana/JOmniFactory.h>
-#include <extensions/spdlog/SpdlogMixin.h>
 #include <spdlog/logger.h>
 
 namespace eicrecon {
