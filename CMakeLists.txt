@@ -68,7 +68,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(CheckLinkerFlag)
 check_linker_flag(CXX "-Wl,--no-as-needed" CXX_LINKER_HAS_no_as_needed)
 set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED_SUPPORTED TRUE)
-set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED "LINKER:--push-state,--no-as-needed" "<LINK_ITEM>" "LINKER:--pop-state")
+set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
+    "LINKER:--push-state,--no-as-needed" "<LINK_ITEM>" "LINKER:--pop-state")
 
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
