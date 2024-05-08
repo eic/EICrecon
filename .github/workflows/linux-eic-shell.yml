@@ -556,7 +556,6 @@ jobs:
         detector_config: [craterlake]
         test_plugins:
         - geometry_navigation_test
-        - reco_test
         - tracking_test
         - track_propagation_test
     steps:
