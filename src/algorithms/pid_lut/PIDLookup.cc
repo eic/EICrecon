@@ -129,7 +129,9 @@ void PIDLookup::process(const Input& input, const Output& output) const {
       }
     }
 
-    recopart.setPDG(std::copysign(identified_pdg, charge));
+    if (identified_pdg != 0) {
+      recopart.setPDG(std::copysign(identified_pdg, charge));
+    }
 
     if (identified_pdg != 0) {
       trace("randomized PDG is {}", recopart.getPDG());
