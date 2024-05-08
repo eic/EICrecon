@@ -51,9 +51,7 @@ macro(plugin_add _name)
       PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
     target_include_directories(${_name}_plugin SYSTEM
-                               PUBLIC ${JANA_INCLUDE_DIR})
-    target_include_directories(${_name}_plugin SYSTEM
-                               PUBLIC ${ROOT_INCLUDE_DIRS})
+                               PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
     set_target_properties(
       ${_name}_plugin
       PROPERTIES PREFIX ""
@@ -91,11 +89,14 @@ macro(plugin_add _name)
              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
     target_include_directories(${_name}_library SYSTEM
                                PUBLIC ${JANA_INCLUDE_DIR})
-    target_link_libraries(${_name}_library ${JANA_LIB} podio::podio
-                          podio::podioRootIO spdlog::spdlog)
-    target_link_libraries(${_name}_library ${JANA_LIB} podio::podio
-                          podio::podioRootIO fmt::fmt)
-    target_link_libraries(${_name}_library Microsoft.GSL::GSL)
+    target_link_libraries(
+      ${_name}_library
+      ${JANA_LIB}
+      podio::podio
+      podio::podioRootIO
+      spdlog::spdlog
+      fmt::fmt
+      Microsoft.GSL::GSL)
 
     # Install library
     install(
@@ -105,7 +106,13 @@ macro(plugin_add _name)
   endif(${_name}_WITH_LIBRARY)
 
   if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
-    target_link_libraries(${_name}_plugin ${_name}_library)
+    # Ensure that whenever a plugin is loaded its library is loaded as well
+    if(CXX_LINKER_HAS_no_as_needed)
+      target_link_libraries(${_name}_plugin
+                            $<LINK_LIBRARY:NO_AS_NEEDED,${_name}_library>)
+    else()
+      target_link_libraries(${_name}_plugin ${_name}_library>)
+    endif()
   endif()
 endmacro()
 
