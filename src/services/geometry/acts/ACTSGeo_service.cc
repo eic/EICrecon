@@ -7,8 +7,6 @@
 
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <JANA/JException.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
 #include <array>
 #include <exception>
 #include <gsl/pointers>

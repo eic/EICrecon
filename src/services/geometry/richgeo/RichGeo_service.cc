@@ -6,7 +6,6 @@
 #include <JANA/JException.h>
 #include <ctype.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
 #include <algorithm>
 #include <exception>
 #include <gsl/pointers>

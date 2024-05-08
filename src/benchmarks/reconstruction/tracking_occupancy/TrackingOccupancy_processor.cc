@@ -4,7 +4,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <TDirectory.h>
-#include <spdlog/logger.h>
 #include <string>
 
 #include "benchmarks/reconstruction/tracking_occupancy/HitReconstructionAnalysis.h"
