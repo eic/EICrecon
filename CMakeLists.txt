@@ -65,8 +65,9 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Infrastructure to support use of --no-as-needed
 include(CheckLinkerFlag)
-check_linker_flag(CXX "-Wl,--no-as-needed" CXX_LINKER_HAS_no_as_needed)
+check_linker_flag(CXX "LINKER:--no-as-needed" CXX_LINKER_HAS_no_as_needed)
 set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED_SUPPORTED TRUE)
 set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
     "LINKER:--push-state,--no-as-needed" "<LINK_ITEM>" "LINKER:--pop-state")
