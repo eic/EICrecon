@@ -6,8 +6,6 @@
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-
 
 namespace eicrecon {
 

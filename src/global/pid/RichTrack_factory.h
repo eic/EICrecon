@@ -17,10 +17,7 @@
 // algorithms
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
-// JANA
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-// configuration
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
