@@ -92,6 +92,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
+            "CombinedTOFParticleIDs",
+            "CombinedTOFSeededParticleIDs",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -99,10 +102,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHParticleIDs",
+            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNParticleIDs",
+            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -162,6 +169,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedChargedParticles",
 			"ReconstructedChargedParticlesPsuedoPostBurn",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
@@ -283,9 +291,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCTruthClusterAssociations",
             "HcalFarForwardZDCNeutronCandidates",
 
-
             // DIRC
-            "DIRCRawHits"
+            "DIRCRawHits",
+            "DIRCPID",
+            "DIRCParticleIDs",
+            "DIRCSeededParticleIDs",
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(
