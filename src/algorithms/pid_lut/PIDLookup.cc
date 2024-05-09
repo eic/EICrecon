@@ -89,7 +89,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
       recopart.addToParticleIDs(partids_out->create(
         m_cfg.system,                // std::int32_t type
-        std::copysign(11, charge),   // std::int32_t PDG
+        std::copysign(11, -charge),  // std::int32_t PDG
         0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_electron) // float likelihood
       ));
@@ -130,7 +130,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     }
 
     if (identified_pdg != 0) {
-      recopart.setPDG(std::copysign(identified_pdg, charge));
+      recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? -charge : charge));
     }
 
     if (identified_pdg != 0) {
