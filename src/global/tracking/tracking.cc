@@ -83,13 +83,13 @@ void InitPlugin(JApplication* app) {
 
     app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
         "AmbiguityResolutionSolver",
-        {"CentralCKFActsTrajectoriesUnfiltered", "CentralCKFActsTracksUnfiltered","CentralTrackerMeasurements"},
+        {"CentralCKFActsTracksUnfiltered", "CentralCKFActsTrajectoriesUnfiltered","CentralTrackerMeasurements"},
         {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
-            "CentralCKFActsTrajectories",
             "CentralCKFActsTracks",
+            "CentralCKFActsTrajectories",
         },
         app));
 
@@ -111,13 +111,13 @@ void InitPlugin(JApplication* app) {
 
     app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
         "SeededAmbiguityResolutionSolver",
-        {"CentralCKFSeededActsTrajectoriesUnfiltered", "CentralCKFSeededActsTracksUnfiltered","CentralTrackerMeasurements"},
+        {"CentralCKFSeededActsTracksUnfiltered", "CentralCKFSeededActsTrajectoriesUnfiltered","CentralTrackerMeasurements"},
         {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
-            "CentralCKFSeededActsTrajectories",
             "CentralCKFSeededActsTracks",
+            "CentralCKFSeededActsTrajectories",
         },
         app));
 

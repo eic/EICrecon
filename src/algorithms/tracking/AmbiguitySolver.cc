@@ -18,6 +18,8 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
@@ -102,9 +104,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
   auto tracks           = std::make_unique<edm4eic::TrackCollection>();
 
   std::vector<int> idxlist;
-
   for (const auto& input_trks : input_container) {
-
     Acts::GreedyAmbiguityResolution::State state;
     m_core->computeInitialState(*input_trks, state, &sourceLinkHash, &sourceLinkEquality);
     m_core->resolve(state);
