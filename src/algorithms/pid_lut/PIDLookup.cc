@@ -130,7 +130,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     }
 
     if (identified_pdg != 0) {
-      recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? charge : -charge));
+      recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? -charge : charge));
     }
 
     if (identified_pdg != 0) {
