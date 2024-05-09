@@ -136,7 +136,7 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
-    // Tracker trajectory collector from ACTS and other factories
+    // Tracker track collector from ACTS and other factories
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
          "CombinedTracks",
          {
@@ -147,7 +147,7 @@ void InitPlugin(JApplication *app) {
          app
     ));    // Output collection name
 
-    // Tracker trajectory collector from ACTS and other factories
+    // Tracker track collector from ACTS and other factories
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
          "CombinedSeededTracks",
          {
