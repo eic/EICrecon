@@ -205,7 +205,7 @@ void InitPlugin(JApplication *app) {
      app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
              "ChargedParticlesWithAssociations",
              {"MCParticles",                                     // edm4hep::MCParticle
-             "CombinedCKFTracks",                                // edm4eic::Track
+             "CombinedTracks",                                // edm4eic::Track
              },
              {"ReconstructedChargedWithoutPIDParticles",                  //
               "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
