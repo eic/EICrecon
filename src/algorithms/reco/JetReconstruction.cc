@@ -60,12 +60,12 @@ namespace eicrecon {
       case JetAlgorithm::plugin_algorithm:
 
         // expand to other algorithms as required
-        if(m_cfg.jetContribAlgo != "Centauro"){
+        if(m_cfg.jetContribAlgo == "Centauro"){
+          m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));
+        }
+        else {
           m_log->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
           throw JException("Invalid contributed FastJet algorithm");
-        }
-        else{
-          m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));
         }
         break;
 
