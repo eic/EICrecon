@@ -33,7 +33,7 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "EcalLumiSpecHits",
           },
           app   // TODO: Remove me once fixed
@@ -48,7 +48,7 @@ extern "C" {
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 0.0,
             .thresholdValue = 2.0,
-            .sampFrac = 1.0,
+            .sampFrac = "1.0",
             .readout = "EcalLumiSpecHits",
           },
           app   // TODO: Remove me once fixed
