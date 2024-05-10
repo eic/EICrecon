@@ -33,9 +33,9 @@ namespace eicrecon {
       PodioOutput<edm4eic::Cluster> m_clusters_output {this};
 
       // parameter bindings
-      ParameterRef<double> m_minSigCut {this, "", config().minSigCut};
-      ParameterRef<double> m_avgEP {this, "", config().avgEP};
-      ParameterRef<double> m_sigEP {this, "", config().sigEP};
+      ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
+      ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
+      ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
 
       // services
       Service<DD4hep_service> m_geoSvc {this};
