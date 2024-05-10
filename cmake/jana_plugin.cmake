@@ -340,10 +340,10 @@ macro(plugin_add_nopayloadclient _name)
   find_path(npc_include REQUIRED NAMES nopayloadclient)
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} PUBLIC curl ${npc_include})
+  plugin_include_directories(${PLUGIN_NAME} PUBLIC CURL::libcurl ${npc_include})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} curl ${npc_lib})
+  plugin_link_libraries(${PLUGIN_NAME} CURL::libcurl ${npc_lib})
 
 endmacro()
 
