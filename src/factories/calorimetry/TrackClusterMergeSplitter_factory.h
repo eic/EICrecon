@@ -3,6 +3,10 @@
 
 #pragma once
 
+// dd4hep utilities
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
+// eicrecon components
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -42,7 +46,7 @@ namespace eicrecon {
       void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo -> applyConfig( config() );
-        m_algo -> init();
+        m_algo -> init(m_geoSvc().detector(), m_geoSvc().converter());
       }
 
       void ChangeRun(int64_t run_number) {

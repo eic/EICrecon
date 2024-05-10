@@ -5,11 +5,16 @@
 #define EICRECON_TRACKCLUSTERMERGESPLITTER_H
 
 #include <string>
+#include <vector>
 #include <utility>
 #include <algorithm>
 #include <algorithms/algorithm.h>
 #include <string_view>
+// dd4hep utilities
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 // edm4eic types
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 // for algorithm configuration
@@ -37,7 +42,7 @@ namespace eicrecon {
    *
    *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
    */
-  class TrackClusterMergeSplitter :
+  class TrackClusterMergeSplitter : 
     public TrackClusterMergeSplitterAlgorithm,
     public WithPodConfig<TrackClusterMergeSplitterConfig>
   {
@@ -54,15 +59,24 @@ namespace eicrecon {
         } {}
 
       // public methods
-      void init() final;
+      void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter);
       void process (const Input&, const Output&) const final;
 
     private:
 
-      /* TODO private methods will go here */
+      // private methods
+      void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster) const;
+
+      // additional services
+      const dd4hep::Detector* m_detector {NULL};
+      const dd4hep::rec::CellIDPositionConverter* m_converter {NULL};
+
+      // bookkeeping members
+      mutable std::vector<edm4eic::TrackPoint> m_vecProject;
 
   };  // end TrackClusterMergeSplitter
 
 }  // end eicrecon namespace
 
 #endif
+

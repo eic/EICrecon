@@ -100,7 +100,7 @@ extern "C" {
             .pedMeanADC    = HcalBarrel_pedMeanADC,
             .pedSigmaADC   = HcalBarrel_pedSigmaADC,
             .resolutionTDC = HcalBarrel_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "HcalBarrelHits",
           },
           app   // TODO: Remove me once fixed
@@ -115,7 +115,7 @@ extern "C" {
             .resolutionTDC = HcalBarrel_resolutionTDC,
             .thresholdFactor = 0.0, // not used; relying on flat ADC cut
             .thresholdValue = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
-            .sampFrac = 0.033, // average, from sPHENIX simulations
+            .sampFrac = "0.033", // average, from sPHENIX simulations
             .readout = "HcalBarrelHits",
             .layerField = "",
             .sectorField = "",
@@ -181,14 +181,14 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "HcalBarrelSplitMergeClusters",
             {"HcalBarrelClusters",
-              "CalorimeterTrackProjections"},
+             "CalorimeterTrackProjections"},
             {"HcalBarrelSplitMergeClusters"},
             {
               .minSigCut = -1,
               .avgEP = 1.0,
               .sigEP = 1.0
             },
-            app   // TODO: Remove me once fixed
+            app   // TODO: remove me once fixed
           )
         );
 
