@@ -61,7 +61,7 @@ namespace eicrecon {
 
         // expand to other algorithms as required
         if(m_cfg.jetContribAlgo == "Centauro"){
-	  m_jet_plugin = std::make_unique<contrib::CentauroPlugin>(m_cfg.rJet);  
+          m_jet_plugin = std::make_unique<contrib::CentauroPlugin>(m_cfg.rJet);
           m_jet_def = std::make_unique<JetDefinition>(m_jet_plugin.get());
         }
         else {
