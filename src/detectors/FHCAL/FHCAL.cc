@@ -39,7 +39,7 @@ extern "C" {
              .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
              .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
              .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "HcalEndcapPInsertHits",
            },
           app   // TODO: Remove me once fixed
@@ -55,7 +55,7 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = 0.0098,
+            .sampFrac = "0.0098",
             .readout = "HcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed
@@ -140,7 +140,7 @@ extern "C" {
             .pedMeanADC = LFHCAL_pedMeanADC,
             .pedSigmaADC = LFHCAL_pedSigmaADC,
             .resolutionTDC = LFHCAL_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "LFHCALHits",
             .fields = {"layerz"},
           },
@@ -156,23 +156,7 @@ extern "C" {
             .resolutionTDC = LFHCAL_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
-            .sampFrac = 0.033,
-            .sampFracLayer = {
-              0.019, //  0
-              0.037, //  1
-              0.037, //  2
-              0.037, //  3
-              0.037, //  4
-              0.037, //  5
-              0.037, //  6
-              0.037, //  7
-              0.037, //  8
-              0.037, //  9
-              0.037, // 10
-              0.037, // 11
-              0.037, // 12
-              0.037, // 13
-            },
+            .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037", // 0.019 only in the 0-th tile
             .readout = "LFHCALHits",
             .layerField = "rlayerz",
           },

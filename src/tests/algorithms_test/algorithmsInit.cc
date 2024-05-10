@@ -4,6 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
@@ -11,6 +12,8 @@
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
+#include <services/evaluator/EvaluatorSvc.h>
+#include <services/pid_lut/PIDLookupTableSvc.h>
 #include <stddef.h>
 #include <cstdint>
 #include <memory>
@@ -30,6 +33,16 @@ public:
     readout.setIDDescriptor(id_desc);
     detector->add(id_desc);
     detector->add(readout);
+
+    dd4hep::Readout readoutTracker(std::string("MockTrackerHits"));
+    dd4hep::IDDescriptor id_desc_tracker("MockTrackerHits", "system:8,layer:8,x:8,y:8");
+    //Create segmentation with 1x1 mm pixels
+    dd4hep::Segmentation segmentation("CartesianGridXY","TrackerHitsSeg", id_desc_tracker.decoder());
+    readoutTracker.setIDDescriptor(id_desc_tracker);
+    readoutTracker.setSegmentation(segmentation);
+    detector->add(id_desc_tracker);
+    detector->add(readoutTracker);
+
     m_detector = std::move(detector);
 
     auto& serviceSvc = algorithms::ServiceSvc::instance();
@@ -44,6 +57,12 @@ public:
       r.setProperty("seed", static_cast<size_t>(seed));
       r.init();
     });
+
+    auto& evaluatorSvc = eicrecon::EvaluatorSvc::instance();
+    serviceSvc.add<eicrecon::EvaluatorSvc>(&evaluatorSvc);
+
+    auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
+    serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
 
     serviceSvc.init();
   }

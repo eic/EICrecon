@@ -24,8 +24,13 @@ void InitPlugin(JApplication *app) {
         //Digitized hits, especially for thresholds
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardRomanPotRawHits",
-        {"ForwardRomanPotHits"},
-        {"ForwardRomanPotRawHits"},
+        {
+          "ForwardRomanPotHits"
+        },
+        {
+          "ForwardRomanPotRawHits",
+          "ForwardRomanPotHitAssociations"
+        },
         {
             .threshold = 10.0 * dd4hep::keV,
             .timeResolution = 8,
@@ -56,10 +61,10 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_y_slope_offset = -0.0451035;  // in mrad
     recon_cfg.nomMomentum          =  275.0;      // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
-    recon_cfg.hit1minZ = 25099.0;
-    recon_cfg.hit1maxZ = 26022.0;
-    recon_cfg.hit2minZ = 27099.0;
-    recon_cfg.hit2maxZ = 28022.0;
+    recon_cfg.hit1minZ = 32541.0;
+    recon_cfg.hit1maxZ = 32554.0;
+    recon_cfg.hit2minZ = 34239.0;
+    recon_cfg.hit2maxZ = 34252.0;
 
     recon_cfg.readout              = "ForwardRomanPotRecHits";
 
