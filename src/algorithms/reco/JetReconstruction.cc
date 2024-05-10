@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin
+// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin, John Lajoie
 
 // class definition
 #include "JetReconstruction.h"
@@ -61,7 +61,8 @@ namespace eicrecon {
 
         // expand to other algorithms as required
         if(m_cfg.jetContribAlgo == "Centauro"){
-          m_jet_def = std::make_unique<JetDefinition>(new contrib::CentauroPlugin(m_cfg.rJet));
+	  m_jet_plugin = std::make_unique<contrib::CentauroPlugin>(m_cfg.rJet);  
+          m_jet_def = std::make_unique<JetDefinition>(m_jet_plugin.get());
         }
         else {
           m_log->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
