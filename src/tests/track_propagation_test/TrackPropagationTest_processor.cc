@@ -8,6 +8,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JGlobalRootLock.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
