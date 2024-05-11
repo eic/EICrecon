@@ -16,6 +16,8 @@
 #include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
+#include "TracksToParticlesConfig.h"
+#include "TracksToParticles_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagationConfig.h"
@@ -121,43 +123,6 @@ void InitPlugin(JApplication* app) {
         },
         app));
 
-    app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
-            "CalorimeterTrackPropagator",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-            {"CalorimeterTrackProjections"},
-            {
-                .target_surfaces{
-                    // Ecal
-                    eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin", 0., "1.1*EcalEndcapN_rmax"},
-                    eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin - 50*mm", 0., "1.1*EcalEndcapN_rmax"},
-                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin",
-                        "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
-                        "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"
-                    },
-                    eicrecon::CylinderSurfaceConfig{"EcalBarrel_ID", "EcalBarrel_rmin + 50*mm",
-                        "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
-                        "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"
-                    },
-                    eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin", 0., "1.1*EcalEndcapP_rmax"},
-                    eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin + 50*mm", 0., "1.1*EcalEndcapP_rmax"},
-                    // Hcal
-                    eicrecon::DiscSurfaceConfig{"HcalEndcapN_ID", "- HcalEndcapN_zmin", 0., "1.1*HcalEndcapN_rmax"},
-                    eicrecon::DiscSurfaceConfig{"HcalEndcapN_ID", "- HcalEndcapN_zmin - 150*mm", 0., "1.1*HcalEndcapN_rmax"},
-                    eicrecon::CylinderSurfaceConfig{"HcalBarrel_ID", "HcalBarrel_rmin",
-                        "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
-                        "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"
-                    },
-                    eicrecon::CylinderSurfaceConfig{"HcalBarrel_ID", "HcalBarrel_rmin + 150*mm",
-                        "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
-                        "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"
-                    },
-                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin", 0., "1.1*LFHCAL_rmax"},
-                    eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin + 150*mm", 0., "1.1*LFHCAL_rmax"},
-                }
-            },
-            app
-            ));
-
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
         "CentralTrackSegments", {"CentralCKFActsTrajectories"}, {"CentralTrackSegments"}, app));
 
@@ -202,5 +167,35 @@ void InitPlugin(JApplication* app) {
             eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin + 150*mm", 0., "1.1*LFHCAL_rmax"},
         }},
         app));
+     // linking of reconstructed particles to PID objects
+     TracksToParticlesConfig link_cfg {
+       .momentumRelativeTolerance = 100.0, /// Matching momentum effectively disabled
+       .phiTolerance              = 0.1, /// Matching phi tolerance [rad]
+       .etaTolerance              = 0.2, /// Matching eta tolerance
+     };
+
+     app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
+             "ChargedParticlesWithAssociations",
+             {"MCParticles",                                    // edm4hep::MCParticle
+             "CentralCKFTracks",                                // edm4eic::Track
+             },
+             {"ReconstructedChargedWithoutPIDParticles",                  //
+              "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
+             },
+             link_cfg,
+             app
+             ));
+
+     app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
+             "ChargedSeededParticlesWithAssociations",
+             {"MCParticles",                                    // edm4hep::MCParticle
+             "CentralCKFSeededTracks",                          // edm4eic::Track
+             },
+             {"ReconstructedSeededChargedWithoutPIDParticles",            //
+              "ReconstructedSeededChargedWithoutPIDParticleAssociations"  // edm4eic::MCRecoParticleAssociation
+             },
+             link_cfg,
+             app
+             ));
 }
 } // extern "C"

@@ -17,7 +17,6 @@
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {

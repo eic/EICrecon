@@ -39,7 +39,7 @@ extern "C" {
              .pedMeanADC = HcalEndcapPInsert_pedMeanADC,
              .pedSigmaADC = HcalEndcapPInsert_pedSigmaADC,
              .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "HcalEndcapPInsertHits",
            },
           app   // TODO: Remove me once fixed
@@ -140,7 +140,7 @@ extern "C" {
             .pedMeanADC = LFHCAL_pedMeanADC,
             .pedSigmaADC = LFHCAL_pedSigmaADC,
             .resolutionTDC = LFHCAL_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "LFHCALHits",
             .fields = {"layerz"},
           },

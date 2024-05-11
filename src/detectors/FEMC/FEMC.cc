@@ -41,7 +41,7 @@ extern "C" {
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = 0.03,
+            .corrMeanScale = "0.03",
             .readout = "EcalEndcapPHits",
           },
           app   // TODO: Remove me once fixed
@@ -128,7 +128,7 @@ extern "C" {
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = 0.03,
+            .corrMeanScale = "0.03",
             .readout = "EcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed

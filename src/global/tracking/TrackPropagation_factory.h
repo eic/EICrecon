@@ -15,7 +15,6 @@
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 

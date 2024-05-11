@@ -19,6 +19,7 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/service.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -29,9 +30,11 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
@@ -81,9 +84,8 @@ void CalorimeterHitDigi::init() {
     }
 
     // get decoders
-    dd4hep::IDDescriptor id_desc;
     try {
-        id_desc = m_geo.detector()->readout(m_cfg.readout).idSpec();
+        id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
     } catch (...) {
         // Can not be more verbose. In JANA2, this will be attempted at each event, which
         // pollutes output for geometries that are less than complete.
@@ -96,11 +98,25 @@ void CalorimeterHitDigi::init() {
     // all these are for signal sum at digitization level
     if (!m_cfg.fields.empty()) {
         for (auto & field : m_cfg.fields) {
-            id_inverse_mask |= id_desc.field(field)->mask();
+            id_inverse_mask |= id_spec.field(field)->mask();
         }
         debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
     }
     id_mask = ~id_inverse_mask;
+
+    std::function hit_to_map = [this](const edm4hep::SimCalorimeterHit &h) {
+      std::unordered_map<std::string, double> params;
+      for(const auto &p : id_spec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.emplace(name, field->value(h.getCellID()));
+        trace("{} = {}", name, field->value(h.getCellID()));
+      }
+      return params;
+    };
+
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    corrMeanScale = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.corrMeanScale, hit_to_map);
 }
 
 
@@ -131,7 +147,7 @@ void CalorimeterHitDigi::process(
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
-        auto   mid      = (*simhits)[ixs[0]].getCellID();
+        auto   leading_hit = (*simhits)[ixs[0]];
         // sum energy, take time from the most energetic hit
         for (size_t i = 0; i < ixs.size(); ++i) {
             auto hit = (*simhits)[ixs[i]];
@@ -149,7 +165,7 @@ void CalorimeterHitDigi::process(
             // change maximum hit energy & time if necessary
             if (hit.getEnergy() > max_edep) {
                 max_edep = hit.getEnergy();
-                mid = hit.getCellID();
+                leading_hit = hit;
                 if (timeC <= time) {
                     time = timeC;
                 }
@@ -159,19 +175,20 @@ void CalorimeterHitDigi::process(
 
         // safety check
         const double eResRel = (edep > m_cfg.threshold)
-                ? m_rng.gaussian<double>(0., 1.) * std::sqrt(
+                ? m_gaussian(m_generator) * std::sqrt(
                      std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                      std::pow(m_cfg.eRes[1], 2) +
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
-        double    ped     = m_cfg.pedMeanADC + m_rng.gaussian<double>(0., 1.) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * m_cfg.corrMeanScale * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_rng.gaussian<double>(0., 1.) * tRes) * stepTDC);
+        double    corrMeanScale_value = corrMeanScale(leading_hit);
+        double    ped     = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
+        unsigned long long adc     = std::llround(ped + edep * corrMeanScale_value * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
+        unsigned long long tdc     = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
-        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {}", edep, adc, time, m_cfg.capTime, tdc);
+        if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
         rawhits->create(
-                mid,
+                leading_hit.getCellID(),
                 (adc > m_cfg.capADC ? m_cfg.capADC : adc),
                 tdc
         );

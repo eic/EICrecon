@@ -1,6 +1,8 @@
 
 #include "JEventProcessorPODIO.h"
 
+#include <edm4eic/EDM4eicVersion.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
@@ -87,6 +89,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
+            "CombinedTOFParticleIDs",
+            "CombinedTOFSeededParticleIDs",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -94,10 +99,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHParticleIDs",
+            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNParticleIDs",
+            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -133,6 +142,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerM2L3ClusterPositions",
             "TaggerTrackerM1Tracks",
             "TaggerTrackerM2Tracks",
+            "TaggerTrackerProjectedTracks",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -153,30 +163,23 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "GeneratedParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
-            "ReconstructedBreitFrameParticles",
-            //charged particles - truth seeding
-            "ReconstructedChargedParticlesUnfiltered",
-            "ReconstructedChargedParticleAssociationsUnfiltered",
-            "ReconstructedChargedParticleIDsUnfiltered",
-            //charged particles - realistic seeding
-            "ReconstructedSeededChargedParticlesUnfiltered",
-            "ReconstructedSeededChargedParticleAssociationsUnfiltered",
-            "ReconstructedSeededChargedParticleIDsUnfiltered",
-            //charged particles - trurh seeding + ambiguous resolution solver
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
-            "ReconstructedChargedParticleIDs",
-            //charged particles - realistic seeding + ambiguous resolution solver
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
-            "ReconstructedSeededChargedParticleIDs",
-
             "MCScatteredElectronAssociations", // Remove if/when used internally
             "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
+            "CentralCKFTrajectories",
+            "CentralCKFTracks",
+            "CentralCKFTrackParameters",
+            "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTracks",
+            "CentralCKFSeededTrackParameters",
             //tracking properties - true seeding
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTracksUnfiltered",
@@ -185,15 +188,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectoriesUnfiltered",
             "CentralCKFSeededTracksUnfiltered",
             "CentralCKFSeededTrackParametersUnfiltered",
-             //tracking properties - true seeding + ambiguous resolution solver
-            "CentralCKFTrajectories",
-            "CentralCKFTracks",
-            "CentralCKFTrackParameters",
-            //charged particles - trurh seeding + ambiguous resolution solver
-            "CentralCKFSeededTrajectories",
-            "CentralCKFSeededTracks",
-            "CentralCKFSeededTrackParameters",
-
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
@@ -207,7 +201,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
-
+#if EDM4EIC_VERSION_MAJOR >= 6
+            "HadronicFinalState",
+#endif
 
             // Track projections
             "CalorimeterTrackProjections",
@@ -297,10 +293,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-
+            "HcalFarForwardZDCNeutronCandidates",
 
             // DIRC
-            "DIRCRawHits"
+            "DIRCRawHits",
+            "DIRCPID",
+            "DIRCParticleIDs",
+            "DIRCSeededParticleIDs",
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(

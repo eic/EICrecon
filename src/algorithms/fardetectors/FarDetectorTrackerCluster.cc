@@ -110,7 +110,7 @@ namespace eicrecon {
 
       available[maxIndex] = 0;
 
-      ROOT::VecOps::RVec<ulong> clusterList = {maxIndex};
+      ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
       std::vector<podio::ObjectID> clusterHits;
 
@@ -189,7 +189,7 @@ namespace eicrecon {
 
       // Set cluster members
       hitPos.setCellID  (cluster.cellID);
-      hitPos.setPosition(edm4hep::Vector3d(globalPos.x(),globalPos.y(),globalPos.z()));
+      hitPos.setPosition(edm4hep::Vector3d(globalPos.x()/dd4hep::mm,globalPos.y()/dd4hep::mm,globalPos.z()/dd4hep::mm));
       hitPos.setEDep    (cluster.energy);
       hitPos.setTime    (cluster.time);
 
