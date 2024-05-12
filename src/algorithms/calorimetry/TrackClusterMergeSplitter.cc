@@ -49,7 +49,7 @@ namespace eicrecon {
 
     // exit if no clusters in collection
     if (in_clusters -> size() == 0) {
-      throw JException("No clusters in input collection!");      
+      throw JException("No clusters in input collection!");
     }
 
     // reset bookkeeping containers
