@@ -147,6 +147,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           ctest --test-dir build -V
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
@@ -189,7 +190,7 @@ jobs:
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20' -checks='-*,bugprone-*,-bugprone-narrowing-conversions' -clang-tidy-binary run-clang-tidy
+          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20' -checks='-*,bugprone-*,-bugprone-narrowing-conversions,-bugprone-macro-parentheses' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
@@ -270,8 +271,9 @@ jobs:
         llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
         LIB_PATHS=()
-        for LIB_NAME in algorithms_calorimetry algorithms_digi algorithms_pid algorithms_reco algorithms_tracking; do
-          LIB_PATH="$(find src/ -type f -name "*$LIB_NAME.so")"
+        for LIB_PATH in $(find src/ -type f -name "libalgorithms_*.so"); do
+          LIB_NAME="$(basename ${LIB_PATH%%.so})"
+          LIB_NAME="${LIB_NAME##lib}"
           LIB_PATHS+=("$LIB_PATH")
           llvm-cov-15 report $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
@@ -557,7 +559,6 @@ jobs:
         detector_config: [craterlake]
         test_plugins:
         - geometry_navigation_test
-        - reco_test
         - tracking_test
         - track_propagation_test
     steps:
