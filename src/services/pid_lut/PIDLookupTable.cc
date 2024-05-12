@@ -4,8 +4,10 @@
 #include "services/pid_lut/PIDLookupTable.h"
 
 #include <boost/histogram.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <fmt/core.h>
 #include <math.h>
 #include <stdlib.h>
