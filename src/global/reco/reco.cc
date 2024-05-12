@@ -315,7 +315,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedCentauroJets",
-            {"GeneratedBreitParticles"},
+            {"GeneratedBreitFrameParticles"},
             {"GeneratedCentauroJets"},
             {
              .rJet = 0.8,
