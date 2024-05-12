@@ -29,14 +29,6 @@ target_link_libraries(
           podio::podio
           podio::podioRootIO)
 
-# As-needed fails due to absent podio symbols in libJANA.so
-# (https://github.com/JeffersonLab/JANA2/pull/255)
-include(CheckLinkerFlag)
-check_linker_flag(CXX "-Wl,--no-as-needed" CXX_LINKER_HAS_no_as_needed)
-if(CXX_LINKER_HAS_no_as_needed)
-  target_link_options(${TEST_NAME} PRIVATE "-Wl,--no-as-needed")
-endif()
-
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
 
