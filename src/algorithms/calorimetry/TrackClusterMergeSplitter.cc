@@ -162,7 +162,7 @@ namespace eicrecon {
   //! Match clusters to track projections
   // --------------------------------------------------------------------------
   /*! FIXME this might be better handled in a separate algorithm
-   */ 
+   */
   void TrackClusterMergeSplitter::match_clusters_to_tracks(
     const edm4eic::ClusterCollection* clusters
   ) const {
