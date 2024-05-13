@@ -11,7 +11,7 @@
 #include <string_view>                            // for string_view
 #include <algorithms/algorithm.h>
 #include "algorithms/interfaces/WithPodConfig.h"
-
+#include "algorithms/reco/FarForwardNeutronReconstructionConfig.h"
 
 namespace eicrecon {
 
@@ -25,7 +25,7 @@ using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
     >;
     class FarForwardNeutronReconstruction :
        public FarForwardNeutronReconstructionAlgorithm,
-       public WithPodConfig<NoConfig> {
+       public WithPodConfig<FarForwardNeutronReconstructionConfig> {
        public:
          FarForwardNeutronReconstruction(std::string_view name)
                   : FarForwardNeutronReconstructionAlgorithm{name,
