@@ -70,6 +70,7 @@ namespace eicrecon {
       // private methods
       void reset_bookkeepers() const;
       void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster) const;
+      void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters) const;
       void copy_cluster(const edm4eic::Cluster& old_clust, edm4eic::MutableCluster& new_clust) const;
 
       // additional services
@@ -77,6 +78,7 @@ namespace eicrecon {
       const dd4hep::rec::CellIDPositionConverter* m_converter {NULL};
 
       // bookkeeping members
+      mutable std::map<int, int> m_mapClustProject;
       mutable std::map<int, bool> m_mapIsConsumed;
       mutable std::vector<edm4eic::TrackPoint> m_vecProject;
 

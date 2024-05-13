@@ -3,12 +3,17 @@
 
 #define EICRECON_TRACKCLUSTERMERGESPLITTER_CC
 
+#include <cmath>
 #include <regex>
+#include <utility>
 #include <iostream>  // TEST
 // dd4hep utilities
 #include <DD4hep/Readout.h>
 // jana utilities
 #include <JANA/JException.h>
+// edm4hep types
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 // edm4eic types
 #include <edm4eic/TrackSegment.h>
 #include <edm4eic/CalorimeterHit.h>
@@ -65,6 +70,13 @@ namespace eicrecon {
     // collect relevant projections
     get_projections(in_projections, (*in_clusters)[0].getHits(0));
 
+    // match clusters to projections
+    if (m_vecProject.size() == 0) {
+      debug("No projections to match clusters to.");
+    } else {
+      match_clusters_to_tracks(in_clusters);
+    }
+
     /* TODO
      *   - Add merging step
      *   - Splitting step
@@ -94,6 +106,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::reset_bookkeepers() const {
 
+    m_mapClustProject.clear();
     m_mapIsConsumed.clear();
     m_vecProject.clear();
     trace("Reset bookkeeping containers");
@@ -143,6 +156,63 @@ namespace eicrecon {
 
   }  // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&)'
 
+
+
+  // --------------------------------------------------------------------------
+  //! Match clusters to track projections
+  // --------------------------------------------------------------------------
+  /*! FIXME this might be better handled in a separate algorithm
+   */ 
+  void TrackClusterMergeSplitter::match_clusters_to_tracks(
+    const edm4eic::ClusterCollection* clusters
+  ) const {
+
+
+    // loop over relevant projections
+    for (uint32_t iProject = 0; iProject < m_vecProject.size(); ++iProject) {
+
+      // grab projection
+      auto project = m_vecProject[iProject];
+
+      // get eta, phi of projection
+      const double projEta = edm4hep::utils::eta(project.position);
+      const double projPhi = atan2(project.position.y, project.position.x);
+
+      // find closest cluster
+      bool  foundMatch = false;
+      float dMatch = std::numeric_limits<float>::max();
+      int   iMatch = std::numeric_limits<int>::max();
+      for (auto cluster : *clusters) {
+
+        // get eta, phi of cluster
+        const float clustEta = edm4hep::utils::eta(cluster.getPosition());
+        const float clustPhi = std::atan2(cluster.getPosition().y, cluster.getPosition().x);
+
+        // calculate distance to centroid
+        const float dist = std::hypot(
+          projEta - clustEta,
+          projPhi - clustPhi
+        );
+
+        // if closer, set match to current projection
+        if (dist <= dMatch) {
+          foundMatch = true;
+          dMatch = dist;
+          iMatch = cluster.getObjectID().index;
+        }
+      }  // end cluster loop
+
+      // record match if found
+      if (foundMatch) {
+        m_mapClustProject.insert(
+          {iMatch, iProject}
+        );
+        debug("Matched cluster to track projection: eta-phi distance = {}", dMatch);
+      }
+    }  // end cluster loop
+    trace ("Finished matching clusters to track projections: {} matches", m_mapClustProject.size());
+
+  }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*)'
 
 
   // --------------------------------------------------------------------------
