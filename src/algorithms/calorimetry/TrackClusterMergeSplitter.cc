@@ -54,7 +54,7 @@ namespace eicrecon {
 
     // exit if no clusters in collection
     if (in_clusters -> size() == 0) {
-      throw JException("No clusters in input collection!");
+      throw JException("No clusters in input collection!");      
     }
 
     // reset bookkeeping containers
@@ -66,6 +66,7 @@ namespace eicrecon {
         {cluster.getObjectID().index, false}
       );
     }
+    trace("Initialized map of consumed clusters");
 
     // collect relevant projections
     get_projections(in_projections, (*in_clusters)[0].getHits(0));
@@ -77,9 +78,103 @@ namespace eicrecon {
       match_clusters_to_tracks(in_clusters);
     }
 
+    // determine what clusters to merge
+    for (auto clustAndProject : m_mapClustProject) {
+
+      // skip if cluster is already used
+      if (m_mapIsConsumed[clustAndProject.first]) {
+        continue;
+      }
+
+      // grab matched cluster-projections
+      auto clustSeed = (*in_clusters)[clustAndProject.first];
+      auto projSeed = m_vecProject[clustAndProject.second];
+
+      // add cluster to lists and flag as used
+      m_mapClustToMerge.insert(
+        {clustAndProject.first, {}}
+      );
+      m_mapProjToMerge.insert(
+        {clustAndProject.first, {clustAndProject.second}}
+      );
+      m_mapIsConsumed[clustAndProject.first] = true;
+
+      // grab cluster energy and projection momentum
+      const float eClustSeed = clustSeed.getEnergy();
+      const float eProjSeed = m_cfg.avgEP * edm4hep::utils::magnitude(projSeed.momentum);
+
+      // check significance
+      const float sigSeed = (eClustSeed - eProjSeed) / m_cfg.sigEP;
+      debug("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed, sigSeed);
+
+      // if above threshold, do nothing
+      //   - otherwise, identify clusters to merge
+      if (sigSeed > m_cfg.minSigCut) {
+        continue;
+      }
+
+      // get eta, phi of seed
+      const float etaSeed = edm4hep::utils::eta(clustSeed.getPosition());
+      const float phiSeed = std::atan2(clustSeed.getPosition().y, clustSeed.getPosition().x);
+
+      // loop over other clusters
+      float eClustSum = eClustSeed;
+      float sigSum = sigSeed;
+      for (auto in_cluster : *in_clusters) {
+
+        // grab index and ignore used clusters
+        const int iCluster = in_cluster.getObjectID().index;
+        if (m_mapIsConsumed[iCluster]) {
+          continue;
+        }
+
+        // skip if seed cluster
+        if (iCluster == clustAndProject.first) {
+          continue;
+        }
+
+        // get eta, phi of seed
+        const float etaClust = edm4hep::utils::eta(in_cluster.getPosition());
+        const float phiClust = std::atan2(in_cluster.getPosition().y, in_cluster.getPosition().x);
+
+        // get distance to seed
+        const float drToSeed = std::hypot(
+          etaSeed - etaClust,
+          phiSeed - phiClust
+        );
+
+        // skip if outside window
+        //   - otherwise, add to merge list
+        if (drToSeed > m_cfg.drAdd) {
+          continue;
+        } else {
+          m_mapClustToMerge[clustAndProject.first].push_back(iCluster);
+          m_mapIsConsumed[iCluster] = true;
+        }
+
+        // if picked up cluster w/ matched track, add to list
+        if (m_mapClustProject.count(iCluster)) {
+          m_mapProjToMerge[clustAndProject.first].push_back(
+            m_mapClustProject[iCluster]
+          );
+        }
+
+        // increment sums and output debugging
+        eClustSum += in_cluster.getEnergy();
+        sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
+        debug(
+          "{} clusters to merge: current sum = {}, current significance = {}, {} track(s) pointing to merged cluster",
+          m_mapClustToMerge[clustAndProject.first].size(),
+          eClustSum,
+          sigSum,
+          m_mapProjToMerge[clustAndProject.first].size()
+        );
+      }  // end cluster loop
+    }  // end matched cluster-projection loop
+
     /* TODO
-     *   - Add merging step
-     *   - Splitting step
+     *   - Add cluster merging
+     *   - Add merged-cluster splitting
      */
 
     // copy unused clusters to output
@@ -106,8 +201,10 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::reset_bookkeepers() const {
 
-    m_mapClustProject.clear();
     m_mapIsConsumed.clear();
+    m_mapClustProject.clear();
+    m_mapClustToMerge.clear();
+    m_mapProjToMerge.clear();
     m_vecProject.clear();
     trace("Reset bookkeeping containers");
 
@@ -145,9 +242,10 @@ namespace eicrecon {
     // collect projections
     for (auto project : *projections) {
       for (auto point : project.getPoints()) {
-        const bool isInSystem  = (point.system  == id);
-        const bool isAtFace    = (point.surface == 1);
-        if (isInSystem && isAtFace) {
+        if (
+          (point.system  == id) &&
+          (point.surface == 1)
+        ) {
           m_vecProject.push_back(point);
         }
       }  // end point loop

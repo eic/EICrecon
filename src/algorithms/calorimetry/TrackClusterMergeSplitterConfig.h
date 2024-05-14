@@ -10,6 +10,7 @@ namespace eicrecon {
     double minSigCut = -1.;  // min significance
     double avgEP     = 1.0;  // mean E/p
     double sigEP     = 1.0;  // rms of E/p
+    double drAdd     = 0.4;  // window to add clusters
 
   };  // end TrackClusterMergeSplitterConfig
 

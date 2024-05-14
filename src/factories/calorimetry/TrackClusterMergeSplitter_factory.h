@@ -36,6 +36,7 @@ namespace eicrecon {
       ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
       ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
       ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
+      ParameterRef<double> m_drAdd {this, "drAdd", config().drAdd};
 
       // services
       Service<DD4hep_service> m_geoSvc {this};

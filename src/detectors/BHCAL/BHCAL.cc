@@ -186,7 +186,8 @@ extern "C" {
             {
               .minSigCut = -1,
               .avgEP = 1.0,
-              .sigEP = 1.0
+              .sigEP = 1.0,
+              .drAdd = 0.4
             },
             app   // TODO: remove me once fixed
           )

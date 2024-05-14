@@ -26,6 +26,19 @@
 
 namespace eicrecon {
 
+  // --------------------------------------------------------------------------
+  //! Convenience types
+  // --------------------------------------------------------------------------
+  typedef std::map<int, bool> MapToFlag;
+  typedef std::map<int, int> MapOneToOne;
+  typedef std::map<int, std::vector<int>> MapOneToMany;
+  typedef std::vector<edm4eic::TrackPoint> VecTrkPoint;
+
+
+
+  // --------------------------------------------------------------------------
+  //! Algorithm input/output
+  // --------------------------------------------------------------------------
   using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ClusterCollection,
@@ -36,6 +49,8 @@ namespace eicrecon {
     >
   >;
 
+
+
   // --------------------------------------------------------------------------
   //! Track-Based Cluster Merger/Splitter
   // --------------------------------------------------------------------------
@@ -45,7 +60,7 @@ namespace eicrecon {
    *
    *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
    */
-  class TrackClusterMergeSplitter :
+  class TrackClusterMergeSplitter : 
     public TrackClusterMergeSplitterAlgorithm,
     public WithPodConfig<TrackClusterMergeSplitterConfig>
   {
@@ -78,12 +93,15 @@ namespace eicrecon {
       const dd4hep::rec::CellIDPositionConverter* m_converter {NULL};
 
       // bookkeeping members
-      mutable std::map<int, int> m_mapClustProject;
-      mutable std::map<int, bool> m_mapIsConsumed;
-      mutable std::vector<edm4eic::TrackPoint> m_vecProject;
+      mutable MapToFlag m_mapIsConsumed;
+      mutable MapOneToOne m_mapClustProject;
+      mutable MapOneToMany m_mapClustToMerge;
+      mutable MapOneToMany m_mapProjToMerge;
+      mutable VecTrkPoint m_vecProject;
 
   };  // end TrackClusterMergeSplitter
 
 }  // end eicrecon namespace
 
 #endif
+
