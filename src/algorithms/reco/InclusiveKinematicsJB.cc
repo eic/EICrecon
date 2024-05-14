@@ -64,7 +64,7 @@ namespace eicrecon {
         m_crossingAngle)
       );
 
-    // Get hadronic final state variables 
+    // Get hadronic final state variables
     auto sigma_h = hfs->at(0).getSigma();
     auto ptsum = hfs->at(0).getPT();
     auto gamma_h = hfs->at(0).getGamma();

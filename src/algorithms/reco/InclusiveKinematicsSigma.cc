@@ -74,11 +74,11 @@ namespace eicrecon {
     auto pt_e = e_boosted.Pt();
     auto sigma_e = e_boosted.E() - e_boosted.Pz();
 
-    // Get hadronic final state variables 
+    // Get hadronic final state variables
     auto sigma_h = hfs->at(0).getSigma();
     auto ptsum = hfs->at(0).getPT();
     auto gamma_h = hfs->at(0).getGamma();
-    
+
     if (sigma_h <= 0) {
       m_log->debug("No scattered electron found or sigma zero or negative");
       return;

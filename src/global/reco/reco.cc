@@ -107,7 +107,7 @@ void InitPlugin(JApplication *app) {
           "MCParticles",
           "ScatteredElectronsTruth",
           "HadronicFinalState"
-	},
+        },
         {
           "InclusiveKinematicsElectron"
         },
