@@ -107,32 +107,46 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
 
 
 void TrackPropagation::propagateToSurfaceList(
-          const std::tuple<const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+          const std::tuple<const edm4eic::TrackCollection&, const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
           const std::tuple<edm4eic::TrackSegmentCollection*> output) const
 {
-    const auto [acts_trajectories, acts_tracks] = input;
+    const auto [tracks, acts_trajectories, acts_tracks] = input;
     auto [track_segments] = output;
 
     // logging
     m_log->trace("Propagate trajectories: --------------------");
-    m_log->trace("number of trajectories: {}", acts_trajectories.size());
+    m_log->trace("number of tracks: {}", tracks.size());
+    m_log->trace("number of acts_trajectories: {}", acts_trajectories.size());
+    m_log->trace("number of acts_tracks: {}", acts_tracks.size());
 
     // loop over input trajectories
-    for (const auto& traj : acts_trajectories) {
+    for (size_t i = 0; const auto& traj : acts_trajectories) {
 
       // check if this trajectory can be propagated to any filter surface
       bool trajectory_reaches_filter_surface{false};
       for (const auto& filter_surface: m_filter_surfaces) {
-        auto point = propagate(traj, filter_surface);
+        auto point = propagate(edm4eic::Track{}, traj, filter_surface);
         if (point) {
           trajectory_reaches_filter_surface = true;
           break;
         }
       }
-      if (trajectory_reaches_filter_surface == false) continue;
+      if (trajectory_reaches_filter_surface == false) {
+        ++i;
+        continue;
+      }
 
       // start a mutable TrackSegment
       auto track_segment = track_segments->create();
+
+      // corresponding track
+      if (tracks.size() == acts_trajectories.size()) {
+        m_log->trace("track segment connected to track {}", i);
+        track_segment.setTrack(tracks[i]);
+        ++i;
+      }
+
+      // zero measurements of segment length
       decltype(edm4eic::TrackSegmentData::length)      length       = 0;
       decltype(edm4eic::TrackSegmentData::lengthError) length_error = 0;
 
@@ -140,7 +154,7 @@ void TrackPropagation::propagateToSurfaceList(
       for (const auto& target_surface : m_target_surfaces) {
 
         // project the trajectory `traj` to this surface
-        auto point = propagate(traj, target_surface);
+        auto point = propagate(edm4eic::Track{}, traj, target_surface);
         if (!point) {
           m_log->trace("<> Failed to propagate trajectory to this plane");
           continue;
@@ -185,13 +199,14 @@ void TrackPropagation::propagateToSurfaceList(
 
 
     std::unique_ptr<edm4eic::TrackPoint> TrackPropagation::propagate(
-      const ActsExamples::Trajectories *traj,
+      const edm4eic::Track& track,
+      const ActsExamples::Trajectories *acts_trajectory,
       const std::shared_ptr<const Acts::Surface> &targetSurf) const {
 
         // Get the entry index for the single trajectory
         // The trajectory entry indices and the multiTrajectory
-        const auto &mj = traj->multiTrajectory();
-        const auto &trackTips = traj->tips();
+        const auto &mj = acts_trajectory->multiTrajectory();
+        const auto &trackTips = acts_trajectory->tips();
 
         m_log->trace("  Number of elements in trackTips {}", trackTips.size());
 
@@ -216,7 +231,7 @@ void TrackPropagation::propagateToSurfaceList(
         //Track projection
         //Reference sPHENIX code: https://github.com/sPHENIX-Collaboration/coresoftware/blob/335e6da4ccacc8374cada993485fe81d82e74a4f/offline/packages/trackreco/PHActsTrackProjection.h
         //=================================================
-        const auto &initial_bound_parameters = traj->trackParameters(trackTip);
+        const auto &initial_bound_parameters = acts_trajectory->trackParameters(trackTip);
 
 
         m_log->trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
