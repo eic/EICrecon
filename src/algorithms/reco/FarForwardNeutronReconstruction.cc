@@ -9,9 +9,11 @@
 #include <gsl/pointers>
 
 /**
- Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in a given ClusterCollection.
- Its energy is the sum of the energies of the constituent clusters, and its direction is the direction from the
-origin to the position of the most energetic cluster
+ Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in a
+ given ClusterCollection.  Its energy is the sum of the energies of the constituent clusters
+ times a correction factor, and its direction is the direction from the origin to the position
+ of the most energetic cluster.  The correction factor is given by 1/(1+c[0]+c[1]/sqrt(E)+c[2]/E),
+ where c is the coefficients and E is the uncorrected energy in GeV.  
  */
 
 namespace eicrecon {
@@ -21,7 +23,6 @@ namespace eicrecon {
     void FarForwardNeutronReconstruction::process(const FarForwardNeutronReconstruction::Input& input,
                       const FarForwardNeutronReconstruction::Output& output) const {
       auto coeffs=m_cfg.scale_corr_coeff;
-      std::cout << "coeffs: " << coeffs[0] << " " << coeffs[1] << "..." << std::endl;
       const auto [clusters] = input;
       auto [out_neutrons] = output;
 
@@ -42,16 +43,13 @@ namespace eicrecon {
       }
       if (Etot>0){
           auto rec_part = out_neutrons->create();
-	  double corr=coeffs[0];
-	  for (size_t i =1; i<coeffs.size();i++){
-	    corr+=coeffs[i]*pow(Etot,i);
-	  }
-	  std::cout << "corr" << corr << std::endl;
+	  double corr=coeffs[0]+coeffs[1]/sqrt(Etot)+coeffs[2]/Etot;
+	  
 	  Etot=Etot/(1+corr);
-	  std::cout << "Etot corr=" << Etot << std::endl;
+	  
           rec_part.setEnergy(Etot);
           rec_part.setPDG(2112);
-        double p=sqrt(Etot*Etot-m_neutron*m_neutron);
+          double p=sqrt(Etot*Etot-m_neutron*m_neutron);
           double r=sqrt(x*x+y*y+z*z);
           double px=p*x/r;
           double py=p*y/r;

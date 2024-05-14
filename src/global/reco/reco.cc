@@ -288,6 +288,10 @@ void InitPlugin(JApplication *app) {
            "ReconstructedFarForwardZDCNeutrons",
           {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
           {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
+	  {
+	    .scale_corr_coeff={-0.0756, -1.91,  2.30}
+                                 
+	  },
           app   // TODO: Remove me once fixed
     ));
 #if EDM4EIC_VERSION_MAJOR >= 6
