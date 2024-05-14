@@ -33,7 +33,7 @@ namespace eicrecon {
   typedef std::map<int, int> MapOneToOne;
   typedef std::map<int, std::vector<int>> MapOneToMany;
   typedef std::vector<edm4eic::TrackPoint> VecTrkPoint;
-
+  typedef std::vector<edm4eic::Cluster> VecCluster;
 
 
   // --------------------------------------------------------------------------
@@ -86,6 +86,7 @@ namespace eicrecon {
       void reset_bookkeepers() const;
       void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters) const;
+      void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableCluster& merged_clust) const;
       void copy_cluster(const edm4eic::Cluster& old_clust, edm4eic::MutableCluster& new_clust) const;
 
       // additional services
@@ -98,6 +99,7 @@ namespace eicrecon {
       mutable MapOneToMany m_mapClustToMerge;
       mutable MapOneToMany m_mapProjToMerge;
       mutable VecTrkPoint m_vecProject;
+      mutable VecCluster m_vecClust;
 
   };  // end TrackClusterMergeSplitter
 
