@@ -60,7 +60,7 @@ namespace eicrecon {
    *
    *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
    */
-  class TrackClusterMergeSplitter : 
+  class TrackClusterMergeSplitter :
     public TrackClusterMergeSplitterAlgorithm,
     public WithPodConfig<TrackClusterMergeSplitterConfig>
   {
@@ -106,4 +106,3 @@ namespace eicrecon {
 }  // end eicrecon namespace
 
 #endif
-
