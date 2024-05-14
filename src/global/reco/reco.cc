@@ -105,9 +105,9 @@ void InitPlugin(JApplication *app) {
         "InclusiveKinematicsElectron",
         {
           "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
-        },
+          "ScatteredElectronsTruth",
+          "HadronicFinalState"
+	},
         {
           "InclusiveKinematicsElectron"
         },
@@ -129,8 +129,8 @@ void InitPlugin(JApplication *app) {
         "InclusiveKinematicsJB",
         {
           "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
+          "ScatteredElectronsTruth",
+          "HadronicFinalState"
         },
         {
           "InclusiveKinematicsJB"
@@ -142,8 +142,8 @@ void InitPlugin(JApplication *app) {
         "InclusiveKinematicsDA",
         {
           "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
+          "ScatteredElectronsTruth",
+          "HadronicFinalState"
         },
         {
           "InclusiveKinematicsDA"
@@ -155,8 +155,8 @@ void InitPlugin(JApplication *app) {
         "InclusiveKinematicseSigma",
         {
           "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
+          "ScatteredElectronsTruth",
+          "HadronicFinalState"
         },
         {
           "InclusiveKinematicseSigma"
@@ -164,12 +164,13 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
         "InclusiveKinematicsSigma",
         {
           "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations"
+          "ScatteredElectronsTruth",
+          "HadronicFinalState"
         },
         {
           "InclusiveKinematicsSigma"

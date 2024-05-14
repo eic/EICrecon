@@ -35,7 +35,7 @@ namespace eicrecon {
       const InclusiveKinematicseSigma::Input& input,
       const InclusiveKinematicseSigma::Output& output) const {
 
-    const auto [mcparts, rcparts, rcassoc] = input;
+    const auto [mcparts, escat, hfs] = input;
     auto [kinematics] = output;
 
     // Get incoming electron beam
@@ -66,89 +66,27 @@ namespace eicrecon {
         m_crossingAngle)
       );
 
-    // Get first scattered electron
-    const auto ef_coll = find_first_scattered_electron(mcparts);
-    if (ef_coll.size() == 0) {
-      m_log->debug("No truth scattered electron found");
-      return;
-    }
-    // Associate first scattered electron with reconstructed electrons
-    //const auto ef_assoc = std::find_if(
-    //  rcassoc->begin(),
-    //  rcassoc->end(),
-    //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
-    auto ef_assoc = rcassoc->begin();
-    for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-      if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-        break;
-      }
-    }
-    if (!(ef_assoc != rcassoc->end())) {
-      m_log->debug("Truth scattered electron not in reconstructed particles");
-      return;
-    }
-    const auto ef_rc{ef_assoc->getRec()};
-    const auto ef_rc_id{ef_rc.getObjectID().index};
-
-    // Loop over reconstructed particles to get all outgoing particles
-    // -----------------------------------------------------------------
-    // Right now, everything is taken from Reconstructed particles branches.
-    //
-    // This means the tracking detector is used for charged particles to calculate the momentum,
-    // and the magnitude of this momentum plus the true PID to calculate the energy.
-    // No requirement is made that these particles produce a hit in any other detector
-    //
-    // Using the Reconstructed particles branches also means that the reconstruction for neutrals is done using the
-    // calorimeter(s) information for the energy and angles, and then using this energy and the true PID to get the
-    // magnitude of the momentum.
-    // -----------------------------------------------------------------
-
-    //Sums in colinear frame
-    double pxsum = 0;
-    double pysum = 0;
-    double pzsum = 0;
-    double Esum = 0;
-
-    double pt_e = 0;
-    double sigma_e = 0;
-
     // Get boost to colinear frame
     auto boost = determine_boost(ei, pi);
 
-    for (const auto& p: *rcparts) {
-      // Get the scattered electron index and angle
-      if (p.getObjectID().index == ef_rc_id) {
-        // Lorentz vector in lab frame
-        PxPyPzEVector e_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-        // Boost to colinear frame
-        PxPyPzEVector e_boosted = apply_boost(boost, e_lab);
+    // Get electron variables
+    auto kf = escat->at(0);
+    PxPyPzEVector e_lab(kf.getMomentum().x, kf.getMomentum().y, kf.getMomentum().z, kf.getEnergy());
+    PxPyPzEVector e_boosted = apply_boost(boost, e_lab);
+    auto pt_e = e_boosted.Pt();
+    auto sigma_e = e_boosted.E() - e_boosted.Pz();
 
-        pt_e = e_boosted.Pt();
-        sigma_e = e_boosted.E() - e_boosted.Pz();
-
-      // Sum over all particles other than scattered electron
-      } else {
-        // Lorentz vector in lab frame
-        PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-        // Boost to colinear frame
-        PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
-
-        pxsum += hf_boosted.Px();
-        pysum += hf_boosted.Py();
-        pzsum += hf_boosted.Pz();
-        Esum += hf_boosted.E();
-      }
-    }
-
-    // DIS kinematics calculations
-    auto sigma_h = Esum - pzsum;
-    auto sigma_tot = sigma_e + sigma_h;
-
-    // If no scattered electron was found
+    // Get hadronic final state variables 
+    auto sigma_h = hfs->at(0).getSigma();
+    auto ptsum = hfs->at(0).getPT();
+    auto gamma_h = hfs->at(0).getGamma();
+    
     if (sigma_h <= 0) {
-      m_log->debug("No scattered electron found");
+      m_log->debug("No scattered electron found or sigma zero or negative");
       return;
     }
+
+    auto sigma_tot = sigma_e + sigma_h;
 
     // Calculate kinematic variables
     const auto y_e = 1. - sigma_e / (2.*ei.energy());
@@ -164,7 +102,7 @@ namespace eicrecon {
     const auto nu_esig = Q2_esig / (2.*m_proton*x_esig);
     const auto W_esig = sqrt(m_proton*m_proton + 2*m_proton*nu_esig - Q2_esig);
     auto kin = kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
-    kin.setScat(ef_rc);
+    kin.setScat(kf);
 
     // Debugging output
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
