@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin
+// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin, John Lajoie
 
 #pragma once
 
@@ -60,6 +60,7 @@ namespace eicrecon {
       // fastjet components
       std::unique_ptr<fastjet::JetDefinition> m_jet_def;
       std::unique_ptr<fastjet::AreaDefinition> m_area_def;
+      std::unique_ptr<fastjet::JetDefinition::Plugin> m_jet_plugin;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {

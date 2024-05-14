@@ -309,5 +309,37 @@ void InitPlugin(JApplication *app) {
     ));
 #endif
 
+    app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
+            "GeneratedBreitFrameParticles",
+            {"MCParticles","InclusiveKinematicsElectron","GeneratedParticles"},
+            {"GeneratedBreitFrameParticles"},
+            {},
+            app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+            "GeneratedCentauroJets",
+            {"GeneratedBreitFrameParticles"},
+            {"GeneratedCentauroJets"},
+            {
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
+            app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+            "ReconstructedCentauroJets",
+            {"ReconstructedBreitFrameParticles"},
+            {"ReconstructedCentauroJets"},
+            {
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
+            app
+    ));
+
 }
 } // extern "C"
