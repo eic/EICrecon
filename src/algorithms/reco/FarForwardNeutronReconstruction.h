@@ -35,6 +35,7 @@ using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
 
          void init() final;
          void process(const Input&, const Output&) const final;
+         double calc_corr(double Etot) const;
     private:
         std::shared_ptr<spdlog::logger> m_log;
         double m_neutron{0.93956542052};

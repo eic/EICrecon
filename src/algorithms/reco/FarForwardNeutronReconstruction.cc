@@ -19,10 +19,12 @@
 namespace eicrecon {
 
     void FarForwardNeutronReconstruction::init() {  }
-
+    double FarForwardNeutronReconstruction::calc_corr(double Etot) const{
+      auto coeffs=m_cfg.scale_corr_coeff;
+      return coeffs[0]+coeffs[1]/sqrt(Etot)+coeffs[2]/Etot;
+    }
     void FarForwardNeutronReconstruction::process(const FarForwardNeutronReconstruction::Input& input,
                       const FarForwardNeutronReconstruction::Output& output) const {
-      auto coeffs=m_cfg.scale_corr_coeff;
       const auto [clusters] = input;
       auto [out_neutrons] = output;
 
@@ -43,7 +45,7 @@ namespace eicrecon {
       }
       if (Etot>0){
           auto rec_part = out_neutrons->create();
-	  double corr=coeffs[0]+coeffs[1]/sqrt(Etot)+coeffs[2]/Etot;
+	  double corr=calc_corr(Etot);
 	  
 	  Etot=Etot/(1+corr);
 	  
