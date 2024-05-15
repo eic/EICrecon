@@ -160,7 +160,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
             "CalorimeterTrackPropagator",
-            {"CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+            {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
             {"CalorimeterTrackProjections"},
             {
                 .target_surfaces{
