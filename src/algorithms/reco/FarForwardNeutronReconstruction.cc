@@ -45,8 +45,8 @@ namespace eicrecon {
       }
       if (Etot>0){
           auto rec_part = out_neutrons->create();
-	  double corr=calc_corr(Etot);
-	  Etot=Etot/(1+corr);
+          double corr=calc_corr(Etot);
+          Etot=Etot/(1+corr);
           rec_part.setEnergy(Etot);
           rec_part.setPDG(2112);
           double p=sqrt(Etot*Etot-m_neutron*m_neutron);
