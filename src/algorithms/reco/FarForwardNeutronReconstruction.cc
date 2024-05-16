@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Sebouh Paul
-#include "FarForwardNeutronReconstruction.h"
-#include <JANA/JException.h>
+
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <math.h>
 #include <gsl/pointers>
 #include <vector>
+#include <stdexcept>
+
+#include "FarForwardNeutronReconstruction.h"
 
 /**
  Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in a
