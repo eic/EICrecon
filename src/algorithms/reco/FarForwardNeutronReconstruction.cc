@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Sebouh Pual
+// Copyright (C) 2024 Sebouh Paul
 #include "FarForwardNeutronReconstruction.h"
 #include <JANA/JException.h>
 #include <edm4eic/ClusterCollection.h>
