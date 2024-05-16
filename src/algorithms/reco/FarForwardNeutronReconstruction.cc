@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Sebouh Pual
 #include "FarForwardNeutronReconstruction.h"
-
+#include <JANA/JException.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
@@ -19,7 +19,11 @@
 
 namespace eicrecon {
 
-    void FarForwardNeutronReconstruction::init() {  }
+    void FarForwardNeutronReconstruction::init() {
+      if (m_cfg.scale_corr_coeff.size() < 3) {
+	throw JException("Invalid configuration.  m_cfg.scale_corr_coeff should have at least 3 parameters");
+      }
+    }
     double FarForwardNeutronReconstruction::calc_corr(double Etot) const{
       auto coeffs=m_cfg.scale_corr_coeff;
       return coeffs[0]+coeffs[1]/sqrt(Etot)+coeffs[2]/Etot;
