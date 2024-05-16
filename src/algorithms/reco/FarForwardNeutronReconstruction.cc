@@ -23,7 +23,8 @@ namespace eicrecon {
 
     void FarForwardNeutronReconstruction::init() {
       if (m_cfg.scale_corr_coeff.size() < 3) {
-        throw JException("Invalid configuration.  m_cfg.scale_corr_coeff should have at least 3 parameters");
+        error("Invalid configuration.  m_cfg.scale_corr_coeff should have at least 3 parameters");
+        throw std::runtime_error("Invalid configuration.  m_cfg.scale_corr_coeff should have at least 3 parameters");
       }
     }
     double FarForwardNeutronReconstruction::calc_corr(double Etot) const{
