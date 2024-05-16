@@ -16,7 +16,7 @@
  of the most energetic cluster.  The correction factor is given by 1/(1+c[0]+c[1]/sqrt(E)+c[2]/E),
  where c is the coefficients and E is the uncorrected energy in GeV.  This form was chosen
  empirically based on the discrepancies in single-neutron MC simulations between the uncorrected
- reconstructed energies and the truth energies of the neutrons.  
+ reconstructed energies and the truth energies of the neutrons.
  */
 
 namespace eicrecon {
