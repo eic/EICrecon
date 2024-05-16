@@ -29,13 +29,11 @@ The input format should be in HepMC format. If the conversion is needed:
 Select a detector
 
 ``` {.bash}
-# Detectors live in
-# /opt/detectors
-# one can select particular configuration as
-# source /opt/detector/athena-deathvalley-1.5T/setup.sh
+# Detectors live in /opt/detector
+# One can select particular configuration as
+# source /opt/detector/epic-main/bin/thisepic.sh
 #
-# or one can set the latest detector
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # Run simulation
 npsim --compactFile=$DETECTOR_PATH/athena.xml --runType=run -N=2 --outputFile=sim_output.edm4hep.root --inputFiles mceg.hepmc
@@ -45,7 +43,7 @@ npsim --compactFile=$DETECTOR_PATH/athena.xml --runType=run -N=2 --outputFile=si
 
 ``` {.bash}
 #set the same detector as in the simulations
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 export JUGGLER_SIM_FILE=sim_output.edm4hep.root JUGGLER_REC_FILE=rec_output.edm4hep.root JUGGLER_N_EVENTS=10
 gaudirun.py /opt/benchmarks/physics_benchmarks/options/reconstruction.py

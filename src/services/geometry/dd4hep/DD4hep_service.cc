@@ -114,7 +114,7 @@ void DD4hep_service::Initialize() {
     if( m_xml_files.empty() ){
         m_log->error("No dd4hep XML file specified for the geometry!");
         m_log->error("Set your DETECTOR_PATH and DETECTOR_CONFIG environment variables");
-        m_log->error("(the latter is typically done by sourcing the setup.sh");
+        m_log->error("(the latter is typically done by sourcing the thisepic.sh");
         m_log->error("script the epic directory.)");
         throw std::runtime_error("No dd4hep XML file specified.");
     }
