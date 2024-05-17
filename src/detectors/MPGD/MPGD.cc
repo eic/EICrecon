@@ -19,6 +19,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto MPGDBarrelTimeResolution    =  20.0 * dd4hep::ns; // 1 / (50 MHz)
+    auto MPGDBarrelIntegrationWindow = 500.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits",
         {
@@ -30,7 +32,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = MPGDBarrelTimeResolution,
+            .integrationWindow = MPGDBarrelIntegrationWindow,
         },
         app
     ));
@@ -41,12 +44,14 @@ void InitPlugin(JApplication *app) {
         {"MPGDBarrelRawHits"},     // Input data collection tags
         {"MPGDBarrelRecHits"},     // Output data tag
         {
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = MPGDBarrelTimeResolution,
         },
         app
     ));
 
     // Digitization
+    auto OuterMPGDBarrelTimeResolution    =  20.0 * dd4hep::ns; // 1 / (50 MHz)
+    auto OuterMPGDBarrelIntegrationWindow = 500.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits",
         {
@@ -58,7 +63,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = OuterMPGDBarrelTimeResolution,
+            .integrationWindow = OuterMPGDBarrelIntegrationWindow,
         },
         app
     ));
@@ -69,12 +75,14 @@ void InitPlugin(JApplication *app) {
         {"OuterMPGDBarrelRawHits"},     // Input data collection tags
         {"OuterMPGDBarrelRecHits"},     // Output data tag
         {
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = OuterMPGDBarrelTimeResolution,
         },
         app
     ));
 
     // Digitization
+    auto BackwardMPGDEndcapTimeResolution    =  20.0 * dd4hep::ns; // 1 / (50 MHz)
+    auto BackwardMPGDEndcapIntegrationWindow = 500.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "BackwardMPGDEndcapRawHits",
         {
@@ -86,7 +94,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = BackwardMPGDEndcapTimeResolution,
+            .integrationWindow = BackwardMPGDEndcapIntegrationWindow,
         },
         app
     ));
@@ -97,12 +106,14 @@ void InitPlugin(JApplication *app) {
         {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
         {"BackwardMPGDEndcapRecHits"},     // Output data tag
         {
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = BackwardMPGDEndcapTimeResolution,
         },
         app
     ));
 
     // Digitization
+    auto ForwardMPGDEndcapTimeResolution    =  20.0 * dd4hep::ns; // 1 / (50 MHz)
+    auto ForwardMPGDEndcapIntegrationWindow = 500.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardMPGDEndcapRawHits",
         {
@@ -114,7 +125,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.25 * dd4hep::keV,
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = ForwardMPGDEndcapTimeResolution,
+            .integrationWindow = ForwardMPGDEndcapIntegrationWindow,
         },
         app
     ));
@@ -125,7 +137,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
         {"ForwardMPGDEndcapRecHits"},     // Output data tag
         {
-            .timeResolution = 20 * dd4hep::ns, // 1 / (50 MHz)
+            .timeResolution = ForwardMPGDEndcapTimeResolution,
         },
         app
     ));

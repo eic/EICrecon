@@ -22,18 +22,21 @@ void InitPlugin(JApplication *app) {
     MatrixTransferStaticConfig recon_cfg;
 
         //Digitized hits, especially for thresholds
+        auto ForwardRomanPotTimeResolution    = 0.015 * dd4hep::ns; // 15-20 ps
+        auto ForwardRomanPotIntegrationWindow = 0.750 * dd4hep::ns; // 750 ps shaping time
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardRomanPotRawHits",
         {
-          "ForwardRomanPotHits"
+            "ForwardRomanPotHits"
         },
         {
-          "ForwardRomanPotRawHits",
-          "ForwardRomanPotHitAssociations"
+            "ForwardRomanPotRawHits",
+            "ForwardRomanPotHitAssociations"
         },
         {
             .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = ForwardRomanPotTimeResolution,
+            .integrationWindow = ForwardRomanPotIntegrationWindow,
         },
         app
     ));
@@ -43,7 +46,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardRomanPotRawHits"},
         {"ForwardRomanPotRecHits"},
         {
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = ForwardRomanPotTimeResolution,
         },
         app
     ));

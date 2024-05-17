@@ -19,6 +19,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto SiBarrelVertexTimeResolution    = 2000 * dd4hep::ns;
+    auto SiBarrelVertexIntegrationWindow = 2000 * dd4hep::ns;
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "SiBarrelVertexRawHits",
         {
@@ -30,7 +32,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.54 * dd4hep::keV,
-            .timeResolution = 2000 * dd4hep::ns,
+            .timeResolution    = SiBarrelVertexTimeResolution,
+            .integrationWindow = SiBarrelVertexIntegrationWindow,
             .prepopulate = true, // for MAPS, initialize digitization with a "pulse" of empty hits
         },
         app
@@ -42,7 +45,7 @@ void InitPlugin(JApplication *app) {
         {"SiBarrelVertexRawHits"},
         {"SiBarrelVertexRecHits"},
         {
-            .timeResolution = 2000 * dd4hep::ns,
+            .timeResolution = SiBarrelVertexTimeResolution,
         },
         app
     ));

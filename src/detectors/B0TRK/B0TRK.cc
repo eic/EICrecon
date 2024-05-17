@@ -19,6 +19,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto B0TrackerTimeResolution    =   0.02 * dd4hep::ns; // 15-20 ps
+    auto B0TrackerIntegrationWindow =  0.750 * dd4hep::ns; // 750 ps shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "B0TrackerRawHits",
         {
@@ -30,7 +32,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = B0TrackerTimeResolution,
+            .integrationWindow = B0TrackerIntegrationWindow,
         },
         app
     ));
@@ -41,7 +44,7 @@ void InitPlugin(JApplication *app) {
         {"B0TrackerRawHits"},
         {"B0TrackerRecHits"},
         {
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = B0TrackerTimeResolution,
         },
         app
     ));

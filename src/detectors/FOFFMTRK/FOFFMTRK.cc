@@ -22,6 +22,8 @@ void InitPlugin(JApplication *app) {
     MatrixTransferStaticConfig recon_cfg;
 
         //Digitized hits, especially for thresholds
+        auto ForwardOffMTrackerTimeResolution    = 0.015 * dd4hep::ns; // 15-20 ps
+        auto ForwardOffMTrackerIntegrationWindow = 0.750 * dd4hep::ns; // 750 ps shaping time
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardOffMTrackerRawHits",
         {
@@ -33,7 +35,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = ForwardOffMTrackerTimeResolution,
+            .integrationWindow = ForwardOffMTrackerIntegrationWindow,
         },
         app
     ));
@@ -43,7 +46,7 @@ void InitPlugin(JApplication *app) {
         {"ForwardOffMTrackerRawHits"},
         {"ForwardOffMTrackerRecHits"},
         {
-            .timeResolution = 0.015 * dd4hep::ns,
+            .timeResolution = ForwardOffMTrackerTimeResolution,
         },
         app
     ));
