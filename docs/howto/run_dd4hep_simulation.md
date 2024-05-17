@@ -3,13 +3,11 @@
 ## Pythia and other EG
 
 ```bash
-# Detectors live in
-# /opt/detectors
-# one can select particular configuration as
-# source /opt/detector/epic-22.10.0/setup.sh
+# Detectors live in /opt/detector
+# One can select particular configuration as
+# source /opt/detector/epic-main/bin/thisepic.sh
 #
-# or one can set the default detector (now points to epic-nightly)
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # Run simulation for 1000 events
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --outputFile=sim_output.edm4hep.root --inputFiles mceg.hepmc
@@ -29,7 +27,7 @@ Using ddsim (wrapper around ddsim) command line:
 
 ```bash
 # set the detector
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # Electrons with 1MeV - 30GeV fired in all directions, 1000 events
 ddsim --compactFile=$DETECTOR_PATH/epic.xml -N=1000 --random.seed 1 --enableGun --gun.particle="e-" --gun.momentumMin 1*MeV --gun.momentumMax 30*GeV --gun.distribution uniform --outputFile gun_sim.edm4hep.root

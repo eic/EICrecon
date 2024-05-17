@@ -30,7 +30,7 @@ singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly ei
 Once inside the eic-shell, you should source the geometry setup script since this is not done by default.
 
 ```
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 ```
 
 Next, clone the EICrecon repository. In the future, you may want to work with a prebuilt EICrecon that comes

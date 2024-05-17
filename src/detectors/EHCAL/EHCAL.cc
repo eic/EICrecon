@@ -39,7 +39,7 @@ extern "C" {
             .pedMeanADC = HcalEndcapN_pedMeanADC,
             .pedSigmaADC = HcalEndcapN_pedSigmaADC,
             .resolutionTDC = HcalEndcapN_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
@@ -54,7 +54,7 @@ extern "C" {
             .resolutionTDC = HcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 41.0, // 0.1875 MeV deposition out of 200 MeV max (per layer) --> adc = 10 + 0.1875 / 200 * 32768 == 41
-            .sampFrac = 0.0095, // from latest study - implement at level of reco hits rather than clusters
+            .sampFrac = "0.0095", // from latest study - implement at level of reco hits rather than clusters
             .readout = "HcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed

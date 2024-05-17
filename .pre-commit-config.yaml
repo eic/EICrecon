@@ -22,6 +22,7 @@ repos:
   rev: v1.3.5
   hooks:
   - id: clang-format
+    args: [-i]
 - repo: https://github.com/cheshirekow/cmake-format-precommit
   rev: v0.6.13
   hooks:

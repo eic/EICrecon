@@ -1,6 +1,8 @@
 
 #include "JEventProcessorPODIO.h"
 
+#include <edm4eic/EDM4eicVersion.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
@@ -87,6 +89,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
+            "CombinedTOFParticleIDs",
+            "CombinedTOFSeededParticleIDs",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -94,10 +99,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHParticleIDs",
+            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNParticleIDs",
+            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -122,8 +131,18 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // LOWQ2 hits
             "TaggerTrackerRawHits",
-            "TaggerTrackerClusterPositions",
             "TaggerTrackerHitAssociations",
+            "TaggerTrackerM1L0ClusterPositions",
+            "TaggerTrackerM1L1ClusterPositions",
+            "TaggerTrackerM1L2ClusterPositions",
+            "TaggerTrackerM1L3ClusterPositions",
+            "TaggerTrackerM2L0ClusterPositions",
+            "TaggerTrackerM2L1ClusterPositions",
+            "TaggerTrackerM2L2ClusterPositions",
+            "TaggerTrackerM2L3ClusterPositions",
+            "TaggerTrackerM1Tracks",
+            "TaggerTrackerM2Tracks",
+            "TaggerTrackerProjectedTracks",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -142,10 +161,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Reconstructed data
             "GeneratedParticles",
+            "GeneratedBreitFrameParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
@@ -168,11 +189,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsTruth",
             "GeneratedJets",
             "GeneratedChargedJets",
+            "GeneratedCentauroJets",
             "ReconstructedJets",
             "ReconstructedChargedJets",
+            "ReconstructedCentauroJets",
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
+#if EDM4EIC_VERSION_MAJOR >= 6
+            "HadronicFinalState",
+#endif
 
             // Track projections
             "CalorimeterTrackProjections",
@@ -262,10 +288,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-
+            "HcalFarForwardZDCNeutronCandidates",
 
             // DIRC
-            "DIRCRawHits"
+            "DIRCRawHits",
+            "DIRCPID",
+            "DIRCParticleIDs",
+            "DIRCSeededParticleIDs",
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     japp->SetDefaultParameter(

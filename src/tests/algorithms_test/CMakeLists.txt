@@ -10,23 +10,24 @@ add_executable(
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_HEXPLIT.cc
   pid_MergeTracks.cc
-  pid_MergeParticleID.cc)
+  pid_MergeParticleID.cc
+  pid_lut_PIDLookup.cc
+  reco_FarForwardNeutronReconstruction.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
 target_link_libraries(
   ${TEST_NAME}
-  PRIVATE Catch2::Catch2WithMain algorithms_calorimetry_library
-          algorithms_fardetectors_library algorithms_pid_library podio::podio
+  PRIVATE Catch2::Catch2WithMain
+          algorithms_calorimetry_library
+          algorithms_fardetectors_library
+          algorithms_pid_library
+          algorithms_pid_lut_library
+          algorithms_reco_library
+          evaluator_library
+          pid_lut_library
+          podio::podio
           podio::podioRootIO)
-
-# As-needed fails due to absent podio symbols in libJANA.so
-# (https://github.com/JeffersonLab/JANA2/pull/255)
-include(CheckLinkerFlag)
-check_linker_flag(CXX "-Wl,--no-as-needed" CXX_LINKER_HAS_no_as_needed)
-if(CXX_LINKER_HAS_no_as_needed)
-  target_link_options(${TEST_NAME} PRIVATE "-Wl,--no-as-needed")
-endif()
 
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)

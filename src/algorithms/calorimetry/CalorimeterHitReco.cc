@@ -20,20 +20,21 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/service.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
-#include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <ostream>
-#include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
@@ -58,7 +59,6 @@ void CalorimeterHitReco::init() {
     }
 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
-    IDDescriptor id_spec;
     try {
         id_spec = m_detector->readout(m_cfg.readout).idSpec();
     } catch(...) {
@@ -108,6 +108,21 @@ void CalorimeterHitReco::init() {
         return;
     }
 
+    id_spec = m_detector->readout(m_cfg.readout).idSpec();
+
+    std::function hit_to_map = [this](const edm4hep::RawCalorimeterHit &h) {
+      std::unordered_map<std::string, double> params;
+      for(const auto &p : id_spec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.emplace(name, field->value(h.getCellID()));
+        trace("{} = {}", name, field->value(h.getCellID()));
+      }
+      return params;
+    };
+
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    sampFrac = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
 
     // local detector name has higher priority
     if (!m_cfg.localDetElement.empty()) {
@@ -163,22 +178,13 @@ void CalorimeterHitReco::process(
         const int sid =
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
-        // determine sampling fraction
-        float sampFrac = m_cfg.sampFrac;
-        if (! m_cfg.sampFracLayer.empty()) {
-            if (0 <= lid && lid < m_cfg.sampFracLayer.size()) {
-                sampFrac = m_cfg.sampFracLayer[lid];
-            } else {
-                throw std::runtime_error(fmt::format("CalorimeterHitReco: layer-specific sampling fraction undefined for index {}", lid));
-            }
-        }
-
         // convert ADC to energy
+        float sampFrac_value = sampFrac(rh);
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                sampFrac;
+                sampFrac_value;
 
         const float time = rh.getTimeStamp() / stepTDC;
-        trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
+        trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy, rh.getTimeStamp(), time, sampFrac_value);
 
         dd4hep::DetElement local;
         dd4hep::Position gpos;
