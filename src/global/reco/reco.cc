@@ -11,7 +11,6 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-//#include <algorithm>
 #include <map>
 #include <memory>
 
