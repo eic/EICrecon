@@ -19,9 +19,7 @@
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
-#include <exception>
 #include <map>
-#include <type_traits>
 
 #include "services/geometry/richgeo/RichGeo.h"
 

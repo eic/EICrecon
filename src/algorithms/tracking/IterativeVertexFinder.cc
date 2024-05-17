@@ -4,15 +4,19 @@
 
 #include "IterativeVertexFinder.h"
 
-#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/GenericParticleHypothesis.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
-#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/VectorHelpers.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
@@ -21,10 +25,17 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <math.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
+#include <optional>
+#include <tuple>
 #include <utility>
-#include <variant>
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -75,11 +86,15 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexSeeder::Config seederCfg(ipEst);
   VertexSeeder seeder(seederCfg);
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(vertexFitter, std::move(linearizer),
-                                 std::move(seeder), ipEst);
-  finderCfg.maxVertices                 = m_cfg.m_maxVertices;
-  finderCfg.reassignTracksAfterFirstFit = m_cfg.m_reassignTracksAfterFirstFit;
+  VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
+                                 std::move(seeder), std::move(ipEst));
+  finderCfg.maxVertices                 = m_cfg.maxVertices;
+  finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
+  #if Acts_VERSION_MAJOR >= 31
+  VertexFinder finder(std::move(finderCfg));
+  #else
   VertexFinder finder(finderCfg);
+  #endif
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
@@ -103,6 +118,23 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   }
 
   for (const auto& vtx : vertices) {
+#if EDM4EIC_VERSION_MAJOR >= 5
+    edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
+                       vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3),
+                       vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3),
+                       vtx.fullCovariance()(2,3));
+    auto eicvertex = outputVertices->create();
+    eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2((float)vtx.fitQuality().first);      // chi2
+    eicvertex.setNdf((float)vtx.fitQuality().second);      // ndf
+    eicvertex.setPosition({
+         (float)vtx.position().x(),
+         (float)vtx.position().y(),
+         (float)vtx.position().z(),
+         (float)vtx.time(),
+    }); // vtxposition
+    eicvertex.setPositionError(cov);                          // covariance
+#else
     edm4eic::Cov3f cov(vtx.covariance()(0, 0), vtx.covariance()(1, 1), vtx.covariance()(2, 2),
                        vtx.covariance()(0, 1), vtx.covariance()(0, 2), vtx.covariance()(1, 2));
 
@@ -118,6 +150,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     eicvertex.setPositionError(cov);                          // covariance
     eicvertex.setAlgorithmType(1);                            // algorithmtype
     eicvertex.setTime((float)vtx.time());                     // time
+#endif
   }
 
   return std::move(outputVertices);

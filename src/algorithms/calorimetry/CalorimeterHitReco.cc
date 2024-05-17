@@ -18,35 +18,34 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/service.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
-#include <exception>
-#include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <ostream>
-#include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
 namespace eicrecon {
 
-void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger) {
-    m_detector = detector;
-    m_converter = converter;
-    m_log = logger;
+void CalorimeterHitReco::init() {
 
     // threshold for firing
     // Should set either m_cfg.thresholdFactor or m_cfg.thresholdValue, not both
     if ( m_cfg.thresholdFactor * m_cfg.thresholdValue != 0 ){
-        m_log->error("thresholdFactor = {}, thresholdValue = {}. Only one of these should be non-zero.",
+        error("thresholdFactor = {}, thresholdValue = {}. Only one of these should be non-zero.",
                     m_cfg.thresholdFactor, m_cfg.thresholdValue);
         throw; // throw with an argument doesn't trigger abort
     }
@@ -60,11 +59,10 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
     }
 
     // First, try and get the IDDescriptor. This will throw an exception if it fails.
-    IDDescriptor id_spec;
     try {
         id_spec = m_detector->readout(m_cfg.readout).idSpec();
     } catch(...) {
-        m_log->warn("Failed to get idSpec for {}", m_cfg.readout);
+        warning("Failed to get idSpec for {}", m_cfg.readout);
         return;
     }
     // Next, try and get the readout fields. This will throw a different exception.
@@ -72,11 +70,11 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
         id_dec = id_spec.decoder();
         if (!m_cfg.sectorField.empty()) {
             sector_idx = id_dec->index(m_cfg.sectorField);
-            m_log->debug("Find sector field {}, index = {}", m_cfg.sectorField, sector_idx);
+            debug("Find sector field {}, index = {}", m_cfg.sectorField, sector_idx);
         }
         if (!m_cfg.layerField.empty()) {
             layer_idx = id_dec->index(m_cfg.layerField);
-            m_log->debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
+            debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
         }
         if (!m_cfg.maskPosFields.empty()) {
             size_t tmp_mask = 0;
@@ -88,36 +86,51 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
         }
     } catch (...) {
         if (!id_dec) {
-            m_log->warn("Failed to load ID decoder for {}", m_cfg.readout);
+            warning("Failed to load ID decoder for {}", m_cfg.readout);
             std::stringstream readouts;
             for (auto r: m_detector->readouts()) readouts << "\"" << r.first << "\", ";
-            m_log->warn("Available readouts: {}", readouts.str() );
+            warning("Available readouts: {}", readouts.str() );
         } else {
-            m_log->warn("Failed to find field index for {}.", m_cfg.readout);
-            if (!m_cfg.sectorField.empty()) { m_log->warn(" -- looking for sector field \"{}\".", m_cfg.sectorField); }
-            if (!m_cfg.layerField.empty()) { m_log->warn(" -- looking for layer field  \"{}\".", m_cfg.layerField); }
+            warning("Failed to find field index for {}.", m_cfg.readout);
+            if (!m_cfg.sectorField.empty()) { warning(" -- looking for sector field \"{}\".", m_cfg.sectorField); }
+            if (!m_cfg.layerField.empty()) { warning(" -- looking for layer field  \"{}\".", m_cfg.layerField); }
             if (!m_cfg.maskPosFields.empty()) {
-                m_log->warn(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
+                warning(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
             }
             std::stringstream fields;
             for (auto field: id_spec.decoder()->fields()) fields << "\"" << field.name() << "\", ";
-            m_log->warn("Available fields: {}", fields.str() );
-            m_log->warn("n.b. The local position, sector id and layer id will not be correct for this.");
-            m_log->warn("Position masking may not be applied.");
-            m_log->warn("however, the position, energy, and time values should still be good.");
+            warning("Available fields: {}", fields.str() );
+            warning("n.b. The local position, sector id and layer id will not be correct for this.");
+            warning("Position masking may not be applied.");
+            warning("however, the position, energy, and time values should still be good.");
         }
 
         return;
     }
 
+    id_spec = m_detector->readout(m_cfg.readout).idSpec();
+
+    std::function hit_to_map = [this](const edm4hep::RawCalorimeterHit &h) {
+      std::unordered_map<std::string, double> params;
+      for(const auto &p : id_spec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.emplace(name, field->value(h.getCellID()));
+        trace("{} = {}", name, field->value(h.getCellID()));
+      }
+      return params;
+    };
+
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    sampFrac = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
 
     // local detector name has higher priority
     if (!m_cfg.localDetElement.empty()) {
         try {
-            local = m_detector->detector(m_cfg.localDetElement);
-            m_log->info("local coordinate system from DetElement {}", m_cfg.localDetElement);
+            m_local = m_detector->detector(m_cfg.localDetElement);
+            info("local coordinate system from DetElement {}", m_cfg.localDetElement);
         } catch (...) {
-            m_log->error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
+            error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
             return;
         }
     } else {
@@ -131,13 +144,15 @@ void CalorimeterHitReco::init(const dd4hep::Detector* detector, const dd4hep::re
             local_mask = ~static_cast<decltype(local_mask)>(0);
         }
     }
-
-    return;
 }
 
 
-std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(const edm4hep::RawCalorimeterHitCollection &rawhits) {
-    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+void CalorimeterHitReco::process(
+      const CalorimeterHitReco::Input& input,
+      const CalorimeterHitReco::Output& output) const {
+
+    const auto [rawhits] = input;
+    auto [recohits] = output;
 
     // For some detectors, the cellID in the raw hits may be broken
     // (currently this is the HcalBarrel). In this case, dd4hep
@@ -147,9 +162,9 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
     // number is encountered disable this algorithm. A useful message
     // indicating what is going on is printed below where the
     // error is detector.
-    if (NcellIDerrors >= MaxCellIDerrors) return std::move(recohits);
+    if (NcellIDerrors >= MaxCellIDerrors) return;
 
-    for (const auto &rh: rawhits) {
+    for (const auto &rh: *rawhits) {
 
         //did not pass the zero-suppresion threshold
         const auto cellID = rh.getCellID();
@@ -163,23 +178,15 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
         const int sid =
                 id_dec != nullptr && !m_cfg.sectorField.empty() ? static_cast<int>(id_dec->get(cellID, sector_idx)) : -1;
 
-        // determine sampling fraction
-        float sampFrac = m_cfg.sampFrac;
-        if (! m_cfg.sampFracLayer.empty()) {
-            if (0 <= lid && lid < m_cfg.sampFracLayer.size()) {
-                sampFrac = m_cfg.sampFracLayer[lid];
-            } else {
-                throw std::runtime_error(fmt::format("CalorimeterHitReco: layer-specific sampling fraction undefined for index {}", lid));
-            }
-        }
-
         // convert ADC to energy
+        float sampFrac_value = sampFrac(rh);
         float energy = (((signed) rh.getAmplitude() - (signed) m_cfg.pedMeanADC)) / static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC /
-                sampFrac;
+                sampFrac_value;
 
         const float time = rh.getTimeStamp() / stepTDC;
-        m_log->trace("cellID {}, \t energy: {},  TDC: {}, time: ", cellID, energy, rh.getTimeStamp(), time);
+        trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy, rh.getTimeStamp(), time, sampFrac_value);
 
+        dd4hep::DetElement local;
         dd4hep::Position gpos;
         try {
             // global positions
@@ -210,16 +217,18 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             if (m_cfg.localDetElement.empty()) {
                 auto volman = m_detector->volumeManager();
                 local = volman.lookupDetElement(cellID & local_mask);
+            } else {
+                local = m_local;
             }
         } catch (...) {
             // Error looking up cellID. Messages should already have been printed.
             // Also, see comment at top of this method.
             if (++NcellIDerrors >= MaxCellIDerrors) {
-                m_log->error("Maximum number of errors reached: {}", MaxCellIDerrors);
-                m_log->error("This is likely an issue with the cellID being unknown.");
-                m_log->error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
-                m_log->error("Disabling this algorithm since it requires a valid cellID.");
-                m_log->error("(See {}:{})", __FILE__,__LINE__);
+                error("Maximum number of errors reached: {}", MaxCellIDerrors);
+                error("This is likely an issue with the cellID being unknown.");
+                error("Note: local_mask={:X} example cellID={:x}", local_mask, cellID);
+                error("Disabling this algorithm since it requires a valid cellID.");
+                error("(See {}:{})", __FILE__,__LINE__);
             }
             continue;
         }
@@ -228,15 +237,15 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
         std::vector<double> cdim;
         // get segmentation dimensions
         auto segmentation_type = m_converter->findReadout(local).segmentation().type();
-        if (segmentation_type == "CartesianGridXY") {
+        if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];
             cdim[1] = cell_dim[1];
-            m_log->debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+            debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
             if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
-                m_log->warn("Unsupported segmentation type \"{}\"", segmentation_type);
+                warning("Unsupported segmentation type \"{}\"", segmentation_type);
                 warned_unsupported_segmentation = true;
             }
 
@@ -244,7 +253,7 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             cdim = m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
             std::transform(cdim.begin(), cdim.end(), cdim.begin(),
                            std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
-            m_log->debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
+            debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
         }
 
         //create constant vectors for passing to hit initializer list
@@ -268,8 +277,6 @@ std::unique_ptr<edm4eic::CalorimeterHitCollection> CalorimeterHitReco::process(c
             lid,
             local_position);
     }
-
-    return recohits;
 }
 
 } // namespace eicrecon

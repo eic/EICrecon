@@ -15,13 +15,12 @@
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <stddef.h>
-#include <exception>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 #include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
@@ -137,7 +136,7 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
         auto sim = assoc.getSim();
         auto rec = assoc.getRec();
 
-        m_log->debug("  {:<6} {:<6} {:>8d} {:>8d}", assoc.getSimID(), assoc.getRecID(), sim.getPDG(), rec.getPDG());
+        m_log->debug("  {:<6} {:<6} {:>8d} {:>8d}", assoc.getSim().getObjectID().index, assoc.getRec().getObjectID().index, sim.getPDG(), rec.getPDG());
     }
 
 //    m_log->debug("Particles [objID] [PDG] [simE] [recE] [simPDG] [recPDG]");

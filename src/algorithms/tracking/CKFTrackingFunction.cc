@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
-#include <Acts/EventData/MultiTrajectory.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Geometry/Layer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -13,12 +18,13 @@
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
-#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <boost/container/vector.hpp>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <memory>
 #include <utility>
-#include <variant>
-#include <vector>
 
 #include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"

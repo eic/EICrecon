@@ -25,10 +25,10 @@
 #include <stdint.h>
 #include <algorithm>
 #include <cmath>
-#include <exception>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <vector>
 
@@ -45,7 +45,6 @@
 void lfhcal_studiesProcessor::Init() {
   std::string plugin_name = ("lfhcal_studies");
 
-  // InitLogger(plugin_name);
   // ===============================================================================================
   // Get JANA application and seup general variables
   // ===============================================================================================
@@ -274,7 +273,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   // ===============================================================================================
   // process MC particles
   // ===============================================================================================
-  const auto &mcParticles = *static_cast<const edm4hep::MCParticleCollection*>(event->GetCollectionBase("MCParticles"));
+  const auto &mcParticles = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
   double mceta    = 0;
   double mcphi    = 0;
   double mcp      = 0;
@@ -312,7 +311,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   int nCaloHitsSim = 0;
   float sumActiveCaloEnergy = 0;
   float sumPassiveCaloEnergy = 0;
-  const auto &simHits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase(nameSimHits));
+  const auto &simHits = *(event->GetCollection<edm4hep::SimCalorimeterHit>(nameSimHits));
   for (const auto caloHit : simHits) {
     float x         = caloHit.getPosition().x / 10.;
     float y         = caloHit.getPosition().y / 10.;
@@ -391,7 +390,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   // ===============================================================================================
   // read rec hits & fill structs
   // ===============================================================================================
-  const auto &recHits = *static_cast<const edm4eic::CalorimeterHitCollection*>(event->GetCollectionBase(nameRecHits));
+  const auto &recHits = *(event->GetCollection<edm4eic::CalorimeterHit>(nameRecHits));
   int nCaloHitsRec = 0;
   std::vector<towersStrct> input_tower_rec;
   std::vector<towersStrct> input_tower_recSav;
@@ -600,7 +599,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   float highestEFr  = 0;
   int iClFHigh      = 0;
 
-  const auto &lfhcalClustersF = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase(nameClusters));
+  const auto &lfhcalClustersF = *(event->GetCollection<edm4eic::Cluster>(nameClusters));
   for (const auto cluster : lfhcalClustersF) {
     if (cluster.getEnergy() > highestEFr){
       iClFHigh    = iClF;
@@ -608,12 +607,6 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     hRecFClusterEcalib_E_eta->Fill(mcenergy, cluster.getEnergy()/mcenergy, mceta);
     m_log->trace("Island cluster {}:\t {} \t {}", iClF, cluster.getEnergy(), cluster.getNhits());
-    for (const auto hit : cluster.getHits()){
-      int pSav = 0;
-      while(hit.getCellID() !=  input_tower_recSav.at(pSav).cellID && pSav < (int)input_tower_recSav.size() ) pSav++;
-      if (hit.getCellID() == input_tower_recSav.at(pSav).cellID)
-        input_tower_recSav.at(pSav).tower_clusterIDB = iClF;
-    }
     iClF++;
   }
   hRecFNClusters_E_eta->Fill(mcenergy, iClF, mceta);
@@ -637,7 +630,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
 
   if (enableECalCluster){
     try {
-      const auto &fEMCClustersF = *static_cast<const edm4eic::ClusterCollection*>(event->GetCollectionBase("EcalEndcapPClusters"));
+      const auto &fEMCClustersF = *(event->GetCollection<edm4eic::Cluster>("EcalEndcapPClusters"));
       m_log->info("-----> found fEMCClustersF:" , fEMCClustersF.size());
       for (const auto cluster : fEMCClustersF) {
         if (iECl < maxNCluster && enableTreeCluster){

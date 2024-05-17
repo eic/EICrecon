@@ -3,12 +3,10 @@
 // Template for this file generated with eicmkplugin.py
 //
 
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <TDirectory.h>
-#include <Eigen/Core>
 #include <vector>
 
 #include "TRACKINGcheckProcessor.h"

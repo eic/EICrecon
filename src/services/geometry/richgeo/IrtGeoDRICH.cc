@@ -12,16 +12,17 @@
 #include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovRadiator.h>
 #include <IRT/G4Object.h>
+#include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRef.h>
 #include <fmt/core.h>
 #include <stdint.h>
-#include <exception>
 #include <map>
 #include <stdexcept>
-#include <type_traits>
+#include <string>
 #include <unordered_map>
 #include <utility>
+
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // begin envelope

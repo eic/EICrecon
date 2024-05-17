@@ -17,7 +17,6 @@
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
@@ -33,12 +32,13 @@ private:
     PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
     PodioOutput<edm4eic::Trajectory> m_trajectories_output {this};
     PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
+    PodioOutput<edm4eic::Track> m_tracks_output {this};
     Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
     Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
 
-    ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().m_etaBins, "Eta Bins for ACTS CKF tracking reco"};
-    ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().m_chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
-    ParameterRef<std::vector<size_t>> m_numMeasurementsCutOff {this, "NumMeasurementsCutOff", config().m_numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking"};
+    ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().etaBins, "Eta Bins for ACTS CKF tracking reco"};
+    ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
+    ParameterRef<std::vector<size_t>> m_numMeasurementsCutOff {this, "NumMeasurementsCutOff", config().numMeasurementsCutOff, "Number of measurements Cut Off for ACTS CKF tracking"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
@@ -56,6 +56,7 @@ public:
         std::tie(
             m_trajectories_output(),
             m_parameters_output(),
+            m_tracks_output(),
             m_acts_trajectories_output(),
             m_acts_tracks_output()
         ) = m_algo->process(

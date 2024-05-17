@@ -62,7 +62,7 @@ namespace eicrecon {
       }
 
       // boolean: true if any cheat mode is enabled
-      bool CheatModeEnabled() {
+      bool CheatModeEnabled() const {
         return cheatPhotonVertex || cheatTrueRadiator;
       }
 

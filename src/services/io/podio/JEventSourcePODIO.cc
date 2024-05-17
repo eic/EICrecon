@@ -4,9 +4,6 @@
 //
 // This is a JANA event source that uses PODIO to read from a ROOT
 // file created using the EDM4hep Data Model.
-//
-// This uses the podio supplied RootReader and EventStore classes. Thus,
-// it is limited to processing only a single event at a time.
 
 #include "JEventSourcePODIO.h"
 
@@ -14,7 +11,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/JLogger.h>
-#include <JANA/Podio/JFactoryPodioT.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
@@ -30,13 +26,12 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 // These files are generated automatically by make_datamodel_glue.py
-#include "datamodel_glue.h"
-#include "datamodel_includes.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h"
+#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
 
 
 //------------------------------------------------------------------------------

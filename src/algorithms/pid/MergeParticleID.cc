@@ -5,12 +5,12 @@
 
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
 #include <stddef.h>
-#include <exception>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
@@ -18,32 +18,20 @@
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "algorithms/pid/Tools.h"
 
-// AlgorithmInit
-//---------------------------------------------------------------------------
-void eicrecon::MergeParticleID::AlgorithmInit(std::shared_ptr<spdlog::logger>& logger)
+namespace eicrecon {
+
+void MergeParticleID::init(std::shared_ptr<spdlog::logger>& logger)
 {
   m_log = logger;
   m_cfg.Print(m_log, spdlog::level::debug);
 }
 
+void MergeParticleID::process(
+    const MergeParticleID::Input& input,
+    const MergeParticleID::Output& output) const {
 
-// AlgorithmChangeRun
-//---------------------------------------------------------------------------
-void eicrecon::MergeParticleID::AlgorithmChangeRun() {
-}
-
-
-// AlgorithmProcess
-//---------------------------------------------------------------------------
-std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleID::AlgorithmProcess(
-    std::vector<const edm4eic::CherenkovParticleIDCollection*> in_pid_collections_list
-    )
-{
-  // logging
-  m_log->trace("{:=^70}"," call MergeParticleID::AlgorithmProcess ");
-
-  // start output collection
-  auto out_pids = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
+  const auto [in_pid_collections_list] = input;
+  auto [out_pids] = output;
 
   /* match input `CherenkovParticleIDCollection` elements from each list of
    * collections in `in_pid_collections_list`
@@ -209,6 +197,6 @@ std::unique_ptr<edm4eic::CherenkovParticleIDCollection> eicrecon::MergeParticleI
       Tools::PrintHypothesisTableLine(m_log,out_hyp,6);
 
   } // end `particle_pids` loop over charged particles
-
-  return out_pids;
 }
+
+} // namespace eicrecon

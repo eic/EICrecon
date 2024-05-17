@@ -20,9 +20,14 @@ void InitPlugin(JApplication *app) {
 
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "EndcapTrackerDigiHit",
-        {"TrackerEndcapHits"},
-        {"EndcapTrackerDigiHit"},
+        "SiEndcapTrackerRawHits",
+        {
+          "TrackerEndcapHits"
+        },
+        {
+          "SiEndcapTrackerRawHits",
+          "SiEndcapHitAssociations"
+        },
         {
             .threshold = 0.54 * dd4hep::keV,
         },
@@ -32,7 +37,7 @@ void InitPlugin(JApplication *app) {
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "SiEndcapTrackerRecHits",
-        {"EndcapTrackerDigiHit"},
+        {"SiEndcapTrackerRawHits"},
         {"SiEndcapTrackerRecHits"},
         {}, // default config
         app

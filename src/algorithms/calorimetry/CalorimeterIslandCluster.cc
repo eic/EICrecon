@@ -13,7 +13,9 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <algorithm>
+#include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -80,9 +82,7 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) 
 //------------------------
 // AlgorithmInit
 //------------------------
-void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-    m_detector = detector;
+void CalorimeterIslandCluster::init() {
 
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>, std::vector<double>>>
@@ -100,14 +100,14 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
       }
       auto& [method, units] = distMethods[uprop.first];
       if (uprop.second.size() != units.size()) {
-        m_log->warn("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size());
+        warning("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,  uprop.second.size());
         return false;
       } else {
         for (size_t i = 0; i < units.size(); ++i) {
           neighbourDist[i] = uprop.second[i] / units[i];
         }
         hitsDist = method;
-        m_log->info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
+        info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
       }
       return true;
     };
@@ -128,7 +128,7 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
     if (!m_cfg.adjacencyMatrix.empty()) {
       // sanity checks
       if (m_cfg.readout.empty()) {
-        m_log->error("readoutClass is not provided, it is needed to know the fields in readout ids");
+        error("readoutClass is not provided, it is needed to know the fields in readout ids");
       }
       m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
 
@@ -144,7 +144,7 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
       }
       sstr << "return " << m_cfg.adjacencyMatrix << ";";
       sstr << "}";
-      m_log->debug("Compiling {}", sstr.str());
+      debug("Compiling {}", sstr.str());
 
       TInterpreter *interp = TInterpreter::Instance();
       interp->ProcessLine(sstr.str().c_str());
@@ -161,8 +161,8 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
           const dd4hep::IDDescriptor::Field* field = p.second;
           params.push_back(field->value(h1.getCellID()));
           params.push_back(field->value(h2.getCellID()));
-          m_log->trace("{}_1 = {}", name, field->value(h1.getCellID()));
-          m_log->trace("{}_2 = {}", name, field->value(h2.getCellID()));
+          trace("{}_1 = {}", name, field->value(h1.getCellID()));
+          trace("{}_2 = {}", name, field->value(h2.getCellID()));
         }
         return func(params.data());
       };
@@ -188,7 +188,7 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
             }
           };
 
-          m_log->info("Using clustering method: {}", uprop.first);
+          info("Using clustering method: {}", uprop.first);
           break;
         }
       }
@@ -217,16 +217,22 @@ void CalorimeterIslandCluster::init(const dd4hep::Detector* detector, std::share
 }
 
 
-std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::process(const edm4eic::CalorimeterHitCollection &hits) {
+void CalorimeterIslandCluster::process(
+      const CalorimeterIslandCluster::Input& input,
+      const CalorimeterIslandCluster::Output& output) const {
+
+    const auto [hits] = input;
+    auto [proto_clusters] = output;
+
     // group neighboring hits
     std::vector<std::set<std::size_t>> groups;
 
-    std::vector<bool> visits(hits.size(), false);
-    for (size_t i = 0; i < hits.size(); ++i) {
+    std::vector<bool> visits(hits->size(), false);
+    for (size_t i = 0; i < hits->size(); ++i) {
 
       {
-        const auto& hit = hits[i];
-        m_log->debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
+        const auto& hit = (*hits)[i];
+        debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, {:.4f}) mm", i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,  hit.getPosition().y, hit.getPosition().z);
       }
       // already in a group
       if (visits[i]) {
@@ -234,23 +240,18 @@ std::unique_ptr<edm4eic::ProtoClusterCollection> CalorimeterIslandCluster::proce
       }
       groups.emplace_back();
       // create a new group, and group all the neighboring hits
-      bfs_group(hits, groups.back(), i, visits);
+      bfs_group(*hits, groups.back(), i, visits);
     }
-
-    auto protoClusters = std::make_unique<edm4eic::ProtoClusterCollection>();
 
     for (auto& group : groups) {
       if (group.empty()) {
         continue;
       }
-      auto maxima = find_maxima(hits, group, !m_cfg.splitCluster);
-      split_group(hits, group, maxima, protoClusters.get());
+      auto maxima = find_maxima(*hits, group, !m_cfg.splitCluster);
+      split_group(*hits, group, maxima, proto_clusters);
 
-      m_log->debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
+      debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
     }
-
-    return protoClusters;
-
 }
 
 } // namespace eicrecon

@@ -13,6 +13,7 @@
 
 #include <algorithm>
 
+#include <algorithms/algorithm.h>
 #include <DD4hep/BitFieldCoder.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
@@ -30,38 +31,52 @@
 
 namespace eicrecon {
 
-/** Topological Cell Clustering Algorithm.
- *
- * Topological Cell Clustering Algorithm for Imaging Calorimetry
- *  1. group all the adjacent pixels
- *
- *  Author: Chao Peng (ANL), 06/02/2021
- *  References: https://arxiv.org/pdf/1603.02934.pdf
- *
- * \ingroup reco
- */
-  class ImagingTopoCluster : public WithPodConfig<ImagingTopoClusterConfig> {
+  using ImagingTopoClusterAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::CalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ProtoClusterCollection
+    >
+  >;
 
-  protected:
+  /** Topological Cell Clustering Algorithm.
+   *
+   * Topological Cell Clustering Algorithm for Imaging Calorimetry
+   *  1. group all the adjacent pixels
+   *
+   *  Author: Chao Peng (ANL), 06/02/2021
+   *  References: https://arxiv.org/pdf/1603.02934.pdf
+   *
+   * \ingroup reco
+   */
+  class ImagingTopoCluster
+      : public ImagingTopoClusterAlgorithm,
+        public WithPodConfig<ImagingTopoClusterConfig> {
 
-    std::shared_ptr<spdlog::logger> m_log;
+  public:
+    ImagingTopoCluster(std::string_view name)
+      : ImagingTopoClusterAlgorithm{name,
+                            {"inputHitCollection"},
+                            {"outputProtoClusterCollection"},
+                            "Topological cell clustering algorithm for imaging calorimetry."} {}
+
+  private:
 
     // unitless counterparts of the input parameters
     double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
 
   public:
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-        m_log = logger;
-
+    void init() {
         // unitless conversion
         // sanity checks
         if (m_cfg.localDistXY.size() != 2) {
-            m_log->error( "Expected 2 values (x_dist, y_dist) for localDistXY");
+            error( "Expected 2 values (x_dist, y_dist) for localDistXY");
             return;
         }
         if (m_cfg.layerDistEtaPhi.size() != 2) {
-            m_log->error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
+            error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
             return;
         }
 
@@ -76,43 +91,44 @@ namespace eicrecon {
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
         // summarize the clustering parameters
-        m_log->info("Local clustering (same sector and same layer): "
+        info("Local clustering (same sector and same layer): "
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                     localDistXY[0], localDistXY[1]
         );
-        m_log->info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+        info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
                     "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
                     m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
         );
-        m_log->info("Neighbour sectors clustering (different sector): "
+        info("Neighbour sectors clustering (different sector): "
                     "Global distance between hits <= {:.4f} mm.",
                     sectorDist
         );
     }
 
-    std::unique_ptr<edm4eic::ProtoClusterCollection> process(const edm4eic::CalorimeterHitCollection& hits) {
+    void process(const Input& input, const Output& output) const final {
 
-        auto proto = std::make_unique<edm4eic::ProtoClusterCollection>();
+        const auto [hits] = input;
+        auto [proto] = output;
 
         // group neighbouring hits
-        std::vector<bool> visits(hits.size(), false);
+        std::vector<bool> visits(hits->size(), false);
         std::vector<std::set<std::size_t>> groups;
-        for (size_t i = 0; i < hits.size(); ++i) {
-            m_log->debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
-                         hits[i].getLocal().x, hits[i].getLocal().y, hits[i].getPosition().z,
-                         hits[i].getPosition().x, hits[i].getPosition().y, hits[i].getPosition().z
+        for (size_t i = 0; i < hits->size(); ++i) {
+            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
+                         (*hits)[i].getLocal().x, (*hits)[i].getLocal().y, (*hits)[i].getPosition().z,
+                         (*hits)[i].getPosition().x, (*hits)[i].getPosition().y, (*hits)[i].getPosition().z
             );
             // already in a group, or not energetic enough to form a cluster
-            if (visits[i] || hits[i].getEnergy() < minClusterCenterEdep) {
+            if (visits[i] || (*hits)[i].getEnergy() < minClusterCenterEdep) {
                 continue;
             }
             // create a new group, and group all the neighbouring hits
             groups.emplace_back();
-            bfs_group(hits, groups.back(), i, visits);
+            bfs_group(*hits, groups.back(), i, visits);
         }
-        m_log->debug("found {} potential clusters (groups of hits)", groups.size());
+        debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
-            m_log->debug("group {}: {} hits", i, groups[i].size());
+            debug("group {}: {} hits", i, groups[i].size());
         }
 
         // form clusters
@@ -122,19 +138,17 @@ namespace eicrecon {
             }
             double energy = 0.;
             for (std::size_t idx : group) {
-                energy += hits[idx].getEnergy();
+                energy += (*hits)[idx].getEnergy();
             }
             if (energy < minClusterEdep) {
                 continue;
             }
             auto pcl = proto->create();
             for (std::size_t idx : group) {
-                pcl.addToHits(hits[idx]);
+                pcl.addToHits((*hits)[idx]);
                 pcl.addToWeights(1);
             }
         }
-
-        return std::move(proto);
     }
 
   private:

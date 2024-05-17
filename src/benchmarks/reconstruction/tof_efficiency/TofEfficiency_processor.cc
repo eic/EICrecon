@@ -11,7 +11,6 @@
 #include <podio/RelationRange.h>
 #include <spdlog/logger.h>
 #include <cmath>
-#include <exception>
 #include <vector>
 
 #include "services/rootfile/RootFile_service.h"
@@ -59,10 +58,10 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-    const auto &mcParticles   = *static_cast<const edm4hep::MCParticleCollection*>  (event->GetCollectionBase("MCParticles"));
-    const auto &trackSegments = *static_cast<const edm4eic::TrackSegmentCollection*>(event->GetCollectionBase("CentralTrackSegments"));
-    const auto &barrelHits    = *static_cast<const edm4eic::TrackerHitCollection*>  (event->GetCollectionBase("TOFBarrelRecHit"));
-    const auto &endcapHits    = *static_cast<const edm4eic::TrackerHitCollection*>  (event->GetCollectionBase("TOFEndcapRecHits"));
+    const auto &mcParticles   = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
+    const auto &trackSegments = *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
+    const auto &barrelHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHit"));
+    const auto &endcapHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFEndcapRecHits"));
 
     // List TOF Barrel hits from barrel
     logger()->trace("TOF barrel hits:");

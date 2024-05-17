@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Derek Anderson, Zhongling Ji
+// Copyright (C) 2024 Derek Anderson, Zhongling Ji, Dmitry Kalinkin, John Lajoie
 
-#ifndef EICRECON_JETRECONSTRUCTION_H
-#define EICRECON_JETRECONSTRUCTION_H
+#pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/utils/kinematics.h>
 #include <fastjet/AreaDefinition.hh>
+#include <fastjet/ClusterSequenceArea.hh>
 #include <fastjet/JetDefinition.hh>
 #include <spdlog/logger.h>
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
+#include <string_view>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
@@ -20,18 +20,47 @@
 
 namespace eicrecon {
 
-  class JetReconstruction : public WithPodConfig<JetReconstructionConfig> {
+    template <typename InputT>
+    using JetReconstructionAlgorithm = algorithms::Algorithm<
+      algorithms::Input<
+        typename InputT::collection_type
+        >,
+      algorithms::Output<
+        edm4eic::ReconstructedParticleCollection
+        >
+    >;
+
+    template <typename InputT>
+    class JetReconstruction
+      : public JetReconstructionAlgorithm<InputT>,
+        public WithPodConfig<JetReconstructionConfig> {
 
     public:
 
+    JetReconstruction(std::string_view name) :
+      JetReconstructionAlgorithm<InputT> {
+        name,
+        {"inputReconstructedParticles"},
+        {"outputReconstructedParticles"},
+        "Performs jet reconstruction using a FastJet algorithm."
+      } {}
+
+    public:
+
+      // algorithm initialization
       void init(std::shared_ptr<spdlog::logger> logger);
-      std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(
-        const std::vector<const edm4hep::LorentzVectorE*> momenta
-      );
+
+      // run algorithm
+      void process(const typename eicrecon::JetReconstructionAlgorithm<InputT>::Input&, const typename eicrecon::JetReconstructionAlgorithm<InputT>::Output&) const final;
 
     private:
 
       std::shared_ptr<spdlog::logger> m_log;
+
+      // fastjet components
+      std::unique_ptr<fastjet::JetDefinition> m_jet_def;
+      std::unique_ptr<fastjet::AreaDefinition> m_area_def;
+      std::unique_ptr<fastjet::JetDefinition::Plugin> m_jet_plugin;
 
       // maps of user input onto fastjet options
       std::map<std::string, fastjet::JetAlgorithm> m_mapJetAlgo = {
@@ -75,5 +104,3 @@ namespace eicrecon {
   };  // end JetReconstruction definition
 
 }  // end eicrecon namespace
-
-#endif

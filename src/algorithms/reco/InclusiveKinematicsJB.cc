@@ -1,15 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <algorithm>
-#include <cmath>
-#include <exception>
-
-#include "Beam.h"
-#include "Boost.h"
-#include "InclusiveKinematicsJB.h"
-
 #include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -18,12 +11,18 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <cmath>
+#include <gsl/pointers>
+
+#include "Beam.h"
+#include "Boost.h"
+#include "InclusiveKinematicsJB.h"
 
 using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsJB::init(std::shared_ptr<spdlog::logger> logger) {
+  void InclusiveKinematicsJB::init(std::shared_ptr<spdlog::logger>& logger) {
     m_log = logger;
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
@@ -32,18 +31,18 @@ namespace eicrecon {
     // }
   }
 
-  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsJB::execute(
-    const edm4hep::MCParticleCollection& mcparts,
-    const edm4eic::ReconstructedParticleCollection& rcparts,
-    const edm4eic::MCRecoParticleAssociationCollection& rcassoc) {
+  void InclusiveKinematicsJB::process(
+      const InclusiveKinematicsJB::Input& input,
+      const InclusiveKinematicsJB::Output& output) const {
 
-    // Resulting inclusive kinematics
-    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
+    const auto [mcparts, rcparts, rcassoc] = input;
+    auto [kinematics] = output;
+
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
       m_log->debug("No beam electron found");
-      return kinematics;
+      return;
     }
     const PxPyPzEVector ei(
       round_beam_four_momentum(
@@ -57,7 +56,7 @@ namespace eicrecon {
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
       m_log->debug("No beam hadron found");
-      return kinematics;
+      return;
     }
     const PxPyPzEVector pi(
       round_beam_four_momentum(
@@ -71,22 +70,22 @@ namespace eicrecon {
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
       m_log->debug("No truth scattered electron found");
-      return kinematics;
+      return;
     }
     // Associate first scattered electron with reconstructed electrons
     //const auto ef_assoc = std::find_if(
-    //  rcassoc.begin(),
-    //  rcassoc.end(),
-    //  [&ef_coll](const auto& a){ return a.getSimID() == ef_coll[0].getObjectID().index; });
-    auto ef_assoc = rcassoc.begin();
-    for (; ef_assoc != rcassoc.end(); ++ef_assoc) {
-      if (ef_assoc->getSimID() == (unsigned) ef_coll[0].getObjectID().index) {
+    //  rcassoc->begin(),
+    //  rcassoc->end(),
+    //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
+    auto ef_assoc = rcassoc->begin();
+    for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
+      if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
         break;
       }
     }
-    if (!(ef_assoc != rcassoc.end())) {
+    if (!(ef_assoc != rcassoc->end())) {
       m_log->debug("Truth scattered electron not in reconstructed particles");
-      return kinematics;
+      return;
     }
     const auto ef_rc{ef_assoc->getRec()};
     const auto ef_rc_id{ef_rc.getObjectID().index};
@@ -113,7 +112,7 @@ namespace eicrecon {
     // Get boost to colinear frame
     auto boost = determine_boost(ei, pi);
 
-    for (const auto& p: rcparts) {
+    for (const auto& p: *rcparts) {
       // Get the scattered electron index and angle
       if (p.getObjectID().index == ef_rc_id) {
 
@@ -138,7 +137,7 @@ namespace eicrecon {
     // Sigma zero or negative
     if (sigma_h <= 0) {
       m_log->debug("Sigma zero or negative");
-      return kinematics;
+      return;
     }
 
     // Calculate kinematic variables
@@ -152,9 +151,6 @@ namespace eicrecon {
 
     m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    return kinematics;
   }
-
 
 } // namespace Jug::Reco

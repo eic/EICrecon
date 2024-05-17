@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -18,6 +17,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <spdlog/logger.h>
@@ -75,6 +75,7 @@ namespace eicrecon {
         std::tuple<
             std::unique_ptr<edm4eic::TrajectoryCollection>,
             std::unique_ptr<edm4eic::TrackParametersCollection>,
+            std::unique_ptr<edm4eic::TrackCollection>,
             std::vector<ActsExamples::Trajectories*>,
             std::vector<ActsExamples::ConstTrackContainer*>
         >

@@ -34,7 +34,8 @@ extern "C" {
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
+            .readout = "B0ECalHits",
           },
           app
         ));
@@ -48,7 +49,7 @@ extern "C" {
             .resolutionTDC = 1e-11,
             .thresholdFactor = 0.0,
             .thresholdValue = 0.0,
-            .sampFrac = 0.998,
+            .sampFrac = "0.998",
             .readout = "B0ECalHits",
             .sectorField = "sector",
           },

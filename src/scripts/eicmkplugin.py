@@ -33,7 +33,7 @@ set( {0}_PLUGIN_SOURCES ${{mysourcefiles}} )
 
 # Create plugin
 add_library({0}_plugin SHARED ${{{0}_PLUGIN_SOURCES}})
-target_link_libraries({0}_plugin ${{JANA_LIB}} ${{ROOT_LIBRARIES}} spdlog::spdlog)
+target_link_libraries({0}_plugin EICrecon::rootfile_plugin)
 set_target_properties({0}_plugin PROPERTIES PREFIX "" OUTPUT_NAME "{0}" SUFFIX ".so")
 target_compile_definitions({0}_plugin PUBLIC HAVE_PODIO)
 
@@ -104,7 +104,7 @@ void {0}::InitWithGlobalRootLock(){{
 //-------------------------------------------
 void {0}::ProcessSequential(const std::shared_ptr<const JEvent>& event) {{
     // Data objects we will need from JANA e.g.
-    const auto &rawhits = *static_cast<const edm4hep::SimCalorimeterHitCollection*>(event->GetCollectionBase("EcalBarrelScFiHits"));
+    const auto &rawhits = *(event->GetCollection<edm4hep::SimCalorimeterHit>("EcalBarrelScFiHits"));
 
     // Fill histograms here. e.g.
     // for (auto hit : rawhits) hEraw->Fill(hit.getEnergy());

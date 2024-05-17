@@ -6,18 +6,14 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/Measurement2DCollection.h>
-#include <spdlog/logger.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 

@@ -14,7 +14,6 @@
 #include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
-#include <string>
 
 #include "IrtGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"

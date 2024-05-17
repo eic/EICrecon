@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include <algorithm>
 
+#include <algorithms/algorithm.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/Surface.h>
 #include <DDRec/SurfaceManager.h>
@@ -32,43 +33,48 @@
 
 namespace eicrecon {
 
-/** Imaging cluster reconstruction.
- *
- *  Reconstruct the cluster/layer info for imaging calorimeter
- *  Logarithmic weighting is used to describe energy deposit in transverse direction
- *
- *  \ingroup reco
- */
-  class ImagingClusterReco : public WithPodConfig<ImagingClusterRecoConfig> {
-
-  using ClustersWithAssociations = std::tuple<
-        std::unique_ptr<edm4eic::ClusterCollection>,
-        std::unique_ptr<edm4eic::MCRecoClusterParticleAssociationCollection>,
-        std::unique_ptr<edm4eic::ClusterCollection>
+  using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::ProtoClusterCollection,
+      edm4hep::SimCalorimeterHitCollection
+    >,
+    algorithms::Output<
+      edm4eic::ClusterCollection,
+      edm4eic::MCRecoClusterParticleAssociationCollection,
+      edm4eic::ClusterCollection
+    >
   >;
 
-  protected:
-    std::shared_ptr<spdlog::logger> m_log;
+  /** Imaging cluster reconstruction.
+   *
+   *  Reconstruct the cluster/layer info for imaging calorimeter
+   *  Logarithmic weighting is used to describe energy deposit in transverse direction
+   *
+   *  \ingroup reco
+   */
+  class ImagingClusterReco
+      : public ImagingClusterRecoAlgorithm,
+        public WithPodConfig<ImagingClusterRecoConfig> {
+
+  public:
+    ImagingClusterReco(std::string_view name)
+      : ImagingClusterRecoAlgorithm{name,
+                            {"inputProtoClusterCollection", "mcHits"},
+                            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+                            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
   public:
 
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-        m_log = logger;
-    }
+    void init()  { }
 
-    ClustersWithAssociations process(
-        const edm4eic::ProtoClusterCollection& proto,
-        const edm4hep::SimCalorimeterHitCollection& mchits
-    ) {
+    void process(const Input& input, const Output& output) const final {
 
-        // output collections
-        auto layers = std::make_unique<edm4eic::ClusterCollection>();
-        auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-        auto associations = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+        const auto [proto, mchits] = input;
+        auto [clusters, associations, layers] = output;
 
-        for (const auto& pcl: proto) {
+        for (const auto& pcl: *proto) {
             if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
-                m_log->warn("Protocluster hit relation is invalid, skipping protocluster");
+                warning("Protocluster hit relation is invalid, skipping protocluster");
                 continue;
             }
             // get cluster and associated layers
@@ -89,7 +95,7 @@ namespace eicrecon {
             clusters->push_back(cl);
 
             // If mcHits are available, associate cluster with MCParticle
-            if (mchits.size() > 0) {
+            if (mchits->size() > 0) {
 
                 // 1. find pclhit with the largest energy deposition
                 auto pclhits = pcl.getHits();
@@ -103,7 +109,7 @@ namespace eicrecon {
 
                 // 2. find mchit with same CellID
                 const edm4hep::SimCalorimeterHit* mchit = nullptr;
-                for (auto h : mchits) {
+                for (auto h : *mchits) {
                     if (h.getCellID() == pclhit->getCellID()) {
                         mchit = &h;
                         break;
@@ -111,7 +117,7 @@ namespace eicrecon {
                 }
                 if( !mchit ){
                     // break if no matching hit found for this CellID
-                    m_log->warn("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
+                    warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
                     break;
                 }
 
@@ -131,18 +137,16 @@ namespace eicrecon {
 
         // debug output
         for (const auto& cl: *clusters) {
-            m_log->debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
+            debug("Cluster {:d}: Edep = {:.3f} MeV, Dir = ({:.3f}, {:.3f}) deg", cl.getObjectID().index,
                          cl.getEnergy() * 1000., cl.getIntrinsicTheta() / M_PI * 180.,
                          cl.getIntrinsicPhi() / M_PI * 180.
             );
         }
-
-        return std::make_tuple(std::move(clusters), std::move(associations), std::move(layers));
     }
 
   private:
 
-    static std::vector<edm4eic::Cluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
+    static std::vector<edm4eic::MutableCluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
         const auto& hits = pcl.getHits();
         const auto& weights = pcl.getWeights();
         // using map to have hits sorted by layer
@@ -158,7 +162,7 @@ namespace eicrecon {
         }
 
         // create layers
-        std::vector<edm4eic::Cluster> cl_layers;
+        std::vector<edm4eic::MutableCluster> cl_layers;
         for (const auto &[lid, layer_hits]: layer_map) {
             auto layer = reconstruct_layer(layer_hits);
             cl_layers.push_back(layer);
@@ -166,7 +170,7 @@ namespace eicrecon {
         return cl_layers;
     }
 
-    static edm4eic::Cluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
+    static edm4eic::MutableCluster reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
         edm4eic::MutableCluster layer;
         layer.setType(Jug::Reco::ClusterType::kClusterSlice);
         // Calculate averages
@@ -205,7 +209,7 @@ namespace eicrecon {
         return layer;
     }
 
-    edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
+    static edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
         edm4eic::MutableCluster cluster;
 
         const auto& hits = pcl.getHits();
@@ -264,7 +268,7 @@ namespace eicrecon {
         return cluster;
     }
 
-    std::pair<double /* polar */, double /* azimuthal */> fit_track(const std::vector<edm4eic::Cluster> &layers) const {
+    std::pair<double /* polar */, double /* azimuthal */> fit_track(const std::vector<edm4eic::MutableCluster> &layers) const {
         int nrows = 0;
         decltype(edm4eic::ClusterData::position) mean_pos{0, 0, 0};
         for (const auto &layer: layers) {

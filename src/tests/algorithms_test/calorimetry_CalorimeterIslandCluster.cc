@@ -5,6 +5,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -16,9 +17,9 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <gsl/pointers>
 #include <limits>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -29,7 +30,7 @@ using eicrecon::CalorimeterIslandCluster;
 using eicrecon::CalorimeterIslandClusterConfig;
 
 TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
-  CalorimeterIslandCluster algo;
+  CalorimeterIslandCluster algo("CalorimeterIslandCluster");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterIslandCluster");
   logger->set_level(spdlog::level::trace);
@@ -38,12 +39,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
   cfg.minClusterHitEdep = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
 
-  auto detector = dd4hep::Detector::make_unique("");
-  dd4hep::Readout readout(std::string("MockCalorimeterHits"));
-  dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,x:8,y:8");
-  readout.setIDDescriptor(id_desc);
-  detector->add(id_desc);
-  detector->add(readout);
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
   SECTION( "without splitting" ) {
     bool use_adjacencyMatrix = GENERATE(false, true);
@@ -55,7 +52,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     }
     algo.applyConfig(cfg);
-    algo.init(detector.get(), logger);
+    algo.init();
 
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
@@ -71,7 +68,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.process(hits_coll);
+      auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+      algo.process({&hits_coll}, {protoclust_coll.get()});
 
       REQUIRE( (*protoclust_coll).size() == 1 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
@@ -104,7 +102,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(1.1 /* mm */, 1.1 /* mm */, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.process(hits_coll);
+      auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+      algo.process({&hits_coll}, {protoclust_coll.get()});
 
       REQUIRE( (*protoclust_coll).size() == 2 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 1 );
@@ -139,7 +138,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
         0, // std::int32_t layer,
         edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
       );
-      auto protoclust_coll = algo.process(hits_coll);
+      auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+      algo.process({&hits_coll}, {protoclust_coll.get()});
 
       REQUIRE( (*protoclust_coll).size() == 1 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 2 );
@@ -163,7 +163,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     }
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
-    algo.init(detector.get(), logger);
+    algo.init();
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(
@@ -202,7 +202,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       0, // std::int32_t layer,
       edm4hep::Vector3f(1.8 /* mm */, 1.8 /* mm */, 0.0) // edm4hep::Vector3f local
     );
-    auto protoclust_coll = algo.process(hits_coll);
+    auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    algo.process({&hits_coll}, {protoclust_coll.get()});
 
     if (cfg.splitCluster) {
       REQUIRE( (*protoclust_coll).size() == 2 );

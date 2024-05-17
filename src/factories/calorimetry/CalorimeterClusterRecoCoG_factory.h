@@ -5,7 +5,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 
@@ -27,16 +27,18 @@ private:
     ParameterRef<std::string> m_energyWeight {this, "energyWeight", config().energyWeight};
     ParameterRef<double> m_samplingFraction {this, "samplingFraction", config().sampFrac};
     ParameterRef<double> m_logWeightBase {this, "logWeightBase", config().logWeightBase};
+    ParameterRef<std::vector<double>> m_logWeightBaseCoeffs {this, "logWeightBaseCoeffs", config().logWeightBaseCoeffs};
+    ParameterRef<double> m_logWeightBase_Eref {this, "logWeightBase_Eref", config().logWeightBase_Eref};
     ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
 
-    Service<DD4hep_service> m_geoSvc {this};
-    // Resource<DD4hep_service, const dd4hep::Detector*> m_detector {this, [](std::shared_ptr<DD4hep_service> s, int64_t run_nr){ return s->detector(); }}
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

@@ -13,16 +13,16 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/random.h>
+#include <algorithms/geo.h>
+#include <DD4hep/IDDescriptor.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
+#include <random>
 #include <stdint.h>
-#include <memory>
 #include <string>
 #include <string_view>
+#include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -50,7 +50,7 @@ namespace eicrecon {
                             "Smear energy deposit, digitize within ADC range, add pedestal, "
                             "convert time with smearing resolution, and sum signals."} {}
 
-    void init(const dd4hep::Detector* detector, std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
@@ -60,12 +60,15 @@ namespace eicrecon {
 
     uint64_t         id_mask{0};
 
-  private:
-    const dd4hep::Detector* m_detector;
-    std::shared_ptr<spdlog::logger> m_log;
+    std::function<double(const edm4hep::SimCalorimeterHit &h)> corrMeanScale;
+
+    dd4hep::IDDescriptor id_spec;
 
   private:
-    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+    const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+
+    mutable std::default_random_engine m_generator;
+    mutable std::normal_distribution<double> m_gaussian;
 
   };
 

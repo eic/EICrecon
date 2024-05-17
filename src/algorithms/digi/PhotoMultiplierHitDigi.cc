@@ -16,34 +16,33 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/logger.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <math.h>
 #include <podio/ObjectID.h>
-#include <spdlog/common.h>
 #include <algorithm>
+#include <gsl/pointers>
 #include <iterator>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
-//------------------------
-// AlgorithmInit
-//------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger)
-{
-    // services
-    m_detector = detector;
-    m_converter = converter;
-    m_log = logger;
+namespace eicrecon {
 
+//------------------------
+// init
+//------------------------
+void PhotoMultiplierHitDigi::init()
+{
     // print the configuration parameters
-    m_cfg.Print(m_log, spdlog::level::debug);
+    debug() << m_cfg << endmsg;
 
     /* warn if using potentially thread-unsafe seed
      * FIXME: remove this warning when this issue is resolved:
      *        https://github.com/eic/EICrecon/issues/539
      */
-    if(m_cfg.seed==0) m_log->warn("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
+    if(m_cfg.seed==0) warning("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
 
     // random number generators
     m_random.SetSeed(m_cfg.seed);
@@ -66,33 +65,26 @@ void eicrecon::PhotoMultiplierHitDigi::AlgorithmInit(const dd4hep::Detector* det
 }
 
 
-
 //------------------------
-// AlgorithmChangeRun
+// process
 //------------------------
-void eicrecon::PhotoMultiplierHitDigi::AlgorithmChangeRun() {
-    /// This is automatically run before Process, when a new run number is seen
-    /// Usually we update our calibration constants by asking a JService
-    /// to give us the latest data for this run number
-}
-
-//------------------------
-// AlgorithmProcess
-//------------------------
-eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::AlgorithmProcess(
-    const edm4hep::SimTrackerHitCollection* sim_hits
-    )
+void PhotoMultiplierHitDigi::process(
+      const PhotoMultiplierHitDigi::Input& input,
+      const PhotoMultiplierHitDigi::Output& output) const
 {
-        m_log->trace("{:=^70}"," call PhotoMultiplierHitDigi::AlgorithmProcess ");
+        const auto [sim_hits] = input;
+        auto [raw_hits, hit_assocs] = output;
+
+        trace("{:=^70}"," call PhotoMultiplierHitDigi::process ");
         std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
         // collect the photon hit in the same cell
         // calculate signal
-        m_log->trace("{:-<70}","Loop over simulated hits ");
+        trace("{:-<70}","Loop over simulated hits ");
         for(std::size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
             const auto& sim_hit = sim_hits->at(sim_hit_index);
             auto edep_eV = sim_hit.getEDep() * 1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
             auto id      = sim_hit.getCellID();
-            m_log->trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
+            trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
             // overall safety factor
             if (m_rngUni() > m_cfg.safetyFactor) continue;
@@ -108,8 +100,8 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
             }
 
             // cell time, signal amplitude, truth photon
-            m_log->trace(" -> hit accepted");
-            m_log->trace(" -> MC hit id={}", sim_hit.getObjectID().index);
+            trace(" -> hit accepted");
+            trace(" -> MC hit id={}", sim_hit.getObjectID().index);
             auto   time = sim_hit.getTime();
             double amp  = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
 
@@ -124,19 +116,19 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
         }
 
         // print `hit_groups`
-        if(m_log->level() <= spdlog::level::trace) {
-          m_log->trace("{:-<70}","Accepted hit groups ");
+        if(level() <= algorithms::LogLevel::kTrace) {
+          trace("{:-<70}","Accepted hit groups ");
           for(auto &[id,hitVec] : hit_groups)
             for(auto &hit : hitVec) {
-              m_log->trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
+              trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal, hit.time);
               for(auto i : hit.sim_hit_indices)
-                m_log->trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(), sim_hits->at(i).getObjectID().index);
+                trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(), sim_hits->at(i).getObjectID().index);
             }
         }
 
         //build noise raw hits
         if (m_cfg.enableNoise) {
-          m_log->trace("{:=^70}"," BEGIN NOISE INJECTION ");
+          trace("{:=^70}"," BEGIN NOISE INJECTION ");
           float p = m_cfg.noiseRate*m_cfg.noiseTimeWindow;
           auto cellID_action = [this,&hit_groups] (auto id) {
 
@@ -160,9 +152,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
         }
 
         // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections
-        m_log->trace("{:-<70}","Digitized raw hits ");
-        auto raw_hits   = std::make_unique<edm4eic::RawTrackerHitCollection>();
-        auto hit_assocs = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
+        trace("{:-<70}","Digitized raw hits ");
         for (auto &it : hit_groups) {
             for (auto &data : it.second) {
 
@@ -171,7 +161,7 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
                 raw_hit.setCellID(it.first);
                 raw_hit.setCharge(    static_cast<decltype(edm4eic::RawTrackerHitData::charge)>    (data.signal)                    );
                 raw_hit.setTimeStamp( static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)> (data.time/m_cfg.timeResolution) );
-                m_log->trace("raw_hit: cellID={:#018X} -> charge={} timeStamp={}",
+                trace("raw_hit: cellID={:#018X} -> charge={} timeStamp={}",
                     raw_hit.getCellID(),
                     raw_hit.getCharge(),
                     raw_hit.getTimeStamp()
@@ -179,18 +169,22 @@ eicrecon::PhotoMultiplierHitDigiResult eicrecon::PhotoMultiplierHitDigi::Algorit
 
                 // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
                 if(!data.sim_hit_indices.empty()) {
-                  auto hit_assoc = hit_assocs->create();
-                  hit_assoc.setWeight(1.0); // not used
-                  hit_assoc.setRawHit(raw_hit);
-                  for(auto i : data.sim_hit_indices)
+                  for(auto i : data.sim_hit_indices) {
+                    auto hit_assoc = hit_assocs->create();
+                    hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
+                    hit_assoc.setRawHit(raw_hit);
+#if EDM4EIC_VERSION_MAJOR >= 6
+                    hit_assoc.setSimHit(sim_hits->at(i));
+#else
                     hit_assoc.addToSimHits(sim_hits->at(i));
+#endif
+                  }
                 }
             }
         }
-        return std::make_tuple(std::move(raw_hits), std::move(hit_assocs));
 }
 
-void  eicrecon::PhotoMultiplierHitDigi::qe_init()
+void PhotoMultiplierHitDigi::qe_init()
 {
         // get quantum efficiency table
         qeff.clear();
@@ -206,26 +200,26 @@ void  eicrecon::PhotoMultiplierHitDigi::qe_init()
             });
 
         // print the table
-        m_log->debug("{:-^60}"," Quantum Efficiency vs. Energy ");
+        debug("{:-^60}"," Quantum Efficiency vs. Energy ");
         for(auto& [en,qe] : qeff)
-          m_log->debug("  {:>10.4} {:<}",en,qe);
-        m_log->trace("{:=^60}","");
+          debug("  {:>10.4} {:<}",en,qe);
+        trace("{:=^60}","");
 
         // sanity checks
         if (qeff.empty()) {
             qeff = {{2.6, 0.3}, {7.0, 0.3}};
-            m_log->warn("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
+            warning("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
         }
         if (qeff.front().first > 3.0) {
-            m_log->warn("Quantum efficiency data start from {:.2f} {}", qeff.front().first, " eV, maybe you are using wrong units?");
+            warning("Quantum efficiency data start from {:.2f} {}", qeff.front().first, " eV, maybe you are using wrong units?");
         }
         if (qeff.back().first < 3.0) {
-            m_log->warn("Quantum efficiency data end at {:.2f} {}", qeff.back().first, " eV, maybe you are using wrong units?");
+            warning("Quantum efficiency data end at {:.2f} {}", qeff.back().first, " eV, maybe you are using wrong units?");
         }
 }
 
 
-template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
+template<class RndmIter, typename T, class Compare> RndmIter PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, const T &val, Compare comp) const
 {
         // special cases
         auto dist = std::distance(beg, end);
@@ -251,7 +245,7 @@ template<class RndmIter, typename T, class Compare> RndmIter  eicrecon::PhotoMul
         return mid;
 }
 
-bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
+bool PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
 {
         auto it = interval_search(qeff.begin(), qeff.end(), ev,
                     [] (const std::pair<double, double> &vals, double val) {
@@ -259,7 +253,7 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
                     });
 
         if (it == qeff.end()) {
-            // m_log->warn("{} eV is out of QE data range, assuming 0\% efficiency",ev);
+            // warning("{} eV is out of QE data range, assuming 0\% efficiency",ev);
             return false;
         }
 
@@ -269,21 +263,21 @@ bool  eicrecon::PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const
             prob = (it->second*(itn->first - ev) + itn->second*(ev - it->first)) / (itn->first - it->first);
         }
 
-        // m_log->trace("{} eV, QE: {}\%",ev,prob*100.);
+        // trace("{} eV, QE: {}\%",ev,prob*100.);
         return rand <= prob;
 }
 
 
 // add a hit to local `hit_groups` data structure
 // NOLINTBEGIN(bugprone-easily-swappable-parameters)
-void eicrecon::PhotoMultiplierHitDigi::InsertHit(
+void PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>> &hit_groups,
     CellIDType       id,
     double           amp,
     TimeType         time,
     std::size_t      sim_hit_index,
     bool             is_noise_hit
-    ) // NOLINTEND(bugprone-easily-swappable-parameters)
+    ) const // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
   if (it != hit_groups.end()) {
@@ -294,7 +288,7 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
         ghit->npe += 1;
         ghit->signal += amp;
         if(!is_noise_hit) ghit->sim_hit_indices.push_back(sim_hit_index);
-        m_log->trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
+        trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
         break;
       }
     }
@@ -304,14 +298,16 @@ void eicrecon::PhotoMultiplierHitDigi::InsertHit(
       decltype(HitData::sim_hit_indices) indices;
       if(!is_noise_hit) indices.push_back(sim_hit_index);
       hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
-      m_log->trace(" -> no group found,");
-      m_log->trace("    so new group @ {:#018X}: signal={}", id, sig);
+      trace(" -> no group found,");
+      trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
     decltype(HitData::sim_hit_indices) indices;
     if(!is_noise_hit) indices.push_back(sim_hit_index);
     hit_groups.insert({ id, {HitData{1, sig, time, indices}} });
-    m_log->trace(" -> new group @ {:#018X}: signal={}", id, sig);
+    trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }
 }
+
+} // namespace eicrecon

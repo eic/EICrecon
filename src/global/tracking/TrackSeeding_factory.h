@@ -6,14 +6,12 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <utility>
 #include <vector>
 
-#include "OrthogonalTrackSeedingConfig.h"
+#include "algorithms/tracking/OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
@@ -31,27 +29,33 @@ private:
     PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
 
 
-    ParameterRef<float> m_rMax {this, "rMax", config().m_rMax, "max measurement radius for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_rMin {this, "rMin", config().m_rMin, "min measurement radius for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_deltaRMinTopSP {this, "deltaRMinTopSP", config().m_deltaRMinTopSP, "min distance in r between middle and top space point in one seed for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_deltaRMaxTopSP {this, "deltaRMaxTopSP", config().m_deltaRMaxTopSP, "max distance in r between middle and top space point in one seed for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_deltaRMinBottomSP {this, "deltaRMinBottomSP", config().m_deltaRMinBottomSP, "min distance in r between bottom and middle space point in one seed for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_deltaRMaxBottomSP {this, "deltaRMaxBottomSP", config().m_deltaRMaxBottomSP, "max distance in r between bottom and middle space point in one seed for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_collisionRegionMin {this, "collisionRegionMin", config().m_collisionRegionMin, "min location in z for collision region for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_collisionRegionMax {this, "collisionRegionMax", config().m_collisionRegionMax, "max location in z for collision region for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_zMax {this, "zMax", config().m_zMax, "Max z location for measurements for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_zMin {this, "zMin", config().m_zMin, "Min z location for measurements for Acts::OrthogonalSeedFinder"};
-    ParameterRef<unsigned int> m_maxSeedsPerSpM {this, "maxSeedsPerSpM", config().m_maxSeedsPerSpM, "Maximum number of seeds one space point can be the middle of for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_cotThetaMax {this, "cotThetaMax", config().m_cotThetaMax, "cot of maximum theta angle for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_sigmaScattering {this, "sigmaScattering", config().m_sigmaScattering, "number of sigmas of scattering angle to consider for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_radLengthPerSeed {this, "radLengthPerSeed", config().m_radLengthPerSeed, "Approximate number of radiation lengths one seed traverses for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_minPt {this, "minPt", config().m_minPt, "Minimum pT to search for for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_bFieldInZ {this, "bFieldInZ", config().m_bFieldInZ, "Value of B Field to use in kiloTesla for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_beamPosX {this, "beamPosX", config().m_beamPosX, "Beam position in x for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_beamPosY {this, "beamPosY", config().m_beamPosY, "Beam position in y for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_impactMax {this, "impactMax", config().m_impactMax, "maximum impact parameter allowed for seeds for Acts::OrthogonalSeedFinder. rMin should be larger than impactMax."};
-    ParameterRef<float> m_rMinMiddle {this, "rMinMiddle", config().m_rMinMiddle, "min radius for middle space point for Acts::OrthogonalSeedFinder"};
-    ParameterRef<float> m_rMaxMiddle {this, "rMaxMiddle", config().m_rMaxMiddle, "max radius for middle space point for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_rMax {this, "rMax", config().rMax, "max measurement radius for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_rMin {this, "rMin", config().rMin, "min measurement radius for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_deltaRMinTopSP {this, "deltaRMinTopSP", config().deltaRMinTopSP, "min distance in r between middle and top space point in one seed for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_deltaRMaxTopSP {this, "deltaRMaxTopSP", config().deltaRMaxTopSP, "max distance in r between middle and top space point in one seed for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_deltaRMinBottomSP {this, "deltaRMinBottomSP", config().deltaRMinBottomSP, "min distance in r between bottom and middle space point in one seed for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_deltaRMaxBottomSP {this, "deltaRMaxBottomSP", config().deltaRMaxBottomSP, "max distance in r between bottom and middle space point in one seed for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_collisionRegionMin {this, "collisionRegionMin", config().collisionRegionMin, "min location in z for collision region for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_collisionRegionMax {this, "collisionRegionMax", config().collisionRegionMax, "max location in z for collision region for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_zMax {this, "zMax", config().zMax, "Max z location for measurements for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_zMin {this, "zMin", config().zMin, "Min z location for measurements for Acts::OrthogonalSeedFinder"};
+    ParameterRef<unsigned int> m_maxSeedsPerSpM {this, "maxSeedsPerSpM", config().maxSeedsPerSpM, "Maximum number of seeds one space point can be the middle of for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_cotThetaMax {this, "cotThetaMax", config().cotThetaMax, "cot of maximum theta angle for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_sigmaScattering {this, "sigmaScattering", config().sigmaScattering, "number of sigmas of scattering angle to consider for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_radLengthPerSeed {this, "radLengthPerSeed", config().radLengthPerSeed, "Approximate number of radiation lengths one seed traverses for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_minPt {this, "minPt", config().minPt, "Minimum pT to search for for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_bFieldInZ {this, "bFieldInZ", config().bFieldInZ, "Value of B Field to use in kiloTesla for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_beamPosX {this, "beamPosX", config().beamPosX, "Beam position in x for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_beamPosY {this, "beamPosY", config().beamPosY, "Beam position in y for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_impactMax {this, "impactMax", config().impactMax, "maximum impact parameter allowed for seeds for Acts::OrthogonalSeedFinder. rMin should be larger than impactMax."};
+    ParameterRef<float> m_rMinMiddle {this, "rMinMiddle", config().rMinMiddle, "min radius for middle space point for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_rMaxMiddle {this, "rMaxMiddle", config().rMaxMiddle, "max radius for middle space point for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_locaError {this, "loc_a_Error", config().locaError, "Error on Loc a for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_locbError {this, "loc_b_Error", config().locbError, "Error on Loc b for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_phiError {this, "phi_Error", config().phiError, "Error on phi for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_thetaError {this, "theta_Error", config().thetaError, "Error on theta for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_qOverPError {this, "qOverP_Error", config().qOverPError, "Error on q/p for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_timeError {this, "time_Error", config().timeError, "Error on time for Acts::OrthogonalSeedFinder"};
 
     Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
