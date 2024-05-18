@@ -8,14 +8,15 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JGlobalRootLock.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <spdlog/logger.h>
 #include <stddef.h>
 #include <Eigen/Geometry>
 #include <exception>
+#include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>
@@ -99,7 +100,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
         std::unique_ptr<edm4eic::TrackPoint> projection_point;
         try {
             // >>> try to propagate to surface <<<
-            projection_point = m_propagation_algo.propagate(trajectory, m_hcal_surface);
+            projection_point = m_propagation_algo.propagate(edm4eic::Track{}, trajectory, m_hcal_surface);
         }
         catch(std::exception &e) {
             throw JException(e.what());

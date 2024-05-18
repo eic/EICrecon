@@ -23,7 +23,7 @@ namespace eicrecon {
     unsigned int             pedMeanADC{0};
     double                   pedSigmaADC{0};
     double                   resolutionTDC{1};
-    double                   corrMeanScale{1};
+    std::string              corrMeanScale{"1.0"};
 
     // signal sums
     std::string              readout{""};

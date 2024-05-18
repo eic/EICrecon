@@ -72,7 +72,7 @@ And can be used like this:
 
 ```bash
 # Setup the proper detector environment
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # Run particle gun simulation
 ddsim -N2 --compactFile=$DETECTOR_PATH/epic.xml --random.seed 1 --enableGun --gun.energy 2*GeV --gun.thetaMin 0*deg --gun.thetaMax 90*deg --gun.distribution uniform --outputFile ~/test.root

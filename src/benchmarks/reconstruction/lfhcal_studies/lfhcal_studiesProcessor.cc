@@ -45,7 +45,6 @@
 void lfhcal_studiesProcessor::Init() {
   std::string plugin_name = ("lfhcal_studies");
 
-  // InitLogger(plugin_name);
   // ===============================================================================================
   // Get JANA application and seup general variables
   // ===============================================================================================
