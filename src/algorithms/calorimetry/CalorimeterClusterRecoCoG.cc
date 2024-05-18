@@ -273,7 +273,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
       w_sum += w;
     }
-    
+
     radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
     if( w_sum > 0 ) {
       dispersion = sqrt( dispersion / w_sum );
