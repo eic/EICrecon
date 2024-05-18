@@ -273,9 +273,9 @@ std::optional<edm4eic::Cluster> CalorimeterClusterRecoCoG::reconstruct(const edm
 
       w_sum += w;
     }
-
+    
+    radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
     if( w_sum > 0 ) {
-      radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
 
       // normalize matrices
