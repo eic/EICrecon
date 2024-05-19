@@ -929,7 +929,9 @@ jobs:
           GITHUB_SHA=${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_PR=${{ github.event.pull_request.number }}
           EICRECON_VERSION="${{ github.event.pull_request.head.ref || github.ref_name }}"
-    - run: |
+          PIPELINE_NAME_CONTAINER=${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}
+    - name: Post a GitHub CI status
+      run: |
         gh api \
            --method POST \
           -H "Accept: application/vnd.github+json" \
