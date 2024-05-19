@@ -45,11 +45,13 @@ TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstructi
   algo.process({&clust_coll}, {neutroncand_coll.get()});
 
   REQUIRE( (*neutroncand_coll).size() == 1);
+
+  double corr=algo.calc_corr(90);
   double tol=0.001;
-  double E_expected=90*dd4hep::GeV;
-  double Px_expected=0.08999;
-  double Py_expected=-0.08999;
-  double Pz_expected=89.99;
+  double E_expected=90*dd4hep::GeV*1/(1+corr);
+  double Px_expected=0.08999*1/(1+corr);
+  double Py_expected=-0.08999*1/(1+corr);
+  double Pz_expected=89.99*1/(1+corr);
   //check that the correct energy and momenta are being obtained
   std::cout << "E, px, py, pz = " << (*neutroncand_coll)[0].getEnergy() <<"  " << (*neutroncand_coll)[0].getMomentum().x << "  " << (*neutroncand_coll)[0].getMomentum().y << "  " << (*neutroncand_coll)[0].getMomentum().z << std::endl;
   REQUIRE( abs((*neutroncand_coll)[0].getEnergy()-E_expected)/E_expected<tol);
