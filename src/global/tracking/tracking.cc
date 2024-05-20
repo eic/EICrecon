@@ -84,7 +84,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFTrajectories",
-	{
+        {
             "InitTrackParams",
             "CentralTrackerMeasurements"
         },
@@ -152,7 +152,7 @@ void InitPlugin(JApplication *app) {
             {"CentralCKFActsTrajectories"},
             {"CentralTrackSegments"},
             app
-	    ));
+            ));
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",
