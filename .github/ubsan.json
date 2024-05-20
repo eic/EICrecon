@@ -1,0 +1,15 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "ubsan",
+            "pattern": [
+                {
+                    "regexp": "^SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior (.+):(\\d+):(\\d+) .*$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3
+                }
+            ]
+        }
+    ]
+}
