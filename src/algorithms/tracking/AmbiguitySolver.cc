@@ -63,9 +63,9 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
 Acts::GreedyAmbiguityResolution::Config
 transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   Acts::GreedyAmbiguityResolution::Config result;
-  result.maximumSharedHits = cfg.m_maximumSharedHits;
-  result.maximumIterations = cfg.m_maximumIterations;
-  result.nMeasurementsMin  = cfg.m_nMeasurementsMin;
+  result.maximumSharedHits = cfg.maximum_shared_hits;
+  result.maximumIterations = cfg.maximum_iterations;
+  result.nMeasurementsMin  = cfg.n_measurements_min;
   return result;
 }
 

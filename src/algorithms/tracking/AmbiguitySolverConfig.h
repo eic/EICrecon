@@ -8,10 +8,10 @@
 namespace eicrecon {
 struct AmbiguitySolverConfig {
   /// Maximum amount of shared hits per track.
-  std::uint32_t m_maximumSharedHits = 1;
+  std::uint32_t maximum_shared_hits = 1;
   /// Maximum number of iterations
-  std::uint32_t m_maximumIterations = 100000;
+  std::uint32_t maximum_iterations = 100000;
   /// Minimum number of measurement to form a track.
-  std::size_t m_nMeasurementsMin = 3;
+  std::size_t n_measurements_min = 3;
 };
 } // namespace eicrecon
