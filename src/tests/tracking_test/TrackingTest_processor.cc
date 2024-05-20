@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -58,10 +57,7 @@ void TrackingTest_processor::Init()
     m_dir_main = file->mkdir(plugin_name.c_str());
 
     // Get log level from user parameter or default
-    std::string log_level_str = "info";
     m_log = app->GetService<Log_service>()->logger(plugin_name);
-    app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
     for(auto pair: app->GetJParameterManager()->GetAllParameters()) {
         m_log->info("{:<20} | {}", pair.first, pair.second->GetDescription());
     }

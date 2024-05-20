@@ -31,7 +31,9 @@ Log_service::Log_service(JApplication *app) {
 Log_service::~Log_service() {};
 
 
-std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
+std::shared_ptr<spdlog::logger> Log_service::logger(
+        const std::string &name,
+        const std::optional<level> default_level) {
 
     try {
         std::lock_guard<std::recursive_mutex> locker(m_lock);
@@ -44,7 +46,7 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
 
             // Set log level for this named logger allowing user to specify as config. parameter
             // e.g. EcalEndcapPRecHits:LogLevel
-            std::string log_level_str = m_log_level_str;
+            std::string log_level_str = default_level ? eicrecon::LogLevelToString(default_level.value()) : m_log_level_str;
             m_application->SetDefaultParameter(name+":LogLevel", log_level_str, "log_level for "+name+": trace, debug, info, warn, error, critical, off");
             logger->set_level(eicrecon::ParseLogLevel(log_level_str));
         }
@@ -55,6 +57,6 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string &name) {
     }
 }
 
-spdlog::level::level_enum Log_service::getDefaultLevel() {return spdlog::default_logger()->level();}
+Log_service::level Log_service::getDefaultLevel() {return spdlog::default_logger()->level();}
 
 std::string Log_service::getDefaultLevelStr() {return eicrecon::LogLevelToString(getDefaultLevel());}
