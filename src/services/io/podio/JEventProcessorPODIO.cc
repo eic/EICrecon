@@ -1,16 +1,16 @@
 
 #include "JEventProcessorPODIO.h"
 
-#include <edm4eic/EDM4eicVersion.h>
-
 #include <JANA/JApplication.h>
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <spdlog/common.h>
+// IWYU pragma: no_include <bits/chrono.h>
 #include <chrono>
 #include <exception>
 #include <thread>
