@@ -96,7 +96,7 @@ void InitPlugin(JApplication *app) {
             "CentralCKFActsTracksUnfiltered",
         },
         app
-        ));
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
         "AmbiguityResolutionSolver",
