@@ -4,19 +4,13 @@
             "owner": "ubsan",
             "pattern": [
                 {
-                    "regexp": "^SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior (.+):(\\d+):(\\d+) in\\s*$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3
-                },
-                {
-                    "regexp": "^(.+):(\\d+):(\\d+):\\s\\s+(.*)$",
+                    "regexp": "^(.+):(\\d+):(\\d+):\\sruntime\\s(error):\\s*(.*)$",
                     "file": 1,
                     "line": 2,
                     "column": 3,
-                    "message": 4,
-                    "loop": false
-                }
+                    "severity": 4,
+                    "message": 5
+                },
             ]
         }
     ]
