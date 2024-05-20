@@ -26,7 +26,7 @@
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Cov3f.h>
+#include <edm4eic/Cov4f.h>
 #include <math.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
