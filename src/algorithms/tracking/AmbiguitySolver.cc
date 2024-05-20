@@ -4,9 +4,7 @@
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
 #include "AmbiguitySolverConfig.h"
-#if EDM4EIC_VERSION_MAJOR >= 5
 #include <edm4eic/Cov6f.h>
-#endif
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
@@ -23,7 +21,6 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
@@ -45,7 +42,6 @@
 namespace eicrecon {
 using namespace Acts::UnitLiterals;
 
-#if EDM4EIC_VERSION_MAJOR >= 5
 // This array relates the Acts and EDM4eic covariance matrices, including
 // the unit conversion to get from Acts units into EDM4eic units.
 //
@@ -59,7 +55,7 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
      {Acts::eBoundTheta, 1.},
      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
      {Acts::eBoundTime, Acts::UnitConstants::ns}}};
-#endif
+
 Acts::GreedyAmbiguityResolution::Config
 transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   Acts::GreedyAmbiguityResolution::Config result;
@@ -163,10 +159,6 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
 
       // Create trajectory
       auto trajectory = trajectories->create();
-#if EDM4EIC_VERSION_MAJOR < 5
-      trajectory.setChi2(trajectoryState.chi2Sum);
-      trajectory.setNdf(trajectoryState.NDF);
-#endif
       trajectory.setNMeasurements(trajectoryState.nMeasurements);
       trajectory.setNStates(trajectoryState.nStates);
       trajectory.setNOutliers(trajectoryState.nOutliers);
@@ -198,7 +190,6 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
       pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi]));
       pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
       pars.setTime(static_cast<float>(parameter[Acts::eBoundTime]));
-#if EDM4EIC_VERSION_MAJOR >= 5
       edm4eic::Cov6f cov;
       for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
         for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
@@ -207,24 +198,10 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         }
       }
       pars.setCovariance(cov);
-#else
-      pars.setCharge(static_cast<float>(boundParam.charge()));
-      pars.setLocError({static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                        static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))});
-      pars.setMomentumError({static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                             static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                             static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                             static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                             static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                             static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))});
-      pars.setTimeError(sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
-#endif
 
       trajectory.addToTrackParameters(pars);
 
-// Fill tracks
-#if EDM4EIC_VERSION_MAJOR >= 5
+      // Fill tracks
       auto track = tracks->create();
       track.setType( // Flag that defines the type of track
           pars.getType());
@@ -245,7 +222,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
       track.setPdg(                           // PDG particle ID hypothesis
           boundParam.particleHypothesis().absolutePdg());
       track.setTrajectory(trajectory); // Trajectory of this track
-#endif
+
       mj.visitBackwards(trackTip, [&](const auto& state) {
         auto geoID     = state.referenceSurface().geometryId().value();
         auto typeFlags = state.typeFlags();
@@ -265,21 +242,13 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
           } else {
             auto meas2D = meas2Ds[srclink_index];
             if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-#if EDM4EIC_VERSION_MAJOR >= 5
               track.addToMeasurements(meas2D);
               trajectory.addToMeasurements_deprecated(meas2D);
-#else
-                            trajectory.addToMeasurementHits(meas2D);
-#endif
               m_log->debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                            meas2D.getLoc().a, meas2D.getLoc().b);
 
             } else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-#if EDM4EIC_VERSION_MAJOR >= 5
               trajectory.addToOutliers_deprecated(meas2D);
-#else
-                            trajectory.addToOutlierHits(meas2D);
-#endif
               m_log->debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                            meas2D.getLoc().a, meas2D.getLoc().b);
             }
