@@ -22,7 +22,7 @@ namespace eicrecon {
 
   enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
   enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
-  
+
   using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::TrackParametersCollection
