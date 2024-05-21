@@ -10,7 +10,6 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <spdlog/common.h>
-// IWYU pragma: no_include <bits/chrono.h>
 #include <chrono>
 #include <exception>
 #include <thread>
