@@ -33,11 +33,6 @@ extern "C" {
 
     std::string tracker_readout = "TaggerTrackerHits";
 
-
-//     FarDetectorLinearProjectionConfig projection_cfg;
-
-//     FarDetectorMLReconstructionConfig recon_cfg;
-
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
