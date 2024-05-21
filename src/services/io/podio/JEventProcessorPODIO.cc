@@ -291,7 +291,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-            "HcalFarForwardZDCNeutronCandidates",
+            "ReconstructedFarForwardZDCNeutrons",
 
             // DIRC
             "DIRCRawHits",

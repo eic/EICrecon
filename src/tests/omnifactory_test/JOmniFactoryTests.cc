@@ -260,10 +260,10 @@ struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig
         REQUIRE(m_variadic_hits_in()[1]->size() == 2);
 
         m_hits_out() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
-        m_hits_out()->push_back(edm4hep::SimCalorimeterHit());
-        m_hits_out()->push_back(edm4hep::SimCalorimeterHit());
-        m_hits_out()->push_back(edm4hep::SimCalorimeterHit());
-        m_hits_out()->push_back(edm4hep::SimCalorimeterHit());
+        m_hits_out()->create();
+        m_hits_out()->create();
+        m_hits_out()->create();
+        m_hits_out()->create();
     }
 };
 
@@ -283,13 +283,13 @@ TEST_CASE("VariadicOmniFactoryTests") {
     edm4hep::SimCalorimeterHitCollection funs;
     edm4hep::SimCalorimeterHitCollection funners;
 
-    mains.push_back(edm4hep::SimCalorimeterHit());
-    mains.push_back(edm4hep::SimCalorimeterHit());
-    mains.push_back(edm4hep::SimCalorimeterHit());
+    mains.create();
+    mains.create();
+    mains.create();
 
-    funs.push_back(edm4hep::SimCalorimeterHit());
-    funners.push_back(edm4hep::SimCalorimeterHit());
-    funners.push_back(edm4hep::SimCalorimeterHit());
+    funs.create();
+    funners.create();
+    funners.create();
 
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(mains), "main_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(funs), "fun_hits");
@@ -353,13 +353,13 @@ TEST_CASE("SubsetOmniFactoryTests") {
     edm4hep::SimCalorimeterHitCollection center;
     edm4hep::SimCalorimeterHitCollection right;
 
-    left.push_back(edm4hep::SimCalorimeterHit());
-    left.push_back(edm4hep::SimCalorimeterHit());
-    right.push_back(edm4hep::SimCalorimeterHit());
+    left.create();
+    left.create();
+    right.create();
 
-    center.push_back(edm4hep::SimCalorimeterHit());
-    center.push_back(edm4hep::SimCalorimeterHit());
-    center.push_back(edm4hep::SimCalorimeterHit());
+    center.create();
+    center.create();
+    center.create();
 
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left), "left");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(center), "center");
@@ -408,9 +408,9 @@ TEST_CASE("VariadicPodioOutputTests") {
 
     edm4hep::SimCalorimeterHitCollection all_hits;
 
-    all_hits.push_back(edm4hep::SimCalorimeterHit());
-    all_hits.push_back(edm4hep::SimCalorimeterHit());
-    all_hits.push_back(edm4hep::SimCalorimeterHit());
+    all_hits.create();
+    all_hits.create();
+    all_hits.create();
 
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(all_hits), "all_hits");
 
