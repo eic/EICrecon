@@ -19,10 +19,12 @@
 namespace eicrecon {
 
 class FarDetectorMLReconstruction_factory :
-public JOmniFactory<FarDetectorMLReconstruction_factory,FarDetectorMLReconstructionConfig> {
+        public JOmniFactory<FarDetectorMLReconstruction_factory,FarDetectorMLReconstructionConfig> {
 
+public:
+    using AlgoT = eicrecon::FarDetectorMLReconstruction;
 private:
-    eicrecon::FarDetectorMLReconstruction m_algo;
+    std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::TrackParameters>  m_trackparam_input  {this};
     PodioOutput<edm4eic::Trajectory>      m_trajectory_output {this};
@@ -32,23 +34,21 @@ private:
 
     ParameterRef<std::string> modelPath       {this, "modelPath",       config().modelPath       };
     ParameterRef<std::string> methodName      {this, "methodName",      config().methodName      };
-    ParameterRef<std::string> fileName        {this, "fileName",        config().fileName        };
-    ParameterRef<std::string> environmentPath {this, "environmentPath", config().environmentPath };
 
-    ParameterRef<float> electron_beamE  {this, "electron_beamE",  config().electron_beamE };
+    ParameterRef<float> electron_beamE  {this, "electron_beamE",  config().electronBeamE };
 
 
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(logger());
+        m_algo->applyConfig(config());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        std::tie(m_trajectory_output(), m_trackparam_output(), m_track_output()) = m_algo.process(*m_trackparam_input());
+        m_algo->process({m_trackparam_input()}, {m_trajectory_output().get(), m_trackparam_output().get(), m_track_output().get()});
     }
   };
 

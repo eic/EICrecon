@@ -6,12 +6,10 @@
 namespace eicrecon {
   struct FarDetectorMLReconstructionConfig {
 
-    std::string modelPath{""};
+    std::string modelPath{"calibrations/tmva/LowQ2_DNN_CPU.weights.xml"};
     std::string methodName{"DNN_CPU"};
-    std::string fileName{"LowQ2_DNN_CPU.weights.xml"};
-    std::string environmentPath{"JANA_PLUGIN_PATH"};
 
-    float electron_beamE{10*dd4hep::GeV};
+    float electronBeamE{10*dd4hep::GeV};
 
   };
 }

@@ -15,9 +15,7 @@
 namespace eicrecon {
 
 
-  void FarDetectorMLReconstruction::init(std::shared_ptr<spdlog::logger>& logger) {
-
-    m_log      = logger;
+  void FarDetectorMLReconstruction::init() {
 
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
@@ -34,60 +32,28 @@ namespace eicrecon {
         m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath ));
       }
       catch(std::exception &e){
-        throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
+        error(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
       }
 
-    }
-    else{
-      const char* env_p = getenv(m_cfg.environmentPath.c_str());
-      if (env_p) {
-
-        std::string dir_path;
-        std::stringstream envvar_ss(env_p);
-        while (getline(envvar_ss, dir_path, ':')) {
-          std::cout << dir_path << std::endl;
-          std::string weightName = dir_path +"/"+ m_cfg.fileName;
-          std::cout << weightName << std::endl;
-          if (std::filesystem::exists(weightName)){
-            try{
-              m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, weightName ));
-            }
-            catch(std::exception &e){
-              throw JException(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,weightName));
-            }
-            methodFound = true;
-            break;
-          }
-        }
-        if(!methodFound){
-          throw JException(fmt::format("File {} not found in any {} paths",m_cfg.fileName,m_cfg.environmentPath));
-        }
-
-      }
-      else {
-        throw JException(fmt::format("Environment variable {} not found",m_cfg.environmentPath));
-      }
+    } else {
+      error("No model path provided for FarDetectorMLReconstruction");
     }
   }
 
 
-  std::tuple<
-    std::unique_ptr<edm4eic::TrajectoryCollection>,
-    std::unique_ptr<edm4eic::TrackParametersCollection>,
-    std::unique_ptr<edm4eic::TrackCollection>
-  >
-  FarDetectorMLReconstruction::process(const edm4eic::TrackParametersCollection &inputtracks) {
+  
+  void FarDetectorMLReconstruction::process(
+      const FarDetectorMLReconstruction::Input& input,
+      const FarDetectorMLReconstruction::Output& output) {
 
-    //TODO - Output would be the same size as input so memory handling could be better...
-    auto outputFarDetectorMLTracks          = std::make_unique<edm4eic::TrackCollection>();
-    auto outputFarDetectorMLTrajectories    = std::make_unique<edm4eic::TrajectoryCollection>();
-    auto outputFarDetectorMLTrackParameters = std::make_unique<edm4eic::TrackParametersCollection>();
+    const auto [inputTracks] = input;
+    auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters, outputFarDetectorMLTracks] = output;
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
     float        charge = -1;
 
-    for(auto track: inputtracks){
+    for(const auto& track: *inputTracks){
 
       auto pos        = track.getLoc();
       auto trackphi   = track.getPhi();
@@ -103,12 +69,12 @@ namespace eicrecon {
       edm4hep::Vector3f momentum = {values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]};
 
       // log out the momentum components and magnitude
-      m_log->debug("Prescaled Output Momentum: x {}, y {}, z {}",values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]);
-      m_log->debug("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
+      debug("Prescaled Output Momentum: x {}, y {}, z {}",values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]);
+      debug("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Scale momentum magnitude
-      momentum = momentum*m_cfg.electron_beamE;
-      m_log->debug("Scaled Momentum: {}",edm4eic::magnitude(momentum));
+      momentum = momentum*m_cfg.electronBeamE;
+      debug("Scaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Track parameter variables
       // TODO: Add time and momentum errors
@@ -140,8 +106,6 @@ namespace eicrecon {
       outTrack.setTrajectory(trajectory);
 
     }
-
-    return std::make_tuple( std::move(outputFarDetectorMLTrajectories), std::move(outputFarDetectorMLTrackParameters), std::move(outputFarDetectorMLTracks));
 
   }
 

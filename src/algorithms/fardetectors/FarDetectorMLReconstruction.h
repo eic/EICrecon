@@ -8,6 +8,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackCollection.h>
 
+#include <algorithms/algorithm.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
@@ -21,26 +22,39 @@ namespace eicrecon {
 
   enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
   enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
+  
+  using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      edm4eic::TrackParametersCollection
+    >,
+    algorithms::Output<
+      edm4eic::TrajectoryCollection,
+      edm4eic::TrackParametersCollection,
+      edm4eic::TrackCollection
+    >
+  >;
 
-  class FarDetectorMLReconstruction : public WithPodConfig<FarDetectorMLReconstructionConfig> {
+  class FarDetectorMLReconstruction
+  : public FarDetectorMLReconstructionAlgorithm,
+    public WithPodConfig<FarDetectorMLReconstructionConfig> {
 
   public:
+      FarDetectorMLReconstruction(std::string_view name)
+        : FarDetectorMLReconstructionAlgorithm{name,
+                              {"TrackParameters"},
+                              {"Trajectory","TrackParameters","Track"},
+                              "Reconstruct track parameters using ML method."} {}
+
 
       /** One time initialization **/
-      void init(std::shared_ptr<spdlog::logger>& logger);
+      void init();
 
       /** Event by event processing **/
-      std::tuple<
-        std::unique_ptr<edm4eic::TrajectoryCollection>,
-        std::unique_ptr<edm4eic::TrackParametersCollection>,
-        std::unique_ptr<edm4eic::TrackCollection>
-      >
-      process(const edm4eic::TrackParametersCollection &inputtracks);
+      void process(const Input&, const Output&);
 
       //----- Define constants here ------
 
   private:
-      std::shared_ptr<spdlog::logger> m_log;
       TMVA::Reader          m_reader{"!Color:!Silent"};
       TMVA::MethodBase*     m_method{nullptr};
       float nnInput[4]      = {0.0,0.0,0.0,0.0};
