@@ -36,7 +36,7 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
-    
+
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "SiBarrelTrackerRecHits",
