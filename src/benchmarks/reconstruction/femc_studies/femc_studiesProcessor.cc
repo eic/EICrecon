@@ -33,7 +33,6 @@
 #include <vector>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
@@ -48,13 +47,9 @@ void femc_studiesProcessor::Init() {
   // ===============================================================================================
   // Get JANA application and seup general variables
   // ===============================================================================================
-  auto *app          = GetApplication();
+  auto *app = GetApplication();
 
-  std::string log_level_str = "info";
-  m_log                     = app->GetService<Log_service>()->logger(plugin_name);
-  app->SetDefaultParameter(plugin_name + ":LogLevel", log_level_str,
-                           "LogLevel: trace, debug, info, warn, err, critical, off");
-  m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+  m_log = app->GetService<Log_service>()->logger(plugin_name);
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
