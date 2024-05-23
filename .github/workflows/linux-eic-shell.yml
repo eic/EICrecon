@@ -704,7 +704,24 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
-          cli_npc
+          export NOPAYLOADCLIENT_CONF=$PWD/default.json
+          cat <<- EOF > $NOPAYLOADCLIENT_CONF
+          {
+            "base_url": "localhost:8000",
+            "api_res": "/api/cdb_rest/",
+            "write_dir": "/tmp/remote_pl_store/",
+            "read_dir_list": ["/tmp/remote_pl_store/", "/cvmfs/place/holder/"],
+            "n_retries": 5,
+            "retry_sleep_mean": 30,
+            "cache_life_time": 10,
+            "cache_max_mb": 1,
+            "print_time_stamps": false,
+            "use_fake_backend": false,
+            "logger": "terminal",
+            "log_level": "INFO"
+          }
+          EOF
+          cli_npc checkConnection
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
