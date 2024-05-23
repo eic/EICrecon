@@ -62,7 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: env
     strategy:
-      fail-fast: false
       # include multiple compilers for one release version,
       # and one compiler for a range of release versions
       matrix:
@@ -86,7 +85,7 @@ jobs:
             release: nightly
           - CC: clang
             CMAKE_BUILD_TYPE: Release
-            release: 24.04.0-stable
+            release: 24.05.0-stable
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
