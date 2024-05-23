@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
@@ -15,12 +16,13 @@
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+
+#if EDM4EIC_VERSION_MAJOR >= 6
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
-#if EDM4EIC_VERSION_MAJOR >= 6
 #include "algorithms/reco/HadronicFinalState.h"
 #endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -101,6 +103,7 @@ void InitPlugin(JApplication *app) {
     ));
 
 
+#if EDM4EIC_VERSION_MAJOR >= 6
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
         "InclusiveKinematicsElectron",
         {
@@ -189,6 +192,7 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
+#endif
 
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
         "ReconstructedElectrons",
