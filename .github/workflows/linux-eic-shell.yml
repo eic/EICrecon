@@ -675,7 +675,7 @@ jobs:
           --health-retries 5
       nopayloaddb-webapp:
         image: ghcr.io/eic/nopayloaddb-webapp:latest
-        env: 
+        env:
           POSTGRES_DB: dbname
           POSTGRES_USER: login
           POSTGRES_PASSWORD: password
@@ -704,7 +704,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
         run: |
-          cli_npc 
+          cli_npc
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
