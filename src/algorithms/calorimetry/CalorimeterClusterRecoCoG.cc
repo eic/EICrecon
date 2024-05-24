@@ -246,7 +246,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
-
+  //the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
   double axis_x=0, axis_y=0, axis_z=0;
   if (cl.getNhits() > 1) {
 
@@ -326,6 +326,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
+  //last 3 shape parameters are the components of the axis direction
   cl.addToShapeParameters( axis_x );
   cl.addToShapeParameters( axis_y );
   cl.addToShapeParameters( axis_z );
