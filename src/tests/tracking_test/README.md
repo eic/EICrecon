@@ -18,12 +18,12 @@ podio-0.15_edm4hep-0.6_0-30GeV_alldir_1k.edm4hep.root
 --gun.momentumMin
 
 # Reconstruct Charge Current DIS
-# Detectors live in /opt/detectors
-# one can select particular configuration as
-# source /opt/detector/athena-deathvalley-1.5T/setup.sh
 #
-# or one can set the latest detector
-source /opt/detector/setup.sh
+# Detectors live in /opt/detector
+# One can select particular configuration as
+# source /opt/detector/epic-main/bin/thisepic.sh
+#
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # 100 events
 ddsim --compactFile=$DETECTOR_PATH/epic.xml --runType=run -N=100 --outputFile=2022-09-26_ccdis10x100_100ev.edm4hep.root --inputFiles pythia8CCDIS_10x100_minQ2=100_beamEffects_xAngle=-0.025_hiDiv_1.hepmc

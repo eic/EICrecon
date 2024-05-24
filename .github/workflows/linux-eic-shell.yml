@@ -102,11 +102,12 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .ccache
-        key: ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
              ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.pull_request.head.ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.pull_request.base.ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.base_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.merge_group.base_ref }}-
              ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-
              ccache-${{ matrix.CC }}-${{ matrix.release }}-
              ccache-${{ matrix.CC }}-
@@ -131,7 +132,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
@@ -325,7 +326,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v4
@@ -360,7 +361,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --random.seed 1 --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -N 100 -v WARNING
@@ -394,7 +395,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
@@ -427,7 +428,7 @@ jobs:
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/SIDIS/pythia6-eic/1.0.0/${{matrix.beam}}/q2_0to1/pythia_ep_noradcor_${{matrix.beam}}_q2_0.000000001_1.0_run1.ab.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root -v WARNING
@@ -472,7 +473,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -488,7 +489,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -534,7 +535,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -581,7 +582,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -634,7 +635,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -679,7 +680,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ldd -r install/lib/*.so install/lib/EICrecon/plugins/*.so
@@ -687,13 +688,13 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
-          dot -Tsvg jana.dot > jana.svg
+          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          sed '/podio::Frame/d;/JEventProcessorPODIO/d' jana.dot | dot -Tsvg > jana.svg
           mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
           mv jana.svg rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.svg
     - uses: actions/upload-artifact@v4
@@ -717,7 +718,7 @@ jobs:
       id: download_previous_artifact
       uses: dawidd6/action-download-artifact@v3
       with:
-        branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
+        branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         workflow: ".github/workflows/linux-eic-shell.yml"
@@ -728,7 +729,7 @@ jobs:
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
           mkdir capybara-reports
@@ -777,12 +778,15 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_include_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          sed '/podio::Frame/d;/JEventProcessorPODIO/d' jana.dot | dot -Tsvg > jana.svg
+          mv jana.dot rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
+          mv jana.svg rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.svg
     - uses: actions/upload-artifact@v4
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
@@ -796,7 +800,9 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
-        path: jana.dot
+        path: |
+          *.dot
+          *.svg
         if-no-files-found: error
 
   eicrecon-dis:
@@ -839,13 +845,14 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
+          echo "::add-matcher::${{github.workspace}}/.github/ubsan.json"
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop -Pjana:warmup_timeout=0 -Pjana:timeout=0
-          dot -Tsvg jana.dot > jana.svg
+          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pjana:warmup_timeout=0 -Pjana:timeout=0
+          sed '/podio::Frame/d;/JEventProcessorPODIO/d' jana.dot | dot -Tsvg > jana.svg
           mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
           mv jana.svg rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.svg
     - uses: actions/upload-artifact@v4
@@ -877,7 +884,7 @@ jobs:
       id: download_previous_artifact
       uses: dawidd6/action-download-artifact@v3
       with:
-        branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
+        branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         workflow: ".github/workflows/linux-eic-shell.yml"
@@ -888,7 +895,7 @@ jobs:
       if: steps.download_previous_artifact.outputs.found_artifact == 'true'
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           pip install 'pygithub>=2' 'bokeh>=3'
           export PYTHONPATH=$HOME/.local/lib/python3.10/site-packages:$PYTHONPATH
@@ -923,7 +930,9 @@ jobs:
           GITHUB_SHA=${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_PR=${{ github.event.pull_request.number }}
           EICRECON_VERSION="${{ github.event.pull_request.head.ref || github.ref_name }}"
-    - run: |
+          PIPELINE_NAME_CONTAINER=${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}
+    - name: Post a GitHub CI status
+      run: |
         gh api \
            --method POST \
           -H "Accept: application/vnd.github+json" \
