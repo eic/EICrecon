@@ -15,6 +15,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 // edm4eic types
+#include <edm4eic/ProtoCluster.h>
 #include <edm4eic/TrackSegment.h>
 #include <edm4eic/CalorimeterHit.h>
 
@@ -49,19 +50,19 @@ namespace eicrecon {
   ) const {
 
     // grab inputs/outputs
-    const auto [in_clusters, in_projections] = input;
-    auto [out_clusters] = output;
+    const auto [in_protoclusters, in_projections] = input;
+    auto [out_protoclusters] = output;
 
     // exit if no clusters in collection
-    if (in_clusters -> size() == 0) {
-      throw JException("No clusters in input collection!");
+    if (in_protoclusters -> size() == 0) {
+      throw JException("No proto-clusters in input collection!");
     }
 
     // reset bookkeeping containers
     reset_bookkeepers();
 
     // flag all clusters as not being consumed
-    for (auto cluster : *in_clusters) {
+    for (auto cluster : *in_protoclusters) {
       m_mapIsConsumed.insert(
         {cluster.getObjectID().index, false}
       );
@@ -69,13 +70,13 @@ namespace eicrecon {
     trace("Initialized map of consumed clusters");
 
     // collect relevant projections
-    get_projections(in_projections, (*in_clusters)[0].getHits(0));
+    get_projections(in_projections, (*in_protoclusters)[0].getHits(0));
 
     // match clusters to projections
     if (m_vecProject.size() == 0) {
       debug("No projections to match clusters to.");
     } else {
-      match_clusters_to_tracks(in_clusters);
+      match_clusters_to_tracks(in_protoclusters);
     }
 
     // determine what clusters to merge
@@ -87,7 +88,7 @@ namespace eicrecon {
       }
 
       // grab matched cluster-projections
-      auto clustSeed = (*in_clusters)[clustAndProject.first];
+      auto clustSeed = (*in_protoclusters)[clustAndProject.first];
       auto projSeed = m_vecProject[clustAndProject.second];
 
       // add cluster to lists and flag as used
@@ -100,7 +101,7 @@ namespace eicrecon {
       m_mapIsConsumed[clustAndProject.first] = true;
 
       // grab cluster energy and projection momentum
-      const float eClustSeed = clustSeed.getEnergy();
+      const float eClustSeed = get_cluster_energy(clustSeed);
       const float eProjSeed = m_cfg.avgEP * edm4hep::utils::magnitude(projSeed.momentum);
 
       // check significance
@@ -114,13 +115,14 @@ namespace eicrecon {
       }
 
       // get eta, phi of seed
-      const float etaSeed = edm4hep::utils::eta(clustSeed.getPosition());
-      const float phiSeed = std::atan2(clustSeed.getPosition().y, clustSeed.getPosition().x);
+      const auto  posSeed = get_cluster_position(clustSeed);
+      const float etaSeed = edm4hep::utils::eta(posSeed);
+      const float phiSeed = std::atan2(posSeed.y, posSeed.x);
 
       // loop over other clusters
       float eClustSum = eClustSeed;
       float sigSum = sigSeed;
-      for (auto in_cluster : *in_clusters) {
+      for (auto in_cluster : *in_protoclusters) {
 
         // grab index and ignore used clusters
         const int iCluster = in_cluster.getObjectID().index;
@@ -133,9 +135,10 @@ namespace eicrecon {
           continue;
         }
 
-        // get eta, phi of seed
-        const float etaClust = edm4hep::utils::eta(in_cluster.getPosition());
-        const float phiClust = std::atan2(in_cluster.getPosition().y, in_cluster.getPosition().x);
+        // get eta, phi of cluster
+        const auto  posClust = get_cluster_position(in_cluster);
+        const float etaClust = edm4hep::utils::eta(posClust);
+        const float phiClust = std::atan2(posClust.y, posClust.x);
 
         // get distance to seed
         const float drToSeed = std::hypot(
@@ -160,7 +163,7 @@ namespace eicrecon {
         }
 
         // increment sums and output debugging
-        eClustSum += in_cluster.getEnergy();
+        eClustSum += get_cluster_energy(in_cluster);
         sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
         debug(
           "{} clusters to merge: current sum = {}, current significance = {}, {} track(s) pointing to merged cluster",
@@ -178,13 +181,13 @@ namespace eicrecon {
       // add clusters to be merged
       m_vecClust.clear();
       for (const int& iClustToMerge : clustToMerge.second) {
-        m_vecClust.push_back( (*in_clusters)[iClustToMerge] );
+        m_vecClust.push_back( (*in_protoclusters)[iClustToMerge] );
       }
-      m_vecClust.push_back( (*in_clusters)[clustToMerge.first] );
+      m_vecClust.push_back( (*in_protoclusters)[clustToMerge.first] );
 
       // for each track pointing to merged cluster, merge clusters
       for (const int& iMatchedTrk : m_mapProjToMerge[clustToMerge.first]) {
-        edm4eic::MutableCluster merged_cluster = out_clusters->create();
+        edm4eic::MutableProtoCluster merged_cluster = out_protoclusters->create();
         merge_clusters(
           m_vecProject[iMatchedTrk],
           m_vecClust,
@@ -194,7 +197,7 @@ namespace eicrecon {
     }  // end clusters to merge loop
 
     // copy unused clusters to output
-    for (auto in_cluster : *in_clusters) {
+    for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
       if (m_mapIsConsumed[in_cluster.getObjectID().index]) {
@@ -202,7 +205,7 @@ namespace eicrecon {
       }
 
       // copy cluster and add to output collection
-      edm4eic::MutableCluster out_cluster = out_clusters->create();
+      edm4eic::MutableProtoCluster out_cluster = out_protoclusters->create();
       copy_cluster(in_cluster, out_cluster);
 
     }  // end cluster loop
@@ -279,7 +282,7 @@ namespace eicrecon {
   /*! FIXME this might be better handled in a separate algorithm
    */
   void TrackClusterMergeSplitter::match_clusters_to_tracks(
-    const edm4eic::ClusterCollection* clusters
+    const edm4eic::ProtoClusterCollection* clusters
   ) const {
 
 
@@ -300,8 +303,9 @@ namespace eicrecon {
       for (auto cluster : *clusters) {
 
         // get eta, phi of cluster
-        const float etaClust = edm4hep::utils::eta(cluster.getPosition());
-        const float phiClust = std::atan2(cluster.getPosition().y, cluster.getPosition().x);
+        const auto  posClust = get_cluster_position(cluster);
+        const float etaClust = edm4hep::utils::eta(posClust);
+        const float phiClust = std::atan2(posClust.y, posClust.x);
 
         // calculate distance to centroid
         const float dist = std::hypot(
@@ -337,7 +341,7 @@ namespace eicrecon {
   void TrackClusterMergeSplitter::merge_clusters(
     const edm4eic::TrackPoint& matched_trk,
     const VecCluster& to_merge,
-    edm4eic::MutableCluster& merged_clust
+    edm4eic::MutableProtoCluster& merged_clust
   ) const {
 
     // get track eta, phi
@@ -369,56 +373,14 @@ namespace eicrecon {
         eTotal += eContrib;
         trace("Added hit: eHit = {}, weight = {}, eContrib = {}, running total = {}", hit.getEnergy(), weight, eContrib, eTotal);
 
-        // set time of cluster to be time of earliest hit
-        if (hit.getTime() < tClust) {
-          tClust = hit.getTime();
-          tErrClust = hit.getTimeError();
-        }
-
-        // set hit one-to-many relation
+        // set hit one-to-many/vector relations
         merged_clust.addToHits( hit );
-        merged_clust.addToHitContributions( eContrib );
-      }  // end hit loop
+        merged_clust.addToWeights( weight );
 
-      // set remaining one-to-many relations
-      merged_clust.addToClusters( old_clust );
-      for (auto old_pid : old_clust.getParticleIDs()) {
-        merged_clust.addToParticleIDs( old_pid );
-      }
+      }  // end hit loop
       debug("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, merged_clust.getObjectID().index);
 
     }  // end of cluster loop
-
-    // set cluster energ/time information
-    merged_clust.setEnergy( eTotal / m_cfg.sampFrac );
-    merged_clust.setTime( tClust );
-    merged_clust.setTimeError( tErrClust );
-
-    // grab initial position of cluster
-    edm4hep::Vector3f posMerged = merged_clust.getPosition();
-
-    // now calculate center-of-gravity
-    double sumWeights = 0.;
-    for (size_t iHit = 0; iHit < merged_clust.getHits().size(); iHit++) {
-
-      // calculate weight
-      const double logWeight = m_cfg.logBase + std::log(merged_clust.getHitContributions()[iHit] / eTotal);
-      const double posWeight = std::max(0., logWeight);
-
-      // increment sums
-      posMerged = posMerged + (posWeight * merged_clust.getHits()[iHit].getPosition());
-      sumWeights += posWeight;
-    }
-
-    // set center-of-gravity and intrinsic theta, phi
-    if (sumWeights > 0.) {
-      merged_clust.setPosition( posMerged / sumWeights );
-      trace("Calculated center of gravity for merged cluster");
-    } else {
-      error("Sum of weights 0 for merged cluster {}!", merged_clust.getObjectID().index);
-    }
-    merged_clust.setIntrinsicTheta( edm4hep::utils::anglePolar(merged_clust.getPosition()) );
-    merged_clust.setIntrinsicPhi( edm4hep::utils::angleAzimuthal(merged_clust.getPosition()) );
 
   }  // end 'merge_clusters(std::vector<edm4eic::Cluster>&, edm4eic::MutableCluster&)'
 
@@ -430,43 +392,41 @@ namespace eicrecon {
   //! Copy cluster onto new one
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::copy_cluster(
-    const edm4eic::Cluster& old_clust,
-    edm4eic::MutableCluster& new_clust
+    const edm4eic::ProtoCluster& old_clust,
+    edm4eic::MutableProtoCluster& new_clust
   ) const {
 
-    // set main variables
-    new_clust.setType( old_clust.getType() );
-    new_clust.setEnergy( old_clust.getEnergy() );
-    new_clust.setTime( old_clust.getTime() );
-    new_clust.setTimeError( old_clust.getTimeError() );
-    new_clust.setNhits( old_clust.getHits().size() );
-    new_clust.setPosition( old_clust.getPosition() );
-    new_clust.setPositionError( old_clust.getPositionError() );
-    new_clust.setIntrinsicTheta( old_clust.getIntrinsicTheta() );
-    new_clust.setIntrinsicPhi( old_clust.getIntrinsicPhi() );
-    new_clust.setIntrinsicDirectionError( old_clust.getIntrinsicDirectionError() );
-
-    // set vector members
-    for (float old_parameter : old_clust.getShapeParameters()) {
-      new_clust.addToShapeParameters( old_parameter );
-    }
-    for (float old_contribution : old_clust.getHitContributions()) {
-      new_clust.addToHitContributions( old_contribution );
-    }
-    for (float old_energy : old_clust.getSubdetectorEnergies()) {
-      new_clust.addToSubdetectorEnergies( old_energy );
-    }
-
-    // set one-to-many relations
-    for (auto old_hit : old_clust.getHits()) {
-      new_clust.addToHits( old_hit );
-    }
-    for (auto old_pid : old_clust.getParticleIDs()) {
-      new_clust.addToParticleIDs( old_pid );
-    }
-    new_clust.addToClusters( old_clust );
+    new_clust = old_clust.clone();
     debug("Copied input cluster {} onto output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
 
   }  // end 'copy_cluster(edm4eic::Cluster&, edm4eic::MutableCluster&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Grab current energy of protocluster
+  // --------------------------------------------------------------------------
+  float TrackClusterMergeSplitter::get_cluster_energy(const edm4eic::ProtoCluster& clust) const {
+
+    float eClust = 0.;
+    for (auto hit : clust.getHits()) {
+      eClust += hit.getEnergy();
+    }
+    return eClust;
+
+  }  // end 'get_cluster_energy(edm4eic::ProtoCluster&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Get current center of protocluster
+  // --------------------------------------------------------------------------
+  edm4hep::Vector3f TrackClusterMergeSplitter::get_cluster_position(const edm4eic::ProtoCluster& clust) const {
+
+    edm4hep::Vector3f position(0., 0., 0.);
+    /* TODO fill in */
+    return position;
+
+  }  // end 'get_cluster_position(edm4eic::ProtoCluster&)'
 
 }  // end eicrecon namespace

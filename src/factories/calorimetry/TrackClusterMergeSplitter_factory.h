@@ -26,11 +26,11 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
 
       // input collections
-      PodioInput<edm4eic::Cluster> m_clusters_input {this};
+      PodioInput<edm4eic::ProtoCluster> m_protoclusters_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
 
       // output collections
-      PodioOutput<edm4eic::Cluster> m_clusters_output {this};
+      PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
 
       // parameter bindings
       ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
@@ -59,8 +59,8 @@ namespace eicrecon {
 
       void Process(int64_t run_number, uint64_t event_number) {
         m_algo -> process(
-          {m_clusters_input(), m_track_projections_input()},
-          {m_clusters_output().get()}
+          {m_protoclusters_input(), m_track_projections_input()},
+          {m_protoclusters_output().get()}
         );
       }
 
