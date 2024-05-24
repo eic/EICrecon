@@ -5,6 +5,7 @@
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
+#include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <string.h>
@@ -37,7 +38,7 @@ void DumpFlags_processor::Init()
     app->SetDefaultParameter("dump_flags:screen", m_print_to_screen, "If not empty, print summary to screen at end of job");
 
 
-    InitLogger(app, "dump_flags", "info");
+    InitLogger(app, "dump_flags", level::info);
 }
 
 
