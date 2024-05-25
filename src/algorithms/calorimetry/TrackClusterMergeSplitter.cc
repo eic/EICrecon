@@ -412,7 +412,7 @@ namespace eicrecon {
     for (auto hit : clust.getHits()) {
       eClust += hit.getEnergy();
     }
-    return eClust;
+    return eClust / m_cfg.sampFrac;
 
   }  // end 'get_cluster_energy(edm4eic::ProtoCluster&)'
 
@@ -423,8 +423,14 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   edm4hep::Vector3f TrackClusterMergeSplitter::get_cluster_position(const edm4eic::ProtoCluster& clust) const {
 
+    // grab total energy
+    const float eClust = get_cluster_energy(clust) * m_cfg.sampFrac;
+
+    // calculate energy-weighted center
     edm4hep::Vector3f position(0., 0., 0.);
-    /* TODO fill in */
+    for (auto hit : clust.getHits()) {
+      position = position + (hit.getPosition() * (hit.getEnergy() / eClust));
+    }
     return position;
 
   }  // end 'get_cluster_position(edm4eic::ProtoCluster&)'
