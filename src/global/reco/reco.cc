@@ -30,7 +30,9 @@
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
+#endif
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
