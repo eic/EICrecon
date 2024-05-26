@@ -3,15 +3,15 @@
 //
 //
 
+
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
-#include <algorithm>
 #include <map>
 #include <memory>
 
@@ -28,6 +28,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
@@ -288,7 +289,16 @@ void InitPlugin(JApplication *app) {
             {},
             app
     ));
+    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
+           "ReconstructedFarForwardZDCNeutrons",
+          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+          {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
+          {
+            .scale_corr_coeff={-0.0756, -1.91,  2.30}
 
+          },
+          app   // TODO: Remove me once fixed
+    ));
 #if EDM4EIC_VERSION_MAJOR >= 6
     app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
         "HadronicFinalState",
@@ -303,6 +313,38 @@ void InitPlugin(JApplication *app) {
         app
     ));
 #endif
+
+    app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
+            "GeneratedBreitFrameParticles",
+            {"MCParticles","InclusiveKinematicsElectron","GeneratedParticles"},
+            {"GeneratedBreitFrameParticles"},
+            {},
+            app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+            "GeneratedCentauroJets",
+            {"GeneratedBreitFrameParticles"},
+            {"GeneratedCentauroJets"},
+            {
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
+            app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+            "ReconstructedCentauroJets",
+            {"ReconstructedBreitFrameParticles"},
+            {"ReconstructedCentauroJets"},
+            {
+             .rJet = 0.8,
+             .jetAlgo = "plugin_algorithm",
+             .jetContribAlgo = "Centauro"
+            },
+            app
+    ));
 
 }
 } // extern "C"

@@ -99,7 +99,7 @@ extern "C" {
             .pedMeanADC    = HcalBarrel_pedMeanADC,
             .pedSigmaADC   = HcalBarrel_pedSigmaADC,
             .resolutionTDC = HcalBarrel_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "HcalBarrelHits",
           },
           app   // TODO: Remove me once fixed
