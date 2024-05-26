@@ -37,7 +37,6 @@ namespace eicrecon {
       ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
       ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
       ParameterRef<double> m_drAdd {this, "drAdd", config().drAdd};
-      ParameterRef<double> m_logBase {this, "logBase", config().logBase};
       ParameterRef<double> m_sampFrac {this, "sampFrac", config().sampFrac};
       ParameterRef<double> m_distScale {this, "distScale", config().distScale};
 

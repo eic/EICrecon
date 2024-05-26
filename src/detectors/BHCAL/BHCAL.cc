@@ -188,7 +188,6 @@ extern "C" {
               .avgEP = 1.0,
               .sigEP = 1.0,
               .drAdd = 0.4,
-              .logBase = 6.2,
               .sampFrac = 1.0,
               .distScale = 1.0
             },
