@@ -396,7 +396,15 @@ namespace eicrecon {
     edm4eic::MutableProtoCluster& new_clust
   ) const {
 
-    new_clust = old_clust.clone();
+    // set one-to-many relations
+    for (auto hit : old_clust.getHits()) {
+      new_clust.addToHits( hit );
+    }
+
+    // set vector members
+    for (auto weight : old_clust.getWeights()) {
+      new_clust.addToWeights( weight );
+    }
     debug("Copied input cluster {} onto output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
 
   }  // end 'copy_cluster(edm4eic::Cluster&, edm4eic::MutableCluster&)'
@@ -427,11 +435,25 @@ namespace eicrecon {
     const float eClust = get_cluster_energy(clust) * m_cfg.sampFrac;
 
     // calculate energy-weighted center
+    float wTotal = 0.;
     edm4hep::Vector3f position(0., 0., 0.);
     for (auto hit : clust.getHits()) {
-      position = position + (hit.getPosition() * (hit.getEnergy() / eClust));
+
+      // calculate weight
+      float weight = hit.getEnergy() / eClust;
+      wTotal += weight;
+
+      // update cluster position
+      position = position + (hit.getPosition() * weight);
     }
-    return position;
+
+    float norm = 1.;
+    if (wTotal == 0.) {
+      warning("Total weight of 0 in position calculation!");
+    } else {
+      norm = wTotal;
+    }
+    return position / norm;
 
   }  // end 'get_cluster_position(edm4eic::ProtoCluster&)'
 
