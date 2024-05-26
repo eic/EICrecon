@@ -5,7 +5,6 @@
 
 
 #include <JANA/JApplication.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
@@ -18,12 +17,12 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 6
+#include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
-#include "algorithms/reco/HadronicFinalState.h"
 #endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"

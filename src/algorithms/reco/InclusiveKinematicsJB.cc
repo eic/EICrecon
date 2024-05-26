@@ -7,16 +7,13 @@
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
-#include <edm4hep/Vector3f.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
 #include <cmath>
 #include <gsl/pointers>
 
 #include "Beam.h"
-#include "Boost.h"
 #include "InclusiveKinematicsJB.h"
 
 using ROOT::Math::PxPyPzEVector;

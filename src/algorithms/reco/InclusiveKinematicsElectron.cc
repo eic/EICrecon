@@ -8,12 +8,10 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
