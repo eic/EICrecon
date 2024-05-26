@@ -344,6 +344,7 @@ void JEventProcessorPODIO::Init() {
 
     if (m_output_include_collections_set) {
       m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      // Adding a delay to ensure users notice the deprecation warning.
       using namespace std::chrono_literals;
       std::this_thread::sleep_for(10s);
     }
@@ -508,6 +509,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 void JEventProcessorPODIO::Finish() {
     if (m_output_include_collections_set) {
       m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      // Adding a delay to ensure users notice the deprecation warning.
       using namespace std::chrono_literals;
       std::this_thread::sleep_for(10s);
     }
