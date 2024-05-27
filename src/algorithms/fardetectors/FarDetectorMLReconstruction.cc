@@ -41,7 +41,7 @@ namespace eicrecon {
   }
 
 
-  
+
   void FarDetectorMLReconstruction::process(
       const FarDetectorMLReconstruction::Input& input,
       const FarDetectorMLReconstruction::Output& output) {
