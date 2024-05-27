@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "ActsToTracks_factory.h"
 #include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
@@ -88,11 +89,22 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
+            "CentralCKFActsTrajectories",
+            "CentralCKFActsTracks",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFActsTrajectories",
+        },
+        {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
-            "CentralCKFActsTrajectories",
-            "CentralCKFActsTracks",
         },
         app
     ));
@@ -112,11 +124,22 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
+            "CentralCKFSeededActsTrajectories",
+            "CentralCKFSeededActsTracks",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFSeededTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFSeededActsTrajectories",
+        },
+        {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
-            "CentralCKFSeededActsTrajectories",
-            "CentralCKFSeededActsTracks",
         },
         app
     ));
