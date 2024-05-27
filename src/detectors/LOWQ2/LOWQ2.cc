@@ -6,6 +6,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackSegment.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
@@ -119,38 +120,6 @@ extern "C" {
           app
       ));
     }
-
-    // Combine the tracks from each module into one collection
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
-         "TaggerTrackerTrackSegments",
-         outputTrackTags,
-         {"TaggerTrackerTrackSegments"},
-         app
-      )
-    );
-
-    // Project tracks onto a plane
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-         "TaggerTrackerProjectedTracks",
-         {"TaggerTrackerTrackSegments"},
-         {"TaggerTrackerProjectedTracks"},
-         {
-           .plane_position = {0.0,0.0,0.0},
-           .plane_a = {0.0,1.0,0.0},
-           .plane_b = {0.0,0.0,1.0},
-         },
-         app
-    ));
-
-    // Vector reconstruction at origin
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-        "TaggerTrackerTrajectories",
-        {"TaggerTrackerProjectedTracks"},
-        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
-        {},
-        app
-    ));
-
 
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
