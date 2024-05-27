@@ -1,8 +1,25 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/TrackStateType.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <Eigen/Core>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <gsl/pointers>
+#include <optional>
+#include <utility>
 
 #include "ActsToTracks.h"
 

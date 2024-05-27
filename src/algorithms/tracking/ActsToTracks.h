@@ -3,13 +3,15 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace eicrecon {
 

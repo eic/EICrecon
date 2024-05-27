@@ -12,18 +12,18 @@
 #include <utility>
 #include <vector>
 
+#include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
-#include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
-#include "TracksToParticlesConfig.h"
-#include "TracksToParticles_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagationConfig.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
+#include "TracksToParticlesConfig.h"
+#include "TracksToParticles_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"

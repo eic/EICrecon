@@ -17,9 +17,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
