@@ -11,7 +11,6 @@ namespace eicrecon {
     double avgEP     = 1.0;  // mean E/p
     double sigEP     = 1.0;  // rms of E/p
     double drAdd     = 0.4;  // window to add clusters
-    double logBase   = 6.2;  // base for CoG calculation
     double sampFrac  = 1.0;  // allows for sampling fraction correction
     double distScale = 1.0;  // scale for hit-track distance
 
