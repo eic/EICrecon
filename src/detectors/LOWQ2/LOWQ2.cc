@@ -21,6 +21,7 @@
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
+#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 
@@ -29,6 +30,13 @@ extern "C" {
     InitJANAPlugin(app);
 
     using namespace eicrecon;
+
+    std::string tracker_readout = "TaggerTrackerHits";
+
+
+//     FarDetectorLinearProjectionConfig projection_cfg;
+
+//     FarDetectorMLReconstructionConfig recon_cfg;
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -119,9 +127,9 @@ extern "C" {
 
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
-         "TaggerTrackerTracks",
+         "TaggerTrackerTrackSegments",
          outputTrackTags,
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          app
       )
     );
@@ -129,7 +137,7 @@ extern "C" {
     // Project tracks onto a plane
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
          "TaggerTrackerProjectedTracks",
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          {"TaggerTrackerProjectedTracks"},
          {
            .plane_position = {0.0,0.0,0.0},
@@ -137,6 +145,47 @@ extern "C" {
            .plane_b = {0.0,0.0,1.0},
          },
          app
+    ));
+
+    // Vector reconstruction at origin
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+        "TaggerTrackerTrajectories",
+        {"TaggerTrackerProjectedTracks"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
+        {},
+        app
+    ));
+
+
+    // Combine the tracks from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
+         "TaggerTrackerTrackSegments",
+         outputTrackTags,
+         {"TaggerTrackerTrackSegments"},
+         app
+      )
+    );
+
+    // Project tracks onto a plane
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+         "TaggerTrackerProjectedTracks",
+         {"TaggerTrackerTrackSegments"},
+         {"TaggerTrackerProjectedTracks"},
+         {
+           .plane_position = {0.0,0.0,0.0},
+           .plane_a = {0.0,1.0,0.0},
+           .plane_b = {0.0,0.0,1.0},
+         },
+         app
+    ));
+
+    // Vector reconstruction at origin
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+        "TaggerTrackerTrajectories",
+        {"TaggerTrackerProjectedTracks"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
+        {},
+        app
     ));
 
   }
