@@ -213,7 +213,7 @@ namespace eicrecon {
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
 
         // Loop over seeds
-        for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
+        for (unsigned int iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
             auto result =
                 (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
 
