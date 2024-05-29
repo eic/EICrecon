@@ -115,7 +115,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
       ));
-      
+
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
