@@ -9,14 +9,11 @@
 #include <edm4eic/TrackCollection.h>
 
 #include <algorithms/algorithm.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
+
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "FarDetectorMLReconstructionConfig.h"
-
-#include <spdlog/logger.h>
-
 
 namespace eicrecon {
 
@@ -57,7 +54,7 @@ namespace eicrecon {
   private:
       TMVA::Reader*     m_reader{nullptr};
       TMVA::MethodBase* m_method{nullptr};
-      float nnInput[4]      = {0.0,0.0,0.0,0.0};
+      float nnInput[4]  = {0.0,0.0,0.0,0.0};
 
   };
 

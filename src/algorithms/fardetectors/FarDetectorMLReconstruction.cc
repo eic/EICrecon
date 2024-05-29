@@ -2,22 +2,17 @@
 // Copyright (C) 2023, Simon Gardner
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4eic/Cov4f.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/utils/vector_utils.h>
 
-#include <filesystem>
-
 #include "FarDetectorMLReconstruction.h"
-#include "services/log/Log_service.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 
 namespace eicrecon {
 
 
   void FarDetectorMLReconstruction::init() {
 
-   m_reader = new TMVA::Reader( "!Color:!Silent" );
+    m_reader = new TMVA::Reader( "!Color:!Silent" );
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
     m_reader->AddVariable( "LowQ2Tracks[0].loc.a", &nnInput[FarDetectorMLNNIndexIn::PosY] );
