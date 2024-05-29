@@ -29,7 +29,7 @@ namespace eicrecon {
     bool methodFound = false;
     if(!m_cfg.modelPath.empty()){
       try{
-        m_method = dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath ));
+        m_method = std::unique_ptr<TMVA::MethodBase>(dynamic_cast<TMVA::MethodBase*>(m_reader.BookMVA( m_cfg.methodName, m_cfg.modelPath )));
       }
       catch(std::exception &e){
         error(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));

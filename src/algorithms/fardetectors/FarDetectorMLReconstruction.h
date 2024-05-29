@@ -55,8 +55,8 @@ namespace eicrecon {
       //----- Define constants here ------
 
   private:
-      TMVA::Reader          m_reader{"!Color:!Silent"};
-      TMVA::MethodBase*     m_method{nullptr};
+      TMVA::Reader                      m_reader{"!Color:!Silent"};
+      std::unique_ptr<TMVA::MethodBase> m_method{nullptr};
       float nnInput[4]      = {0.0,0.0,0.0,0.0};
 
   };
