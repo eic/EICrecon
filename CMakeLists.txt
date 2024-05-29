@@ -28,6 +28,9 @@
 
 cmake_minimum_required(VERSION 3.24)
 
+# 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
+cmake_policy(SET CMP0144 NEW)
+
 project(EICrecon)
 
 # CMake includes
@@ -162,7 +165,7 @@ find_package(algorithms 1.0.0 REQUIRED Core)
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
-find_package(EDM4EIC 3.0 REQUIRED)
+find_package(EDM4EIC 5.0 REQUIRED)
 
 # spdlog
 find_package(spdlog REQUIRED)

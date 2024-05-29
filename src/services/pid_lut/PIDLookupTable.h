@@ -29,7 +29,6 @@ public:
       bool azimuthal_bin_centers_in_lut;
       bool momentum_bin_centers_in_lut;
       bool polar_bin_centers_in_lut;
-      bool skip_legacy_header;
       bool use_radians;
       bool missing_electron_prob;
     };
