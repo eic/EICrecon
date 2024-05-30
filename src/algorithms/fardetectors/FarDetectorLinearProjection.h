@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <Eigen/Dense>
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <Eigen/Core>
+#include <string>
+#include <string_view>
 
-#include <spdlog/logger.h>
-#include "FarDetectorLinearProjectionConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/algorithm.h"
+#include "algorithms/fardetectors/FarDetectorLinearProjectionConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

@@ -10,18 +10,17 @@
  * which might be changed by user parameters.
  */
 
-#include "services/io/podio/datamodel_glue.h"
 #include <JANA/CLI/JVersion.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
-#include "extensions/spdlog/SpdlogExtensions.h"
+
+#include "services/io/podio/datamodel_glue.h"
 #include "services/log/Log_service.h"
 
 #include <string>
 #include <vector>
 
-using namespace eicrecon;
 struct EmptyConfig {};
 
 template <typename AlgoT, typename ConfigT=EmptyConfig>
@@ -527,13 +526,8 @@ public:
             output->CreateHelperFactory(*this);
         }
 
-        // Obtain logger
+        // Obtain logger (defines the parameter option)
         m_logger = m_app->GetService<Log_service>()->logger(m_prefix);
-
-        // Configure logger. Priority = [JParameterManager, system log level]
-        std::string default_log_level = eicrecon::LogLevelToString(m_logger->level());
-        m_app->SetDefaultParameter(m_prefix + ":LogLevel", default_log_level, "LogLevel: trace, debug, info, warn, err, critical, off");
-        m_logger->set_level(eicrecon::ParseLogLevel(default_log_level));
     }
 
     void Init() override {

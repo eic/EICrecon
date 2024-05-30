@@ -35,5 +35,4 @@ private:
 
     // General acts log
     std::shared_ptr<spdlog::logger> m_log;
-    std::shared_ptr<spdlog::logger> m_init_log;
 };

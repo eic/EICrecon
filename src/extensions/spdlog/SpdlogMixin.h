@@ -30,6 +30,8 @@ namespace eicrecon {
          *      };
          */
     public:
+        using level = Log_service::level;
+
         /**
          * Initializes logger through current LogService
          * @param app - JApplication pointer, as obtained from GetApplication()
@@ -48,17 +50,10 @@ namespace eicrecon {
          *
          *  will create "BTRK:TrackerHits" logger and check -PBTRK:TrackerHits:LogLevel user parameter
          */
-        void InitLogger(JApplication* app, const std::string &param_prefix, const std::string &default_level = "") {
+        void InitLogger(JApplication* app, const std::string &param_prefix, const level default_level = level::info) {
 
             // Logger. Get plugin level sub-log
-            m_log = app->GetService<Log_service>()->logger(param_prefix);
-
-            // Get log level from user parameter or default
-            std::string log_level_str = default_level.empty() ?         // did user provide default level?
-                                        eicrecon::LogLevelToString(m_log->level()) :   //
-                                        default_level;
-            app->SetDefaultParameter(param_prefix + ":LogLevel", log_level_str, "LogLevel: trace, debug, info, warn, err, critical, off");
-            m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
+            m_log = app->GetService<Log_service>()->logger(param_prefix, default_level);
         }
 
     public:
