@@ -143,6 +143,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerM1Tracks",
             "TaggerTrackerM2Tracks",
             "TaggerTrackerProjectedTracks",
+            "TaggerTrackerTracks",
             "TaggerTrackerTrajectories",
             "TaggerTrackerTrackParameters",
 
