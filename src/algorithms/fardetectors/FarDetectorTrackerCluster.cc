@@ -77,7 +77,7 @@ namespace eicrecon {
 
     std::vector<FDTrackerCluster> clusters;
 
-    ROOT::VecOps::RVec<long>  id;
+    ROOT::VecOps::RVec<unsigned long>  id;
     ROOT::VecOps::RVec<int>   x;
     ROOT::VecOps::RVec<int>   y;
     ROOT::VecOps::RVec<float> e;
