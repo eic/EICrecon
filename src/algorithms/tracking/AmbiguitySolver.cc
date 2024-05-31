@@ -106,34 +106,34 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
 
   for (auto iTrack : state.selectedTracks) {
 
-	auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
-      	auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
-      	destProxy.copyFrom(srcProxy, false);
-      	destProxy.tipIndex() = srcProxy.tipIndex();
+        auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
+        auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+        destProxy.copyFrom(srcProxy, false);
+        destProxy.tipIndex() = srcProxy.tipIndex();
 
    }
- 
+
    output_tracks.push_back(new ActsExamples::ConstTrackContainer(
-	std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
+        std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
         input_trks->trackStateContainerHolder()));
-  
+
    //Make output trajectories
    ActsExamples::Trajectories::IndexedParameters parameters;
    std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
    for (const auto& track : *(output_tracks.front())) {
 
-	tips.clear();
-        parameters.clear();	
+        tips.clear();
+        parameters.clear();
 
-	tips.push_back(track.tipIndex());
-	parameters.emplace(
+        tips.push_back(track.tipIndex());
+        parameters.emplace(
            std::pair{track.tipIndex(),
                     ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(),
                                                   track.parameters(), track.covariance(),
                                                   track.particleHypothesis()}});
 
-	output_trajectories.push_back(new ActsExamples::Trajectories(
+        output_trajectories.push_back(new ActsExamples::Trajectories(
              ((*output_tracks.front())).trackStateContainer(),
              tips, parameters));
 
