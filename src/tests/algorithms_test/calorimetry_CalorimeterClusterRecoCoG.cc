@@ -43,6 +43,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   algo.applyConfig(cfg);
   algo.init();
 
+  edm4hep::CalorimeterHitCollection hits_coll;
   edm4eic::ProtoClusterCollection pclust_coll;
   edm4hep::SimCalorimeterHitCollection simhits;
   auto assoc = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
@@ -52,13 +53,13 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   auto pclust = pclust_coll.create();
   edm4hep::Vector3f position({0,0,0*dd4hep::mm});
 
-  CalorimeterHit hit1(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  CalorimeterHit hit1 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
   pclust.addToHits(hit1);
   position={0,0, 1*dd4hep::mm};
-  CalorimeterHit hit2(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  CalorimeterHit hit2 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
   pclust.addToHits(hit2);
   position={0,0, 2*dd4hep::mm};
-  CalorimeterHit hit3(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  CalorimeterHit hit3 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
   pclust.addToHits(hit3);
   pclust.addToWeights(1);pclust.addToWeights(1);pclust.addToWeights(1);
 
