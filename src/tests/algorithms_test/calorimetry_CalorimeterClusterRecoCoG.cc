@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Sebouh Paul
 
-#include <DD4hep/Detector.h>                       // for Detector
-#include <DD4hep/IDDescriptor.h>                   // for IDDescriptor
-#include <DD4hep/Readout.h>                        // for Readout
+
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
-#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
+#include <math.h>
+#include <podio/RelationRange.h>
 #include <spdlog/common.h>                         // for level_enum
 #include <spdlog/logger.h>                         // for logger
 #include <spdlog/spdlog.h>                         // for default_logger
-#include <stddef.h>                                // for size_t
-#include <array>                                   // for array
-#include <cmath>                                   // for sqrt, abs
-#include <gsl/pointers>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
-#include <utility>                                 // for pair
+#include <tuple>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"        // for CalorimeterClusterRecoCoG
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"  // for CalorimeterClusterRecoCoGConfig

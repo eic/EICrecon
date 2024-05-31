@@ -10,6 +10,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -26,6 +27,7 @@
 #include <complex>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <optional>
