@@ -60,8 +60,8 @@ extern "C" {
 
             .sampFrac = "0.0098",
             .readout = "HcalEndcapPInsertHits",
-	    .layerField="layer",
-	    .sectorField="system",
+            .layerField="layer",
+            .sectorField="system",
           },
           app   // TODO: Remove me once fixed
         ));
