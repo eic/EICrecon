@@ -59,7 +59,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   pclust.addToHits(hit2);
   position={0,0, 2*dd4hep::mm};
   CalorimeterHit hit3(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
-  pclust.addToHits(hit1);
+  pclust.addToHits(hit3);
   pclust.addToWeights(1);pclust.addToWeights(1);pclust.addToWeights(1);
 
   // Constructing input and output as per the algorithm's expected signature
