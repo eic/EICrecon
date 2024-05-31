@@ -51,7 +51,7 @@ namespace eicrecon {
       if(beamElectrons->size() == 0){
         error("No beam electrons found keeping default 10GeV beam energy.");
         return;
-      }      
+      }
       m_beamE = beamElectrons->at(0).getEnergy();
       //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
       m_beamE = round(m_beamE);
