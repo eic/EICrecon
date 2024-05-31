@@ -194,7 +194,7 @@ namespace eicrecon {
       hitPos.setTime    (cluster.time);
 
       // Add raw hits to cluster
-      for(auto hit: cluster.rawHits){
+      for(podio::ObjectID hit: cluster.rawHits){
         hitPos.addToRawHits(hit);
       }
 
