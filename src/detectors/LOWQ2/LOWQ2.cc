@@ -146,7 +146,7 @@ extern "C" {
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "TaggerTrackerTrajectories",
-        {"TaggerTrackerProjectedTracks"},
+        {"TaggerTrackerProjectedTracks","MCBeamElectrons"},
         {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
         {},
         app

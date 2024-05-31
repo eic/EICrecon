@@ -42,8 +42,20 @@ namespace eicrecon {
       const FarDetectorMLReconstruction::Input& input,
       const FarDetectorMLReconstruction::Output& output) {
 
-    const auto [inputTracks] = input;
+    const auto [inputTracks,beamElectrons] = input;
     auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters, outputFarDetectorMLTracks] = output;
+
+    //Set beam energy from first MCBeamElectron, using std::call_once
+    std::call_once(m_initBeamE,[&](){
+      // Check if beam electrons are present
+      if(beamElectrons->size() == 0){
+        error("No beam electrons found keeping default 10GeV beam energy.");
+        return;
+      }      
+      m_beamE = beamElectrons->at(0).getEnergy();
+      //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
+      m_beamE = round(m_beamE);
+    });
 
     // Reconstructed particle members which don't change
     std::int32_t type   = 0; // Check?
@@ -69,7 +81,7 @@ namespace eicrecon {
       debug("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Scale momentum magnitude
-      momentum = momentum*m_cfg.electronBeamE;
+      momentum = momentum*m_beamE;
       debug("Scaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Track parameter variables

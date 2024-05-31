@@ -4,6 +4,7 @@
 #pragma once
 
 // Event Model related classes
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -22,7 +23,8 @@ namespace eicrecon {
 
   using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4eic::TrackParametersCollection
+      edm4eic::TrackParametersCollection,
+      edm4hep::MCParticleCollection
     >,
     algorithms::Output<
       edm4eic::TrajectoryCollection,
@@ -38,7 +40,7 @@ namespace eicrecon {
   public:
       FarDetectorMLReconstruction(std::string_view name)
         : FarDetectorMLReconstructionAlgorithm{name,
-                              {"TrackParameters"},
+                              {"TrackParameters","BeamElectrons"},
                               {"Trajectory","TrackParameters","Track"},
                               "Reconstruct track parameters using ML method."} {}
 
@@ -54,6 +56,8 @@ namespace eicrecon {
   private:
       TMVA::Reader*     m_reader{nullptr};
       TMVA::MethodBase* m_method{nullptr};
+      float m_beamE{10.0};
+      std::once_flag m_initBeamE;
       float nnInput[4]  = {0.0,0.0,0.0,0.0};
 
   };

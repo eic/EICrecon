@@ -25,10 +25,11 @@ public:
 private:
     std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4eic::TrackParameters>  m_trackparam_input  {this};
-    PodioOutput<edm4eic::Trajectory>      m_trajectory_output {this};
-    PodioOutput<edm4eic::TrackParameters> m_trackparam_output {this};
-    PodioOutput<edm4eic::Track>           m_track_output      {this};
+    PodioInput<edm4eic::TrackParameters>  m_trackparam_input     {this};
+    PodioInput<edm4hep::MCParticle>       m_beamelectrons_intput {this};
+    PodioOutput<edm4eic::Trajectory>      m_trajectory_output    {this};
+    PodioOutput<edm4eic::TrackParameters> m_trackparam_output    {this};
+    PodioOutput<edm4eic::Track>           m_track_output         {this};
 
 
     ParameterRef<std::string> modelPath       {this, "modelPath",       config().modelPath       };
@@ -49,7 +50,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_trackparam_input()}, {m_trajectory_output().get(), m_trackparam_output().get(), m_track_output().get()});
+        m_algo->process({m_trackparam_input(),m_beamelectrons_intput()}, {m_trajectory_output().get(), m_trackparam_output().get(), m_track_output().get()});
     }
   };
 
