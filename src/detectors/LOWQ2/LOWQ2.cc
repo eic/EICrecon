@@ -152,7 +152,6 @@ extern "C" {
           .modelPath = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",
         },
-        },
         app
     ));
 
