@@ -53,13 +53,39 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   auto pclust = pclust_coll.create();
   edm4hep::Vector3f position({0,0,0*dd4hep::mm});
 
-  CalorimeterHit hit1 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  auto hit1 = hits_coll.create();
+  hit1.setCellID(0);
+  hit1.setEnergy(0.1*dd4hep::GeV);
+  hit1.setEnergyError(0);
+  hit1.setTime(0);
+  hit1.setTimeError(0);
+  hit1.setPosition(position);
+  hit1.setDimension({0,0,0});
+  hit1.setLocal(position);
   pclust.addToHits(hit1);
+
   position={0,0, 1*dd4hep::mm};
-  CalorimeterHit hit2 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  auto hit2 = hits_coll.create();
+  hit2.setCellID(0);
+  hit2.setEnergy(0.1*dd4hep::GeV);
+  hit2.setEnergyError(0);
+  hit2.setTime(0);
+  hit2.setTimeError(0);
+  hit2.setPosition(position);
+  hit2.setDimension({0,0,0});
+  hit2.setLocal(position);
   pclust.addToHits(hit2);
+  
   position={0,0, 2*dd4hep::mm};
-  CalorimeterHit hit3 = hits_coll.create(0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  auto hit3 = hits_coll.create();//0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
+  hit3.setCellID(0);
+  hit3.setEnergy(0.1*dd4hep::GeV);
+  hit3.setEnergyError(0);
+  hit3.setTime(0);
+  hit3.setTimeError(0);
+  hit3.setPosition(position);
+  hit3.setDimension({0,0,0});
+  hit3.setLocal(position);
   pclust.addToHits(hit3);
   pclust.addToWeights(1);pclust.addToWeights(1);pclust.addToWeights(1);
 
