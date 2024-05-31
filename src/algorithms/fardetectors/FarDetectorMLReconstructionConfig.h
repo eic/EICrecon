@@ -8,8 +8,8 @@
 namespace eicrecon {
   struct FarDetectorMLReconstructionConfig {
 
-    std::string modelPath{"calibrations/tmva/LowQ2_DNN_CPU.weights.xml"};
-    std::string methodName{"DNN_CPU"};
+    std::string modelPath;
+    std::string methodName;
 
   };
 }
