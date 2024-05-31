@@ -11,7 +11,5 @@ namespace eicrecon {
     std::string modelPath{"calibrations/tmva/LowQ2_DNN_CPU.weights.xml"};
     std::string methodName{"DNN_CPU"};
 
-    float electronBeamE{10*dd4hep::GeV};
-
   };
 }
