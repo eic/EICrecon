@@ -4,6 +4,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
+#include <math.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
