@@ -75,7 +75,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit2.setDimension({0,0,0});
   hit2.setLocal(position);
   pclust.addToHits(hit2);
-  
+
   position={0,0, 2*dd4hep::mm};
   auto hit3 = hits_coll.create();//0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
   hit3.setCellID(0);
