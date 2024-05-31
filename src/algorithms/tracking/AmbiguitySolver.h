@@ -20,7 +20,7 @@
 
 namespace eicrecon {
 
-/** Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
+/*Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
 class AmbiguitySolver : public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
 public:
   AmbiguitySolver();
@@ -28,9 +28,6 @@ public:
   void init(std::shared_ptr<spdlog::logger> log);
 
 std::tuple<
-      std::unique_ptr<edm4eic::TrajectoryCollection>,
-      std::unique_ptr<edm4eic::TrackParametersCollection>,
-      std::unique_ptr<edm4eic::TrackCollection>,
       std::vector<ActsExamples::ConstTrackContainer *>,
       std::vector<ActsExamples::Trajectories *>
       >

@@ -98,7 +98,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
-        "CentralCKFTracks",
+        "CentralCKFTracksUnfiltered",
         {
             "CentralTrackerMeasurements",
             "CentralCKFActsTrajectoriesUnfiltered",
@@ -119,11 +119,22 @@ void InitPlugin(JApplication *app) {
 	     "CentralTrackerMeasurements"
 	},
         {
-             "CentralCKFTrajectories",
-             "CentralCKFTrackParameters",
-             "CentralCKFTracks",
              "CentralCKFActsTracks",
              "CentralCKFActsTrajectories",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFActsTrajectories",
+        },
+        {
+            "CentralCKFTrajectories",
+            "CentralCKFTrackParameters",
+            "CentralCKFTracks",
         },
         app
     ));
@@ -150,7 +161,7 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
-        "CentralCKFSeededTracks",
+        "CentralCKFSeededTracksUnfiltered",
         {
             "CentralTrackerMeasurements",
             "CentralCKFSeededActsTrajectoriesUnfiltered",
@@ -171,11 +182,22 @@ void InitPlugin(JApplication *app) {
              "CentralTrackerMeasurements"
         },
         {
-             "CentralCKFSeededTrajectories",
-             "CentralCKFSeededTrackParameters",
-             "CentralCKFSeededTracks",
              "CentralCKFSeededActsTracks",
              "CentralCKFSeededActsTrajectories",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFSeededTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFSeededActsTrajectories",
+        },
+        {
+            "CentralCKFSeededTrajectories",
+            "CentralCKFSeededTrackParameters",
+            "CentralCKFSeededTracks",
         },
         app
     ));

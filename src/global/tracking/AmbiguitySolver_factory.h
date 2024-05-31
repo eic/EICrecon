@@ -8,7 +8,6 @@
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
-#include <edm4eic/TrackParametersCollection.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -26,11 +25,8 @@ private:
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input {this};
   Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
-  PodioOutput<edm4eic::Trajectory> m_trajectories_filtered_output {this};
-  PodioOutput<edm4eic::TrackParameters> m_parameters_filtered_output {this};
-  PodioOutput<edm4eic::Track> m_tracks_filtered_output {this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_filtered_output {this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_filtered_output {this};
+  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
+  Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits", config().maximum_shared_hits,
                                                 "Maximum number of shared hits allowed"};
@@ -50,7 +46,7 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-   std::tie(m_trajectories_filtered_output(), m_parameters_filtered_output(), m_tracks_filtered_output(),m_acts_tracks_filtered_output(),m_acts_trajectories_filtered_output()) = m_algo->process(m_acts_tracks_input(),m_acts_trajectories_input(),*m_measurements_input());
+   std::tie(m_acts_tracks_output(),m_acts_trajectories_output()) = m_algo->process(m_acts_tracks_input(),m_acts_trajectories_input(),*m_measurements_input());
   }
 } ;
 
