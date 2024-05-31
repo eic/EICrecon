@@ -43,7 +43,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   algo.applyConfig(cfg);
   algo.init();
 
-  edm4hep::CalorimeterHitCollection hits_coll;
+  edm4eic::CalorimeterHitCollection hits_coll;
   edm4eic::ProtoClusterCollection pclust_coll;
   edm4hep::SimCalorimeterHitCollection simhits;
   auto assoc = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
