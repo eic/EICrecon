@@ -53,6 +53,11 @@ namespace jana {
 
         std::cout << "   --list-default-plugins       List all the default plugins" << std::endl;
         std::cout << "   --list-available-plugins     List plugins at $JANA_PLUGIN_PATH and $EICrecon_MY" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "   -Pplugins=values             Comma-separated list of extra plugins to load"<< std::endl;
+        std::cout << "   -Pplugins_to_ignore=values   Comma-separated list of plugins to ignore"<< std::endl;
+
         std::cout << std::endl << std::endl;
     }
 
