@@ -112,7 +112,7 @@ namespace eicrecon {
 
       ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
       ROOT::VecOps::RVec<float> clusterT;
-      std::vector<podio::ObjectID> clusterHits;
+      std::vector<edm4hep::ObjectID> clusterHits;
 
       // Loop over hits, adding neighbouring hits as relevant
       while(clusterList.size()){
@@ -194,7 +194,7 @@ namespace eicrecon {
       hitPos.setTime    (cluster.time);
 
       // Add raw hits to cluster
-      for(podio::ObjectID hit: cluster.rawHits){
+      for(auto hit: cluster.rawHits){
         hitPos.addToRawHits(hit);
       }
 

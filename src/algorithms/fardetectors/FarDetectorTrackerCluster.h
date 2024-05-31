@@ -28,7 +28,7 @@ struct FDTrackerCluster {
   double energy{0.0};
   double time{0.0};
   double timeError{0.0};
-  std::vector<podio::ObjectID> rawHits;
+  std::vector<edm4hep::ObjectID> rawHits;
 };
 namespace eicrecon {
 
