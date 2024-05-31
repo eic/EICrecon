@@ -297,16 +297,17 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       eigenValues_3D = es_3D.eigenvalues();
       //find the eigenvector corresponding to the largest eigenvalue
       auto eigenvectors= es_3D.eigenvectors();
-      double maxEigenvalue=0;
-      int indexOfMaxEigenvalue=0;
-      for (int i_eigen=0;  i_eigen<3; i_eigen++){
-        auto eigenvalue=eigenValues_3D(i_eigen,0);
-        if(eigenvalue.real()>maxEigenvalue){
-          maxEigenvalue=eigenvalue.real();
-          indexOfMaxEigenvalue=i_eigen;
+      auto max_eigenvalue_it = std::max_element(
+        eigenValues_3D.begin(),
+        eigenValues_3D.end(),
+        [](auto a, auto b) {
+            return std::real(a) < std::real(b);
         }
-      }
-      auto axis = eigenvectors.col(indexOfMaxEigenvalue);
+      );
+      auto axis = eigenvectors.col(std::distance(
+            eigenValues_3D.begin(),
+            max_eigenvalue_it
+        ));
       axis_x=axis(0,0).real();
       axis_y=axis(1,0).real();
       axis_z=axis(2,0).real();
