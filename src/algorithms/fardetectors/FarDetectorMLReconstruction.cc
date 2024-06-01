@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2024, Simon Gardner
+
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/vector_utils.h>
@@ -28,7 +29,7 @@ namespace eicrecon {
         m_method = dynamic_cast<TMVA::MethodBase*>(m_reader->BookMVA( m_cfg.methodName, m_cfg.modelPath ));
       }
       catch(std::exception &e){
-        error(fmt::format("Failed to load method {} from file {}",m_cfg.methodName,m_cfg.modelPath));
+        error(fmt::format("Failed to load method {} from file {}: {}", m_cfg.methodName, m_cfg.modelPath, e.what()));
       }
 
     } else {
@@ -77,12 +78,12 @@ namespace eicrecon {
       edm4hep::Vector3f momentum = {values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]};
 
       // log out the momentum components and magnitude
-      debug("Prescaled Output Momentum: x {}, y {}, z {}",values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]);
-      debug("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
+      trace("Prescaled Output Momentum: x {}, y {}, z {}",values[FarDetectorMLNNIndexOut::MomX],values[FarDetectorMLNNIndexOut::MomY],values[FarDetectorMLNNIndexOut::MomZ]);
+      trace("Prescaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Scale momentum magnitude
       momentum = momentum*m_beamE;
-      debug("Scaled Momentum: {}",edm4eic::magnitude(momentum));
+      trace("Scaled Momentum: {}",edm4eic::magnitude(momentum));
 
       // Track parameter variables
       // TODO: Add time and momentum errors
