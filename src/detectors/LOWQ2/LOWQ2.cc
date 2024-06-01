@@ -10,8 +10,8 @@
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
-#include <algorithm>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -19,12 +19,12 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {

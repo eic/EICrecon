@@ -1,12 +1,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Simon Gardner
 
+#include <TMVA/IMethod.h>
+#include <edm4eic/Cov6f.h>
+#include <edm4eic/vector_utils.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4eic/vector_utils.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <cmath>
+#include <cstdint>
+#include <exception>
+#include <gsl/pointers>
+#include <vector>
 
 #include "FarDetectorMLReconstruction.h"
+#include "algorithms/fardetectors/FarDetectorMLReconstructionConfig.h"
 
 namespace eicrecon {
 

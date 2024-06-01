@@ -3,18 +3,20 @@
 
 #pragma once
 
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackCollection.h>
-
-#include <algorithms/algorithm.h>
 #include <TMVA/MethodBase.h>
 #include <TMVA/Reader.h>
+#include <algorithms/algorithm.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+// Event Model related classes
+#include <edm4hep/MCParticleCollection.h>
+#include <mutex>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "FarDetectorMLReconstructionConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
