@@ -12,10 +12,9 @@
 #include <utility>
 #include <vector>
 
-#include "AmbiguitySolverConfig.h"
-#include "AmbiguitySolver_factory.h"
 #include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
+#include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
 #include "TrackParamTruthInit_factory.h"

@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
@@ -13,7 +12,6 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>

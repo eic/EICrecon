@@ -1,38 +1,31 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #include "AmbiguitySolver.h"
-#include "AmbiguitySolverConfig.h"
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
-#include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4hep/Vector2f.h>
-#include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
-#include <algorithm>
-#include <array>
-#include <cmath>
 #include <cstddef>
-#include <optional>
+#include <functional>
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"
+#include "AmbiguitySolverConfig.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
