@@ -38,8 +38,6 @@
 
 namespace eicrecon {
 
-using namespace Acts::UnitLiterals;
-
 Acts::GreedyAmbiguityResolution::Config
 transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   Acts::GreedyAmbiguityResolution::Config result;
