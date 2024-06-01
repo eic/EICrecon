@@ -49,7 +49,7 @@ transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   return result;
 }
 
-std::size_t sourceLinkHash(const Acts::SourceLink& a) {
+static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
   return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
 }
 
