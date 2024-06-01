@@ -58,8 +58,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     }
 
     // Loop over all trajectories in a multiTrajectory
-    // FIXME: we only retain the first trackTips entry
-    for (auto trackTip : decltype(trackTips){trackTips.front()}) {
+    for (auto trackTip : trackTips) {
       // Collect the trajectory summary info
       auto trajectoryState =
           Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
