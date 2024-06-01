@@ -115,7 +115,6 @@ void InitPlugin(JApplication *app) {
         "AmbiguityResolutionSolver",
         {
              "CentralCKFActsTracksUnfiltered",
-             "CentralCKFActsTrajectoriesUnfiltered",
              "CentralTrackerMeasurements"
         },
         {
@@ -178,7 +177,6 @@ void InitPlugin(JApplication *app) {
         "SeededAmbiguityResolutionSolver",
         {
              "CentralCKFSeededActsTracksUnfiltered",
-             "CentralCKFSeededActsTrajectoriesUnfiltered",
              "CentralTrackerMeasurements"
         },
         {

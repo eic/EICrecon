@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Minjung Kim
+// Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #include "AmbiguitySolver.h"
 #include "AmbiguitySolverConfig.h"
 
@@ -87,7 +87,6 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 
 std::tuple<std::vector<ActsExamples::ConstTrackContainer*>, std::vector<ActsExamples::Trajectories*>>
 AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
-                         std::vector<const ActsExamples::Trajectories*> input_traj,
                          const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer

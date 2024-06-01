@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Minjung Kim
+// Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
 #include <Acts/Utilities/Logger.hpp>
@@ -31,7 +31,7 @@ std::tuple<
       std::vector<ActsExamples::ConstTrackContainer *>,
       std::vector<ActsExamples::Trajectories *>
       >
-  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,std::vector<const ActsExamples::Trajectories*> input_traj,const edm4eic::Measurement2DCollection& meas2Ds);
+  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
