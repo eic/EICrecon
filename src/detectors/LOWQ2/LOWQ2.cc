@@ -6,11 +6,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackSegment.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
-#include <algorithm>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -18,17 +19,20 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
     using namespace eicrecon;
+
+    std::string tracker_readout = "TaggerTrackerHits";
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -119,9 +123,9 @@ extern "C" {
 
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
-         "TaggerTrackerTracks",
+         "TaggerTrackerTrackSegments",
          outputTrackTags,
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          app
       )
     );
@@ -129,7 +133,7 @@ extern "C" {
     // Project tracks onto a plane
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
          "TaggerTrackerProjectedTracks",
-         {"TaggerTrackerTracks"},
+         {"TaggerTrackerTrackSegments"},
          {"TaggerTrackerProjectedTracks"},
          {
            .plane_position = {0.0,0.0,0.0},
@@ -137,6 +141,18 @@ extern "C" {
            .plane_b = {0.0,0.0,1.0},
          },
          app
+    ));
+
+    // Vector reconstruction at origin
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+        "TaggerTrackerTrajectories",
+        {"TaggerTrackerProjectedTracks","MCBeamElectrons"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
+        {
+          .modelPath = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
+          .methodName = "DNN_CPU",
+        },
+        app
     ));
 
   }
