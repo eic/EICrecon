@@ -77,20 +77,6 @@ extern "C" {
           "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
-          {
-            .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
-            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .splitCluster = true,
-            .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 1.,
-          },
-          app   // TODO: Remove me once fixed
-        ));
 
       app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
