@@ -305,8 +305,8 @@ void InitPlugin(JApplication *app) {
         "HadronicFinalState",
         {
           "MCParticles",
-          "ReconstructedParticles",
-          "ReconstructedParticleAssociations"
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations"
         },
         {
           "HadronicFinalState"
