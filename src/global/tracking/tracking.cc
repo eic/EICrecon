@@ -12,17 +12,18 @@
 #include <utility>
 #include <vector>
 
-#include "CKFTrackingConfig.h"
+#include "ActsToTracks.h"
+#include "ActsToTracks_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
-#include "TracksToParticlesConfig.h"
-#include "TracksToParticles_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagationConfig.h"
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
+#include "TracksToParticlesConfig.h"
+#include "TracksToParticles_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -88,11 +89,22 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
+            "CentralCKFActsTrajectories",
+            "CentralCKFActsTracks",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFActsTrajectories",
+        },
+        {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
-            "CentralCKFActsTrajectories",
-            "CentralCKFActsTracks",
         },
         app
     ));
@@ -112,11 +124,22 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
+            "CentralCKFSeededActsTrajectories",
+            "CentralCKFSeededActsTracks",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFSeededTracks",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFSeededActsTrajectories",
+        },
+        {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
-            "CentralCKFSeededActsTrajectories",
-            "CentralCKFSeededActsTracks",
         },
         app
     ));
