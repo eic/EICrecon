@@ -105,29 +105,21 @@ namespace eicrecon {
     auto hfs = hadronicfinalstate->create(0., 0., 0.);
 
     for (const auto& p: *rcparts) {
-
       bool isHadron = true;
       // Check if it's the scattered electron
-      if (p.getObjectID().index == ef_rc_id) isHadron = false;
-      // Check for non-hadron PDG codes
-      if (p.getPDG() == 11) isHadron = false;
-      if (p.getPDG() == 22) isHadron = false;
-      if (p.getPDG() == 13) isHadron = false;
-      // If it's the scattered electron or not a hadron, skip
-      if(!isHadron) continue;
+      if (p.getObjectID().index != ef_rc_id) {
+        // Lorentz vector in lab frame
+        PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
+        // Boost to colinear frame
+        PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
 
-      // Lorentz vector in lab frame
-      PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-      // Boost to colinear frame
-      PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
+        pxsum += hf_boosted.Px();
+        pysum += hf_boosted.Py();
+        pzsum += hf_boosted.Pz();
+        Esum += hf_boosted.E();
 
-      pxsum += hf_boosted.Px();
-      pysum += hf_boosted.Py();
-      pzsum += hf_boosted.Pz();
-      Esum += hf_boosted.E();
-
-      hfs.addToHadrons(p);
-
+        hfs.addToHadrons(p);
+      }
     }
 
     // Hadronic final state calculations
