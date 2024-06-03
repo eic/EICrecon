@@ -26,18 +26,17 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
 
       // input collections
-      PodioInput<edm4eic::Cluster> m_clusters_input {this};
+      PodioInput<edm4eic::ProtoCluster> m_protoclusters_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
 
       // output collections
-      PodioOutput<edm4eic::Cluster> m_clusters_output {this};
+      PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
 
       // parameter bindings
       ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
       ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
       ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
       ParameterRef<double> m_drAdd {this, "drAdd", config().drAdd};
-      ParameterRef<double> m_logBase {this, "logBase", config().logBase};
       ParameterRef<double> m_sampFrac {this, "sampFrac", config().sampFrac};
       ParameterRef<double> m_distScale {this, "distScale", config().distScale};
 
@@ -59,8 +58,8 @@ namespace eicrecon {
 
       void Process(int64_t run_number, uint64_t event_number) {
         m_algo -> process(
-          {m_clusters_input(), m_track_projections_input()},
-          {m_clusters_output().get()}
+          {m_protoclusters_input(), m_track_projections_input()},
+          {m_protoclusters_output().get()}
         );
       }
 

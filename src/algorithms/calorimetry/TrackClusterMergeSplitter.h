@@ -16,7 +16,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 // edm4eic types
 #include <edm4eic/TrackPoint.h>
-#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -33,7 +33,8 @@ namespace eicrecon {
   typedef std::map<int, int> MapOneToOne;
   typedef std::map<int, std::vector<int>> MapOneToMany;
   typedef std::vector<edm4eic::TrackPoint> VecTrkPoint;
-  typedef std::vector<edm4eic::Cluster> VecCluster;
+  typedef std::vector<edm4eic::ProtoCluster> VecCluster;
+
 
 
   // --------------------------------------------------------------------------
@@ -41,11 +42,11 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4eic::ClusterCollection,
+      edm4eic::ProtoClusterCollection,
       edm4eic::TrackSegmentCollection
     >,
     algorithms::Output<
-      edm4eic::ClusterCollection
+      edm4eic::ProtoClusterCollection
     >
   >;
 
@@ -54,9 +55,9 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Track-Based Cluster Merger/Splitter
   // --------------------------------------------------------------------------
-  /*! An algorithm which takes a collection of reconstructed clusters,
-   *  matches track projections, and then decides to merge or split
-   *  those clusters based on average E/p from simulations.
+  /*! An algorithm which takes a collection of proto-clusters, matches
+   *  track projections, and then decides to merge or split those proto-
+   *  clusters based on average E/p from simulations.
    *
    *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
    */
@@ -71,8 +72,8 @@ namespace eicrecon {
       TrackClusterMergeSplitter(std::string_view name) :
         TrackClusterMergeSplitterAlgorithm {
           name,
-          {"InputClusterCollection", "InputTrackProjections"},
-          {"OutputClusterCollection"},
+          {"InputProtoClusterCollection", "InputTrackProjections"},
+          {"OutputProtoClusterCollection"},
           "Merges or splits clusters based on tracks projected to them."
         } {}
 
@@ -85,9 +86,11 @@ namespace eicrecon {
       // private methods
       void reset_bookkeepers() const;
       void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster) const;
-      void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters) const;
-      void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableCluster& merged_clust) const;
-      void copy_cluster(const edm4eic::Cluster& old_clust, edm4eic::MutableCluster& new_clust) const;
+      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters) const;
+      void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableProtoCluster& merged_clust) const;
+      void copy_cluster(const edm4eic::ProtoCluster& old_clust, edm4eic::MutableProtoCluster& new_clust) const;
+      float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
+      edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 
       // additional services
       const dd4hep::Detector* m_detector {NULL};
