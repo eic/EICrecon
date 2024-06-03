@@ -149,6 +149,5 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
-
     }
 }
