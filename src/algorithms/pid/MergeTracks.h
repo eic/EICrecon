@@ -37,11 +37,8 @@ namespace eicrecon {
                             {"outputTrackSegments"},
                             "Effectively 'zip' the input track segments."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final { };
     void process(const Input&, const Output&) const final;
-
-    private:
-      std::shared_ptr<spdlog::logger> m_log;
 
   };
 }

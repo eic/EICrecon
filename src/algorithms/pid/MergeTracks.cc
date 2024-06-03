@@ -15,11 +15,6 @@
 
 namespace eicrecon {
 
-void MergeTracks::init(std::shared_ptr<spdlog::logger>& logger)
-{
-  m_log = logger;
-}
-
 void MergeTracks::process(
     const MergeTracks::Input& input,
     const MergeTracks::Output& output) const {
@@ -28,7 +23,7 @@ void MergeTracks::process(
   auto [out_tracks] = output;
 
   // logging
-  m_log->trace("{:=^70}"," call MergeTracks::AlgorithmProcess ");
+  trace("{:=^70}"," call MergeTracks::AlgorithmProcess ");
 
   // check that all input collections have the same size
   std::unordered_map<std::size_t, std::size_t> in_track_collection_size_distribution;
@@ -40,7 +35,7 @@ void MergeTracks::process(
     std::transform(in_track_collections.begin(), in_track_collections.end(),
       std::back_inserter(in_track_collection_sizes),
       [](const auto& in_track_collection) { return in_track_collection->size(); });
-    m_log->error("cannot merge input track collections with different sizes {}", fmt::join(in_track_collection_sizes, ", "));
+    error("cannot merge input track collections with different sizes {}", fmt::join(in_track_collection_sizes, ", "));
     return;
   }
 

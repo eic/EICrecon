@@ -39,14 +39,12 @@ namespace eicrecon {
                 "Fit track segments from hits in the tracker layers"} {}
 
         /** One time initialization **/
-        void init(std::shared_ptr<spdlog::logger>& logger);
+        void init() final;
 
         /** Event by event processing **/
         void process(const Input&, const Output&) const final;
 
     private:
-        std::shared_ptr<spdlog::logger> m_log;
-
         Eigen::VectorXd m_layerWeights;
 
         Eigen::Vector3d m_optimumDirection;

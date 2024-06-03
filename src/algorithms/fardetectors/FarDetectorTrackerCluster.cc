@@ -23,9 +23,8 @@
 
 namespace eicrecon {
 
-  void FarDetectorTrackerCluster::init(std::shared_ptr<spdlog::logger>& log) {
+  void FarDetectorTrackerCluster::init() {
 
-    m_log = log;
     m_detector = algorithms::GeoSvc::instance().detector();
     m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
@@ -37,14 +36,14 @@ namespace eicrecon {
       m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
       if (!m_cfg.x_field.empty()) {
         m_x_idx = m_id_dec->index(m_cfg.x_field);
-        m_log->debug("Find layer field {}, index = {}",  m_cfg.x_field, m_x_idx);
+        debug("Find layer field {}, index = {}",  m_cfg.x_field, m_x_idx);
       }
       if (!m_cfg.y_field.empty()) {
         m_y_idx = m_id_dec->index(m_cfg.y_field);
-        m_log->debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
+        debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
       }
     } catch (...) {
-      m_log->error("Failed to load ID decoder for {}", m_cfg.readout);
+      error("Failed to load ID decoder for {}", m_cfg.readout);
       throw JException("Failed to load ID decoder");
     }
 

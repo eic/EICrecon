@@ -21,9 +21,8 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
 
   // initialize algorithm
   //----------------------------------------------------------
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("MergeTracks");
-  logger->set_level(spdlog::level::debug);
-  algo.init(logger);
+  algo.level(algorithms::LogLevel::kDebug);
+  algo.init();
 
   // helper functions and objects
   //----------------------------------------------------------

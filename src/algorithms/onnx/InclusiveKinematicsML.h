@@ -39,12 +39,10 @@ namespace eicrecon {
                             {"inclusiveKinematicsML"},
                             "Determine inclusive kinematics using combined ML method."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
-    std::shared_ptr<spdlog::logger> m_log;
-
     mutable Ort::Session m_session{nullptr};
 
     std::vector<std::string> m_input_names;

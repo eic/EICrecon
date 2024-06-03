@@ -24,9 +24,6 @@
 TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
   eicrecon::FarDetectorTrackerCluster algo("FarDetectorTrackerCluster");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("FarDetectorTrackerCluster");
-  logger->set_level(spdlog::level::trace);
-
   eicrecon::FarDetectorTrackerClusterConfig cfg;
   cfg.hit_time_limit = 10.0 * edm4eic::unit::ns;
   cfg.readout    = "MockTrackerHits";
@@ -37,7 +34,8 @@ TEST_CASE( "the clustering algorithm runs", "[FarDetectorTrackerCluster]" ) {
   auto id_desc = detector->readout(cfg.readout).idSpec();
 
   algo.applyConfig(cfg);
-  algo.init(logger);
+  algo.level(algorithms::LogLevel::kTrace);
+  algo.init();
 
   SECTION( "on a single pixel" ) {
     edm4eic::RawTrackerHitCollection hits_coll;

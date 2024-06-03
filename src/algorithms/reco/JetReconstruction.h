@@ -48,14 +48,12 @@ namespace eicrecon {
     public:
 
       // algorithm initialization
-      void init(std::shared_ptr<spdlog::logger> logger);
+      void init() final;
 
       // run algorithm
       void process(const typename eicrecon::JetReconstructionAlgorithm<InputT>::Input&, const typename eicrecon::JetReconstructionAlgorithm<InputT>::Output&) const final;
 
     private:
-
-      std::shared_ptr<spdlog::logger> m_log;
 
       // fastjet components
       std::unique_ptr<fastjet::JetDefinition> m_jet_def;

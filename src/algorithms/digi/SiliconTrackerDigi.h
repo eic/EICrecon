@@ -41,13 +41,10 @@ namespace eicrecon {
                             "Apply threshold, digitize within ADC range, "
                             "convert time with smearing resolution."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
     void process(const Input&, const Output&) const final;
 
   private:
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger> m_log;
-
     /** Random number generation*/
     TRandomMixMax m_random;
     std::function<double()> m_gauss;

@@ -53,7 +53,7 @@ namespace eicrecon {
                             "Simple weighted clustering of hits by x-y component of single detector element segmentation"} {}
 
     /** One time initialization **/
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
 
     /** Event by event processing **/
     void process(const Input&, const Output&) const final;
@@ -67,7 +67,6 @@ namespace eicrecon {
   private:
       const dd4hep::Detector*         m_detector{nullptr};
       const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
-      std::shared_ptr<spdlog::logger> m_log;
       const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
       dd4hep::Segmentation     m_seg;
 

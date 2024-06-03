@@ -25,31 +25,30 @@ using namespace fastjet;
 namespace eicrecon {
 
   template <typename InputT>
-  void JetReconstruction<InputT>::init(std::shared_ptr<spdlog::logger> logger) {
+  void JetReconstruction<InputT>::init() {
 
-    m_log = logger;
-    m_log->trace("Initialized");
+    this->trace("Initialized");
 
     // if specified algorithm, recomb. scheme, or area type
     // are not defined, then issue error and throw exception
     try {
       m_mapJetAlgo.at(m_cfg.jetAlgo);
     } catch (std::out_of_range &out) {
-      m_log->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
+      this->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
       throw JException(out.what());
     }
 
     try {
       m_mapRecombScheme.at(m_cfg.recombScheme);
     } catch (std::out_of_range &out) {
-      m_log->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
+      this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
       throw JException(out.what());
     }
 
     try {
       m_mapAreaType.at(m_cfg.areaType);
     } catch (std::out_of_range &out) {
-      m_log->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
+      this->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
       throw JException(out.what());
     }
 
@@ -65,7 +64,7 @@ namespace eicrecon {
           m_jet_def = std::make_unique<JetDefinition>(m_jet_plugin.get());
         }
         else {
-          m_log->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
+          this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
           throw JException("Invalid contributed FastJet algorithm");
         }
         break;
@@ -93,7 +92,7 @@ namespace eicrecon {
     // Define jet area
     m_area_def = std::make_unique<AreaDefinition>(m_mapAreaType[m_cfg.areaType], GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
 
-  }  // end 'init(std::shared_ptr<spdlog::logger>)'
+  }  // end 'init()'
 
   template <typename InputT>
   void JetReconstruction<InputT>::process(
@@ -123,22 +122,22 @@ namespace eicrecon {
 
     // Skip empty
     if (particles.empty()) {
-      m_log->trace("  Empty particle list.");
+      this->trace("  Empty particle list.");
       return;
     }
-    m_log->trace("  Number of particles: {}", particles.size());
+    this->trace("  Number of particles: {}", particles.size());
 
     // Run the clustering, extract the jets
     fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, *m_area_def);
     std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
 
     // Print out some infos
-    m_log->trace("  Clustering with : {}", m_jet_def->description());
+    this->trace("  Clustering with : {}", m_jet_def->description());
 
     // loop over jets
     for (unsigned i = 0; i < jets.size(); i++) {
 
-      m_log->trace("  jet {}: pt = {}, y = {}, phi = {}", i, jets[i].pt(), jets[i].rap(), jets[i].phi());
+      this->trace("  jet {}: pt = {}, y = {}, phi = {}", i, jets[i].pt(), jets[i].rap(), jets[i].phi());
 
       // create jet to store in output collection
       edm4eic::MutableReconstructedParticle jet_output = jet_collection->create();
