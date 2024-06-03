@@ -105,6 +105,17 @@ void InitPlugin(JApplication *app) {
     ));
 
 
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
+        "InclusiveKinematicsTruth",
+        {
+          "MCParticles"
+        },
+        {
+          "InclusiveKinematicsTruth"
+        },
+        app
+    ));
+
 #if EDM4EIC_VERSION_MAJOR >= 6
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
         "InclusiveKinematicsElectron",
@@ -115,17 +126,6 @@ void InitPlugin(JApplication *app) {
         },
         {
           "InclusiveKinematicsElectron"
-        },
-        app
-    ));
-
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-        "InclusiveKinematicsTruth",
-        {
-          "MCParticles"
-        },
-        {
-          "InclusiveKinematicsTruth"
         },
         app
     ));
